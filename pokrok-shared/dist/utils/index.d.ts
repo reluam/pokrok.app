@@ -1,0 +1,22 @@
+import { Goal, Value, DailyStep, Event } from '../types';
+export declare const formatDate: (date: Date | string) => string;
+export declare const formatDateShort: (date: Date | string) => string;
+export declare const isToday: (date: Date | string) => boolean;
+export declare const isPast: (date: Date | string) => boolean;
+export declare const isFuture: (date: Date | string) => boolean;
+export declare const getGoalProgressColor: (progress: number) => string;
+export declare const getGoalStatusText: (status: Goal["status"]) => string;
+export declare const getGoalPriorityText: (priority: Goal["priority"]) => string;
+export declare const getGoalCategoryText: (category: Goal["category"]) => string;
+export declare const getValueLevelText: (level: number) => string;
+export declare const getValueExperienceToNextLevel: (experience: number) => number;
+export declare const getStepPriorityColor: (isImportant: boolean, isUrgent: boolean) => string;
+export declare const getStepPriorityText: (isImportant: boolean, isUrgent: boolean) => string;
+export declare const getEventTypeText: (eventType: Event["event_type"]) => string;
+export declare const calculateGoalProgress: (goal: Goal, steps: DailyStep[]) => number;
+export declare const validateGoalData: (goalData: Partial<Goal>) => string[];
+export declare const validateStepData: (stepData: Partial<DailyStep>) => string[];
+export declare const validateValueData: (valueData: Partial<Value>) => string[];
+export declare const getIconComponent: (iconName: string) => string;
+export declare const getIconEmoji: (iconName: string) => string;
+//# sourceMappingURL=index.d.ts.map

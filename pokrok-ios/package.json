@@ -1,0 +1,13 @@
+{
+  "name": "pokrok-ios",
+  "version": "1.0.0",
+  "description": "Pokrok iOS aplikace - SwiftUI verze",
+  "main": "PokrokApp.swift",
+  "scripts": {
+    "build": "xcodebuild -project Pokrok.xcodeproj -scheme Pokrok -configuration Debug build",
+    "run": "xcodebuild -project Pokrok.xcodeproj -scheme Pokrok -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 15' build && xcrun simctl install booted build/Debug-iphonesimulator/Pokrok.app && xcrun simctl launch booted com.pokrok.app"
+  },
+  "keywords": ["ios", "swiftui", "pokrok", "personal-development"],
+  "author": "Matt Mauler",
+  "license": "ISC"
+}

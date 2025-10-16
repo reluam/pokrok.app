@@ -1,0 +1,757 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 70;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		724664D92E9AF40D0012345C /* Clerk in Frameworks */ = {isa = PBXBuildFile; productRef = 724664D82E9AF40D0012345C /* Clerk */; };
+		724664DF2E9B96400012345C /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724664DE2E9B96400012345C /* Models.swift */; };
+		724664E12E9B969B0012345C /* APIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724664E02E9B969B0012345C /* APIManager.swift */; };
+		724664E52E9B9F550012345C /* AccessibilitySupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724664E22E9B9F550012345C /* AccessibilitySupport.swift */; };
+		724664E62E9B9F550012345C /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724664E32E9B9F550012345C /* DesignSystem.swift */; };
+		724664E72E9B9F550012345C /* ModernComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724664E42E9B9F550012345C /* ModernComponents.swift */; };
+		724664EF2E9BC96A0012345C /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 724664EE2E9BC9690012345C /* WidgetKit.framework */; };
+		724664F12E9BC96A0012345C /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 724664F02E9BC96A0012345C /* SwiftUI.framework */; };
+		724664FC2E9BC96D0012345C /* PokrokWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 724664EC2E9BC9690012345C /* PokrokWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		7246651D2E9C3FD80012345C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF004 /* ContentView.swift */; };
+		7246651E2E9C3FD80012345C /* PokrokApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF002 /* PokrokApp.swift */; };
+		7246651F2E9C3FD80012345C /* AccessibilitySupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724664E22E9B9F550012345C /* AccessibilitySupport.swift */; };
+		724665202E9C3FD80012345C /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724664E32E9B9F550012345C /* DesignSystem.swift */; };
+		724665212E9C3FD80012345C /* ModernComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724664E42E9B9F550012345C /* ModernComponents.swift */; };
+		724665222E9C3FD80012345C /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF006 /* DashboardView.swift */; };
+		724665232E9C3FD80012345C /* OverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF008 /* OverviewView.swift */; };
+		724665242E9C3FD80012345C /* OtherViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF010 /* OtherViews.swift */; };
+		724665252E9C3FD80012345C /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724664DE2E9B96400012345C /* Models.swift */; };
+		724665262E9C3FD80012345C /* APIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724664E02E9B969B0012345C /* APIManager.swift */; };
+		724665282E9C3FD80012345C /* (null) in Frameworks */ = {isa = PBXBuildFile; };
+		7246652B2E9C3FD80012345C /* PokrokWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 724664EC2E9BC9690012345C /* PokrokWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A1234567890ABCDEF001 /* PokrokApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF002 /* PokrokApp.swift */; };
+		A1234567890ABCDEF003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF004 /* ContentView.swift */; };
+		A1234567890ABCDEF005 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF006 /* DashboardView.swift */; };
+		A1234567890ABCDEF007 /* OverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF008 /* OverviewView.swift */; };
+		A1234567890ABCDEF009 /* OtherViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF010 /* OtherViews.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		724664FA2E9BC96D0012345C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A1234567890ABCDEF022 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 724664EB2E9BC9690012345C;
+			remoteInfo = PokrokWidgetExtension;
+		};
+		7246651B2E9C3FD80012345C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A1234567890ABCDEF022 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 724664EB2E9BC9690012345C;
+			remoteInfo = PokrokWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		724665012E9BC96D0012345C /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				724664FC2E9BC96D0012345C /* PokrokWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7246652A2E9C3FD80012345C /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				7246652B2E9C3FD80012345C /* PokrokWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		724664DE2E9B96400012345C /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		724664E02E9B969B0012345C /* APIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIManager.swift; sourceTree = "<group>"; };
+		724664E22E9B9F550012345C /* AccessibilitySupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilitySupport.swift; sourceTree = "<group>"; };
+		724664E32E9B9F550012345C /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		724664E42E9B9F550012345C /* ModernComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModernComponents.swift; sourceTree = "<group>"; };
+		724664EC2E9BC9690012345C /* PokrokWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PokrokWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		724664EE2E9BC9690012345C /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		724664F02E9BC96A0012345C /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		7246650C2E9BC9AF0012345C /* Pokrok.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pokrok.entitlements; sourceTree = "<group>"; };
+		724665182E9C27160012345C /* PokrokWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PokrokWidgetExtension.entitlements; sourceTree = "<group>"; };
+		7246652F2E9C3FD80012345C /* Pokrok-Test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Pokrok-Test.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1234567890ABCDEF000 /* Pokrok.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pokrok.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1234567890ABCDEF002 /* PokrokApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokrokApp.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF004 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF006 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF008 /* OverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewView.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF010 /* OtherViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherViews.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF011 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A1234567890ABCDEF012 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		724664FD2E9BC96D0012345C /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 724664EB2E9BC9690012345C /* PokrokWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		724664F22E9BC96A0012345C /* PokrokWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (724664FD2E9BC96D0012345C /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = PokrokWidget; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		724664E92E9BC9690012345C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				724664F12E9BC96A0012345C /* SwiftUI.framework in Frameworks */,
+				724664EF2E9BC96A0012345C /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		724665272E9C3FD80012345C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				724665282E9C3FD80012345C /* (null) in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1234567890ABCDEF013 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				724664D92E9AF40D0012345C /* Clerk in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		724664ED2E9BC9690012345C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				724664EE2E9BC9690012345C /* WidgetKit.framework */,
+				724664F02E9BC96A0012345C /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A1234567890ABCDEF014 = {
+			isa = PBXGroup;
+			children = (
+				724665182E9C27160012345C /* PokrokWidgetExtension.entitlements */,
+				A1234567890ABCDEF015 /* Pokrok */,
+				724664F22E9BC96A0012345C /* PokrokWidget */,
+				724664ED2E9BC9690012345C /* Frameworks */,
+				A1234567890ABCDEF016 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A1234567890ABCDEF015 /* Pokrok */ = {
+			isa = PBXGroup;
+			children = (
+				7246650C2E9BC9AF0012345C /* Pokrok.entitlements */,
+				724664E22E9B9F550012345C /* AccessibilitySupport.swift */,
+				724664E32E9B9F550012345C /* DesignSystem.swift */,
+				724664E42E9B9F550012345C /* ModernComponents.swift */,
+				724664E02E9B969B0012345C /* APIManager.swift */,
+				724664DE2E9B96400012345C /* Models.swift */,
+				A1234567890ABCDEF002 /* PokrokApp.swift */,
+				A1234567890ABCDEF004 /* ContentView.swift */,
+				A1234567890ABCDEF006 /* DashboardView.swift */,
+				A1234567890ABCDEF008 /* OverviewView.swift */,
+				A1234567890ABCDEF010 /* OtherViews.swift */,
+				A1234567890ABCDEF011 /* Assets.xcassets */,
+				A1234567890ABCDEF017 /* Preview Content */,
+			);
+			path = Pokrok;
+			sourceTree = "<group>";
+		};
+		A1234567890ABCDEF016 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A1234567890ABCDEF000 /* Pokrok.app */,
+				724664EC2E9BC9690012345C /* PokrokWidgetExtension.appex */,
+				7246652F2E9C3FD80012345C /* Pokrok-Test.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A1234567890ABCDEF017 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				A1234567890ABCDEF012 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		724664EB2E9BC9690012345C /* PokrokWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 724664FE2E9BC96D0012345C /* Build configuration list for PBXNativeTarget "PokrokWidgetExtension" */;
+			buildPhases = (
+				724664E82E9BC9690012345C /* Sources */,
+				724664E92E9BC9690012345C /* Frameworks */,
+				724664EA2E9BC9690012345C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				724664F22E9BC96A0012345C /* PokrokWidget */,
+			);
+			name = PokrokWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = PokrokWidgetExtension;
+			productReference = 724664EC2E9BC9690012345C /* PokrokWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		724665192E9C3FD80012345C /* Pokrok-Test */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7246652C2E9C3FD80012345C /* Build configuration list for PBXNativeTarget "Pokrok-Test" */;
+			buildPhases = (
+				7246651C2E9C3FD80012345C /* Sources */,
+				724665272E9C3FD80012345C /* Frameworks */,
+				724665292E9C3FD80012345C /* Resources */,
+				7246652A2E9C3FD80012345C /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7246651A2E9C3FD80012345C /* PBXTargetDependency */,
+			);
+			name = "Pokrok-Test";
+			productName = Pokrok;
+			productReference = 7246652F2E9C3FD80012345C /* Pokrok-Test.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A1234567890ABCDEF018 /* Pokrok */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1234567890ABCDEF019 /* Build configuration list for PBXNativeTarget "Pokrok" */;
+			buildPhases = (
+				A1234567890ABCDEF020 /* Sources */,
+				A1234567890ABCDEF013 /* Frameworks */,
+				A1234567890ABCDEF021 /* Resources */,
+				724665012E9BC96D0012345C /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				724664FB2E9BC96D0012345C /* PBXTargetDependency */,
+			);
+			name = Pokrok;
+			productName = Pokrok;
+			productReference = A1234567890ABCDEF000 /* Pokrok.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A1234567890ABCDEF022 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					724664EB2E9BC9690012345C = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+					A1234567890ABCDEF018 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = A1234567890ABCDEF023 /* Build configuration list for PBXProject "Pokrok" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A1234567890ABCDEF014;
+			packageReferences = (
+				724664D72E9AF40D0012345C /* XCRemoteSwiftPackageReference "clerk-ios" */,
+			);
+			productRefGroup = A1234567890ABCDEF016 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A1234567890ABCDEF018 /* Pokrok */,
+				724664EB2E9BC9690012345C /* PokrokWidgetExtension */,
+				724665192E9C3FD80012345C /* Pokrok-Test */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		724664EA2E9BC9690012345C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		724665292E9C3FD80012345C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1234567890ABCDEF021 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		724664E82E9BC9690012345C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7246651C2E9C3FD80012345C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7246651D2E9C3FD80012345C /* ContentView.swift in Sources */,
+				7246651E2E9C3FD80012345C /* PokrokApp.swift in Sources */,
+				7246651F2E9C3FD80012345C /* AccessibilitySupport.swift in Sources */,
+				724665202E9C3FD80012345C /* DesignSystem.swift in Sources */,
+				724665212E9C3FD80012345C /* ModernComponents.swift in Sources */,
+				724665222E9C3FD80012345C /* DashboardView.swift in Sources */,
+				724665232E9C3FD80012345C /* OverviewView.swift in Sources */,
+				724665242E9C3FD80012345C /* OtherViews.swift in Sources */,
+				724665252E9C3FD80012345C /* Models.swift in Sources */,
+				724665262E9C3FD80012345C /* APIManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1234567890ABCDEF020 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1234567890ABCDEF003 /* ContentView.swift in Sources */,
+				A1234567890ABCDEF001 /* PokrokApp.swift in Sources */,
+				724664E52E9B9F550012345C /* AccessibilitySupport.swift in Sources */,
+				724664E62E9B9F550012345C /* DesignSystem.swift in Sources */,
+				724664E72E9B9F550012345C /* ModernComponents.swift in Sources */,
+				A1234567890ABCDEF005 /* DashboardView.swift in Sources */,
+				A1234567890ABCDEF007 /* OverviewView.swift in Sources */,
+				A1234567890ABCDEF009 /* OtherViews.swift in Sources */,
+				724664DF2E9B96400012345C /* Models.swift in Sources */,
+				724664E12E9B969B0012345C /* APIManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		724664FB2E9BC96D0012345C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 724664EB2E9BC9690012345C /* PokrokWidgetExtension */;
+			targetProxy = 724664FA2E9BC96D0012345C /* PBXContainerItemProxy */;
+		};
+		7246651A2E9C3FD80012345C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 724664EB2E9BC9690012345C /* PokrokWidgetExtension */;
+			targetProxy = 7246651B2E9C3FD80012345C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		724664FF2E9BC96D0012345C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = PokrokWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = VXKV4LCMJU;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PokrokWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PokrokWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pokrok.app.PokrokWidgetExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		724665002E9BC96D0012345C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = PokrokWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = VXKV4LCMJU;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PokrokWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PokrokWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pokrok.app.PokrokWidgetExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		7246652D2E9C3FD80012345C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Pokrok/Pokrok.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Pokrok/Preview Content\"";
+				DEVELOPMENT_TEAM = VXKV4LCMJU;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pokrok.app.test;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				"com.apple.developer.associated-domains" = "webcredentials:ideal-koi-18.accounts.dev";
+			};
+			name = Debug;
+		};
+		7246652E2E9C3FD80012345C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Pokrok/Pokrok.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Pokrok/Preview Content\"";
+				DEVELOPMENT_TEAM = VXKV4LCMJU;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pokrok.app.test;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				"com.apple.developer.associated-domains" = "webcredentials:ideal-koi-18.accounts.dev";
+			};
+			name = Release;
+		};
+		A1234567890ABCDEF026 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A1234567890ABCDEF027 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A1234567890ABCDEF028 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Pokrok/Pokrok.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Pokrok/Preview Content\"";
+				DEVELOPMENT_TEAM = VXKV4LCMJU;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pokrok.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				"com.apple.developer.associated-domains" = "webcredentials:ideal-koi-18.accounts.dev";
+			};
+			name = Debug;
+		};
+		A1234567890ABCDEF029 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Pokrok/Pokrok.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Pokrok/Preview Content\"";
+				DEVELOPMENT_TEAM = VXKV4LCMJU;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pokrok.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				"com.apple.developer.associated-domains" = "https://clerk.pokrok.app";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		724664FE2E9BC96D0012345C /* Build configuration list for PBXNativeTarget "PokrokWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				724664FF2E9BC96D0012345C /* Debug */,
+				724665002E9BC96D0012345C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7246652C2E9C3FD80012345C /* Build configuration list for PBXNativeTarget "Pokrok-Test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7246652D2E9C3FD80012345C /* Debug */,
+				7246652E2E9C3FD80012345C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1234567890ABCDEF019 /* Build configuration list for PBXNativeTarget "Pokrok" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1234567890ABCDEF028 /* Debug */,
+				A1234567890ABCDEF029 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1234567890ABCDEF023 /* Build configuration list for PBXProject "Pokrok" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1234567890ABCDEF026 /* Debug */,
+				A1234567890ABCDEF027 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		724664D72E9AF40D0012345C /* XCRemoteSwiftPackageReference "clerk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/clerk/clerk-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.68.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		724664D82E9AF40D0012345C /* Clerk */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 724664D72E9AF40D0012345C /* XCRemoteSwiftPackageReference "clerk-ios" */;
+			productName = Clerk;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = A1234567890ABCDEF022 /* Project object */;
+}
