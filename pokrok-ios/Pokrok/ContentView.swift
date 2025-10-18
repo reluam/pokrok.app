@@ -27,6 +27,12 @@ struct ContentView: View {
                             Text("Kroky")
                         }
                     
+                    NotesView()
+                        .tabItem {
+                            Image(systemName: "note.text")
+                            Text("Poznámky")
+                        }
+                    
                     SettingsView()
                         .tabItem {
                             Image(systemName: "gear")

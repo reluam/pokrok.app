@@ -93,6 +93,36 @@ struct GoalResponse: Codable {
     let goal: Goal
 }
 
+// MARK: - Note Model
+struct Note: Codable, Identifiable {
+    let id: String
+    let userId: String
+    let goalId: String?
+    let title: String
+    let content: String
+    let createdAt: Date?
+    let updatedAt: Date?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case goalId = "goal_id"
+        case title
+        case content
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+}
+
+// MARK: - Note API Response Models
+struct NotesResponse: Codable {
+    let notes: [Note]
+}
+
+struct NoteResponse: Codable {
+    let note: Note
+}
+
 // MARK: - API Errors
 
 enum APIError: Error, LocalizedError {

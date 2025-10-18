@@ -16,18 +16,7 @@
 		724664EF2E9BC96A0012345C /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 724664EE2E9BC9690012345C /* WidgetKit.framework */; };
 		724664F12E9BC96A0012345C /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 724664F02E9BC96A0012345C /* SwiftUI.framework */; };
 		724664FC2E9BC96D0012345C /* PokrokWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 724664EC2E9BC9690012345C /* PokrokWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		7246651D2E9C3FD80012345C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF004 /* ContentView.swift */; };
-		7246651E2E9C3FD80012345C /* PokrokApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF002 /* PokrokApp.swift */; };
-		7246651F2E9C3FD80012345C /* AccessibilitySupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724664E22E9B9F550012345C /* AccessibilitySupport.swift */; };
-		724665202E9C3FD80012345C /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724664E32E9B9F550012345C /* DesignSystem.swift */; };
-		724665212E9C3FD80012345C /* ModernComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724664E42E9B9F550012345C /* ModernComponents.swift */; };
-		724665222E9C3FD80012345C /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF006 /* DashboardView.swift */; };
-		724665232E9C3FD80012345C /* OverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF008 /* OverviewView.swift */; };
-		724665242E9C3FD80012345C /* OtherViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF010 /* OtherViews.swift */; };
-		724665252E9C3FD80012345C /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724664DE2E9B96400012345C /* Models.swift */; };
-		724665262E9C3FD80012345C /* APIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724664E02E9B969B0012345C /* APIManager.swift */; };
-		724665282E9C3FD80012345C /* (null) in Frameworks */ = {isa = PBXBuildFile; };
-		7246652B2E9C3FD80012345C /* PokrokWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 724664EC2E9BC9690012345C /* PokrokWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		725402992EA2B62A00697B62 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725402982EA2B62A00697B62 /* NotesView.swift */; };
 		A1234567890ABCDEF001 /* PokrokApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF002 /* PokrokApp.swift */; };
 		A1234567890ABCDEF003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF004 /* ContentView.swift */; };
 		A1234567890ABCDEF005 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF006 /* DashboardView.swift */; };
@@ -37,13 +26,6 @@
 
 /* Begin PBXContainerItemProxy section */
 		724664FA2E9BC96D0012345C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A1234567890ABCDEF022 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 724664EB2E9BC9690012345C;
-			remoteInfo = PokrokWidgetExtension;
-		};
-		7246651B2E9C3FD80012345C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A1234567890ABCDEF022 /* Project object */;
 			proxyType = 1;
@@ -64,17 +46,6 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		7246652A2E9C3FD80012345C /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				7246652B2E9C3FD80012345C /* PokrokWidgetExtension.appex in Embed Foundation Extensions */,
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -88,7 +59,7 @@
 		724664F02E9BC96A0012345C /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		7246650C2E9BC9AF0012345C /* Pokrok.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pokrok.entitlements; sourceTree = "<group>"; };
 		724665182E9C27160012345C /* PokrokWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PokrokWidgetExtension.entitlements; sourceTree = "<group>"; };
-		7246652F2E9C3FD80012345C /* Pokrok-Test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Pokrok-Test.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		725402982EA2B62A00697B62 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF000 /* Pokrok.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pokrok.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1234567890ABCDEF002 /* PokrokApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokrokApp.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF004 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -120,14 +91,6 @@
 			files = (
 				724664F12E9BC96A0012345C /* SwiftUI.framework in Frameworks */,
 				724664EF2E9BC96A0012345C /* WidgetKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		724665272E9C3FD80012345C /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				724665282E9C3FD80012345C /* (null) in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -165,6 +128,7 @@
 		A1234567890ABCDEF015 /* Pokrok */ = {
 			isa = PBXGroup;
 			children = (
+				725402982EA2B62A00697B62 /* NotesView.swift */,
 				7246650C2E9BC9AF0012345C /* Pokrok.entitlements */,
 				724664E22E9B9F550012345C /* AccessibilitySupport.swift */,
 				724664E32E9B9F550012345C /* DesignSystem.swift */,
@@ -187,7 +151,6 @@
 			children = (
 				A1234567890ABCDEF000 /* Pokrok.app */,
 				724664EC2E9BC9690012345C /* PokrokWidgetExtension.appex */,
-				7246652F2E9C3FD80012345C /* Pokrok-Test.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -225,25 +188,6 @@
 			productReference = 724664EC2E9BC9690012345C /* PokrokWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		724665192E9C3FD80012345C /* Pokrok-Test */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 7246652C2E9C3FD80012345C /* Build configuration list for PBXNativeTarget "Pokrok-Test" */;
-			buildPhases = (
-				7246651C2E9C3FD80012345C /* Sources */,
-				724665272E9C3FD80012345C /* Frameworks */,
-				724665292E9C3FD80012345C /* Resources */,
-				7246652A2E9C3FD80012345C /* Embed Foundation Extensions */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				7246651A2E9C3FD80012345C /* PBXTargetDependency */,
-			);
-			name = "Pokrok-Test";
-			productName = Pokrok;
-			productReference = 7246652F2E9C3FD80012345C /* Pokrok-Test.app */;
-			productType = "com.apple.product-type.application";
-		};
 		A1234567890ABCDEF018 /* Pokrok */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A1234567890ABCDEF019 /* Build configuration list for PBXNativeTarget "Pokrok" */;
@@ -271,7 +215,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2600;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					724664EB2E9BC9690012345C = {
 						CreatedOnToolsVersion = 26.0.1;
@@ -299,20 +243,12 @@
 			targets = (
 				A1234567890ABCDEF018 /* Pokrok */,
 				724664EB2E9BC9690012345C /* PokrokWidgetExtension */,
-				724665192E9C3FD80012345C /* Pokrok-Test */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		724664EA2E9BC9690012345C /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		724665292E9C3FD80012345C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -336,23 +272,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		7246651C2E9C3FD80012345C /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				7246651D2E9C3FD80012345C /* ContentView.swift in Sources */,
-				7246651E2E9C3FD80012345C /* PokrokApp.swift in Sources */,
-				7246651F2E9C3FD80012345C /* AccessibilitySupport.swift in Sources */,
-				724665202E9C3FD80012345C /* DesignSystem.swift in Sources */,
-				724665212E9C3FD80012345C /* ModernComponents.swift in Sources */,
-				724665222E9C3FD80012345C /* DashboardView.swift in Sources */,
-				724665232E9C3FD80012345C /* OverviewView.swift in Sources */,
-				724665242E9C3FD80012345C /* OtherViews.swift in Sources */,
-				724665252E9C3FD80012345C /* Models.swift in Sources */,
-				724665262E9C3FD80012345C /* APIManager.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		A1234567890ABCDEF020 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -363,6 +282,7 @@
 				724664E62E9B9F550012345C /* DesignSystem.swift in Sources */,
 				724664E72E9B9F550012345C /* ModernComponents.swift in Sources */,
 				A1234567890ABCDEF005 /* DashboardView.swift in Sources */,
+				725402992EA2B62A00697B62 /* NotesView.swift in Sources */,
 				A1234567890ABCDEF007 /* OverviewView.swift in Sources */,
 				A1234567890ABCDEF009 /* OtherViews.swift in Sources */,
 				724664DF2E9B96400012345C /* Models.swift in Sources */,
@@ -378,11 +298,6 @@
 			target = 724664EB2E9BC9690012345C /* PokrokWidgetExtension */;
 			targetProxy = 724664FA2E9BC96D0012345C /* PBXContainerItemProxy */;
 		};
-		7246651A2E9C3FD80012345C /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 724664EB2E9BC9690012345C /* PokrokWidgetExtension */;
-			targetProxy = 7246651B2E9C3FD80012345C /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -394,7 +309,6 @@
 				CODE_SIGN_ENTITLEMENTS = PokrokWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = VXKV4LCMJU;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PokrokWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = PokrokWidget;
@@ -426,7 +340,6 @@
 				CODE_SIGN_ENTITLEMENTS = PokrokWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = VXKV4LCMJU;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PokrokWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = PokrokWidget;
@@ -447,68 +360,6 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		7246652D2E9C3FD80012345C /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Pokrok/Pokrok.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Pokrok/Preview Content\"";
-				DEVELOPMENT_TEAM = VXKV4LCMJU;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.pokrok.app.test;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				"com.apple.developer.associated-domains" = "webcredentials:ideal-koi-18.accounts.dev";
-			};
-			name = Debug;
-		};
-		7246652E2E9C3FD80012345C /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Pokrok/Pokrok.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Pokrok/Preview Content\"";
-				DEVELOPMENT_TEAM = VXKV4LCMJU;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.pokrok.app.test;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				"com.apple.developer.associated-domains" = "webcredentials:ideal-koi-18.accounts.dev";
 			};
 			name = Release;
 		};
@@ -547,6 +398,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = VXKV4LCMJU;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -570,6 +422,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -610,6 +463,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = VXKV4LCMJU;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -626,6 +480,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -640,7 +495,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Pokrok/Preview Content\"";
-				DEVELOPMENT_TEAM = VXKV4LCMJU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -671,7 +525,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Pokrok/Preview Content\"";
-				DEVELOPMENT_TEAM = VXKV4LCMJU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -701,15 +554,6 @@
 			buildConfigurations = (
 				724664FF2E9BC96D0012345C /* Debug */,
 				724665002E9BC96D0012345C /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		7246652C2E9C3FD80012345C /* Build configuration list for PBXNativeTarget "Pokrok-Test" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				7246652D2E9C3FD80012345C /* Debug */,
-				7246652E2E9C3FD80012345C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

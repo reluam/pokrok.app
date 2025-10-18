@@ -65,6 +65,7 @@ struct DashboardView: View {
         }
     }
     
+    
     // MARK: - Welcome Header
     private var welcomeHeader: some View {
         ModernCard {
@@ -448,6 +449,7 @@ struct SimpleStepRow: View {
         .buttonStyle(PlainButtonStyle())
     }
 }
+
 
 #Preview {
     DashboardView()

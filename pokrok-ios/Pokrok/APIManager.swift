@@ -289,6 +289,169 @@ class APIManager: ObservableObject {
         return user
     }
     
+    // MARK: - Notes API
+    
+    func fetchNotes(goalId: String? = nil, standalone: Bool = false) async throws -> [Note] {
+        var urlString = "\(baseURL)/notes"
+        var queryItems: [URLQueryItem] = []
+        
+        if let goalId = goalId {
+            queryItems.append(URLQueryItem(name: "goalId", value: goalId))
+        }
+        
+        if standalone {
+            queryItems.append(URLQueryItem(name: "standalone", value: "true"))
+        }
+        
+        if !queryItems.isEmpty {
+            var components = URLComponents(string: urlString)
+            components?.queryItems = queryItems
+            urlString = components?.url?.absoluteString ?? urlString
+        }
+        
+        guard let url = URL(string: urlString) else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            print("❌ Notes API request failed with status: \(httpResponse.statusCode)")
+            if let errorData = String(data: data, encoding: .utf8) {
+                print("❌ Error response: \(errorData)")
+            }
+            throw APIError.requestFailed
+        }
+        
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let notesResponse = try decoder.decode(NotesResponse.self, from: data)
+        return notesResponse.notes
+    }
+    
+    func createNote(title: String, content: String, goalId: String? = nil) async throws -> Note {
+        guard let url = URL(string: "\(baseURL)/notes") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        var requestData: [String: Any] = [
+            "title": title,
+            "content": content
+        ]
+        
+        if let goalId = goalId {
+            requestData["goalId"] = goalId
+        }
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: requestData)
+        request.httpBody = jsonData
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 201 else {
+            print("❌ Create note API request failed with status: \(httpResponse.statusCode)")
+            if let errorData = String(data: data, encoding: .utf8) {
+                print("❌ Error response: \(errorData)")
+            }
+            throw APIError.requestFailed
+        }
+        
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let noteResponse = try decoder.decode(NoteResponse.self, from: data)
+        return noteResponse.note
+    }
+    
+    func updateNote(noteId: String, title: String, content: String) async throws -> Note {
+        guard let url = URL(string: "\(baseURL)/notes/\(noteId)") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let requestData = [
+            "title": title,
+            "content": content
+        ]
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: requestData)
+        request.httpBody = jsonData
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            print("❌ Update note API request failed with status: \(httpResponse.statusCode)")
+            if let errorData = String(data: data, encoding: .utf8) {
+                print("❌ Error response: \(errorData)")
+            }
+            throw APIError.requestFailed
+        }
+        
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let noteResponse = try decoder.decode(NoteResponse.self, from: data)
+        return noteResponse.note
+    }
+    
+    func deleteNote(noteId: String) async throws {
+        guard let url = URL(string: "\(baseURL)/notes/\(noteId)") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            print("❌ Delete note API request failed with status: \(httpResponse.statusCode)")
+            throw APIError.requestFailed
+        }
+    }
+    
     // MARK: - Helper Methods
     
     private func getClerkToken() async -> String? {
