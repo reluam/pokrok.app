@@ -17,6 +17,8 @@
 		724664F12E9BC96A0012345C /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 724664F02E9BC96A0012345C /* SwiftUI.framework */; };
 		724664FC2E9BC96D0012345C /* PokrokWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 724664EC2E9BC9690012345C /* PokrokWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		725402992EA2B62A00697B62 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725402982EA2B62A00697B62 /* NotesView.swift */; };
+		7254029C2EA4265300697B62 /* DailyPlanningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7254029A2EA4265300697B62 /* DailyPlanningView.swift */; };
+		7254029D2EA4265300697B62 /* NoWorkflowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7254029B2EA4265300697B62 /* NoWorkflowView.swift */; };
 		A1234567890ABCDEF001 /* PokrokApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF002 /* PokrokApp.swift */; };
 		A1234567890ABCDEF003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF004 /* ContentView.swift */; };
 		A1234567890ABCDEF005 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF006 /* DashboardView.swift */; };
@@ -60,6 +62,8 @@
 		7246650C2E9BC9AF0012345C /* Pokrok.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pokrok.entitlements; sourceTree = "<group>"; };
 		724665182E9C27160012345C /* PokrokWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PokrokWidgetExtension.entitlements; sourceTree = "<group>"; };
 		725402982EA2B62A00697B62 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
+		7254029A2EA4265300697B62 /* DailyPlanningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlanningView.swift; sourceTree = "<group>"; };
+		7254029B2EA4265300697B62 /* NoWorkflowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoWorkflowView.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF000 /* Pokrok.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pokrok.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1234567890ABCDEF002 /* PokrokApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokrokApp.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF004 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -128,6 +132,8 @@
 		A1234567890ABCDEF015 /* Pokrok */ = {
 			isa = PBXGroup;
 			children = (
+				7254029A2EA4265300697B62 /* DailyPlanningView.swift */,
+				7254029B2EA4265300697B62 /* NoWorkflowView.swift */,
 				725402982EA2B62A00697B62 /* NotesView.swift */,
 				7246650C2E9BC9AF0012345C /* Pokrok.entitlements */,
 				724664E22E9B9F550012345C /* AccessibilitySupport.swift */,
@@ -277,6 +283,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1234567890ABCDEF003 /* ContentView.swift in Sources */,
+				7254029C2EA4265300697B62 /* DailyPlanningView.swift in Sources */,
+				7254029D2EA4265300697B62 /* NoWorkflowView.swift in Sources */,
 				A1234567890ABCDEF001 /* PokrokApp.swift in Sources */,
 				724664E52E9B9F550012345C /* AccessibilitySupport.swift in Sources */,
 				724664E62E9B9F550012345C /* DesignSystem.swift in Sources */,

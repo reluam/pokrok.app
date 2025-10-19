@@ -123,12 +123,85 @@ struct NoteResponse: Codable {
     let note: Note
 }
 
+// MARK: - User Settings Model
+struct UserSettings: Codable {
+    let id: String
+    let userId: String
+    let dailyStepsCount: Int
+    let workflow: String // 'daily_planning' or 'no_workflow'
+    let filters: FilterSettings?
+    let createdAt: Date?
+    let updatedAt: Date?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case dailyStepsCount = "daily_steps_count"
+        case workflow
+        case filters
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+}
+
+// MARK: - Filter Settings Model
+struct FilterSettings: Codable {
+    var showToday: Bool
+    var showOverdue: Bool
+    var showFuture: Bool
+    var showWithGoal: Bool
+    var showWithoutGoal: Bool
+    var sortBy: String // 'date', 'priority', 'title'
+
+    enum CodingKeys: String, CodingKey {
+        case showToday = "showToday"
+        case showOverdue = "showOverdue"
+        case showFuture = "showFuture"
+        case showWithGoal = "showWithGoal"
+        case showWithoutGoal = "showWithoutGoal"
+        case sortBy = "sortBy"
+    }
+}
+
+// MARK: - User Settings API Response Models
+struct UserSettingsResponse: Codable {
+    let settings: UserSettings
+}
+
+// MARK: - Daily Planning Model
+struct DailyPlanning: Codable {
+    let id: String
+    let userId: String
+    let date: Date
+    let plannedSteps: [String]
+    let completedSteps: [String]
+    let createdAt: Date?
+    let updatedAt: Date?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case date
+        case plannedSteps = "planned_steps"
+        case completedSteps = "completed_steps"
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+}
+
+// MARK: - Daily Planning API Response Models
+struct DailyPlanningResponse: Codable {
+    let planning: DailyPlanning
+}
+
 // MARK: - API Errors
 
 enum APIError: Error, LocalizedError {
     case invalidURL
     case requestFailed
     case decodingFailed
+    case invalidResponse
+    case serverError(Int)
     
     var errorDescription: String? {
         switch self {
@@ -138,6 +211,10 @@ enum APIError: Error, LocalizedError {
             return "Požadavek selhal"
         case .decodingFailed:
             return "Chyba při dekódování dat"
+        case .invalidResponse:
+            return "Neplatná odpověď ze serveru"
+        case .serverError(let code):
+            return "Chyba serveru: \(code)"
         }
     }
 }

@@ -1,4 +1,4 @@
-import { User, Goal, Value, DailyStep, Event, GoalMetric, CategorySettings, NeededStepsSettings, CreateGoalRequest, CreateValueRequest, UpdateGoalRequest, UpdateDailyStepRequest, UpdateValueRequest, CreateGoalMetricRequest } from '../types';
+import { User, Goal, Value, DailyStep, Event, GoalMetric, CategorySettings, NeededStepsSettings, DailyPlanning, CreateGoalRequest, CreateValueRequest, UpdateGoalRequest, UpdateDailyStepRequest, UpdateValueRequest, CreateGoalMetricRequest } from '../types';
 export declare class CestaApiClient {
     private baseUrl;
     private authToken?;
@@ -28,6 +28,10 @@ export declare class CestaApiClient {
     deleteGoalMetric(metricId: string): Promise<void>;
     getUser(): Promise<User>;
     updateUserOnboardingStatus(hasCompleted: boolean): Promise<void>;
+    getDailyPlanning(date: string): Promise<DailyPlanning | null>;
+    createOrUpdateDailyPlanning(date: string, plannedSteps: string[]): Promise<DailyPlanning>;
+    markStepAsCompleted(date: string, stepId: string): Promise<DailyPlanning>;
+    updateDailyPlanningOrder(date: string, plannedSteps: string[]): Promise<DailyPlanning>;
     getCategorySettings(): Promise<CategorySettings | null>;
     updateCategorySettings(settings: Partial<CategorySettings>): Promise<CategorySettings>;
     getNeededStepsSettings(): Promise<NeededStepsSettings | null>;

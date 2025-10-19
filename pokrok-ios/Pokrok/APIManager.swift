@@ -4,14 +4,25 @@ import Clerk
 class APIManager: ObservableObject {
     static let shared = APIManager()
     
-    private let baseURL = "https://www.pokrok.app/api/cesta"
+    private let baseURL = "https://www.pokrok.app/api"
     
     private init() {}
+    
+    // MARK: - JSON Decoder Helper
+    
+    private func createJSONDecoder() -> JSONDecoder {
+        let decoder = JSONDecoder()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        formatter.timeZone = TimeZone(abbreviation: "UTC")
+        decoder.dateDecodingStrategy = .formatted(formatter)
+        return decoder
+    }
     
     // MARK: - Goals API
     
     func fetchGoals() async throws -> [Goal] {
-        guard let url = URL(string: "\(baseURL)/goals") else {
+        guard let url = URL(string: "\(baseURL)/cesta/goals") else {
             throw APIError.invalidURL
         }
         
@@ -44,14 +55,14 @@ class APIManager: ObservableObject {
         }
         
         // Parse response - API returns { goals: [...] }
-        let decoder = JSONDecoder()
+        let decoder = createJSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         let goalsResponse = try decoder.decode(GoalsResponse.self, from: data)
         return goalsResponse.goals
     }
     
     func createGoal(_ goal: CreateGoalRequest) async throws -> Goal {
-        guard let url = URL(string: "\(baseURL)/goals") else {
+        guard let url = URL(string: "\(baseURL)/cesta/goals") else {
             throw APIError.invalidURL
         }
         
@@ -96,7 +107,7 @@ class APIManager: ObservableObject {
         }
         
         // Parse response - API returns { goal: ... }
-        let decoder = JSONDecoder()
+        let decoder = createJSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         let goalResponse = try decoder.decode(GoalResponse.self, from: data)
         return goalResponse.goal
@@ -106,7 +117,7 @@ class APIManager: ObservableObject {
     
     func fetchSteps() async throws -> [DailyStep] {
         print("🔍 Main App: fetchSteps called")
-        guard let url = URL(string: "\(baseURL)/daily-steps") else {
+        guard let url = URL(string: "\(baseURL)/cesta/daily-steps") else {
             throw APIError.invalidURL
         }
         
@@ -142,14 +153,14 @@ class APIManager: ObservableObject {
         }
         
         // Parse response - API returns { steps: [...] }
-        let decoder = JSONDecoder()
+        let decoder = createJSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         let stepsResponse = try decoder.decode(StepsResponse.self, from: data)
         return stepsResponse.steps
     }
     
     func createStep(_ step: CreateStepRequest) async throws -> DailyStep {
-        guard let url = URL(string: "\(baseURL)/daily-steps") else {
+        guard let url = URL(string: "\(baseURL)/cesta/daily-steps") else {
             throw APIError.invalidURL
         }
         
@@ -194,14 +205,14 @@ class APIManager: ObservableObject {
         }
         
         // Parse response - API returns { step: ... }
-        let decoder = JSONDecoder()
+        let decoder = createJSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         let stepResponse = try decoder.decode(StepResponse.self, from: data)
         return stepResponse.step
     }
     
     func updateStepCompletion(stepId: String, completed: Bool, currentStep: DailyStep) async throws -> DailyStep {
-        guard let url = URL(string: "\(baseURL)/daily-steps/\(stepId)/toggle") else {
+        guard let url = URL(string: "\(baseURL)/cesta/daily-steps/\(stepId)/toggle") else {
             throw APIError.invalidURL
         }
         
@@ -249,7 +260,7 @@ class APIManager: ObservableObject {
         }
         
         // Parse response - API returns { step: ... }
-        let decoder = JSONDecoder()
+        let decoder = createJSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         let stepResponse = try decoder.decode(StepResponse.self, from: data)
         return stepResponse.step
@@ -258,7 +269,7 @@ class APIManager: ObservableObject {
     // MARK: - User API
     
     func fetchUser() async throws -> User {
-        guard let url = URL(string: "\(baseURL)/user") else {
+        guard let url = URL(string: "\(baseURL)/cesta/user") else {
             throw APIError.invalidURL
         }
         
@@ -285,14 +296,14 @@ class APIManager: ObservableObject {
             throw APIError.requestFailed
         }
         
-        let user = try JSONDecoder().decode(User.self, from: data)
+        let user = try createJSONDecoder().decode(User.self, from: data)
         return user
     }
     
     // MARK: - Notes API
     
     func fetchNotes(goalId: String? = nil, standalone: Bool = false) async throws -> [Note] {
-        var urlString = "\(baseURL)/notes"
+        var urlString = "\(baseURL)/cesta/notes"
         var queryItems: [URLQueryItem] = []
         
         if let goalId = goalId {
@@ -335,14 +346,14 @@ class APIManager: ObservableObject {
             throw APIError.requestFailed
         }
         
-        let decoder = JSONDecoder()
+        let decoder = createJSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         let notesResponse = try decoder.decode(NotesResponse.self, from: data)
         return notesResponse.notes
     }
     
     func createNote(title: String, content: String, goalId: String? = nil) async throws -> Note {
-        guard let url = URL(string: "\(baseURL)/notes") else {
+        guard let url = URL(string: "\(baseURL)/cesta/notes") else {
             throw APIError.invalidURL
         }
         
@@ -380,14 +391,14 @@ class APIManager: ObservableObject {
             throw APIError.requestFailed
         }
         
-        let decoder = JSONDecoder()
+        let decoder = createJSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         let noteResponse = try decoder.decode(NoteResponse.self, from: data)
         return noteResponse.note
     }
     
     func updateNote(noteId: String, title: String, content: String) async throws -> Note {
-        guard let url = URL(string: "\(baseURL)/notes/\(noteId)") else {
+        guard let url = URL(string: "\(baseURL)/cesta/notes/\(noteId)") else {
             throw APIError.invalidURL
         }
         
@@ -421,14 +432,14 @@ class APIManager: ObservableObject {
             throw APIError.requestFailed
         }
         
-        let decoder = JSONDecoder()
+        let decoder = createJSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         let noteResponse = try decoder.decode(NoteResponse.self, from: data)
         return noteResponse.note
     }
     
     func deleteNote(noteId: String) async throws {
-        guard let url = URL(string: "\(baseURL)/notes/\(noteId)") else {
+        guard let url = URL(string: "\(baseURL)/cesta/notes/\(noteId)") else {
             throw APIError.invalidURL
         }
         
@@ -450,6 +461,81 @@ class APIManager: ObservableObject {
             print("❌ Delete note API request failed with status: \(httpResponse.statusCode)")
             throw APIError.requestFailed
         }
+    }
+    
+    // MARK: - User Settings API
+    
+    func fetchUserSettings() async throws -> UserSettings {
+        guard let url = URL(string: "\(baseURL)/cesta/user-settings") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.serverError(httpResponse.statusCode)
+        }
+        
+        let userSettingsResponse = try createJSONDecoder().decode(UserSettingsResponse.self, from: data)
+        return userSettingsResponse.settings
+    }
+    
+    func updateUserSettings(dailyStepsCount: Int? = nil, workflow: String? = nil, filters: FilterSettings? = nil) async throws -> UserSettings {
+        guard let url = URL(string: "\(baseURL)/cesta/user-settings") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        var requestBody: [String: Any] = [:]
+        if let dailyStepsCount = dailyStepsCount {
+            requestBody["daily_steps_count"] = dailyStepsCount
+        }
+        if let workflow = workflow {
+            requestBody["workflow"] = workflow
+        }
+        if let filters = filters {
+            requestBody["filters"] = [
+                "showToday": filters.showToday,
+                "showOverdue": filters.showOverdue,
+                "showFuture": filters.showFuture,
+                "showWithGoal": filters.showWithGoal,
+                "showWithoutGoal": filters.showWithoutGoal,
+                "sortBy": filters.sortBy
+            ]
+        }
+        
+        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.serverError(httpResponse.statusCode)
+        }
+        
+        let userSettingsResponse = try createJSONDecoder().decode(UserSettingsResponse.self, from: data)
+        return userSettingsResponse.settings
     }
     
     // MARK: - Helper Methods
@@ -574,5 +660,95 @@ class APIManager: ObservableObject {
         } else {
             print("❌ Failed to access App Group UserDefaults")
         }
+    }
+    
+    // MARK: - Daily Planning API
+    
+    func fetchDailyPlanning(date: Date) async throws -> DailyPlanning? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let dateString = formatter.string(from: date)
+        
+        guard let url = URL(string: "\(baseURL)/cesta/daily-planning?date=\(dateString)") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            if httpResponse.statusCode == 404 {
+                // No planning found for this date
+                return nil
+            }
+            throw APIError.serverError(httpResponse.statusCode)
+        }
+        
+        let dailyPlanningResponse = try createJSONDecoder().decode(DailyPlanningResponse.self, from: data)
+        return dailyPlanningResponse.planning
+    }
+    
+    func saveDailyPlanning(date: Date, plannedSteps: [String]) async throws -> DailyPlanning {
+        guard let url = URL(string: "\(baseURL)/cesta/daily-planning") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let dateString = formatter.string(from: date)
+        
+        let requestBody: [String: Any] = [
+            "date": dateString,
+            "planned_steps": plannedSteps
+        ]
+        
+        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+        
+        // Debug: Print request body
+        if let requestBodyString = String(data: request.httpBody!, encoding: .utf8) {
+            print("✅ Request body for daily planning: \(requestBodyString)")
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        print("✅ API response status for daily planning: \(httpResponse.statusCode)")
+        
+        guard httpResponse.statusCode == 200 else {
+            print("❌ API request failed with status: \(httpResponse.statusCode)")
+            if let errorData = String(data: data, encoding: .utf8) {
+                print("❌ Error response: \(errorData)")
+            }
+            throw APIError.serverError(httpResponse.statusCode)
+        }
+        
+        // Debug: Print raw response
+        if let rawResponse = String(data: data, encoding: .utf8) {
+            print("✅ Raw API response for daily planning: \(rawResponse)")
+        }
+        
+        let dailyPlanningResponse = try createJSONDecoder().decode(DailyPlanningResponse.self, from: data)
+        return dailyPlanningResponse.planning
     }
 }

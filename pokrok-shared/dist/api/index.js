@@ -180,6 +180,40 @@ class CestaApiClient {
             body: JSON.stringify({ hasCompletedOnboarding: hasCompleted }),
         });
     }
+    // Daily Planning API
+    async getDailyPlanning(date) {
+        try {
+            const response = await this.request(`/api/cesta/daily-planning?date=${date}`);
+            return response.planning;
+        }
+        catch (error) {
+            if (error instanceof ApiError && error.status === 404) {
+                return null;
+            }
+            throw error;
+        }
+    }
+    async createOrUpdateDailyPlanning(date, plannedSteps) {
+        const response = await this.request('/api/cesta/daily-planning', {
+            method: 'POST',
+            body: JSON.stringify({ date, planned_steps: plannedSteps }),
+        });
+        return response.planning;
+    }
+    async markStepAsCompleted(date, stepId) {
+        const response = await this.request('/api/cesta/daily-planning', {
+            method: 'PATCH',
+            body: JSON.stringify({ date, step_id: stepId }),
+        });
+        return response.planning;
+    }
+    async updateDailyPlanningOrder(date, plannedSteps) {
+        const response = await this.request('/api/cesta/daily-planning', {
+            method: 'PATCH',
+            body: JSON.stringify({ date, planned_steps: plannedSteps }),
+        });
+        return response.planning;
+    }
     // Settings API
     async getCategorySettings() {
         try {

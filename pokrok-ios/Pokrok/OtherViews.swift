@@ -457,7 +457,13 @@ struct StepsView: View {
 
 struct SettingsView: View {
     @Environment(\.clerk) private var clerk
+    @StateObject private var apiManager = APIManager.shared
     @State private var showWidgetSettings = false
+    @State private var userSettings: UserSettings?
+    @State private var isLoadingSettings = true
+    @State private var showWorkflowSettings = false
+    @State private var errorMessage = ""
+    @State private var showError = false
     
     var body: some View {
         NavigationView {
@@ -468,6 +474,9 @@ struct SettingsView: View {
                     
                     // Settings Options
                     settingsOptionsSection
+                    
+                    // Workflow Settings
+                    workflowSettingsSection
                     
                     // Sign Out Section
                     if clerk.user != nil {
@@ -484,8 +493,24 @@ struct SettingsView: View {
         }
         .navigationTitle("Nastavení")
         .navigationBarTitleDisplayMode(.large)
+        .onAppear {
+            loadUserSettings()
+        }
         .sheet(isPresented: $showWidgetSettings) {
             SimpleWidgetSettingsView()
+        }
+        .sheet(isPresented: $showWorkflowSettings) {
+            WorkflowSettingsView(
+                userSettings: $userSettings,
+                onSave: { settings in
+                    saveUserSettings(settings)
+                }
+            )
+        }
+        .alert("Chyba", isPresented: $showError) {
+            Button("OK") { }
+        } message: {
+            Text(errorMessage)
         }
     }
     
@@ -554,6 +579,15 @@ struct SettingsView: View {
                 title: "Nápověda",
                 subtitle: "FAQ a podpora",
                 action: {}
+            )
+            
+            ModernSettingsRow(
+                icon: "gear.badge",
+                title: "Workflow",
+                subtitle: userSettings?.workflow == "daily_planning" ? "Denní plánování" : "Všechny kroky",
+                action: {
+                    showWorkflowSettings = true
+                }
             )
             
             ModernSettingsRow(
@@ -1308,5 +1342,177 @@ struct SimpleWidgetSettingsView: View {
         
         // Refresh all widgets
         WidgetCenter.shared.reloadAllTimelines()
+    }
+}
+
+// MARK: - Workflow Settings Section
+extension SettingsView {
+    private var workflowSettingsSection: some View {
+        VStack(spacing: DesignSystem.Spacing.sm) {
+            Text("Workflow nastavení")
+                .font(DesignSystem.Typography.headline)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+            ModernCard {
+                VStack(spacing: DesignSystem.Spacing.md) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                            Text("Aktuální workflow")
+                                .font(DesignSystem.Typography.body)
+                                .fontWeight(.medium)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
+                            
+                            Text(userSettings?.workflow == "daily_planning" ? "Denní plánování" : "Všechny kroky")
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
+                        }
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            showWorkflowSettings = true
+                        }) {
+                            Text("Změnit")
+                                .font(DesignSystem.Typography.caption)
+                                .fontWeight(.medium)
+                                .foregroundColor(DesignSystem.Colors.primary)
+                        }
+                    }
+                    
+                    if let settings = userSettings {
+                        HStack {
+                            Text("Denní kroky: \(settings.dailyStepsCount)")
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
+                            
+                            Spacer()
+                        }
+                    }
+                }
+                .padding(DesignSystem.Spacing.md)
+            }
+        }
+    }
+    
+    // MARK: - Helper Methods
+    private func loadUserSettings() {
+        Task {
+            do {
+                let settings = try await apiManager.fetchUserSettings()
+                await MainActor.run {
+                    self.userSettings = settings
+                    self.isLoadingSettings = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = error.localizedDescription
+                    self.showError = true
+                    self.isLoadingSettings = false
+                }
+            }
+        }
+    }
+    
+    private func saveUserSettings(_ settings: UserSettings) {
+        Task {
+            do {
+                let updatedSettings = try await apiManager.updateUserSettings(
+                    dailyStepsCount: settings.dailyStepsCount,
+                    workflow: settings.workflow,
+                    filters: settings.filters
+                )
+                await MainActor.run {
+                    self.userSettings = updatedSettings
+                }
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = error.localizedDescription
+                    self.showError = true
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Workflow Settings View
+struct WorkflowSettingsView: View {
+    @Binding var userSettings: UserSettings?
+    let onSave: (UserSettings) -> Void
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var selectedWorkflow: String = "daily_planning"
+    @State private var dailyStepsCount: Int = 3
+    @State private var isSaving = false
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section("Typ workflow") {
+                    Picker("Workflow", selection: $selectedWorkflow) {
+                        Text("Denní plánování").tag("daily_planning")
+                        Text("Všechny kroky").tag("no_workflow")
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                }
+                
+                if selectedWorkflow == "daily_planning" {
+                    Section("Denní plánování") {
+                        Stepper("Počet denních kroků: \(dailyStepsCount)", value: $dailyStepsCount, in: 1...10)
+                    }
+                }
+                
+                Section {
+                    Text("Denní plánování zobrazuje pouze kroky naplánované na dnešní den s možností plánování.")
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                    
+                    Text("Všechny kroky zobrazuje všechny kroky s možností filtrování a řazení.")
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                }
+            }
+            .navigationTitle("Workflow nastavení")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Zrušit") {
+                        dismiss()
+                    }
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Uložit") {
+                        saveSettings()
+                    }
+                    .disabled(isSaving)
+                }
+            }
+        }
+        .onAppear {
+            if let settings = userSettings {
+                selectedWorkflow = settings.workflow
+                dailyStepsCount = settings.dailyStepsCount
+            }
+        }
+    }
+    
+    private func saveSettings() {
+        guard let currentSettings = userSettings else { return }
+        
+        isSaving = true
+        
+        let updatedSettings = UserSettings(
+            id: currentSettings.id,
+            userId: currentSettings.userId,
+            dailyStepsCount: dailyStepsCount,
+            workflow: selectedWorkflow,
+            filters: currentSettings.filters,
+            createdAt: currentSettings.createdAt,
+            updatedAt: Date()
+        )
+        
+        onSave(updatedSettings)
+        dismiss()
     }
 }

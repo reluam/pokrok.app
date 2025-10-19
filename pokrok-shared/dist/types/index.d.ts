@@ -142,6 +142,15 @@ export interface NeededStepsSettings {
     created_at: Date;
     updated_at: Date;
 }
+export interface DailyPlanning {
+    id: string;
+    user_id: string;
+    date: Date;
+    planned_steps: string[];
+    completed_steps: string[];
+    created_at: Date;
+    updated_at: Date;
+}
 export interface CreateGoalRequest {
     title: string;
     description?: string;
@@ -223,6 +232,9 @@ export interface EventsResponse {
 }
 export interface GoalMetricsResponse {
     metrics: GoalMetric[];
+}
+export interface DailyPlanningResponse {
+    planning: DailyPlanning;
 }
 export interface ApiError {
     error: string;
