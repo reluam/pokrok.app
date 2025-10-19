@@ -360,14 +360,25 @@ struct DailyPlanningView: View {
     
     // MARK: - Data Loading
     private func loadData() {
+        print("🔍 DailyPlanningView: loadData called")
         Task {
             do {
+                print("🔍 DailyPlanningView: Starting API calls...")
                 async let settingsTask = apiManager.fetchUserSettings()
                 async let stepsTask = apiManager.fetchSteps()
                 async let goalsTask = apiManager.fetchGoals()
                 async let planningTask = apiManager.fetchDailyPlanning(date: Date())
                 
                 let (settings, steps, goals, planning) = try await (settingsTask, stepsTask, goalsTask, planningTask)
+                
+                print("🔍 DailyPlanningView: API calls completed")
+                print("🔍 DailyPlanningView: Settings workflow: \(settings.workflow)")
+                print("🔍 DailyPlanningView: Steps count: \(steps.count)")
+                print("🔍 DailyPlanningView: Goals count: \(goals.count)")
+                print("🔍 DailyPlanningView: Planning: \(planning?.plannedSteps.count ?? 0) planned steps")
+                if let planning = planning {
+                    print("🔍 DailyPlanningView: Planned step IDs: \(planning.plannedSteps)")
+                }
                 
                 await MainActor.run {
                     self.userSettings = settings
@@ -376,8 +387,12 @@ struct DailyPlanningView: View {
                     self.dailyPlanning = planning
                     self.isLoading = false
                     self.updateStepStats()
+                    
+                    print("🔍 DailyPlanningView: todaySteps count: \(self.todaySteps.count)")
+                    print("🔍 DailyPlanningView: todayStepIds: \(self.todayStepIds)")
                 }
             } catch {
+                print("🔍 DailyPlanningView: API call failed: \(error)")
                 await MainActor.run {
                     self.errorMessage = error.localizedDescription
                     self.showError = true
