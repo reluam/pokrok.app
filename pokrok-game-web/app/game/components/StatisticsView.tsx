@@ -154,7 +154,7 @@ export function StatisticsView({
               {Object.entries(goalsByCategory).map(([category, count]) => (
                 <div key={category} className="flex justify-between items-center">
                   <span className="text-sm text-gray-600 capitalize">{category}:</span>
-                  <span className="font-bold text-gray-900">{count}</span>
+                  <span className="font-bold text-gray-900">{count as number}</span>
                 </div>
               ))}
             </div>
@@ -170,7 +170,7 @@ export function StatisticsView({
               {Object.entries(habitsByCategory).map(([category, count]) => (
                 <div key={category} className="flex justify-between items-center">
                   <span className="text-sm text-gray-600 capitalize">{category}:</span>
-                  <span className="font-bold text-gray-900">{count}</span>
+                  <span className="font-bold text-gray-900">{count as number}</span>
                 </div>
               ))}
             </div>
