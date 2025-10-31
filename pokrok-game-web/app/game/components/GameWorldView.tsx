@@ -11,6 +11,7 @@ import { SettingsView } from './SettingsView'
 
 interface GameWorldViewProps {
   player?: any
+  userId?: string | null
   goals: any[]
   habits: any[]
   onGoalsUpdate: (goals: any[]) => void
@@ -20,24 +21,35 @@ interface GameWorldViewProps {
 
 type GameView = 'character' | 'daily-plan' | 'goals' | 'steps' | 'notes' | 'map' | 'habits' | 'statistics' | 'achievements' | 'settings'
 
-export function GameWorldView({ player, goals, habits, onGoalsUpdate, onHabitsUpdate, onPlayerUpdate }: GameWorldViewProps) {
+export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, onHabitsUpdate, onPlayerUpdate }: GameWorldViewProps) {
   const [currentView, setCurrentView] = useState<GameView>('character')
   const [dailySteps, setDailySteps] = useState<any[]>([])
   
   // Default function if onPlayerUpdate is not provided
   const handlePlayerUpdate = onPlayerUpdate || (() => {})
 
-  // Load daily steps
+  // Load daily steps - load all steps (not just today's)
   useEffect(() => {
     const loadDailySteps = async () => {
-      if (!player?.user_id) return
+      // Use userId prop if available, otherwise fallback to player?.user_id
+      const currentUserId = userId || player?.user_id
+      if (!currentUserId) {
+        console.log('No userId available for loading daily steps')
+        return
+      }
 
       try {
-        const currentDate = new Date().toISOString().split('T')[0]
-        const response = await fetch(`/api/daily-steps?userId=${player.user_id}&date=${currentDate}`)
+        // Load all steps for user (not filtered by date)
+        console.log('Loading daily steps for userId:', currentUserId, '(all steps)')
+        const response = await fetch(`/api/daily-steps?userId=${currentUserId}`)
         if (response.ok) {
           const steps = await response.json()
+          console.log('Daily steps loaded:', steps.length, 'steps (all)')
           setDailySteps(steps)
+        } else {
+          console.error('Failed to load daily steps, status:', response.status)
+          const errorText = await response.text()
+          console.error('Error response:', errorText)
         }
       } catch (error) {
         console.error('Error loading daily steps:', error)
@@ -45,7 +57,7 @@ export function GameWorldView({ player, goals, habits, onGoalsUpdate, onHabitsUp
     }
 
     loadDailySteps()
-  }, [player?.user_id])
+  }, [userId, player?.user_id])
 
   const handleNavigateToDailyPlan = () => {
     setCurrentView('daily-plan')
@@ -97,6 +109,7 @@ export function GameWorldView({ player, goals, habits, onGoalsUpdate, onHabitsUp
         return (
           <JourneyGameView
             player={player}
+            userId={userId}
             goals={goals}
             habits={habits}
             dailySteps={dailySteps}

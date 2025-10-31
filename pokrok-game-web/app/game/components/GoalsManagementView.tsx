@@ -64,14 +64,11 @@ export function GoalsManagementView({ player, goals, onGoalsUpdate, onBack }: Go
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900" style={{
-          textShadow: '2px 2px 0px #000000',
-          color: '#2d5016'
-        }}>
-          SPRÁVA CÍLŮ
-        </h1>
+    <div className="bg-white bg-opacity-95 rounded-2xl p-8 border border-orange-200 shadow-xl backdrop-blur-sm" style={{
+      boxShadow: '0 12px 24px rgba(251, 146, 60, 0.15), 0 4px 8px rgba(0, 0, 0, 0.05)'
+    }}>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-orange-800" style={{ letterSpacing: '1px' }}>CÍLE</h1>
         <div className="flex gap-2">
           {onBack && (
             <button
@@ -83,9 +80,12 @@ export function GoalsManagementView({ player, goals, onGoalsUpdate, onBack }: Go
           )}
           <button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="px-4 py-2 rounded-lg font-bold bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-lg transition-all duration-300"
+            className="p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+            title={showAddForm ? 'Zrušit' : 'Přidat cíl'}
           >
-            {showAddForm ? 'ZRUŠIT' : 'PŘIDAT CÍL'}
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showAddForm ? "M6 18L18 6M6 6l12 12" : "M12 6v6m0 0v6m0-6h6m-6 0H6"} />
+            </svg>
           </button>
         </div>
       </div>
@@ -169,12 +169,10 @@ export function GoalsManagementView({ player, goals, onGoalsUpdate, onBack }: Go
 
       {/* Goals List */}
       <div>
-        <h2 className="text-lg font-bold text-gray-900 mb-4">TVOJE CÍLE ({goals.length})</h2>
-        
         {goals.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <p className="text-lg mb-4">Zatím nemáš žádné cíle</p>
-            <p className="text-sm">Klikni na "PŘIDAT CÍL" a začni budovat svou cestu!</p>
+          <div className="text-center py-12">
+            <p className="text-lg font-bold text-gray-700 mb-2">Žádné cíle nejsou nastavené</p>
+            <p className="text-sm text-gray-500">Klikněte na tlačítko níže pro přidání nového cíle</p>
           </div>
         ) : (
           <div className="space-y-4">

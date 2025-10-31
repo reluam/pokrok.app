@@ -83,8 +83,11 @@ export async function PUT(request: NextRequest) {
     const { neon } = await import('@neondatabase/serverless')
     const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
     
-    // Check if this is a completion toggle or full update
-    if (completed !== undefined && title === undefined) {
+    // Check what type of update this is
+    const isCompletionOnly = completed !== undefined && title === undefined && date === undefined
+    const isDateOnly = date !== undefined && title === undefined && completed === undefined
+    
+    if (isCompletionOnly) {
       console.log('PUT /api/daily-steps - This is a completion toggle')
       // This is a completion toggle
       const result = await sql`
@@ -104,24 +107,116 @@ export async function PUT(request: NextRequest) {
       
       console.log('PUT /api/daily-steps - Completion toggle successful:', result[0])
       return NextResponse.json(result[0])
+    } else if (isDateOnly) {
+      console.log('PUT /api/daily-steps - This is a date-only update (drag & drop)')
+      console.log('PUT /api/daily-steps - Date value received:', date)
+      // This is a date-only update (from drag & drop)
+      // Use SQL DATE() function to ensure date-only storage
+      if (date) {
+        // Use CAST to ensure date-only storage without time component
+        const result = await sql`
+          UPDATE daily_steps 
+          SET 
+            date = CAST(${date}::text AS DATE),
+            updated_at = NOW()
+          WHERE id = ${stepId}
+          RETURNING *
+        `
+        
+        if (result.length === 0) {
+          console.log('PUT /api/daily-steps - Step not found for date update')
+          return NextResponse.json({ error: 'Step not found' }, { status: 404 })
+        }
+        
+        console.log('PUT /api/daily-steps - Date update successful:', result[0])
+        return NextResponse.json(result[0])
+      } else {
+        // Setting date to null
+        const result = await sql`
+          UPDATE daily_steps 
+          SET 
+            date = NULL,
+            updated_at = NOW()
+          WHERE id = ${stepId}
+          RETURNING *
+        `
+        
+        if (result.length === 0) {
+          console.log('PUT /api/daily-steps - Step not found for date update')
+          return NextResponse.json({ error: 'Step not found' }, { status: 404 })
+        }
+        
+        console.log('PUT /api/daily-steps - Date cleared successfully:', result[0])
+        return NextResponse.json(result[0])
+      }
     } else {
       console.log('PUT /api/daily-steps - This is a full update (edit form)')
       // This is a full update (edit form)
-      const result = await sql`
-        UPDATE daily_steps 
-        SET 
-          title = ${title || null},
-          description = ${description || null},
-          goal_id = ${goalId || null},
-          is_important = ${isImportant || false},
-          is_urgent = ${isUrgent || false},
-          estimated_time = ${estimatedTime || 30},
-          xp_reward = ${xpReward || 1},
-          date = ${date ? new Date(date) : new Date()},
-          updated_at = NOW()
-        WHERE id = ${stepId}
-        RETURNING *
-      `
+      // Build dynamic update query using template literals
+      const updateParts = []
+      const updateValues: any[] = []
+      
+      if (title !== undefined) {
+        updateParts.push(`title = $${updateParts.length + 1}`)
+        updateValues.push(title || null)
+      }
+      if (description !== undefined) {
+        updateParts.push(`description = $${updateParts.length + 1}`)
+        updateValues.push(description || null)
+      }
+      if (goalId !== undefined) {
+        updateParts.push(`goal_id = $${updateParts.length + 1}`)
+        updateValues.push(goalId || null)
+      }
+      if (isImportant !== undefined) {
+        updateParts.push(`is_important = $${updateParts.length + 1}`)
+        updateValues.push(isImportant || false)
+      }
+      if (isUrgent !== undefined) {
+        updateParts.push(`is_urgent = $${updateParts.length + 1}`)
+        updateValues.push(isUrgent || false)
+      }
+      if (estimatedTime !== undefined) {
+        updateParts.push(`estimated_time = $${updateParts.length + 1}`)
+        updateValues.push(estimatedTime || 30)
+      }
+      if (xpReward !== undefined) {
+        updateParts.push(`xp_reward = $${updateParts.length + 1}`)
+        updateValues.push(xpReward || 1)
+      }
+      if (date !== undefined) {
+        // Format date as YYYY-MM-DD string for PostgreSQL DATE type
+        if (date) {
+          // Ensure date is in YYYY-MM-DD format
+          let dateStr = date
+          if (dateStr instanceof Date) {
+            dateStr = dateStr.toISOString().split('T')[0]
+          } else if (typeof dateStr === 'string' && dateStr.includes('T')) {
+            dateStr = dateStr.split('T')[0]
+          }
+          // Use parameterized query - PostgreSQL will auto-cast YYYY-MM-DD string to DATE
+          const paramIndex = updateParts.length + 1
+          updateParts.push(`date = $${paramIndex}`)
+          updateValues.push(dateStr)
+        } else {
+          updateParts.push(`date = $${updateParts.length + 1}`)
+          updateValues.push(null)
+        }
+      }
+      
+      if (updateParts.length === 0) {
+        console.log('PUT /api/daily-steps - No fields to update')
+        return NextResponse.json({ error: 'No fields to update' }, { status: 400 })
+      }
+      
+      const stepIdParamIndex = updateValues.length + 1
+      const query = `UPDATE daily_steps SET ${updateParts.join(', ')}, updated_at = NOW() WHERE id = $${stepIdParamIndex} RETURNING *`
+      updateValues.push(stepId)
+      
+      console.log('PUT /api/daily-steps - Full update query:', query)
+      console.log('PUT /api/daily-steps - Full update values:', updateValues)
+      
+      const result = await sql.unsafe(query, updateValues) as any[]
 
       if (result.length === 0) {
         console.log('PUT /api/daily-steps - Step not found for full update')
@@ -131,9 +226,11 @@ export async function PUT(request: NextRequest) {
       console.log('PUT /api/daily-steps - Full update successful:', result[0])
       return NextResponse.json(result[0])
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('PUT /api/daily-steps - Error updating daily step:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const errorMessage = error?.message || 'Internal server error'
+    console.error('PUT /api/daily-steps - Error details:', errorMessage)
+    return NextResponse.json({ error: errorMessage, details: error?.stack }, { status: 500 })
   }
 }
 

@@ -10,6 +10,7 @@ export default function GamePage() {
   const { isSignedIn, isLoaded, user } = useUser()
   const router = useRouter()
   const [player, setPlayer] = useState<any>(null)
+  const [userId, setUserId] = useState<string | null>(null)
   const [goals, setGoals] = useState<any[]>([])
   const [habits, setHabits] = useState<any[]>([])
   
@@ -57,6 +58,7 @@ export default function GamePage() {
                     }
                     
                     const newUser = await createUserResponse.json()
+                    setUserId(newUser.id)
                     // Load goals and habits (empty arrays for new users)
                     setGoals([])
                     setHabits([])
@@ -69,6 +71,7 @@ export default function GamePage() {
                   }
                 } else {
                   const dbUser = await userResponse.json()
+                  setUserId(dbUser.id)
 
                   // Load existing data via API (skip onboarding check)
                   const [playerResponse, goalsResponse, habitsResponse] = await Promise.all([
@@ -150,6 +153,7 @@ export default function GamePage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-50 to-pink-100">
       <GameWorldView 
         player={player} 
+        userId={userId}
         goals={goals} 
         habits={habits}
         onGoalsUpdate={setGoals}

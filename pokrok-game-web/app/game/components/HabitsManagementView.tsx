@@ -95,14 +95,11 @@ export function HabitsManagementView({ player, habits, onHabitsUpdate, onBack }:
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900" style={{
-          textShadow: '2px 2px 0px #000000',
-          color: '#2d5016'
-        }}>
-          SPRÁVA NÁVYKŮ
-        </h1>
+    <div className="bg-white bg-opacity-95 rounded-2xl p-8 border border-orange-200 shadow-xl backdrop-blur-sm" style={{
+      boxShadow: '0 12px 24px rgba(251, 146, 60, 0.15), 0 4px 8px rgba(0, 0, 0, 0.05)'
+    }}>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-orange-800" style={{ letterSpacing: '1px' }}>NÁVYKY</h1>
         <div className="flex gap-2">
           {onBack && (
             <button
@@ -114,17 +111,20 @@ export function HabitsManagementView({ player, habits, onHabitsUpdate, onBack }:
           )}
           <button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="px-4 py-2 rounded-lg font-bold bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-lg transition-all duration-300"
+            className="p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+            title={showAddForm ? 'Zrušit' : 'Přidat návyk'}
           >
-            {showAddForm ? 'ZRUŠIT' : 'PŘIDAT NÁVYK'}
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showAddForm ? "M6 18L18 6M6 6l12 12" : "M12 6v6m0 0v6m0-6h6m-6 0H6"} />
+            </svg>
           </button>
         </div>
       </div>
 
-      {/* Add Custom Habit Form */}
+      {/* Add Habit Form */}
       {showAddForm && (
         <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">VLASTNÍ NÁVYK</h2>
+          <h2 className="text-lg font-bold text-gray-900 mb-4">PŘIDAT NOVÝ NÁVYK</h2>
           
           <div className="space-y-4">
             <div>
@@ -135,19 +135,19 @@ export function HabitsManagementView({ player, habits, onHabitsUpdate, onBack }:
                 onChange={(e) => setCustomHabitName(e.target.value)}
                 className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
                 placeholder="Např. Ranní rutina"
-                maxLength={50}
+                maxLength={100}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">POPIS</label>
+              <label className="block text-sm font-bold text-gray-700 mb-2">POPIS (volitelné)</label>
               <textarea
                 value={customHabitDescription}
                 onChange={(e) => setCustomHabitDescription(e.target.value)}
                 className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none resize-none"
-                rows={2}
-                placeholder="Co přesně budeš dělat?"
-                maxLength={200}
+                rows={3}
+                placeholder="Podrobnější popis návyku..."
+                maxLength={500}
               />
             </div>
 
@@ -170,9 +170,9 @@ export function HabitsManagementView({ player, habits, onHabitsUpdate, onBack }:
               <button
                 onClick={handleAddCustomHabit}
                 disabled={!customHabitName.trim()}
-                className="px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                PŘIDAT VLASTNÍ NÁVYK
+                PŘIDAT NÁVYK
               </button>
               <button
                 onClick={() => setShowAddForm(false)}
@@ -192,7 +192,7 @@ export function HabitsManagementView({ player, habits, onHabitsUpdate, onBack }:
           {PREDEFINED_HABITS.map((habit) => (
             <div
               key={habit.name}
-              className="p-4 border-2 border-gray-300 rounded-lg hover:border-purple-500 transition-colors cursor-pointer"
+              className="p-4 rounded-lg border-2 border-gray-300 bg-gray-50 hover:border-purple-500 transition-all duration-300 cursor-pointer"
               onClick={() => handleAddPredefinedHabit(habit.name)}
             >
               <h3 className="font-bold text-gray-900 mb-2">{habit.name}</h3>
@@ -207,57 +207,48 @@ export function HabitsManagementView({ player, habits, onHabitsUpdate, onBack }:
 
       {/* Current Habits */}
       <div>
-        <h2 className="text-lg font-bold text-gray-900 mb-4">TVOJE NÁVYKY ({habits.length})</h2>
-        
         {habits.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <p className="text-lg mb-4">Zatím nemáš žádné návyky</p>
-            <p className="text-sm">Vyber si z přednastavených nebo vytvoř vlastní!</p>
+          <div className="text-center py-12">
+            <p className="text-lg font-bold text-gray-700 mb-2">Žádné návyky nejsou nastavené</p>
+            <p className="text-sm text-gray-500">Klikněte na tlačítko níže pro přidání nového návyku</p>
           </div>
         ) : (
           <div className="space-y-4">
             {habits.map((habit) => (
               <div
                 key={habit.id}
-                className="p-4 rounded-lg border-2 border-gray-300 bg-gray-50 hover:border-purple-500 transition-colors"
+                className={`p-4 rounded-lg border-2 transition-all duration-300 ${
+                  'border-gray-300 bg-gray-50 hover:border-purple-500'
+                }`}
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="font-bold text-gray-900">{habit.name}</h3>
-                      {habit.isCustom && <span className="text-orange-600 text-sm">(vlastní)</span>}
                     </div>
                     
-                    <p className="text-sm text-gray-600 mb-2">{habit.description}</p>
+                    {habit.description && (
+                      <p className="text-sm text-gray-600 mb-2">{habit.description}</p>
+                    )}
                     
-                    <div className="text-xs text-gray-500 mb-3">
-                      Kategorie: {habit.category} • Obtížnost: {habit.difficulty} •
+                    <div className="text-xs text-gray-500">
+                      Kategorie: {habit.category} • 
+                      Obtížnost: {habit.difficulty} • 
                       Vytvořeno: {new Date(habit.createdAt).toLocaleDateString('cs-CZ')}
+                      {habit.isCustom && <span className="text-orange-600 ml-2">• Vlastní</span>}
                     </div>
-
-                    {/* Streak Management */}
-                    <div className="flex items-center gap-4">
-                      <div className="text-sm">
-                        <span className="font-bold">Streak:</span> {habit.streak} dní
+                    
+                    {/* Streak info - simpler display */}
+                    {(habit.streak > 0 || habit.maxStreak > 0) && (
+                      <div className="mt-2 text-sm text-gray-600">
+                        <span className="font-bold">Streak:</span> {habit.streak || 0} dní
+                        {habit.maxStreak > 0 && (
+                          <span className="ml-3">
+                            <span className="font-bold">Max streak:</span> {habit.maxStreak} dní
+                          </span>
+                        )}
                       </div>
-                      <div className="text-sm">
-                        <span className="font-bold">Max streak:</span> {habit.maxStreak} dní
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleUpdateStreak(habit.id, true)}
-                          className="px-2 py-1 rounded bg-green-500 text-white hover:bg-green-600 transition-colors text-xs"
-                        >
-                          +1
-                        </button>
-                        <button
-                          onClick={() => handleUpdateStreak(habit.id, false)}
-                          className="px-2 py-1 rounded bg-red-500 text-white hover:bg-red-600 transition-colors text-xs"
-                        >
-                          -1
-                        </button>
-                      </div>
-                    </div>
+                    )}
                   </div>
                   
                   <button

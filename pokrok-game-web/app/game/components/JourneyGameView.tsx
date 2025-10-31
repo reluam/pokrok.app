@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { useUser } from '@clerk/nextjs'
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent, DragOverlay, useDroppable, useDraggable } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -12,6 +13,7 @@ import { CalendarProgram } from './CalendarProgram'
 
 interface JourneyGameViewProps {
   player?: any
+  userId?: string | null
   goals?: any[]
   habits?: any[]
   dailySteps?: any[]
@@ -29,6 +31,7 @@ interface JourneyGameViewProps {
 
 export function JourneyGameView({ 
   player, 
+  userId: userIdProp,
   goals = [], 
   habits = [], 
   dailySteps = [],
@@ -43,8 +46,42 @@ export function JourneyGameView({
   onGoalsUpdate,
   onDailyStepsUpdate
 }: JourneyGameViewProps) {
+  const { user } = useUser()
+  const [userId, setUserId] = useState<string | null>(userIdProp || null)
   const [characterDialogue, setCharacterDialogue] = useState("Ahoj! Jsem tvůj průvodce na cestě k úspěchu. Co chceš dělat dnes?")
   const [showDialogue, setShowDialogue] = useState(true)
+  
+  // Update userId when prop changes
+  useEffect(() => {
+    if (userIdProp) {
+      setUserId(userIdProp)
+    }
+  }, [userIdProp])
+  
+  // Load userId from API as fallback if not provided as prop
+  useEffect(() => {
+    if (userId || !user?.id) return
+    
+    const loadUserId = async () => {
+      try {
+        console.log('Loading userId for Clerk ID:', user.id)
+        const response = await fetch(`/api/user?clerkId=${user.id}`)
+        if (response.ok) {
+          const dbUser = await response.json()
+          console.log('User loaded from DB:', dbUser)
+          setUserId(dbUser.id)
+        } else {
+          console.error('Failed to load user, status:', response.status)
+          const errorText = await response.text()
+          console.error('Error response:', errorText)
+        }
+      } catch (error) {
+        console.error('Error loading userId:', error)
+      }
+    }
+    
+    loadUserId()
+  }, [user?.id, userId])
   const [currentPage, setCurrentPage] = useState<'main' | 'goals' | 'habits' | 'steps' | 'daily-plan' | 'statistics' | 'achievements' | 'settings'>('main')
   const [showAddHabitForm, setShowAddHabitForm] = useState(false)
   const [editingHabit, setEditingHabit] = useState<any>(null)
@@ -152,6 +189,11 @@ export function JourneyGameView({
     xpReward: 1,
     customXpReward: ''
   })
+  
+  // Filters for steps page
+  const [stepsShowCompleted, setStepsShowCompleted] = useState(false)
+  const [stepsDateFilter, setStepsDateFilter] = useState<'all' | 'overdue' | 'today' | 'future'>('all')
+  const [stepsGoalFilter, setStepsGoalFilter] = useState<string | null>(null)
 
   const handleCharacterClick = () => {
     // Cycle through different display modes
@@ -393,6 +435,9 @@ export function JourneyGameView({
   const [goalAreaId, setGoalAreaId] = useState('')
   const [showGoalAreaEditor, setShowGoalAreaEditor] = useState(false)
   const [showGoalStatusEditor, setShowGoalStatusEditor] = useState(false)
+  
+  // Drag & drop state
+  const [activeDragId, setActiveDragId] = useState<string | null>(null)
 
   useEffect(() => {
     if (selectedItem && selectedItemType === 'step') {
@@ -2643,9 +2688,9 @@ export function JourneyGameView({
       return
     }
 
-    // Get userId from goals (assuming goals are loaded)
-    if (goals.length === 0) {
-      alert('Nelze vytvořit cíl bez načtených cílů')
+    // Get userId from state
+    if (!userId) {
+      alert('Chyba: Uživatel není nalezen')
       return
     }
 
@@ -2656,7 +2701,7 @@ export function JourneyGameView({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId: goals[0].user_id,
+          userId: userId,
           title: newGoal.title,
           description: newGoal.description,
           areaId: newGoal.areaId,
@@ -2785,16 +2830,30 @@ export function JourneyGameView({
     try {
       console.log('Updating step:', editingStep)
       
+      // Format date as YYYY-MM-DD for consistency with API
+      let formattedDate = editingStep.date || ''
+      if (formattedDate && formattedDate.includes('T')) {
+        // If it's already an ISO string, extract date part
+        formattedDate = formattedDate.split('T')[0]
+      } else if (formattedDate) {
+        // If it's already YYYY-MM-DD, use it as is
+        formattedDate = formattedDate
+      } else {
+        // Default to today in YYYY-MM-DD format
+        const today = new Date()
+        formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+      }
+      
       const requestBody = {
         stepId: editingStep.id,
         title: editingStep.title,
-        description: editingStep.description,
-        goalId: editingStep.goalId,
+        description: editingStep.description || undefined,
+        goalId: editingStep.goalId || undefined,
         isImportant: editingStep.isImportant,
         isUrgent: editingStep.isUrgent,
         estimatedTime: editingStep.estimatedTime,
         xpReward: editingStep.xpReward,
-        date: editingStep.date ? new Date(editingStep.date).toISOString() : new Date().toISOString()
+        date: formattedDate
       }
       
       console.log('Request body:', requestBody)
@@ -2870,6 +2929,160 @@ export function JourneyGameView({
     } catch (error) {
       console.error('Error deleting step:', error)
       alert('Chyba při mazání kroku')
+    }
+  }
+
+  const handleStepDragStart = (event: DragStartEvent) => {
+    setActiveDragId(event.active.id as string)
+  }
+
+  const handleStepDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+    
+    // Reset active drag ID
+    setActiveDragId(null)
+    
+    if (!over) {
+      console.log('handleStepDragEnd: No over target')
+      return
+    }
+    
+    const stepId = active.id as string
+    let targetColumn = over.id as string
+    
+    console.log('handleStepDragEnd: stepId =', stepId, 'over.id =', targetColumn)
+    
+    // Find the step
+    const step = dailySteps.find(s => s.id === stepId)
+    if (!step) {
+      console.log('handleStepDragEnd: Step not found')
+      return
+    }
+    
+    // If dropped on a step (not column), find which column that step belongs to
+    if (!targetColumn.startsWith('column-')) {
+      console.log('handleStepDragEnd: Dropped on step, finding column...')
+      const targetStep = dailySteps.find(s => s.id === targetColumn)
+      if (targetStep) {
+        // Determine which column this step belongs to
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        
+        if (targetStep.completed) {
+          targetColumn = 'column-completed'
+        } else if (!targetStep.date) {
+          targetColumn = 'column-no-date'
+        } else {
+          const stepDate = new Date(targetStep.date)
+          stepDate.setHours(0, 0, 0, 0)
+          const stepTime = stepDate.getTime()
+          const todayTime = today.getTime()
+          
+          if (stepTime < todayTime) {
+            targetColumn = 'column-overdue'
+          } else if (stepTime === todayTime) {
+            targetColumn = 'column-today'
+          } else {
+            targetColumn = 'column-future'
+          }
+        }
+      } else {
+        console.log('handleStepDragEnd: Target step not found, cannot determine column')
+        return
+      }
+    }
+    
+    console.log('handleStepDragEnd: Determined target column =', targetColumn)
+    
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    // Helper function to format date as YYYY-MM-DD in local timezone
+    const formatLocalDate = (date: Date): string => {
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    }
+    
+    let newDate: string | null = null
+    
+    if (targetColumn === 'column-overdue') {
+      // Set to yesterday to make it overdue
+      const yesterday = new Date(today)
+      yesterday.setDate(yesterday.getDate() - 1)
+      newDate = formatLocalDate(yesterday)
+    } else if (targetColumn === 'column-today') {
+      newDate = formatLocalDate(today)
+    } else if (targetColumn === 'column-future') {
+      // Set to tomorrow
+      const tomorrow = new Date(today)
+      tomorrow.setDate(tomorrow.getDate() + 1)
+      newDate = formatLocalDate(tomorrow)
+    } else if (targetColumn === 'column-no-date') {
+      newDate = null
+    } else if (targetColumn === 'column-completed') {
+      // Just mark as completed, don't change date
+      if (!step.completed) {
+        await handleStepToggle(stepId, true)
+      }
+      return
+    } else {
+      console.log('handleStepDragEnd: Unknown target column:', targetColumn)
+      return
+    }
+    
+    console.log('handleStepDragEnd: Setting newDate =', newDate, 'current step.date =', step.date)
+    
+    // Don't update if date is the same
+    const currentDateStr = step.date ? (typeof step.date === 'string' ? step.date : new Date(step.date).toISOString().split('T')[0]) : null
+    if (currentDateStr === newDate) {
+      console.log('handleStepDragEnd: Date unchanged, skipping update')
+      return
+    }
+    
+    // Update step date
+    try {
+      console.log('handleStepDragEnd: Sending PUT request with stepId =', stepId, 'date =', newDate)
+      const response = await fetch('/api/daily-steps', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          stepId: stepId,
+          date: newDate,
+        }),
+      })
+
+      if (response.ok) {
+        const updatedStep = await response.json()
+        console.log('handleStepDragEnd: Step updated successfully:', updatedStep)
+        console.log('handleStepDragEnd: Updated step date:', updatedStep.date)
+        
+        // Update the step in dailySteps array
+        const updatedSteps = dailySteps.map(s => {
+          if (s.id === updatedStep.id) {
+            console.log('handleStepDragEnd: Replacing step:', s.id, 'old date:', s.date, 'new date:', updatedStep.date)
+            return updatedStep
+          }
+          return s
+        })
+        
+        console.log('handleStepDragEnd: Calling onDailyStepsUpdate with', updatedSteps.length, 'steps')
+        if (onDailyStepsUpdate) {
+          onDailyStepsUpdate(updatedSteps)
+        } else {
+          console.warn('handleStepDragEnd: onDailyStepsUpdate is not defined!')
+        }
+      } else {
+        const errorText = await response.text()
+        console.error('Failed to update step date, status:', response.status, 'error:', errorText)
+        alert('Nepodařilo se aktualizovat datum kroku')
+      }
+    } catch (error) {
+      console.error('Error updating step date:', error)
+      alert('Chyba při aktualizaci data kroku')
     }
   }
 
@@ -3086,23 +3299,57 @@ export function JourneyGameView({
   useEffect(() => {
     const loadAreas = async () => {
       try {
-        // Get user ID from goals (assuming goals are loaded)
-        if (goals.length > 0 && goals[0].user_id) {
-          const response = await fetch(`/api/areas?userId=${goals[0].user_id}`)
+        // Get user ID from userId state
+        if (userId) {
+          console.log('Loading areas for userId:', userId)
+          const response = await fetch(`/api/areas?userId=${userId}`)
           if (response.ok) {
             const areasData = await response.json()
-            setAreas(areasData)
+            console.log('Areas loaded:', areasData)
+            
+            // If no areas exist, create default ones
+            if (areasData.length === 0) {
+              console.log('No areas found, creating default areas...')
+              const initResponse = await fetch('/api/areas/initialize-default', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId })
+              })
+              
+              if (initResponse.ok) {
+                const initData = await initResponse.json()
+                console.log('Default areas created:', initData)
+                setAreas(initData.areas || [])
+              } else {
+                console.error('Failed to initialize default areas')
+                setAreas([])
+              }
+            } else {
+              setAreas(areasData)
+            }
+          } else {
+            console.error('Failed to load areas, status:', response.status)
+            const errorText = await response.text()
+            console.error('Error response:', errorText)
           }
+        } else {
+          console.log('userId not available yet, waiting...')
         }
       } catch (error) {
         console.error('Error loading areas:', error)
       }
     }
     loadAreas()
-  }, [goals])
+  }, [userId])
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 10, // User must drag at least 10px before drag starts
+        delay: 100, // Wait 100ms before allowing drag to start (allows clicks)
+        tolerance: 5, // Allow 5px tolerance for mouse movement during delay
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -3445,6 +3692,401 @@ export function JourneyGameView({
     }
   }
 
+  // Draggable Step Component
+  function DraggableStep({ step, isEditing, initializeEditingStep, handleStepToggle, goals, editingStep, setEditingStep, handleUpdateStep, dailySteps, onDailyStepsUpdate }: any) {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      isDragging,
+    } = useDraggable({
+      id: step.id,
+    })
+
+    const [showMenu, setShowMenu] = useState(false)
+    const [showDateMenu, setShowDateMenu] = useState(false)
+    const [showXpMenu, setShowXpMenu] = useState(false)
+
+    const style = {
+      transform: CSS.Translate.toString(transform),
+      opacity: isDragging ? 0 : 1, // Hide original element completely when dragging
+    }
+
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="p-3 rounded-lg border-2 bg-white hover:shadow-md transition-all relative"
+      >
+        <div className="flex items-start gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              handleStepToggle(step.id, !step.completed)
+            }}
+            onPointerDown={(e) => {
+              e.stopPropagation() // Prevent drag when clicking checkbox
+            }}
+            className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+              step.completed 
+                ? 'bg-green-500 border-green-500 text-white' 
+                : 'border-gray-300 hover:border-green-400'
+            }`}
+          >
+            {step.completed && '✓'}
+          </button>
+          <div 
+            className="flex-1 min-w-0 cursor-pointer"
+            onClick={() => isEditing ? setEditingStep(null) : initializeEditingStep(step)}
+          >
+            <div className={`font-medium text-sm ${step.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+              {step.title}
+            </div>
+            {step.description && (
+              <div className="text-xs text-gray-500 mt-1 line-clamp-1">
+                {step.description}
+              </div>
+            )}
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              {step.goal_id && (
+                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                  {goals.find((g: any) => g.id === step.goal_id)?.title || 'Cíl'}
+                </span>
+              )}
+              {step.xp_reward > 0 && (
+                <span className="text-xs text-purple-600 bg-purple-100 px-2 py-0.5 rounded font-medium">
+                  ⭐ {step.xp_reward} XP
+                </span>
+              )}
+              {step.date && (
+                <span className="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded">
+                  📅 {new Date(step.date).toLocaleDateString('cs-CZ')}
+                </span>
+              )}
+            </div>
+          </div>
+          
+          {/* Menu button with three dots */}
+          {!isEditing && (
+            <div className="relative flex-shrink-0">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setShowMenu(!showMenu)
+                }}
+                onPointerDown={(e) => e.stopPropagation()}
+                className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                title="Menu"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                </svg>
+              </button>
+              
+              {/* Dropdown Menu */}
+              {showMenu && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-10" 
+                    onClick={() => setShowMenu(false)}
+                  />
+                  <div className="absolute right-0 top-8 z-20 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[160px]">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setShowDateMenu(!showDateMenu)
+                        setShowMenu(false)
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                    >
+                      <span>📅</span>
+                      <span>Datum</span>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setShowXpMenu(!showXpMenu)
+                        setShowMenu(false)
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                    >
+                      <span>⭐</span>
+                      <span>XP</span>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        initializeEditingStep(step)
+                        setShowMenu(false)
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                    >
+                      <span>✏️</span>
+                      <span>Upravit</span>
+                    </button>
+                  </div>
+                </>
+              )}
+              
+              {/* Date Menu Popup */}
+              {showDateMenu && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-10" 
+                    onClick={() => setShowDateMenu(false)}
+                  />
+                  <div className="absolute right-0 top-8 z-20 bg-white rounded-lg shadow-lg border border-gray-200 p-3 min-w-[200px]">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Datum</label>
+                    <input
+                      type="date"
+                      value={step.date ? new Date(step.date).toISOString().split('T')[0] : ''}
+                      onChange={async (e) => {
+                        const newDate = e.target.value
+                        try {
+                          const response = await fetch('/api/daily-steps', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              stepId: step.id,
+                              date: newDate
+                            })
+                          })
+                          if (response.ok) {
+                            const updatedStep = await response.json()
+                            setShowDateMenu(false)
+                            // Refresh steps
+                            if (onDailyStepsUpdate) {
+                              const allSteps = dailySteps.map((s: any) => s.id === step.id ? updatedStep : s)
+                              onDailyStepsUpdate(allSteps)
+                            }
+                          }
+                        } catch (error) {
+                          console.error('Error updating date:', error)
+                        }
+                      }}
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setShowDateMenu(false)
+                      }}
+                      className="mt-2 w-full px-3 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600"
+                    >
+                      Zavřít
+                    </button>
+                  </div>
+                </>
+              )}
+              
+              {/* XP Menu Popup */}
+              {showXpMenu && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-10" 
+                    onClick={() => setShowXpMenu(false)}
+                  />
+                  <div className="absolute right-0 top-8 z-20 bg-white rounded-lg shadow-lg border border-gray-200 p-3 min-w-[200px]">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">XP Odměna</label>
+                    <div className="flex gap-2 mb-2">
+                      {[1, 2, 3, 4, 5].map(xp => (
+                        <button
+                          key={xp}
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            try {
+                              const response = await fetch('/api/daily-steps', {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  stepId: step.id,
+                                  title: step.title,
+                                  description: step.description,
+                                  goalId: step.goal_id,
+                                  isImportant: step.is_important,
+                                  isUrgent: step.is_urgent,
+                                  estimatedTime: step.estimated_time,
+                                  xpReward: xp,
+                                  date: step.date
+                                })
+                              })
+                              if (response.ok) {
+                                const updatedStep = await response.json()
+                                setShowXpMenu(false)
+                                // Refresh steps
+                                if (onDailyStepsUpdate) {
+                                  const allSteps = dailySteps.map((s: any) => s.id === step.id ? updatedStep : s)
+                                  onDailyStepsUpdate(allSteps)
+                                }
+                              }
+                            } catch (error) {
+                              console.error('Error updating XP:', error)
+                            }
+                          }}
+                          className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                            step.xp_reward === xp 
+                              ? 'bg-purple-500 text-white' 
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          }`}
+                        >
+                          {xp}
+                        </button>
+                      ))}
+                    </div>
+                    <input
+                      type="number"
+                      min="1"
+                      placeholder="Vlastní XP"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 mb-2"
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={async (e) => {
+                        if (e.key === 'Enter') {
+                          const xpValue = parseInt((e.target as HTMLInputElement).value)
+                          if (xpValue && xpValue > 0) {
+                            try {
+                              const response = await fetch('/api/daily-steps', {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  stepId: step.id,
+                                  title: step.title,
+                                  description: step.description,
+                                  goalId: step.goal_id,
+                                  isImportant: step.is_important,
+                                  isUrgent: step.is_urgent,
+                                  estimatedTime: step.estimated_time,
+                                  xpReward: xpValue,
+                                  date: step.date
+                                })
+                              })
+                              if (response.ok) {
+                                const updatedStep = await response.json()
+                                setShowXpMenu(false)
+                                // Refresh steps
+                                if (onDailyStepsUpdate) {
+                                  const allSteps = dailySteps.map((s: any) => s.id === step.id ? updatedStep : s)
+                                  onDailyStepsUpdate(allSteps)
+                                }
+                              }
+                            } catch (error) {
+                              console.error('Error updating XP:', error)
+                            }
+                          }
+                        }
+                      }}
+                    />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setShowXpMenu(false)
+                      }}
+                      className="w-full px-3 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600"
+                    >
+                      Zavřít
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+          
+          {/* Drag handle - only this area activates drag */}
+          <div
+            {...listeners}
+            {...attributes}
+            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M7 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM7 8a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM7 14a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM13 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM13 8a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM13 14a2 2 0 1 1 0 4 2 2 0 0 1 0-4z" />
+            </svg>
+          </div>
+        </div>
+        {isEditing && (
+          <div className="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="space-y-2">
+              <input
+                type="text"
+                value={editingStep.title || ''}
+                onChange={(e) => setEditingStep({...editingStep, title: e.target.value})}
+                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500"
+                placeholder="Název"
+              />
+              <textarea
+                value={editingStep.description || ''}
+                onChange={(e) => setEditingStep({...editingStep, description: e.target.value})}
+                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 resize-none"
+                placeholder="Popis (volitelné)"
+                rows={2}
+              />
+              <select
+                value={editingStep.goalId || ''}
+                onChange={(e) => setEditingStep({...editingStep, goalId: e.target.value || null})}
+                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500"
+              >
+                <option value="">Vyberte cíl (volitelné)</option>
+                {goals.filter((goal: any) => goal.status === 'active').map((goal: any) => (
+                  <option key={goal.id} value={goal.id}>
+                    {goal.title}
+                  </option>
+                ))}
+              </select>
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-gray-600 whitespace-nowrap">⭐ XP:</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={editingStep.xpReward || 1}
+                  onChange={(e) => setEditingStep({...editingStep, xpReward: parseInt(e.target.value) || 1})}
+                  className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500"
+                />
+              </div>
+              <input
+                type="date"
+                value={editingStep.date || ''}
+                onChange={(e) => setEditingStep({...editingStep, date: e.target.value})}
+                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={handleUpdateStep}
+                  className="px-3 py-1 bg-orange-500 text-white text-xs rounded hover:bg-orange-600"
+                >
+                  Uložit
+                </button>
+                <button
+                  onClick={() => setEditingStep(null)}
+                  className="px-3 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600"
+                >
+                  Zrušit
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // Droppable Column Component
+  function DroppableColumn({ id, children, className, style }: { id: string, children: React.ReactNode, className?: string, style?: React.CSSProperties }) {
+    const { setNodeRef, isOver } = useDroppable({
+      id: id,
+    })
+
+    return (
+      <div
+        ref={setNodeRef}
+        className={`${className} ${isOver ? 'ring-4 ring-orange-400 ring-opacity-50' : ''}`}
+        style={style}
+      >
+        {children}
+      </div>
+    )
+  }
+
   const renderPageContent = () => {
     switch (currentPage) {
       case 'goals':
@@ -3509,13 +4151,22 @@ export function JourneyGameView({
                       onChange={(e) => setNewGoal({...newGoal, areaId: e.target.value || null as any})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                     >
-                      <option value="">Vyberte oblast</option>
-                      {areas.map((area: any) => (
-                        <option key={area.id} value={area.id}>
-                          {area.name}
-                        </option>
-                      ))}
+                      <option value="">Vyberte oblast (volitelné)</option>
+                      {areas.length > 0 ? (
+                        areas.map((area: any) => (
+                          <option key={area.id} value={area.id}>
+                            {area.name}
+                          </option>
+                        ))
+                      ) : (
+                        <option value="" disabled>Žádné oblasti k dispozici</option>
+                      )}
                     </select>
+                    {areas.length === 0 && userId && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Pro vytvoření oblastí použijte nastavení nebo API
+                      </p>
+                    )}
                   </div>
                   
                   <div>
@@ -4076,6 +4727,71 @@ export function JourneyGameView({
         );
 
       case 'steps':
+        // Filter and categorize steps
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        
+        const filteredSteps = dailySteps.filter(step => {
+          // Filter by completed status
+          if (!stepsShowCompleted && step.completed) {
+            return false
+          }
+          
+          // Filter by date
+          if (stepsDateFilter !== 'all') {
+            if (!step.date) {
+              return false // Steps without date don't match any date filter
+            }
+            const stepDate = new Date(step.date)
+            stepDate.setHours(0, 0, 0, 0)
+            const stepTime = stepDate.getTime()
+            const todayTime = today.getTime()
+            
+            if (stepsDateFilter === 'overdue' && stepTime >= todayTime) {
+              return false
+            }
+            if (stepsDateFilter === 'today' && stepTime !== todayTime) {
+              return false
+            }
+            if (stepsDateFilter === 'future' && stepTime <= todayTime) {
+              return false
+            }
+          }
+          
+          // Filter by goal
+          if (stepsGoalFilter && step.goal_id !== stepsGoalFilter) {
+            return false
+          }
+          
+          return true
+        })
+        
+        // Categorize steps into columns
+        const overdueSteps = filteredSteps.filter(step => {
+          if (!step.date || step.completed) return false
+          const stepDate = new Date(step.date)
+          stepDate.setHours(0, 0, 0, 0)
+          return stepDate < today
+        })
+        
+        const todaySteps = filteredSteps.filter(step => {
+          if (!step.date || step.completed) return false
+          const stepDate = new Date(step.date)
+          stepDate.setHours(0, 0, 0, 0)
+          return stepDate.getTime() === today.getTime()
+        })
+        
+        const futureSteps = filteredSteps.filter(step => {
+          if (!step.date || step.completed) return false
+          const stepDate = new Date(step.date)
+          stepDate.setHours(0, 0, 0, 0)
+          return stepDate > today
+        })
+        
+        const noDateSteps = filteredSteps.filter(step => !step.date && !step.completed)
+        
+        const completedSteps = filteredSteps.filter(step => step.completed)
+        
         return (
           <div className="bg-white bg-opacity-95 rounded-2xl p-8 border border-orange-200 shadow-xl backdrop-blur-sm" style={{
             boxShadow: '0 12px 24px rgba(251, 146, 60, 0.15), 0 4px 8px rgba(0, 0, 0, 0.05)'
@@ -4091,6 +4807,56 @@ export function JourneyGameView({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
               </button>
+            </div>
+            
+            {/* Filters */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Date Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Filtr podle data</label>
+                  <select
+                    value={stepsDateFilter}
+                    onChange={(e) => setStepsDateFilter(e.target.value as 'all' | 'overdue' | 'today' | 'future')}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  >
+                    <option value="all">Všechny</option>
+                    <option value="overdue">Zpožděné</option>
+                    <option value="today">Dnešní</option>
+                    <option value="future">Budoucí</option>
+                  </select>
+                </div>
+                
+                {/* Goal Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Filtr podle cíle</label>
+                  <select
+                    value={stepsGoalFilter || ''}
+                    onChange={(e) => setStepsGoalFilter(e.target.value || null)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  >
+                    <option value="">Všechny cíle</option>
+                    {goals.filter(goal => goal.status === 'active').map((goal: any) => (
+                      <option key={goal.id} value={goal.id}>
+                        {goal.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                {/* Completed Filter */}
+                <div className="flex items-center">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={stepsShowCompleted}
+                      onChange={(e) => setStepsShowCompleted(e.target.checked)}
+                      className="mr-2 w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                    />
+                    <span className="text-sm font-medium text-gray-700">Zobrazit dokončené</span>
+                  </label>
+                </div>
+              </div>
             </div>
 
             {/* Create Step Form */}
@@ -4231,210 +4997,232 @@ export function JourneyGameView({
               </div>
             )}
 
-            <div className="space-y-4">
-              {dailySteps.map((step, index) => {
-                const isEditing = editingStep && editingStep.id === step.id
-                return (
-                  <div key={step.id}>
-                    <div
-                      onClick={() => isEditing ? setEditingStep(null) : initializeEditingStep(step)}
-                      className={`p-4 rounded-xl border text-sm transition-all duration-300 cursor-pointer ${
-                        step.completed 
-                          ? 'bg-green-50 border-green-200 text-green-700 shadow-md' 
-                          : 'bg-gray-50 border-gray-200 hover:shadow-md'
-                      }`}
-                      style={{
-                        boxShadow: step.completed ? '0 4px 12px rgba(34, 197, 94, 0.2)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                      }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-gray-400 font-bold">#{index + 1}</span>
-                        <div className="flex-1">
-                          <div className="font-medium">{step.title}</div>
-                          {step.description && (
-                            <div className="text-gray-600 text-xs mt-1">{step.description}</div>
-                          )}
-                          <div className="flex gap-2 mt-2">
-                            {step.is_important && (
-                              <span className="text-xs px-2 py-1 bg-red-100 text-red-600 rounded-full">Důležitý</span>
-                            )}
-                            {step.is_urgent && (
-                              <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded-full">Naléhavý</span>
-                            )}
-                            {step.estimated_time && (
-                              <span className="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded-full">
-                                {step.estimated_time} min
-                              </span>
-                            )}
-                            {step.xp_reward && (
-                              <span className="text-xs px-2 py-1 bg-purple-100 text-purple-600 rounded-full">
-                                {step.xp_reward} XP
-                              </span>
-                            )}
-                            {step.date && (
-                              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
-                                {new Date(step.date).toLocaleDateString('cs-CZ')}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        {step.completed && <span className="text-green-600 font-bold">✓</span>}
-                      </div>
-                    </div>
+            {/* Kanban Board with Columns */}
+            <DndContext 
+              sensors={sensors} 
+              collisionDetection={closestCenter} 
+              onDragStart={handleStepDragStart}
+              onDragEnd={handleStepDragEnd}
+            >
+              <div className={`grid grid-cols-1 gap-4 mb-6 ${stepsShowCompleted ? 'md:grid-cols-4' : 'md:grid-cols-3'}`} style={{ height: 'calc(100vh - 300px)' }}>
+                {/* Overdue Column */}
+                <DroppableColumn id="column-overdue" className="bg-red-50 rounded-xl p-4 border-2 border-red-200 flex flex-col" style={{ minHeight: '400px', maxHeight: 'calc(100vh - 200px)', height: '100%' }}>
+                <div className="flex items-center justify-between mb-4 flex-shrink-0">
+                  <h3 className="font-bold text-red-800 flex items-center gap-2">
+                    ⚠️ Zpožděné
+                    <span className="text-sm text-red-600 bg-red-100 px-2 py-0.5 rounded-full">
+                      {overdueSteps.length}
+                    </span>
+                  </h3>
+                </div>
+                <div className="space-y-2 flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
+                  {overdueSteps.map((step) => {
+                    const isEditing = editingStep && editingStep.id === step.id
+                    return (
+                      <DraggableStep
+                        key={step.id}
+                        step={step}
+                        isEditing={isEditing}
+                        initializeEditingStep={initializeEditingStep}
+                        handleStepToggle={handleStepToggle}
+                        goals={goals}
+                        editingStep={editingStep}
+                        setEditingStep={setEditingStep}
+                        handleUpdateStep={handleUpdateStep}
+                        dailySteps={dailySteps}
+                        onDailyStepsUpdate={onDailyStepsUpdate}
+                      />
+                    )
+                  })}
+                  {overdueSteps.length === 0 && (
+                    <div className="text-center text-gray-400 text-sm py-8">Žádné zpožděné kroky</div>
+                  )}
+                </div>
+                </DroppableColumn>
 
-                    {/* Edit Form */}
-                    {isEditing && (
-                      <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                        <h4 className="text-md font-semibold text-gray-800 mb-4">Upravit krok</h4>
-                        <div className="space-y-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Název kroku</label>
-                            <input
-                              type="text"
-                              value={editingStep.title}
-                              onChange={(e) => setEditingStep({...editingStep, title: e.target.value})}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                              placeholder="Zadejte název kroku"
+              {/* Today Column */}
+              <DroppableColumn id="column-today" className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200 flex flex-col" style={{ minHeight: '400px', maxHeight: 'calc(100vh - 200px)', height: '100%' }}>
+                <div className="flex items-center justify-between mb-4 flex-shrink-0">
+                  <h3 className="font-bold text-orange-800 flex items-center gap-2">
+                    📅 Dnešní
+                    <span className="text-sm text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">
+                      {todaySteps.length}
+                    </span>
+                  </h3>
+                </div>
+                <div className="space-y-2 flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
+                  {todaySteps.map((step) => {
+                    const isEditing = editingStep && editingStep.id === step.id
+                    return (
+                      <DraggableStep
+                        key={step.id}
+                        step={step}
+                        isEditing={isEditing}
+                        initializeEditingStep={initializeEditingStep}
+                        handleStepToggle={handleStepToggle}
+                        goals={goals}
+                        editingStep={editingStep}
+                        setEditingStep={setEditingStep}
+                        handleUpdateStep={handleUpdateStep}
+                        dailySteps={dailySteps}
+                        onDailyStepsUpdate={onDailyStepsUpdate}
+                      />
+                    )
+                  })}
+                  {todaySteps.length === 0 && (
+                    <div className="text-center text-gray-400 text-sm py-8">Žádné dnešní kroky</div>
+                  )}
+                </div>
+                </DroppableColumn>
+
+              {/* Future Column */}
+              <DroppableColumn id="column-future" className="bg-blue-50 rounded-xl p-4 border-2 border-blue-200 flex flex-col" style={{ minHeight: '400px', maxHeight: 'calc(100vh - 200px)', height: '100%' }}>
+                <div className="flex items-center justify-between mb-4 flex-shrink-0">
+                  <h3 className="font-bold text-blue-800 flex items-center gap-2">
+                    🔮 Budoucí
+                    <span className="text-sm text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">
+                      {futureSteps.length}
+                    </span>
+                  </h3>
+                </div>
+                <div className="space-y-2 flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
+                  {futureSteps.map((step) => {
+                    const isEditing = editingStep && editingStep.id === step.id
+                    return (
+                      <DraggableStep
+                        key={step.id}
+                        step={step}
+                        isEditing={isEditing}
+                        initializeEditingStep={initializeEditingStep}
+                        handleStepToggle={handleStepToggle}
+                        goals={goals}
+                        editingStep={editingStep}
+                        setEditingStep={setEditingStep}
+                        handleUpdateStep={handleUpdateStep}
+                        dailySteps={dailySteps}
+                        onDailyStepsUpdate={onDailyStepsUpdate}
+                      />
+                    )
+                  })}
+                  {noDateSteps.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-blue-300">
+                      <DroppableColumn id="column-no-date" className="">
+                        <div className="text-xs font-semibold text-blue-700 mb-2">Bez data ({noDateSteps.length})</div>
+                        {noDateSteps.map((step) => {
+                          const isEditing = editingStep && editingStep.id === step.id
+                          return (
+                            <DraggableStep
+                              key={step.id}
+                              step={step}
+                              isEditing={isEditing}
+                              initializeEditingStep={initializeEditingStep}
+                              handleStepToggle={handleStepToggle}
+                              goals={goals}
+                              editingStep={editingStep}
+                              setEditingStep={setEditingStep}
+                              handleUpdateStep={handleUpdateStep}
                             />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Popis kroku</label>
-                            <textarea
-                              value={editingStep.description}
-                              onChange={(e) => setEditingStep({...editingStep, description: e.target.value})}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                              rows={3}
-                              placeholder="Zadejte popis kroku"
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Cíl (volitelné)</label>
-                            <select
-                              value={editingStep.goalId || ''}
-                              onChange={(e) => setEditingStep({...editingStep, goalId: e.target.value || null as any})}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                            >
-                              <option value="">Vyberte cíl</option>
-                              {goals.filter(goal => goal.status === 'active').map((goal: any) => (
-                                <option key={goal.id} value={goal.id}>
-                                  {goal.title}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Datum (volitelné)</label>
-                            <input
-                              type="date"
-                              value={editingStep.date}
-                              onChange={(e) => setEditingStep({...editingStep, date: e.target.value})}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                            />
-                          </div>
-                          
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Odhadovaný čas (minuty)</label>
-                              <input
-                                type="number"
-                                value={editingStep.estimatedTime}
-                                onChange={(e) => setEditingStep({...editingStep, estimatedTime: parseInt(e.target.value) || 30})}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                min="1"
-                                max="480"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">XP odměna</label>
-                              <div className="flex gap-2 mb-2">
-                                {[1, 2, 3, 4, 5].map(xp => (
-                                  <button
-                                    key={xp}
-                                    type="button"
-                                    onClick={() => setEditingStep({...editingStep, xpReward: xp})}
-                                    className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                                      editingStep.xpReward === xp 
-                                        ? 'bg-orange-500 text-white' 
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                    }`}
-                                  >
-                                    {xp}
-                                  </button>
-                                ))}
-                              </div>
-                              <input
-                                type="number"
-                                value={editingStep.xpReward > 5 ? editingStep.xpReward : ''}
-                                onChange={(e) => {
-                                  const value = parseInt(e.target.value) || 1
-                                  if (value > 5) {
-                                    setEditingStep({...editingStep, xpReward: value})
-                                  }
-                                }}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                placeholder="Vlastní XP (6+)"
-                                min="6"
-                              />
-                            </div>
-                          </div>
-                          
-                          <div className="flex gap-2">
-                            <label className="flex items-center">
-                              <input
-                                type="checkbox"
-                                checked={editingStep.isImportant}
-                                onChange={(e) => setEditingStep({...editingStep, isImportant: e.target.checked})}
-                                className="mr-2"
-                              />
-                              <span className="text-sm text-gray-700">Důležitý</span>
-                            </label>
-                            <label className="flex items-center">
-                              <input
-                                type="checkbox"
-                                checked={editingStep.isUrgent}
-                                onChange={(e) => setEditingStep({...editingStep, isUrgent: e.target.checked})}
-                                className="mr-2"
-                              />
-                              <span className="text-sm text-gray-700">Naléhavý</span>
-                            </label>
-                          </div>
-                          
-                          <div className="flex gap-3">
-                            <button
-                              onClick={handleUpdateStep}
-                              className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                            >
-                              Uložit změny
-                            </button>
-                            <button
-                              onClick={() => setEditingStep(null)}
-                              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-                            >
-                              Zrušit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteStep(step.id)}
-                              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                            >
-                              Smazat krok
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                          )
+                        })}
+                      </DroppableColumn>
+                    </div>
+                  )}
+                  {futureSteps.length === 0 && noDateSteps.length === 0 && (
+                    <div className="text-center text-gray-400 text-sm py-8">Žádné budoucí kroky</div>
+                  )}
+                </div>
+                </DroppableColumn>
+
+              {/* Completed Column (shown only if filter enabled) */}
+              {stepsShowCompleted && (
+                <DroppableColumn id="column-completed" className="bg-green-50 rounded-xl p-4 border-2 border-green-200 flex flex-col" style={{ minHeight: '400px', maxHeight: 'calc(100vh - 200px)', height: '100%' }}>
+                  <div className="flex items-center justify-between mb-4 flex-shrink-0">
+                    <h3 className="font-bold text-green-800 flex items-center gap-2">
+                      ✓ Dokončené
+                      <span className="text-sm text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
+                        {completedSteps.length}
+                      </span>
+                    </h3>
+                  </div>
+                  <div className="space-y-2 flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
+                    {completedSteps.map((step) => {
+                      const isEditing = editingStep && editingStep.id === step.id
+                      return (
+                        <DraggableStep
+                          key={step.id}
+                          step={step}
+                          isEditing={isEditing}
+                          initializeEditingStep={initializeEditingStep}
+                          handleStepToggle={handleStepToggle}
+                          goals={goals}
+                          editingStep={editingStep}
+                          setEditingStep={setEditingStep}
+                          handleUpdateStep={handleUpdateStep}
+                        />
+                      )
+                    })}
+                    {completedSteps.length === 0 && (
+                      <div className="text-center text-gray-400 text-sm py-8">Žádné dokončené kroky</div>
                     )}
                   </div>
-                )
-              })}
-              {dailySteps.length === 0 && (
-                <div className="text-center text-gray-500 py-8">
-                  <p className="text-lg">Žádné kroky nejsou naplánované</p>
-                  <p className="text-sm">Přidejte kroky pro dnešní den</p>
-                </div>
+                </DroppableColumn>
               )}
-            </div>
+              </div>
+              
+              {/* Drag Overlay - shows the dragged step */}
+              <DragOverlay adjustScale={false} dropAnimation={null}>
+                {activeDragId ? (() => {
+                  const draggedStep = dailySteps.find((s: any) => s.id === activeDragId)
+                  if (!draggedStep) return null
+                  
+                  return (
+                    <div 
+                      className="p-3 rounded-lg border-2 bg-white cursor-move shadow-2xl opacity-95"
+                      style={{
+                        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+                        transform: 'rotate(2deg) translate(-50%, -50%)',
+                        pointerEvents: 'none'
+                      }}
+                    >
+                      <div className="flex items-start gap-2">
+                        <button
+                          className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                            draggedStep.completed 
+                              ? 'bg-green-500 border-green-500 text-white' 
+                              : 'border-gray-300'
+                          }`}
+                          disabled
+                        >
+                          {draggedStep.completed && '✓'}
+                        </button>
+                        <div className="flex-1 min-w-0">
+                          <div className={`font-medium text-sm ${draggedStep.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                            {draggedStep.title}
+                          </div>
+                          {draggedStep.goal_id && (
+                            <div className="text-xs text-gray-500 mt-1">
+                              {goals.find((g: any) => g.id === draggedStep.goal_id)?.title || 'Cíl'}
+                            </div>
+                          )}
+                          {draggedStep.date && (
+                            <div className="text-xs text-gray-600 mt-1">
+                              {new Date(draggedStep.date).toLocaleDateString('cs-CZ')}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })() : null}
+              </DragOverlay>
+            </DndContext>
+            
+            {filteredSteps.length === 0 && (
+              <div className="text-center text-gray-500 py-8">
+                <p className="text-lg">Žádné kroky neodpovídají filtru</p>
+                <p className="text-sm">Změňte nastavení filtru nebo přidejte nové kroky</p>
+              </div>
+            )}
           </div>
         );
 
@@ -5078,13 +5866,15 @@ export function JourneyGameView({
                   <h3 className="text-base font-bold text-orange-800" style={{ letterSpacing: '1px' }}>DALŠÍ KROKY</h3>
                   <button
                     onClick={() => {
-                      const today = new Date().toISOString().split('T')[0]
+                      // Format date in local timezone
+                      const today = new Date()
+                      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
                       const newStep = {
                         id: 'new-step',
                         title: '',
                         description: '',
                         completed: false,
-                        date: today,
+                        date: todayStr,
                         estimated_time: 0,
                         xp_reward: 0
                       }
@@ -5108,71 +5898,120 @@ export function JourneyGameView({
                       const today = new Date()
                       today.setHours(0, 0, 0, 0)
                       
+                      // Filter: only incomplete steps, and date should be today or in the past (including overdue) or future
                       const filteredSteps = dailySteps
-                        .filter(step => {
-                          console.log('Step:', step.title, 'completed:', step.completed, 'date:', step.date)
-                          return !step.completed
-                        })
+                        .filter(step => !step.completed) // Only incomplete steps
                         .filter(step => {
                           if (!step.date) {
-                            console.log('Step without date:', step.title)
+                            // Steps without date are always shown
                             return true
                           }
                           const stepDateObj = new Date(step.date)
                           stepDateObj.setHours(0, 0, 0, 0)
-                          const isTodayOrFuture = stepDateObj >= today
-                          console.log('Step date check:', step.title, 'stepDate:', stepDateObj, 'today:', today, 'isTodayOrFuture:', isTodayOrFuture)
-                          return isTodayOrFuture
+                          // Include overdue (past), today, and future steps
+                          return true // Show all incomplete steps regardless of date
+                        })
+                        .sort((a, b) => {
+                          // Sort: overdue first, then today, then future
+                          const dateA = a.date ? new Date(a.date).getTime() : 0
+                          const dateB = b.date ? new Date(b.date).getTime() : 0
+                          
+                          // Overdue steps first (negative days)
+                          if (dateA < today.getTime() && dateB >= today.getTime()) return -1
+                          if (dateA >= today.getTime() && dateB < today.getTime()) return 1
+                          
+                          // Then sort by date (earliest first)
+                          return dateA - dateB
                         })
                       
-                      console.log('Filtered steps count:', filteredSteps.length, 'out of', dailySteps.length)
-                      
-                      return filteredSteps.slice(0, 5).map((step, index) => (
-                        <div
-                          key={step.id}
-                          className="p-3 rounded-xl border text-sm transition-all duration-300 bg-gray-50 border-gray-200 hover:shadow-md"
-                          style={{
-                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
-                          }}
-                        >
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleStepToggle(step.id, !step.completed)
-                              }}
-                              className="w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-300 border-gray-300 hover:border-green-400 hover:shadow-sm"
-                              style={{
-                                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
-                              }}
-                              title="Označit jako dokončený"
-                            >
-                            </button>
-                            <span className="text-gray-400">#{index + 1}</span>
-                            <span 
-                              className="flex-1 truncate cursor-pointer"
-                              onClick={() => handleItemClick(step, 'step')}
-                            >
-                              {step.title}
-                            </span>
+                      return filteredSteps.slice(0, 5).map((step, index) => {
+                        const stepDate = step.date ? new Date(step.date) : null
+                        const stepDateOnly = stepDate ? new Date(stepDate.getFullYear(), stepDate.getMonth(), stepDate.getDate()) : null
+                        const isOverdue = stepDateOnly && stepDateOnly < today
+                        const isToday = stepDateOnly && stepDateOnly.getTime() === today.getTime()
+                        const isFuture = stepDateOnly && stepDateOnly > today
+                        
+                        return (
+                          <div
+                            key={step.id}
+                            className={`p-3 rounded-xl border text-sm transition-all duration-300 hover:shadow-md ${
+                              isOverdue 
+                                ? 'bg-red-50 border-red-200' 
+                                : isToday 
+                                  ? 'bg-orange-50 border-orange-200' 
+                                  : 'bg-gray-50 border-gray-200'
+                            }`}
+                            style={{
+                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
+                            }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleStepToggle(step.id, !step.completed)
+                                }}
+                                className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ${
+                                  isOverdue
+                                    ? 'border-red-300 hover:border-red-400'
+                                    : 'border-gray-300 hover:border-green-400'
+                                } hover:shadow-sm`}
+                                style={{
+                                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+                                }}
+                                title="Označit jako dokončený"
+                              >
+                              </button>
+                              <span className={`text-xs ${
+                                isOverdue ? 'text-red-600' : isToday ? 'text-orange-600' : 'text-gray-400'
+                              }`}>
+                                {isOverdue && '⚠️'}
+                                {isToday && '📅'}
+                                {isFuture && '🔮'}
+                              </span>
+                              <span 
+                                className="flex-1 truncate cursor-pointer font-medium"
+                                onClick={() => handleItemClick(step, 'step')}
+                              >
+                                {step.title}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between mt-1">
+                              <div className="text-xs text-gray-400">
+                                {step.goal?.title && `Cíl: ${step.goal.title}`}
+                              </div>
+                              {stepDate && (() => {
+                                const daysDiff = Math.ceil((stepDateOnly!.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+                                let dateText = ''
+                                if (daysDiff < 0) {
+                                  dateText = `Pozdě o ${Math.abs(daysDiff)} ${Math.abs(daysDiff) === 1 ? 'den' : Math.abs(daysDiff) < 5 ? 'dny' : 'dní'}`
+                                } else if (daysDiff === 0) {
+                                  dateText = 'Dnes'
+                                } else if (daysDiff === 1) {
+                                  dateText = 'Zítra'
+                                } else {
+                                  dateText = `Za ${daysDiff} ${daysDiff === 2 || daysDiff === 3 || daysDiff === 4 ? 'dny' : 'dní'}`
+                                }
+                                return (
+                                  <div className={`text-xs ${
+                                    isOverdue ? 'text-red-600 font-semibold' : 
+                                    isToday ? 'text-orange-600' : 
+                                    'text-gray-500'
+                                  }`}>
+                                    {dateText}
+                                  </div>
+                                )
+                              })()}
+                            </div>
                           </div>
-                          <div className="text-sm text-gray-400 mt-1">
-                            {step.goal?.title && `Cíl: ${step.goal.title}`}
-                          </div>
-                        </div>
-                      ))
+                        )
+                      })
                     })()}
                     {(() => {
                       const today = new Date()
                       today.setHours(0, 0, 0, 0)
                       const filteredCount = dailySteps
-                        .filter(step => !step.completed)
-                        .filter(step => {
-                          if (!step.date) return true
-                          const stepDateObj = new Date(step.date)
-                          stepDateObj.setHours(0, 0, 0, 0)
-                          return stepDateObj >= today
-                        }).length
+                        .filter(step => !step.completed).length
                       
                       if (filteredCount === 0) {
                         return (
@@ -5365,6 +6204,17 @@ export function JourneyGameView({
                   <circle cx="12" cy="12" r="3"/>
                 </svg>
                 <span className="text-sm font-medium">Cíle</span>
+              </button>
+              
+              <button
+                onClick={() => setCurrentPage('habits')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'habits' ? 'bg-white bg-opacity-25' : ''}`}
+                title="Návyky"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
+                <span className="text-sm font-medium">Návyky</span>
               </button>
               
               <button
