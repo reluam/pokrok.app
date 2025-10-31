@@ -13,10 +13,10 @@ export function StatisticsView({
   habits,
   onBack
 }: StatisticsViewProps) {
-  const completedGoals = goals.filter(goal => goal.completed).length
-  const activeGoals = goals.filter(goal => !goal.completed).length
-  const totalHabitStreak = habits.reduce((sum, habit) => sum + habit.streak, 0)
-  const maxHabitStreak = Math.max(...habits.map(habit => habit.maxStreak), 0)
+  const completedGoals = goals.filter(goal => goal.status === 'completed' || goal.completed).length
+  const activeGoals = goals.filter(goal => goal.status !== 'completed' && !goal.completed).length
+  const totalHabitStreak = habits.reduce((sum, habit) => sum + (habit.streak || habit.current_streak || 0), 0)
+  const maxHabitStreak = Math.max(...habits.map(habit => habit.max_streak || habit.maxStreak || 0), 0)
   
   const goalsByCategory = goals.reduce((acc, goal) => {
     acc[goal.category] = (acc[goal.category] || 0) + 1
@@ -27,6 +27,12 @@ export function StatisticsView({
     acc[habit.category] = (acc[habit.category] || 0) + 1
     return acc
   }, {} as Record<string, number>)
+
+  // Get level and experience from player or use defaults
+  const level = player?.level || 1
+  const experience = player?.experience || 0
+  const completedTasks = 0 // This would need to be passed as prop if needed
+  const currentDay = player?.current_day || 1
 
   const nextLevelXP = level * 100
   const currentLevelXP = (level - 1) * 100
