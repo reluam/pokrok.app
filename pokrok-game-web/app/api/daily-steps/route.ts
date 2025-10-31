@@ -209,14 +209,42 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ error: 'No fields to update' }, { status: 400 })
       }
       
-      const stepIdParamIndex = updateValues.length + 1
-      const query = `UPDATE daily_steps SET ${updateParts.join(', ')}, updated_at = NOW() WHERE id = $${stepIdParamIndex} RETURNING *`
+      // Build query string with parameterized placeholders
+      // sql.unsafe() takes only the query string, so we need to include values directly
+      // But we'll use PostgreSQL parameterized query format for safety
+      const query = `UPDATE daily_steps SET ${updateParts.join(', ')}, updated_at = NOW() WHERE id = $${updateValues.length + 1} RETURNING *`
       updateValues.push(stepId)
       
-      console.log('PUT /api/daily-steps - Full update query:', query)
-      console.log('PUT /api/daily-steps - Full update values:', updateValues)
+      // Escape and format values for safe insertion
+      const formattedQuery = query.replace(/\$(\d+)/g, (match, index) => {
+        const valueIndex = parseInt(index) - 1
+        if (valueIndex < 0 || valueIndex >= updateValues.length) {
+          return match
+        }
+        const value = updateValues[valueIndex]
+        if (value === null || value === undefined) {
+          return 'NULL'
+        }
+        if (typeof value === 'string') {
+          // Escape single quotes for SQL safety
+          const escaped = value.replace(/'/g, "''")
+          return `'${escaped}'`
+        }
+        if (typeof value === 'boolean') {
+          return value ? 'true' : 'false'
+        }
+        if (typeof value === 'number') {
+          return value.toString()
+        }
+        if (value instanceof Date) {
+          return `'${value.toISOString()}'`
+        }
+        return `'${String(value).replace(/'/g, "''")}'`
+      })
       
-      const result = await sql.unsafe(query, updateValues) as unknown as any[]
+      console.log('PUT /api/daily-steps - Full update query:', formattedQuery)
+      
+      const result = await sql.unsafe(formattedQuery) as unknown as any[]
 
       if (result.length === 0) {
         console.log('PUT /api/daily-steps - Step not found for full update')
