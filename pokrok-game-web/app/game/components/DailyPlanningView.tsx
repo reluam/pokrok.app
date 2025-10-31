@@ -551,10 +551,6 @@ export function DailyPlanningView({
             player={player}
             goals={goals}
             habits={habits}
-            level={player?.level || 1}
-            experience={player?.experience || 0}
-            completedTasks={dailySteps.filter(s => s.completed).length}
-            currentDay={player?.current_day || 1}
           />
         )
       case 'achievements':
