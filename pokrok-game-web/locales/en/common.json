@@ -1,0 +1,15 @@
+{
+  "app": {
+    "name": "Pokrok",
+    "description": "Your personal journey to growth"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "back": "Back"
+  }
+}
+

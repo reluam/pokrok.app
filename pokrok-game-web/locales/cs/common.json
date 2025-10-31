@@ -1,0 +1,15 @@
+{
+  "app": {
+    "name": "Pokrok",
+    "description": "Tvoje osobní cesta k růstu"
+  },
+  "common": {
+    "save": "Uložit",
+    "cancel": "Zrušit",
+    "delete": "Smazat",
+    "edit": "Upravit",
+    "add": "Přidat",
+    "back": "Zpět"
+  }
+}
+
