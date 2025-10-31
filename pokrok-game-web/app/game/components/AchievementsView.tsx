@@ -2,13 +2,26 @@
 
 interface AchievementsViewProps {
   player: any
+  goals?: any[]
+  habits?: any[]
+  level?: number
+  experience?: number
+  completedTasks?: number
   onBack?: () => void
 }
 
-export function AchievementsView({ player, onBack }: AchievementsViewProps) {
-  const completedGoals = goals.filter(goal => goal.completed).length
-  const totalHabitStreak = habits.reduce((sum, habit) => sum + habit.streak, 0)
-  const maxHabitStreak = Math.max(...habits.map(habit => habit.maxStreak), 0)
+export function AchievementsView({ 
+  player, 
+  goals = [], 
+  habits = [], 
+  level = 1, 
+  experience = 0,
+  completedTasks = 0,
+  onBack 
+}: AchievementsViewProps) {
+  const completedGoals = goals.filter(goal => goal.status === 'completed' || goal.completed).length
+  const totalHabitStreak = habits.reduce((sum, habit) => sum + (habit.streak || 0), 0)
+  const maxHabitStreak = Math.max(...habits.map(habit => habit.max_streak || habit.maxStreak || 0), 0)
 
   const achievements = [
     {

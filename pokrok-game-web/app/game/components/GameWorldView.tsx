@@ -156,6 +156,11 @@ export function GameWorldView({ player, goals, habits, onGoalsUpdate, onHabitsUp
         return (
           <AchievementsView
             player={player}
+            goals={goals}
+            habits={habits}
+            level={player?.level || 1}
+            experience={player?.experience || 0}
+            completedTasks={dailySteps.filter(s => s.completed).length}
             onBack={handleBackToCharacter}
           />
         )
