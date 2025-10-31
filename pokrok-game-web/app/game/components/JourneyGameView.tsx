@@ -3704,7 +3704,6 @@ export function JourneyGameView({
       id: step.id,
     })
 
-    const [showMenu, setShowMenu] = useState(false)
     const [showDateMenu, setShowDateMenu] = useState(false)
     const [showXpMenu, setShowXpMenu] = useState(false)
 
@@ -3750,247 +3749,206 @@ export function JourneyGameView({
             )}
             <div className="flex items-center gap-2 mt-1 flex-wrap">
               {step.goal_id && (
-                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    initializeEditingStep(step)
+                  }}
+                  className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded hover:bg-gray-200 transition-colors cursor-pointer"
+                  title="Kliknutím otevřete úpravu"
+                >
                   {goals.find((g: any) => g.id === step.goal_id)?.title || 'Cíl'}
-                </span>
+                </button>
               )}
               {step.xp_reward > 0 && (
-                <span className="text-xs text-purple-600 bg-purple-100 px-2 py-0.5 rounded font-medium">
-                  ⭐ {step.xp_reward} XP
-                </span>
+                <div className="relative">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowXpMenu(!showXpMenu)
+                    }}
+                    className="text-xs text-purple-600 bg-purple-100 px-2 py-0.5 rounded font-medium hover:bg-purple-200 transition-colors cursor-pointer"
+                    title="Kliknutím upravíte XP"
+                  >
+                    ⭐ {step.xp_reward} XP
+                  </button>
+                  {/* XP Menu Popup */}
+                  {showXpMenu && (
+                    <>
+                      <div 
+                        className="fixed inset-0 z-10" 
+                        onClick={() => setShowXpMenu(false)}
+                      />
+                      <div className="absolute left-0 top-full mt-1 z-30 bg-white rounded-lg shadow-lg border border-gray-200 p-3 min-w-[200px]">
+                        <label className="block text-xs font-medium text-gray-700 mb-1">XP Odměna</label>
+                        <div className="flex gap-2 mb-2">
+                          {[1, 2, 3, 4, 5].map(xp => (
+                            <button
+                              key={xp}
+                              onClick={async (e) => {
+                                e.stopPropagation()
+                                try {
+                                  const response = await fetch('/api/daily-steps', {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                      stepId: step.id,
+                                      title: step.title,
+                                      description: step.description,
+                                      goalId: step.goal_id,
+                                      isImportant: step.is_important,
+                                      isUrgent: step.is_urgent,
+                                      estimatedTime: step.estimated_time,
+                                      xpReward: xp,
+                                      date: step.date
+                                    })
+                                  })
+                                  if (response.ok) {
+                                    const updatedStep = await response.json()
+                                    setShowXpMenu(false)
+                                    // Refresh steps
+                                    if (onDailyStepsUpdate) {
+                                      const allSteps = dailySteps.map((s: any) => s.id === step.id ? updatedStep : s)
+                                      onDailyStepsUpdate(allSteps)
+                                    }
+                                  }
+                                } catch (error) {
+                                  console.error('Error updating XP:', error)
+                                }
+                              }}
+                              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                                step.xp_reward === xp 
+                                  ? 'bg-purple-500 text-white' 
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                            >
+                              {xp}
+                            </button>
+                          ))}
+                        </div>
+                        <input
+                          type="number"
+                          min="1"
+                          placeholder="Vlastní XP"
+                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 mb-2"
+                          onClick={(e) => e.stopPropagation()}
+                          onKeyDown={async (e) => {
+                            if (e.key === 'Enter') {
+                              const xpValue = parseInt((e.target as HTMLInputElement).value)
+                              if (xpValue && xpValue > 0) {
+                                try {
+                                  const response = await fetch('/api/daily-steps', {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                      stepId: step.id,
+                                      title: step.title,
+                                      description: step.description,
+                                      goalId: step.goal_id,
+                                      isImportant: step.is_important,
+                                      isUrgent: step.is_urgent,
+                                      estimatedTime: step.estimated_time,
+                                      xpReward: xpValue,
+                                      date: step.date
+                                    })
+                                  })
+                                  if (response.ok) {
+                                    const updatedStep = await response.json()
+                                    setShowXpMenu(false)
+                                    // Refresh steps
+                                    if (onDailyStepsUpdate) {
+                                      const allSteps = dailySteps.map((s: any) => s.id === step.id ? updatedStep : s)
+                                      onDailyStepsUpdate(allSteps)
+                                    }
+                                  }
+                                } catch (error) {
+                                  console.error('Error updating XP:', error)
+                                }
+                              }
+                            }
+                          }}
+                        />
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setShowXpMenu(false)
+                          }}
+                          className="w-full px-3 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600"
+                        >
+                          Zavřít
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               )}
               {step.date && (
-                <span className="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded">
-                  📅 {new Date(step.date).toLocaleDateString('cs-CZ')}
-                </span>
+                <div className="relative">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowDateMenu(!showDateMenu)
+                    }}
+                    className="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded hover:bg-gray-200 transition-colors cursor-pointer"
+                    title="Kliknutím upravíte datum"
+                  >
+                    📅 {new Date(step.date).toLocaleDateString('cs-CZ')}
+                  </button>
+                  {/* Date Menu Popup */}
+                  {showDateMenu && (
+                    <>
+                      <div 
+                        className="fixed inset-0 z-10" 
+                        onClick={() => setShowDateMenu(false)}
+                      />
+                      <div className="absolute left-0 top-full mt-1 z-30 bg-white rounded-lg shadow-lg border border-gray-200 p-3 min-w-[200px]">
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Datum</label>
+                        <input
+                          type="date"
+                          value={step.date ? new Date(step.date).toISOString().split('T')[0] : ''}
+                          onChange={async (e) => {
+                            const newDate = e.target.value
+                            try {
+                              const response = await fetch('/api/daily-steps', {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  stepId: step.id,
+                                  date: newDate
+                                })
+                              })
+                              if (response.ok) {
+                                const updatedStep = await response.json()
+                                setShowDateMenu(false)
+                                // Refresh steps
+                                if (onDailyStepsUpdate) {
+                                  const allSteps = dailySteps.map((s: any) => s.id === step.id ? updatedStep : s)
+                                  onDailyStepsUpdate(allSteps)
+                                }
+                              }
+                            } catch (error) {
+                              console.error('Error updating date:', error)
+                            }
+                          }}
+                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setShowDateMenu(false)
+                          }}
+                          className="mt-2 w-full px-3 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600"
+                        >
+                          Zavřít
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               )}
             </div>
           </div>
-          
-          {/* Menu button with three dots */}
-          {!isEditing && (
-            <div className="relative flex-shrink-0">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setShowMenu(!showMenu)
-                }}
-                onPointerDown={(e) => e.stopPropagation()}
-                className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
-                title="Menu"
-              >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                </svg>
-              </button>
-              
-              {/* Dropdown Menu */}
-              {showMenu && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-10" 
-                    onClick={() => setShowMenu(false)}
-                  />
-                  <div className="absolute right-0 top-8 z-20 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[160px]">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setShowDateMenu(!showDateMenu)
-                        setShowMenu(false)
-                      }}
-                      className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                    >
-                      <span>📅</span>
-                      <span>Datum</span>
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setShowXpMenu(!showXpMenu)
-                        setShowMenu(false)
-                      }}
-                      className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                    >
-                      <span>⭐</span>
-                      <span>XP</span>
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        initializeEditingStep(step)
-                        setShowMenu(false)
-                      }}
-                      className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                    >
-                      <span>✏️</span>
-                      <span>Upravit</span>
-                    </button>
-                  </div>
-                </>
-              )}
-              
-              {/* Date Menu Popup */}
-              {showDateMenu && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-10" 
-                    onClick={() => setShowDateMenu(false)}
-                  />
-                  <div className="absolute right-0 top-8 z-20 bg-white rounded-lg shadow-lg border border-gray-200 p-3 min-w-[200px]">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Datum</label>
-                    <input
-                      type="date"
-                      value={step.date ? new Date(step.date).toISOString().split('T')[0] : ''}
-                      onChange={async (e) => {
-                        const newDate = e.target.value
-                        try {
-                          const response = await fetch('/api/daily-steps', {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              stepId: step.id,
-                              date: newDate
-                            })
-                          })
-                          if (response.ok) {
-                            const updatedStep = await response.json()
-                            setShowDateMenu(false)
-                            // Refresh steps
-                            if (onDailyStepsUpdate) {
-                              const allSteps = dailySteps.map((s: any) => s.id === step.id ? updatedStep : s)
-                              onDailyStepsUpdate(allSteps)
-                            }
-                          }
-                        } catch (error) {
-                          console.error('Error updating date:', error)
-                        }
-                      }}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setShowDateMenu(false)
-                      }}
-                      className="mt-2 w-full px-3 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600"
-                    >
-                      Zavřít
-                    </button>
-                  </div>
-                </>
-              )}
-              
-              {/* XP Menu Popup */}
-              {showXpMenu && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-10" 
-                    onClick={() => setShowXpMenu(false)}
-                  />
-                  <div className="absolute right-0 top-8 z-20 bg-white rounded-lg shadow-lg border border-gray-200 p-3 min-w-[200px]">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">XP Odměna</label>
-                    <div className="flex gap-2 mb-2">
-                      {[1, 2, 3, 4, 5].map(xp => (
-                        <button
-                          key={xp}
-                          onClick={async (e) => {
-                            e.stopPropagation()
-                            try {
-                              const response = await fetch('/api/daily-steps', {
-                                method: 'PUT',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                  stepId: step.id,
-                                  title: step.title,
-                                  description: step.description,
-                                  goalId: step.goal_id,
-                                  isImportant: step.is_important,
-                                  isUrgent: step.is_urgent,
-                                  estimatedTime: step.estimated_time,
-                                  xpReward: xp,
-                                  date: step.date
-                                })
-                              })
-                              if (response.ok) {
-                                const updatedStep = await response.json()
-                                setShowXpMenu(false)
-                                // Refresh steps
-                                if (onDailyStepsUpdate) {
-                                  const allSteps = dailySteps.map((s: any) => s.id === step.id ? updatedStep : s)
-                                  onDailyStepsUpdate(allSteps)
-                                }
-                              }
-                            } catch (error) {
-                              console.error('Error updating XP:', error)
-                            }
-                          }}
-                          className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                            step.xp_reward === xp 
-                              ? 'bg-purple-500 text-white' 
-                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                          }`}
-                        >
-                          {xp}
-                        </button>
-                      ))}
-                    </div>
-                    <input
-                      type="number"
-                      min="1"
-                      placeholder="Vlastní XP"
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 mb-2"
-                      onClick={(e) => e.stopPropagation()}
-                      onKeyDown={async (e) => {
-                        if (e.key === 'Enter') {
-                          const xpValue = parseInt((e.target as HTMLInputElement).value)
-                          if (xpValue && xpValue > 0) {
-                            try {
-                              const response = await fetch('/api/daily-steps', {
-                                method: 'PUT',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                  stepId: step.id,
-                                  title: step.title,
-                                  description: step.description,
-                                  goalId: step.goal_id,
-                                  isImportant: step.is_important,
-                                  isUrgent: step.is_urgent,
-                                  estimatedTime: step.estimated_time,
-                                  xpReward: xpValue,
-                                  date: step.date
-                                })
-                              })
-                              if (response.ok) {
-                                const updatedStep = await response.json()
-                                setShowXpMenu(false)
-                                // Refresh steps
-                                if (onDailyStepsUpdate) {
-                                  const allSteps = dailySteps.map((s: any) => s.id === step.id ? updatedStep : s)
-                                  onDailyStepsUpdate(allSteps)
-                                }
-                              }
-                            } catch (error) {
-                              console.error('Error updating XP:', error)
-                            }
-                          }
-                        }
-                      }}
-                    />
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setShowXpMenu(false)
-                      }}
-                      className="w-full px-3 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600"
-                    >
-                      Zavřít
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
           
           {/* Drag handle - only this area activates drag */}
           <div
