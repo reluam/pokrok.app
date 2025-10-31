@@ -216,7 +216,7 @@ export async function PUT(request: NextRequest) {
       console.log('PUT /api/daily-steps - Full update query:', query)
       console.log('PUT /api/daily-steps - Full update values:', updateValues)
       
-      const result = await sql.unsafe(query, updateValues) as any[]
+      const result = await sql.unsafe(query, updateValues) as unknown as any[]
 
       if (result.length === 0) {
         console.log('PUT /api/daily-steps - Step not found for full update')
