@@ -57,13 +57,6 @@ export function MenuView() {
           </button>
 
           <button
-            onClick={() => updateGamePhase('daily-setup')}
-            className="w-full px-6 py-4 rounded-xl font-bold bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-lg transition-all duration-300"
-          >
-            DENNÍ NASTAVENÍ
-          </button>
-
-          <button
             className="w-full px-6 py-4 rounded-xl font-bold bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700 shadow-lg transition-all duration-300"
           >
             SPRÁVA CÍLŮ
