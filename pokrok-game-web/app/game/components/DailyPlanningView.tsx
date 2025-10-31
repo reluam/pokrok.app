@@ -542,9 +542,9 @@ export function DailyPlanningView({
         )
 
       case 'goals':
-        return <GoalsManagementView goals={goals} onGoalsUpdate={onGoalsUpdate} />
+        return <GoalsManagementView player={player} goals={goals} onGoalsUpdate={onGoalsUpdate} />
       case 'habits':
-        return <HabitsManagementView habits={habits} onHabitsUpdate={onHabitsUpdate} />
+        return <HabitsManagementView player={player} habits={habits} onHabitsUpdate={onHabitsUpdate} />
       case 'statistics':
         return (
           <StatisticsView
