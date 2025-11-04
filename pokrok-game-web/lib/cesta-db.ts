@@ -107,6 +107,19 @@ export interface GoalMetric {
   updated_at: Date
 }
 
+export interface GoalMilestone {
+  id: string
+  user_id: string
+  goal_id: string
+  title: string
+  description?: string
+  completed: boolean
+  completed_at?: Date
+  order: number
+  created_at: Date
+  updated_at: Date
+}
+
 export interface Note {
   id: string
   user_id: string
@@ -436,6 +449,22 @@ export async function initializeCestaDatabase() {
       )
     `
 
+    // Create goal_milestones table
+    await sql`
+      CREATE TABLE IF NOT EXISTS goal_milestones (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        goal_id VARCHAR(255) NOT NULL REFERENCES goals(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        completed BOOLEAN DEFAULT FALSE,
+        completed_at TIMESTAMP WITH TIME ZONE,
+        "order" INTEGER NOT NULL DEFAULT 0,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+
     // Create automations table
     await sql`
       CREATE TABLE IF NOT EXISTS automations (
@@ -565,6 +594,11 @@ export async function initializeCestaDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_deadline ON daily_steps(deadline)`
     await sql`CREATE INDEX IF NOT EXISTS idx_metrics_user_id ON metrics(user_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_metrics_step_id ON metrics(step_id)`
+    await sql`CREATE INDEX IF NOT EXISTS idx_goal_metrics_user_id ON goal_metrics(user_id)`
+    await sql`CREATE INDEX IF NOT EXISTS idx_goal_metrics_goal_id ON goal_metrics(goal_id)`
+    await sql`CREATE INDEX IF NOT EXISTS idx_goal_milestones_user_id ON goal_milestones(user_id)`
+    await sql`CREATE INDEX IF NOT EXISTS idx_goal_milestones_goal_id ON goal_milestones(goal_id)`
+    await sql`CREATE INDEX IF NOT EXISTS idx_goal_milestones_completed ON goal_milestones(completed)`
     await sql`CREATE INDEX IF NOT EXISTS idx_automations_user_id ON automations(user_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_automations_target_id ON automations(target_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_automations_active ON automations(is_active)`
@@ -738,7 +772,12 @@ export async function getDailyStepsByUserId(userId: string, date?: Date): Promis
       endOfDay.setHours(23, 59, 59, 999)
       
       query = sql`
-        SELECT * FROM daily_steps 
+        SELECT 
+          id, user_id, goal_id, title, description, completed, 
+          TO_CHAR(date, 'YYYY-MM-DD') as date,
+          is_important, is_urgent, step_type, custom_type_name, 
+          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
+        FROM daily_steps 
         WHERE user_id = ${userId}
         AND date >= ${startOfDay}
         AND date <= ${endOfDay}
@@ -750,8 +789,14 @@ export async function getDailyStepsByUserId(userId: string, date?: Date): Promis
       `
     } else {
       // Get all steps for user
+      // Use TO_CHAR to return date as YYYY-MM-DD string to avoid timezone issues
       query = sql`
-        SELECT * FROM daily_steps 
+        SELECT 
+          id, user_id, goal_id, title, description, completed, 
+          TO_CHAR(date, 'YYYY-MM-DD') as date,
+          is_important, is_urgent, step_type, custom_type_name, 
+          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
+        FROM daily_steps 
         WHERE user_id = ${userId}
         ORDER BY 
           CASE WHEN completed THEN 1 ELSE 0 END,
@@ -817,6 +862,28 @@ export async function createGoal(goalData: Partial<Goal>): Promise<Goal> {
 
 export async function createDailyStep(stepData: Partial<DailyStep>): Promise<DailyStep> {
   const id = crypto.randomUUID()
+  
+  // Format date as YYYY-MM-DD string to avoid timezone issues
+  let dateValue: string | null = null
+  if (stepData.date) {
+    if (stepData.date instanceof Date) {
+      // Use local date components to avoid timezone issues
+      const year = stepData.date.getFullYear()
+      const month = String(stepData.date.getMonth() + 1).padStart(2, '0')
+      const day = String(stepData.date.getDate()).padStart(2, '0')
+      dateValue = `${year}-${month}-${day}`
+    } else if (typeof stepData.date === 'string') {
+      // If it's already a string, use it directly (assuming YYYY-MM-DD format)
+      if (stepData.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        dateValue = stepData.date
+      } else if (stepData.date.includes('T')) {
+        // ISO string with time - extract date part
+        dateValue = stepData.date.split('T')[0]
+      }
+    }
+  }
+  
+  // Use TO_CHAR to return date as YYYY-MM-DD string
   const step = await sql`
     INSERT INTO daily_steps (
       id, user_id, goal_id, title, description, completed, date, 
@@ -825,11 +892,15 @@ export async function createDailyStep(stepData: Partial<DailyStep>): Promise<Dai
     ) VALUES (
       ${id}, ${stepData.user_id}, ${stepData.goal_id}, ${stepData.title}, 
       ${stepData.description || null}, ${stepData.completed || false}, 
-      ${stepData.date}, ${stepData.is_important || false}, 
+      ${dateValue}, ${stepData.is_important || false}, 
       ${stepData.is_urgent || false}, ${stepData.step_type || 'custom'}, 
       ${stepData.custom_type_name || null}, ${stepData.estimated_time || 30},
       ${stepData.xp_reward || 1}, ${stepData.deadline || null}
-    ) RETURNING *
+    ) RETURNING 
+      id, user_id, goal_id, title, description, completed, 
+      TO_CHAR(date, 'YYYY-MM-DD') as date,
+      is_important, is_urgent, step_type, custom_type_name, 
+      estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
   `
   return step[0] as DailyStep
 }
@@ -929,7 +1000,28 @@ export async function updateDailyStepGeneral(stepId: string, stepData: Partial<D
       await sql`UPDATE daily_steps SET description = ${stepData.description}, updated_at = NOW() WHERE id = ${stepId}`
     }
     if (stepData.date !== undefined) {
-      const dateValue = stepData.date instanceof Date ? stepData.date.toISOString() : stepData.date
+      // Format date as YYYY-MM-DD string to avoid timezone issues
+      let dateValue: string | null = null
+      if (stepData.date) {
+        if (stepData.date instanceof Date) {
+          // Use local date components to avoid timezone issues
+          const year = stepData.date.getFullYear()
+          const month = String(stepData.date.getMonth() + 1).padStart(2, '0')
+          const day = String(stepData.date.getDate()).padStart(2, '0')
+          dateValue = `${year}-${month}-${day}`
+        } else if (typeof stepData.date === 'string') {
+          // If it's already a string, use it directly (assuming YYYY-MM-DD format)
+          if (stepData.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            dateValue = stepData.date
+          } else if (stepData.date.includes('T')) {
+            // ISO string with time - extract date part and parse as local
+            const datePart = stepData.date.split('T')[0]
+            const [year, month, day] = datePart.split('-').map(Number)
+            const localDate = new Date(year, month - 1, day)
+            dateValue = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`
+          }
+        }
+      }
       await sql`UPDATE daily_steps SET date = ${dateValue}, updated_at = NOW() WHERE id = ${stepId}`
     }
     if (stepData.goal_id !== undefined) {
@@ -1034,6 +1126,18 @@ export async function getUpdatedGoalAfterStepCompletion(goalId: string): Promise
 export async function updateGoal(goalId: string, userId: string, goalData: Partial<Goal>): Promise<Goal> {
   try {
     console.log('DB: updateGoal called with:', { goalId, userId, goalData })
+    
+    // If status is being set to 'completed', check if all milestones are completed
+    if (goalData.status === 'completed') {
+      const milestones = await getGoalMilestonesByGoalId(goalId)
+      if (milestones.length > 0) {
+        const incompleteMilestones = milestones.filter(m => !m.completed)
+        if (incompleteMilestones.length > 0) {
+          throw new Error(`Cíl nelze označit jako splněný, dokud nejsou dokončeny všechny milníky. Zbývá ${incompleteMilestones.length} nedokončených milníků.`)
+        }
+      }
+    }
+    
     // Ensure optional columns exist for forward compatibility
     try {
       await sql`ALTER TABLE goals ADD COLUMN IF NOT EXISTS area_id VARCHAR(255)`
@@ -1090,6 +1194,16 @@ export async function updateGoal(goalId: string, userId: string, goalData: Parti
     } else {
       console.log('DB: area_id not provided or undefined:', goalData.area_id)
     }
+    if (goalData.status !== undefined) {
+      setParts.push(`status = $${setParts.length + 1}`)
+      values.push(goalData.status)
+      console.log('DB: Adding status to update:', goalData.status)
+    }
+    if (goalData.icon !== undefined) {
+      setParts.push(`icon = $${setParts.length + 1}`)
+      values.push(goalData.icon)
+      console.log('DB: Adding icon to update:', goalData.icon)
+    }
 
     // Always update the updated_at field
     setParts.push('updated_at = NOW()')
@@ -1127,6 +1241,17 @@ export async function updateGoal(goalId: string, userId: string, goalData: Parti
 export async function updateGoalById(goalId: string, updates: Partial<Goal>): Promise<Goal | null> {
   try {
     console.log('Updating goal with ID:', goalId, 'Updates:', updates)
+    
+    // If status is being set to 'completed', check if all milestones are completed
+    if (updates.status === 'completed') {
+      const milestones = await getGoalMilestonesByGoalId(goalId)
+      if (milestones.length > 0) {
+        const incompleteMilestones = milestones.filter(m => !m.completed)
+        if (incompleteMilestones.length > 0) {
+          throw new Error(`Cíl nelze označit jako splněný, dokud nejsou dokončeny všechny milníky. Zbývá ${incompleteMilestones.length} nedokončených milníků.`)
+        }
+      }
+    }
     
     const result = await sql`
       UPDATE goals 
@@ -1694,6 +1819,83 @@ export async function deleteGoalMetric(metricId: string): Promise<void> {
     `
   } catch (error) {
     console.error('Error deleting goal metric:', error)
+    throw error
+  }
+}
+
+// Goal Milestones functions
+export async function getGoalMilestonesByGoalId(goalId: string): Promise<GoalMilestone[]> {
+  try {
+    const milestones = await sql`
+      SELECT * FROM goal_milestones 
+      WHERE goal_id = ${goalId}
+      ORDER BY "order" ASC, created_at ASC
+    `
+    return milestones as GoalMilestone[]
+  } catch (error) {
+    console.error('Error fetching goal milestones:', error)
+    return []
+  }
+}
+
+export async function createGoalMilestone(milestoneData: Omit<GoalMilestone, 'id' | 'created_at' | 'updated_at'>): Promise<GoalMilestone> {
+  try {
+    const id = crypto.randomUUID()
+    const milestone = await sql`
+      INSERT INTO goal_milestones (
+        id, user_id, goal_id, title, description, completed, completed_at, "order"
+      ) VALUES (
+        ${id}, ${milestoneData.user_id}, ${milestoneData.goal_id}, ${milestoneData.title}, 
+        ${milestoneData.description || null}, ${milestoneData.completed || false}, 
+        ${milestoneData.completed_at || null}, ${milestoneData.order || 0}
+      ) RETURNING *
+    `
+    return milestone[0] as GoalMilestone
+  } catch (error) {
+    console.error('Error creating goal milestone:', error)
+    throw error
+  }
+}
+
+export async function updateGoalMilestone(milestoneId: string, updates: Partial<Omit<GoalMilestone, 'id' | 'user_id' | 'goal_id' | 'created_at'>>): Promise<GoalMilestone> {
+  try {
+    // If completed is being set, handle completed_at accordingly
+    let completedAtValue = null
+    if (updates.completed !== undefined) {
+      if (updates.completed) {
+        completedAtValue = new Date()
+      } else {
+        completedAtValue = null
+      }
+    }
+    
+    const milestone = await sql`
+      UPDATE goal_milestones 
+      SET 
+        title = COALESCE(${updates.title}, title),
+        description = COALESCE(${updates.description}, description),
+        completed = COALESCE(${updates.completed}, completed),
+        completed_at = ${completedAtValue !== null ? completedAtValue : sql`completed_at`},
+        "order" = COALESCE(${updates.order}, "order"),
+        updated_at = NOW()
+      WHERE id = ${milestoneId}
+      RETURNING *
+    `
+    return milestone[0] as GoalMilestone
+  } catch (error) {
+    console.error('Error updating goal milestone:', error)
+    throw error
+  }
+}
+
+export async function deleteGoalMilestone(milestoneId: string): Promise<void> {
+  try {
+    await sql`
+      DELETE FROM goal_milestones 
+      WHERE id = ${milestoneId}
+    `
+  } catch (error) {
+    console.error('Error deleting goal milestone:', error)
     throw error
   }
 }

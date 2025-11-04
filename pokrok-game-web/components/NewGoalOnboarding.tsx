@@ -25,6 +25,12 @@ interface StepData {
   description?: string
 }
 
+interface MilestoneData {
+  id: string
+  title: string
+  description?: string
+}
+
 interface GoalOnboardingData {
   title: string
   description?: string
@@ -32,6 +38,7 @@ interface GoalOnboardingData {
   icon?: string
   metrics: MetricData[]
   steps: StepData[]
+  milestones: MilestoneData[]
 }
 
 const METRIC_TYPES = [
@@ -52,13 +59,15 @@ export const NewGoalOnboarding = memo(function NewGoalOnboarding({ onComplete, o
     targetDate: '',
     icon: getDefaultGoalIcon(),
     metrics: [],
-    steps: []
+    steps: [],
+    milestones: []
   })
 
   const steps = [
     { id: 'basic', title: 'Základní informace', icon: Target },
     { id: 'metrics', title: 'Metriky', icon: BarChart3 },
     { id: 'steps', title: 'Kroky', icon: Calendar },
+    { id: 'milestones', title: 'Milníky', icon: Target },
     { id: 'complete', title: 'Dokončení', icon: Check }
   ]
 
@@ -118,6 +127,34 @@ export const NewGoalOnboarding = memo(function NewGoalOnboarding({ onComplete, o
     setData(prev => ({
       ...prev,
       steps: prev.steps.filter(step => step.id !== stepId)
+    }))
+  }
+
+  const addMilestone = () => {
+    const newMilestone: MilestoneData = {
+      id: crypto.randomUUID(),
+      title: '',
+      description: ''
+    }
+    setData(prev => ({
+      ...prev,
+      milestones: [...prev.milestones, newMilestone]
+    }))
+  }
+
+  const updateMilestone = (milestoneId: string, updates: Partial<MilestoneData>) => {
+    setData(prev => ({
+      ...prev,
+      milestones: prev.milestones.map(milestone => 
+        milestone.id === milestoneId ? { ...milestone, ...updates } : milestone
+      )
+    }))
+  }
+
+  const removeMilestone = (milestoneId: string) => {
+    setData(prev => ({
+      ...prev,
+      milestones: prev.milestones.filter(milestone => milestone.id !== milestoneId)
     }))
   }
 
@@ -436,6 +473,86 @@ export const NewGoalOnboarding = memo(function NewGoalOnboarding({ onComplete, o
           </div>
         )
 
+      case 'milestones':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Milníky cíle</h3>
+              <p className="text-gray-600 mb-6">
+                Definujte milníky, které musí být dokončeny před označením cíle jako splněného. 
+                Bez dokončení všech milníků nebude možné cíl dokončit.
+              </p>
+              
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm text-gray-600">
+                  {data.milestones.length === 0 ? 'Žádné milníky' : `${data.milestones.length} milníků`}
+                </span>
+                <button
+                  onClick={addMilestone}
+                  className="flex items-center space-x-2 bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Přidat milník</span>
+                </button>
+              </div>
+
+              {data.milestones.length === 0 ? (
+                <div className="text-center py-12 text-gray-500 bg-gray-50 rounded-lg">
+                  <Target className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <p className="text-lg font-medium">Žádné milníky</p>
+                  <p className="text-sm mt-2">Přidejte milníky pro kontrolu dokončení cíle (volitelné)</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {data.milestones.map((milestone, index) => (
+                    <div key={milestone.id} className="bg-white border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="font-medium text-gray-900">Milník {index + 1}</h4>
+                        <button
+                          onClick={() => removeMilestone(milestone.id)}
+                          className="text-red-400 hover:text-red-600 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        {/* Název milníku */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Název milníku *
+                          </label>
+                          <input
+                            type="text"
+                            value={milestone.title}
+                            onChange={(e) => updateMilestone(milestone.id, { title: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            placeholder="Např. Ušetřit první 100 000 Kč"
+                          />
+                        </div>
+                        
+                        {/* Popis milníku */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Popis (volitelné)
+                          </label>
+                          <textarea
+                            value={milestone.description || ''}
+                            onChange={(e) => updateMilestone(milestone.id, { description: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            rows={2}
+                            placeholder="Popište milník podrobněji..."
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )
+
       case 'complete':
         return (
           <div className="space-y-6">
@@ -460,7 +577,7 @@ export const NewGoalOnboarding = memo(function NewGoalOnboarding({ onComplete, o
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
                   <div>
                     <p className="text-sm text-gray-600">Deadline</p>
                     <p className="font-medium">{new Date(data.targetDate).toLocaleDateString('cs-CZ')}</p>
@@ -472,6 +589,10 @@ export const NewGoalOnboarding = memo(function NewGoalOnboarding({ onComplete, o
                   <div>
                     <p className="text-sm text-gray-600">Kroky</p>
                     <p className="font-medium">{data.steps.length}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Milníky</p>
+                    <p className="font-medium">{data.milestones.length}</p>
                   </div>
                 </div>
               </div>
@@ -492,6 +613,8 @@ export const NewGoalOnboarding = memo(function NewGoalOnboarding({ onComplete, o
         return true // Metriky jsou volitelné
       case 'steps':
         return true // Kroky jsou volitelné
+      case 'milestones':
+        return true // Milníky jsou volitelné
       case 'complete':
         return true
       default:

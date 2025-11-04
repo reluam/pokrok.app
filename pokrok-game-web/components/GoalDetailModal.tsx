@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, memo, useEffect } from 'react'
-import { Goal, DailyStep, GoalMetric, Note, Area } from '@/lib/cesta-db'
+import { Goal, DailyStep, GoalMetric, GoalMilestone, Note, Area } from '@/lib/cesta-db'
 import { X, Calendar, Target, Settings, CheckCircle, Circle, AlertCircle, Info, Gauge, Plus, Edit, Trash2, DollarSign, Percent, Ruler, Clock as ClockIcon, Type, FileText, Palette } from 'lucide-react'
 import { Tooltip } from './Tooltip'
 import { getIconComponent, getIconEmoji } from '@/lib/icon-utils'
@@ -32,7 +32,7 @@ export const GoalDetailModal = memo(function GoalDetailModal({
   onDelete 
 }: GoalDetailModalProps) {
   const { translations } = useTranslations()
-  const [activeTab, setActiveTab] = useState<'overview' | 'steps' | 'metrics' | 'notes'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'steps' | 'metrics' | 'notes' | 'milestones'>('overview')
   const [isEditing, setIsEditing] = useState(false)
   const [editedGoal, setEditedGoal] = useState<Goal>(goal)
   const [metrics, setMetrics] = useState<GoalMetric[]>([])
@@ -44,6 +44,11 @@ export const GoalDetailModal = memo(function GoalDetailModal({
   const [isLoadingNotes, setIsLoadingNotes] = useState(false)
   const [showAddNoteModal, setShowAddNoteModal] = useState(false)
   const [isSubmittingNote, setIsSubmittingNote] = useState(false)
+  const [milestones, setMilestones] = useState<GoalMilestone[]>([])
+  const [isLoadingMilestones, setIsLoadingMilestones] = useState(false)
+  const [showAddMilestoneModal, setShowAddMilestoneModal] = useState(false)
+  const [isSubmittingMilestone, setIsSubmittingMilestone] = useState(false)
+  const [editingMilestone, setEditingMilestone] = useState<GoalMilestone | null>(null)
   const [areas, setAreas] = useState<Area[]>([])
   const [isLoadingAreas, setIsLoadingAreas] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -59,6 +64,13 @@ export const GoalDetailModal = memo(function GoalDetailModal({
   useEffect(() => {
     if (activeTab === 'notes') {
       loadNotes()
+    }
+  }, [activeTab, goal.id])
+
+  // Load milestones when milestones tab is opened
+  useEffect(() => {
+    if (activeTab === 'milestones') {
+      loadMilestones()
     }
   }, [activeTab, goal.id])
 
@@ -105,6 +117,25 @@ export const GoalDetailModal = memo(function GoalDetailModal({
       setNotes([])
     } finally {
       setIsLoadingNotes(false)
+    }
+  }
+
+  const loadMilestones = async () => {
+    setIsLoadingMilestones(true)
+    try {
+      const response = await fetch(`/api/cesta/goal-milestones?goalId=${goal.id}`)
+      if (response.ok) {
+        const data = await response.json()
+        setMilestones(data.milestones || [])
+      } else {
+        console.log('GoalDetailModal: API error:', response.status)
+        setMilestones([])
+      }
+    } catch (error) {
+      console.error('Error loading milestones:', error)
+      setMilestones([])
+    } finally {
+      setIsLoadingMilestones(false)
     }
   }
 
@@ -325,6 +356,88 @@ export const GoalDetailModal = memo(function GoalDetailModal({
     }
   }
 
+  const handleAddMilestone = async (milestoneData: any) => {
+    setIsSubmittingMilestone(true)
+    try {
+      const response = await fetch('/api/cesta/goal-milestones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          goalId: goal.id,
+          title: milestoneData.title.trim(),
+          description: milestoneData.description?.trim() || undefined,
+          order: milestones.length
+        })
+      })
+
+      if (response.ok) {
+        await loadMilestones()
+        setShowAddMilestoneModal(false)
+      } else {
+        const error = await response.json()
+        console.error('Error adding milestone:', error)
+        alert(`${translations?.app.errorAddingMilestone || 'Chyba při přidávání milníku'}: ${error.error || (translations?.common.unknownError || 'Neznámá chyba')}`)
+      }
+    } catch (error) {
+      console.error('Error adding milestone:', error)
+      alert(translations?.app.errorAddingMilestone || 'Chyba při přidávání milníku')
+    } finally {
+      setIsSubmittingMilestone(false)
+    }
+  }
+
+  const handleUpdateMilestone = async (milestoneId: string, updates: any) => {
+    try {
+      const response = await fetch('/api/cesta/goal-milestones', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          milestoneId,
+          ...updates
+        })
+      })
+      
+      if (response.ok) {
+        await loadMilestones()
+        setEditingMilestone(null)
+      } else {
+        const error = await response.json()
+        console.error('Error updating milestone:', error)
+        alert(`${translations?.app.errorUpdatingMilestone || 'Chyba při aktualizaci milníku'}: ${error.error || (translations?.common.unknownError || 'Neznámá chyba')}`)
+      }
+    } catch (error) {
+      console.error('Error updating milestone:', error)
+      alert(translations?.app.errorUpdatingMilestone || 'Chyba při aktualizaci milníku')
+    }
+  }
+
+  const handleDeleteMilestone = async (milestoneId: string) => {
+    if (!confirm(translations?.app.confirmDeleteMilestone || 'Opravdu chcete smazat tento milník?')) {
+      return
+    }
+    
+    try {
+      const response = await fetch(`/api/cesta/goal-milestones?milestoneId=${milestoneId}`, {
+        method: 'DELETE'
+      })
+      
+      if (response.ok) {
+        await loadMilestones()
+      } else {
+        const error = await response.json()
+        console.error('Error deleting milestone:', error)
+        alert(`${translations?.app.errorDeletingMilestone || 'Chyba při mazání milníku'}: ${error.error || (translations?.common.unknownError || 'Neznámá chyba')}`)
+      }
+    } catch (error) {
+      console.error('Error deleting milestone:', error)
+      alert(translations?.app.errorDeletingMilestone || 'Chyba při mazání milníku')
+    }
+  }
+
+  const handleToggleMilestoneComplete = async (milestone: GoalMilestone) => {
+    await handleUpdateMilestone(milestone.id, { completed: !milestone.completed })
+  }
+
   const getGoalTypeInfo = (goalType: string) => {
     switch (goalType) {
       case 'outcome':
@@ -432,6 +545,7 @@ export const GoalDetailModal = memo(function GoalDetailModal({
     { id: 'overview', label: translations?.modals.goalDetail.overview || 'Přehled', icon: Info },
     { id: 'steps', label: translations?.app.steps || 'Kroky', icon: CheckCircle },
     { id: 'metrics', label: translations?.modals.goalDetail.metrics || 'Metriky', icon: Gauge },
+    { id: 'milestones', label: translations?.app.milestones || 'Milníky', icon: Target },
     { id: 'notes', label: translations?.app.notes || 'Poznámky', icon: FileText }
   ]
 
@@ -1163,6 +1277,149 @@ export const GoalDetailModal = memo(function GoalDetailModal({
             </div>
           )}
 
+          {activeTab === 'milestones' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Milníky ({milestones.length})
+                </h3>
+                <button 
+                  onClick={() => setShowAddMilestoneModal(true)}
+                  className="flex items-center space-x-2 bg-primary-500 text-white px-3 py-2 rounded-lg hover:bg-primary-600 transition-colors text-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>{translations?.app.addMilestone || 'Přidat milník'}</span>
+                </button>
+              </div>
+
+              {isLoadingMilestones ? (
+                <div className="text-center py-6">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500 mx-auto"></div>
+                  <p className="text-gray-500 mt-2 text-sm">Načítání milníků...</p>
+                </div>
+              ) : milestones.length === 0 ? (
+                <div className="text-center py-6 text-gray-500">
+                  <Target className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                  <p className="text-sm font-medium">{translations?.modals.goalDetail.noMilestones || 'Žádné milníky'}</p>
+                  <p className="text-xs">{translations?.modals.goalDetail.noMilestonesDescription || 'Pro tento cíl nejsou nastaveny žádné milníky.'}</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {milestones.map((milestone) => (
+                    <div 
+                      key={milestone.id}
+                      className={`bg-white rounded-lg border-2 transition-all ${
+                        milestone.completed 
+                          ? 'border-green-200 bg-green-50' 
+                          : 'border-gray-200 hover:border-primary-300'
+                      }`}
+                    >
+                      <div className="p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start space-x-3 flex-1">
+                            <button
+                              onClick={() => handleToggleMilestoneComplete(milestone)}
+                              className={`mt-1 flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                                milestone.completed
+                                  ? 'bg-green-500 border-green-500 text-white'
+                                  : 'border-gray-300 hover:border-primary-500'
+                              }`}
+                            >
+                              {milestone.completed && <CheckCircle className="w-3 h-3" />}
+                            </button>
+                            <div className="flex-1">
+                              <h4 className={`font-medium ${milestone.completed ? 'text-green-700 line-through' : 'text-gray-900'}`}>
+                                {milestone.title}
+                              </h4>
+                              {milestone.description && (
+                                <p className={`text-sm mt-1 ${milestone.completed ? 'text-green-600' : 'text-gray-600'}`}>
+                                  {milestone.description}
+                                </p>
+                              )}
+                              {milestone.completed && milestone.completed_at && (
+                                <p className="text-xs text-green-600 mt-2">
+                                  Dokončeno: {new Date(milestone.completed_at).toLocaleDateString('cs-CZ')}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2 ml-4">
+                            <button
+                              onClick={() => {
+                                if (editingMilestone?.id === milestone.id) {
+                                  setEditingMilestone(null)
+                                } else {
+                                  setEditingMilestone(milestone)
+                                }
+                              }}
+                              className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
+                              title={translations?.app.edit || 'Upravit'}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteMilestone(milestone.id)}
+                              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                              title={translations?.app.delete || 'Smazat'}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                        
+                        {editingMilestone?.id === milestone.id && (
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            <div className="space-y-3">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Název milníku
+                                </label>
+                                <input
+                                  type="text"
+                                  value={editingMilestone.title}
+                                  onChange={(e) => setEditingMilestone({ ...editingMilestone, title: e.target.value })}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Popis
+                                </label>
+                                <textarea
+                                  value={editingMilestone.description || ''}
+                                  onChange={(e) => setEditingMilestone({ ...editingMilestone, description: e.target.value })}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                  rows={2}
+                                />
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => handleUpdateMilestone(milestone.id, {
+                                    title: editingMilestone.title,
+                                    description: editingMilestone.description
+                                  })}
+                                  className="flex-1 bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-colors"
+                                >
+                                  {translations?.app.save || 'Uložit'}
+                                </button>
+                                <button
+                                  onClick={() => setEditingMilestone(null)}
+                                  className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+                                >
+                                  {translations?.app.cancel || 'Zrušit'}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {activeTab === 'notes' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -1318,6 +1575,119 @@ export const GoalDetailModal = memo(function GoalDetailModal({
           onSave={handleAddNote}
         />
       )}
+
+      {/* Add Milestone Modal */}
+      {showAddMilestoneModal && (
+        <AddMilestoneModal
+          goalId={goal.id}
+          onClose={() => setShowAddMilestoneModal(false)}
+          onSave={handleAddMilestone}
+        />
+      )}
+    </div>
+  )
+})
+
+// Add Milestone Modal Component
+interface AddMilestoneModalProps {
+  goalId: string
+  onClose: () => void
+  onSave: (milestoneData: any) => void
+}
+
+const AddMilestoneModal = memo(function AddMilestoneModal({ goalId, onClose, onSave }: AddMilestoneModalProps) {
+  const { translations } = useTranslations()
+  const [formData, setFormData] = useState({
+    title: '',
+    description: ''
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!formData.title.trim()) return
+    
+    setIsSubmitting(true)
+    try {
+      await onSave(formData)
+      setFormData({ title: '', description: '' })
+    } catch (error) {
+      console.error('Error submitting milestone:', error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-gray-900">
+              {translations?.app.addMilestone || 'Přidat milník'}
+            </h2>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {translations?.app.milestoneTitle || 'Název milníku'} *
+              </label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder={translations?.app.milestoneTitlePlaceholder || 'Např. Ušetřit první 100 000 Kč'}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {translations?.app.description || 'Popis'} ({translations?.common.optional || 'volitelné'})
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                rows={3}
+                placeholder={translations?.app.milestoneDescriptionPlaceholder || 'Popište milník podrobněji...'}
+              />
+            </div>
+
+            <div className="flex items-center space-x-3 pt-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                {translations?.common.cancel || 'Zrušit'}
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting || !formData.title.trim()}
+                className="flex-1 px-4 py-2 text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? (
+                  <span className="flex items-center justify-center">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    {translations?.common.saving || 'Ukládání...'}
+                  </span>
+                ) : (
+                  translations?.common.save || 'Uložit'
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   )
 })

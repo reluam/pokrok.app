@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent, DragOverlay, useDroppable, useDraggable } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { SettingsView } from './SettingsView'
-import { Footprints } from 'lucide-react'
+import { Footprints, Calendar, Target, CheckCircle, X, ChevronDown } from 'lucide-react'
 import { DailyReviewWorkflow } from './DailyReviewWorkflow'
 import { CalendarProgram } from './CalendarProgram'
 
@@ -179,8 +179,19 @@ export function JourneyGameView({
     description: '',
     areaId: null,
     target_date: null,
-    status: 'active'
+    status: 'active',
+    steps: [] as Array<{ id: string; title: string; description?: string; date?: string; isEditing?: boolean }>,
+    milestones: [] as Array<{ id: string; title: string; description?: string; isEditing?: boolean }>
   })
+  const [showGoalDatePicker, setShowGoalDatePicker] = useState(false)
+  const [showAreaPicker, setShowAreaPicker] = useState(false)
+  const [showStatusPicker, setShowStatusPicker] = useState(false)
+  const [datePickerButtonRef, setDatePickerButtonRef] = useState<HTMLButtonElement | null>(null)
+  const [areaPickerButtonRef, setAreaPickerButtonRef] = useState<HTMLButtonElement | null>(null)
+  const [statusPickerButtonRef, setStatusPickerButtonRef] = useState<HTMLButtonElement | null>(null)
+  const [datePickerPosition, setDatePickerPosition] = useState<{ top: number; left: number } | null>(null)
+  const [areaPickerPosition, setAreaPickerPosition] = useState<{ top: number; left: number; maxHeight: number } | null>(null)
+  const [statusPickerPosition, setStatusPickerPosition] = useState<{ top: number; left: number } | null>(null)
   const [showCreateStep, setShowCreateStep] = useState(false)
   const [newStep, setNewStep] = useState({
     title: '',
@@ -208,6 +219,48 @@ export function JourneyGameView({
   const [stepsShowCompleted, setStepsShowCompleted] = useState(false)
   const [stepsDateFilter, setStepsDateFilter] = useState<'all' | 'overdue' | 'today' | 'future'>('all')
   const [stepsGoalFilter, setStepsGoalFilter] = useState<string | null>(null)
+
+  // Calculate dropdown positions when they open
+  useLayoutEffect(() => {
+    if (showGoalDatePicker && datePickerButtonRef) {
+      const rect = datePickerButtonRef.getBoundingClientRect()
+      // rect.bottom zahrnuje border, takže odečteme border šířku (2px) aby se dropdown dotýkal tlačítka
+      setDatePickerPosition({
+        top: rect.bottom - 2,
+        left: rect.left
+      })
+    } else {
+      setDatePickerPosition(null)
+    }
+  }, [showGoalDatePicker, datePickerButtonRef])
+
+  useLayoutEffect(() => {
+    if (showAreaPicker && areaPickerButtonRef) {
+      const rect = areaPickerButtonRef.getBoundingClientRect()
+      // rect.bottom zahrnuje border, takže odečteme border šířku (2px) aby se dropdown dotýkal tlačítka
+      const availableHeight = window.innerHeight - rect.bottom - 4
+      setAreaPickerPosition({
+        top: rect.bottom - 2,
+        left: rect.left,
+        maxHeight: availableHeight < 256 ? availableHeight : 256
+      })
+    } else {
+      setAreaPickerPosition(null)
+    }
+  }, [showAreaPicker, areaPickerButtonRef])
+
+  useLayoutEffect(() => {
+    if (showStatusPicker && statusPickerButtonRef) {
+      const rect = statusPickerButtonRef.getBoundingClientRect()
+      // rect.bottom zahrnuje border, takže odečteme border šířku (2px) aby se dropdown dotýkal tlačítka
+      setStatusPickerPosition({
+        top: rect.bottom - 2,
+        left: rect.left
+      })
+    } else {
+      setStatusPickerPosition(null)
+    }
+  }, [showStatusPicker, statusPickerButtonRef])
 
   const handleCharacterClick = () => {
     // Cycle through different display modes
@@ -405,6 +458,50 @@ export function JourneyGameView({
     }
   }, [expandedLeftSection, expandedRightSection])
 
+  // Click outside handler for editing steps and milestones
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      
+      // Check if click is outside any editing step/milestone form
+      const isEditingStep = newGoal.steps.some(s => s.isEditing)
+      const isEditingMilestone = newGoal.milestones.some(m => m.isEditing)
+      
+      if (isEditingStep || isEditingMilestone) {
+        const stepElements = document.querySelectorAll('[data-step-id]')
+        const milestoneElements = document.querySelectorAll('[data-milestone-id]')
+        
+        let clickedInside = false
+        
+        stepElements.forEach(el => {
+          if (el.contains(target)) {
+            clickedInside = true
+          }
+        })
+        
+        milestoneElements.forEach(el => {
+          if (el.contains(target)) {
+            clickedInside = true
+          }
+        })
+        
+        if (!clickedInside) {
+          // Close all editing forms
+          setNewGoal(prev => ({
+            ...prev,
+            steps: prev.steps.map(s => ({ ...s, isEditing: false })),
+            milestones: prev.milestones.map(m => ({ ...m, isEditing: false }))
+          }))
+        }
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [newGoal.steps, newGoal.milestones])
+
   const initializeEditingHabit = (habit: any) => {
     setEditingHabit({
       ...habit,
@@ -453,7 +550,6 @@ export function JourneyGameView({
   const [editingGoalTitle, setEditingGoalTitle] = useState(false)
   const [goalTitle, setGoalTitle] = useState('')
   const [goalDescription, setGoalDescription] = useState('')
-  const [showGoalDatePicker, setShowGoalDatePicker] = useState(false)
   const [goalDate, setGoalDate] = useState('')
   const [goalStatus, setGoalStatus] = useState('')
   const [goalAreaId, setGoalAreaId] = useState('')
@@ -2207,9 +2303,9 @@ export function JourneyGameView({
                 const overdueStepsList: typeof dailySteps = []
                 
                 todaySteps.forEach(step => {
-                  const stepDate = normalizeDate(step.date)
-                  const stepDateObj = new Date(stepDate)
-                  stepDateObj.setHours(0, 0, 0, 0)
+                const stepDate = normalizeDate(step.date)
+                const stepDateObj = new Date(stepDate)
+                stepDateObj.setHours(0, 0, 0, 0)
                   const isOverdue = stepDateObj < displayDate
                   
                   if (isOverdue) {
@@ -2224,48 +2320,48 @@ export function JourneyGameView({
                   const stepDateObj = new Date(stepDate)
                   stepDateObj.setHours(0, 0, 0, 0)
                   const isOverdue = stepDateObj < displayDate
-                  
-                  return (
-                    <div
-                      key={step.id}
-                      onClick={() => handleItemClick(step, 'step')}
-                      className={`p-3 rounded-lg border transition-all duration-300 cursor-pointer ${
-                        isOverdue 
-                          ? 'bg-red-50 border-red-200' 
-                          : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            if (!loadingSteps.has(step.id)) {
-                              handleStepToggle(step.id, !step.completed)
-                            }
-                          }}
-                          disabled={loadingSteps.has(step.id)}
-                          className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                            loadingSteps.has(step.id)
-                              ? 'border-gray-300 bg-gray-100 cursor-wait'
-                              : isOverdue
-                                ? 'border-red-300 hover:border-red-400'
-                                : 'border-gray-300 hover:border-green-400'
-                          }`}
-                        >
-                          {loadingSteps.has(step.id) ? (
-                            <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                          ) : null}
-                        </button>
-                        <span className={`truncate flex-1 ${isOverdue ? 'text-red-700 font-medium' : 'text-gray-700'}`}>
-                          {step.title}
-                        </span>
-                        {isOverdue && <span className="text-red-600 text-xs">⚠️</span>}
-                      </div>
+                
+                return (
+                  <div
+                    key={step.id}
+                    onClick={() => handleItemClick(step, 'step')}
+                    className={`p-3 rounded-lg border transition-all duration-300 cursor-pointer ${
+                      isOverdue 
+                        ? 'bg-red-50 border-red-200' 
+                        : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          if (!loadingSteps.has(step.id)) {
+                            handleStepToggle(step.id, !step.completed)
+                          }
+                        }}
+                        disabled={loadingSteps.has(step.id)}
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                          loadingSteps.has(step.id)
+                            ? 'border-gray-300 bg-gray-100 cursor-wait'
+                            : isOverdue
+                              ? 'border-red-300 hover:border-red-400'
+                              : 'border-gray-300 hover:border-green-400'
+                        }`}
+                      >
+                        {loadingSteps.has(step.id) ? (
+                          <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        ) : null}
+                      </button>
+                      <span className={`truncate flex-1 ${isOverdue ? 'text-red-700 font-medium' : 'text-gray-700'}`}>
+                        {step.title}
+                      </span>
+                      {isOverdue && <span className="text-red-600 text-xs">⚠️</span>}
                     </div>
-                  )
+                  </div>
+                )
                 }
                 
                 return (
@@ -2290,11 +2386,11 @@ export function JourneyGameView({
                     )}
                     
                     {/* Empty state */}
-                    {todaySteps.length === 0 && (
-                      <div className="text-gray-400 text-sm text-center py-8">
+              {todaySteps.length === 0 && (
+                <div className="text-gray-400 text-sm text-center py-8">
                         {isToday ? 'Žádné kroky na dnes' : `Žádné kroky na ${formattedDate.split(' ')[0]}`}
-                      </div>
-                    )}
+                </div>
+              )}
                   </>
                 )
               })()}
@@ -3467,7 +3563,7 @@ export function JourneyGameView({
     try {
       // Use provided date or default to today
       const dateToUse = date || (() => {
-        const now = new Date()
+      const now = new Date()
         return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
       })()
       const response = await fetch('/api/habits/toggle', {
@@ -3654,27 +3750,36 @@ export function JourneyGameView({
     }
 
     try {
-      const response = await fetch('/api/goals', {
+      const response = await fetch('/api/cesta/goals-with-steps', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId: userId,
           title: newGoal.title,
           description: newGoal.description,
-          areaId: newGoal.areaId,
           targetDate: newGoal.target_date,
-          status: newGoal.status
+          areaId: newGoal.areaId,
+          status: newGoal.status,
+          steps: newGoal.steps.map(step => ({
+            title: step.title,
+            description: step.description,
+            date: step.date ? new Date(step.date).toISOString() : undefined
+          })),
+          milestones: newGoal.milestones.map(milestone => ({
+            title: milestone.title,
+            description: milestone.description
+          })),
+          metrics: [] // Empty metrics for now
         }),
       })
 
       if (response.ok) {
-        const createdGoal = await response.json()
+        const data = await response.json()
         
         // Update goals in parent component
-        if (onGoalsUpdate) {
-          onGoalsUpdate([...goals, createdGoal])
+        if (onGoalsUpdate && data.goal) {
+          onGoalsUpdate([...goals, data.goal])
         }
         
         // Reset form
@@ -3683,12 +3788,15 @@ export function JourneyGameView({
           description: '',
           areaId: null,
           target_date: null,
-          status: 'active'
+          status: 'active',
+          steps: [],
+          milestones: []
         })
         setShowCreateGoal(false)
       } else {
-        console.error('Failed to create goal')
-        alert('Nepodařilo se vytvořit cíl')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Failed to create goal:', errorData)
+        alert(`Nepodařilo se vytvořit cíl: ${errorData.error || 'Neznámá chyba'}`)
       }
     } catch (error) {
       console.error('Error creating goal:', error)
@@ -5033,88 +5141,621 @@ export function JourneyGameView({
             
             {/* Create Goal Form */}
             {showCreateGoal && (
-              <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 mb-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Vytvořit nový cíl</h3>
+              <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border border-gray-200 shadow-lg mb-6 max-h-[85vh] overflow-y-auto">
+                <div className="flex items-center justify-between mb-6 sticky top-0 bg-gradient-to-br from-white to-gray-50 pb-4 z-10 border-b border-gray-200">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">Vytvořit nový cíl</h3>
+                    <p className="text-sm text-gray-500 mt-1">Vyplňte informace o vašem cíli</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowCreateGoal(false)
+                      setNewGoal({
+                        title: '',
+                        description: '',
+                        areaId: null,
+                        target_date: null,
+                        status: 'active',
+                        steps: [],
+                        milestones: []
+                      })
+                      setShowGoalDatePicker(false)
+                      setShowAreaPicker(false)
+                      setShowStatusPicker(false)
+                    }}
+                    className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Left Column - Text Fields */}
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Název cíle *</label>
+                      <label className="block text-sm font-semibold text-gray-800 mb-2">
+                        Název cíle <span className="text-orange-500">*</span>
+                      </label>
                     <input
                       type="text"
                       value={newGoal.title}
                       onChange={(e) => setNewGoal({...newGoal, title: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      placeholder="Zadejte název cíle"
+                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white shadow-sm hover:shadow-md"
+                        placeholder="Např. Ušetřit na nový dům"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Popis cíle</label>
+                      <label className="block text-sm font-semibold text-gray-800 mb-2">
+                        Popis cíle
+                      </label>
                     <textarea
                       value={newGoal.description || ''}
                       onChange={(e) => setNewGoal({...newGoal, description: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      rows={3}
-                      placeholder="Zadejte popis cíle"
+                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white shadow-sm hover:shadow-md resize-none"
+                        rows={4}
+                        placeholder="Popište svůj cíl podrobněji..."
                     />
                   </div>
                   
+                    {/* Compact Icon-based Controls */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Datum skončení</label>
+                      <label className="block text-sm font-semibold text-gray-800 mb-2">
+                        Nastavení
+                      </label>
+                      <div className="flex items-center gap-3 flex-wrap">
+                        {/* Date Picker Icon */}
+                        <div className="relative">
+                          <button
+                            ref={setDatePickerButtonRef}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setShowGoalDatePicker(!showGoalDatePicker)
+                              setShowAreaPicker(false)
+                              setShowStatusPicker(false)
+                            }}
+                            className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
+                              newGoal.target_date 
+                                ? 'border-orange-300 bg-orange-50 text-orange-700' 
+                                : 'border-gray-200 bg-white text-gray-700 hover:border-orange-300'
+                            }`}
+                            title="Datum skončení"
+                          >
+                            <Calendar className="w-4 h-4" />
+                            <span className="font-medium">
+                              {newGoal.target_date 
+                                ? new Date(newGoal.target_date).toLocaleDateString('cs-CZ', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                                : 'Datum skončení'}
+                            </span>
+                            <ChevronDown className={`w-3 h-3 transition-transform ${showGoalDatePicker ? 'rotate-180' : ''}`} />
+                          </button>
+                          {showGoalDatePicker && datePickerPosition && (
+                            <>
+                              <div 
+                                className="fixed inset-0 z-40" 
+                                onClick={() => setShowGoalDatePicker(false)}
+                              />
+                              <div 
+                                className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-4"
+                                style={{
+                                  top: `${datePickerPosition.top}px`,
+                                  left: `${datePickerPosition.left}px`
+                                }}
+                              >
                     <input
                       type="date"
                       value={newGoal.target_date ? new Date(newGoal.target_date).toISOString().split('T')[0] : ''}
-                      onChange={(e) => setNewGoal({...newGoal, target_date: e.target.value ? new Date(e.target.value).toISOString() : null as any})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    />
+                                  onChange={(e) => {
+                                    setNewGoal({...newGoal, target_date: e.target.value ? new Date(e.target.value).toISOString() : null as any})
+                                    setShowGoalDatePicker(false)
+                                  }}
+                                  className="text-base px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                  autoFocus
+                                />
+                              </div>
+                            </>
+                          )}
                   </div>
                   
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Životní oblast</label>
-                    <select
-                      value={newGoal.areaId || ''}
-                      onChange={(e) => setNewGoal({...newGoal, areaId: e.target.value || null as any})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    >
-                      <option value="">Vyberte oblast (volitelné)</option>
-                      {areas.length > 0 ? (
-                        areas.map((area: any) => (
-                          <option key={area.id} value={area.id}>
+                        {/* Area Picker Icon */}
+                        <div className="relative">
+                          <button
+                            ref={setAreaPickerButtonRef}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setShowAreaPicker(!showAreaPicker)
+                              setShowGoalDatePicker(false)
+                              setShowStatusPicker(false)
+                            }}
+                            className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
+                              newGoal.areaId 
+                                ? 'border-orange-300 bg-orange-50 text-orange-700' 
+                                : 'border-gray-200 bg-white text-gray-700 hover:border-orange-300'
+                            }`}
+                            title="Životní oblast"
+                          >
+                            <Target className="w-4 h-4" />
+                            <span className="font-medium">
+                              {newGoal.areaId 
+                                ? areas.find((a: any) => a.id === newGoal.areaId)?.name || 'Oblast'
+                                : 'Životní oblast'}
+                            </span>
+                            <ChevronDown className={`w-3 h-3 transition-transform ${showAreaPicker ? 'rotate-180' : ''}`} />
+                          </button>
+                          {showAreaPicker && areaPickerPosition && (
+                            <>
+                              <div 
+                                className="fixed inset-0 z-40" 
+                                onClick={() => setShowAreaPicker(false)}
+                              />
+                              <div 
+                                className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[200px] max-h-64 overflow-y-auto"
+                                style={{
+                                  top: `${areaPickerPosition.top}px`,
+                                  left: `${areaPickerPosition.left}px`,
+                                  maxHeight: `${areaPickerPosition.maxHeight}px`
+                                }}
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setNewGoal({...newGoal, areaId: null as any})
+                                    setShowAreaPicker(false)
+                                  }}
+                                  className="w-full text-left px-4 py-3 text-sm hover:bg-orange-50 border-b border-gray-100 font-medium transition-colors"
+                                >
+                                  Žádná oblast
+                                </button>
+                                {areas.map((area: any) => (
+                                  <button
+                                    key={area.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setNewGoal({...newGoal, areaId: area.id})
+                                      setShowAreaPicker(false)
+                                    }}
+                                    className={`w-full text-left px-4 py-3 text-sm hover:bg-orange-50 transition-colors ${
+                                      newGoal.areaId === area.id ? 'bg-orange-50 text-orange-700 font-semibold' : 'text-gray-700'
+                                    }`}
+                                  >
                             {area.name}
-                          </option>
-                        ))
+                                  </button>
+                                ))}
+                                {areas.length === 0 && (
+                                  <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                                    Žádné oblasti
+                                  </div>
+                                )}
+                              </div>
+                            </>
+                          )}
+                  </div>
+                  
+                        {/* Status Picker Icon */}
+                        <div className="relative">
+                          <button
+                            ref={setStatusPickerButtonRef}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setShowStatusPicker(!showStatusPicker)
+                              setShowGoalDatePicker(false)
+                              setShowAreaPicker(false)
+                            }}
+                            className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
+                              newGoal.status === 'active' 
+                                ? 'border-green-300 bg-green-50 text-green-700' 
+                                : newGoal.status === 'completed'
+                                ? 'border-blue-300 bg-blue-50 text-blue-700'
+                                : 'border-gray-200 bg-white text-gray-700 hover:border-orange-300'
+                            }`}
+                            title="Status"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                            <span className="font-medium">
+                              {newGoal.status === 'active' ? 'Aktivní' : 
+                               newGoal.status === 'completed' ? 'Splněný' : 'Ke zvážení'}
+                            </span>
+                            <ChevronDown className={`w-3 h-3 transition-transform ${showStatusPicker ? 'rotate-180' : ''}`} />
+                          </button>
+                          {showStatusPicker && statusPickerPosition && (
+                            <>
+                              <div 
+                                className="fixed inset-0 z-40" 
+                                onClick={() => setShowStatusPicker(false)}
+                              />
+                              <div 
+                                className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[160px]"
+                                style={{
+                                  top: `${statusPickerPosition.top}px`,
+                                  left: `${statusPickerPosition.left}px`
+                                }}
+                              >
+                                {['active', 'completed', 'considering'].map((status) => (
+                                  <button
+                                    key={status}
+                                    type="button"
+                                    onClick={() => {
+                                      setNewGoal({...newGoal, status: status as any})
+                                      setShowStatusPicker(false)
+                                    }}
+                                    className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors font-medium ${
+                                      newGoal.status === status 
+                                        ? status === 'active' 
+                                          ? 'bg-green-50 text-green-700 font-semibold' 
+                                          : status === 'completed'
+                                          ? 'bg-blue-50 text-blue-700 font-semibold'
+                                          : 'bg-orange-50 text-orange-700 font-semibold'
+                                        : 'text-gray-700'
+                                    }`}
+                                  >
+                                    {status === 'active' ? '✓ Aktivní' : 
+                                     status === 'completed' ? '✓ Splněný' : '✓ Ke zvážení'}
+                                  </button>
+                                ))}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Right Column - Steps and Milestones */}
+                  <div className="space-y-5">
+                    {/* Steps Section */}
+                    <div className="bg-white rounded-xl p-4 border-2 border-gray-100 shadow-sm">
+                      <div className="flex items-center justify-between mb-3">
+                        <label className="block text-sm font-semibold text-gray-800">Kroky</label>
+                    <button
+                          type="button"
+                          onClick={() => {
+                            setNewGoal({
+                              ...newGoal,
+                              steps: [...newGoal.steps, { id: crypto.randomUUID(), title: '', description: '', date: '', isEditing: true }]
+                            })
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-colors"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                          Přidat krok
+                    </button>
+                      </div>
+                      {newGoal.steps.length === 0 ? (
+                        <div className="text-center py-6 text-gray-400">
+                          <svg className="w-8 h-8 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                          <p className="text-xs">Žádné kroky</p>
+                        </div>
                       ) : (
-                        <option value="" disabled>Žádné oblasti k dispozici</option>
-                      )}
-                    </select>
-                    {areas.length === 0 && userId && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        Pro vytvoření oblastí použijte nastavení nebo API
-                      </p>
+                        <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                          {newGoal.steps.map((step, index) => {
+                            const isEditing = step.isEditing || (!step.title && step.id === newGoal.steps[newGoal.steps.length - 1]?.id)
+                            
+                            return (
+                              <div 
+                                key={step.id} 
+                                data-step-id={step.id}
+                                className="bg-gray-50 p-3 rounded-lg border border-gray-200 hover:border-orange-300 transition-colors"
+                              >
+                                {isEditing ? (
+                                  <>
+                                    <div className="flex items-start justify-between mb-2">
+                                      <span className="text-xs font-semibold text-gray-600 bg-white px-2 py-0.5 rounded">Krok {index + 1}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setNewGoal({
+                                            ...newGoal,
+                                            steps: newGoal.steps.filter(s => s.id !== step.id)
+                                          })
+                                        }}
+                                        className="text-red-400 hover:text-red-600 hover:bg-red-50 rounded p-1 transition-colors"
+                                      >
+                                        <X className="w-3.5 h-3.5" />
+                                      </button>
+                                    </div>
+                                    <input
+                                      type="text"
+                                      value={step.title}
+                                      onChange={(e) => {
+                                        const updatedSteps = newGoal.steps.map(s =>
+                                          s.id === step.id ? { ...s, title: e.target.value } : s
+                                        )
+                                        setNewGoal({ ...newGoal, steps: updatedSteps })
+                                      }}
+                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                                      placeholder="Název kroku"
+                                      autoFocus
+                                    />
+                                    <input
+                                      type="date"
+                                      value={step.date || ''}
+                                      onChange={(e) => {
+                                        const updatedSteps = newGoal.steps.map(s =>
+                                          s.id === step.id ? { ...s, date: e.target.value } : s
+                                        )
+                                        setNewGoal({ ...newGoal, steps: updatedSteps })
+                                      }}
+                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                                      placeholder="Datum (volitelné)"
+                                    />
+                                    <textarea
+                                      value={step.description || ''}
+                                      onChange={(e) => {
+                                        const updatedSteps = newGoal.steps.map(s =>
+                                          s.id === step.id ? { ...s, description: e.target.value } : s
+                                        )
+                                        setNewGoal({ ...newGoal, steps: updatedSteps })
+                                      }}
+                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white resize-none"
+                                      rows={2}
+                                      placeholder="Popis (volitelné)"
+                                    />
+                                    <div className="flex items-center gap-2 mt-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const updatedSteps = newGoal.steps.map(s =>
+                                            s.id === step.id ? { ...s, isEditing: false } : s
+                                          )
+                                          setNewGoal({ ...newGoal, steps: updatedSteps })
+                                        }}
+                                        className="px-3 py-1.5 text-xs font-medium bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                                      >
+                                        Uložit
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setNewGoal({
+                                            ...newGoal,
+                                            steps: newGoal.steps.filter(s => s.id !== step.id)
+                                          })
+                                        }}
+                                        className="px-3 py-1.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                                      >
+                                        Zrušit
+                                      </button>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div 
+                                    className="flex items-center justify-between cursor-pointer group"
+                                    onClick={() => {
+                                      const updatedSteps = newGoal.steps.map(s =>
+                                        s.id === step.id ? { ...s, isEditing: true } : s
+                                      )
+                                      setNewGoal({ ...newGoal, steps: updatedSteps })
+                                    }}
+                                  >
+                                    <div className="flex items-center gap-3 flex-1">
+                                      <span className="text-xs font-semibold text-gray-500 w-12">#{index + 1}</span>
+                                      <div className="flex-1">
+                                        <div className="font-medium text-sm text-gray-900">{step.title || 'Bez názvu'}</div>
+                                        {step.date && (
+                                          <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
+                                            <Calendar className="w-3 h-3" />
+                                            {new Date(step.date).toLocaleDateString('cs-CZ', { day: '2-digit', month: '2-digit' })}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          const updatedSteps = newGoal.steps.map(s =>
+                                            s.id === step.id ? { ...s, isEditing: true } : s
+                                          )
+                                          setNewGoal({ ...newGoal, steps: updatedSteps })
+                                        }}
+                                        className="text-gray-400 hover:text-orange-600 p-1"
+                                      >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          setNewGoal({
+                                            ...newGoal,
+                                            steps: newGoal.steps.filter(s => s.id !== step.id)
+                                          })
+                                        }}
+                                        className="text-gray-400 hover:text-red-600 p-1"
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
                     )}
                   </div>
                   
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <select
-                      value={newGoal.status}
-                      onChange={(e) => setNewGoal({...newGoal, status: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    >
-                      <option value="active">Aktivní</option>
-                      <option value="completed">Splněný</option>
-                      <option value="considering">Ke zvážení</option>
-                    </select>
+                    {/* Milestones Section */}
+                    <div className="bg-white rounded-xl p-4 border-2 border-gray-100 shadow-sm">
+                      <div className="flex items-center justify-between mb-3">
+                        <label className="block text-sm font-semibold text-gray-800">Milníky</label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNewGoal({
+                              ...newGoal,
+                              milestones: [...newGoal.milestones, { id: crypto.randomUUID(), title: '', description: '', isEditing: true }]
+                            })
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-colors"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
+                          Přidat milník
+                        </button>
                   </div>
-                  
-                  <div className="flex gap-3">
+                      {newGoal.milestones.length === 0 ? (
+                        <div className="text-center py-6 text-gray-400">
+                          <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                          <p className="text-xs">Žádné milníky</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                          {newGoal.milestones.map((milestone, index) => {
+                            const isEditing = milestone.isEditing || (!milestone.title && milestone.id === newGoal.milestones[newGoal.milestones.length - 1]?.id)
+                            
+                            return (
+                              <div 
+                                key={milestone.id} 
+                                data-milestone-id={milestone.id}
+                                className="bg-gray-50 p-3 rounded-lg border border-gray-200 hover:border-orange-300 transition-colors"
+                              >
+                                {isEditing ? (
+                                  <>
+                                    <div className="flex items-start justify-between mb-2">
+                                      <span className="text-xs font-semibold text-gray-600 bg-white px-2 py-0.5 rounded">Milník {index + 1}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setNewGoal({
+                                            ...newGoal,
+                                            milestones: newGoal.milestones.filter(m => m.id !== milestone.id)
+                                          })
+                                        }}
+                                        className="text-red-400 hover:text-red-600 hover:bg-red-50 rounded p-1 transition-colors"
+                                      >
+                                        <X className="w-3.5 h-3.5" />
+                                      </button>
+                                    </div>
+                                    <input
+                                      type="text"
+                                      value={milestone.title}
+                                      onChange={(e) => {
+                                        const updatedMilestones = newGoal.milestones.map(m =>
+                                          m.id === milestone.id ? { ...m, title: e.target.value } : m
+                                        )
+                                        setNewGoal({ ...newGoal, milestones: updatedMilestones })
+                                      }}
+                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                                      placeholder="Název milníku"
+                                      autoFocus
+                                    />
+                                    <textarea
+                                      value={milestone.description || ''}
+                                      onChange={(e) => {
+                                        const updatedMilestones = newGoal.milestones.map(m =>
+                                          m.id === milestone.id ? { ...m, description: e.target.value } : m
+                                        )
+                                        setNewGoal({ ...newGoal, milestones: updatedMilestones })
+                                      }}
+                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white resize-none"
+                                      rows={2}
+                                      placeholder="Popis (volitelné)"
+                                    />
+                                    <div className="flex items-center gap-2 mt-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const updatedMilestones = newGoal.milestones.map(m =>
+                                            m.id === milestone.id ? { ...m, isEditing: false } : m
+                                          )
+                                          setNewGoal({ ...newGoal, milestones: updatedMilestones })
+                                        }}
+                                        className="px-3 py-1.5 text-xs font-medium bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                                      >
+                                        Uložit
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setNewGoal({
+                                            ...newGoal,
+                                            milestones: newGoal.milestones.filter(m => m.id !== milestone.id)
+                                          })
+                                        }}
+                                        className="px-3 py-1.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                                      >
+                                        Zrušit
+                                      </button>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div 
+                                    className="flex items-center justify-between cursor-pointer group"
+                                    onClick={() => {
+                                      const updatedMilestones = newGoal.milestones.map(m =>
+                                        m.id === milestone.id ? { ...m, isEditing: true } : m
+                                      )
+                                      setNewGoal({ ...newGoal, milestones: updatedMilestones })
+                                    }}
+                                  >
+                                    <div className="flex items-center gap-3 flex-1">
+                                      <Target className="w-4 h-4 text-orange-500" />
+                                      <div className="flex-1">
+                                        <div className="font-medium text-sm text-gray-900">{milestone.title || 'Bez názvu'}</div>
+                                        {milestone.description && (
+                                          <div className="text-xs text-gray-500 mt-0.5">{milestone.description}</div>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          const updatedMilestones = newGoal.milestones.map(m =>
+                                            m.id === milestone.id ? { ...m, isEditing: true } : m
+                                          )
+                                          setNewGoal({ ...newGoal, milestones: updatedMilestones })
+                                        }}
+                                        className="text-gray-400 hover:text-orange-600 p-1"
+                                      >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          setNewGoal({
+                                            ...newGoal,
+                                            milestones: newGoal.milestones.filter(m => m.id !== milestone.id)
+                                          })
+                                        }}
+                                        className="text-gray-400 hover:text-red-600 p-1"
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 mt-6 pt-6 border-t-2 border-gray-200 sticky bottom-0 bg-gradient-to-br from-white to-gray-50">
                     <button
                       onClick={handleCreateGoal}
-                      className="p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-semibold rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                       title="Vytvořit cíl"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                      </svg>
+                    ✨ Vytvořit cíl
                     </button>
                     <button
                       onClick={() => {
@@ -5124,17 +5765,19 @@ export function JourneyGameView({
                           description: '',
                           areaId: null,
                           target_date: null,
-                          status: 'active'
+                        status: 'active',
+                        steps: [],
+                        milestones: []
                         })
+                      setShowGoalDatePicker(false)
+                      setShowAreaPicker(false)
+                      setShowStatusPicker(false)
                       }}
-                      className="p-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                    className="px-6 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-200 transition-all"
                       title="Zrušit"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
+                    Zrušit
                     </button>
-                  </div>
                 </div>
               </div>
             )}
@@ -6315,15 +6958,15 @@ export function JourneyGameView({
                 {/* Content - Direct Display without Monitor */}
                 <div className="flex-1 overflow-y-auto p-6">
                       {renderDisplayContent()}
-                    </div>
+                  </div>
                     </div>
                   </div>
           </>
         )
     }
-  }
-
-  return (
+                      }
+                      
+                      return (
     <div className="bg-white overflow-hidden h-screen w-full flex flex-col" style={{
       fontFamily: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       fontSize: '14px',
@@ -6360,7 +7003,7 @@ export function JourneyGameView({
                 </svg>
                 <span className="text-sm font-medium">Hlavní panel</span>
               </button>
-            </div>
+                            </div>
 
             {/* Right - Statistics and Menu Icons */}
             <div className="flex items-center gap-6">
@@ -6369,7 +7012,7 @@ export function JourneyGameView({
                 <div className="flex items-center gap-1.5">
                   <svg className="w-4 h-4 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                  </svg>
+                              </svg>
                   <span className="text-white font-semibold text-sm">{totalXp}</span>
                   <span className="text-white opacity-75 text-xs">XP</span>
                 </div>
@@ -6377,11 +7020,11 @@ export function JourneyGameView({
                 <div className="flex items-center gap-1.5">
                   <svg className="w-4 h-4 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/>
-                  </svg>
+                              </svg>
                   <span className="text-white font-semibold text-sm">{loginStreak}</span>
                   <span className="text-white opacity-75 text-xs">Streak</span>
-                </div>
-
+                          </div>
+                          
                 <div className="flex items-center gap-1.5">
                   <svg className="w-4 h-4 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -6389,24 +7032,24 @@ export function JourneyGameView({
                   </svg>
                   <span className="text-white font-semibold text-sm">{totalCompletedGoals}</span>
                   <span className="text-white opacity-75 text-xs">Cíle</span>
-                </div>
-
+                                          </div>
+                                          
                 <div className="flex items-center gap-1.5">
                   <svg className="w-4 h-4 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
                   </svg>
                   <span className="text-white font-semibold text-sm">{totalCompletedHabits}</span>
                   <span className="text-white opacity-75 text-xs">Návyky</span>
-                </div>
-
+                                            </div>
+                                            
                 <div className="flex items-center gap-1.5">
                   <svg className="w-4 h-4 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M3 12h2l3-9 6 18 3-9h2"/>
                   </svg>
                   <span className="text-white font-semibold text-sm">{totalCompletedSteps}</span>
                   <span className="text-white opacity-75 text-xs">Kroky</span>
-                </div>
-              </div>
+                                                </div>
+                                              </div>
 
               {/* Menu Icons */}
               <div className="flex items-center space-x-4 lg:border-l lg:border-white lg:border-opacity-30 lg:pl-6">
@@ -6468,10 +7111,10 @@ export function JourneyGameView({
                 </svg>
                 <span className="text-sm font-medium">Nastavení</span>
               </button>
-            </div>
-          </div>
-            </div>
-            </div>
+                                          </div>
+                                        </div>
+                                            </div>
+                                          </div>
 
         {/* Bottom divider line - separates menu from page content */}
         <div className="h-px bg-orange-300 opacity-50 w-full"></div>
@@ -6482,57 +7125,57 @@ export function JourneyGameView({
         <div className="bg-white border-b border-orange-200 shadow-sm">
           <div className="px-6 py-3">
             <div className="flex items-center justify-center gap-2">
-              <button
-                onClick={() => {
-                  setSelectedItem(null)
-                  setSelectedItemType(null)
-                  setCurrentProgram('day')
-                }}
+                    <button
+                      onClick={() => {
+                        setSelectedItem(null)
+                        setSelectedItemType(null)
+                        setCurrentProgram('day')
+                      }}
                 className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                  !selectedItem && currentProgram === 'day' 
-                    ? 'bg-orange-500 text-white shadow-md' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
-                }`}
-                style={{
-                  boxShadow: !selectedItem && currentProgram === 'day' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                }}
-              >
-                Den
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedItem(null)
-                  setSelectedItemType(null)
-                  setCurrentProgram('week')
-                }}
+                        !selectedItem && currentProgram === 'day' 
+                          ? 'bg-orange-500 text-white shadow-md' 
+                          : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
+                      }`}
+                      style={{
+                        boxShadow: !selectedItem && currentProgram === 'day' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
+                      }}
+                    >
+                      Den
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedItem(null)
+                        setSelectedItemType(null)
+                        setCurrentProgram('week')
+                      }}
                 className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                  !selectedItem && currentProgram === 'week' 
-                    ? 'bg-orange-500 text-white shadow-md' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
-                }`}
-                style={{
-                  boxShadow: !selectedItem && currentProgram === 'week' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                }}
-              >
-                Týden
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedItem(null)
-                  setSelectedItemType(null)
-                  setCurrentProgram('month')
-                }}
+                        !selectedItem && currentProgram === 'week' 
+                          ? 'bg-orange-500 text-white shadow-md' 
+                          : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
+                      }`}
+                      style={{
+                        boxShadow: !selectedItem && currentProgram === 'week' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
+                      }}
+                    >
+                      Týden
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedItem(null)
+                        setSelectedItemType(null)
+                        setCurrentProgram('month')
+                      }}
                 className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                  !selectedItem && currentProgram === 'month' 
-                    ? 'bg-orange-500 text-white shadow-md' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
-                }`}
-                style={{
-                  boxShadow: !selectedItem && currentProgram === 'month' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                }}
-              >
-                Měsíc
-              </button>
+                        !selectedItem && currentProgram === 'month' 
+                          ? 'bg-orange-500 text-white shadow-md' 
+                          : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
+                      }`}
+                      style={{
+                        boxShadow: !selectedItem && currentProgram === 'month' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
+                      }}
+                    >
+                      Měsíc
+                    </button>
               <button
                 onClick={() => {
                   setSelectedItem(null)
@@ -6549,11 +7192,11 @@ export function JourneyGameView({
                 }}
               >
                 Rok
-              </button>
-            </div>
-            </div>
-          </div>
-      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
       {/* Main Content Area */}
       <div className="relative flex flex-col flex-1 overflow-hidden">
@@ -6611,9 +7254,9 @@ export function JourneyGameView({
                     for (let day = 1; day <= daysInMonth; day++) {
                       const date = new Date(currentYear, currentMonth, day)
                       days.push(date)
-                    }
-                    
-                    return (
+  }
+
+  return (
                       <div className="grid grid-cols-7 gap-2">
                         {days.map((date, index) => {
                           if (!date) {
@@ -6643,13 +7286,13 @@ export function JourneyGameView({
                             </button>
                           )
                         })}
-                      </div>
+        </div>
                     )
                   })()}
                   
                   {/* Month/Year Navigation */}
                   <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                    <button
+              <button
                       onClick={() => {
                         const prevMonth = new Date(selectedDayDate)
                         prevMonth.setMonth(prevMonth.getMonth() - 1)
@@ -6659,7 +7302,7 @@ export function JourneyGameView({
                     >
                       <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                      </svg>
+                </svg>
                     </button>
                     <span className="text-lg font-semibold text-gray-800">
                       {selectedDayDate.toLocaleDateString('cs-CZ', { month: 'long', year: 'numeric' })}
@@ -6675,8 +7318,8 @@ export function JourneyGameView({
                       <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                       </svg>
-                    </button>
-                  </div>
+              </button>
+            </div>
                 </div>
               )}
 
@@ -6684,7 +7327,7 @@ export function JourneyGameView({
               {currentProgram === 'week' && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between mb-4">
-                    <button
+              <button
                       onClick={() => {
                         const prevYear = selectedWeek.getFullYear() - 1
                         setSelectedWeek(new Date(prevYear, 0, 1))
@@ -6693,12 +7336,12 @@ export function JourneyGameView({
                     >
                       <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
+                </svg>
+              </button>
                     <span className="text-xl font-semibold text-gray-800">
                       {selectedWeek.getFullYear()}
                     </span>
-                    <button
+              <button
                       onClick={() => {
                         const nextYear = selectedWeek.getFullYear() + 1
                         setSelectedWeek(new Date(nextYear, 0, 1))
@@ -6707,8 +7350,8 @@ export function JourneyGameView({
                     >
                       <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
+                </svg>
+              </button>
                   </div>
                   
                   <div className="grid grid-cols-1 gap-2 max-h-96 overflow-y-auto">
@@ -6753,7 +7396,7 @@ export function JourneyGameView({
                         const isCurrentWeek = weekStartStr === currentWeekStartStr
                         
                         return (
-                          <button
+              <button
                             key={index}
                             onClick={() => {
                               setSelectedWeek(week.start)
@@ -6770,7 +7413,7 @@ export function JourneyGameView({
                             <div className="font-semibold">
                               Týden {index + 1} ({week.start.getDate()}. {week.start.getMonth() + 1}. - {week.end.getDate()}. {week.end.getMonth() + 1}. {week.end.getFullYear()})
                             </div>
-                          </button>
+              </button>
                         )
                       })
                     })()}
@@ -6782,7 +7425,7 @@ export function JourneyGameView({
               {currentProgram === 'month' && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between mb-4">
-                    <button
+              <button
                       onClick={() => {
                         const prevYear = selectedMonth.getFullYear() - 1
                         setSelectedMonth(new Date(prevYear, selectedMonth.getMonth(), 1))
@@ -6791,12 +7434,12 @@ export function JourneyGameView({
                     >
                       <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
+                </svg>
+              </button>
                     <span className="text-xl font-semibold text-gray-800">
                       {selectedMonth.getFullYear()}
                     </span>
-                    <button
+              <button
                       onClick={() => {
                         const nextYear = selectedMonth.getFullYear() + 1
                         setSelectedMonth(new Date(nextYear, selectedMonth.getMonth(), 1))
@@ -6805,10 +7448,10 @@ export function JourneyGameView({
                     >
                       <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </div>
-                  
+                </svg>
+              </button>
+          </div>
+
                   <div className="grid grid-cols-3 gap-3">
                     {['Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen', 'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec'].map((month, index) => {
                       const today = new Date()
@@ -6835,8 +7478,8 @@ export function JourneyGameView({
                         </button>
                       )
                     })}
-                  </div>
-                </div>
+            </div>
+            </div>
               )}
 
               {/* Year Picker - Years */}
@@ -6877,12 +7520,12 @@ export function JourneyGameView({
                         )
                       })
                     })()}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
+              )}
         </div>
+      </div>
+      </div>
       )}
 
     </div>

@@ -1,6 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createDailyStep, getDailyStepsByUserId } from '@/lib/cesta-db'
 
+// Helper function to normalize date from database to YYYY-MM-DD string
+// PostgreSQL DATE type is stored without time, so we need to preserve it exactly as stored
+function normalizeDateFromDB(date: any): string | null {
+  if (!date) return null
+  
+  // If it's already a YYYY-MM-DD string, return it directly
+  if (typeof date === 'string' && date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    return date
+  }
+  
+  // If it's an ISO string with time, extract just the date part (YYYY-MM-DD)
+  if (typeof date === 'string' && date.includes('T')) {
+    // Extract the date part before 'T' - this is the stored date
+    const datePart = date.split('T')[0]
+    if (datePart.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      return datePart
+    }
+  }
+  
+  // If it's a Date object (PostgreSQL DATE may be returned as Date object)
+  // PostgreSQL DATE is stored without time, so when returned as Date object,
+  // it's typically midnight UTC for that date
+  // PostgreSQL DATE values are returned as Date objects with UTC midnight
+  // Use UTC components to get the exact date stored in the database
+  if (date instanceof Date || (typeof date === 'object' && 'getTime' in date)) {
+    const d = new Date(date)
+    
+    // Always use UTC components for PostgreSQL DATE values
+    // This ensures we get the exact date stored, regardless of server timezone
+    const year = d.getUTCFullYear()
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0')
+    const day = String(d.getUTCDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+  
+  return null
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -13,7 +51,25 @@ export async function GET(request: NextRequest) {
 
     // Get daily steps for user, optionally filtered by date
     const steps = await getDailyStepsByUserId(userId, date ? new Date(date) : undefined)
-    return NextResponse.json(steps)
+    
+    // Debug: log first step's date to see what PostgreSQL returns
+    if (steps.length > 0) {
+      console.log('GET /api/daily-steps - First step raw date:', steps[0].date, 'type:', typeof steps[0].date)
+    }
+    
+    // Normalize all date fields to YYYY-MM-DD strings to avoid timezone issues
+    const normalizedSteps = steps.map((step, index) => {
+      const normalizedDate = normalizeDateFromDB(step.date)
+      if (index === 0) {
+        console.log('GET /api/daily-steps - First step normalized date:', normalizedDate)
+      }
+      return {
+        ...step,
+        date: normalizedDate
+      }
+    })
+    
+    return NextResponse.json(normalizedSteps)
   } catch (error) {
     console.error('Error fetching daily steps:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -41,13 +97,55 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User ID and title are required' }, { status: 400 })
     }
 
+    // Handle date - always work with YYYY-MM-DD strings to avoid timezone issues
+    // If date is provided as YYYY-MM-DD string, use it directly
+    // If it's a Date object or ISO string, extract YYYY-MM-DD from it using local date components
+    // If no date is provided, use today's date in client's timezone (but we're on server, so use UTC midnight converted)
+    let dateValue: string | Date
+    if (date) {
+      if (typeof date === 'string' && date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        // Already YYYY-MM-DD format - use directly as string
+        // This preserves the client's intended date regardless of server timezone
+        dateValue = date
+      } else if (typeof date === 'string' && date.includes('T')) {
+        // ISO string - extract date part (YYYY-MM-DD) from the ISO string
+        // This assumes the ISO string represents the client's local date
+        dateValue = date.split('T')[0]
+      } else {
+        // Date object or other format - convert to YYYY-MM-DD string using local components
+        const dateObj = typeof date === 'string' ? new Date(date) : date
+        // Use UTC components to preserve the date as intended
+        // When client sends ISO string, the date part represents their local date
+        if (typeof date === 'string' && date.includes('Z')) {
+          // UTC ISO string - extract date part directly
+          dateValue = date.split('T')[0]
+        } else {
+          // Local date - extract date components
+          const year = dateObj.getFullYear()
+          const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+          const day = String(dateObj.getDate()).padStart(2, '0')
+          dateValue = `${year}-${month}-${day}`
+        }
+      }
+    } else {
+      // No date provided - use today's date
+      // Since we're on the server, we should ideally get client's timezone, but as fallback use UTC date
+      // In practice, client should always send date, so this is rare
+      const now = new Date()
+      // Use UTC date to ensure consistency (client should send date anyway)
+      const year = now.getUTCFullYear()
+      const month = String(now.getUTCMonth() + 1).padStart(2, '0')
+      const day = String(now.getUTCDate()).padStart(2, '0')
+      dateValue = `${year}-${month}-${day}`
+    }
+
     const stepData = {
       user_id: userId,
       goal_id: goalId || null,
       title,
       description: description || undefined,
       completed: false,
-      date: date ? new Date(date) : new Date(),
+      date: dateValue, // Pass as string (YYYY-MM-DD) or Date, createDailyStep will handle it
       is_important: isImportant || false,
       is_urgent: isUrgent || false,
       step_type: stepType || 'custom',
@@ -57,7 +155,21 @@ export async function POST(request: NextRequest) {
     }
 
     const step = await createDailyStep(stepData)
-    return NextResponse.json(step)
+    
+    console.log('POST /api/daily-steps - Date received from client:', date)
+    console.log('POST /api/daily-steps - DateValue processed:', dateValue)
+    console.log('POST /api/daily-steps - Step from DB (raw date):', step.date, 'type:', typeof step.date)
+    
+    // Normalize date before returning
+    const normalizedDate = normalizeDateFromDB(step.date)
+    console.log('POST /api/daily-steps - Normalized date:', normalizedDate)
+    
+    const normalizedStep = {
+      ...step,
+      date: normalizedDate
+    }
+    
+    return NextResponse.json(normalizedStep)
   } catch (error) {
     console.error('Error creating daily step:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -90,6 +202,7 @@ export async function PUT(request: NextRequest) {
     if (isCompletionOnly) {
       console.log('PUT /api/daily-steps - This is a completion toggle')
       // This is a completion toggle
+      // Return date as YYYY-MM-DD string using TO_CHAR
       const result = await sql`
         UPDATE daily_steps 
         SET 
@@ -97,7 +210,11 @@ export async function PUT(request: NextRequest) {
           completed_at = ${completedAt ? new Date(completedAt) : null},
           updated_at = NOW()
         WHERE id = ${stepId}
-        RETURNING *
+        RETURNING 
+          id, user_id, goal_id, title, description, completed, 
+          TO_CHAR(date, 'YYYY-MM-DD') as date,
+          is_important, is_urgent, step_type, custom_type_name, 
+          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
       `
       
       if (result.length === 0) {
@@ -106,7 +223,11 @@ export async function PUT(request: NextRequest) {
       }
       
       console.log('PUT /api/daily-steps - Completion toggle successful:', result[0])
-      return NextResponse.json(result[0])
+      const normalizedResult = {
+        ...result[0],
+        date: normalizeDateFromDB(result[0].date)
+      }
+      return NextResponse.json(normalizedResult)
     } else if (isDateOnly) {
       console.log('PUT /api/daily-steps - This is a date-only update (drag & drop)')
       console.log('PUT /api/daily-steps - Date value received:', date)
@@ -114,13 +235,18 @@ export async function PUT(request: NextRequest) {
       // Use SQL DATE() function to ensure date-only storage
       if (date) {
         // Use CAST to ensure date-only storage without time component
+        // Return date as YYYY-MM-DD string using TO_CHAR
         const result = await sql`
           UPDATE daily_steps 
           SET 
             date = CAST(${date}::text AS DATE),
             updated_at = NOW()
           WHERE id = ${stepId}
-          RETURNING *
+          RETURNING 
+            id, user_id, goal_id, title, description, completed, 
+            TO_CHAR(date, 'YYYY-MM-DD') as date,
+            is_important, is_urgent, step_type, custom_type_name, 
+            estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
         `
         
         if (result.length === 0) {
@@ -129,16 +255,25 @@ export async function PUT(request: NextRequest) {
         }
         
         console.log('PUT /api/daily-steps - Date update successful:', result[0])
-        return NextResponse.json(result[0])
+        const normalizedResult = {
+          ...result[0],
+          date: normalizeDateFromDB(result[0].date)
+        }
+        return NextResponse.json(normalizedResult)
       } else {
         // Setting date to null
+        // Return date as YYYY-MM-DD string using TO_CHAR (will be null)
         const result = await sql`
           UPDATE daily_steps 
           SET 
             date = NULL,
             updated_at = NOW()
           WHERE id = ${stepId}
-          RETURNING *
+          RETURNING 
+            id, user_id, goal_id, title, description, completed, 
+            TO_CHAR(date, 'YYYY-MM-DD') as date,
+            is_important, is_urgent, step_type, custom_type_name, 
+            estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
         `
         
         if (result.length === 0) {
@@ -147,7 +282,11 @@ export async function PUT(request: NextRequest) {
         }
         
         console.log('PUT /api/daily-steps - Date cleared successfully:', result[0])
-        return NextResponse.json(result[0])
+        const normalizedResult = {
+          ...result[0],
+          date: normalizeDateFromDB(result[0].date)
+        }
+        return NextResponse.json(normalizedResult)
       }
     } else {
       console.log('PUT /api/daily-steps - This is a full update (edit form)')
@@ -187,12 +326,25 @@ export async function PUT(request: NextRequest) {
       if (date !== undefined) {
         // Format date as YYYY-MM-DD string for PostgreSQL DATE type
         if (date) {
-          // Ensure date is in YYYY-MM-DD format
+          // Ensure date is in YYYY-MM-DD format, parsing as local date to avoid timezone issues
           let dateStr = date
           if (dateStr instanceof Date) {
-            dateStr = dateStr.toISOString().split('T')[0]
-          } else if (typeof dateStr === 'string' && dateStr.includes('T')) {
-            dateStr = dateStr.split('T')[0]
+            // Use local date components to avoid timezone issues
+            const year = dateStr.getFullYear()
+            const month = String(dateStr.getMonth() + 1).padStart(2, '0')
+            const day = String(dateStr.getDate()).padStart(2, '0')
+            dateStr = `${year}-${month}-${day}`
+          } else if (typeof dateStr === 'string') {
+            if (dateStr.includes('T')) {
+              // ISO format with time - extract date part and parse as local
+              const datePart = dateStr.split('T')[0]
+              const [year, month, day] = datePart.split('-').map(Number)
+              const localDate = new Date(year, month - 1, day)
+              dateStr = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`
+            } else if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+              // Already in YYYY-MM-DD format, use as is
+              dateStr = dateStr
+            }
           }
           // Use parameterized query - PostgreSQL will auto-cast YYYY-MM-DD string to DATE
           const paramIndex = updateParts.length + 1
@@ -212,7 +364,8 @@ export async function PUT(request: NextRequest) {
       // Build query string with parameterized placeholders
       // sql.unsafe() takes only the query string, so we need to include values directly
       // But we'll use PostgreSQL parameterized query format for safety
-      const query = `UPDATE daily_steps SET ${updateParts.join(', ')}, updated_at = NOW() WHERE id = $${updateValues.length + 1} RETURNING *`
+      // Return date as YYYY-MM-DD string using TO_CHAR
+      const query = `UPDATE daily_steps SET ${updateParts.join(', ')}, updated_at = NOW() WHERE id = $${updateValues.length + 1} RETURNING id, user_id, goal_id, title, description, completed, TO_CHAR(date, 'YYYY-MM-DD') as date, is_important, is_urgent, step_type, custom_type_name, estimated_time, xp_reward, deadline, completed_at, created_at, updated_at`
       updateValues.push(stepId)
       
       // Escape and format values for safe insertion
@@ -252,7 +405,11 @@ export async function PUT(request: NextRequest) {
       }
 
       console.log('PUT /api/daily-steps - Full update successful:', result[0])
-      return NextResponse.json(result[0])
+      const normalizedResult = {
+        ...result[0],
+        date: normalizeDateFromDB(result[0].date)
+      }
+      return NextResponse.json(normalizedResult)
     }
   } catch (error: any) {
     console.error('PUT /api/daily-steps - Error updating daily step:', error)
