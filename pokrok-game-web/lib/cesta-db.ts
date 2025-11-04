@@ -860,7 +860,7 @@ export async function createGoal(goalData: Partial<Goal>): Promise<Goal> {
   return goal[0] as Goal
 }
 
-export async function createDailyStep(stepData: Partial<DailyStep>): Promise<DailyStep> {
+export async function createDailyStep(stepData: Partial<DailyStep> & { date?: Date | string }): Promise<DailyStep> {
   const id = crypto.randomUUID()
   
   // Format date as YYYY-MM-DD string to avoid timezone issues

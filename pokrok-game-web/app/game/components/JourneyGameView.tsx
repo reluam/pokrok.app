@@ -7,7 +7,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStr
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { SettingsView } from './SettingsView'
-import { Footprints, Calendar, Target, CheckCircle, X, ChevronDown } from 'lucide-react'
+import { Footprints, Calendar, Target, CheckCircle, X, ChevronDown, Edit, Trash2 } from 'lucide-react'
 import { DailyReviewWorkflow } from './DailyReviewWorkflow'
 import { CalendarProgram } from './CalendarProgram'
 
@@ -4450,8 +4450,121 @@ export function JourneyGameView({
       description: goal.description || '',
       target_date: goal.target_date ? new Date(goal.target_date).toISOString().split('T')[0] : '',
       areaId: goal.areaId || '',
-      status: goal.status || 'active'
+      status: goal.status || 'active',
+      steps: [] as Array<{ id: string; title: string; description?: string; date?: string; isEditing?: boolean }>,
+      milestones: [] as Array<{ id: string; title: string; description?: string; isEditing?: boolean }>
     })
+    const [showGoalDatePicker, setShowGoalDatePicker] = useState(false)
+    const [showAreaPicker, setShowAreaPicker] = useState(false)
+    const [showStatusPicker, setShowStatusPicker] = useState(false)
+    const [datePickerButtonRef, setDatePickerButtonRef] = useState<HTMLButtonElement | null>(null)
+    const [areaPickerButtonRef, setAreaPickerButtonRef] = useState<HTMLButtonElement | null>(null)
+    const [statusPickerButtonRef, setStatusPickerButtonRef] = useState<HTMLButtonElement | null>(null)
+    const [datePickerPosition, setDatePickerPosition] = useState<{ top: number; left: number } | null>(null)
+    const [areaPickerPosition, setAreaPickerPosition] = useState<{ top: number; left: number; maxHeight: number } | null>(null)
+    const [statusPickerPosition, setStatusPickerPosition] = useState<{ top: number; left: number } | null>(null)
+
+    // Calculate dropdown positions when they open
+    useLayoutEffect(() => {
+      if (showGoalDatePicker && datePickerButtonRef) {
+        const rect = datePickerButtonRef.getBoundingClientRect()
+        setDatePickerPosition({
+          top: rect.bottom - 2,
+          left: rect.left
+        })
+      } else {
+        setDatePickerPosition(null)
+      }
+    }, [showGoalDatePicker, datePickerButtonRef])
+
+    useLayoutEffect(() => {
+      if (showAreaPicker && areaPickerButtonRef) {
+        const rect = areaPickerButtonRef.getBoundingClientRect()
+        const availableHeight = window.innerHeight - rect.bottom - 4
+        setAreaPickerPosition({
+          top: rect.bottom - 2,
+          left: rect.left,
+          maxHeight: availableHeight < 256 ? availableHeight : 256
+        })
+      } else {
+        setAreaPickerPosition(null)
+      }
+    }, [showAreaPicker, areaPickerButtonRef])
+
+    useLayoutEffect(() => {
+      if (showStatusPicker && statusPickerButtonRef) {
+        const rect = statusPickerButtonRef.getBoundingClientRect()
+        setStatusPickerPosition({
+          top: rect.bottom - 2,
+          left: rect.left
+        })
+      } else {
+        setStatusPickerPosition(null)
+      }
+    }, [showStatusPicker, statusPickerButtonRef])
+
+    // Load steps and milestones for this goal
+    useEffect(() => {
+      const loadStepsAndMilestones = async () => {
+        // Load steps for this goal
+        try {
+          const stepsResponse = await fetch(`/api/daily-steps?goalId=${goal.id}`)
+          if (stepsResponse.ok) {
+            const steps = await stepsResponse.json()
+            setFormData(prev => ({
+              ...prev,
+              steps: steps.map((step: any) => ({
+                id: step.id,
+                title: step.title,
+                description: step.description || '',
+                date: step.date ? new Date(step.date).toISOString().split('T')[0] : '',
+                isEditing: false
+              }))
+            }))
+          }
+        } catch (error) {
+          console.error('Error loading steps:', error)
+        }
+
+        // Load milestones for this goal
+        try {
+          const milestonesResponse = await fetch(`/api/cesta/goal-milestones?goalId=${goal.id}`)
+          if (milestonesResponse.ok) {
+            const data = await milestonesResponse.json()
+            const milestones = data.milestones || []
+            setFormData(prev => ({
+              ...prev,
+              milestones: milestones.map((milestone: any) => ({
+                id: milestone.id,
+                title: milestone.title,
+                description: milestone.description || '',
+                isEditing: false
+              }))
+            }))
+          }
+        } catch (error) {
+          console.error('Error loading milestones:', error)
+        }
+      }
+
+      loadStepsAndMilestones()
+    }, [goal.id])
+
+    // Handle click outside to close editing forms
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        const target = event.target as HTMLElement
+        if (!target.closest('[data-step-id]') && !target.closest('[data-milestone-id]')) {
+          setFormData(prev => ({
+            ...prev,
+            steps: prev.steps.map(s => ({ ...s, isEditing: false })),
+            milestones: prev.milestones.map(m => ({ ...m, isEditing: false }))
+          }))
+        }
+      }
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
 
     const handleSubmit = () => {
       const updates = {
@@ -4466,102 +4579,611 @@ export function JourneyGameView({
 
     return (
       <div 
-        className="editing-form p-4 bg-gray-50 border-t border-gray-200"
+        className="editing-form bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border border-gray-200 shadow-lg max-h-[85vh] overflow-y-auto"
         onMouseDown={(e) => e.stopPropagation()}
         onMouseMove={(e) => e.stopPropagation()}
         onMouseUp={(e) => e.stopPropagation()}
       >
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Název cíle</label>
-            <input
-              type="text"
-              value={formData.title}
-              onChange={(e) => setFormData({...formData, title: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-              placeholder="Zadejte název cíle"
-            />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left Column - Text Fields */}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Název cíle <span className="text-orange-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => setFormData({...formData, title: e.target.value})}
+                className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white shadow-sm hover:shadow-md"
+                placeholder="Např. Ušetřit na nový dům"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Popis cíle
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white shadow-sm hover:shadow-md resize-none"
+                rows={4}
+                placeholder="Popište svůj cíl podrobněji..."
+              />
+            </div>
+            
+            {/* Compact Icon-based Controls */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Nastavení
+              </label>
+              <div className="flex items-center gap-3 flex-wrap">
+                {/* Date Picker Icon */}
+                <div className="relative">
+                  <button
+                    ref={setDatePickerButtonRef}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowGoalDatePicker(!showGoalDatePicker)
+                      setShowAreaPicker(false)
+                      setShowStatusPicker(false)
+                    }}
+                    className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
+                      formData.target_date 
+                        ? 'border-orange-300 bg-orange-50 text-orange-700' 
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-orange-300'
+                    }`}
+                    title="Datum skončení"
+                  >
+                    <Calendar className="w-4 h-4" />
+                    <span className="font-medium">
+                      {formData.target_date 
+                        ? new Date(formData.target_date).toLocaleDateString('cs-CZ', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                        : 'Datum skončení'}
+                    </span>
+                    <ChevronDown className={`w-3 h-3 transition-transform ${showGoalDatePicker ? 'rotate-180' : ''}`} />
+                  </button>
+                  {showGoalDatePicker && datePickerPosition && (
+                    <>
+                      <div 
+                        className="fixed inset-0 z-40" 
+                        onClick={() => setShowGoalDatePicker(false)}
+                      />
+                      <div 
+                        className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-4"
+                        style={{
+                          top: `${datePickerPosition.top}px`,
+                          left: `${datePickerPosition.left}px`
+                        }}
+                      >
+                        <input
+                          type="date"
+                          value={formData.target_date}
+                          onChange={(e) => {
+                            setFormData({...formData, target_date: e.target.value})
+                            setShowGoalDatePicker(false)
+                          }}
+                          className="text-base px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                          autoFocus
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+                
+                {/* Area Picker Icon */}
+                <div className="relative">
+                  <button
+                    ref={setAreaPickerButtonRef}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowAreaPicker(!showAreaPicker)
+                      setShowGoalDatePicker(false)
+                      setShowStatusPicker(false)
+                    }}
+                    className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
+                      formData.areaId 
+                        ? 'border-orange-300 bg-orange-50 text-orange-700' 
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-orange-300'
+                    }`}
+                    title="Životní oblast"
+                  >
+                    <Target className="w-4 h-4" />
+                    <span className="font-medium">
+                      {formData.areaId 
+                        ? areas.find((a: any) => a.id === formData.areaId)?.name || 'Oblast'
+                        : 'Životní oblast'}
+                    </span>
+                    <ChevronDown className={`w-3 h-3 transition-transform ${showAreaPicker ? 'rotate-180' : ''}`} />
+                  </button>
+                  {showAreaPicker && areaPickerPosition && (
+                    <>
+                      <div 
+                        className="fixed inset-0 z-40" 
+                        onClick={() => setShowAreaPicker(false)}
+                      />
+                      <div 
+                        className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[200px] max-h-64 overflow-y-auto"
+                        style={{
+                          top: `${areaPickerPosition.top}px`,
+                          left: `${areaPickerPosition.left}px`,
+                          maxHeight: `${areaPickerPosition.maxHeight}px`
+                        }}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData({...formData, areaId: ''})
+                            setShowAreaPicker(false)
+                          }}
+                          className="w-full text-left px-4 py-3 text-sm hover:bg-orange-50 border-b border-gray-100 font-medium transition-colors"
+                        >
+                          Žádná oblast
+                        </button>
+                        {areas.map((area: any) => (
+                          <button
+                            key={area.id}
+                            type="button"
+                            onClick={() => {
+                              setFormData({...formData, areaId: area.id})
+                              setShowAreaPicker(false)
+                            }}
+                            className={`w-full text-left px-4 py-3 text-sm hover:bg-orange-50 transition-colors ${
+                              formData.areaId === area.id ? 'bg-orange-50 text-orange-700 font-semibold' : 'text-gray-700'
+                            }`}
+                          >
+                            {area.name}
+                          </button>
+                        ))}
+                        {areas.length === 0 && (
+                          <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                            Žádné oblasti
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+                
+                {/* Status Picker Icon */}
+                <div className="relative">
+                  <button
+                    ref={setStatusPickerButtonRef}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowStatusPicker(!showStatusPicker)
+                      setShowGoalDatePicker(false)
+                      setShowAreaPicker(false)
+                    }}
+                    className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
+                      formData.status === 'active' 
+                        ? 'border-green-300 bg-green-50 text-green-700' 
+                        : formData.status === 'completed'
+                        ? 'border-blue-300 bg-blue-50 text-blue-700'
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-orange-300'
+                    }`}
+                    title="Status"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    <span className="font-medium">
+                      {formData.status === 'active' ? 'Aktivní' : 
+                       formData.status === 'completed' ? 'Splněný' : 'Ke zvážení'}
+                    </span>
+                    <ChevronDown className={`w-3 h-3 transition-transform ${showStatusPicker ? 'rotate-180' : ''}`} />
+                  </button>
+                  {showStatusPicker && statusPickerPosition && (
+                    <>
+                      <div 
+                        className="fixed inset-0 z-40" 
+                        onClick={() => setShowStatusPicker(false)}
+                      />
+                      <div 
+                        className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[160px]"
+                        style={{
+                          top: `${statusPickerPosition.top}px`,
+                          left: `${statusPickerPosition.left}px`
+                        }}
+                      >
+                        {['active', 'completed', 'considering'].map((status) => (
+                          <button
+                            key={status}
+                            type="button"
+                            onClick={() => {
+                              setFormData({...formData, status: status as any})
+                              setShowStatusPicker(false)
+                            }}
+                            className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors font-medium ${
+                              formData.status === status 
+                                ? status === 'active' 
+                                  ? 'bg-green-50 text-green-700 font-semibold' 
+                                  : status === 'completed'
+                                  ? 'bg-blue-50 text-blue-700 font-semibold'
+                                  : 'bg-orange-50 text-orange-700 font-semibold'
+                                : 'text-gray-700'
+                            }`}
+                          >
+                            {status === 'active' ? '✓ Aktivní' : 
+                             status === 'completed' ? '✓ Splněný' : '✓ Ke zvážení'}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
           
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Popis cíle</label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-              rows={3}
-              placeholder="Zadejte popis cíle"
-            />
+          {/* Right Column - Steps and Milestones */}
+          <div className="space-y-5">
+            {/* Steps Section */}
+            <div className="bg-white rounded-xl p-4 border-2 border-gray-100 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-sm font-semibold text-gray-800">Kroky</label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      steps: [...formData.steps, { id: crypto.randomUUID(), title: '', description: '', date: '', isEditing: true }]
+                    })
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Přidat krok
+                </button>
+              </div>
+              {formData.steps.length === 0 ? (
+                <div className="text-center py-6 text-gray-400">
+                  <svg className="w-8 h-8 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  <p className="text-xs">Žádné kroky</p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                  {formData.steps.map((step, index) => {
+                    const isEditingStep = step.isEditing
+                    
+                    return (
+                      <div 
+                        key={step.id} 
+                        data-step-id={step.id}
+                        className="bg-gray-50 p-3 rounded-lg border border-gray-200 hover:border-orange-300 transition-colors"
+                      >
+                        {isEditingStep ? (
+                          <>
+                            <div className="flex items-start justify-between mb-2">
+                              <span className="text-xs font-semibold text-gray-600 bg-white px-2 py-0.5 rounded">Krok {index + 1}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setFormData({
+                                    ...formData,
+                                    steps: formData.steps.filter(s => s.id !== step.id)
+                                  })
+                                }}
+                                className="text-red-400 hover:text-red-600 hover:bg-red-50 rounded p-1 transition-colors"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                            <input
+                              type="text"
+                              value={step.title}
+                              onChange={(e) => {
+                                const updatedSteps = formData.steps.map(s =>
+                                  s.id === step.id ? { ...s, title: e.target.value } : s
+                                )
+                                setFormData({ ...formData, steps: updatedSteps })
+                              }}
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                              placeholder="Název kroku"
+                              autoFocus
+                            />
+                            <input
+                              type="date"
+                              value={step.date || ''}
+                              onChange={(e) => {
+                                const updatedSteps = formData.steps.map(s =>
+                                  s.id === step.id ? { ...s, date: e.target.value } : s
+                                )
+                                setFormData({ ...formData, steps: updatedSteps })
+                              }}
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                              placeholder="Datum (volitelné)"
+                            />
+                            <textarea
+                              value={step.description || ''}
+                              onChange={(e) => {
+                                const updatedSteps = formData.steps.map(s =>
+                                  s.id === step.id ? { ...s, description: e.target.value } : s
+                                )
+                                setFormData({ ...formData, steps: updatedSteps })
+                              }}
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white resize-none"
+                              rows={2}
+                              placeholder="Popis (volitelné)"
+                            />
+                            <div className="flex items-center gap-2 mt-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updatedSteps = formData.steps.map(s =>
+                                    s.id === step.id ? { ...s, isEditing: false } : s
+                                  )
+                                  setFormData({ ...formData, steps: updatedSteps })
+                                }}
+                                className="px-3 py-1.5 text-xs font-medium bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                              >
+                                Uložit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setFormData({
+                                    ...formData,
+                                    steps: formData.steps.filter(s => s.id !== step.id)
+                                  })
+                                }}
+                                className="px-3 py-1.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                              >
+                                Zrušit
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <div 
+                            className="flex items-center justify-between cursor-pointer group"
+                            onClick={() => {
+                              const updatedSteps = formData.steps.map(s =>
+                                s.id === step.id ? { ...s, isEditing: true } : s
+                              )
+                              setFormData({ ...formData, steps: updatedSteps })
+                            }}
+                          >
+                            <div className="flex items-center gap-3 flex-1">
+                              <span className="text-xs font-semibold text-gray-500 w-12">#{index + 1}</span>
+                              <div className="flex-1">
+                                <div className="font-medium text-sm text-gray-900">{step.title || 'Bez názvu'}</div>
+                                {step.date && (
+                                  <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
+                                    <Calendar className="w-3 h-3" />
+                                    {new Date(step.date).toLocaleDateString('cs-CZ', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  const updatedSteps = formData.steps.map(s =>
+                                    s.id === step.id ? { ...s, isEditing: true } : s
+                                  )
+                                  setFormData({ ...formData, steps: updatedSteps })
+                                }}
+                                className="text-gray-400 hover:text-orange-600 p-1"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setFormData({
+                                    ...formData,
+                                    steps: formData.steps.filter(s => s.id !== step.id)
+                                  })
+                                }}
+                                className="text-gray-400 hover:text-red-600 p-1"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Milestones Section */}
+            <div className="bg-white rounded-xl p-4 border-2 border-gray-100 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-sm font-semibold text-gray-800">Milníky</label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      milestones: [...formData.milestones, { id: crypto.randomUUID(), title: '', description: '', isEditing: true }]
+                    })
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Přidat milník
+                </button>
+              </div>
+              {formData.milestones.length === 0 ? (
+                <div className="text-center py-6 text-gray-400">
+                  <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-xs">Žádné milníky</p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                  {formData.milestones.map((milestone, index) => {
+                    const isEditingMilestone = milestone.isEditing
+                    
+                    return (
+                      <div 
+                        key={milestone.id} 
+                        data-milestone-id={milestone.id}
+                        className="bg-gray-50 p-3 rounded-lg border border-gray-200 hover:border-orange-300 transition-colors"
+                      >
+                        {isEditingMilestone ? (
+                          <>
+                            <div className="flex items-start justify-between mb-2">
+                              <span className="text-xs font-semibold text-gray-600 bg-white px-2 py-0.5 rounded">Milník {index + 1}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setFormData({
+                                    ...formData,
+                                    milestones: formData.milestones.filter(m => m.id !== milestone.id)
+                                  })
+                                }}
+                                className="text-red-400 hover:text-red-600 hover:bg-red-50 rounded p-1 transition-colors"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                            <input
+                              type="text"
+                              value={milestone.title}
+                              onChange={(e) => {
+                                const updatedMilestones = formData.milestones.map(m =>
+                                  m.id === milestone.id ? { ...m, title: e.target.value } : m
+                                )
+                                setFormData({ ...formData, milestones: updatedMilestones })
+                              }}
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                              placeholder="Název milníku"
+                              autoFocus
+                            />
+                            <textarea
+                              value={milestone.description || ''}
+                              onChange={(e) => {
+                                const updatedMilestones = formData.milestones.map(m =>
+                                  m.id === milestone.id ? { ...m, description: e.target.value } : m
+                                )
+                                setFormData({ ...formData, milestones: updatedMilestones })
+                              }}
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white resize-none"
+                              rows={2}
+                              placeholder="Popis (volitelné)"
+                            />
+                            <div className="flex items-center gap-2 mt-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updatedMilestones = formData.milestones.map(m =>
+                                    m.id === milestone.id ? { ...m, isEditing: false } : m
+                                  )
+                                  setFormData({ ...formData, milestones: updatedMilestones })
+                                }}
+                                className="px-3 py-1.5 text-xs font-medium bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                              >
+                                Uložit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setFormData({
+                                    ...formData,
+                                    milestones: formData.milestones.filter(m => m.id !== milestone.id)
+                                  })
+                                }}
+                                className="px-3 py-1.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                              >
+                                Zrušit
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <div 
+                            className="flex items-center justify-between cursor-pointer group"
+                            onClick={() => {
+                              const updatedMilestones = formData.milestones.map(m =>
+                                m.id === milestone.id ? { ...m, isEditing: true } : m
+                              )
+                              setFormData({ ...formData, milestones: updatedMilestones })
+                            }}
+                          >
+                            <div className="flex items-center gap-3 flex-1">
+                              <Target className="w-4 h-4 text-orange-500" />
+                              <div className="flex-1">
+                                <div className="font-medium text-sm text-gray-900">{milestone.title || 'Bez názvu'}</div>
+                                {milestone.description && (
+                                  <div className="text-xs text-gray-500 mt-0.5">{milestone.description}</div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  const updatedMilestones = formData.milestones.map(m =>
+                                    m.id === milestone.id ? { ...m, isEditing: true } : m
+                                  )
+                                  setFormData({ ...formData, milestones: updatedMilestones })
+                                }}
+                                className="text-gray-400 hover:text-orange-600 p-1"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setFormData({
+                                    ...formData,
+                                    milestones: formData.milestones.filter(m => m.id !== milestone.id)
+                                  })
+                                }}
+                                className="text-gray-400 hover:text-red-600 p-1"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Datum skončení</label>
-            <input
-              type="date"
-              value={formData.target_date}
-              onChange={(e) => setFormData({...formData, target_date: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Životní oblast</label>
-            <select
-              value={formData.areaId}
-              onChange={(e) => setFormData({...formData, areaId: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-            >
-              <option value="">Vyberte oblast</option>
-              {areas.map((area: any) => (
-                <option key={area.id} value={area.id}>
-                  {area.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-            <select
-              value={formData.status}
-              onChange={(e) => setFormData({...formData, status: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-            >
-              <option value="active">Aktivní</option>
-              <option value="completed">Splněný</option>
-              <option value="considering">Ke zvážení</option>
-            </select>
-          </div>
-          
-          <div className="flex gap-3">
-            <button
-              onClick={handleSubmit}
-              className="p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-              title="Uložit změny"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </button>
-            <button
-              onClick={onCancel}
-              className="p-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-              title="Zrušit"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <button
-              onClick={() => onDelete(goal.id)}
-              className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-              title="Smazat cíl"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </button>
-          </div>
+        </div>
+        
+        <div className="flex gap-3 mt-6 pt-6 border-t-2 border-gray-200 sticky bottom-0 bg-gradient-to-br from-white to-gray-50">
+          <button
+            onClick={handleSubmit}
+            className="flex-1 px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-semibold rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            title="Uložit změny"
+          >
+            Uložit změny
+          </button>
+          <button
+            onClick={onCancel}
+            className="px-6 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-200 transition-all"
+            title="Zrušit"
+          >
+            Zrušit
+          </button>
+          <button
+            onClick={() => onDelete(goal.id)}
+            className="px-6 py-3 bg-red-500 text-white text-sm font-medium rounded-xl hover:bg-red-600 transition-all"
+            title="Smazat cíl"
+          >
+            <Trash2 className="w-4 h-4 inline mr-1" />
+            Smazat
+          </button>
         </div>
       </div>
     )
