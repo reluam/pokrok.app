@@ -46,6 +46,15 @@ export function JourneyGameView({
   onGoalsUpdate,
   onDailyStepsUpdate
 }: JourneyGameViewProps) {
+  // Helper function to get today's date in local timezone (YYYY-MM-DD)
+  const getLocalDateString = (date?: Date): string => {
+    const d = date || new Date()
+    const year = d.getFullYear()
+    const month = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+  
   const { user } = useUser()
   const [userId, setUserId] = useState<string | null>(userIdProp || null)
   const [characterDialogue, setCharacterDialogue] = useState("Ahoj! Jsem tvůj průvodce na cestě k úspěchu. Co chceš dělat dnes?")
@@ -91,7 +100,12 @@ export function JourneyGameView({
   const [selectedItem, setSelectedItem] = useState<any>(null)
   const [selectedItemType, setSelectedItemType] = useState<'step' | 'habit' | 'goal' | 'stat' | null>(null)
   const [currentMonth, setCurrentMonth] = useState(new Date())
-  const [currentProgram, setCurrentProgram] = useState<'daily-plan' | 'statistics' | 'goals' | 'habits' | 'steps' | 'chill' | 'workflow' | 'calendar'>('daily-plan')
+  const [currentProgram, setCurrentProgram] = useState<'day' | 'week' | 'month' | 'year'>('day')
+  const [selectedDayDate, setSelectedDayDate] = useState<Date>(new Date()) // Currently displayed day in day view
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear()) // Currently displayed year in year view
+  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date()) // Currently displayed month in month view
+  const [selectedWeek, setSelectedWeek] = useState<Date>(new Date()) // Currently displayed week in week view
+  const [showDatePickerModal, setShowDatePickerModal] = useState<boolean>(false) // Show date picker modal for navigation
   const [expandedLeftSection, setExpandedLeftSection] = useState<'goals' | null>(null)
   const [expandedRightSection, setExpandedRightSection] = useState<'habits' | 'steps' | null>(null)
   const [leftSectionHeights, setLeftSectionHeights] = useState({ goals: 0 })
@@ -176,7 +190,7 @@ export function JourneyGameView({
     isUrgent: false,
     estimatedTime: 30,
     xpReward: 1,
-    date: new Date().toISOString().split('T')[0] // Default to today
+    date: getLocalDateString() // Default to today
   })
   const [newHabit, setNewHabit] = useState({
     name: '',
@@ -297,6 +311,9 @@ export function JourneyGameView({
   }
 
   const handleStepToggle = async (stepId: string, completed: boolean) => {
+    // Add to loading set
+    setLoadingSteps(prev => new Set(prev).add(stepId))
+    
     try {
       const response = await fetch('/api/daily-steps', {
         method: 'PUT',
@@ -330,6 +347,13 @@ export function JourneyGameView({
     } catch (error) {
       console.error('Error updating step:', error)
       alert('Chyba při aktualizaci kroku')
+    } finally {
+      // Remove from loading set
+      setLoadingSteps(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(stepId)
+        return newSet
+      })
     }
   }
 
@@ -438,6 +462,10 @@ export function JourneyGameView({
   
   // Drag & drop state
   const [activeDragId, setActiveDragId] = useState<string | null>(null)
+  
+  // Loading states for toggles
+  const [loadingSteps, setLoadingSteps] = useState<Set<string>>(new Set())
+  const [loadingHabits, setLoadingHabits] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     if (selectedItem && selectedItemType === 'step') {
@@ -446,7 +474,36 @@ export function JourneyGameView({
       setStepTitle(isNewStep ? 'Nový krok' : (selectedItem.title || ''))
       setStepDescription(selectedItem.description || '')
       setEditingStepTitle(isNewStep) // Start editing for new steps
-      setSelectedDate(selectedItem.date || '')
+      // For new steps, ensure we use getLocalDateString() if date is missing
+      // For existing steps, normalize the date from the database
+      if (isNewStep) {
+        setSelectedDate(selectedItem.date || getLocalDateString())
+      } else {
+        // Normalize date from database to ensure correct format
+        // API should return date as YYYY-MM-DD string - use it directly
+        const dateValue = selectedItem.date
+        if (dateValue) {
+          // If it's already a YYYY-MM-DD string, use it directly (API normalizes it)
+          if (typeof dateValue === 'string' && dateValue.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            setSelectedDate(dateValue)
+          } else {
+            // Date object or other format - normalize using local date components
+            // But try to extract YYYY-MM-DD from ISO string first
+            if (typeof dateValue === 'string' && dateValue.includes('T')) {
+              const datePart = dateValue.split('T')[0]
+              if (datePart.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                setSelectedDate(datePart)
+              } else {
+                setSelectedDate(getLocalDateString(new Date(dateValue)))
+              }
+            } else {
+              setSelectedDate(getLocalDateString(new Date(dateValue)))
+            }
+          }
+        } else {
+          setSelectedDate('')
+        }
+      }
       setShowDatePicker(false)
       setShowTimeEditor(false)
       setShowXpEditor(false)
@@ -482,19 +539,54 @@ export function JourneyGameView({
             userId: player?.user_id,
             title: stepTitle,
             description: stepDescription,
-            date: selectedDate || new Date().toISOString().split('T')[0],
+            date: selectedDate || getLocalDateString(),
             estimated_time: stepEstimatedTime,
             xp_reward: stepXpReward
           })
         })
 
         if (response.ok) {
-          const updatedSteps = await fetch(`/api/daily-steps?userId=${player?.user_id}&date=${new Date().toISOString().split('T')[0]}`)
+          // Get the newly created step from the response
+          const newStep = await response.json()
+          
+          // API should return date as YYYY-MM-DD string - use it directly
+          // If it's already a YYYY-MM-DD string, use it as-is
+          // This preserves the exact date sent by the client
+          let normalizedDate = newStep.date
+          if (!normalizedDate) {
+            // Fallback: use the date we sent
+            normalizedDate = selectedDate || getLocalDateString()
+          } else if (typeof normalizedDate === 'string' && normalizedDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            // Already YYYY-MM-DD format - use directly
+            normalizedDate = normalizedDate
+          } else {
+            // Date object or other format - normalize using local date components
+            const dateObj = new Date(normalizedDate)
+            normalizedDate = getLocalDateString(dateObj)
+          }
+          
+          console.log('handleSaveStep - Date sent:', selectedDate || getLocalDateString())
+          console.log('handleSaveStep - Date received:', newStep.date)
+          console.log('handleSaveStep - Date normalized:', normalizedDate)
+          
+          // Update the steps list
+          const updatedSteps = await fetch(`/api/daily-steps?userId=${player?.user_id}`)
             .then(res => res.json())
           onDailyStepsUpdate?.(updatedSteps)
+          
+          // Update selectedItem to the newly created step (keep it open)
+          setSelectedItem({ ...newStep, date: normalizedDate })
+          setSelectedItemType('step')
+          
+          // Update state variables to match the new step
+          setStepTitle(newStep.title || '')
+          setStepDescription(newStep.description || '')
+          setSelectedDate(normalizedDate)
+          setStepEstimatedTime(newStep.estimated_time || 0)
+          setStepXpReward(newStep.xp_reward || 0)
+          
+          // Keep editing mode closed after initial save
           setEditingStepTitle(false)
-          setSelectedItem(null)
-          setSelectedItemType(null)
         }
       } else {
         // For existing step, update it
@@ -520,7 +612,7 @@ export function JourneyGameView({
             xp_reward: stepXpReward
           })
           
-          const updatedSteps = await fetch(`/api/daily-steps?userId=${player?.user_id}&date=${new Date().toISOString().split('T')[0]}`)
+          const updatedSteps = await fetch(`/api/daily-steps?userId=${player?.user_id}`)
             .then(res => res.json())
           onDailyStepsUpdate?.(updatedSteps)
           setEditingStepTitle(false)
@@ -548,8 +640,8 @@ export function JourneyGameView({
         // Optimistically update the selected item
         setSelectedItem({ ...selectedItem, completed })
         
-        // Also update the dailySteps list
-        const updatedSteps = await fetch(`/api/daily-steps?userId=${player?.user_id}&date=${new Date().toISOString().split('T')[0]}`)
+        // Also update the dailySteps list - fetch all steps, not just today's
+        const updatedSteps = await fetch(`/api/daily-steps?userId=${player?.user_id}`)
           .then(res => res.json())
         onDailyStepsUpdate?.(updatedSteps)
       }
@@ -564,35 +656,62 @@ export function JourneyGameView({
     if (!selectedItem || selectedItemType !== 'step') return
 
     try {
+      // Ensure date is in YYYY-MM-DD format using getLocalDateString if needed
+      const formattedDate = newDate || getLocalDateString()
+      
+      // Send only date to trigger date-only update path in API
       const response = await fetch('/api/daily-steps', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           stepId: selectedItem.id,
-          title: selectedItem.title,
-          description: selectedItem.description,
-          goalId: selectedItem.goal_id,
-          isImportant: selectedItem.is_important,
-          isUrgent: selectedItem.is_urgent,
-          estimatedTime: selectedItem.estimated_time,
-          xpReward: selectedItem.xp_reward,
-          date: newDate
+          date: formattedDate
         })
       })
 
       if (response.ok) {
-        setShowDatePicker(false)
-        const updatedSteps = await fetch(`/api/daily-steps?userId=${player?.user_id}&date=${new Date().toISOString().split('T')[0]}`)
+        const updatedStep = await response.json()
+        
+        // API should return date as YYYY-MM-DD string - use it directly
+        let normalizedDate = updatedStep.date
+        if (normalizedDate && typeof normalizedDate === 'string' && normalizedDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          // Already YYYY-MM-DD format - use directly
+          normalizedDate = normalizedDate
+        } else if (normalizedDate) {
+          // Date object or other format - normalize
+          if (typeof normalizedDate === 'string' && normalizedDate.includes('T')) {
+            normalizedDate = normalizedDate.split('T')[0]
+          } else {
+            normalizedDate = getLocalDateString(new Date(normalizedDate))
+          }
+        } else {
+          // Fallback: use the date we sent
+          normalizedDate = formattedDate
+        }
+        
+        console.log('handleRescheduleStep - Date sent:', formattedDate)
+        console.log('handleRescheduleStep - Date received:', updatedStep.date)
+        console.log('handleRescheduleStep - Date normalized:', normalizedDate)
+        
+        // Update selected item with new date
+        setSelectedItem({ ...selectedItem, date: normalizedDate })
+        
+        // Update the steps list - fetch all steps
+        const updatedSteps = await fetch(`/api/daily-steps?userId=${player?.user_id}`)
           .then(res => res.json())
         onDailyStepsUpdate?.(updatedSteps)
-        setSelectedItem(null)
-        setSelectedItemType(null)
+        
+        setShowDatePicker(false)
+        // Don't close the detail view, just update the date
+        setSelectedDate(normalizedDate)
       } else {
         const errorData = await response.json()
         console.error('Error rescheduling step:', errorData)
+        alert('Nepodařilo se aktualizovat datum kroku')
       }
     } catch (error) {
       console.error('Error rescheduling step:', error)
+      alert('Chyba při aktualizaci datumu kroku')
     }
   }
 
@@ -811,7 +930,7 @@ export function JourneyGameView({
                   <div className="flex gap-2">
                     <input
                       type="date"
-                      value={selectedDate ? new Date(selectedDate).toISOString().split('T')[0] : ''}
+                      value={selectedDate || ''}
                       onChange={(e) => setSelectedDate(e.target.value)}
                       className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                     />
@@ -1352,7 +1471,7 @@ export function JourneyGameView({
                   <div className="flex gap-2">
                     <input
                       type="date"
-                      value={goalDate ? new Date(goalDate).toISOString().split('T')[0] : ''}
+                      value={goalDate || ''}
                       onChange={(e) => setGoalDate(e.target.value)}
                       className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                     />
@@ -1416,13 +1535,26 @@ export function JourneyGameView({
             <>
               <button
                 onClick={() => handleStepToggle(selectedItem.id, !selectedItem.completed)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                  selectedItem.completed 
-                    ? 'bg-gray-500 text-white hover:bg-gray-600' 
-                    : 'bg-orange-500 text-white hover:bg-orange-600'
+                disabled={loadingSteps.has(selectedItem.id)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
+                  loadingSteps.has(selectedItem.id)
+                    ? 'bg-gray-400 text-white cursor-wait'
+                    : selectedItem.completed 
+                      ? 'bg-gray-500 text-white hover:bg-gray-600' 
+                      : 'bg-orange-500 text-white hover:bg-orange-600'
                 }`}
               >
-                {selectedItem.completed ? 'Označit jako nedokončený' : 'Dokončit krok'}
+                {loadingSteps.has(selectedItem.id) ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Načítání...</span>
+                  </>
+                ) : (
+                  selectedItem.completed ? 'Označit jako nedokončený' : 'Dokončit krok'
+                )}
               </button>
               <button
                 onClick={() => {
@@ -1446,13 +1578,26 @@ export function JourneyGameView({
             <>
               <button
                 onClick={() => handleHabitToggle(selectedItem.id)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                  selectedItem.completed_today 
-                    ? 'bg-gray-500 text-white hover:bg-gray-600' 
-                    : 'bg-orange-500 text-white hover:bg-orange-600'
+                disabled={loadingHabits.has(selectedItem.id)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
+                  loadingHabits.has(selectedItem.id)
+                    ? 'bg-gray-400 text-white cursor-wait'
+                    : selectedItem.completed_today 
+                      ? 'bg-gray-500 text-white hover:bg-gray-600' 
+                      : 'bg-orange-500 text-white hover:bg-orange-600'
                 }`}
               >
-                {selectedItem.completed_today ? 'Označit jako nesplněný' : 'Splnit návyk'}
+                {loadingHabits.has(selectedItem.id) ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Načítání...</span>
+                  </>
+                ) : (
+                  selectedItem.completed_today ? 'Označit jako nesplněný' : 'Splnit návyk'
+                )}
               </button>
               <button
                 onClick={() => {
@@ -1509,85 +1654,10 @@ export function JourneyGameView({
 
     // Show program-specific buttons
     switch (currentProgram) {
-      case 'daily-plan':
-        return (
-          <>
-            <button
-              onClick={() => setShowCreateStep(true)}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-orange-500 text-white hover:bg-orange-600 transition-all duration-300 shadow-md"
-            >
-              Přidat krok
-            </button>
-            <button
-              onClick={() => setCurrentProgram('goals')}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-500 text-white hover:bg-blue-600 transition-all duration-300 shadow-md"
-            >
-              Spravovat cíle
-            </button>
-          </>
-        )
-      case 'statistics':
-        return (
-          <>
-            <button
-              onClick={() => setCurrentProgram('daily-plan')}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-orange-500 text-white hover:bg-orange-600 transition-all duration-300 shadow-md"
-            >
-              Zpět na plán
-            </button>
-          </>
-        )
-      case 'goals':
-        return (
-          <>
-            <button
-              onClick={() => setShowCreateGoal(true)}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-orange-500 text-white hover:bg-orange-600 transition-all duration-300 shadow-md"
-            >
-              Přidat cíl
-            </button>
-            <button
-              onClick={() => setCurrentProgram('daily-plan')}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-500 text-white hover:bg-gray-600 transition-all duration-300 shadow-md"
-            >
-              Zpět na plán
-            </button>
-          </>
-        )
-      case 'habits':
-        return (
-          <>
-            <button
-              onClick={() => setShowAddHabitForm(true)}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-orange-500 text-white hover:bg-orange-600 transition-all duration-300 shadow-md"
-            >
-              Přidat návyk
-            </button>
-            <button
-              onClick={() => setCurrentProgram('daily-plan')}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-500 text-white hover:bg-gray-600 transition-all duration-300 shadow-md"
-            >
-              Zpět na plán
-            </button>
-          </>
-        )
-      case 'steps':
-        return (
-          <>
-            <button
-              onClick={() => setShowCreateStep(true)}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-orange-500 text-white hover:bg-orange-600 transition-all duration-300 shadow-md"
-            >
-              Přidat krok
-            </button>
-            <button
-              onClick={() => setCurrentProgram('daily-plan')}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-500 text-white hover:bg-gray-600 transition-all duration-300 shadow-md"
-            >
-              Zpět na plán
-            </button>
-          </>
-        )
+      case 'day':
+      case 'week':
+      case 'month':
+        return null // No additional buttons for these programs
       default:
         return null
     }
@@ -1765,33 +1835,876 @@ export function JourneyGameView({
       return renderItemDetail(selectedItem, selectedItemType)
     }
 
-    // Show detailed content based on current program
+    // Show detailed content based on current program (Day, Week, Month, Year)
     switch (currentProgram) {
-      case 'daily-plan':
-        return renderDailyPlanContent()
-      case 'statistics':
-        return renderStatisticsContent()
-      case 'goals':
-        return renderGoalsContent()
-      case 'habits':
-        return renderHabitsContent()
-      case 'steps':
-        return renderStepsContent()
-      case 'chill':
-        console.log('Debug - switch case chill called')
-        return renderChillContent()
-      case 'workflow':
-        return renderWorkflowContent()
-      case 'calendar':
-        return renderCalendarContent()
+      case 'day':
+        return renderDayContent()
+      case 'week':
+        return renderWeekContent()
+      case 'month':
+        return renderMonthContent()
+      case 'year':
+        return renderYearContent()
       default:
-        return renderDailyPlanContent()
+        return renderDayContent()
     }
+  }
+
+  // Helper function to normalize date to YYYY-MM-DD
+  const normalizeDate = (date: Date | string | null | undefined): string => {
+    if (!date) return ''
+    
+    if (typeof date === 'string') {
+      if (date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        return date
+      }
+      if (date.includes('T')) {
+        const datePart = date.split('T')[0]
+        if (datePart.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          return datePart
+        }
+      }
+      const parsed = new Date(date)
+      if (!isNaN(parsed.getTime())) {
+        if (date.includes('T') && date.includes('Z')) {
+          const y = parsed.getUTCFullYear()
+          const m = String(parsed.getUTCMonth() + 1).padStart(2, '0')
+          const d = String(parsed.getUTCDate()).padStart(2, '0')
+          return `${y}-${m}-${d}`
+        } else {
+          const y = parsed.getFullYear()
+          const m = String(parsed.getMonth() + 1).padStart(2, '0')
+          const d = String(parsed.getDate()).padStart(2, '0')
+          return `${y}-${m}-${d}`
+        }
+      }
+      return ''
+    }
+    
+    if (date instanceof Date && !isNaN(date.getTime())) {
+      const hours = date.getUTCHours()
+      const minutes = date.getUTCMinutes()
+      const seconds = date.getUTCSeconds()
+      const milliseconds = date.getUTCMilliseconds()
+      
+      if (hours === 0 && minutes === 0 && seconds === 0 && milliseconds === 0) {
+        const y = date.getUTCFullYear()
+        const m = String(date.getUTCMonth() + 1).padStart(2, '0')
+        const d = String(date.getUTCDate()).padStart(2, '0')
+        return `${y}-${m}-${d}`
+      } else {
+        const y = date.getFullYear()
+        const m = String(date.getMonth() + 1).padStart(2, '0')
+        const d = String(date.getDate()).padStart(2, '0')
+        return `${y}-${m}-${d}`
+      }
+    }
+    
+    return ''
+  }
+
+  // Render Day Content - Calendar day view with selected day's habits (including always_show) and steps (overdue + selected day)
+  const renderDayContent = () => {
+    const today = getLocalDateString()
+    const todayObj = new Date()
+    todayObj.setHours(0, 0, 0, 0)
+    
+    // Use selectedDayDate or default to today
+    const displayDate = new Date(selectedDayDate)
+    displayDate.setHours(0, 0, 0, 0)
+    const displayDateStr = getLocalDateString(displayDate)
+    const isToday = displayDateStr === today
+    
+    // Filter habits for selected day - only selected day's habits + always_show habits
+    const dayOfWeek = displayDate.getDay()
+    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+    const dayName = dayNames[dayOfWeek]
+    
+    const todaysHabits = habits.filter(habit => {
+      // Always show if always_show is true
+      if (habit.always_show) return true
+      
+      // Check if scheduled for selected day
+      if (habit.frequency === 'daily') return true
+      if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
+      
+      return false
+    })
+    
+    // Filter steps - overdue (incomplete) + selected day's steps (incomplete) - for display
+    const todaySteps = dailySteps.filter(step => {
+      if (!step.date) return false // Exclude steps without date
+      if (step.completed) return false // Exclude completed steps
+      
+      const stepDate = normalizeDate(step.date)
+      const stepDateObj = new Date(stepDate)
+      stepDateObj.setHours(0, 0, 0, 0)
+      
+      // Include if overdue or on selected day
+      return stepDateObj <= displayDate
+    })
+    
+    // Filter steps for progress calculation - only steps on selected day (exclude overdue)
+    const stepsForProgress = dailySteps.filter(step => {
+      if (!step.date) return false // Exclude steps without date
+      if (step.completed) return false // Exclude completed steps
+      
+      const stepDate = normalizeDate(step.date)
+      const stepDateObj = new Date(stepDate)
+      stepDateObj.setHours(0, 0, 0, 0)
+      
+      // Only include steps on selected day (not overdue)
+      return stepDateObj.getTime() === displayDate.getTime()
+    })
+    
+    // Calculate selected day's stats
+    const completedSteps = dailySteps.filter(step => {
+      const stepDate = normalizeDate(step.date)
+      return stepDate === displayDateStr && step.completed
+    }).length
+    
+    // Count all habits (including always_show) for total tasks
+    // But only count completed habits (including always_show if they are completed)
+    const totalHabits = todaysHabits.length
+    const completedHabits = todaysHabits.filter(habit => {
+      return habit.habit_completions && habit.habit_completions[displayDateStr] === true
+    }).length
+    
+    // Only count steps on selected day (not overdue) for progress
+    const totalTasks = totalHabits + stepsForProgress.length
+    const completedTasks = completedHabits + completedSteps
+    const progressPercentage = totalTasks > 0 ? Math.min(Math.round((completedTasks / totalTasks) * 100), 100) : 0
+    
+    // Format selected day's date for display
+    const formattedDate = displayDate.toLocaleDateString('cs-CZ', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    
+    // Navigation functions
+    const goToPreviousDay = () => {
+      const prevDate = new Date(displayDate)
+      prevDate.setDate(prevDate.getDate() - 1)
+      setSelectedDayDate(prevDate)
+    }
+    
+    const goToNextDay = () => {
+      const nextDate = new Date(displayDate)
+      nextDate.setDate(nextDate.getDate() + 1)
+      setSelectedDayDate(nextDate)
+    }
+    
+    const goToToday = () => {
+      setSelectedDayDate(new Date())
+    }
+    
+    return (
+      <div className="w-full h-full flex flex-col p-6">
+        {/* Header with date, navigation arrows and progress */}
+        <div className="mb-6 flex-shrink-0">
+          <div className="flex items-center justify-between mb-3">
+            <button
+              onClick={goToPreviousDay}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center"
+              title="Předchozí den"
+            >
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            
+            <div className="flex items-center gap-3 flex-1 justify-center">
+              <button
+                onClick={() => setShowDatePickerModal(true)}
+                className="cursor-pointer hover:opacity-80 transition-opacity"
+              >
+                <h2 className="text-2xl font-bold text-gray-900">{formattedDate}</h2>
+              </button>
+              {!isToday && (
+                <button
+                  onClick={goToToday}
+                  className="px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors"
+                  title="Přejít na dnes"
+                >
+                  Dnes
+                </button>
+              )}
+            </div>
+            
+            <button
+              onClick={goToNextDay}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center"
+              title="Následující den"
+            >
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <div className="text-3xl font-bold text-orange-600">{progressPercentage}%</div>
+            <div className="flex-1 bg-orange-200 bg-opacity-50 rounded-full h-4 overflow-hidden">
+              <div 
+                className="bg-orange-500 h-4 rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(progressPercentage, 100)}%` }}
+              ></div>
+            </div>
+            <div className="text-base text-gray-600 font-medium">
+              {completedTasks}/{totalTasks}
+            </div>
+          </div>
+        </div>
+        
+        {/* Two Column Layout - Habits and Steps */}
+        <div className="grid grid-cols-2 gap-6 flex-1 overflow-hidden">
+          {/* Habits Section */}
+          <div className="flex flex-col bg-white rounded-xl p-6 border border-orange-200 shadow-sm">
+            <h3 className="text-lg font-bold text-orange-800 mb-4">NÁVYKY</h3>
+            <div className="space-y-3 overflow-y-auto flex-1">
+              {todaysHabits.map((habit) => {
+                const isCompleted = habit.habit_completions && habit.habit_completions[displayDateStr] === true
+                const isNotScheduled = habit.always_show ? (() => {
+                  // Check if scheduled for selected day
+                  if (habit.frequency === 'daily') return false
+                  if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return false
+                  return true
+                })() : false
+                
+                return (
+                  <div
+                    key={habit.id}
+                    onClick={() => handleItemClick(habit, 'habit')}
+                    className={`p-3 rounded-xl border transition-all duration-300 cursor-pointer ${
+                      isCompleted 
+                        ? 'bg-orange-100 border-orange-300 shadow-md' 
+                        : isNotScheduled
+                          ? 'bg-gray-50 border-gray-200 opacity-60'
+                          : 'bg-gray-50 border-gray-200 hover:shadow-md hover:bg-gray-100'
+                    }`}
+                    style={{
+                      boxShadow: isCompleted ? '0 4px 12px rgba(251, 146, 60, 0.2)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
+                    }}
+                  >
+                    <div className="flex items-center justify-between gap-2 text-sm">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (!loadingHabits.has(habit.id)) {
+                              handleHabitToggle(habit.id, displayDateStr)
+                            }
+                          }}
+                          disabled={loadingHabits.has(habit.id)}
+                          className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
+                            loadingHabits.has(habit.id)
+                              ? 'border-gray-300 bg-gray-100 cursor-wait'
+                              : isCompleted
+                                ? 'bg-orange-500 border-orange-500 text-white shadow-md'
+                                : 'border-gray-300 hover:border-orange-400 hover:shadow-sm'
+                          }`}
+                          style={{
+                            boxShadow: isCompleted && !loadingHabits.has(habit.id) ? '0 2px 8px rgba(251, 146, 60, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)'
+                          }}
+                          title={isCompleted ? 'Označit jako nesplněný' : 'Označit jako splněný'}
+                        >
+                          {loadingHabits.has(habit.id) ? (
+                            <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          ) : isCompleted ? '✓' : null}
+                        </button>
+                        <span className={`truncate ${
+                          isCompleted 
+                            ? 'line-through text-orange-600' 
+                            : isNotScheduled 
+                              ? 'text-gray-500' 
+                              : 'text-gray-700'
+                        }`}>
+                          {habit.name}
+                        </span>
+                      </div>
+                      <span className="text-orange-600 font-bold text-sm flex-shrink-0">🔥 {(() => {
+                        // Calculate current streak dynamically from habit_completions
+                        const habitCompletions = habit.habit_completions || {}
+                        const completionDates = Object.keys(habitCompletions).sort()
+                        
+                        // Calculate current streak by going backwards from the last completed day
+                        let currentStreak = 0
+                        const userCreatedDateFull = new Date(player?.created_at || '2024-01-01')
+                        const userCreatedDate = new Date(userCreatedDateFull.getFullYear(), userCreatedDateFull.getMonth(), userCreatedDateFull.getDate())
+                        
+                        // Find the last completed day chronologically
+                        let lastCompletedDate = null
+                        for (const dateKey of completionDates) {
+                          const completion = habitCompletions[dateKey]
+                          if (completion === true) {
+                            const date = new Date(dateKey)
+                            if (!lastCompletedDate || date > lastCompletedDate) {
+                              lastCompletedDate = date
+                            }
+                          }
+                        }
+                        
+                        // If we have a last completed day, count streak backwards from there
+                        if (lastCompletedDate) {
+                          const lastCompletedDateOnly = new Date(lastCompletedDate!.getFullYear(), lastCompletedDate!.getMonth(), lastCompletedDate!.getDate())
+                          for (let d = new Date(lastCompletedDateOnly); d >= userCreatedDate; d.setDate(d.getDate() - 1)) {
+                            const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+                            const completion = habitCompletions[dateKey]
+                            
+                            if (completion === true) {
+                              currentStreak++
+                            } else if (completion === false) {
+                              // Missed day breaks the streak
+                              break
+                            }
+                            // completion === undefined (not-scheduled) doesn't break the streak, just doesn't add to it
+                          }
+                        }
+                        
+                        return currentStreak
+                      })()}</span>
+                    </div>
+                  </div>
+                )
+              })}
+              {todaysHabits.length === 0 && (
+                <div className="text-gray-400 text-sm text-center py-8">
+                  {isToday ? 'Žádné návyky na dnes' : `Žádné návyky na ${formattedDate.split(' ')[0]}`}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Steps Section */}
+          <div className="flex flex-col bg-white rounded-xl p-6 border border-orange-200 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-orange-800">KROKY</h3>
+              <button
+                onClick={() => {
+                  const newStep = {
+                    id: 'new-step',
+                    title: '',
+                    description: '',
+                    completed: false,
+                    date: displayDateStr,
+                    estimated_time: 0,
+                    xp_reward: 0
+                  }
+                  setSelectedItem(newStep)
+                  setSelectedItemType('step')
+                }}
+                className="w-8 h-8 rounded-full bg-orange-500 text-white hover:bg-orange-600 transition-colors flex items-center justify-center text-lg font-bold"
+                title="Přidat krok"
+              >
+                +
+              </button>
+            </div>
+            
+            <div className="space-y-3 overflow-y-auto flex-1">
+              {(() => {
+                // Separate steps into today's steps and overdue steps
+                const todaysStepsList: typeof dailySteps = []
+                const overdueStepsList: typeof dailySteps = []
+                
+                todaySteps.forEach(step => {
+                  const stepDate = normalizeDate(step.date)
+                  const stepDateObj = new Date(stepDate)
+                  stepDateObj.setHours(0, 0, 0, 0)
+                  const isOverdue = stepDateObj < displayDate
+                  
+                  if (isOverdue) {
+                    overdueStepsList.push(step)
+                  } else {
+                    todaysStepsList.push(step)
+                  }
+                })
+                
+                const renderStep = (step: typeof dailySteps[0]) => {
+                  const stepDate = normalizeDate(step.date)
+                  const stepDateObj = new Date(stepDate)
+                  stepDateObj.setHours(0, 0, 0, 0)
+                  const isOverdue = stepDateObj < displayDate
+                  
+                  return (
+                    <div
+                      key={step.id}
+                      onClick={() => handleItemClick(step, 'step')}
+                      className={`p-3 rounded-lg border transition-all duration-300 cursor-pointer ${
+                        isOverdue 
+                          ? 'bg-red-50 border-red-200' 
+                          : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (!loadingSteps.has(step.id)) {
+                              handleStepToggle(step.id, !step.completed)
+                            }
+                          }}
+                          disabled={loadingSteps.has(step.id)}
+                          className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                            loadingSteps.has(step.id)
+                              ? 'border-gray-300 bg-gray-100 cursor-wait'
+                              : isOverdue
+                                ? 'border-red-300 hover:border-red-400'
+                                : 'border-gray-300 hover:border-green-400'
+                          }`}
+                        >
+                          {loadingSteps.has(step.id) ? (
+                            <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          ) : null}
+                        </button>
+                        <span className={`truncate flex-1 ${isOverdue ? 'text-red-700 font-medium' : 'text-gray-700'}`}>
+                          {step.title}
+                        </span>
+                        {isOverdue && <span className="text-red-600 text-xs">⚠️</span>}
+                      </div>
+                    </div>
+                  )
+                }
+                
+                return (
+                  <>
+                    {/* Today's steps */}
+                    {todaysStepsList.length > 0 && (
+                      <>
+                        {todaysStepsList.map(renderStep)}
+                      </>
+                    )}
+                    
+                    {/* Overdue steps with header */}
+                    {overdueStepsList.length > 0 && (
+                      <>
+                        {todaysStepsList.length > 0 && (
+                          <div className="pt-3 mt-3 border-t border-gray-200">
+                            <h4 className="text-xs font-semibold text-red-600 mb-2 uppercase tracking-wide">Zpožděné kroky</h4>
+                          </div>
+                        )}
+                        {overdueStepsList.map(renderStep)}
+                      </>
+                    )}
+                    
+                    {/* Empty state */}
+                    {todaySteps.length === 0 && (
+                      <div className="text-gray-400 text-sm text-center py-8">
+                        {isToday ? 'Žádné kroky na dnes' : `Žádné kroky na ${formattedDate.split(' ')[0]}`}
+                      </div>
+                    )}
+                  </>
+                )
+              })()}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Render Week Content - Weekly calendar view with habits and steps under each day
+  const renderWeekContent = () => {
+    return (
+      <div className="w-full h-full flex flex-col">
+        {/* Calendar Week View - Full width */}
+        <div className="flex-1 overflow-hidden">
+          <CalendarProgram
+            player={player}
+            goals={goals}
+            habits={habits}
+            dailySteps={dailySteps}
+            onHabitsUpdate={onHabitsUpdate}
+            onDailyStepsUpdate={onDailyStepsUpdate}
+            viewMode={currentProgram === 'day' ? 'day' : currentProgram === 'week' ? 'week' : 'month'}
+            onDateClick={() => setShowDatePickerModal(true)}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  // Render Month Content - Monthly calendar view with compact tiles and detail view on click
+  const renderMonthContent = () => {
+    return (
+      <div className="w-full h-full flex flex-col">
+        {/* Calendar Month View - Full width with detail view below */}
+        <div className="flex-1 overflow-hidden">
+          <CalendarProgram
+            player={player}
+            goals={goals}
+            habits={habits}
+            dailySteps={dailySteps}
+            onHabitsUpdate={onHabitsUpdate}
+            onDailyStepsUpdate={onDailyStepsUpdate}
+            viewMode={currentProgram === 'day' ? 'day' : currentProgram === 'week' ? 'week' : 'month'}
+            onDateClick={() => setShowDatePickerModal(true)}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  // Render Year Content - Year overview with goals and annual statistics
+  const renderYearContent = () => {
+    const displayYear = selectedYear
+    const currentYear = new Date().getFullYear()
+    const isCurrentYear = displayYear === currentYear
+    const yearStart = new Date(displayYear, 0, 1) // January 1st
+    const yearEnd = new Date(displayYear, 11, 31) // December 31st
+    
+    // Filter goals for selected year
+    const yearGoals = goals.filter(goal => {
+      if (!goal.target_date) return goal.status === 'active'
+      const targetDate = new Date(goal.target_date)
+      return targetDate >= yearStart && targetDate <= yearEnd
+    })
+    
+    // Calculate statistics for the selected year
+    const statsYearStart = new Date(displayYear, 0, 1)
+    const statsYearEnd = new Date(displayYear, 11, 31)
+    
+    // Navigation functions
+    const goToPreviousYear = () => {
+      setSelectedYear(displayYear - 1)
+    }
+    
+    const goToNextYear = () => {
+      setSelectedYear(displayYear + 1)
+    }
+    
+    const goToCurrentYear = () => {
+      setSelectedYear(currentYear)
+    }
+    
+    // Calculate completed steps in selected year
+    const completedStepsInYear = dailySteps.filter(step => {
+      if (!step.completed || !step.date) return false
+      const stepDate = normalizeDate(step.date)
+      const stepDateObj = new Date(stepDate)
+      return stepDateObj >= statsYearStart && stepDateObj <= statsYearEnd
+    }).length
+    
+    // Calculate total steps in selected year
+    const totalStepsInYear = dailySteps.filter(step => {
+      if (!step.date) return false
+      const stepDate = normalizeDate(step.date)
+      const stepDateObj = new Date(stepDate)
+      return stepDateObj >= statsYearStart && stepDateObj <= statsYearEnd
+    }).length
+    
+    // Calculate completed habits in selected year
+    let completedHabitsInYear = 0
+    habits.forEach(habit => {
+      if (habit.habit_completions) {
+        Object.keys(habit.habit_completions).forEach(dateStr => {
+          if (habit.habit_completions[dateStr] === true) {
+            const habitDate = new Date(dateStr)
+            if (habitDate >= statsYearStart && habitDate <= statsYearEnd) {
+              completedHabitsInYear++
+            }
+          }
+        })
+      }
+    })
+    
+    // Calculate completed goals for selected year
+    const completedGoals = yearGoals.filter(goal => goal.status === 'completed' || goal.completed).length
+    const activeGoals = yearGoals.filter(goal => goal.status === 'active').length
+    
+    // Calculate total XP earned in selected year
+    let totalXpInYear = 0
+    dailySteps.forEach(step => {
+      if (step.completed && step.xp_reward && step.date) {
+        const stepDate = normalizeDate(step.date)
+        const stepDateObj = new Date(stepDate)
+        if (stepDateObj >= statsYearStart && stepDateObj <= statsYearEnd) {
+          totalXpInYear += step.xp_reward || 0
+        }
+      }
+    })
+    habits.forEach(habit => {
+      if (habit.habit_completions && habit.xp_reward) {
+        Object.keys(habit.habit_completions).forEach(dateStr => {
+          if (habit.habit_completions[dateStr] === true) {
+            const habitDate = new Date(dateStr)
+            if (habitDate >= statsYearStart && habitDate <= statsYearEnd) {
+              totalXpInYear += habit.xp_reward || 0
+            }
+          }
+        })
+      }
+    })
+    
+    // Group goals by area
+    const goalsByArea = areas.map(area => {
+      const areaGoals = yearGoals.filter(goal => goal.area_id === area.id)
+      return { area, goals: areaGoals }
+    }).filter(item => item.goals.length > 0)
+    
+    // Add goals without area
+    const goalsWithoutArea = yearGoals.filter(goal => !goal.area_id || !areas.find(a => a.id === goal.area_id))
+    if (goalsWithoutArea.length > 0) {
+      goalsByArea.push({ 
+        area: { id: null, name: 'Ostatní', color: '#9CA3AF', icon: '📌' }, 
+        goals: goalsWithoutArea 
+      })
+    }
+    
+    return (
+      <div className="w-full h-full flex flex-col p-6 overflow-y-auto">
+        {/* Header with navigation */}
+        <div className="mb-6 flex-shrink-0">
+          <div className="flex items-center justify-between mb-3">
+            <button
+              onClick={goToPreviousYear}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center"
+              title="Předchozí rok"
+            >
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            
+            <div className="flex items-center gap-3 flex-1 justify-center">
+              <button
+                onClick={() => setShowDatePickerModal(true)}
+                className="cursor-pointer hover:opacity-80 transition-opacity"
+              >
+                <h2 className="text-3xl font-bold text-gray-900">Roční přehled {displayYear}</h2>
+              </button>
+              {!isCurrentYear && (
+                <button
+                  onClick={goToCurrentYear}
+                  className="px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors"
+                  title="Přejít na aktuální rok"
+                >
+                  {currentYear}
+                </button>
+              )}
+            </div>
+            
+            <button
+              onClick={goToNextYear}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center"
+              title="Následující rok"
+            >
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+          <p className="text-gray-600 text-center">Přehled cílů a statistik za rok {displayYear}</p>
+        </div>
+        
+        {/* Two Column Layout - Goals and Statistics */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1">
+          {/* Left Column - Goals */}
+          <div className="flex flex-col bg-white rounded-xl p-6 border border-orange-200 shadow-sm">
+            <h3 className="text-xl font-bold text-orange-800 mb-4">CÍLE</h3>
+            <div className="space-y-4 overflow-y-auto flex-1">
+              {goalsByArea.map(({ area, goals: areaGoals }) => {
+                const areaKey = area.id || 'other'
+                const isExpanded = expandedAreas.has(areaKey)
+                
+                // Sort goals by target date
+                const sortedGoals = [...areaGoals].sort((a, b) => {
+                  const dateA = a.target_date ? new Date(a.target_date).getTime() : Infinity
+                  const dateB = b.target_date ? new Date(b.target_date).getTime() : Infinity
+                  if (dateA === Infinity && dateB === Infinity) return 0
+                  if (dateA === Infinity) return 1
+                  if (dateB === Infinity) return -1
+                  return dateA - dateB
+                })
+                
+                const goalsToShow = isExpanded ? sortedGoals : sortedGoals.slice(0, 3)
+                
+                const toggleArea = () => {
+                  setExpandedAreas(prev => {
+                    const newSet = new Set(prev)
+                    if (newSet.has(areaKey)) {
+                      newSet.delete(areaKey)
+                    } else {
+                      newSet.add(areaKey)
+                    }
+                    return newSet
+                  })
+                }
+                
+                return (
+                  <div key={areaKey} className="bg-gray-100 rounded-lg border border-gray-200">
+                    <div 
+                      className="flex items-center justify-between cursor-pointer p-3 hover:bg-gray-150 transition-colors"
+                      onClick={toggleArea}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span 
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0"
+                          style={{ backgroundColor: area.color }}
+                        >
+                          <span className="text-white text-xs">{area.icon}</span>
+                        </span>
+                        <span className="text-base font-bold text-gray-800">{area.name}</span>
+                        <span className="text-sm text-gray-500">({areaGoals.length})</span>
+                      </div>
+                      {isExpanded ? (
+                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      )}
+                    </div>
+                    
+                    {goalsToShow.length > 0 && (
+                      <div className="p-3 space-y-2">
+                        {goalsToShow.map((goal) => {
+                          const goalProgress = goal.steps ? (goal.steps.filter((step: any) => step.completed).length / Math.max(goal.steps.length, 1)) * 100 : 0
+                          const goalArea = areas.find(a => a.id === goal.area_id)
+                          const areaIcon = goalArea?.icon || '🎯'
+                          
+                          return (
+                            <div 
+                              key={goal.id} 
+                              className="bg-white rounded-lg p-3 cursor-pointer hover:opacity-80 transition-opacity"
+                              onClick={() => handleItemClick(goal, 'goal')}
+                            >
+                              <div className="flex gap-3">
+                                <div className="flex-shrink-0">
+                                  <span 
+                                    className="w-10 h-10 rounded-full flex items-center justify-center"
+                                    style={{ backgroundColor: '#FB923C' }}
+                                  >
+                                    <span className="text-white text-lg">{areaIcon}</span>
+                                  </span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-start justify-between mb-2">
+                                    <span className="text-sm font-medium text-gray-800">{goal.title}</span>
+                                    {goal.target_date && (
+                                      <span className="text-xs text-orange-600 ml-2 whitespace-nowrap">
+                                        {new Date(goal.target_date).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short' })}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                      <div 
+                                        className="bg-orange-500 h-2 rounded-full transition-all duration-300"
+                                        style={{ width: `${goalProgress}%` }}
+                                      ></div>
+                                    </div>
+                                    <span className="text-xs text-gray-500 whitespace-nowrap">{Math.round(goalProgress)}%</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        })}
+                        {!isExpanded && sortedGoals.length > 3 && (
+                          <div className="text-xs text-gray-500 text-center pt-1">
+                            +{sortedGoals.length - 3} dalších
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+              {goalsByArea.length === 0 && (
+                <div className="text-gray-400 text-center py-8">
+                  Žádné cíle pro tento rok
+                </div>
+              )}
+            </div>
+          </div>
+          
+              {/* Right Column - Statistics */}
+              <div className="flex flex-col bg-white rounded-xl p-6 border border-orange-200 shadow-sm">
+                <h3 className="text-xl font-bold text-orange-800 mb-4">STATISTIKY ZA ROK {displayYear}</h3>
+            <div className="space-y-6 flex-1">
+              {/* Overall Stats */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                  <div className="text-2xl font-bold text-orange-600">{completedStepsInYear}</div>
+                  <div className="text-sm text-gray-600 mt-1">Dokončené kroky</div>
+                  {totalStepsInYear > 0 && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      z {totalStepsInYear} celkem ({Math.round((completedStepsInYear / totalStepsInYear) * 100)}%)
+                    </div>
+                  )}
+                </div>
+                
+                <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                  <div className="text-2xl font-bold text-orange-600">{completedHabitsInYear}</div>
+                  <div className="text-sm text-gray-600 mt-1">Dokončené návyky</div>
+                </div>
+              </div>
+              
+              {/* Goals Stats */}
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h4 className="text-sm font-bold text-gray-700 mb-3">CÍLE</h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Celkem cílů:</span>
+                    <span className="font-bold text-gray-900">{goals.length}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Dokončené:</span>
+                    <span className="font-bold text-green-600">{completedGoals}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Aktivní:</span>
+                    <span className="font-bold text-blue-600">{activeGoals}</span>
+                  </div>
+                  {goals.length > 0 && (
+                    <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                      <span className="text-sm text-gray-600">Úspěšnost:</span>
+                      <span className="font-bold text-purple-600">
+                        {Math.round((completedGoals / goals.length) * 100)}%
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* XP Stats */}
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200">
+                <h4 className="text-sm font-bold text-orange-800 mb-2">XP ZÍSKÁNO</h4>
+                <div className="text-3xl font-bold text-orange-600">{totalXpInYear.toLocaleString('cs-CZ')}</div>
+                <div className="text-xs text-gray-600 mt-1">Celkem za rok {displayYear}</div>
+              </div>
+              
+              {/* Player Stats */}
+              {player && (
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <h4 className="text-sm font-bold text-gray-700 mb-3">TVAŘ HRÁČE</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Level:</span>
+                      <span className="font-bold text-gray-900">{player.level || 1}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">XP:</span>
+                      <span className="font-bold text-gray-900">{(player.experience || 0).toLocaleString('cs-CZ')}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   const renderWorkflowContent = () => {
     if (!pendingWorkflow || pendingWorkflow.type !== 'daily_review') {
-      return renderDailyPlanContent()
+      return renderDayContent()
     }
 
     return (
@@ -1821,8 +2734,8 @@ export function JourneyGameView({
   }
 
   const renderDailyPlanContent = () => {
-    // Get today's date
-    const today = new Date().toISOString().split('T')[0]
+    // Get today's date in local timezone
+    const today = getLocalDateString()
     
     // Filter today's steps - normalize dates by taking only the date part, accounting for timezone
     const todaysSteps = dailySteps.filter(step => {
@@ -1858,6 +2771,10 @@ export function JourneyGameView({
       return false
     })
 
+    // Count all habits (including always_show) for total tasks
+    // But only count completed habits (including always_show if they are completed)
+    const totalHabits = todaysHabits.length
+    
     // Calculate today's progress based on completed steps and habits
     const completedSteps = todaysSteps.filter(step => step.completed).length
     const completedHabits = todaysHabits.filter(habit => {
@@ -1865,9 +2782,9 @@ export function JourneyGameView({
       return habit.habit_completions && habit.habit_completions[todayDate] === true
     }).length
     
-    const totalItems = todaysSteps.length + todaysHabits.length
+    const totalItems = todaysSteps.length + totalHabits
     const completedItems = completedSteps + completedHabits
-    const todayProgressPercentage = totalItems > 0 ? (completedItems / totalItems) * 100 : 0
+    const todayProgressPercentage = totalItems > 0 ? Math.min((completedItems / totalItems) * 100, 100) : 0
 
     return (
       <div className="w-full h-full flex flex-col p-4">
@@ -1877,7 +2794,7 @@ export function JourneyGameView({
           <div className="flex-1 bg-orange-200 bg-opacity-50 rounded-full h-2">
             <div 
               className="bg-orange-500 h-2 rounded-full transition-all duration-500"
-              style={{ width: `${todayProgressPercentage}%` }}
+              style={{ width: `${Math.min(todayProgressPercentage, 100)}%` }}
             ></div>
           </div>
         </div>
@@ -1904,19 +2821,29 @@ export function JourneyGameView({
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleStepToggle(step.id, !step.completed)
+                        if (!loadingSteps.has(step.id)) {
+                          handleStepToggle(step.id, !step.completed)
+                        }
                       }}
+                      disabled={loadingSteps.has(step.id)}
                       className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ${
-                        step.completed
-                          ? 'bg-green-500 border-green-500 text-white shadow-md'
-                          : 'border-gray-300 hover:border-green-400 hover:shadow-sm'
+                        loadingSteps.has(step.id)
+                          ? 'border-gray-300 bg-gray-100 cursor-wait'
+                          : step.completed
+                            ? 'bg-green-500 border-green-500 text-white shadow-md'
+                            : 'border-gray-300 hover:border-green-400 hover:shadow-sm'
                       }`}
                       style={{
-                        boxShadow: step.completed ? '0 2px 8px rgba(34, 197, 94, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)'
+                        boxShadow: step.completed && !loadingSteps.has(step.id) ? '0 2px 8px rgba(34, 197, 94, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)'
                       }}
                       title={step.completed ? 'Označit jako nedokončený' : 'Označit jako dokončený'}
                     >
-                      {step.completed && '✓'}
+                      {loadingSteps.has(step.id) ? (
+                        <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      ) : step.completed ? '✓' : null}
                     </button>
                     <span className="text-gray-400">#{index + 1}</span>
                     <span 
@@ -1936,7 +2863,7 @@ export function JourneyGameView({
             <h4 className="text-lg font-semibold text-orange-900 mb-4">Návyky:</h4>
             <div className="space-y-3 overflow-y-auto">
               {todaysHabits.map((habit) => {
-                const today = new Date().toISOString().split('T')[0]
+                const today = getLocalDateString()
                 const isCompleted = habit.habit_completions && habit.habit_completions[today] === true
                 
                 return (
@@ -1956,19 +2883,29 @@ export function JourneyGameView({
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
-                          handleHabitToggle(habit.id)
+                          if (!loadingHabits.has(habit.id)) {
+                            handleHabitToggle(habit.id)
+                          }
                         }}
+                        disabled={loadingHabits.has(habit.id)}
                         className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ${
-                          isCompleted
-                            ? 'bg-orange-500 border-orange-500 text-white shadow-md'
-                            : 'border-gray-300 hover:border-orange-400 hover:shadow-sm'
+                          loadingHabits.has(habit.id)
+                            ? 'border-gray-300 bg-gray-100 cursor-wait'
+                            : isCompleted
+                              ? 'bg-orange-500 border-orange-500 text-white shadow-md'
+                              : 'border-gray-300 hover:border-orange-400 hover:shadow-sm'
                         }`}
                         style={{
-                          boxShadow: isCompleted ? '0 2px 8px rgba(251, 146, 60, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)'
+                          boxShadow: isCompleted && !loadingHabits.has(habit.id) ? '0 2px 8px rgba(251, 146, 60, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)'
                         }}
                         title={isCompleted ? 'Označit jako nesplněný' : 'Označit jako splněný'}
                       >
-                        {isCompleted && '✓'}
+                        {loadingHabits.has(habit.id) ? (
+                          <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        ) : isCompleted ? '✓' : null}
                       </button>
                       <span className={`truncate flex-1 ${
                         isCompleted 
@@ -2116,15 +3053,25 @@ export function JourneyGameView({
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleHabitToggle(habit.id)
+                        if (!loadingHabits.has(habit.id)) {
+                          handleHabitToggle(habit.id)
+                        }
                       }}
+                      disabled={loadingHabits.has(habit.id)}
                       className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
-                        isCompletedToday 
-                          ? 'bg-green-500 text-white' 
-                          : 'bg-orange-200 text-orange-600 hover:bg-orange-300'
+                        loadingHabits.has(habit.id)
+                          ? 'bg-gray-200 text-gray-400 cursor-wait'
+                          : isCompletedToday 
+                            ? 'bg-green-500 text-white' 
+                            : 'bg-orange-200 text-orange-600 hover:bg-orange-300'
                       }`}
                     >
-                      {isCompletedToday ? '✓' : '○'}
+                      {loadingHabits.has(habit.id) ? (
+                        <svg className="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      ) : isCompletedToday ? '✓' : '○'}
                     </button>
                   </div>
                 </div>
@@ -2513,17 +3460,22 @@ export function JourneyGameView({
     )
   }
 
-  const handleHabitToggle = async (habitId: string) => {
+  const handleHabitToggle = async (habitId: string, date?: string) => {
+    // Add to loading set
+    setLoadingHabits(prev => new Set(prev).add(habitId))
+    
     try {
-      // Use local date to avoid timezone issues
-      const now = new Date()
-      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+      // Use provided date or default to today
+      const dateToUse = date || (() => {
+        const now = new Date()
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+      })()
       const response = await fetch('/api/habits/toggle', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ habitId, date: today }),
+        body: JSON.stringify({ habitId, date: dateToUse }),
       })
 
       if (response.ok) {
@@ -2543,7 +3495,7 @@ export function JourneyGameView({
         if (selectedItem && selectedItem.id === habitId) {
           const updatedCompletions = {
             ...selectedItem.habit_completions,
-            [today]: result.completed
+            [dateToUse]: result.completed
           }
           setSelectedItem({
             ...selectedItem,
@@ -2555,6 +3507,13 @@ export function JourneyGameView({
       }
     } catch (error) {
       console.error('Error toggling habit:', error);
+    } finally {
+      // Remove from loading set
+      setLoadingHabits(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(habitId)
+        return newSet
+      })
     }
   }
 
@@ -3597,14 +4556,13 @@ export function JourneyGameView({
         const response = await fetch(`/api/workflows/pending?userId=${player.user_id}`)
         if (response.ok) {
           const pending = await response.json()
-          if (pending.length > 0 && !pendingWorkflow && currentProgram !== 'workflow') {
+          if (pending.length > 0 && !pendingWorkflow) {
             // Show first pending workflow as program
             setPendingWorkflow(pending[0])
-            setCurrentProgram('workflow')
-          } else if (pending.length === 0 && currentProgram === 'workflow') {
-            // No pending workflows, return to daily-plan
+            // Keep current program, workflow will show as overlay
+          } else if (pending.length === 0 && pendingWorkflow) {
+            // No pending workflows, clear workflow
             setPendingWorkflow(null)
-            setCurrentProgram('daily-plan')
           }
         }
       } catch (error) {
@@ -3640,9 +4598,8 @@ export function JourneyGameView({
         }
       }
 
-      // Hide workflow and return to daily-plan
+      // Hide workflow
       setPendingWorkflow(null)
-      setCurrentProgram('daily-plan')
     } catch (error) {
       console.error('Error completing workflow:', error)
     }
@@ -3658,9 +4615,8 @@ export function JourneyGameView({
         body: JSON.stringify({ completed_at: null })
       })
 
-      // Hide workflow and return to daily-plan
+      // Hide workflow
       setPendingWorkflow(null)
-      setCurrentProgram('daily-plan')
     } catch (error) {
       console.error('Error skipping workflow:', error)
     }
@@ -3693,7 +4649,7 @@ export function JourneyGameView({
   }
 
   // Draggable Step Component
-  function DraggableStep({ step, isEditing, initializeEditingStep, handleStepToggle, goals, editingStep, setEditingStep, handleUpdateStep, dailySteps, onDailyStepsUpdate }: any) {
+  function DraggableStep({ step, isEditing, initializeEditingStep, handleStepToggle, goals, editingStep, setEditingStep, handleUpdateStep, dailySteps, onDailyStepsUpdate, isLoading }: any) {
     const {
       attributes,
       listeners,
@@ -3722,18 +4678,28 @@ export function JourneyGameView({
           <button
             onClick={(e) => {
               e.stopPropagation()
-              handleStepToggle(step.id, !step.completed)
+              if (!isLoading) {
+                handleStepToggle(step.id, !step.completed)
+              }
             }}
             onPointerDown={(e) => {
               e.stopPropagation() // Prevent drag when clicking checkbox
             }}
+            disabled={isLoading}
             className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-              step.completed 
-                ? 'bg-green-500 border-green-500 text-white' 
-                : 'border-gray-300 hover:border-green-400'
+              isLoading 
+                ? 'border-gray-300 bg-gray-100 cursor-wait' 
+                : step.completed 
+                  ? 'bg-green-500 border-green-500 text-white' 
+                  : 'border-gray-300 hover:border-green-400'
             }`}
           >
-            {step.completed && '✓'}
+            {isLoading ? (
+              <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : step.completed ? '✓' : null}
           </button>
           <div 
             className="flex-1 min-w-0 cursor-pointer"
@@ -4405,19 +5371,29 @@ export function JourneyGameView({
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
-                            handleHabitToggle(habit.id)
+                            if (!loadingHabits.has(habit.id)) {
+                              handleHabitToggle(habit.id)
+                            }
                           }}
+                          disabled={loadingHabits.has(habit.id)}
                           className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ${
-                            isCompletedToday
-                              ? 'bg-orange-500 border-orange-500 text-white shadow-md'
-                              : 'border-gray-300 hover:border-orange-400 hover:shadow-sm'
+                            loadingHabits.has(habit.id)
+                              ? 'border-gray-300 bg-gray-100 cursor-wait'
+                              : isCompletedToday
+                                ? 'bg-orange-500 border-orange-500 text-white shadow-md'
+                                : 'border-gray-300 hover:border-orange-400 hover:shadow-sm'
                           }`}
                           style={{
-                            boxShadow: isCompletedToday ? '0 2px 8px rgba(251, 146, 60, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)'
+                            boxShadow: isCompletedToday && !loadingHabits.has(habit.id) ? '0 2px 8px rgba(251, 146, 60, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)'
                           }}
                           title={isCompletedToday ? 'Označit jako nesplněný' : 'Označit jako splněný'}
                         >
-                          {isCompletedToday && '✓'}
+                          {loadingHabits.has(habit.id) ? (
+                            <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          ) : isCompletedToday ? '✓' : null}
                         </button>
                         <div className="flex-1">
                           <h3 className={`font-semibold ${isCompletedToday ? 'line-through text-orange-600' : 'text-gray-700'}`}>
@@ -4989,6 +5965,7 @@ export function JourneyGameView({
                         handleUpdateStep={handleUpdateStep}
                         dailySteps={dailySteps}
                         onDailyStepsUpdate={onDailyStepsUpdate}
+                        isLoading={loadingSteps.has(step.id)}
                       />
                     )
                   })}
@@ -5024,6 +6001,7 @@ export function JourneyGameView({
                         handleUpdateStep={handleUpdateStep}
                         dailySteps={dailySteps}
                         onDailyStepsUpdate={onDailyStepsUpdate}
+                        isLoading={loadingSteps.has(step.id)}
                       />
                     )
                   })}
@@ -5059,6 +6037,7 @@ export function JourneyGameView({
                         handleUpdateStep={handleUpdateStep}
                         dailySteps={dailySteps}
                         onDailyStepsUpdate={onDailyStepsUpdate}
+                        isLoading={loadingSteps.has(step.id)}
                       />
                     )
                   })}
@@ -5249,7 +6228,7 @@ export function JourneyGameView({
           />
         );
 
-      default: // 'main'
+      default:
         return (
           <>
             {/* Hidden measurement containers */}
@@ -5330,789 +6309,22 @@ export function JourneyGameView({
               </div>
             </div>
 
-            {/* Goals Overlay - Left Side */}
-            <div className="absolute left-2 top-8 bottom-8 z-10 flex flex-col" style={{ gap: '12px', width: leftSidebarWidth, overflow: 'visible' }}>
-              {/* Goals Section */}
-              <div 
-                className="relative transition-all duration-300"
-                style={{ width: leftSidebarWidth === '288px' ? '288px' : (expandedLeftSection === 'goals' ? '288px' : '48px'), marginLeft: expandedLeftSection && expandedLeftSection !== 'goals' ? '0' : '0' }}
-                onMouseEnter={() => {
-                  // Only allow hover expansion if sidebar is minimized
-                  if (leftSidebarWidth === '48px') {
-                    setExpandedLeftSection('goals')
-                  }
-                }}
-                onMouseLeave={() => {
-                  // Only allow hover collapse if sidebar is minimized
-                  if (leftSidebarWidth === '48px') {
-                    setExpandedLeftSection(null)
-                  }
-                }}
-              >
-                {(expandedLeftSection !== 'goals' && leftSidebarWidth === '48px') && (
-                  <div 
-                    className="bg-white bg-opacity-95 rounded-xl p-3 border border-orange-200 shadow-xl backdrop-blur-sm flex items-center justify-center"
-                    style={{ height: leftSectionHeights.goals > 0 ? `${leftSectionHeights.goals}px` : 'auto' }}
-                  >
-                    <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                )}
-                {(expandedLeftSection === 'goals' || leftSidebarWidth === '288px') && (
-                  <div ref={goalsRef}>
-              {/* Goals Overview - Grouped by Areas */}
-              <div className="bg-white bg-opacity-95 rounded-2xl p-6 border border-orange-200 shadow-xl backdrop-blur-sm" style={{
-                boxShadow: '0 12px 24px rgba(251, 146, 60, 0.15), 0 4px 8px rgba(0, 0, 0, 0.05)'
-              }}>
-                <div className="space-y-6">
-                  {(() => {
-                    const activeGoals = goals.filter(goal => goal.status === 'active')
-                    
-                    // Group goals by area
-                    const goalsByArea = areas.map(area => {
-                      const areaGoals = activeGoals.filter(goal => goal.area_id === area.id)
-                      return { area, goals: areaGoals }
-                    }).filter(item => item.goals.length > 0)
-                    
-                    // Add goals without area
-                    const goalsWithoutArea = activeGoals.filter(goal => !goal.area_id || !areas.find(a => a.id === goal.area_id))
-                    if (goalsWithoutArea.length > 0) {
-                      goalsByArea.push({ 
-                        area: { id: null, name: 'Ostatní', color: '#9CA3AF', icon: '📌' }, 
-                        goals: goalsWithoutArea 
-                      })
-                    }
-                    
-                    return goalsByArea.map(({ area, goals: areaGoals }) => {
-                      const areaKey = area.id || 'other'
-                      const isExpanded = expandedAreas.has(areaKey)
-                      
-                      // Sort goals by target date (nearest first, then goals without date)
-                      const sortedGoals = [...areaGoals].sort((a, b) => {
-                        const dateA = a.target_date ? new Date(a.target_date).getTime() : Infinity
-                        const dateB = b.target_date ? new Date(b.target_date).getTime() : Infinity
-                        if (dateA === Infinity && dateB === Infinity) return 0
-                        if (dateA === Infinity) return 1
-                        if (dateB === Infinity) return -1
-                        return dateA - dateB
-                      })
-                      
-                      // In collapsed state, show only the nearest goal (first one)
-                      const goalsToShow = isExpanded ? sortedGoals : sortedGoals.slice(0, 1)
-                      
-                      const toggleArea = () => {
-                        setExpandedAreas(prev => {
-                          const newSet = new Set(prev)
-                          if (newSet.has(areaKey)) {
-                            newSet.delete(areaKey)
-                          } else {
-                            newSet.add(areaKey)
-                          }
-                          return newSet
-                        })
-                      }
-                      
-                      return (
-                        <div key={areaKey} className="bg-gray-100 rounded-lg border border-gray-200">
-                          {/* Area Header */}
-                          <div 
-                            className="flex items-center justify-between cursor-pointer p-3 hover:bg-gray-150 transition-colors"
-                            onClick={toggleArea}
-                          >
-                            <div className="flex items-center gap-2">
-                              <span 
-                                className="w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0"
-                                style={{ backgroundColor: area.color }}
-                              >
-                                <span className="text-white text-xs">{area.icon}</span>
-                              </span>
-                              <span className="text-sm font-bold text-gray-800">{area.name}</span>
-                              <span className="text-sm text-gray-500">({areaGoals.length})</span>
-                            </div>
-                            {isExpanded ? (
-                              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                              </svg>
-                            ) : (
-                              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                              </svg>
-                            )}
-                          </div>
-                          
-                          {/* Goals in this area */}
-                          {goalsToShow.length > 0 && (
-                            // If expanded, wrap goals in white sub-box, otherwise show directly in gray box
-                            isExpanded ? (
-                              <div className="p-2 pb-3">
-                                <div className="bg-white rounded-lg p-3 space-y-2">
-                                  {goalsToShow.map((goal) => {
-                                    const goalProgress = goal.steps ? (goal.steps.filter((step: any) => step.completed).length / Math.max(goal.steps.length, 1)) * 100 : 0;
-                                    
-                                    // Calculate days until target date
-                                    const today = new Date();
-                                    const targetDate = goal.target_date ? new Date(goal.target_date) : null;
-                                    const daysUntilTarget = targetDate ? Math.ceil((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) : null;
-                                    
-                                    // Find area color for this goal
-                                    const goalArea = areas.find(area => area.id === goal.area_id);
-                                    const areaColor = goalArea?.color || '#F59E0B'; // Default orange if no area
-                                    const areaIcon = goalArea?.icon || '🎯'; // Default target icon if no area
-                                    
-                                    return (
-                                      <div 
-                                        key={goal.id} 
-                                        className="cursor-pointer hover:opacity-80 transition-opacity"
-                                        onClick={() => handleItemClick(goal, 'goal')}
-                                      >
-                                        <div className="flex gap-3">
-                                          {/* Left: Icon */}
-                                          <div className="flex-shrink-0">
-                                            <span 
-                                              className="w-10 h-10 rounded-full flex items-center justify-center"
-                                              style={{ backgroundColor: '#FB923C' }}
-                                            >
-                                              <span className="text-white text-lg">{areaIcon}</span>
-                                            </span>
-                                          </div>
-                                          
-                                          {/* Right: Content */}
-                                          <div className="flex-1 min-w-0 flex flex-col justify-between">
-                                            {/* Top Right: Title and Date */}
-                                            <div className="ml-auto">
-                                              <div className="flex flex-col items-end">
-                                                <span className="text-sm font-medium text-gray-800">{goal.title}</span>
-                                                {daysUntilTarget !== null && (
-                                                  <span className="text-xs text-orange-600 mt-1">
-                                                    {daysUntilTarget < 0 ? (
-                                                      `Pozdě o ${Math.abs(daysUntilTarget)} dní`
-                                                    ) : daysUntilTarget === 0 ? (
-                                                      'Dnes'
-                                                    ) : daysUntilTarget === 1 ? (
-                                                      'Zítra'
-                                                    ) : (
-                                                      `Za ${daysUntilTarget} dní`
-                                                    )}
-                                                  </span>
-                                                )}
-                                                {daysUntilTarget === null && (
-                                                  <span className="text-xs text-gray-400 mt-1">Bez termínu</span>
-                                                )}
-                                              </div>
-                                            </div>
-                                            
-                                            {/* Bottom: Progress */}
-                                            <div className="flex items-center justify-between gap-2 mt-auto">
-                                              <span className="text-xs text-gray-400">Pokrok</span>
-                                              <div className="flex items-center gap-2 flex-1 max-w-[100px] justify-end">
-                                                <div className="flex-1 bg-gray-200 rounded-full h-1.5 min-w-[40px]">
-                                                  <div 
-                                                    className="bg-gray-400 h-1.5 rounded-full transition-all duration-300"
-                                                    style={{ width: `${goalProgress}%` }}
-                                                  ></div>
-                                                </div>
-                                                <span className="text-xs text-gray-400 whitespace-nowrap">{Math.round(goalProgress)}%</span>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            ) : (
-                              // Collapsed: show goals directly in gray box without white sub-box
-                              <div className="px-3 pb-3 space-y-2">
-                                {goalsToShow.map((goal) => {
-                                  const goalProgress = goal.steps ? (goal.steps.filter((step: any) => step.completed).length / Math.max(goal.steps.length, 1)) * 100 : 0;
-                                  
-                                  // Calculate days until target date
-                                  const today = new Date();
-                                  const targetDate = goal.target_date ? new Date(goal.target_date) : null;
-                                  const daysUntilTarget = targetDate ? Math.ceil((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) : null;
-                                  
-                                  // Find area color for this goal
-                                  const goalArea = areas.find(area => area.id === goal.area_id);
-                                  const areaColor = goalArea?.color || '#F59E0B'; // Default orange if no area
-                                  const areaIcon = goalArea?.icon || '🎯'; // Default target icon if no area
-                                  
-                                  return (
-                                    <div 
-                                      key={goal.id} 
-                                      className="flex gap-3 cursor-pointer hover:opacity-80 transition-opacity"
-                                      onClick={() => handleItemClick(goal, 'goal')}
-                                    >
-                                      {/* Left: Icon */}
-                                      <div className="flex-shrink-0">
-                                        <span 
-                                          className="w-10 h-10 rounded-full flex items-center justify-center"
-                                          style={{ backgroundColor: '#FB923C' }}
-                                        >
-                                          <span className="text-white text-lg">{areaIcon}</span>
-                                        </span>
-                                      </div>
-                                      
-                                      {/* Right: Content */}
-                                      <div className="flex-1 min-w-0 flex flex-col justify-between">
-                                        {/* Top Right: Title and Date */}
-                                        <div className="ml-auto">
-                                          <div className="flex flex-col items-end">
-                                            <span className="text-sm font-medium text-gray-800">{goal.title}</span>
-                                            {daysUntilTarget !== null && (
-                                              <span className="text-xs text-orange-600 mt-1">
-                                                {daysUntilTarget < 0 ? (
-                                                  `Pozdě o ${Math.abs(daysUntilTarget)} dní`
-                                                ) : daysUntilTarget === 0 ? (
-                                                  'Dnes'
-                                                ) : daysUntilTarget === 1 ? (
-                                                  'Zítra'
-                                                ) : (
-                                                  `Za ${daysUntilTarget} dní`
-                                                )}
-                                              </span>
-                                            )}
-                                            {daysUntilTarget === null && (
-                                              <span className="text-xs text-gray-400 mt-1">Bez termínu</span>
-                                            )}
-                                          </div>
-                                        </div>
-                                        
-                                        {/* Bottom: Progress */}
-                                        <div className="flex items-center justify-end gap-2 mt-auto">
-                                          <div className="flex items-center gap-2 flex-1 max-w-[100px] justify-end">
-                                            <div className="flex-1 bg-gray-200 rounded-full h-1.5 min-w-[40px]">
-                                              <div 
-                                                className="bg-gray-400 h-1.5 rounded-full transition-all duration-300"
-                                                style={{ width: `${goalProgress}%` }}
-                                              ></div>
-                                            </div>
-                                            <span className="text-xs text-gray-400 whitespace-nowrap">{Math.round(goalProgress)}%</span>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            )
-                          )}
-                        </div>
-                      )
-                    })
-                  })()}
-                  
-                  {(() => {
-                    const activeGoals = goals.filter(goal => goal.status === 'active')
-                    const hasAnyGoals = areas.some(area => activeGoals.some(goal => goal.area_id === area.id)) || 
-                                      activeGoals.some(goal => !goal.area_id || !areas.find(a => a.id === goal.area_id))
-                    return !hasAnyGoals && (
-                      <div className="text-sm text-gray-500 text-center py-4">Žádné aktivní cíle</div>
-                    )
-                  })()}
-                </div>
-              </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Right Sidebar - Habits and Next Steps */}
-            <div className="absolute right-2 top-8 bottom-8 z-10 flex flex-col items-end" style={{ gap: '12px', width: rightSidebarWidth, overflow: 'visible' }}>
-              {/* Habits Section */}
-              <div 
-                className="transition-all duration-300"
-                style={{ width: rightSidebarWidth === '288px' ? '288px' : (expandedRightSection === 'habits' ? '288px' : '48px') }}
-                onMouseEnter={() => {
-                  // Only allow hover expansion if sidebar is minimized
-                  if (rightSidebarWidth === '48px') {
-                    setExpandedRightSection('habits')
-                  }
-                }}
-                onMouseLeave={() => {
-                  // Only allow hover collapse if sidebar is minimized
-                  if (rightSidebarWidth === '48px') {
-                    setExpandedRightSection(null)
-                  }
-                }}
-              >
-                {(expandedRightSection !== 'habits' && rightSidebarWidth === '48px') && (
-                  <div 
-                    className="bg-white bg-opacity-95 rounded-xl p-3 border border-orange-200 shadow-xl backdrop-blur-sm flex items-center justify-center"
-                    style={{ height: rightSectionHeights.habits > 0 ? `${rightSectionHeights.habits}px` : 'calc(50% - 6px)' }}
-                  >
-                    <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                )}
-                {(expandedRightSection === 'habits' || rightSidebarWidth === '288px') && (
-                  <div ref={habitsRef}>
-              {/* Habits Overview */}
-              <div className="bg-white bg-opacity-95 rounded-2xl p-6 border border-orange-200 shadow-xl backdrop-blur-sm" style={{
-                boxShadow: '0 12px 24px rgba(251, 146, 60, 0.15), 0 4px 8px rgba(0, 0, 0, 0.05)'
-              }}>
-                <h4 className="text-base font-bold text-orange-800 mb-4" style={{ letterSpacing: '1px' }}>NÁVYKY</h4>
-                <div className="space-y-3">
-                  {(() => {
-                    const now = new Date()
-                    const dayOfWeek = now.getDay()
-                    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-                    
-                    // Filter habits to show only those scheduled for today OR always_show
-                    const visibleHabits = habits.filter(habit => {
-                      if (habit.always_show) return true
-                      if (habit.frequency === 'daily') return true
-                      if (habit.frequency === 'custom' && habit.selected_days) {
-                        return habit.selected_days.includes(dayNames[dayOfWeek])
-                      }
-                      return false
-                    })
-                    
-                    return visibleHabits.slice(0, 4).map((habit, index) => {
-                      // Check if habit is scheduled for today
-                      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-                      const isCompletedToday = habit && habit.habit_completions && habit.habit_completions[today] === true;
-                      
-                      // Check if habit is scheduled for today based on frequency and selected days
-                      let isScheduledForTask = false
-                      if (habit.frequency === 'daily') {
-                        isScheduledForTask = true
-                      } else if (habit.frequency === 'custom' && habit.selected_days) {
-                        isScheduledForTask = habit.selected_days.includes(dayNames[dayOfWeek])
-                      }
-                      
-                      // Habit should be grayed if it has always_show enabled AND it's not scheduled for today
-                      const isNotScheduled = habit.always_show ? !isScheduledForTask : false
-                    
-                    return (
-                      <div key={habit.id} className={`p-3 rounded-xl border transition-all duration-300 cursor-pointer ${
-                        isCompletedToday 
-                          ? 'bg-orange-100 border-orange-300 shadow-md' 
-                          : isNotScheduled
-                            ? 'bg-gray-50 border-gray-200 opacity-60'
-                            : 'bg-gray-50 border-gray-200 hover:shadow-md hover:bg-gray-100'
-                      }`} style={{
-                        boxShadow: isCompletedToday ? '0 4px 12px rgba(251, 146, 60, 0.2)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                      }}
-                      onClick={() => handleItemClick(habit, 'habit')}
-                      >
-                        <div className="flex items-center gap-2 text-sm">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleHabitToggle(habit.id)
-                            }}
-                            className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ${
-                              isCompletedToday
-                                ? 'bg-orange-500 border-orange-500 text-white shadow-md'
-                                : 'border-gray-300 hover:border-orange-400 hover:shadow-sm'
-                            }`}
-                            style={{
-                              boxShadow: isCompletedToday ? '0 2px 8px rgba(251, 146, 60, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)'
-                            }}
-                            title={isCompletedToday ? 'Označit jako nesplněný' : 'Označit jako splněný'}
-                          >
-                            {isCompletedToday && '✓'}
-                          </button>
-                          <span className={`truncate flex-1 ${
-                            isCompletedToday 
-                              ? 'line-through text-orange-600' 
-                            : isNotScheduled
-                              ? 'text-gray-500'
-                              : 'text-gray-700'
-                          }`}>
-                            {habit.name}
-                          </span>
-                          <div className="flex items-center gap-1">
-                            {(() => {
-                              const habitCompletions = habit.habit_completions || {}
-                              const completionDates = Object.keys(habitCompletions).sort()
-                              let currentStreak = 0
-                              const userCreatedDateFull = new Date(player?.created_at || '2024-01-01')
-                              const userCreatedDate = new Date(userCreatedDateFull.getFullYear(), userCreatedDateFull.getMonth(), userCreatedDateFull.getDate())
-                              let lastCompletedDate = null
-                              for (const dateKey of completionDates) {
-                                const completion = habitCompletions[dateKey]
-                                if (completion === true) {
-                                  const date = new Date(dateKey)
-                                  if (!lastCompletedDate || date > lastCompletedDate) {
-                                    lastCompletedDate = date
-                                  }
-                                }
-                              }
-                              if (lastCompletedDate) {
-                                for (let d = new Date(lastCompletedDate); d >= userCreatedDate; d.setDate(d.getDate() - 1)) {
-                                  const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-                                  const completion = habitCompletions[dateKey]
-                                  if (completion === true) {
-                                    currentStreak++
-                                  } else if (completion === false) {
-                                    break
-                                  }
-                                }
-                              }
-                              return (
-                                <>
-                                  <span className={`font-bold text-sm ${isNotScheduled ? 'text-gray-400' : 'text-orange-600'}`}>🔥</span>
-                                  <span className={`font-bold text-sm ${isNotScheduled ? 'text-gray-400' : 'text-orange-600'}`}>{currentStreak}</span>
-                                </>
-                              )
-                            })()}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })})()}
-                  {habits.filter(h => {
-                    const now = new Date()
-                    const dayOfWeek = now.getDay()
-                    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-                    if (h.always_show) return true
-                    if (h.frequency === 'daily') return true
-                    if (h.frequency === 'custom' && h.selected_days) {
-                      return h.selected_days.includes(dayNames[dayOfWeek])
-                    }
-                    return false
-                  }).length === 0 && (
-                    <div className="text-center text-gray-500 py-4">
-                      <p className="text-sm">Žádné návyky na dnes</p>
-                      <p className="text-xs mt-1">Návyky se zobrazí podle jejich frekvence</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Steps Section */}
-              <div 
-                className="transition-all duration-300"
-                style={{ width: rightSidebarWidth === '288px' ? '288px' : (expandedRightSection === 'steps' ? '288px' : '48px') }}
-                onMouseEnter={() => {
-                  // Only allow hover expansion if sidebar is minimized
-                  if (rightSidebarWidth === '48px') {
-                    setExpandedRightSection('steps')
-                  }
-                }}
-                onMouseLeave={() => {
-                  // Only allow hover collapse if sidebar is minimized
-                  if (rightSidebarWidth === '48px') {
-                    setExpandedRightSection(null)
-                  }
-                }}
-              >
-                {(expandedRightSection !== 'steps' && rightSidebarWidth === '48px') && (
-                  <div 
-                    className="bg-white bg-opacity-95 rounded-xl p-3 border border-orange-200 shadow-xl backdrop-blur-sm flex items-center justify-center"
-                    style={{ height: rightSectionHeights.steps > 0 ? `${rightSectionHeights.steps}px` : 'calc(50% - 6px)' }}
-                  >
-                    <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                  </div>
-                )}
-                {(expandedRightSection === 'steps' || rightSidebarWidth === '288px') && (
-                  <div ref={stepsRef}>
-              {/* Next Steps Panel */}
-              <div className="bg-white bg-opacity-95 rounded-2xl p-6 text-gray-800 backdrop-blur-sm border border-orange-200 shadow-xl" style={{
-                boxShadow: '0 12px 24px rgba(251, 146, 60, 0.15), 0 4px 8px rgba(0, 0, 0, 0.05)'
-              }}>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-base font-bold text-orange-800" style={{ letterSpacing: '1px' }}>DALŠÍ KROKY</h3>
-                  <button
-                    onClick={() => {
-                      // Format date in local timezone
-                      const today = new Date()
-                      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
-                      const newStep = {
-                        id: 'new-step',
-                        title: '',
-                        description: '',
-                        completed: false,
-                        date: todayStr,
-                        estimated_time: 0,
-                        xp_reward: 0
-                      }
-                      setSelectedItem(newStep)
-                      setSelectedItemType('step')
-                    }}
-                    className="w-7 h-7 rounded-full bg-orange-500 text-white hover:bg-orange-600 transition-colors flex items-center justify-center text-lg font-bold"
-                    title="Přidat krok"
-                  >
-                    +
-                  </button>
-                </div>
-                
-                {dailySteps.length === 0 ? (
-                  <div className="text-gray-400 text-sm text-center py-4">
-                    Žádné kroky naplánované
-                  </div>
-                ) : (
-                  <div className="space-y-3" style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}>
-                    {(() => {
-                      const today = new Date()
-                      today.setHours(0, 0, 0, 0)
-                      
-                      // Filter: only incomplete steps, and date should be today or in the past (including overdue) or future
-                      const filteredSteps = dailySteps
-                        .filter(step => !step.completed) // Only incomplete steps
-                        .filter(step => {
-                          if (!step.date) {
-                            // Steps without date are always shown
-                            return true
-                          }
-                          const stepDateObj = new Date(step.date)
-                          stepDateObj.setHours(0, 0, 0, 0)
-                          // Include overdue (past), today, and future steps
-                          return true // Show all incomplete steps regardless of date
-                        })
-                        .sort((a, b) => {
-                          // Sort: overdue first, then today, then future
-                          const dateA = a.date ? new Date(a.date).getTime() : 0
-                          const dateB = b.date ? new Date(b.date).getTime() : 0
-                          
-                          // Overdue steps first (negative days)
-                          if (dateA < today.getTime() && dateB >= today.getTime()) return -1
-                          if (dateA >= today.getTime() && dateB < today.getTime()) return 1
-                          
-                          // Then sort by date (earliest first)
-                          return dateA - dateB
-                        })
-                      
-                      return filteredSteps.slice(0, 5).map((step, index) => {
-                        const stepDate = step.date ? new Date(step.date) : null
-                        const stepDateOnly = stepDate ? new Date(stepDate.getFullYear(), stepDate.getMonth(), stepDate.getDate()) : null
-                        const isOverdue = stepDateOnly && stepDateOnly < today
-                        const isToday = stepDateOnly && stepDateOnly.getTime() === today.getTime()
-                        const isFuture = stepDateOnly && stepDateOnly > today
-                        
-                        return (
-                          <div
-                            key={step.id}
-                            className={`p-3 rounded-xl border text-sm transition-all duration-300 hover:shadow-md ${
-                              isOverdue 
-                                ? 'bg-red-50 border-red-200' 
-                                : isToday 
-                                  ? 'bg-orange-50 border-orange-200' 
-                                  : 'bg-gray-50 border-gray-200'
-                            }`}
-                            style={{
-                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
-                            }}
-                          >
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleStepToggle(step.id, !step.completed)
-                                }}
-                                className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ${
-                                  isOverdue
-                                    ? 'border-red-300 hover:border-red-400'
-                                    : 'border-gray-300 hover:border-green-400'
-                                } hover:shadow-sm`}
-                                style={{
-                                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
-                                }}
-                                title="Označit jako dokončený"
-                              >
-                              </button>
-                              <span className={`text-xs ${
-                                isOverdue ? 'text-red-600' : isToday ? 'text-orange-600' : 'text-gray-400'
-                              }`}>
-                                {isOverdue && '⚠️'}
-                                {isToday && '📅'}
-                                {isFuture && '🔮'}
-                              </span>
-                              <span 
-                                className="flex-1 truncate cursor-pointer font-medium"
-                                onClick={() => handleItemClick(step, 'step')}
-                              >
-                                {step.title}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between mt-1">
-                              <div className="text-xs text-gray-400">
-                                {step.goal?.title && `Cíl: ${step.goal.title}`}
-                              </div>
-                              {stepDate && (() => {
-                                const daysDiff = Math.ceil((stepDateOnly!.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-                                let dateText = ''
-                                if (daysDiff < 0) {
-                                  dateText = `Pozdě o ${Math.abs(daysDiff)} ${Math.abs(daysDiff) === 1 ? 'den' : Math.abs(daysDiff) < 5 ? 'dny' : 'dní'}`
-                                } else if (daysDiff === 0) {
-                                  dateText = 'Dnes'
-                                } else if (daysDiff === 1) {
-                                  dateText = 'Zítra'
-                                } else {
-                                  dateText = `Za ${daysDiff} ${daysDiff === 2 || daysDiff === 3 || daysDiff === 4 ? 'dny' : 'dní'}`
-                                }
-                                return (
-                                  <div className={`text-xs ${
-                                    isOverdue ? 'text-red-600 font-semibold' : 
-                                    isToday ? 'text-orange-600' : 
-                                    'text-gray-500'
-                                  }`}>
-                                    {dateText}
-                                  </div>
-                                )
-                              })()}
-                            </div>
-                          </div>
-                        )
-                      })
-                    })()}
-                    {(() => {
-                      const today = new Date()
-                      today.setHours(0, 0, 0, 0)
-                      const filteredCount = dailySteps
-                        .filter(step => !step.completed).length
-                      
-                      if (filteredCount === 0) {
-                        return (
-                          <div className="text-gray-400 text-sm text-center py-4">
-                            Všechny kroky dokončeny
-                          </div>
-                        )
-                      }
-                      
-                      if (filteredCount > 5) {
-                        return (
-                          <div className="text-center text-gray-400 text-sm py-2">
-                            +{filteredCount - 5} dalších kroků
-                          </div>
-                        )
-                      }
-                      return null
-                    })()}
-                  </div>
-                )}
-              </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-
-            {/* Center Area - Dynamic Display */}
-            {leftSidebarWidth === '0px' && rightSidebarWidth === '0px' ? (
-              <div className="flex items-center justify-center h-full w-full">
-                <div className="text-center p-8 bg-white bg-opacity-95 rounded-2xl shadow-xl border border-orange-200">
-                  <h2 className="text-2xl font-bold text-orange-800 mb-4">Rozlišení je příliš malé</h2>
-                  <p className="text-gray-600">
-                    Pro správný běh aplikace je potřeba větší rozlišení.
-                  </p>
-                  <p className="text-sm text-gray-500 mt-2">
-                    Minimální šířka okna: {(430 + 288 + 288 + 40).toLocaleString('cs-CZ')}px
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-start justify-center flex-1 overflow-hidden" style={{
-                marginLeft: parseInt(leftSidebarWidth) > 48 ? '280px' : '48px',
-                marginRight: parseInt(rightSidebarWidth) > 48 ? '280px' : '48px'
-              }}>
-                <div className="text-center w-full">
-                  {/* Display Monitor */}
-                  <div className="bg-white bg-opacity-95 rounded-2xl p-4 shadow-xl backdrop-blur-sm border border-orange-200" style={{
-                    boxShadow: '0 12px 24px rgba(251, 146, 60, 0.15), 0 4px 8px rgba(0, 0, 0, 0.05)'
-                  }}>
-                    {/* Monitor Screen */}
-                    <div className="bg-orange-100 rounded-xl p-4 min-h-80 flex items-center justify-center border border-orange-300" style={{
-                      boxShadow: 'inset 0 2px 4px rgba(251, 146, 60, 0.1)'
-                    }}>
+            {/* Center Area - Dynamic Display - Full Width */}
+            <div className="flex items-start justify-center flex-1 overflow-hidden w-full">
+                <div className="flex flex-col h-full w-full">
+                {/* Content - Direct Display without Monitor */}
+                <div className="flex-1 overflow-y-auto p-6">
                       {renderDisplayContent()}
                     </div>
-                  
-                  {/* Program Selector - Moved to bottom */}
-                  <div className="flex justify-center items-center gap-2 mt-4">
-                    {/* Power Button - Left side */}
-                    <button
-                      onClick={() => {
-                        setSelectedItem(null)
-                        setSelectedItemType(null)
-                        setCurrentProgram('chill')
-                      }}
-                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
-                        !selectedItem && currentProgram === 'chill' 
-                          ? 'bg-orange-500 text-white shadow-md' 
-                          : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
-                      }`}
-                      style={{
-                        boxShadow: !selectedItem && currentProgram === 'chill' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                      }}
-                      title="Chill místa"
-                    >
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedItem(null)
-                        setSelectedItemType(null)
-                        setCurrentProgram('daily-plan')
-                      }}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                        !selectedItem && currentProgram === 'daily-plan' 
-                          ? 'bg-orange-500 text-white shadow-md' 
-                          : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
-                      }`}
-                      style={{
-                        boxShadow: !selectedItem && currentProgram === 'daily-plan' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                      }}
-                    >
-                      Denní plán
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedItem(null)
-                        setSelectedItemType(null)
-                        setCurrentProgram('statistics')
-                      }}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                        !selectedItem && currentProgram === 'statistics' 
-                          ? 'bg-orange-500 text-white shadow-md' 
-                          : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
-                      }`}
-                      style={{
-                        boxShadow: !selectedItem && currentProgram === 'statistics' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                      }}
-                    >
-                      Statistiky
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedItem(null)
-                        setSelectedItemType(null)
-                        setCurrentProgram('calendar')
-                      }}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                        !selectedItem && currentProgram === 'calendar' 
-                          ? 'bg-orange-500 text-white shadow-md' 
-                          : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
-                      }`}
-                      style={{
-                        boxShadow: !selectedItem && currentProgram === 'calendar' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                      }}
-                    >
-                      📅 Kalendář
-                    </button>
+                    </div>
                   </div>
-                </div>
-              </div>
-              </div>
-            )}
           </>
         )
     }
   }
 
   return (
-    <div className="bg-white overflow-hidden min-h-screen w-full" style={{
+    <div className="bg-white overflow-hidden h-screen w-full flex flex-col" style={{
       fontFamily: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       fontSize: '14px',
       background: 'linear-gradient(135deg, #FFFAF5 0%, #fef3e7 50%, #fde4c4 100%)',
@@ -6132,9 +6344,9 @@ export function JourneyGameView({
           <div className="absolute bottom-2 left-1/4 w-6 h-6 bg-pink-300 rounded-full animate-pulse opacity-15"></div>
         </div>
         
-        <div className="relative z-10 py-5 px-6">
-          {/* Top Row: Menu Icons */}
-          <div className="flex items-center justify-between mb-3">
+        <div className="relative z-10 py-3 px-6">
+          {/* Single Row: Menu Icons and Statistics */}
+          <div className="flex items-center justify-between">
             {/* Left - Menu Icons */}
             <div className="flex items-center space-x-4">
               <button
@@ -6150,8 +6362,54 @@ export function JourneyGameView({
               </button>
             </div>
 
-            {/* Right - Menu Icons */}
-            <div className="flex items-center space-x-4">
+            {/* Right - Statistics and Menu Icons */}
+            <div className="flex items-center gap-6">
+              {/* Statistics - Hidden on small screens, visible from lg breakpoint */}
+              <div className="hidden lg:flex items-center gap-4">
+                <div className="flex items-center gap-1.5">
+                  <svg className="w-4 h-4 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                  </svg>
+                  <span className="text-white font-semibold text-sm">{totalXp}</span>
+                  <span className="text-white opacity-75 text-xs">XP</span>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <svg className="w-4 h-4 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/>
+                  </svg>
+                  <span className="text-white font-semibold text-sm">{loginStreak}</span>
+                  <span className="text-white opacity-75 text-xs">Streak</span>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <svg className="w-4 h-4 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
+                    <circle cx="12" cy="12" r="3" fill="currentColor"/>
+                  </svg>
+                  <span className="text-white font-semibold text-sm">{totalCompletedGoals}</span>
+                  <span className="text-white opacity-75 text-xs">Cíle</span>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <svg className="w-4 h-4 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                  </svg>
+                  <span className="text-white font-semibold text-sm">{totalCompletedHabits}</span>
+                  <span className="text-white opacity-75 text-xs">Návyky</span>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <svg className="w-4 h-4 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M3 12h2l3-9 6 18 3-9h2"/>
+                  </svg>
+                  <span className="text-white font-semibold text-sm">{totalCompletedSteps}</span>
+                  <span className="text-white opacity-75 text-xs">Kroky</span>
+                </div>
+              </div>
+
+              {/* Menu Icons */}
+              <div className="flex items-center space-x-4 lg:border-l lg:border-white lg:border-opacity-30 lg:pl-6">
               <button
                 onClick={() => setCurrentPage('goals')}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'goals' ? 'bg-white bg-opacity-25' : ''}`}
@@ -6212,63 +6470,420 @@ export function JourneyGameView({
               </button>
             </div>
           </div>
-
-          {/* Divider between menu and statistics */}
-          <div className="border-t border-white border-opacity-30 my-3"></div>
-
-          {/* Bottom Row: Statistics */}
-          <div className="flex items-center justify-between gap-6">
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-              </svg>
-              <span className="text-white font-semibold text-sm">{totalXp}</span>
-              <span className="text-white opacity-75 text-xs">XP</span>
+            </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/>
-              </svg>
-              <span className="text-white font-semibold text-sm">{loginStreak}</span>
-              <span className="text-white opacity-75 text-xs">Streak</span>
+        {/* Bottom divider line - separates menu from page content */}
+        <div className="h-px bg-orange-300 opacity-50 w-full"></div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
-                <circle cx="12" cy="12" r="3" fill="currentColor"/>
-              </svg>
-              <span className="text-white font-semibold text-sm">{totalCompletedGoals}</span>
-              <span className="text-white opacity-75 text-xs">Cíle</span>
+      {/* Program Tabs - Only show on main page */}
+      {currentPage === 'main' && (
+        <div className="bg-white border-b border-orange-200 shadow-sm">
+          <div className="px-6 py-3">
+            <div className="flex items-center justify-center gap-2">
+              <button
+                onClick={() => {
+                  setSelectedItem(null)
+                  setSelectedItemType(null)
+                  setCurrentProgram('day')
+                }}
+                className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  !selectedItem && currentProgram === 'day' 
+                    ? 'bg-orange-500 text-white shadow-md' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
+                }`}
+                style={{
+                  boxShadow: !selectedItem && currentProgram === 'day' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
+                }}
+              >
+                Den
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedItem(null)
+                  setSelectedItemType(null)
+                  setCurrentProgram('week')
+                }}
+                className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  !selectedItem && currentProgram === 'week' 
+                    ? 'bg-orange-500 text-white shadow-md' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
+                }`}
+                style={{
+                  boxShadow: !selectedItem && currentProgram === 'week' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
+                }}
+              >
+                Týden
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedItem(null)
+                  setSelectedItemType(null)
+                  setCurrentProgram('month')
+                }}
+                className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  !selectedItem && currentProgram === 'month' 
+                    ? 'bg-orange-500 text-white shadow-md' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
+                }`}
+                style={{
+                  boxShadow: !selectedItem && currentProgram === 'month' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
+                }}
+              >
+                Měsíc
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedItem(null)
+                  setSelectedItemType(null)
+                  setCurrentProgram('year')
+                }}
+                className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  !selectedItem && currentProgram === 'year' 
+                    ? 'bg-orange-500 text-white shadow-md' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
+                }`}
+                style={{
+                  boxShadow: !selectedItem && currentProgram === 'year' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
+                }}
+              >
+                Rok
+              </button>
             </div>
-
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-              </svg>
-              <span className="text-white font-semibold text-sm">{totalCompletedHabits}</span>
-              <span className="text-white opacity-75 text-xs">Návyky</span>
             </div>
+          </div>
+      )}
 
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M3 12h2l3-9 6 18 3-9h2"/>
-              </svg>
-              <span className="text-white font-semibold text-sm">{totalCompletedSteps}</span>
-              <span className="text-white opacity-75 text-xs">Kroky</span>
+      {/* Main Content Area */}
+      <div className="relative flex flex-col flex-1 overflow-hidden">
+        {renderPageContent()}
+      </div>
+
+      {/* Date Picker Modal */}
+      {showDatePickerModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onClick={() => setShowDatePickerModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-gray-900">
+                  {currentProgram === 'day' ? 'Vyberte den' : 
+                   currentProgram === 'week' ? 'Vyberte týden' :
+                   currentProgram === 'month' ? 'Vyberte měsíc' :
+                   'Vyberte rok'}
+                </h3>
+                <button
+                  onClick={() => setShowDatePickerModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Day Picker - Calendar */}
+              {currentProgram === 'day' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-7 gap-2 mb-4">
+                    {['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(day => (
+                      <div key={day} className="text-center text-sm font-semibold text-gray-600 py-2">
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+                  {(() => {
+                    const today = new Date()
+                    const currentMonth = selectedDayDate.getMonth()
+                    const currentYear = selectedDayDate.getFullYear()
+                    const firstDay = new Date(currentYear, currentMonth, 1)
+                    const lastDay = new Date(currentYear, currentMonth + 1, 0)
+                    const daysInMonth = lastDay.getDate()
+                    const startingDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1
+                    const todayStr = getLocalDateString()
+                    
+                    const days = []
+                    // Empty cells for days before month starts
+                    for (let i = 0; i < startingDayOfWeek; i++) {
+                      days.push(null)
+                    }
+                    // Days of the month
+                    for (let day = 1; day <= daysInMonth; day++) {
+                      const date = new Date(currentYear, currentMonth, day)
+                      days.push(date)
+                    }
+                    
+                    return (
+                      <div className="grid grid-cols-7 gap-2">
+                        {days.map((date, index) => {
+                          if (!date) {
+                            return <div key={`empty-${index}`} className="h-10"></div>
+                          }
+                          
+                          const dateStr = getLocalDateString(date)
+                          const isSelected = dateStr === getLocalDateString(selectedDayDate)
+                          const isToday = dateStr === todayStr
+                          
+                          return (
+                            <button
+                              key={dateStr}
+                              onClick={() => {
+                                setSelectedDayDate(date)
+                                setShowDatePickerModal(false)
+                              }}
+                              className={`h-10 rounded-lg transition-all ${
+                                isSelected 
+                                  ? 'bg-orange-500 text-white font-bold' 
+                                  : isToday
+                                    ? 'bg-orange-100 text-orange-700 font-semibold'
+                                    : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                              }`}
+                            >
+                              {date.getDate()}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )
+                  })()}
+                  
+                  {/* Month/Year Navigation */}
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                    <button
+                      onClick={() => {
+                        const prevMonth = new Date(selectedDayDate)
+                        prevMonth.setMonth(prevMonth.getMonth() - 1)
+                        setSelectedDayDate(prevMonth)
+                      }}
+                      className="p-2 hover:bg-gray-100 rounded-lg"
+                    >
+                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <span className="text-lg font-semibold text-gray-800">
+                      {selectedDayDate.toLocaleDateString('cs-CZ', { month: 'long', year: 'numeric' })}
+                    </span>
+                    <button
+                      onClick={() => {
+                        const nextMonth = new Date(selectedDayDate)
+                        nextMonth.setMonth(nextMonth.getMonth() + 1)
+                        setSelectedDayDate(nextMonth)
+                      }}
+                      className="p-2 hover:bg-gray-100 rounded-lg"
+                    >
+                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Week Picker - Weeks and Year */}
+              {currentProgram === 'week' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <button
+                      onClick={() => {
+                        const prevYear = selectedWeek.getFullYear() - 1
+                        setSelectedWeek(new Date(prevYear, 0, 1))
+                      }}
+                      className="p-2 hover:bg-gray-100 rounded-lg"
+                    >
+                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <span className="text-xl font-semibold text-gray-800">
+                      {selectedWeek.getFullYear()}
+                    </span>
+                    <button
+                      onClick={() => {
+                        const nextYear = selectedWeek.getFullYear() + 1
+                        setSelectedWeek(new Date(nextYear, 0, 1))
+                      }}
+                      className="p-2 hover:bg-gray-100 rounded-lg"
+                    >
+                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 gap-2 max-h-96 overflow-y-auto">
+                    {(() => {
+                      const year = selectedWeek.getFullYear()
+                      const weeks = []
+                      
+                      // Get all weeks in the year
+                      const startOfYear = new Date(year, 0, 1)
+                      const endOfYear = new Date(year, 11, 31)
+                      
+                      // Find first Monday of year
+                      let currentDate = new Date(startOfYear)
+                      const dayOfWeek = currentDate.getDay()
+                      const daysToMonday = dayOfWeek === 0 ? 1 : (dayOfWeek === 1 ? 0 : 8 - dayOfWeek)
+                      currentDate.setDate(currentDate.getDate() + daysToMonday)
+                      
+                      while (currentDate <= endOfYear) {
+                        const weekEnd = new Date(currentDate)
+                        weekEnd.setDate(weekEnd.getDate() + 6)
+                        
+                        weeks.push({
+                          start: new Date(currentDate),
+                          end: weekEnd
+                        })
+                        
+                        currentDate.setDate(currentDate.getDate() + 7)
+                      }
+                      
+                      // Get current week for comparison
+                      const today = new Date()
+                      const todayDay = today.getDay()
+                      const todayDiff = today.getDate() - todayDay + (todayDay === 0 ? -6 : 1)
+                      const currentWeekStart = new Date(today)
+                      currentWeekStart.setDate(todayDiff)
+                      currentWeekStart.setHours(0, 0, 0, 0)
+                      
+                      return weeks.map((week, index) => {
+                        const weekStartStr = getLocalDateString(week.start)
+                        const currentWeekStartStr = getLocalDateString(currentWeekStart)
+                        const isSelected = weekStartStr === getLocalDateString(selectedWeek)
+                        const isCurrentWeek = weekStartStr === currentWeekStartStr
+                        
+                        return (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              setSelectedWeek(week.start)
+                              setShowDatePickerModal(false)
+                            }}
+                            className={`p-4 rounded-lg text-left transition-all ${
+                              isSelected 
+                                ? 'bg-orange-500 text-white' 
+                                : isCurrentWeek
+                                  ? 'bg-orange-100 text-orange-700 border-2 border-orange-300'
+                                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                            }`}
+                          >
+                            <div className="font-semibold">
+                              Týden {index + 1} ({week.start.getDate()}. {week.start.getMonth() + 1}. - {week.end.getDate()}. {week.end.getMonth() + 1}. {week.end.getFullYear()})
+                            </div>
+                          </button>
+                        )
+                      })
+                    })()}
+                  </div>
+                </div>
+              )}
+
+              {/* Month Picker - Months and Year */}
+              {currentProgram === 'month' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <button
+                      onClick={() => {
+                        const prevYear = selectedMonth.getFullYear() - 1
+                        setSelectedMonth(new Date(prevYear, selectedMonth.getMonth(), 1))
+                      }}
+                      className="p-2 hover:bg-gray-100 rounded-lg"
+                    >
+                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <span className="text-xl font-semibold text-gray-800">
+                      {selectedMonth.getFullYear()}
+                    </span>
+                    <button
+                      onClick={() => {
+                        const nextYear = selectedMonth.getFullYear() + 1
+                        setSelectedMonth(new Date(nextYear, selectedMonth.getMonth(), 1))
+                      }}
+                      className="p-2 hover:bg-gray-100 rounded-lg"
+                    >
+                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-3">
+                    {['Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen', 'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec'].map((month, index) => {
+                      const today = new Date()
+                      const isSelected = selectedMonth.getMonth() === index
+                      const isCurrentMonth = today.getMonth() === index && today.getFullYear() === selectedMonth.getFullYear()
+                      
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            const newDate = new Date(selectedMonth.getFullYear(), index, 1)
+                            setSelectedMonth(newDate)
+                            setShowDatePickerModal(false)
+                          }}
+                          className={`p-4 rounded-lg font-semibold transition-all ${
+                            isSelected 
+                              ? 'bg-orange-500 text-white' 
+                              : isCurrentMonth
+                                ? 'bg-orange-100 text-orange-700 border-2 border-orange-300'
+                                : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          {month}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Year Picker - Years */}
+              {currentProgram === 'year' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-4 gap-3 max-h-96 overflow-y-auto">
+                    {(() => {
+                      const currentYear = new Date().getFullYear()
+                      const startYear = currentYear - 10
+                      const endYear = currentYear + 10
+                      const years = []
+                      
+                      for (let year = startYear; year <= endYear; year++) {
+                        years.push(year)
+                      }
+                      
+                      return years.map(year => {
+                        const isSelected = year === selectedYear
+                        const isCurrentYear = year === currentYear
+                        
+                        return (
+                          <button
+                            key={year}
+                            onClick={() => {
+                              setSelectedYear(year)
+                              setShowDatePickerModal(false)
+                            }}
+                            className={`p-4 rounded-lg font-semibold transition-all ${
+                              isSelected 
+                                ? 'bg-orange-500 text-white' 
+                                : isCurrentYear
+                                  ? 'bg-orange-100 text-orange-700 border-2 border-orange-300'
+                                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                            }`}
+                          >
+                            {year}
+                          </button>
+                        )
+                      })
+                    })()}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
-        
-        {/* Bottom divider line - separates menu from page content */}
-        <div className="h-px bg-orange-300 opacity-50 w-full"></div>
-      </div>
-
-      {/* Main Content Area */}
-      <div className="p-8 relative flex flex-col h-full">
-        {renderPageContent()}
-      </div>
+      )}
 
     </div>
   )
