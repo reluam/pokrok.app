@@ -990,7 +990,7 @@ export async function updateDailyStep(stepId: string, stepData: Partial<DailySte
   }
 }
 
-export async function updateDailyStepGeneral(stepId: string, stepData: Partial<DailyStep>): Promise<DailyStep> {
+export async function updateDailyStepGeneral(stepId: string, stepData: Omit<Partial<DailyStep>, 'date'> & { date?: Date | string }): Promise<DailyStep> {
   try {
     // Update each field individually using template literals
     if (stepData.title !== undefined) {
