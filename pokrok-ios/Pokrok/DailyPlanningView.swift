@@ -171,6 +171,9 @@ struct DailyPlanningView: View {
             loadData()
             setRandomInspiration()
         }
+        .onChange(of: selectedDate) { _ in
+            loadData()
+        }
         .sheet(isPresented: $showAddStepModal) {
             AddStepModal(initialDate: selectedDate, onStepAdded: {
                 loadData()
@@ -292,9 +295,10 @@ struct DailyPlanningView: View {
                 .buttonStyle(PlainButtonStyle())
             } else {
                 LazyVStack(spacing: DesignSystem.Spacing.sm) {
-                    ForEach(todaySteps, id: \.id) { step in
+                    ForEach(Array(todaySteps.enumerated()), id: \.element.id) { index, step in
                         StepRow(
                             step: step,
+                            index: index,
                             onToggle: {
                                 toggleStepCompletion(stepId: step.id, completed: !step.completed)
                             }
@@ -388,48 +392,54 @@ struct DailyPlanningView: View {
     private func loadData() {
         Task {
             do {
-                // Load all data in parallel
+                // Calculate dates for selected day, yesterday, and tomorrow relative to selected date
+                let calendar = Calendar.current
+                let selectedDay = selectedDate
+                let yesterdayDate = calendar.date(byAdding: .day, value: -1, to: selectedDay) ?? selectedDay
+                let tomorrowDate = calendar.date(byAdding: .day, value: 1, to: selectedDay) ?? selectedDay
+                
+                // Load all data in parallel, including steps for yesterday, selected day, and tomorrow
                 async let settingsTask = apiManager.fetchUserSettings()
-                async let stepsTask = apiManager.fetchStepsForDate(date: today)
+                async let stepsSelectedTask = apiManager.fetchStepsForDate(date: selectedDay)
+                async let stepsYesterdayTask = apiManager.fetchStepsForDate(date: yesterdayDate)
+                async let stepsTomorrowTask = apiManager.fetchStepsForDate(date: tomorrowDate)
                 async let goalsTask = apiManager.fetchGoals()
                 async let planningTask = apiManager.fetchDailyPlanning(date: selectedDate)
                 async let habitsTask = apiManager.fetchHabits()
                 
                 // Wait for all tasks, but handle errors individually
                 let settings = try? await settingsTask
-                let steps: [DailyStep]
+                
+                // Fetch steps for all three days
+                var allSteps: [DailyStep] = []
                 do {
-                    print("🔵 DailyPlanningView: Starting to fetch steps...")
-                    steps = try await stepsTask
-                    print("🔵 DailyPlanningView: Steps fetched successfully: \(steps.count)")
-                } catch {
-                    print("❌ Error loading steps: \(error)")
-                    print("❌ Error details: \(error.localizedDescription)")
-                    if let decodingError = error as? DecodingError {
-                        print("❌ Decoding error: \(decodingError)")
+                    let stepsSelected = (try? await stepsSelectedTask) ?? []
+                    let stepsYesterday = (try? await stepsYesterdayTask) ?? []
+                    let stepsTomorrow = (try? await stepsTomorrowTask) ?? []
+                    
+                    // Combine all steps and remove duplicates (in case of overlap)
+                    var stepsDict: [String: DailyStep] = [:]
+                    for step in stepsYesterday + stepsSelected + stepsTomorrow {
+                        stepsDict[step.id] = step
                     }
-                    steps = []
+                    allSteps = Array(stepsDict.values)
+                } catch {
+                    // Silently handle errors
                 }
+                
                 let goals = (try? await goalsTask) ?? []
                 let planning = try? await planningTask
                 let habits = (try? await habitsTask) ?? []
                 
                 await MainActor.run {
                     self.userSettings = settings
-                    self.dailySteps = steps
+                    self.dailySteps = allSteps
                     self.goals = goals
                     self.dailyPlanning = planning
                     self.habits = habits
                     self.isLoading = false
                     self.updateStepStats()
                     
-                    // Debug: Check steps loading
-                    print("🔍 Loaded steps count: \(steps.count)")
-                    print("🔍 Selected date: \(self.formatDateString(self.today))")
-                    print("🔍 Today's steps count: \(self.todaySteps.count)")
-                    if !steps.isEmpty {
-                        print("🔍 First step date: \(self.formatDateString(steps[0].date))")
-                    }
                     if !habits.isEmpty {
                         let habit = habits[0]
                         print("🔍 First habit: \(habit.name), frequency: \(habit.frequency), alwaysShow: \(habit.alwaysShow)")
@@ -517,27 +527,100 @@ struct DailyPlanningView: View {
 struct StepRow: View {
     let step: DailyStep
     let onToggle: () -> Void
+    let index: Int
+    
+    init(step: DailyStep, index: Int = 0, onToggle: @escaping () -> Void) {
+        self.step = step
+        self.index = index
+        self.onToggle = onToggle
+    }
+    
+    private var isOverdue: Bool {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let stepDate = calendar.startOfDay(for: step.date)
+        return stepDate < today && !step.completed
+    }
     
     var body: some View {
         Button(action: onToggle) {
-            HStack(spacing: DesignSystem.Spacing.sm) {
-                Image(systemName: step.completed ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 20))
-                    .foregroundColor(step.completed ? DesignSystem.Colors.success : DesignSystem.Colors.textTertiary)
+            HStack(spacing: DesignSystem.Spacing.md) {
+                // Checkbox - square with green background when completed
+                ZStack {
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(step.completed ? DesignSystem.Colors.success : Color.clear)
+                        .frame(width: 20, height: 20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(step.completed ? DesignSystem.Colors.success : DesignSystem.Colors.textTertiary, lineWidth: 2)
+                        )
+                    
+                    if step.completed {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                }
+                .shadow(color: step.completed ? DesignSystem.Colors.success.opacity(0.3) : Color.clear, radius: 4, x: 0, y: 2)
                 
-                Text(step.title)
-                    .font(DesignSystem.Typography.body)
-                    .foregroundColor(step.completed ? DesignSystem.Colors.textTertiary : DesignSystem.Colors.textPrimary)
-                    .strikethrough(step.completed)
-                    .multilineTextAlignment(.leading)
+                // Step number
+                Text("#\(index + 1)")
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundColor(DesignSystem.Colors.textTertiary)
+                
+                // Step content
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                    HStack(spacing: DesignSystem.Spacing.sm) {
+                        Text(step.title)
+                            .font(DesignSystem.Typography.body)
+                            .fontWeight(.semibold)
+                            .foregroundColor(step.completed ? DesignSystem.Colors.success.opacity(0.8) : DesignSystem.Colors.textPrimary)
+                            .strikethrough(step.completed)
+                            .multilineTextAlignment(.leading)
+                        
+                        // Status chip
+                        if isOverdue {
+                            Text("Zpožděné")
+                                .font(DesignSystem.Typography.caption2)
+                                .fontWeight(.medium)
+                                .foregroundColor(DesignSystem.Colors.error)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(DesignSystem.Colors.error.opacity(0.1))
+                                .cornerRadius(8)
+                        }
+                    }
+                    
+                    if let description = step.description, !description.isEmpty {
+                        Text(description)
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                            .lineLimit(2)
+                    }
+                }
                 
                 Spacer()
             }
             .padding(DesignSystem.Spacing.md)
             .background(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                    .fill(step.completed ? DesignSystem.Colors.surfaceSecondary : DesignSystem.Colors.background)
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                    .fill(step.completed ? 
+                          Color(red: 240/255, green: 253/255, blue: 244/255) : // green-50 equivalent
+                          Color(red: 249/255, green: 250/255, blue: 251/255)) // gray-50 equivalent
             )
+            .overlay(
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                    .stroke(step.completed ? 
+                            Color(red: 187/255, green: 247/255, blue: 208/255) : // green-200 equivalent
+                            Color(red: 229/255, green: 231/255, blue: 235/255), // gray-200 equivalent
+                            lineWidth: 1)
+            )
+            .shadow(color: step.completed ? 
+                    DesignSystem.Colors.success.opacity(0.2) : 
+                    Color.black.opacity(0.05),
+                    radius: step.completed ? 6 : 2,
+                    x: 0,
+                    y: step.completed ? 4 : 1)
         }
         .buttonStyle(PlainButtonStyle())
     }

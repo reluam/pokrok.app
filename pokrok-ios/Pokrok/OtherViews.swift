@@ -908,65 +908,125 @@ struct AddStepModal: View {
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 20) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Název kroku")
-                        .font(.headline)
-                    TextField("Např. Pravidelně šetřit", text: $stepTitle)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Popis (volitelné)")
-                        .font(.headline)
-                    TextField("Popište krok podrobněji...", text: $stepDescription, axis: .vertical)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .lineLimit(3...6)
-                }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Datum")
-                        .font(.headline)
-                    DatePicker("Vyberte datum", selection: $selectedDate, displayedComponents: .date)
-                        .datePickerStyle(CompactDatePickerStyle())
-                }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Cíl (volitelné)")
-                        .font(.headline)
+            ScrollView {
+                VStack(spacing: DesignSystem.Spacing.lg) {
+                    // Title Field
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                        HStack {
+                            Text("Název kroku")
+                                .font(DesignSystem.Typography.headline)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
+                            Text("*")
+                                .foregroundColor(DesignSystem.Colors.primary)
+                        }
+                        TextField("Např. Pravidelně šetřit", text: $stepTitle)
+                            .font(DesignSystem.Typography.body)
+                            .padding(DesignSystem.Spacing.md)
+                            .background(DesignSystem.Colors.surface)
+                            .cornerRadius(DesignSystem.CornerRadius.md)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                                    .stroke(DesignSystem.Colors.textTertiary.opacity(0.3), lineWidth: 1)
+                            )
+                    }
                     
-                    if goals.isEmpty {
-                        Text("Žádné cíle nejsou k dispozici")
-                            .foregroundColor(.secondary)
-                            .font(.caption)
-                    } else {
-                        Picker("Vyberte cíl", selection: $selectedGoalId) {
-                            Text("Bez cíle").tag(nil as String?)
-                            ForEach(goals, id: \.id) { goal in
-                                Text(goal.title).tag(goal.id as String?)
+                    // Description Field
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                        Text("Popis (volitelné)")
+                            .font(DesignSystem.Typography.headline)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                        TextField("Popište krok podrobněji...", text: $stepDescription, axis: .vertical)
+                            .font(DesignSystem.Typography.body)
+                            .padding(DesignSystem.Spacing.md)
+                            .frame(minHeight: 100, alignment: .top)
+                            .background(DesignSystem.Colors.surface)
+                            .cornerRadius(DesignSystem.CornerRadius.md)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                                    .stroke(DesignSystem.Colors.textTertiary.opacity(0.3), lineWidth: 1)
+                            )
+                            .lineLimit(4...8)
+                    }
+                    
+                    // Date and Goal in two columns
+                    HStack(spacing: DesignSystem.Spacing.md) {
+                        // Date Field
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                            Text("Datum")
+                                .font(DesignSystem.Typography.headline)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
+                            DatePicker("", selection: $selectedDate, displayedComponents: .date)
+                                .datePickerStyle(.compact)
+                                .labelsHidden()
+                                .padding(DesignSystem.Spacing.sm)
+                                .background(DesignSystem.Colors.surface)
+                                .cornerRadius(DesignSystem.CornerRadius.md)
+                        }
+                        
+                        // Goal Field
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                            Text("Cíl (volitelné)")
+                                .font(DesignSystem.Typography.headline)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
+                            
+                            if goals.isEmpty {
+                                Text("Žádné cíle")
+                                    .font(DesignSystem.Typography.caption)
+                                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                                    .padding(DesignSystem.Spacing.sm)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(DesignSystem.Colors.surfaceSecondary)
+                                    .cornerRadius(DesignSystem.CornerRadius.md)
+                            } else {
+                                Picker("", selection: $selectedGoalId) {
+                                    Text("Bez cíle").tag(nil as String?)
+                                    ForEach(goals, id: \.id) { goal in
+                                        Text(goal.title).tag(goal.id as String?)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .padding(DesignSystem.Spacing.sm)
+                                .background(DesignSystem.Colors.surface)
+                                .cornerRadius(DesignSystem.CornerRadius.md)
                             }
                         }
-                        .pickerStyle(MenuPickerStyle())
                     }
+                    
+                    // Add Button
+                    Button(action: {
+                        addStep()
+                    }) {
+                        HStack {
+                            if isLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    .scaleEffect(0.8)
+                            } else {
+                                Text("Přidat krok")
+                                    .font(DesignSystem.Typography.headline)
+                                    .fontWeight(.semibold)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(DesignSystem.Spacing.md)
+                        .background(stepTitle.isEmpty || isLoading ? DesignSystem.Colors.textTertiary : DesignSystem.Colors.primary)
+                        .foregroundColor(.white)
+                        .cornerRadius(DesignSystem.CornerRadius.md)
+                    }
+                    .disabled(stepTitle.isEmpty || isLoading)
+                    .padding(.top, DesignSystem.Spacing.md)
                 }
-                
-                Spacer()
-        }
-        .padding()
-            .navigationTitle("Přidat krok")
-        .navigationBarTitleDisplayMode(.inline)
+                .padding(DesignSystem.Spacing.lg)
+            }
+            .background(DesignSystem.Colors.background)
+            .navigationTitle("Nový krok")
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Zrušit") {
                         dismiss()
                     }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Přidat") {
-                        addStep()
-                    }
-                    .disabled(stepTitle.isEmpty || isLoading)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
                 }
             }
             .alert("Chyba", isPresented: $showError) {
