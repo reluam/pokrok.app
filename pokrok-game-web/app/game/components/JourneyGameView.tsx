@@ -708,8 +708,10 @@ export function JourneyGameView({
       
       // For new step, create it
       if (isNewStep) {
-        // Ensure we have userId before making the request
-        if (!player?.user_id) {
+        // Use userId from state (loaded from API) or fallback to player?.user_id
+        const currentUserId = userId || player?.user_id
+        
+        if (!currentUserId) {
           console.error('Cannot create step: userId not available')
           alert('Chyba: Uživatel není načten. Zkuste to prosím znovu.')
           return
@@ -719,7 +721,7 @@ export function JourneyGameView({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            userId: player.user_id,
+            userId: currentUserId,
             title: stepTitle,
             description: stepDescription,
             date: selectedDate || getLocalDateString(),
@@ -753,9 +755,12 @@ export function JourneyGameView({
           console.log('handleSaveStep - Date normalized:', normalizedDate)
           
           // Update the steps list
-          const updatedSteps = await fetch(`/api/daily-steps?userId=${player?.user_id}`)
-            .then(res => res.json())
-          onDailyStepsUpdate?.(updatedSteps)
+          const currentUserId = userId || player?.user_id
+          if (currentUserId) {
+            const updatedSteps = await fetch(`/api/daily-steps?userId=${currentUserId}`)
+              .then(res => res.json())
+            onDailyStepsUpdate?.(updatedSteps)
+          }
           
           // Update selectedItem to the newly created step (keep it open)
           setSelectedItem({ ...newStep, date: normalizedDate })
@@ -800,9 +805,12 @@ export function JourneyGameView({
             xp_reward: stepXpReward
           })
           
-          const updatedSteps = await fetch(`/api/daily-steps?userId=${player?.user_id}`)
-            .then(res => res.json())
-          onDailyStepsUpdate?.(updatedSteps)
+          const currentUserId = userId || player?.user_id
+          if (currentUserId) {
+            const updatedSteps = await fetch(`/api/daily-steps?userId=${currentUserId}`)
+              .then(res => res.json())
+            onDailyStepsUpdate?.(updatedSteps)
+          }
           setEditingStepTitle(false)
         }
       }
@@ -4216,7 +4224,10 @@ export function JourneyGameView({
       return
     }
 
-    if (!player?.user_id) {
+    // Use userId from state (loaded from API) or fallback to player?.user_id
+    const currentUserId = userId || player?.user_id
+    
+    if (!currentUserId) {
       alert('Chyba: Uživatel není nalezen')
       return
     }
@@ -4230,7 +4241,7 @@ export function JourneyGameView({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId: player.user_id,
+          userId: currentUserId,
           goalId: newStep.goalId || null,
           title: newStep.title,
           description: newStep.description,
