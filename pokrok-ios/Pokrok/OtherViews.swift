@@ -1012,9 +1012,10 @@ struct AddStepModal: View {
                     dismiss()
                 }
             } catch {
+                print("❌ Error creating step: \(error.localizedDescription)")
                 await MainActor.run {
                     isLoading = false
-                    errorMessage = error.localizedDescription
+                    errorMessage = "Chyba při vytváření kroku: \(error.localizedDescription)"
                     showError = true
                 }
             }

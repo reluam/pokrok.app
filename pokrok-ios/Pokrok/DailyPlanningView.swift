@@ -397,7 +397,19 @@ struct DailyPlanningView: View {
                 
                 // Wait for all tasks, but handle errors individually
                 let settings = try? await settingsTask
-                let steps = (try? await stepsTask) ?? []
+                let steps: [DailyStep]
+                do {
+                    print("🔵 DailyPlanningView: Starting to fetch steps...")
+                    steps = try await stepsTask
+                    print("🔵 DailyPlanningView: Steps fetched successfully: \(steps.count)")
+                } catch {
+                    print("❌ Error loading steps: \(error)")
+                    print("❌ Error details: \(error.localizedDescription)")
+                    if let decodingError = error as? DecodingError {
+                        print("❌ Decoding error: \(decodingError)")
+                    }
+                    steps = []
+                }
                 let goals = (try? await goalsTask) ?? []
                 let planning = try? await planningTask
                 let habits = (try? await habitsTask) ?? []

@@ -12,10 +12,36 @@ class APIManager: ObservableObject {
     
     private func createJSONDecoder() -> JSONDecoder {
         let decoder = JSONDecoder()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-        formatter.timeZone = TimeZone(abbreviation: "UTC")
-        decoder.dateDecodingStrategy = .formatted(formatter)
+        
+        // Custom date decoding strategy that handles both ISO8601 and YYYY-MM-DD formats
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let dateString = try container.decode(String.self)
+            
+            // Try ISO8601 format first (with time)
+            let iso8601Formatter = ISO8601DateFormatter()
+            iso8601Formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            if let date = iso8601Formatter.date(from: dateString) {
+                return date
+            }
+            
+            // Try ISO8601 without fractional seconds
+            iso8601Formatter.formatOptions = [.withInternetDateTime]
+            if let date = iso8601Formatter.date(from: dateString) {
+                return date
+            }
+            
+            // Try YYYY-MM-DD format (date only)
+            let dateOnlyFormatter = DateFormatter()
+            dateOnlyFormatter.dateFormat = "yyyy-MM-dd"
+            dateOnlyFormatter.timeZone = TimeZone(abbreviation: "UTC")
+            if let date = dateOnlyFormatter.date(from: dateString) {
+                return date
+            }
+            
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Expected date string to be ISO8601 or YYYY-MM-DD formatted, but got: \(dateString)")
+        }
+        
         return decoder
     }
     
@@ -58,7 +84,6 @@ class APIManager: ObservableObject {
         
         // Parse response - API returns array directly, not wrapped
         let decoder = createJSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
         let goals = try decoder.decode([Goal].self, from: data)
         return goals
     }
@@ -114,7 +139,6 @@ class APIManager: ObservableObject {
         
         // Parse response - API returns goal directly, not wrapped
         let decoder = createJSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
         let createdGoal = try decoder.decode(Goal.self, from: data)
         return createdGoal
     }
@@ -158,14 +182,17 @@ class APIManager: ObservableObject {
         
         // Parse response - API returns array directly, not wrapped
         let decoder = createJSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
         let steps = try decoder.decode([DailyStep].self, from: data)
         return steps
     }
     
     func fetchStepsForDate(date: Date) async throws -> [DailyStep] {
+        print("🔵 fetchStepsForDate: Starting for date: \(date)")
+        
         // First, get userId from user endpoint
+        print("🔵 fetchStepsForDate: Fetching user...")
         let user = try await fetchUser()
+        print("🔵 fetchStepsForDate: User fetched: \(user.id)")
         
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -184,6 +211,9 @@ class APIManager: ObservableObject {
             throw APIError.invalidURL
         }
         
+        print("📤 fetchStepsForDate: Request URL: \(url.absoluteString)")
+        print("📤 fetchStepsForDate: userId: \(user.id), date: \(dateString)")
+        
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -191,23 +221,55 @@ class APIManager: ObservableObject {
         // Add Clerk token if available
         if let token = await getClerkToken() {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            print("📤 fetchStepsForDate: Token available (length: \(token.count))")
+        } else {
+            print("⚠️ fetchStepsForDate: No token available")
         }
         
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
+            print("❌ fetchStepsForDate: Invalid response type")
             throw APIError.requestFailed
         }
         
+        print("📥 fetchStepsForDate: Response status: \(httpResponse.statusCode)")
+        print("📥 fetchStepsForDate: Response data size: \(data.count) bytes")
+        
         guard httpResponse.statusCode == 200 else {
+            let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+            print("❌ fetchStepsForDate failed with status \(httpResponse.statusCode): \(errorMessage)")
             throw APIError.requestFailed
+        }
+        
+        // Check if data is empty
+        if data.isEmpty {
+            print("⚠️ fetchStepsForDate: Empty response from API for date \(dateString) - returning empty array")
+            return []
+        }
+        
+        // Log raw response for debugging
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("📥 fetchStepsForDate: Raw response (first 500 chars): \(responseString.prefix(500))")
+        } else {
+            print("⚠️ fetchStepsForDate: Could not convert response to string")
         }
         
         // Parse response - API returns array directly, not wrapped
         let decoder = createJSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        let steps = try decoder.decode([DailyStep].self, from: data)
-        return steps
+        
+        do {
+            let steps = try decoder.decode([DailyStep].self, from: data)
+            print("✅ fetchStepsForDate: Loaded \(steps.count) steps for date \(dateString)")
+            return steps
+        } catch {
+            print("❌ fetchStepsForDate: Failed to decode response: \(error.localizedDescription)")
+            // Try to decode as error response
+            if let errorResponse = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                print("❌ Error response: \(errorResponse)")
+            }
+            throw error
+        }
     }
     
     func createStep(_ step: CreateStepRequest) async throws -> DailyStep {
@@ -227,11 +289,16 @@ class APIManager: ObservableObject {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         
+        // Format date as YYYY-MM-DD string (API expects this format)
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let dateString = formatter.string(from: step.date)
+        
         // Create request body with userId
         var requestBody: [String: Any] = [
             "userId": user.id,
             "title": step.title,
-            "date": ISO8601DateFormatter().string(from: step.date)
+            "date": dateString
         ]
         
         if let description = step.description {
@@ -245,6 +312,8 @@ class APIManager: ObservableObject {
         let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
         request.httpBody = jsonData
         
+        print("📤 createStep: Sending request with body: \(String(data: jsonData, encoding: .utf8) ?? "nil")")
+        
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -252,14 +321,39 @@ class APIManager: ObservableObject {
         }
         
         guard httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
+            let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+            print("❌ createStep failed with status \(httpResponse.statusCode): \(errorMessage)")
+            if let errorData = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                print("❌ Error details: \(errorData)")
+            }
             throw APIError.requestFailed
+        }
+        
+        // Check if data is empty
+        if data.isEmpty {
+            print("❌ createStep: Empty response from API")
+            throw APIError.requestFailed
+        }
+        
+        // Log raw response for debugging
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("📥 createStep: Raw response: \(responseString.prefix(500))")
         }
         
         // Parse response - API returns step directly, not wrapped
         let decoder = createJSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        let createdStep = try decoder.decode(DailyStep.self, from: data)
-        return createdStep
+        
+        do {
+            let createdStep = try decoder.decode(DailyStep.self, from: data)
+            print("✅ createStep: Successfully created step with id: \(createdStep.id)")
+            return createdStep
+        } catch {
+            print("❌ createStep: Failed to decode response: \(error.localizedDescription)")
+            if let errorResponse = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                print("❌ Error response: \(errorResponse)")
+            }
+            throw error
+        }
     }
     
     func updateStepCompletion(stepId: String, completed: Bool, currentStep: DailyStep) async throws -> DailyStep {
@@ -297,7 +391,6 @@ class APIManager: ObservableObject {
         
         // Parse response - API returns step directly, not wrapped
         let decoder = createJSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
         let updatedStep = try decoder.decode(DailyStep.self, from: data)
         return updatedStep
     }
@@ -377,7 +470,6 @@ class APIManager: ObservableObject {
         
         // Try direct decoding first (PostgreSQL returns JSONB as object, not string)
         let decoder = createJSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
         
         do {
             // Try direct decoding - PostgreSQL JSONB should decode directly

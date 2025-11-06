@@ -22,9 +22,19 @@ struct CreateStepRequest: Codable {
 struct User: Codable {
     let id: String
     let email: String
+    let name: String?
     let firstName: String?
     let lastName: String?
     let onboardingCompleted: Bool
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case email
+        case name
+        case firstName = "first_name"
+        case lastName = "last_name"
+        case onboardingCompleted = "has_completed_onboarding"
+    }
 }
 
 struct Goal: Codable, Identifiable {
