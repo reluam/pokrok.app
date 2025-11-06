@@ -434,7 +434,6 @@ struct StepsView: View {
             do {
                 // Find the current step to get its data
                 guard let currentStep = dailySteps.first(where: { $0.id == stepId }) else {
-                    print("❌ Step not found with ID: \(stepId)")
                     return
                 }
                 
@@ -894,13 +893,18 @@ struct AddStepModal: View {
     @StateObject private var apiManager = APIManager.shared
     @State private var stepTitle = ""
     @State private var stepDescription = ""
-    @State private var selectedDate = Date()
+    @State private var selectedDate: Date
     @State private var selectedGoalId: String? = nil
     @State private var goals: [Goal] = []
     @State private var isLoading = false
     @State private var errorMessage = ""
     @State private var showError = false
     let onStepAdded: () -> Void
+    
+    init(initialDate: Date = Date(), onStepAdded: @escaping () -> Void) {
+        _selectedDate = State(initialValue: initialDate)
+        self.onStepAdded = onStepAdded
+    }
     
     var body: some View {
         NavigationView {
@@ -984,7 +988,6 @@ struct AddStepModal: View {
                     self.goals = fetchedGoals
                 }
             } catch {
-                print("❌ Failed to load goals: \(error)")
             }
         }
     }
@@ -1227,7 +1230,6 @@ struct GoalDetailView: View {
         
         Task {
             // TODO: Implement goal completion in APIManager
-            print("Completing goal: \(goal.title)")
             
             await MainActor.run {
                 isLoading = false
@@ -1338,7 +1340,6 @@ struct SimpleWidgetSettingsView: View {
         userDefaults.set(selectedWidgetType.rawValue, forKey: "selected_widget_type")
         userDefaults.synchronize()
         
-        print("🔧 Widget Settings: Saved widget type: \(selectedWidgetType.rawValue)")
         
         // Refresh all widgets
         WidgetCenter.shared.reloadAllTimelines()

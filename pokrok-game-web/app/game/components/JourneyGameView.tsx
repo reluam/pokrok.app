@@ -10,6 +10,7 @@ import { SettingsView } from './SettingsView'
 import { Footprints, Calendar, Target, CheckCircle, X, ChevronDown, Edit, Trash2 } from 'lucide-react'
 import { DailyReviewWorkflow } from './DailyReviewWorkflow'
 import { CalendarProgram } from './CalendarProgram'
+import { getIconEmoji } from '@/lib/icon-utils'
 
 interface JourneyGameViewProps {
   player?: any
@@ -192,6 +193,8 @@ export function JourneyGameView({
   const [datePickerPosition, setDatePickerPosition] = useState<{ top: number; left: number } | null>(null)
   const [areaPickerPosition, setAreaPickerPosition] = useState<{ top: number; left: number; maxHeight: number } | null>(null)
   const [statusPickerPosition, setStatusPickerPosition] = useState<{ top: number; left: number } | null>(null)
+  const [goalsWithMilestones, setGoalsWithMilestones] = useState<Array<{ goal: any; nextMilestone: any }>>([])
+  const [isLoadingMilestones, setIsLoadingMilestones] = useState(false)
   const [showCreateStep, setShowCreateStep] = useState(false)
   const [newStep, setNewStep] = useState({
     title: '',
@@ -442,6 +445,46 @@ export function JourneyGameView({
     return () => clearTimeout(timer)
   }, [habits, goals, dailySteps, areas])
 
+  // Load goals with milestones for daily view
+  useEffect(() => {
+    const loadGoalsWithMilestones = async () => {
+      if (currentPage !== 'main' || currentProgram !== 'day') {
+        setGoalsWithMilestones([])
+        return
+      }
+      
+      setIsLoadingMilestones(true)
+      try {
+        const goalsData = await Promise.all(
+          goals
+            .filter(goal => goal.status === 'active')
+            .map(async (goal) => {
+              try {
+                const response = await fetch(`/api/cesta/goal-milestones?goalId=${goal.id}`)
+                if (response.ok) {
+                  const data = await response.json()
+                  const milestones = data.milestones || []
+                  // Find next incomplete milestone (by order)
+                  const nextMilestone = milestones.find((m: any) => !m.completed)
+                  return { goal, nextMilestone }
+                }
+              } catch (error) {
+                console.error(`Error loading milestones for goal ${goal.id}:`, error)
+              }
+              return { goal, nextMilestone: null }
+            })
+        )
+        setGoalsWithMilestones(goalsData.filter(item => item.nextMilestone !== null))
+      } catch (error) {
+        console.error('Error loading goals with milestones:', error)
+      } finally {
+        setIsLoadingMilestones(false)
+      }
+    }
+
+    loadGoalsWithMilestones()
+  }, [goals, currentPage, currentProgram])
+
   // Also measure when sections expand
   useEffect(() => {
     if (goalsRef.current && expandedLeftSection === 'goals') {
@@ -545,6 +588,24 @@ export function JourneyGameView({
   const [showXpEditor, setShowXpEditor] = useState(false)
   const [stepEstimatedTime, setStepEstimatedTime] = useState<number>(0)
   const [stepXpReward, setStepXpReward] = useState<number>(0)
+  const [stepIsImportant, setStepIsImportant] = useState<boolean>(false)
+  const [stepIsUrgent, setStepIsUrgent] = useState<boolean>(false)
+  const [stepType, setStepType] = useState<'update' | 'revision' | 'custom'>('update')
+  const [stepCustomTypeName, setStepCustomTypeName] = useState<string>('')
+  const [stepDeadline, setStepDeadline] = useState<string>('')
+  const [showStepSettings, setShowStepSettings] = useState(false)
+
+  // Habit detail tabs
+  const [habitDetailTab, setHabitDetailTab] = useState<'calendar' | 'settings'>('calendar')
+  const [editingHabitName, setEditingHabitName] = useState<string>('')
+  const [editingHabitDescription, setEditingHabitDescription] = useState<string>('')
+  const [editingHabitFrequency, setEditingHabitFrequency] = useState<'daily' | 'weekly' | 'monthly' | 'custom'>('daily')
+  const [editingHabitSelectedDays, setEditingHabitSelectedDays] = useState<string[]>([])
+  const [editingHabitAlwaysShow, setEditingHabitAlwaysShow] = useState<boolean>(false)
+  const [editingHabitXpReward, setEditingHabitXpReward] = useState<number>(0)
+  const [editingHabitCategory, setEditingHabitCategory] = useState<string>('')
+  const [editingHabitDifficulty, setEditingHabitDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
+  const [editingHabitReminderTime, setEditingHabitReminderTime] = useState<string>('')
 
   // Goal editing states
   const [editingGoalTitle, setEditingGoalTitle] = useState(false)
@@ -605,6 +666,12 @@ export function JourneyGameView({
       setShowXpEditor(false)
       setStepEstimatedTime(selectedItem.estimated_time || 0)
       setStepXpReward(selectedItem.xp_reward || 0)
+      setStepIsImportant(selectedItem.is_important || false)
+      setStepIsUrgent(selectedItem.is_urgent || false)
+      setStepType(selectedItem.step_type || 'update')
+      setStepCustomTypeName(selectedItem.custom_type_name || '')
+      setStepDeadline(selectedItem.deadline ? (typeof selectedItem.deadline === 'string' ? selectedItem.deadline.split('T')[0] : new Date(selectedItem.deadline).toISOString().split('T')[0]) : '')
+      setShowStepSettings(false)
     }
     
     if (selectedItem && selectedItemType === 'goal') {
@@ -617,6 +684,19 @@ export function JourneyGameView({
       setShowGoalStatusEditor(false)
       setGoalStatus(selectedItem.status || 'active')
       setGoalAreaId(selectedItem.area_id || '')
+    }
+    
+    if (selectedItem && selectedItemType === 'habit') {
+      setEditingHabitName(selectedItem.name || '')
+      setEditingHabitDescription(selectedItem.description || '')
+      setEditingHabitFrequency(selectedItem.frequency || 'daily')
+      setEditingHabitSelectedDays(selectedItem.selected_days || [])
+      setEditingHabitAlwaysShow(selectedItem.always_show || false)
+      setEditingHabitXpReward(selectedItem.xp_reward || 0)
+      setEditingHabitCategory(selectedItem.category || '')
+      setEditingHabitDifficulty(selectedItem.difficulty || 'medium')
+      setEditingHabitReminderTime(selectedItem.reminder_time || '')
+      setHabitDetailTab('calendar')
     }
   }, [selectedItem, selectedItemType])
 
@@ -694,7 +774,12 @@ export function JourneyGameView({
             title: stepTitle,
             description: stepDescription,
             estimated_time: stepEstimatedTime,
-            xp_reward: stepXpReward
+            xp_reward: stepXpReward,
+            is_important: stepIsImportant,
+            is_urgent: stepIsUrgent,
+            step_type: stepType,
+            custom_type_name: stepType === 'custom' ? stepCustomTypeName : null,
+            deadline: stepDeadline || null
           })
         })
 
@@ -854,7 +939,21 @@ export function JourneyGameView({
     switch (type) {
       case 'step':
         return (
-          <div className="w-full h-full flex flex-col justify-between p-8">
+          <div className="w-full h-full flex flex-col">
+            {/* Back Button */}
+            <div className="px-8 pt-6 pb-2 flex-shrink-0">
+              <button
+                onClick={handleCloseDetail}
+                className="flex items-center gap-2 text-gray-600 hover:text-orange-600 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span className="font-medium">Zpět na denní přehled</span>
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto px-8 pb-8">
             <div className="w-full max-w-2xl space-y-6 mx-auto">
               {/* Title with checkbox and edit button */}
               <div className="flex items-start gap-3">
@@ -948,6 +1047,46 @@ export function JourneyGameView({
                   className="text-sm px-4 py-2 bg-gray-200 bg-opacity-80 text-gray-800 rounded-full font-medium hover:bg-gray-300 transition-colors"
                 >
                   📅 {item.date ? new Date(item.date).toLocaleDateString('cs-CZ') : 'Bez data'}
+                </button>
+                
+                <button
+                  onClick={() => {
+                    setStepIsImportant(!stepIsImportant)
+                    handleSaveStep()
+                  }}
+                  className={`text-sm px-4 py-2 rounded-full font-medium transition-colors ${
+                    stepIsImportant 
+                      ? 'bg-red-200 bg-opacity-80 text-red-800 hover:bg-red-300' 
+                      : 'bg-gray-200 bg-opacity-80 text-gray-600 hover:bg-gray-300'
+                  }`}
+                >
+                  {stepIsImportant ? '⭐' : '☆'} Důležité
+                </button>
+                
+                <button
+                  onClick={() => {
+                    setStepIsUrgent(!stepIsUrgent)
+                    handleSaveStep()
+                  }}
+                  className={`text-sm px-4 py-2 rounded-full font-medium transition-colors ${
+                    stepIsUrgent 
+                      ? 'bg-orange-200 bg-opacity-80 text-orange-800 hover:bg-orange-300' 
+                      : 'bg-gray-200 bg-opacity-80 text-gray-600 hover:bg-gray-300'
+                  }`}
+                >
+                  {stepIsUrgent ? '🔥' : '⚡'} Urgentní
+                </button>
+                
+                <button
+                  onClick={() => {
+                    setShowTimeEditor(false)
+                    setShowXpEditor(false)
+                    setShowDatePicker(false)
+                    setShowStepSettings(!showStepSettings)
+                  }}
+                  className="text-sm px-4 py-2 bg-gray-200 bg-opacity-80 text-gray-800 rounded-full font-medium hover:bg-gray-300 transition-colors"
+                >
+                  ⚙️ Nastavení
                 </button>
               </div>
 
@@ -1045,14 +1184,104 @@ export function JourneyGameView({
                   </div>
                 </div>
               )}
+
+              {/* Step Settings */}
+              {showStepSettings && (
+                <div className="p-4 bg-white bg-opacity-95 rounded-lg border border-orange-200 space-y-4">
+                  <h5 className="text-sm font-semibold text-gray-800 mb-3">Rozšířená nastavení</h5>
+                  
+                  {/* Step Type */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Typ kroku:
+                    </label>
+                    <select
+                      value={stepType}
+                      onChange={(e) => {
+                        setStepType(e.target.value as 'update' | 'revision' | 'custom')
+                        if (e.target.value !== 'custom') {
+                          setStepCustomTypeName('')
+                        }
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    >
+                      <option value="update">Update</option>
+                      <option value="revision">Revize</option>
+                      <option value="custom">Vlastní</option>
+                    </select>
+                  </div>
+                  
+                  {/* Custom Type Name */}
+                  {stepType === 'custom' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Název vlastního typu:
+                      </label>
+                      <input
+                        type="text"
+                        value={stepCustomTypeName}
+                        onChange={(e) => setStepCustomTypeName(e.target.value)}
+                        placeholder="Např. Kontrola, Schůzka..."
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Deadline */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Termín (deadline):
+                    </label>
+                    <input
+                      type="date"
+                      value={stepDeadline}
+                      onChange={(e) => setStepDeadline(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    />
+                  </div>
+                  
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      onClick={() => {
+                        handleSaveStep()
+                        setShowStepSettings(false)
+                      }}
+                      className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                    >
+                      Uložit
+                    </button>
+                    <button
+                      onClick={() => setShowStepSettings(false)}
+                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                    >
+                      Zrušit
+                    </button>
+                  </div>
+                </div>
+              )}
+              </div>
             </div>
           </div>
         )
 
       case 'habit':
         return (
-          <div className="w-full h-full flex flex-col justify-center items-center p-4">
-            <div className="w-full max-w-3xl">
+          <div className="w-full h-full flex flex-col">
+            {/* Back Button */}
+            <div className="px-4 pt-4 pb-2 flex-shrink-0">
+              <button
+                onClick={handleCloseDetail}
+                className="flex items-center gap-2 text-gray-600 hover:text-orange-600 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span className="font-medium">Zpět na denní přehled</span>
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto px-4 pb-4">
+              <div className="w-full max-w-3xl mx-auto">
               <div className="space-y-4">
                 {/* Header */}
                 <div className="text-center">
@@ -1208,7 +1437,32 @@ export function JourneyGameView({
                   })()}
                 </div>
 
-                {/* Monthly Calendar */}
+                {/* Tabs */}
+                <div className="flex gap-2 border-b-2 border-orange-200">
+                  <button
+                    onClick={() => setHabitDetailTab('calendar')}
+                    className={`px-4 py-2 font-medium transition-colors ${
+                      habitDetailTab === 'calendar'
+                        ? 'text-orange-600 border-b-2 border-orange-600 -mb-[2px]'
+                        : 'text-gray-600 hover:text-orange-600'
+                    }`}
+                  >
+                    📅 Kalendář
+                  </button>
+                  <button
+                    onClick={() => setHabitDetailTab('settings')}
+                    className={`px-4 py-2 font-medium transition-colors ${
+                      habitDetailTab === 'settings'
+                        ? 'text-orange-600 border-b-2 border-orange-600 -mb-[2px]'
+                        : 'text-gray-600 hover:text-orange-600'
+                    }`}
+                  >
+                    ⚙️ Nastavení
+                  </button>
+                </div>
+
+                {/* Calendar Tab */}
+                {habitDetailTab === 'calendar' && (
                 <div className="p-3 rounded-xl" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
                   {/* Month Navigation */}
                   <div className="flex items-center justify-between mb-4">
@@ -1388,207 +1642,315 @@ export function JourneyGameView({
                     </div>
                   </div>
                 </div>
+                )}
 
+                {/* Settings Tab */}
+                {habitDetailTab === 'settings' && (
+                  <div className="p-4 bg-white bg-opacity-95 rounded-lg border border-orange-200 space-y-4">
+                    <h5 className="text-lg font-semibold text-gray-800 mb-4">Nastavení návyku</h5>
+                    
+                    {/* Name */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Název:
+                      </label>
+                  <input
+                    type="text"
+                        value={editingHabitName || item.name}
+                        onChange={(e) => setEditingHabitName(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      />
+              </div>
+
+              {/* Description */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Popis:
+                      </label>
+              <textarea
+                        value={editingHabitDescription || item.description || ''}
+                        onChange={(e) => setEditingHabitDescription(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none"
+                rows={3}
+              />
+              </div>
+
+                    {/* Frequency */}
+                    <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Frekvence:
+                  </label>
+                    <select
+                        value={editingHabitFrequency || item.frequency || 'daily'}
+                        onChange={(e) => setEditingHabitFrequency(e.target.value as 'daily' | 'weekly' | 'monthly' | 'custom')}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      >
+                        <option value="daily">Denně</option>
+                        <option value="weekly">Týdně</option>
+                        <option value="monthly">Měsíčně</option>
+                        <option value="custom">Vlastní</option>
+                    </select>
+                    </div>
+                    
+                    {/* Selected Days */}
+                    {(editingHabitFrequency === 'weekly' || item.frequency === 'weekly') && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Dny v týdnu:
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => {
+                            const dayLabels: { [key: string]: string } = {
+                              monday: 'Po',
+                              tuesday: 'Út',
+                              wednesday: 'St',
+                              thursday: 'Čt',
+                              friday: 'Pá',
+                              saturday: 'So',
+                              sunday: 'Ne'
+                            }
+                            const currentDays = editingHabitSelectedDays.length > 0 ? editingHabitSelectedDays : (item.selected_days || [])
+                            const isSelected = currentDays.includes(day)
+                            return (
+                    <button
+                                key={day}
+                      onClick={() => {
+                                  const newDays = isSelected
+                                    ? currentDays.filter(d => d !== day)
+                                    : [...currentDays, day]
+                                  setEditingHabitSelectedDays(newDays)
+                                }}
+                                className={`px-3 py-1 rounded-lg font-medium transition-colors ${
+                                  isSelected
+                                    ? 'bg-orange-500 text-white'
+                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                }`}
+                              >
+                                {dayLabels[day]}
+                    </button>
+                            )
+                          })}
+                  </div>
+                </div>
+              )}
+
+                    {/* Always Show */}
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={editingHabitAlwaysShow !== undefined ? editingHabitAlwaysShow : (item.always_show || false)}
+                        onChange={(e) => setEditingHabitAlwaysShow(e.target.checked)}
+                        className="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                      />
+                      <label className="text-sm font-medium text-gray-700">
+                        Zobrazovat vždy (i když není naplánováno)
+                      </label>
+                    </div>
+                    
+                    {/* XP Reward */}
+                    <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                        XP odměna:
+                  </label>
+                      <input
+                        type="number"
+                        value={editingHabitXpReward || item.xp_reward || 0}
+                        onChange={(e) => setEditingHabitXpReward(parseInt(e.target.value) || 0)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        min="0"
+                      />
+                    </div>
+                    
+                    {/* Category */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Kategorie:
+                      </label>
+                      <input
+                        type="text"
+                        value={editingHabitCategory || item.category || ''}
+                        onChange={(e) => setEditingHabitCategory(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        placeholder="Např. Zdraví, Vzdělání..."
+                      />
+                    </div>
+                    
+                    {/* Difficulty */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Obtížnost:
+                      </label>
+                    <select
+                        value={editingHabitDifficulty || item.difficulty || 'medium'}
+                        onChange={(e) => setEditingHabitDifficulty(e.target.value as 'easy' | 'medium' | 'hard')}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      >
+                        <option value="easy">Snadná</option>
+                        <option value="medium">Střední</option>
+                        <option value="hard">Těžká</option>
+                    </select>
+                  </div>
+
+                    {/* Reminder Time */}
+                    <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Čas připomínky (volitelné):
+                  </label>
+                    <input
+                        type="time"
+                        value={editingHabitReminderTime || (item.reminder_time || '')}
+                        onChange={(e) => setEditingHabitReminderTime(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      />
+                    </div>
+                    
+                    <div className="flex gap-2 pt-2">
+                    <button
+                        onClick={async () => {
+                          try {
+                            const response = await fetch('/api/habits', {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                habitId: item.id,
+                                name: editingHabitName || item.name,
+                                description: editingHabitDescription !== undefined ? editingHabitDescription : item.description,
+                                frequency: editingHabitFrequency || item.frequency,
+                                selectedDays: editingHabitSelectedDays.length > 0 ? editingHabitSelectedDays : item.selected_days,
+                                alwaysShow: editingHabitAlwaysShow !== undefined ? editingHabitAlwaysShow : item.always_show,
+                                xpReward: editingHabitXpReward || item.xp_reward,
+                                category: editingHabitCategory || item.category,
+                                difficulty: editingHabitDifficulty || item.difficulty,
+                                reminderTime: editingHabitReminderTime || item.reminder_time
+                              })
+                            })
+                            if (response.ok) {
+                              const updatedHabit = await response.json()
+                              if (onHabitsUpdate) {
+                                onHabitsUpdate(habits.map(h => h.id === updatedHabit.id ? updatedHabit : h))
+                              }
+                              // Update selectedItem
+                              setSelectedItem(updatedHabit)
+                              alert('Návyk byl úspěšně aktualizován')
+                            }
+                          } catch (error) {
+                            console.error('Error updating habit:', error)
+                            alert('Chyba při aktualizaci návyku')
+                          }
+                      }}
+                      className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                    >
+                        Uložit změny
+                    </button>
+                    </div>
+                  </div>
+                )}
+
+                </div>
               </div>
             </div>
           </div>
         )
 
       case 'goal':
+        // Create a goal object that matches GoalEditingForm's expected format
+        const goalForEditing = {
+          ...item,
+          areaId: item.area_id || item.areaId || ''
+        }
+        
+        const handleUpdateGoalForDetail = async (goalId: string, updates: any) => {
+          if (!updates.title || !updates.title.trim()) {
+            alert('Název cíle je povinný')
+            return
+          }
+
+          try {
+            console.log('Updating goal from detail view:', goalId, updates)
+            
+            const response = await fetch('/api/goals', {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                goalId,
+                ...updates
+              }),
+            })
+
+            if (response.ok) {
+              const updatedGoal = await response.json()
+              // Update goals in parent component
+              if (onGoalsUpdate) {
+                const updatedGoals = goals.map(g => g.id === goalId ? updatedGoal : g)
+                onGoalsUpdate(updatedGoals)
+              }
+              // Update selectedItem to reflect changes
+              setSelectedItem(updatedGoal)
+            } else {
+              console.error('Failed to update goal')
+              alert('Nepodařilo se aktualizovat cíl')
+            }
+          } catch (error) {
+            console.error('Error updating goal:', error)
+            alert('Chyba při aktualizaci cíle')
+          }
+        }
+
+        const handleDeleteGoalForDetail = async (goalId: string) => {
+          if (!confirm('Opravdu chcete smazat tento cíl? Tato akce je nevratná.')) {
+            return
+          }
+
+          try {
+            const response = await fetch('/api/goals', {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ goalId }),
+            })
+
+            if (response.ok) {
+              // Update goals in parent component
+              if (onGoalsUpdate) {
+                onGoalsUpdate(goals.filter(goal => goal.id !== goalId))
+              }
+              // Close detail view
+              handleCloseDetail()
+            } else {
+              console.error('Failed to delete goal')
+              alert('Nepodařilo se smazat cíl')
+            }
+          } catch (error) {
+            console.error('Error deleting goal:', error)
+            alert('Chyba při mazání cíle')
+          }
+        }
+
         return (
-          <div className="w-full h-full flex flex-col justify-between p-8">
-            <div className="w-full max-w-2xl space-y-6 mx-auto">
-              {/* Title with edit button */}
-              <div className="flex items-start gap-3">
-                {editingGoalTitle ? (
-                  <input
-                    type="text"
-                    value={goalTitle}
-                    onChange={(e) => setGoalTitle(e.target.value)}
-                    onBlur={() => handleSaveGoal()}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleSaveGoal()
-                      }
-                      if (e.key === 'Escape') {
-                        setEditingGoalTitle(false)
-                        setGoalTitle(selectedItem?.title || '')
-                      }
-                    }}
-                    className="flex-1 text-2xl font-bold text-orange-900 border-b-2 border-orange-500 focus:outline-none bg-transparent"
-                    autoFocus
-                  />
-                ) : (
-                  <>
-                    <h4 className="text-2xl font-bold text-orange-900 flex-1">{goalTitle}</h4>
+          <div className="w-full h-full flex flex-col">
+            {/* Back Button - positioned higher */}
+            <div className="px-6 pt-4 pb-2 flex-shrink-0">
                     <button
-                      onClick={() => setEditingGoalTitle(true)}
-                      className="text-gray-400 hover:text-orange-600 transition-colors"
-                      title="Upravit název"
+                onClick={handleCloseDetail}
+                className="flex items-center gap-2 text-gray-600 hover:text-orange-600 transition-colors"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span className="font-medium">Zpět na denní přehled</span>
                     </button>
-                  </>
-                )}
-              </div>
-
-              {/* Description */}
-              <textarea
-                value={goalDescription}
-                onChange={(e) => setGoalDescription(e.target.value)}
-                onBlur={handleSaveGoal}
-                placeholder="Popis cíle..."
-                className="w-full px-4 py-3 text-orange-800 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white bg-opacity-50 resize-none"
-                rows={3}
+                  </div>
+            
+            {/* Goal Editing Form - without max-height constraint */}
+            <div className="flex-1 overflow-hidden px-6 pb-6">
+              <GoalEditingForm
+                goal={goalForEditing}
+                onUpdate={handleUpdateGoalForDetail}
+                onCancel={handleCloseDetail}
+                onDelete={handleDeleteGoalForDetail}
+                areas={areas}
               />
-
-              {/* Info tags */}
-              <div className="flex flex-wrap gap-3">
-                <button
-                  onClick={() => {
-                    setShowGoalStatusEditor(false)
-                    setShowGoalDatePicker(false)
-                    setShowGoalAreaEditor(!showGoalAreaEditor)
-                  }}
-                  className={`text-sm px-4 py-2 rounded-full font-medium transition-colors ${
-                    areas.find(a => a.id === goalAreaId)?.name
-                      ? 'bg-purple-200 bg-opacity-80 text-purple-800 hover:bg-purple-300' 
-                      : 'bg-gray-200 bg-opacity-80 text-gray-600 hover:bg-gray-300'
-                  }`}
-                >
-                  📍 {areas.find(a => a.id === goalAreaId)?.name || 'Vybrat oblast'}
-                </button>
-                
-                <button
-                  onClick={() => {
-                    setShowGoalAreaEditor(false)
-                    setShowGoalDatePicker(false)
-                    setShowGoalStatusEditor(!showGoalStatusEditor)
-                  }}
-                  className={`text-sm px-4 py-2 rounded-full font-medium transition-colors ${
-                    goalStatus === 'active' ? 'bg-green-200 text-green-800 hover:bg-green-300' :
-                    goalStatus === 'completed' ? 'bg-blue-200 text-blue-800 hover:bg-blue-300' :
-                    'bg-yellow-200 text-yellow-800 hover:bg-yellow-300'
-                  }`}
-                >
-                  {goalStatus === 'active' ? '✓ Aktivní' : 
-                   goalStatus === 'completed' ? '✓ Splněný' : '✓ Ke zvážení'}
-                </button>
-                <button
-                  onClick={() => {
-                    setShowGoalAreaEditor(false)
-                    setShowGoalStatusEditor(false)
-                    setShowGoalDatePicker(!showGoalDatePicker)
-                  }}
-                  className="text-sm px-4 py-2 bg-gray-200 bg-opacity-80 text-gray-800 rounded-full font-medium hover:bg-gray-300 transition-colors"
-                >
-                  📅 {goalDate ? new Date(goalDate).toLocaleDateString('cs-CZ') : 'Bez data'}
-                </button>
-              </div>
-
-              {/* Area editor */}
-              {showGoalAreaEditor && (
-                <div className="p-4 bg-white bg-opacity-95 rounded-lg border border-orange-200">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Oblast:
-                  </label>
-                  <div className="flex gap-2">
-                    <select
-                      value={goalAreaId}
-                      onChange={(e) => setGoalAreaId(e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    >
-                      {areas.map(area => (
-                        <option key={area.id} value={area.id}>{area.name}</option>
-                      ))}
-                    </select>
-                    <button
-                      onClick={() => {
-                        handleSaveGoal()
-                        setShowGoalAreaEditor(false)
-                      }}
-                      className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                    >
-                      Potvrdit
-                    </button>
-                    <button
-                      onClick={() => setShowGoalAreaEditor(false)}
-                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                    >
-                      Zrušit
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Status editor */}
-              {showGoalStatusEditor && (
-                <div className="p-4 bg-white bg-opacity-95 rounded-lg border border-orange-200">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status:
-                  </label>
-                  <div className="flex gap-2">
-                    <select
-                      value={goalStatus}
-                      onChange={(e) => setGoalStatus(e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    >
-                      <option value="active">Aktivní</option>
-                      <option value="completed">Splněný</option>
-                      <option value="considering">Ke zvážení</option>
-                    </select>
-                    <button
-                      onClick={() => {
-                        handleSaveGoal()
-                        setShowGoalStatusEditor(false)
-                      }}
-                      className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                    >
-                      Potvrdit
-                    </button>
-                    <button
-                      onClick={() => setShowGoalStatusEditor(false)}
-                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                    >
-                      Zrušit
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Date picker */}
-              {showGoalDatePicker && (
-                <div className="p-4 bg-white bg-opacity-95 rounded-lg border border-orange-200">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Cílové datum:
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="date"
-                      value={goalDate || ''}
-                      onChange={(e) => setGoalDate(e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    />
-                    <button
-                      onClick={() => {
-                        handleSaveGoal()
-                        setShowGoalDatePicker(false)
-                      }}
-                      className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                    >
-                      Potvrdit
-                    </button>
-                    <button
-                      onClick={() => setShowGoalDatePicker(false)}
-                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                    >
-                      Zrušit
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         )
@@ -2016,6 +2378,7 @@ export function JourneyGameView({
     const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
     const dayName = dayNames[dayOfWeek]
     
+    // Filter habits for display - includes always_show habits even if not scheduled
     const todaysHabits = habits.filter(habit => {
       // Always show if always_show is true
       if (habit.always_show) return true
@@ -2024,6 +2387,17 @@ export function JourneyGameView({
       if (habit.frequency === 'daily') return true
       if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
       
+      return false
+    })
+    
+    // Filter habits for progress calculation - only habits actually scheduled for this day
+    // Always_show habits are only counted if they are also scheduled for this day
+    const habitsForProgress = habits.filter(habit => {
+      // Check if scheduled for selected day
+      if (habit.frequency === 'daily') return true
+      if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
+      
+      // Always_show habits are NOT counted unless they are also scheduled for this day
       return false
     })
     
@@ -2059,10 +2433,10 @@ export function JourneyGameView({
       return stepDate === displayDateStr && step.completed
     }).length
     
-    // Count all habits (including always_show) for total tasks
-    // But only count completed habits (including always_show if they are completed)
-    const totalHabits = todaysHabits.length
-    const completedHabits = todaysHabits.filter(habit => {
+    // Count only habits scheduled for this day (not always_show habits that aren't scheduled)
+    // Always_show habits are only counted if they are also scheduled for this day
+    const totalHabits = habitsForProgress.length
+    const completedHabits = habitsForProgress.filter(habit => {
       return habit.habit_completions && habit.habit_completions[displayDateStr] === true
     }).length
     
@@ -2147,6 +2521,31 @@ export function JourneyGameView({
               {completedTasks}/{totalTasks}
             </div>
           </div>
+          
+          {/* Milestones Row */}
+          {goalsWithMilestones.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-2 px-2">
+                {goalsWithMilestones.map(({ goal, nextMilestone }) => (
+                  <div
+                    key={goal.id}
+                    onClick={() => handleItemClick(goal, 'goal')}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all cursor-pointer flex-shrink-0 bg-white"
+                  >
+                    {goal.icon && (
+                      <span className="text-base flex-shrink-0">{getIconEmoji(goal.icon)}</span>
+                    )}
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-xs font-medium text-gray-700 truncate max-w-[120px]">{goal.title}</span>
+                      <span className="text-gray-400">•</span>
+                      <Target className="w-3.5 h-3.5 text-orange-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-600 truncate max-w-[100px]">{nextMilestone?.title}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         
         {/* Two Column Layout - Habits and Steps */}
@@ -4579,42 +4978,42 @@ export function JourneyGameView({
 
     return (
       <div 
-        className="editing-form bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border border-gray-200 shadow-lg max-h-[85vh] overflow-y-auto"
+        className="editing-form bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border border-gray-200 shadow-lg h-full flex flex-col"
         onMouseDown={(e) => e.stopPropagation()}
         onMouseMove={(e) => e.stopPropagation()}
         onMouseUp={(e) => e.stopPropagation()}
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 min-h-0">
           {/* Left Column - Text Fields */}
-          <div className="space-y-4">
-            <div>
+        <div className="space-y-4 flex flex-col">
+          <div>
               <label className="block text-sm font-semibold text-gray-800 mb-2">
                 Název cíle <span className="text-orange-500">*</span>
               </label>
-              <input
-                type="text"
-                value={formData.title}
-                onChange={(e) => setFormData({...formData, title: e.target.value})}
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) => setFormData({...formData, title: e.target.value})}
                 className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white shadow-sm hover:shadow-md"
                 placeholder="Např. Ušetřit na nový dům"
-              />
-            </div>
-            
-            <div>
+            />
+          </div>
+          
+          <div>
               <label className="block text-sm font-semibold text-gray-800 mb-2">
                 Popis cíle
               </label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
+            <textarea
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
                 className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white shadow-sm hover:shadow-md resize-none"
                 rows={4}
                 placeholder="Popište svůj cíl podrobněji..."
-              />
-            </div>
-            
+            />
+          </div>
+          
             {/* Compact Icon-based Controls */}
-            <div>
+          <div>
               <label className="block text-sm font-semibold text-gray-800 mb-2">
                 Nastavení
               </label>
@@ -4658,9 +5057,9 @@ export function JourneyGameView({
                           left: `${datePickerPosition.left}px`
                         }}
                       >
-                        <input
-                          type="date"
-                          value={formData.target_date}
+            <input
+              type="date"
+              value={formData.target_date}
                           onChange={(e) => {
                             setFormData({...formData, target_date: e.target.value})
                             setShowGoalDatePicker(false)
@@ -4671,8 +5070,8 @@ export function JourneyGameView({
                       </div>
                     </>
                   )}
-                </div>
-                
+          </div>
+          
                 {/* Area Picker Icon */}
                 <div className="relative">
                   <button
@@ -4723,7 +5122,7 @@ export function JourneyGameView({
                         >
                           Žádná oblast
                         </button>
-                        {areas.map((area: any) => (
+              {areas.map((area: any) => (
                           <button
                             key={area.id}
                             type="button"
@@ -4735,7 +5134,7 @@ export function JourneyGameView({
                               formData.areaId === area.id ? 'bg-orange-50 text-orange-700 font-semibold' : 'text-gray-700'
                             }`}
                           >
-                            {area.name}
+                  {area.name}
                           </button>
                         ))}
                         {areas.length === 0 && (
@@ -4746,8 +5145,8 @@ export function JourneyGameView({
                       </div>
                     </>
                   )}
-                </div>
-                
+          </div>
+          
                 {/* Status Picker Icon */}
                 <div className="relative">
                   <button
@@ -4819,10 +5218,10 @@ export function JourneyGameView({
           </div>
           
           {/* Right Column - Steps and Milestones */}
-          <div className="space-y-5">
+          <div className="space-y-5 flex flex-col min-h-0">
             {/* Steps Section */}
-            <div className="bg-white rounded-xl p-4 border-2 border-gray-100 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
+            <div className="bg-white rounded-xl p-4 border-2 border-gray-100 shadow-sm flex flex-col flex-1 min-h-0">
+              <div className="flex items-center justify-between mb-3 flex-shrink-0">
                 <label className="block text-sm font-semibold text-gray-800">Kroky</label>
                 <button
                   type="button"
@@ -4841,14 +5240,14 @@ export function JourneyGameView({
                 </button>
               </div>
               {formData.steps.length === 0 ? (
-                <div className="text-center py-6 text-gray-400">
+                <div className="text-center py-6 text-gray-400 flex-shrink-0">
                   <svg className="w-8 h-8 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                   <p className="text-xs">Žádné kroky</p>
                 </div>
               ) : (
-                <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                <div className="space-y-2 flex-1 overflow-y-auto pr-1 min-h-0">
                   {formData.steps.map((step, index) => {
                     const isEditingStep = step.isEditing
                     
@@ -4999,8 +5398,8 @@ export function JourneyGameView({
             </div>
 
             {/* Milestones Section */}
-            <div className="bg-white rounded-xl p-4 border-2 border-gray-100 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
+            <div className="bg-white rounded-xl p-4 border-2 border-gray-100 shadow-sm flex flex-col flex-1 min-h-0">
+              <div className="flex items-center justify-between mb-3 flex-shrink-0">
                 <label className="block text-sm font-semibold text-gray-800">Milníky</label>
                 <button
                   type="button"
@@ -5019,12 +5418,12 @@ export function JourneyGameView({
                 </button>
               </div>
               {formData.milestones.length === 0 ? (
-                <div className="text-center py-6 text-gray-400">
+                <div className="text-center py-6 text-gray-400 flex-shrink-0">
                   <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
                   <p className="text-xs">Žádné milníky</p>
                 </div>
               ) : (
-                <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                <div className="space-y-2 flex-1 overflow-y-auto pr-1 min-h-0">
                   {formData.milestones.map((milestone, index) => {
                     const isEditingMilestone = milestone.isEditing
                     
@@ -5161,29 +5560,29 @@ export function JourneyGameView({
           </div>
         </div>
         
-        <div className="flex gap-3 mt-6 pt-6 border-t-2 border-gray-200 sticky bottom-0 bg-gradient-to-br from-white to-gray-50">
-          <button
-            onClick={handleSubmit}
+        <div className="flex gap-3 mt-6 pt-6 border-t-2 border-gray-200 flex-shrink-0 bg-gradient-to-br from-white to-gray-50">
+            <button
+              onClick={handleSubmit}
             className="flex-1 px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-semibold rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            title="Uložit změny"
-          >
+              title="Uložit změny"
+            >
             Uložit změny
-          </button>
-          <button
-            onClick={onCancel}
+            </button>
+            <button
+              onClick={onCancel}
             className="px-6 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-200 transition-all"
-            title="Zrušit"
-          >
+              title="Zrušit"
+            >
             Zrušit
-          </button>
-          <button
-            onClick={() => onDelete(goal.id)}
+            </button>
+            <button
+              onClick={() => onDelete(goal.id)}
             className="px-6 py-3 bg-red-500 text-white text-sm font-medium rounded-xl hover:bg-red-600 transition-all"
-            title="Smazat cíl"
-          >
+              title="Smazat cíl"
+            >
             <Trash2 className="w-4 h-4 inline mr-1" />
             Smazat
-          </button>
+            </button>
         </div>
       </div>
     )

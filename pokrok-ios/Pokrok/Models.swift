@@ -194,6 +194,47 @@ struct DailyPlanningResponse: Codable {
     let planning: DailyPlanning
 }
 
+// MARK: - Habit Model
+struct Habit: Codable, Identifiable {
+    let id: String
+    let userId: String
+    let name: String
+    let description: String?
+    let frequency: String // 'daily' | 'weekly' | 'monthly' | 'custom'
+    let streak: Int
+    let maxStreak: Int
+    let category: String?
+    let difficulty: String? // 'easy' | 'medium' | 'hard'
+    let isCustom: Bool
+    let reminderTime: String?
+    let selectedDays: [String]?
+    let habitCompletions: [String: Bool]?
+    let alwaysShow: Bool
+    let xpReward: Int
+    let createdAt: Date?
+    let updatedAt: Date?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case name
+        case description
+        case frequency
+        case streak
+        case maxStreak = "max_streak"
+        case category
+        case difficulty
+        case isCustom = "is_custom"
+        case reminderTime = "reminder_time"
+        case selectedDays = "selected_days"
+        case habitCompletions = "habit_completions"
+        case alwaysShow = "always_show"
+        case xpReward = "xp_reward"
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+}
+
 // MARK: - API Errors
 
 enum APIError: Error, LocalizedError {

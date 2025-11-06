@@ -22,7 +22,18 @@ class APIManager: ObservableObject {
     // MARK: - Goals API
     
     func fetchGoals() async throws -> [Goal] {
-        guard let url = URL(string: "\(baseURL)/cesta/goals") else {
+        // First, get userId from user endpoint
+        let user = try await fetchUser()
+        
+        guard var urlComponents = URLComponents(string: "\(baseURL)/goals") else {
+            throw APIError.invalidURL
+        }
+        
+        urlComponents.queryItems = [
+            URLQueryItem(name: "userId", value: user.id)
+        ]
+        
+        guard let url = urlComponents.url else {
             throw APIError.invalidURL
         }
         
@@ -42,27 +53,21 @@ class APIManager: ObservableObject {
         }
         
         guard httpResponse.statusCode == 200 else {
-            print("❌ API request failed with status: \(httpResponse.statusCode)")
-            if let errorData = String(data: data, encoding: .utf8) {
-                print("❌ Error response: \(errorData)")
-            }
             throw APIError.requestFailed
         }
         
-        // Debug: Print raw response
-        if let responseString = String(data: data, encoding: .utf8) {
-            print("✅ Raw API response: \(responseString)")
-        }
-        
-        // Parse response - API returns { goals: [...] }
+        // Parse response - API returns array directly, not wrapped
         let decoder = createJSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        let goalsResponse = try decoder.decode(GoalsResponse.self, from: data)
-        return goalsResponse.goals
+        let goals = try decoder.decode([Goal].self, from: data)
+        return goals
     }
     
     func createGoal(_ goal: CreateGoalRequest) async throws -> Goal {
-        guard let url = URL(string: "\(baseURL)/cesta/goals") else {
+        // First, get userId from user endpoint
+        let user = try await fetchUser()
+        
+        guard let url = URL(string: "\(baseURL)/goals") else {
             throw APIError.invalidURL
         }
         
@@ -75,15 +80,27 @@ class APIManager: ObservableObject {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        let jsonData = try encoder.encode(goal)
-        request.httpBody = jsonData
+        // Create request body with userId
+        var requestBody: [String: Any] = [
+            "userId": user.id,
+            "title": goal.title,
+            "priority": goal.priority
+        ]
         
-        // Debugging: Print request body
-        if let requestBody = String(data: jsonData, encoding: .utf8) {
-            print("✅ Request body for create goal: \(requestBody)")
+        if let description = goal.description {
+            requestBody["description"] = description
         }
+        
+        if let targetDate = goal.targetDate {
+            requestBody["targetDate"] = ISO8601DateFormatter().string(from: targetDate)
+        }
+        
+        if let icon = goal.icon {
+            requestBody["icon"] = icon
+        }
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+        request.httpBody = jsonData
         
         let (data, response) = try await URLSession.shared.data(for: request)
         
@@ -91,33 +108,32 @@ class APIManager: ObservableObject {
             throw APIError.requestFailed
         }
         
-        print("✅ API response status for create goal: \(httpResponse.statusCode)")
-        
-        guard httpResponse.statusCode == 200 else {
-            print("❌ API request failed with status: \(httpResponse.statusCode)")
-            if let errorData = String(data: data, encoding: .utf8) {
-                print("❌ Error response: \(errorData)")
-            }
+        guard httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
             throw APIError.requestFailed
         }
         
-        // Debugging: Print raw API response
-        if let rawResponse = String(data: data, encoding: .utf8) {
-            print("✅ Raw API response for create goal: \(rawResponse)")
-        }
-        
-        // Parse response - API returns { goal: ... }
+        // Parse response - API returns goal directly, not wrapped
         let decoder = createJSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        let goalResponse = try decoder.decode(GoalResponse.self, from: data)
-        return goalResponse.goal
+        let createdGoal = try decoder.decode(Goal.self, from: data)
+        return createdGoal
     }
     
     // MARK: - Steps API
     
     func fetchSteps() async throws -> [DailyStep] {
-        print("🔍 Main App: fetchSteps called")
-        guard let url = URL(string: "\(baseURL)/cesta/daily-steps") else {
+        // First, get userId from user endpoint
+        let user = try await fetchUser()
+        
+        guard var urlComponents = URLComponents(string: "\(baseURL)/daily-steps") else {
+            throw APIError.invalidURL
+        }
+        
+        urlComponents.queryItems = [
+            URLQueryItem(name: "userId", value: user.id)
+        ]
+        
+        guard let url = urlComponents.url else {
             throw APIError.invalidURL
         }
         
@@ -128,9 +144,6 @@ class APIManager: ObservableObject {
         // Add Clerk token if available
         if let token = await getClerkToken() {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            print("🔍 Main App: Using auth token for API call")
-        } else {
-            print("🔍 Main App: No auth token available")
         }
         
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -140,27 +153,68 @@ class APIManager: ObservableObject {
         }
         
         guard httpResponse.statusCode == 200 else {
-            print("❌ API request failed with status: \(httpResponse.statusCode)")
-            if let errorData = String(data: data, encoding: .utf8) {
-                print("❌ Error response: \(errorData)")
-            }
             throw APIError.requestFailed
         }
         
-        // Debug: Print raw response
-        if let responseString = String(data: data, encoding: .utf8) {
-            print("✅ Raw API response: \(responseString)")
-        }
-        
-        // Parse response - API returns { steps: [...] }
+        // Parse response - API returns array directly, not wrapped
         let decoder = createJSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        let stepsResponse = try decoder.decode(StepsResponse.self, from: data)
-        return stepsResponse.steps
+        let steps = try decoder.decode([DailyStep].self, from: data)
+        return steps
+    }
+    
+    func fetchStepsForDate(date: Date) async throws -> [DailyStep] {
+        // First, get userId from user endpoint
+        let user = try await fetchUser()
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let dateString = formatter.string(from: date)
+        
+        guard var urlComponents = URLComponents(string: "\(baseURL)/daily-steps") else {
+            throw APIError.invalidURL
+        }
+        
+        urlComponents.queryItems = [
+            URLQueryItem(name: "userId", value: user.id),
+            URLQueryItem(name: "date", value: dateString)
+        ]
+        
+        guard let url = urlComponents.url else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add Clerk token if available
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.requestFailed
+        }
+        
+        // Parse response - API returns array directly, not wrapped
+        let decoder = createJSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let steps = try decoder.decode([DailyStep].self, from: data)
+        return steps
     }
     
     func createStep(_ step: CreateStepRequest) async throws -> DailyStep {
-        guard let url = URL(string: "\(baseURL)/cesta/daily-steps") else {
+        // First, get userId from user endpoint
+        let user = try await fetchUser()
+        
+        guard let url = URL(string: "\(baseURL)/daily-steps") else {
             throw APIError.invalidURL
         }
         
@@ -173,15 +227,23 @@ class APIManager: ObservableObject {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        let jsonData = try encoder.encode(step)
-        request.httpBody = jsonData
+        // Create request body with userId
+        var requestBody: [String: Any] = [
+            "userId": user.id,
+            "title": step.title,
+            "date": ISO8601DateFormatter().string(from: step.date)
+        ]
         
-        // Debugging: Print request body
-        if let requestBody = String(data: jsonData, encoding: .utf8) {
-            print("✅ Request body for create step: \(requestBody)")
+        if let description = step.description {
+            requestBody["description"] = description
         }
+        
+        if let goalId = step.goalId {
+            requestBody["goalId"] = goalId
+        }
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+        request.httpBody = jsonData
         
         let (data, response) = try await URLSession.shared.data(for: request)
         
@@ -189,35 +251,24 @@ class APIManager: ObservableObject {
             throw APIError.requestFailed
         }
         
-        print("✅ API response status for create step: \(httpResponse.statusCode)")
-        
-        guard httpResponse.statusCode == 200 else {
-            print("❌ API request failed with status: \(httpResponse.statusCode)")
-            if let errorData = String(data: data, encoding: .utf8) {
-                print("❌ Error response: \(errorData)")
-            }
+        guard httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
             throw APIError.requestFailed
         }
         
-        // Debugging: Print raw API response
-        if let rawResponse = String(data: data, encoding: .utf8) {
-            print("✅ Raw API response for create step: \(rawResponse)")
-        }
-        
-        // Parse response - API returns { step: ... }
+        // Parse response - API returns step directly, not wrapped
         let decoder = createJSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        let stepResponse = try decoder.decode(StepResponse.self, from: data)
-        return stepResponse.step
+        let createdStep = try decoder.decode(DailyStep.self, from: data)
+        return createdStep
     }
     
     func updateStepCompletion(stepId: String, completed: Bool, currentStep: DailyStep) async throws -> DailyStep {
-        guard let url = URL(string: "\(baseURL)/cesta/daily-steps/\(stepId)/toggle") else {
+        guard let url = URL(string: "\(baseURL)/daily-steps") else {
             throw APIError.invalidURL
         }
         
         var request = URLRequest(url: url)
-        request.httpMethod = "PATCH"
+        request.httpMethod = "PUT"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         // Add Clerk token if available
@@ -225,51 +276,53 @@ class APIManager: ObservableObject {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         
-        // Send only the completed status - the backend will toggle it
+        // Send stepId and completed status
         let updateData: [String: Any] = [
+            "stepId": stepId,
             "completed": completed
         ]
         
         let jsonData = try JSONSerialization.data(withJSONObject: updateData)
         request.httpBody = jsonData
         
-        // Debug: Print request body
-        if let requestBody = String(data: jsonData, encoding: .utf8) {
-            print("✅ Request body for toggle step completion: \(requestBody)")
-        }
-        
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIError.requestFailed
         }
         
-        print("✅ API response status for toggle step completion: \(httpResponse.statusCode)")
-        
         guard httpResponse.statusCode == 200 else {
-            print("❌ API request failed with status: \(httpResponse.statusCode)")
-            if let errorData = String(data: data, encoding: .utf8) {
-                print("❌ Error response: \(errorData)")
-            }
             throw APIError.requestFailed
         }
         
-        // Debug: Print raw response
-        if let rawResponse = String(data: data, encoding: .utf8) {
-            print("✅ Raw API response for toggle step completion: \(rawResponse)")
-        }
-        
-        // Parse response - API returns { step: ... }
+        // Parse response - API returns step directly, not wrapped
         let decoder = createJSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        let stepResponse = try decoder.decode(StepResponse.self, from: data)
-        return stepResponse.step
+        let updatedStep = try decoder.decode(DailyStep.self, from: data)
+        return updatedStep
     }
     
     // MARK: - User API
     
     func fetchUser() async throws -> User {
-        guard let url = URL(string: "\(baseURL)/cesta/user") else {
+        // Get Clerk user ID from session
+        guard let session = await MainActor.run(body: { Clerk.shared.session }) else {
+            throw APIError.requestFailed
+        }
+        
+        guard let clerkUserId = session.user?.id else {
+            throw APIError.requestFailed
+        }
+        
+        guard var urlComponents = URLComponents(string: "\(baseURL)/user") else {
+            throw APIError.invalidURL
+        }
+        
+        urlComponents.queryItems = [
+            URLQueryItem(name: "clerkId", value: clerkUserId)
+        ]
+        
+        guard let url = urlComponents.url else {
             throw APIError.invalidURL
         }
         
@@ -289,15 +342,156 @@ class APIManager: ObservableObject {
         }
         
         guard httpResponse.statusCode == 200 else {
-            print("❌ API request failed with status: \(httpResponse.statusCode)")
-            if let errorData = String(data: data, encoding: .utf8) {
-                print("❌ Error response: \(errorData)")
-            }
             throw APIError.requestFailed
         }
         
         let user = try createJSONDecoder().decode(User.self, from: data)
         return user
+    }
+    
+    // MARK: - Habits API
+    
+    func fetchHabits() async throws -> [Habit] {
+        guard let url = URL(string: "\(baseURL)/habits") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add Clerk token if available
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.requestFailed
+        }
+        
+        // Try direct decoding first (PostgreSQL returns JSONB as object, not string)
+        let decoder = createJSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        
+        do {
+            // Try direct decoding - PostgreSQL JSONB should decode directly
+            let habits = try decoder.decode([Habit].self, from: data)
+            return habits
+        } catch let decodingError {
+            // If direct decoding fails, try manual parsing
+            // Handle habit_completions as JSON dictionary
+            guard let habitsArray = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
+                // If parsing fails completely, throw the original decoding error
+                throw decodingError
+            }
+            
+            var decodedHabits: [Habit] = []
+            for habitDict in habitsArray {
+                var mutableHabitDict = habitDict
+                
+                // Parse habit_completions - could be string, dict, or nil
+                if let completionsString = mutableHabitDict["habit_completions"] as? String,
+                   let completionsData = completionsString.data(using: .utf8),
+                   let completionsDict = try? JSONSerialization.jsonObject(with: completionsData) as? [String: Bool] {
+                    mutableHabitDict["habit_completions"] = completionsDict
+                } else if let completionsDict = mutableHabitDict["habit_completions"] as? [String: Bool] {
+                    // Already a dictionary, keep it
+                    mutableHabitDict["habit_completions"] = completionsDict
+                } else if let completionsDict = mutableHabitDict["habit_completions"] as? [String: Any] {
+                    // Could be [String: Any] with mixed types, convert to [String: Bool]
+                    let boolDict = completionsDict.compactMapValues { value in
+                        if let boolValue = value as? Bool {
+                            return boolValue
+                        } else if let intValue = value as? Int {
+                            return intValue != 0
+                        }
+                        return nil
+                    }
+                    mutableHabitDict["habit_completions"] = boolDict
+                } else if mutableHabitDict["habit_completions"] == nil || mutableHabitDict["habit_completions"] is NSNull {
+                    // Set to empty dictionary if nil or NSNull
+                    mutableHabitDict["habit_completions"] = [String: Bool]()
+                }
+                
+                // Re-encode to Data for proper decoding
+                do {
+                    let habitData = try JSONSerialization.data(withJSONObject: mutableHabitDict)
+                    let habit = try decoder.decode(Habit.self, from: habitData)
+                    decodedHabits.append(habit)
+                } catch {
+                    // Skip this habit if it can't be decoded
+                    continue
+                }
+            }
+            return decodedHabits
+        }
+    }
+    
+    func toggleHabitCompletion(habitId: String, date: String) async throws -> Habit {
+        guard let url = URL(string: "\(baseURL)/habits/toggle") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add Clerk token if available
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let requestData: [String: Any] = [
+            "habitId": habitId,
+            "date": date
+        ]
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: requestData)
+        request.httpBody = jsonData
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.requestFailed
+        }
+        
+        // Handle habit_completions similar to fetchHabits
+        let decoder = createJSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        
+        if let habitDict = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            var mutableHabitDict = habitDict
+            // Parse habit_completions if it's a string (JSON)
+            if let completionsString = mutableHabitDict["habit_completions"] as? String,
+               let completionsData = completionsString.data(using: .utf8),
+               let completionsDict = try? JSONSerialization.jsonObject(with: completionsData) as? [String: Bool] {
+                mutableHabitDict["habit_completions"] = completionsDict
+            } else if let completionsDict = mutableHabitDict["habit_completions"] as? [String: Bool] {
+                // Already a dictionary, keep it
+                mutableHabitDict["habit_completions"] = completionsDict
+            } else if mutableHabitDict["habit_completions"] == nil {
+                // Set to empty dictionary if nil
+                mutableHabitDict["habit_completions"] = [String: Bool]()
+            }
+            // Re-encode to Data for proper decoding
+            let habitData = try JSONSerialization.data(withJSONObject: mutableHabitDict)
+            let habit = try decoder.decode(Habit.self, from: habitData)
+            return habit
+        } else {
+            // Fallback to direct decoding
+            let habit = try decoder.decode(Habit.self, from: data)
+            return habit
+        }
     }
     
     // MARK: - Notes API
@@ -339,10 +533,6 @@ class APIManager: ObservableObject {
         }
         
         guard httpResponse.statusCode == 200 else {
-            print("❌ Notes API request failed with status: \(httpResponse.statusCode)")
-            if let errorData = String(data: data, encoding: .utf8) {
-                print("❌ Error response: \(errorData)")
-            }
             throw APIError.requestFailed
         }
         
@@ -384,10 +574,6 @@ class APIManager: ObservableObject {
         }
         
         guard httpResponse.statusCode == 201 else {
-            print("❌ Create note API request failed with status: \(httpResponse.statusCode)")
-            if let errorData = String(data: data, encoding: .utf8) {
-                print("❌ Error response: \(errorData)")
-            }
             throw APIError.requestFailed
         }
         
@@ -425,10 +611,6 @@ class APIManager: ObservableObject {
         }
         
         guard httpResponse.statusCode == 200 else {
-            print("❌ Update note API request failed with status: \(httpResponse.statusCode)")
-            if let errorData = String(data: data, encoding: .utf8) {
-                print("❌ Error response: \(errorData)")
-            }
             throw APIError.requestFailed
         }
         
@@ -458,7 +640,6 @@ class APIManager: ObservableObject {
         }
         
         guard httpResponse.statusCode == 200 else {
-            print("❌ Delete note API request failed with status: \(httpResponse.statusCode)")
             throw APIError.requestFailed
         }
     }
@@ -541,30 +722,24 @@ class APIManager: ObservableObject {
     // MARK: - Helper Methods
     
     private func getClerkToken() async -> String? {
-        print("🔍 Main App: getClerkToken called")
         do {
             guard let session = await MainActor.run(body: { Clerk.shared.session }) else {
-                print("❌ No active Clerk session")
                 return nil
             }
             
-            print("🔍 Main App: Clerk session found")
             let tokenResource = try await session.getToken()
             guard let token = tokenResource else {
-                print("❌ Failed to get token resource")
                 return nil
             }
             
             // Get the actual JWT token from TokenResource
             let jwtToken = token.jwt
-            print("✅ Got Clerk token: \(jwtToken.prefix(20))...")
             
             // Save token to App Group for widget access
             saveTokenToAppGroup(jwtToken)
             
             return jwtToken
         } catch {
-            print("❌ Failed to get Clerk token: \(error)")
             return nil
         }
     }
@@ -572,24 +747,7 @@ class APIManager: ObservableObject {
     // MARK: - Token Management for Widget
     
     func refreshTokenForWidget() async {
-        print("🔄 Main App: Refreshing token for widget...")
-        let startTime = Date()
-        if let token = await getClerkToken() {
-            let endTime = Date()
-            let duration = endTime.timeIntervalSince(startTime)
-            print("✅ Token refreshed for widget: \(token.prefix(20))... (took \(String(format: "%.2f", duration))s)")
-            
-            // Check token expiration
-            if isTokenExpired(token) {
-                print("⚠️ WARNING: Refreshed token is already expired!")
-            } else {
-                let expirationDate = getTokenExpirationDate(token)
-                let timeUntilExpiry = expirationDate.timeIntervalSince(Date())
-                print("⏰ Token expires in \(String(format: "%.1f", timeUntilExpiry)) seconds")
-            }
-        } else {
-            print("❌ Failed to refresh token for widget")
-        }
+        _ = await getClerkToken()
     }
     
     func isTokenExpired(_ token: String) -> Bool {
@@ -611,10 +769,6 @@ class APIManager: ObservableObject {
         let now = Date()
         let isExpired = now >= expirationDate
         
-        print("🕐 Token expires: \(expirationDate)")
-        print("🕐 Current time: \(now)")
-        print("🕐 Token expired: \(isExpired)")
-        
         return isExpired
     }
     
@@ -635,30 +789,11 @@ class APIManager: ObservableObject {
     }
     
     private func saveTokenToAppGroup(_ token: String) {
-        print("🔍 Main App: saveTokenToAppGroup called with token: \(token.prefix(20))...")
-        
         if let userDefaults = UserDefaults(suiteName: "group.com.smysluplneziti.pokrok") {
-            print("🔍 Main App: App Group UserDefaults accessible: YES")
-            
             // Save as fresh token first, then move to main position
             userDefaults.set(token, forKey: "fresh_auth_token")
             userDefaults.set(token, forKey: "auth_token")
-            print("✅ Token saved to App Group")
-            print("✅ Token preview: \(token.prefix(20))...")
-            
-            // Verify it was saved
-            let savedToken = userDefaults.string(forKey: "auth_token")
-            print("✅ Token verification: \(savedToken != nil ? "SUCCESS" : "FAILED")")
-            
-            // Debug: List all available keys
-            let allKeys = userDefaults.dictionaryRepresentation().keys
-            print("🔍 Main App: All keys in App Group: \(Array(allKeys))")
-            
-            // Force synchronize
             userDefaults.synchronize()
-            print("🔍 Main App: UserDefaults synchronized")
-        } else {
-            print("❌ Failed to access App Group UserDefaults")
         }
     }
     
@@ -722,30 +857,14 @@ class APIManager: ObservableObject {
         
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
         
-        // Debug: Print request body
-        if let requestBodyString = String(data: request.httpBody!, encoding: .utf8) {
-            print("✅ Request body for daily planning: \(requestBodyString)")
-        }
-        
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
         }
         
-        print("✅ API response status for daily planning: \(httpResponse.statusCode)")
-        
         guard httpResponse.statusCode == 200 else {
-            print("❌ API request failed with status: \(httpResponse.statusCode)")
-            if let errorData = String(data: data, encoding: .utf8) {
-                print("❌ Error response: \(errorData)")
-            }
             throw APIError.serverError(httpResponse.statusCode)
-        }
-        
-        // Debug: Print raw response
-        if let rawResponse = String(data: data, encoding: .utf8) {
-            print("✅ Raw API response for daily planning: \(rawResponse)")
         }
         
         let dailyPlanningResponse = try createJSONDecoder().decode(DailyPlanningResponse.self, from: data)
