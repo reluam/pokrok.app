@@ -1716,7 +1716,7 @@ export function JourneyGameView({
                                 key={day}
                       onClick={() => {
                                   const newDays = isSelected
-                                    ? currentDays.filter(d => d !== day)
+                                    ? currentDays.filter((d: string) => d !== day)
                                     : [...currentDays, day]
                                   setEditingHabitSelectedDays(newDays)
                                 }}
