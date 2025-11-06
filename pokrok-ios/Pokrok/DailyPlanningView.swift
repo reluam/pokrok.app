@@ -440,15 +440,6 @@ struct DailyPlanningView: View {
                     self.isLoading = false
                     self.updateStepStats()
                     
-                    if !habits.isEmpty {
-                        let habit = habits[0]
-                        print("🔍 First habit: \(habit.name), frequency: \(habit.frequency), alwaysShow: \(habit.alwaysShow)")
-                        print("🔍 First habit selectedDays: \(habit.selectedDays ?? [])")
-                        let weekday = Calendar.current.component(.weekday, from: self.today)
-                        let dayNames = ["", "neděle", "pondělí", "úterý", "středa", "čtvrtek", "pátek", "sobota"]
-                        let todayDayName = dayNames[weekday]
-                        print("🔍 Today's day name: \(todayDayName), weekday: \(weekday)")
-                    }
                 }
             } catch {
                 await MainActor.run {

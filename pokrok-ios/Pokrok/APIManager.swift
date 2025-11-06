@@ -187,12 +187,8 @@ class APIManager: ObservableObject {
     }
     
     func fetchStepsForDate(date: Date) async throws -> [DailyStep] {
-        print("🔵 fetchStepsForDate: Starting for date: \(date)")
-        
         // First, get userId from user endpoint
-        print("🔵 fetchStepsForDate: Fetching user...")
         let user = try await fetchUser()
-        print("🔵 fetchStepsForDate: User fetched: \(user.id)")
         
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -211,9 +207,6 @@ class APIManager: ObservableObject {
             throw APIError.invalidURL
         }
         
-        print("📤 fetchStepsForDate: Request URL: \(url.absoluteString)")
-        print("📤 fetchStepsForDate: userId: \(user.id), date: \(dateString)")
-        
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -221,38 +214,21 @@ class APIManager: ObservableObject {
         // Add Clerk token if available
         if let token = await getClerkToken() {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            print("📤 fetchStepsForDate: Token available (length: \(token.count))")
-        } else {
-            print("⚠️ fetchStepsForDate: No token available")
         }
         
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
-            print("❌ fetchStepsForDate: Invalid response type")
             throw APIError.requestFailed
         }
         
-        print("📥 fetchStepsForDate: Response status: \(httpResponse.statusCode)")
-        print("📥 fetchStepsForDate: Response data size: \(data.count) bytes")
-        
         guard httpResponse.statusCode == 200 else {
-            let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
-            print("❌ fetchStepsForDate failed with status \(httpResponse.statusCode): \(errorMessage)")
             throw APIError.requestFailed
         }
         
         // Check if data is empty
         if data.isEmpty {
-            print("⚠️ fetchStepsForDate: Empty response from API for date \(dateString) - returning empty array")
             return []
-        }
-        
-        // Log raw response for debugging
-        if let responseString = String(data: data, encoding: .utf8) {
-            print("📥 fetchStepsForDate: Raw response (first 500 chars): \(responseString.prefix(500))")
-        } else {
-            print("⚠️ fetchStepsForDate: Could not convert response to string")
         }
         
         // Parse response - API returns array directly, not wrapped
@@ -260,13 +236,10 @@ class APIManager: ObservableObject {
         
         do {
             let steps = try decoder.decode([DailyStep].self, from: data)
-            print("✅ fetchStepsForDate: Loaded \(steps.count) steps for date \(dateString)")
             return steps
         } catch {
-            print("❌ fetchStepsForDate: Failed to decode response: \(error.localizedDescription)")
             // Try to decode as error response
             if let errorResponse = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                print("❌ Error response: \(errorResponse)")
             }
             throw error
         }
