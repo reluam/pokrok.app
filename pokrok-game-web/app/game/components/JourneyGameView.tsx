@@ -708,11 +708,18 @@ export function JourneyGameView({
       
       // For new step, create it
       if (isNewStep) {
+        // Ensure we have userId before making the request
+        if (!player?.user_id) {
+          console.error('Cannot create step: userId not available')
+          alert('Chyba: Uživatel není načten. Zkuste to prosím znovu.')
+          return
+        }
+
         const response = await fetch('/api/daily-steps', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            userId: player?.user_id,
+            userId: player.user_id,
             title: stepTitle,
             description: stepDescription,
             date: selectedDate || getLocalDateString(),

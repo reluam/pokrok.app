@@ -93,8 +93,15 @@ export async function POST(request: NextRequest) {
       xpReward
     } = body
     
+    // Log request body for debugging
+    console.log('POST /api/daily-steps - Request body:', JSON.stringify(body, null, 2))
+    
     if (!userId || !title) {
-      return NextResponse.json({ error: 'User ID and title are required' }, { status: 400 })
+      console.error('POST /api/daily-steps - Validation failed:', { userId: !!userId, title: !!title, body })
+      return NextResponse.json({ 
+        error: 'User ID and title are required',
+        details: { hasUserId: !!userId, hasTitle: !!title }
+      }, { status: 400 })
     }
 
     // Handle date - always work with YYYY-MM-DD strings to avoid timezone issues
