@@ -712,17 +712,20 @@ export async function initializeCestaDatabase() {
     }
     
     // Ensure metrics table has step_id column (migration for existing tables)
+    let stepIdColumnExists = false
     try {
       const stepIdCheck = await sql`
         SELECT column_name 
         FROM information_schema.columns 
         WHERE table_name = 'metrics' AND column_name = 'step_id'
       `
-      if (stepIdCheck.length === 0) {
+      stepIdColumnExists = stepIdCheck.length > 0
+      if (!stepIdColumnExists) {
         await sql`
           ALTER TABLE metrics 
           ADD COLUMN step_id VARCHAR(255) REFERENCES daily_steps(id) ON DELETE CASCADE
         `
+        stepIdColumnExists = true
       }
     } catch (error) {
       // Ignore errors if column already exists
@@ -742,11 +745,13 @@ export async function initializeCestaDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_deadline ON daily_steps(deadline)`
     await sql`CREATE INDEX IF NOT EXISTS idx_metrics_user_id ON metrics(user_id)`
     // Create step_id index only if column exists (after migration)
-    try {
-      await sql`CREATE INDEX IF NOT EXISTS idx_metrics_step_id ON metrics(step_id)`
-    } catch (error) {
-      // Index creation will fail if column doesn't exist, but that's ok - it will be created on next run
-      console.error('Error creating metrics step_id index (column may not exist yet):', error)
+    if (stepIdColumnExists) {
+      try {
+        await sql`CREATE INDEX IF NOT EXISTS idx_metrics_step_id ON metrics(step_id)`
+      } catch (error) {
+        // Ignore errors if index already exists
+        console.error('Error creating metrics step_id index:', error)
+      }
     }
     await sql`CREATE INDEX IF NOT EXISTS idx_goal_metrics_user_id ON goal_metrics(user_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_goal_metrics_goal_id ON goal_metrics(goal_id)`
