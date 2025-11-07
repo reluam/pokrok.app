@@ -741,7 +741,13 @@ export async function initializeCestaDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_completed ON daily_steps(completed)`
     await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_deadline ON daily_steps(deadline)`
     await sql`CREATE INDEX IF NOT EXISTS idx_metrics_user_id ON metrics(user_id)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_metrics_step_id ON metrics(step_id)`
+    // Create step_id index only if column exists (after migration)
+    try {
+      await sql`CREATE INDEX IF NOT EXISTS idx_metrics_step_id ON metrics(step_id)`
+    } catch (error) {
+      // Index creation will fail if column doesn't exist, but that's ok - it will be created on next run
+      console.error('Error creating metrics step_id index (column may not exist yet):', error)
+    }
     await sql`CREATE INDEX IF NOT EXISTS idx_goal_metrics_user_id ON goal_metrics(user_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_goal_metrics_goal_id ON goal_metrics(goal_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_goal_milestones_user_id ON goal_milestones(user_id)`
