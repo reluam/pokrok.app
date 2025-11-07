@@ -82,8 +82,7 @@ export interface DailyStep {
   is_important: boolean
   is_urgent: boolean
   created_at: Date
-  step_type: 'update' | 'revision' | 'custom'
-  custom_type_name?: string
+  aspiration_id?: string
   deadline?: Date
   metric_id?: string
   area_id?: string
@@ -439,8 +438,7 @@ export async function initializeCestaDatabase() {
         date DATE NOT NULL,
         is_important BOOLEAN DEFAULT FALSE,
         is_urgent BOOLEAN DEFAULT FALSE,
-        step_type VARCHAR(20) DEFAULT 'custom' CHECK (step_type IN ('update', 'revision', 'custom')),
-        custom_type_name VARCHAR(255),
+        aspiration_id VARCHAR(255) REFERENCES aspirations(id) ON DELETE SET NULL,
         deadline DATE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -875,7 +873,7 @@ export interface AspirationBalance {
   recent_planned_habits: number
   completion_rate_all_time: number // percentage
   completion_rate_recent: number // percentage
-  trend: 'positive' | 'negative' | 'neutral' // comparing recent vs all-time
+  trend: 'positive' | 'negative' | 'neutral' // week over week comparison (last week vs previous week)
 }
 
 export async function getAspirationBalance(userId: string, aspirationId: string): Promise<AspirationBalance> {
@@ -885,7 +883,25 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
     const now = new Date()
     const ninetyDaysAgo = new Date(now)
     ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
-    console.log('Time range:', { now: now.toISOString(), ninetyDaysAgo: ninetyDaysAgo.toISOString() })
+    
+    // Week over week comparison: last week (7 days) vs previous week (7-14 days ago)
+    const lastWeekStart = new Date(now)
+    lastWeekStart.setDate(lastWeekStart.getDate() - 7)
+    lastWeekStart.setHours(0, 0, 0, 0)
+    const previousWeekStart = new Date(now)
+    previousWeekStart.setDate(previousWeekStart.getDate() - 14)
+    previousWeekStart.setHours(0, 0, 0, 0)
+    const previousWeekEnd = new Date(now)
+    previousWeekEnd.setDate(previousWeekEnd.getDate() - 7)
+    previousWeekEnd.setHours(23, 59, 59, 999)
+    
+    console.log('Time range:', { 
+      now: now.toISOString(), 
+      ninetyDaysAgo: ninetyDaysAgo.toISOString(),
+      lastWeekStart: lastWeekStart.toISOString(),
+      previousWeekStart: previousWeekStart.toISOString(),
+      previousWeekEnd: previousWeekEnd.toISOString()
+    })
     
     // Get all goals for this aspiration
     const goals = await sql`
@@ -967,7 +983,11 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
       recent_completed: 0,
       recent_planned: 0,
       total_xp: 0,
-      recent_xp: 0
+      recent_xp: 0,
+      lastWeek_completed: 0,
+      lastWeek_planned: 0,
+      previousWeek_completed: 0,
+      previousWeek_planned: 0
     }
     
     if (goalIds.length > 0) {
@@ -980,6 +1000,10 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
             COUNT(*) as total_planned,
             COUNT(*) FILTER (WHERE completed = true AND date >= ${ninetyDaysAgo}) as recent_completed,
             COUNT(*) FILTER (WHERE date >= ${ninetyDaysAgo}) as recent_planned,
+            COUNT(*) FILTER (WHERE completed = true AND date >= ${lastWeekStart}) as lastWeek_completed,
+            COUNT(*) FILTER (WHERE date >= ${lastWeekStart}) as lastWeek_planned,
+            COUNT(*) FILTER (WHERE completed = true AND date >= ${previousWeekStart} AND date < ${previousWeekEnd}) as previousWeek_completed,
+            COUNT(*) FILTER (WHERE date >= ${previousWeekStart} AND date < ${previousWeekEnd}) as previousWeek_planned,
             COALESCE(SUM(xp_reward) FILTER (WHERE completed = true), 0)::bigint as total_xp,
             COALESCE(SUM(xp_reward) FILTER (WHERE completed = true AND date >= ${ninetyDaysAgo}), 0)::bigint as recent_xp
           FROM daily_steps
@@ -1015,7 +1039,11 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
       recent_completed: 0,
       recent_planned: 0,
       total_xp: 0,
-      recent_xp: 0
+      recent_xp: 0,
+      lastWeek_completed: 0,
+      lastWeek_planned: 0,
+      previousWeek_completed: 0,
+      previousWeek_planned: 0
     }
     
     if (habitIds.length > 0) {
@@ -1029,6 +1057,8 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
         // Calculate completions from habit_completions JSON field in habits table
         let totalCompleted = 0
         let recentCompleted = 0
+        let lastWeekCompleted = 0
+        let previousWeekCompleted = 0
         let totalXp = 0
         let recentXp = 0
         
@@ -1048,10 +1078,26 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
           })
           recentCompleted += recentCompletions.length
           recentXp += recentCompletions.length * xpReward
+          
+          // Count last week completions (last 7 days)
+          const lastWeekCompletions = allCompletions.filter(([date]) => {
+            const completionDate = new Date(date)
+            return completionDate >= lastWeekStart
+          })
+          lastWeekCompleted += lastWeekCompletions.length
+          
+          // Count previous week completions (7-14 days ago)
+          const previousWeekCompletions = allCompletions.filter(([date]) => {
+            const completionDate = new Date(date)
+            return completionDate >= previousWeekStart && completionDate < previousWeekEnd
+          })
+          previousWeekCompleted += previousWeekCompletions.length
         }
         
         habitStats.total_completed = totalCompleted
         habitStats.recent_completed = recentCompleted
+        habitStats.lastWeek_completed = lastWeekCompleted
+        habitStats.previousWeek_completed = previousWeekCompleted
         habitStats.total_xp = totalXp
         habitStats.recent_xp = recentXp
         
@@ -1079,112 +1125,156 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
         }
       }
       
-      // For planned habits, we need to estimate based on frequency
-      // Calculate planned habits based on habit frequency and creation date
-      if (habitIds.length > 0) {
-        console.log('📅 Calculating planned habits for', habitIds.length, 'habits')
-        const habitCreationDates = habits.map((h: any) => new Date(h.created_at))
-        const oldestHabitDate = new Date(Math.min(...habitCreationDates.map((d: Date) => d.getTime())))
-        const daysSinceOldestHabit = Math.floor((now.getTime() - oldestHabitDate.getTime()) / (1000 * 60 * 60 * 24))
-        
-        console.log('📅 Oldest habit date:', oldestHabitDate.toISOString(), 'Days since:', daysSinceOldestHabit)
-        console.log('📅 Current date:', now.toISOString())
-        
-        // Calculate planned habits based on frequency
-        let totalPlannedHabits = 0
-        let recentPlannedHabits = 0
-        
-        for (const habit of habits) {
-          const habitCreatedAt = new Date(habit.created_at)
-          const daysSinceCreation = Math.floor((now.getTime() - habitCreatedAt.getTime()) / (1000 * 60 * 60 * 24))
-          const daysSinceNinetyDaysAgo = Math.max(0, Math.min(daysSinceCreation, 90))
+        // For planned habits, we need to estimate based on frequency
+        // Calculate planned habits based on habit frequency and creation date
+        if (habitIds.length > 0) {
+          console.log('📅 Calculating planned habits for', habitIds.length, 'habits')
+          const habitCreationDates = habits.map((h: any) => new Date(h.created_at))
+          const oldestHabitDate = new Date(Math.min(...habitCreationDates.map((d: Date) => d.getTime())))
+          const daysSinceOldestHabit = Math.floor((now.getTime() - oldestHabitDate.getTime()) / (1000 * 60 * 60 * 24))
           
-          console.log(`📅 Habit ${habit.id}:`, {
-            created_at: habit.created_at,
-            created_at_parsed: habitCreatedAt.toISOString(),
-            frequency: habit.frequency,
-            selected_days: habit.selected_days,
-            daysSinceCreation,
-            daysSinceNinetyDaysAgo
-          })
+          console.log('📅 Oldest habit date:', oldestHabitDate.toISOString(), 'Days since:', daysSinceOldestHabit)
+          console.log('📅 Current date:', now.toISOString())
           
-          let plannedCount = 0
-          let recentPlannedCount = 0
+          // Calculate planned habits based on frequency
+          let totalPlannedHabits = 0
+          let recentPlannedHabits = 0
+          let lastWeekPlannedHabits = 0
+          let previousWeekPlannedHabits = 0
           
-          switch (habit.frequency) {
-            case 'daily':
-              // For daily habits, count at least 1 if created today, otherwise count days
-              plannedCount = Math.max(1, daysSinceCreation)
-              recentPlannedCount = Math.max(1, daysSinceNinetyDaysAgo)
-              break
-            case 'weekly':
-              // For weekly habits, count at least 1 if created within last 7 days, otherwise count weeks
-              plannedCount = Math.max(1, Math.floor(daysSinceCreation / 7))
-              recentPlannedCount = Math.max(1, Math.floor(daysSinceNinetyDaysAgo / 7))
-              break
-            case 'monthly':
-              // For monthly habits, count at least 1 if created within last 30 days, otherwise count months
-              plannedCount = Math.max(1, Math.floor(daysSinceCreation / 30))
-              recentPlannedCount = Math.max(1, Math.floor(daysSinceNinetyDaysAgo / 30))
-              break
-            case 'custom':
-              // For custom, count based on selected_days per week
-              const selectedDaysCount = habit.selected_days?.length || 0
-              // At least 1 if created today, otherwise calculate based on frequency
-              plannedCount = Math.max(1, Math.floor((daysSinceCreation / 7) * selectedDaysCount))
-              recentPlannedCount = Math.max(1, Math.floor((daysSinceNinetyDaysAgo / 7) * selectedDaysCount))
-              break
+          for (const habit of habits) {
+            const habitCreatedAt = new Date(habit.created_at)
+            const daysSinceCreation = Math.floor((now.getTime() - habitCreatedAt.getTime()) / (1000 * 60 * 60 * 24))
+            const daysSinceNinetyDaysAgo = Math.max(0, Math.min(daysSinceCreation, 90))
+            const daysSinceLastWeek = Math.max(0, Math.min(daysSinceCreation, 7))
+            const daysSincePreviousWeek = Math.max(0, Math.min(Math.max(0, daysSinceCreation - 7), 7))
+            
+            console.log(`📅 Habit ${habit.id}:`, {
+              created_at: habit.created_at,
+              created_at_parsed: habitCreatedAt.toISOString(),
+              frequency: habit.frequency,
+              selected_days: habit.selected_days,
+              daysSinceCreation,
+              daysSinceNinetyDaysAgo,
+              daysSinceLastWeek,
+              daysSincePreviousWeek
+            })
+            
+            let plannedCount = 0
+            let recentPlannedCount = 0
+            let lastWeekPlannedCount = 0
+            let previousWeekPlannedCount = 0
+            
+            switch (habit.frequency) {
+              case 'daily':
+                // For daily habits, count at least 1 if created today, otherwise count days
+                plannedCount = Math.max(1, daysSinceCreation)
+                recentPlannedCount = Math.max(1, daysSinceNinetyDaysAgo)
+                lastWeekPlannedCount = Math.max(1, daysSinceLastWeek)
+                previousWeekPlannedCount = Math.max(1, daysSincePreviousWeek)
+                break
+              case 'weekly':
+                // For weekly habits, count at least 1 if created within last 7 days, otherwise count weeks
+                plannedCount = Math.max(1, Math.floor(daysSinceCreation / 7))
+                recentPlannedCount = Math.max(1, Math.floor(daysSinceNinetyDaysAgo / 7))
+                lastWeekPlannedCount = Math.max(1, Math.floor(daysSinceLastWeek / 7))
+                previousWeekPlannedCount = Math.max(1, Math.floor(daysSincePreviousWeek / 7))
+                break
+              case 'monthly':
+                // For monthly habits, count at least 1 if created within last 30 days, otherwise count months
+                plannedCount = Math.max(1, Math.floor(daysSinceCreation / 30))
+                recentPlannedCount = Math.max(1, Math.floor(daysSinceNinetyDaysAgo / 30))
+                lastWeekPlannedCount = Math.max(1, Math.floor(daysSinceLastWeek / 30))
+                previousWeekPlannedCount = Math.max(1, Math.floor(daysSincePreviousWeek / 30))
+                break
+              case 'custom':
+                // For custom, count based on selected_days per week
+                const selectedDaysCount = habit.selected_days?.length || 0
+                // At least 1 if created today, otherwise calculate based on frequency
+                plannedCount = Math.max(1, Math.floor((daysSinceCreation / 7) * selectedDaysCount))
+                recentPlannedCount = Math.max(1, Math.floor((daysSinceNinetyDaysAgo / 7) * selectedDaysCount))
+                lastWeekPlannedCount = Math.max(1, Math.floor((daysSinceLastWeek / 7) * selectedDaysCount))
+                previousWeekPlannedCount = Math.max(1, Math.floor((daysSincePreviousWeek / 7) * selectedDaysCount))
+                break
+            }
+            
+            console.log(`📅 Habit ${habit.id} calculation:`, {
+              frequency: habit.frequency,
+              daysSinceCreation,
+              daysSinceNinetyDaysAgo,
+              daysSinceLastWeek,
+              daysSincePreviousWeek,
+              plannedCount,
+              recentPlannedCount,
+              lastWeekPlannedCount,
+              previousWeekPlannedCount
+            })
+            
+            totalPlannedHabits += Math.max(0, plannedCount)
+            recentPlannedHabits += Math.max(0, recentPlannedCount)
+            lastWeekPlannedHabits += Math.max(0, lastWeekPlannedCount)
+            previousWeekPlannedHabits += Math.max(0, previousWeekPlannedCount)
           }
           
-          console.log(`📅 Habit ${habit.id} calculation:`, {
-            frequency: habit.frequency,
-            daysSinceCreation,
-            daysSinceNinetyDaysAgo,
-            plannedCount,
-            recentPlannedCount
-          })
+          // Ensure at least the number of habits is counted (minimum 1 per habit)
+          totalPlannedHabits = Math.max(totalPlannedHabits, habitIds.length)
+          recentPlannedHabits = Math.max(recentPlannedHabits, habitIds.length)
+          lastWeekPlannedHabits = Math.max(lastWeekPlannedHabits, habitIds.length)
+          previousWeekPlannedHabits = Math.max(previousWeekPlannedHabits, habitIds.length)
           
-          totalPlannedHabits += Math.max(0, plannedCount)
-          recentPlannedHabits += Math.max(0, recentPlannedCount)
+          console.log('📅 Total planned habits calculated:', {
+            before_minimum: totalPlannedHabits,
+            after_minimum: Math.max(totalPlannedHabits, habitIds.length),
+            recent_before_minimum: recentPlannedHabits,
+            recent_after_minimum: Math.max(recentPlannedHabits, habitIds.length),
+            lastWeek_before_minimum: lastWeekPlannedHabits,
+            lastWeek_after_minimum: Math.max(lastWeekPlannedHabits, habitIds.length),
+            previousWeek_before_minimum: previousWeekPlannedHabits,
+            previousWeek_after_minimum: Math.max(previousWeekPlannedHabits, habitIds.length),
+            habitCount: habitIds.length
+          })
+          console.log('📅 Habit stats before update:', habitStats)
+          
+          // Use the calculated planned habits, but ensure it's at least the number of completions
+          habitStats.total_planned = Math.max(
+            parseInt(String(habitStats.total_planned || 0)),
+            parseInt(String(habitStats.total_completed || 0)),
+            totalPlannedHabits
+          )
+          habitStats.recent_planned = Math.max(
+            parseInt(String(habitStats.recent_planned || 0)),
+            parseInt(String(habitStats.recent_completed || 0)),
+            recentPlannedHabits
+          )
+          habitStats.lastWeek_planned = Math.max(
+            parseInt(String(habitStats.lastWeek_planned || 0)),
+            parseInt(String(habitStats.lastWeek_completed || 0)),
+            lastWeekPlannedHabits
+          )
+          habitStats.previousWeek_planned = Math.max(
+            parseInt(String(habitStats.previousWeek_planned || 0)),
+            parseInt(String(habitStats.previousWeek_completed || 0)),
+            previousWeekPlannedHabits
+          )
+          
+          console.log('📅 Habit stats after update:', {
+            total_planned: habitStats.total_planned,
+            recent_planned: habitStats.recent_planned,
+            lastWeek_planned: habitStats.lastWeek_planned,
+            previousWeek_planned: habitStats.previousWeek_planned,
+            total_completed: habitStats.total_completed,
+            recent_completed: habitStats.recent_completed,
+            lastWeek_completed: habitStats.lastWeek_completed,
+            previousWeek_completed: habitStats.previousWeek_completed
+          })
+        } else {
+          // Fallback to old logic if no habits
+          console.log('⏭️  No habits, skipping planned habits calculation')
+          habitStats.total_planned = Math.max(parseInt(String(habitStats.total_planned || 0)), parseInt(String(habitStats.total_completed || 0)))
+          habitStats.recent_planned = Math.max(parseInt(String(habitStats.recent_planned || 0)), parseInt(String(habitStats.recent_completed || 0)))
+          habitStats.lastWeek_planned = Math.max(parseInt(String(habitStats.lastWeek_planned || 0)), parseInt(String(habitStats.lastWeek_completed || 0)))
+          habitStats.previousWeek_planned = Math.max(parseInt(String(habitStats.previousWeek_planned || 0)), parseInt(String(habitStats.previousWeek_completed || 0)))
         }
-        
-        // Ensure at least the number of habits is counted (minimum 1 per habit)
-        totalPlannedHabits = Math.max(totalPlannedHabits, habitIds.length)
-        recentPlannedHabits = Math.max(recentPlannedHabits, habitIds.length)
-        
-        console.log('📅 Total planned habits calculated:', {
-          before_minimum: totalPlannedHabits,
-          after_minimum: Math.max(totalPlannedHabits, habitIds.length),
-          recent_before_minimum: recentPlannedHabits,
-          recent_after_minimum: Math.max(recentPlannedHabits, habitIds.length),
-          habitCount: habitIds.length
-        })
-        console.log('📅 Habit stats before update:', habitStats)
-        
-        // Use the calculated planned habits, but ensure it's at least the number of completions
-        habitStats.total_planned = Math.max(
-          parseInt(String(habitStats.total_planned || 0)),
-          parseInt(String(habitStats.total_completed || 0)),
-          totalPlannedHabits
-        )
-        habitStats.recent_planned = Math.max(
-          parseInt(String(habitStats.recent_planned || 0)),
-          parseInt(String(habitStats.recent_completed || 0)),
-          recentPlannedHabits
-        )
-        
-        console.log('📅 Habit stats after update:', {
-          total_planned: habitStats.total_planned,
-          recent_planned: habitStats.recent_planned,
-          total_completed: habitStats.total_completed,
-          recent_completed: habitStats.recent_completed
-        })
-      } else {
-        // Fallback to old logic if no habits
-        console.log('⏭️  No habits, skipping planned habits calculation')
-        habitStats.total_planned = Math.max(parseInt(String(habitStats.total_planned || 0)), parseInt(String(habitStats.total_completed || 0)))
-        habitStats.recent_planned = Math.max(parseInt(String(habitStats.recent_planned || 0)), parseInt(String(habitStats.recent_completed || 0)))
-      }
     } else {
       console.log('⏭️  No habits, skipping habit stats calculation')
     }
@@ -1218,20 +1308,47 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
     const completionRateAllTime = totalPlanned > 0 ? (totalCompleted / totalPlanned) * 100 : 0
     const completionRateRecent = recentPlanned > 0 ? (recentCompleted / recentPlanned) * 100 : 0
     
+    // Week over week comparison
+    const lastWeekCompleted = parseInt(String(stepStats.lastWeek_completed || 0)) + parseInt(String(habitStats.lastWeek_completed || 0))
+    const lastWeekPlanned = parseInt(String(stepStats.lastWeek_planned || 0)) + parseInt(String(habitStats.lastWeek_planned || 0))
+    const previousWeekCompleted = parseInt(String(stepStats.previousWeek_completed || 0)) + parseInt(String(habitStats.previousWeek_completed || 0))
+    const previousWeekPlanned = parseInt(String(stepStats.previousWeek_planned || 0)) + parseInt(String(habitStats.previousWeek_planned || 0))
+    
+    const lastWeekCompletionRate = lastWeekPlanned > 0 ? (lastWeekCompleted / lastWeekPlanned) * 100 : 0
+    const previousWeekCompletionRate = previousWeekPlanned > 0 ? (previousWeekCompleted / previousWeekPlanned) * 100 : 0
+    
     console.log('📈 Completion rates:', {
       completionRateAllTime,
-      completionRateRecent
+      completionRateRecent,
+      lastWeekCompletionRate,
+      previousWeekCompletionRate,
+      lastWeekCompleted,
+      lastWeekPlanned,
+      previousWeekCompleted,
+      previousWeekPlanned
     })
     
-    // Determine trend: positive if recent completion rate is higher than all-time
+    // Determine trend: week over week comparison
+    // Positive if last week completion rate is higher than previous week
     let trend: 'positive' | 'negative' | 'neutral' = 'neutral'
-    if (completionRateRecent > completionRateAllTime + 5) {
+    if (lastWeekPlanned > 0 && previousWeekPlanned > 0) {
+      if (lastWeekCompletionRate > previousWeekCompletionRate + 5) {
+        trend = 'positive'
+      } else if (lastWeekCompletionRate < previousWeekCompletionRate - 5) {
+        trend = 'negative'
+      }
+    } else if (lastWeekPlanned > 0 && previousWeekPlanned === 0) {
+      // If we have data for last week but not previous week, consider it positive
       trend = 'positive'
-    } else if (completionRateRecent < completionRateAllTime - 5) {
+    } else if (lastWeekPlanned === 0 && previousWeekPlanned > 0) {
+      // If we have data for previous week but not last week, consider it negative
       trend = 'negative'
     }
     
-    console.log('📊 Trend:', trend)
+    console.log('📊 Trend (week over week):', trend, {
+      lastWeek: `${lastWeekCompleted}/${lastWeekPlanned} (${lastWeekCompletionRate.toFixed(1)}%)`,
+      previousWeek: `${previousWeekCompleted}/${previousWeekPlanned} (${previousWeekCompletionRate.toFixed(1)}%)`
+    })
     
     const result = {
       aspiration_id: aspirationId,
@@ -1295,7 +1412,7 @@ export async function getDailyStepsByUserId(userId: string, date?: Date): Promis
         SELECT 
           id, user_id, goal_id, title, description, completed, 
           TO_CHAR(date, 'YYYY-MM-DD') as date,
-          is_important, is_urgent, step_type, custom_type_name, 
+          is_important, is_urgent, aspiration_id, 
           estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
         FROM daily_steps 
         WHERE user_id = ${userId}
@@ -1314,7 +1431,7 @@ export async function getDailyStepsByUserId(userId: string, date?: Date): Promis
         SELECT 
           id, user_id, goal_id, title, description, completed, 
           TO_CHAR(date, 'YYYY-MM-DD') as date,
-          is_important, is_urgent, step_type, custom_type_name, 
+          is_important, is_urgent, aspiration_id, 
           estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
         FROM daily_steps 
         WHERE user_id = ${userId}
@@ -1407,19 +1524,19 @@ export async function createDailyStep(stepData: Omit<Partial<DailyStep>, 'date'>
   const step = await sql`
     INSERT INTO daily_steps (
       id, user_id, goal_id, title, description, completed, date, 
-      is_important, is_urgent, step_type, custom_type_name, 
+      is_important, is_urgent, aspiration_id, 
       estimated_time, xp_reward, deadline
     ) VALUES (
       ${id}, ${stepData.user_id}, ${stepData.goal_id}, ${stepData.title}, 
       ${stepData.description || null}, ${stepData.completed || false}, 
       ${dateValue}, ${stepData.is_important || false}, 
-      ${stepData.is_urgent || false}, ${stepData.step_type || 'custom'}, 
-      ${stepData.custom_type_name || null}, ${stepData.estimated_time || 30},
+      ${stepData.is_urgent || false}, ${stepData.aspiration_id || null}, 
+      ${stepData.estimated_time || 30},
       ${stepData.xp_reward || 1}, ${stepData.deadline || null}
     ) RETURNING 
       id, user_id, goal_id, title, description, completed, 
       TO_CHAR(date, 'YYYY-MM-DD') as date,
-      is_important, is_urgent, step_type, custom_type_name, 
+      is_important, is_urgent, aspiration_id, 
       estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
   `
   return step[0] as DailyStep
@@ -1553,11 +1670,8 @@ export async function updateDailyStepGeneral(stepId: string, stepData: Omit<Part
     if (stepData.is_urgent !== undefined) {
       await sql`UPDATE daily_steps SET is_urgent = ${stepData.is_urgent}, updated_at = NOW() WHERE id = ${stepId}`
     }
-    if (stepData.step_type !== undefined) {
-      await sql`UPDATE daily_steps SET step_type = ${stepData.step_type}, updated_at = NOW() WHERE id = ${stepId}`
-    }
-    if (stepData.custom_type_name !== undefined) {
-      await sql`UPDATE daily_steps SET custom_type_name = ${stepData.custom_type_name}, updated_at = NOW() WHERE id = ${stepId}`
+    if (stepData.aspiration_id !== undefined) {
+      await sql`UPDATE daily_steps SET aspiration_id = ${stepData.aspiration_id}, updated_at = NOW() WHERE id = ${stepId}`
     }
     if (stepData.deadline !== undefined) {
       const deadlineValue = stepData.deadline instanceof Date ? stepData.deadline.toISOString() : stepData.deadline

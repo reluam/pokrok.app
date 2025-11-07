@@ -627,7 +627,6 @@ const DailyPlanningTab = memo(function DailyPlanningTab({
                 is_urgent: false,
                 completed: false,
                 created_at: new Date(),
-                step_type: 'custom'
               } as DailyStep)}
               title="Přidat krok"
               className="inline-flex items-center justify-center w-8 h-8 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"

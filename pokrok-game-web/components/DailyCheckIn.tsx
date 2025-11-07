@@ -179,7 +179,6 @@ const DailyCheckIn = memo(function DailyCheckIn({
         is_urgent: false,
         completed: false,
         created_at: new Date(),
-        step_type: 'custom'
       } as DailyStep)
     }
   }, [showAddStepModal, goals])
@@ -488,7 +487,6 @@ const DailyCheckIn = memo(function DailyCheckIn({
             is_urgent: false,
             completed: false,
             created_at: new Date(),
-            step_type: 'custom'
           } as DailyStep, true)}
         </div>
       )}

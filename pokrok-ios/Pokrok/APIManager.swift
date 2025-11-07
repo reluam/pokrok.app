@@ -296,9 +296,8 @@ class APIManager: ObservableObject {
             let steps = try decoder.decode([DailyStep].self, from: data)
             return steps
         } catch {
-            // Try to decode as error response
-            if let errorResponse = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-            }
+            // Try to decode as error response (for debugging, but not used)
+            _ = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
             throw error
         }
     }

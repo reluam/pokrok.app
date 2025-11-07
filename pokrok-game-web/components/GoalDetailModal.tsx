@@ -1138,10 +1138,10 @@ export const GoalDetailModal = memo(function GoalDetailModal({
                               <Calendar className="w-3 h-3 mr-1" />
                               {new Date(step.date).toLocaleDateString('cs-CZ')}
                             </span>
-                            {step.step_type === 'custom' && step.custom_type_name && (
+                            {step.deadline && (
                               <span className="flex items-center">
                                 <AlertCircle className="w-3 h-3 mr-1" />
-                                Deadline: {new Date(step.custom_type_name).toLocaleDateString('cs-CZ')}
+                                Deadline: {new Date(step.deadline).toLocaleDateString('cs-CZ')}
                               </span>
                             )}
                           </div>

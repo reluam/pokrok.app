@@ -134,12 +134,16 @@ export async function POST(request: NextRequest) {
           const step = await sql`
             INSERT INTO daily_steps (
               id, user_id, goal_id, title, description, completed, 
-              date, is_important, is_urgent, step_type, custom_type_name
+              date, is_important, is_urgent, aspiration_id
             ) VALUES (
               ${stepId}, ${dbUser.id}, ${goalId}, ${stepData.title}, 
               ${stepData.description || null}, false, ${targetDateObj || new Date()}, 
-              false, false, 'custom', 'goal_step'
-            ) RETURNING *
+              false, false, ${aspirationId || null}
+            ) RETURNING 
+              id, user_id, goal_id, title, description, completed, 
+              TO_CHAR(date, 'YYYY-MM-DD') as date,
+              is_important, is_urgent, aspiration_id, 
+              estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
           `
           createdSteps.push(step[0])
           console.log('✅ Step created:', step[0].id)

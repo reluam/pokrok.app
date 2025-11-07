@@ -178,6 +178,7 @@ export function JourneyGameView({
   const [overviewBalances, setOverviewBalances] = useState<Record<string, any>>({})
   const [isLoadingOverview, setIsLoadingOverview] = useState(false)
   const [showAddAspirationModal, setShowAddAspirationModal] = useState(false)
+  const [editingAspiration, setEditingAspiration] = useState<any | null>(null)
   const [sortedGoals, setSortedGoals] = useState<any[]>([])
   const [showCreateGoal, setShowCreateGoal] = useState(false)
   const [newGoal, setNewGoal] = useState({
@@ -626,10 +627,11 @@ export function JourneyGameView({
   const [stepXpReward, setStepXpReward] = useState<number>(0)
   const [stepIsImportant, setStepIsImportant] = useState<boolean>(false)
   const [stepIsUrgent, setStepIsUrgent] = useState<boolean>(false)
-  const [stepType, setStepType] = useState<'update' | 'revision' | 'custom'>('update')
-  const [stepCustomTypeName, setStepCustomTypeName] = useState<string>('')
+  const [stepGoalId, setStepGoalId] = useState<string | null>(null)
+  const [stepAspirationId, setStepAspirationId] = useState<string | null>(null)
+  const [showStepGoalPicker, setShowStepGoalPicker] = useState(false)
+  const [showStepAspirationPicker, setShowStepAspirationPicker] = useState(false)
   const [stepDeadline, setStepDeadline] = useState<string>('')
-  const [showStepSettings, setShowStepSettings] = useState(false)
 
   // Habit detail tabs
   const [habitDetailTab, setHabitDetailTab] = useState<'calendar' | 'settings'>('calendar')
@@ -704,10 +706,9 @@ export function JourneyGameView({
       setStepXpReward(selectedItem.xp_reward || 0)
       setStepIsImportant(selectedItem.is_important || false)
       setStepIsUrgent(selectedItem.is_urgent || false)
-      setStepType(selectedItem.step_type || 'update')
-      setStepCustomTypeName(selectedItem.custom_type_name || '')
+      setStepGoalId(selectedItem.goal_id || null)
+      setStepAspirationId(selectedItem.aspiration_id || null)
       setStepDeadline(selectedItem.deadline ? (typeof selectedItem.deadline === 'string' ? selectedItem.deadline.split('T')[0] : new Date(selectedItem.deadline).toISOString().split('T')[0]) : '')
-      setShowStepSettings(false)
     }
     
     if (selectedItem && selectedItemType === 'goal') {
@@ -825,8 +826,8 @@ export function JourneyGameView({
             xp_reward: stepXpReward,
             is_important: stepIsImportant,
             is_urgent: stepIsUrgent,
-            step_type: stepType,
-            custom_type_name: stepType === 'custom' ? stepCustomTypeName : null,
+            goal_id: stepGoalId,
+            aspiration_id: stepAspirationId,
             deadline: stepDeadline || null
           })
         })
@@ -1128,17 +1129,108 @@ export function JourneyGameView({
                   {stepIsUrgent ? '🔥' : '⚡'} Urgentní
                 </button>
                 
-                <button
-                  onClick={() => {
-                    setShowTimeEditor(false)
-                    setShowXpEditor(false)
-                    setShowDatePicker(false)
-                    setShowStepSettings(!showStepSettings)
-                  }}
-                  className="text-sm px-4 py-2 bg-gray-200 bg-opacity-80 text-gray-800 rounded-full font-medium hover:bg-gray-300 transition-colors"
-                >
-                  ⚙️ Nastavení
-                </button>
+                {/* Goal picker */}
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      setShowTimeEditor(false)
+                      setShowXpEditor(false)
+                      setShowDatePicker(false)
+                      setShowStepAspirationPicker(false)
+                      setShowStepGoalPicker(!showStepGoalPicker)
+                    }}
+                    className={`text-sm px-4 py-2 rounded-full font-medium transition-colors ${
+                      stepGoalId 
+                        ? 'bg-purple-200 bg-opacity-80 text-purple-800 hover:bg-purple-300' 
+                        : 'bg-gray-200 bg-opacity-80 text-gray-600 hover:bg-gray-300'
+                    }`}
+                  >
+                    🎯 {stepGoalId ? goals.find(g => g.id === stepGoalId)?.title || 'Cíl' : 'Cíl'}
+                  </button>
+                  {showStepGoalPicker && (
+                    <div className="absolute top-full left-0 mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-2xl z-50 min-w-[200px] max-h-64 overflow-y-auto">
+                      <button
+                        onClick={() => {
+                          setStepGoalId(null)
+                          setShowStepGoalPicker(false)
+                          handleSaveStep()
+                        }}
+                        className="w-full text-left px-4 py-3 text-sm hover:bg-purple-50 border-b border-gray-100 font-medium transition-colors"
+                      >
+                        Bez cíle
+                      </button>
+                      {goals.map((goal) => (
+                        <button
+                          key={goal.id}
+                          onClick={() => {
+                            setStepGoalId(goal.id)
+                            setShowStepGoalPicker(false)
+                            handleSaveStep()
+                          }}
+                          className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
+                            stepGoalId === goal.id ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
+                          }`}
+                        >
+                          {goal.title}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Aspiration picker */}
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      setShowTimeEditor(false)
+                      setShowXpEditor(false)
+                      setShowDatePicker(false)
+                      setShowStepGoalPicker(false)
+                      setShowStepAspirationPicker(!showStepAspirationPicker)
+                    }}
+                    className={`text-sm px-4 py-2 rounded-full font-medium transition-colors ${
+                      stepAspirationId 
+                        ? 'bg-blue-200 bg-opacity-80 text-blue-800 hover:bg-blue-300' 
+                        : 'bg-gray-200 bg-opacity-80 text-gray-600 hover:bg-gray-300'
+                    }`}
+                  >
+                    ✨ {stepAspirationId ? aspirations.find(a => a.id === stepAspirationId)?.title || 'Aspirace' : 'Aspirace'}
+                  </button>
+                  {showStepAspirationPicker && (
+                    <div className="absolute top-full left-0 mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-2xl z-50 min-w-[200px] max-h-64 overflow-y-auto">
+                      <button
+                        onClick={() => {
+                          setStepAspirationId(null)
+                          setShowStepAspirationPicker(false)
+                          handleSaveStep()
+                        }}
+                        className="w-full text-left px-4 py-3 text-sm hover:bg-blue-50 border-b border-gray-100 font-medium transition-colors"
+                      >
+                        Bez aspirace
+                      </button>
+                      {aspirations.map((aspiration) => (
+                        <button
+                          key={aspiration.id}
+                          onClick={() => {
+                            setStepAspirationId(aspiration.id)
+                            setShowStepAspirationPicker(false)
+                            handleSaveStep()
+                          }}
+                          className={`w-full text-left px-4 py-3 text-sm hover:bg-blue-50 transition-colors flex items-center gap-2 ${
+                            stepAspirationId === aspiration.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-700'
+                          }`}
+                        >
+                          <div 
+                            className="w-3 h-3 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: aspiration.color || '#3B82F6' }}
+                          ></div>
+                          {aspiration.title}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
               </div>
 
               {/* Time editor */}
@@ -1236,80 +1328,6 @@ export function JourneyGameView({
                 </div>
               )}
 
-              {/* Step Settings */}
-              {showStepSettings && (
-                <div className="p-4 bg-white bg-opacity-95 rounded-lg border border-orange-200 space-y-4">
-                  <h5 className="text-sm font-semibold text-gray-800 mb-3">Rozšířená nastavení</h5>
-                  
-                  {/* Step Type */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Typ kroku:
-                    </label>
-                    <select
-                      value={stepType}
-                      onChange={(e) => {
-                        setStepType(e.target.value as 'update' | 'revision' | 'custom')
-                        if (e.target.value !== 'custom') {
-                          setStepCustomTypeName('')
-                        }
-                      }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    >
-                      <option value="update">Update</option>
-                      <option value="revision">Revize</option>
-                      <option value="custom">Vlastní</option>
-                    </select>
-                  </div>
-                  
-                  {/* Custom Type Name */}
-                  {stepType === 'custom' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Název vlastního typu:
-                      </label>
-                      <input
-                        type="text"
-                        value={stepCustomTypeName}
-                        onChange={(e) => setStepCustomTypeName(e.target.value)}
-                        placeholder="Např. Kontrola, Schůzka..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      />
-                    </div>
-                  )}
-                  
-                  {/* Deadline */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Termín (deadline):
-                    </label>
-                    <input
-                      type="date"
-                      value={stepDeadline}
-                      onChange={(e) => setStepDeadline(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    />
-                  </div>
-                  
-                  <div className="flex gap-2 pt-2">
-                    <button
-                      onClick={() => {
-                        handleSaveStep()
-                        setShowStepSettings(false)
-                      }}
-                      className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                    >
-                      Uložit
-                    </button>
-                    <button
-                      onClick={() => setShowStepSettings(false)}
-                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                    >
-                      Zrušit
-                    </button>
-                  </div>
-                </div>
-              )}
               </div>
             </div>
           </div>
@@ -3279,56 +3297,67 @@ export function JourneyGameView({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ title, description, color })
         })
-        
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-          console.error('Failed to create aspiration:', errorData)
-          alert(`Chyba při vytváření aspirace: ${errorData.error || errorData.details || 'Neznámá chyba'}`)
-          return
-        }
-        
-        const newAspiration = await response.json()
-        console.log('Aspiration created successfully:', newAspiration)
-        
-        // Reload overview data
-        const loadOverviewData = async () => {
-          setIsLoadingOverview(true)
+
+        if (response.ok) {
+          const newAspiration = await response.json()
+          setOverviewAspirations([...overviewAspirations, newAspiration])
+          setAspirations([...aspirations, newAspiration])
+          setShowAddAspirationModal(false)
+          
+          // Load balance for new aspiration
           try {
-            const res = await fetch('/api/aspirations')
-            if (res.ok) {
-              const data = await res.json()
-              setOverviewAspirations(data || [])
-              
-              const balances: Record<string, any> = {}
-              for (const aspiration of data || []) {
-                try {
-                  console.log(`🔄 Loading balance for aspiration ${aspiration.id}`)
-                  const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${aspiration.id}`)
-                  if (balanceResponse.ok) {
-                    const balance = await balanceResponse.json()
-                    console.log(`✅ Balance loaded for aspiration ${aspiration.id}:`, balance)
-                    balances[aspiration.id] = balance
-                  } else {
-                    console.error(`❌ Failed to load balance for aspiration ${aspiration.id}:`, balanceResponse.status)
-                  }
-                } catch (error) {
-                  console.error(`❌ Error loading balance for aspiration ${aspiration.id}:`, error)
-                }
-              }
-              console.log('📊 All balances loaded:', balances)
-              setOverviewBalances(balances)
+            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${newAspiration.id}`)
+            if (balanceResponse.ok) {
+              const balance = await balanceResponse.json()
+              setOverviewBalances((prev: Record<string, any>) => ({
+                ...prev,
+                [newAspiration.id]: balance
+              }))
             }
           } catch (error) {
-            console.error('Error loading aspirations:', error)
-          } finally {
-            setIsLoadingOverview(false)
+            console.error('Error loading aspiration balance:', error)
           }
+        } else {
+          const errorData = await response.json()
+          alert(`Chyba: ${errorData.error || 'Nepodařilo se vytvořit aspiraci'}`)
         }
-        loadOverviewData()
-        setShowAddAspirationModal(false)
       } catch (error) {
         console.error('Error creating aspiration:', error)
-        alert(`Chyba při vytváření aspirace: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
+        alert('Chyba při vytváření aspirace')
+      }
+    }
+
+    const handleUpdateAspiration = async (title: string, description: string, color: string) => {
+      if (!editingAspiration) return
+      
+      try {
+        const response = await fetch('/api/aspirations', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            aspirationId: editingAspiration.id,
+            title, 
+            description, 
+            color 
+          })
+        })
+
+        if (response.ok) {
+          const updatedAspiration = await response.json()
+          setOverviewAspirations(overviewAspirations.map(a => 
+            a.id === updatedAspiration.id ? updatedAspiration : a
+          ))
+          setAspirations(aspirations.map(a => 
+            a.id === updatedAspiration.id ? updatedAspiration : a
+          ))
+          setEditingAspiration(null)
+        } else {
+          const errorData = await response.json()
+          alert(`Chyba: ${errorData.error || 'Nepodařilo se aktualizovat aspiraci'}`)
+        }
+      } catch (error) {
+        console.error('Error updating aspiration:', error)
+        alert('Chyba při aktualizaci aspirace')
       }
     }
 
@@ -3394,6 +3423,15 @@ export function JourneyGameView({
                         <p className="text-sm text-gray-600 line-clamp-2">{aspiration.description}</p>
                       )}
                     </div>
+                    <button
+                      onClick={() => setEditingAspiration(aspiration)}
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600 hover:text-gray-900"
+                      title="Upravit aspiraci"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
                   </div>
 
                   {/* Balance */}
@@ -3425,47 +3463,26 @@ export function JourneyGameView({
                           </div>
                           <div className="ml-auto">
                             {balance.trend === 'positive' && (
-                              <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
-                                <span>↑</span>
-                                <span>Roste</span>
+                              <div className="flex items-center text-green-600">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                </svg>
                               </div>
                             )}
                             {balance.trend === 'negative' && (
-                              <div className="flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium">
-                                <span>↓</span>
-                                <span>Klesá</span>
+                              <div className="flex items-center text-red-600">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                </svg>
                               </div>
                             )}
                             {balance.trend === 'neutral' && (
-                              <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
-                                <span>→</span>
-                                <span>Stabilní</span>
+                              <div className="flex items-center text-gray-500">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14" />
+                                </svg>
                               </div>
                             )}
-                          </div>
-                        </div>
-
-                        {/* Completion Rate */}
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs text-gray-500">Úspěšnost</span>
-                            <span className={`text-xs font-semibold ${
-                              balance.completion_rate_recent >= 80 ? 'text-green-600' :
-                              balance.completion_rate_recent >= 50 ? 'text-orange-600' :
-                              'text-red-600'
-                            }`}>
-                              {Math.round(balance.completion_rate_recent)}%
-                            </span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className={`h-2 rounded-full transition-all ${
-                                balance.completion_rate_recent >= 80 ? 'bg-green-500' :
-                                balance.completion_rate_recent >= 50 ? 'bg-orange-500' :
-                                'bg-red-500'
-                              }`}
-                              style={{ width: `${Math.min(balance.completion_rate_recent, 100)}%` }}
-                            ></div>
                           </div>
                         </div>
 
@@ -3538,6 +3555,15 @@ export function JourneyGameView({
           <AddAspirationModalWeb
             onClose={() => setShowAddAspirationModal(false)}
             onAspirationAdded={handleAddAspiration}
+          />
+        )}
+
+        {/* Edit Aspiration Modal */}
+        {editingAspiration && (
+          <AddAspirationModalWeb
+            aspiration={editingAspiration}
+            onClose={() => setEditingAspiration(null)}
+            onAspirationAdded={handleUpdateAspiration}
           />
         )}
       </div>
@@ -4671,7 +4697,6 @@ export function JourneyGameView({
           date: newStep.date ? new Date(newStep.date).toISOString() : new Date().toISOString(),
           isImportant: newStep.isImportant,
           isUrgent: newStep.isUrgent,
-          stepType: 'custom',
           estimatedTime: newStep.estimatedTime,
           xpReward: newStep.xpReward
         }),
@@ -9319,11 +9344,32 @@ export function JourneyGameView({
 }
 
 // Add Aspiration Modal Component
-function AddAspirationModalWeb({ onClose, onAspirationAdded }: { onClose: () => void; onAspirationAdded: (title: string, description: string, color: string) => void }) {
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [color, setColor] = useState('#3B82F6')
+function AddAspirationModalWeb({ 
+  aspiration, 
+  onClose, 
+  onAspirationAdded 
+}: { 
+  aspiration?: any
+  onClose: () => void
+  onAspirationAdded: (title: string, description: string, color: string) => void 
+}) {
+  const [title, setTitle] = useState(aspiration?.title || '')
+  const [description, setDescription] = useState(aspiration?.description || '')
+  const [color, setColor] = useState(aspiration?.color || '#3B82F6')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  // Update state when aspiration prop changes
+  useEffect(() => {
+    if (aspiration) {
+      setTitle(aspiration.title || '')
+      setDescription(aspiration.description || '')
+      setColor(aspiration.color || '#3B82F6')
+    } else {
+      setTitle('')
+      setDescription('')
+      setColor('#3B82F6')
+    }
+  }, [aspiration])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -9356,7 +9402,7 @@ function AddAspirationModalWeb({ onClose, onAspirationAdded }: { onClose: () => 
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold text-gray-900">Nová aspirace</h3>
+            <h3 className="text-2xl font-bold text-gray-900">{aspiration ? 'Upravit aspiraci' : 'Nová aspirace'}</h3>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -9423,7 +9469,7 @@ function AddAspirationModalWeb({ onClose, onAspirationAdded }: { onClose: () => 
                 disabled={!title.trim() || isSubmitting}
                 className="flex-1 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? 'Vytváření...' : 'Vytvořit'}
+                {isSubmitting ? (aspiration ? 'Ukládání...' : 'Vytváření...') : (aspiration ? 'Uložit' : 'Vytvořit')}
               </button>
       </div>
           </form>

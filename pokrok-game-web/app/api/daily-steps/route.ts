@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
         SELECT 
           id, user_id, goal_id, title, description, completed, 
           TO_CHAR(date, 'YYYY-MM-DD') as date,
-          is_important, is_urgent, step_type, custom_type_name, 
+          is_important, is_urgent, aspiration_id, 
           estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
         FROM daily_steps
         WHERE goal_id = ${goalId}
@@ -113,8 +113,7 @@ export async function POST(request: NextRequest) {
       date, 
       isImportant, 
       isUrgent, 
-      stepType,
-      customTypeName,
+      aspirationId,
       estimatedTime,
       xpReward
     } = body
@@ -181,8 +180,7 @@ export async function POST(request: NextRequest) {
       date: dateValue, // Pass as string (YYYY-MM-DD) or Date, createDailyStep will handle it
       is_important: isImportant || false,
       is_urgent: isUrgent || false,
-      step_type: stepType || 'custom',
-      custom_type_name: customTypeName || undefined,
+      aspiration_id: aspirationId || undefined,
       estimated_time: estimatedTime || 30,
       xp_reward: xpReward || 1
     }
@@ -214,7 +212,7 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     console.log('PUT /api/daily-steps - Request body:', body)
     
-    const { stepId, completed, completedAt, title, description, goalId, isImportant, isUrgent, estimatedTime, xpReward, date } = body
+    const { stepId, completed, completedAt, title, description, goalId, goal_id, aspirationId, aspiration_id, isImportant, isUrgent, estimatedTime, xpReward, date } = body
     
     if (!stepId) {
       console.log('PUT /api/daily-steps - Missing stepId')
@@ -246,7 +244,7 @@ export async function PUT(request: NextRequest) {
         RETURNING 
           id, user_id, goal_id, title, description, completed, 
           TO_CHAR(date, 'YYYY-MM-DD') as date,
-          is_important, is_urgent, step_type, custom_type_name, 
+          is_important, is_urgent, aspiration_id, 
           estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
       `
       
@@ -278,7 +276,7 @@ export async function PUT(request: NextRequest) {
           RETURNING 
             id, user_id, goal_id, title, description, completed, 
             TO_CHAR(date, 'YYYY-MM-DD') as date,
-            is_important, is_urgent, step_type, custom_type_name, 
+            is_important, is_urgent, aspiration_id, 
             estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
         `
         
@@ -305,7 +303,7 @@ export async function PUT(request: NextRequest) {
           RETURNING 
             id, user_id, goal_id, title, description, completed, 
             TO_CHAR(date, 'YYYY-MM-DD') as date,
-            is_important, is_urgent, step_type, custom_type_name, 
+            is_important, is_urgent, aspiration_id, 
             estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
         `
         
@@ -336,9 +334,15 @@ export async function PUT(request: NextRequest) {
         updateParts.push(`description = $${updateParts.length + 1}`)
         updateValues.push(description || null)
       }
-      if (goalId !== undefined) {
+      if (goalId !== undefined || goal_id !== undefined) {
+        const gId = goalId || goal_id
         updateParts.push(`goal_id = $${updateParts.length + 1}`)
-        updateValues.push(goalId || null)
+        updateValues.push(gId || null)
+      }
+      if (aspirationId !== undefined || aspiration_id !== undefined) {
+        const aId = aspirationId || aspiration_id
+        updateParts.push(`aspiration_id = $${updateParts.length + 1}`)
+        updateValues.push(aId || null)
       }
       if (isImportant !== undefined) {
         updateParts.push(`is_important = $${updateParts.length + 1}`)
@@ -398,7 +402,7 @@ export async function PUT(request: NextRequest) {
       // sql.unsafe() takes only the query string, so we need to include values directly
       // But we'll use PostgreSQL parameterized query format for safety
       // Return date as YYYY-MM-DD string using TO_CHAR
-      const query = `UPDATE daily_steps SET ${updateParts.join(', ')}, updated_at = NOW() WHERE id = $${updateValues.length + 1} RETURNING id, user_id, goal_id, title, description, completed, TO_CHAR(date, 'YYYY-MM-DD') as date, is_important, is_urgent, step_type, custom_type_name, estimated_time, xp_reward, deadline, completed_at, created_at, updated_at`
+      const query = `UPDATE daily_steps SET ${updateParts.join(', ')}, updated_at = NOW() WHERE id = $${updateValues.length + 1} RETURNING id, user_id, goal_id, title, description, completed, TO_CHAR(date, 'YYYY-MM-DD') as date, is_important, is_urgent, aspiration_id, estimated_time, xp_reward, deadline, completed_at, created_at, updated_at`
       updateValues.push(stepId)
       
       // Escape and format values for safe insertion

@@ -1332,7 +1332,9 @@ struct GoalDetailView: View {
                                 
                                 Button("Změnit") {
                                     selectedAspirationId = goal.aspirationId
-                                    loadAspirations()
+                                    Task {
+                                        await loadAspirations()
+                                    }
                                     showEditAspiration = true
                                 }
                                 .font(.subheadline)
