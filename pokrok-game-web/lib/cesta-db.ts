@@ -2,6 +2,53 @@ import { neon } from '@neondatabase/serverless'
 
 const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
 
+// Request-scoped cache for getUserByClerkId
+// Using a simple Map that's cleared after each request
+// This is safe because each request has its own isolated cache
+const userCache = new Map<string, { user: any, timestamp: number }>()
+const USER_CACHE_TTL = 1000 // 1 second - very short to ensure data freshness
+const MAX_CACHE_SIZE = 1000 // Prevent memory leaks
+
+// Cache for getHabitsByUserId (shorter TTL since habits change more frequently)
+const habitsCache = new Map<string, { habits: any[], timestamp: number }>()
+const HABITS_CACHE_TTL = 500 // 0.5 seconds - habits change more frequently
+
+function cleanupCache() {
+  const now = Date.now()
+  for (const [key, value] of userCache.entries()) {
+    if (now - value.timestamp > USER_CACHE_TTL) {
+      userCache.delete(key)
+    }
+  }
+  // If cache is too large, clear oldest entries
+  if (userCache.size > MAX_CACHE_SIZE) {
+    const entries = Array.from(userCache.entries())
+    entries.sort((a, b) => a[1].timestamp - b[1].timestamp)
+    const toDelete = entries.slice(0, Math.floor(MAX_CACHE_SIZE / 2))
+    for (const [key] of toDelete) {
+      userCache.delete(key)
+    }
+  }
+}
+
+function cleanupHabitsCache() {
+  const now = Date.now()
+  for (const [key, value] of habitsCache.entries()) {
+    if (now - value.timestamp > HABITS_CACHE_TTL) {
+      habitsCache.delete(key)
+    }
+  }
+  // If cache is too large, clear oldest entries
+  if (habitsCache.size > MAX_CACHE_SIZE) {
+    const entries = Array.from(habitsCache.entries())
+    entries.sort((a, b) => a[1].timestamp - b[1].timestamp)
+    const toDelete = entries.slice(0, Math.floor(MAX_CACHE_SIZE / 2))
+    for (const [key] of toDelete) {
+      habitsCache.delete(key)
+    }
+  }
+}
+
 export interface User {
   id: string
   clerk_user_id: string
@@ -570,11 +617,51 @@ export async function initializeCestaDatabase() {
         id VARCHAR(255) PRIMARY KEY,
         user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         daily_steps_count INTEGER DEFAULT 3,
+        workflow VARCHAR(20) DEFAULT 'daily_planning' CHECK (workflow IN ('daily_planning', 'no_workflow')),
+        daily_reset_hour INTEGER DEFAULT 0,
+        filters JSONB,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         UNIQUE(user_id)
       )
     `
+    
+    // Add missing columns if they don't exist (migration)
+    try {
+      // Check if workflow column exists
+      const workflowCheck = await sql`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'user_settings' AND column_name = 'workflow'
+      `
+      if (workflowCheck.length === 0) {
+        await sql`ALTER TABLE user_settings ADD COLUMN workflow VARCHAR(20) DEFAULT 'daily_planning'`
+        await sql`ALTER TABLE user_settings ADD CONSTRAINT user_settings_workflow_check CHECK (workflow IN ('daily_planning', 'no_workflow'))`
+      }
+      
+      // Check if daily_reset_hour column exists
+      const resetHourCheck = await sql`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'user_settings' AND column_name = 'daily_reset_hour'
+      `
+      if (resetHourCheck.length === 0) {
+        await sql`ALTER TABLE user_settings ADD COLUMN daily_reset_hour INTEGER DEFAULT 0`
+      }
+      
+      // Check if filters column exists
+      const filtersCheck = await sql`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'user_settings' AND column_name = 'filters'
+      `
+      if (filtersCheck.length === 0) {
+        await sql`ALTER TABLE user_settings ADD COLUMN filters JSONB`
+      }
+    } catch (error) {
+      // Ignore errors if columns already exist or other migration issues
+      console.error('Error adding user_settings columns:', error)
+    }
 
     // Create daily_planning table
     await sql`
@@ -666,15 +753,50 @@ export async function initializeCestaDatabase() {
 
 export async function getUserByClerkId(clerkUserId: string): Promise<User | null> {
   try {
+    // Check cache first
+    cleanupCache()
+    const cached = userCache.get(clerkUserId)
+    if (cached && (Date.now() - cached.timestamp) < USER_CACHE_TTL) {
+      return cached.user as User
+    }
+
+    // Fetch from database
     const users = await sql`
       SELECT * FROM users 
       WHERE clerk_user_id = ${clerkUserId}
       LIMIT 1
     `
-    return users[0] as User || null
+    const user = users[0] as User || null
+    
+    // Cache the result (even if null to avoid repeated queries for non-existent users)
+    if (userCache.size < MAX_CACHE_SIZE) {
+      userCache.set(clerkUserId, { user, timestamp: Date.now() })
+    }
+    
+    return user
   } catch (error) {
     console.error('Error fetching user by clerk ID:', error)
     return null
+  }
+}
+
+// Function to invalidate cache for a specific user (call after user updates)
+export function invalidateUserCache(clerkUserId: string): void {
+  userCache.delete(clerkUserId)
+}
+
+// Function to invalidate cache by userId (requires DB lookup)
+export async function invalidateUserCacheByUserId(userId: string): Promise<void> {
+  try {
+    const users = await sql`
+      SELECT clerk_user_id FROM users WHERE id = ${userId} LIMIT 1
+    `
+    if (users.length > 0) {
+      invalidateUserCache(users[0].clerk_user_id)
+    }
+  } catch (error) {
+    // If lookup fails, cache will expire naturally after TTL
+    console.error('Error invalidating user cache by userId:', error)
   }
 }
 
@@ -771,7 +893,12 @@ export async function createUser(clerkUserId: string, email: string, name: strin
     VALUES (${id}, ${clerkUserId}, ${email}, ${name}, false)
     RETURNING *
   `
-  return user[0] as User
+  const newUser = user[0] as User
+  
+  // Invalidate cache for this user
+  invalidateUserCache(clerkUserId)
+  
+  return newUser
 }
 
 export async function getGoalsByUserId(userId: string): Promise<Goal[]> {
@@ -878,8 +1005,6 @@ export interface AspirationBalance {
 
 export async function getAspirationBalance(userId: string, aspirationId: string): Promise<AspirationBalance> {
   try {
-    console.log('=== getAspirationBalance START ===')
-    console.log('Input parameters:', { userId, aspirationId })
     const now = new Date()
     const ninetyDaysAgo = new Date(now)
     ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
@@ -895,38 +1020,14 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
     previousWeekEnd.setDate(previousWeekEnd.getDate() - 7)
     previousWeekEnd.setHours(23, 59, 59, 999)
     
-    console.log('Time range:', { 
-      now: now.toISOString(), 
-      ninetyDaysAgo: ninetyDaysAgo.toISOString(),
-      lastWeekStart: lastWeekStart.toISOString(),
-      previousWeekStart: previousWeekStart.toISOString(),
-      previousWeekEnd: previousWeekEnd.toISOString()
-    })
-    
     // Get all goals for this aspiration
     const goals = await sql`
       SELECT id FROM goals
       WHERE user_id = ${userId} AND aspiration_id = ${aspirationId}
     `
-    console.log('Goals query result:', goals)
-    console.log('Goals for aspiration:', goals.length)
     const goalIds = goals.map((g: any) => g.id)
-    console.log('Goal IDs:', goalIds)
-    
-    // Get all habits for this aspiration
-    // First, let's check all habits for this user to see what aspiration_id they have
-    const allUserHabits = await sql`
-      SELECT id, name, aspiration_id FROM habits
-      WHERE user_id = ${userId}
-    `
-    console.log('🔍 All habits for user:', allUserHabits.map((h: any) => ({
-      id: h.id,
-      name: h.name,
-      aspiration_id: h.aspiration_id
-    })))
     
     // Get habits with their completions from habit_completions JSON field
-    // We need to use getHabitsByUserId to get the habit_completions JSON, or query it directly
     const habits = await sql`
       SELECT h.id, h.frequency, h.selected_days, h.created_at, h.xp_reward,
              COALESCE(
@@ -941,21 +1042,10 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
       WHERE h.user_id = ${userId} AND h.aspiration_id = ${aspirationId}
       GROUP BY h.id, h.frequency, h.selected_days, h.created_at, h.xp_reward
     `
-    console.log('Habits query result:', habits)
-    console.log('Habits for aspiration:', habits.length)
-    console.log('🔍 Looking for habits with aspiration_id:', aspirationId)
     const habitIds = habits.map((h: any) => h.id)
-    console.log('Habit IDs:', habitIds)
-    console.log('Habit details:', habits.map((h: any) => ({
-      id: h.id,
-      frequency: h.frequency,
-      selected_days: h.selected_days,
-      created_at: h.created_at
-    })))
     
     // If no goals and no habits, return empty balance
     if (goalIds.length === 0 && habitIds.length === 0) {
-      console.log('❌ Aspiration has no goals or habits, returning empty balance')
       return {
         aspiration_id: aspirationId,
         total_xp: 0,
@@ -992,7 +1082,6 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
     
     if (goalIds.length > 0) {
       try {
-        console.log('📊 Calculating step stats for goalIds:', goalIds)
         // Use = ANY with array literal - Neon doesn't support sql.array()
         const stepQuery = await sql`
           SELECT 
@@ -1010,26 +1099,10 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
           WHERE goal_id = ANY(${goalIds})
         `
         stepStats = stepQuery[0] || stepStats
-        console.log('📊 Step stats result:', stepStats)
-        console.log('📊 Step stats parsed:', {
-          total_completed: parseInt(String(stepStats.total_completed || 0)),
-          total_planned: parseInt(String(stepStats.total_planned || 0)),
-          recent_completed: parseInt(String(stepStats.recent_completed || 0)),
-          recent_planned: parseInt(String(stepStats.recent_planned || 0)),
-          total_xp: parseInt(String(stepStats.total_xp || 0)),
-          recent_xp: parseInt(String(stepStats.recent_xp || 0))
-        })
       } catch (error: any) {
-        console.error('❌ Error calculating step stats:', error)
-        console.error('Error details:', {
-          message: error?.message,
-          code: error?.code,
-          detail: error?.detail
-        })
+        console.error('Error calculating step stats:', error)
         // Don't throw, just use empty stats
       }
-    } else {
-      console.log('⏭️  No goals, skipping step stats calculation')
     }
     
     // Calculate habit statistics
@@ -1048,12 +1121,6 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
     
     if (habitIds.length > 0) {
       try {
-        console.log('🔄 Calculating habit stats for habitIds:', habitIds)
-        console.log('🔄 Habits with completions:', habits.map((h: any) => ({
-          id: h.id,
-          habit_completions: h.habit_completions
-        })))
-        
         // Calculate completions from habit_completions JSON field in habits table
         let totalCompleted = 0
         let recentCompleted = 0
@@ -1100,20 +1167,8 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
         habitStats.previousWeek_completed = previousWeekCompleted
         habitStats.total_xp = totalXp
         habitStats.recent_xp = recentXp
-        
-        console.log('🔄 Habit completions calculated from JSON:', {
-          total_completed: habitStats.total_completed,
-          recent_completed: habitStats.recent_completed,
-          total_xp: habitStats.total_xp,
-          recent_xp: habitStats.recent_xp
-        })
       } catch (error: any) {
-        console.error('❌ Error calculating habit stats:', error)
-        console.error('Error details:', {
-          message: error?.message,
-          code: error?.code,
-          detail: error?.detail
-        })
+        console.error('Error calculating habit stats:', error)
         // If there's an error, return empty stats
         habitStats = {
           total_completed: 0,
@@ -1128,13 +1183,9 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
         // For planned habits, we need to estimate based on frequency
         // Calculate planned habits based on habit frequency and creation date
         if (habitIds.length > 0) {
-          console.log('📅 Calculating planned habits for', habitIds.length, 'habits')
           const habitCreationDates = habits.map((h: any) => new Date(h.created_at))
           const oldestHabitDate = new Date(Math.min(...habitCreationDates.map((d: Date) => d.getTime())))
           const daysSinceOldestHabit = Math.floor((now.getTime() - oldestHabitDate.getTime()) / (1000 * 60 * 60 * 24))
-          
-          console.log('📅 Oldest habit date:', oldestHabitDate.toISOString(), 'Days since:', daysSinceOldestHabit)
-          console.log('📅 Current date:', now.toISOString())
           
           // Calculate planned habits based on frequency
           let totalPlannedHabits = 0
@@ -1148,17 +1199,6 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
             const daysSinceNinetyDaysAgo = Math.max(0, Math.min(daysSinceCreation, 90))
             const daysSinceLastWeek = Math.max(0, Math.min(daysSinceCreation, 7))
             const daysSincePreviousWeek = Math.max(0, Math.min(Math.max(0, daysSinceCreation - 7), 7))
-            
-            console.log(`📅 Habit ${habit.id}:`, {
-              created_at: habit.created_at,
-              created_at_parsed: habitCreatedAt.toISOString(),
-              frequency: habit.frequency,
-              selected_days: habit.selected_days,
-              daysSinceCreation,
-              daysSinceNinetyDaysAgo,
-              daysSinceLastWeek,
-              daysSincePreviousWeek
-            })
             
             let plannedCount = 0
             let recentPlannedCount = 0
@@ -1198,18 +1238,6 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
                 break
             }
             
-            console.log(`📅 Habit ${habit.id} calculation:`, {
-              frequency: habit.frequency,
-              daysSinceCreation,
-              daysSinceNinetyDaysAgo,
-              daysSinceLastWeek,
-              daysSincePreviousWeek,
-              plannedCount,
-              recentPlannedCount,
-              lastWeekPlannedCount,
-              previousWeekPlannedCount
-            })
-            
             totalPlannedHabits += Math.max(0, plannedCount)
             recentPlannedHabits += Math.max(0, recentPlannedCount)
             lastWeekPlannedHabits += Math.max(0, lastWeekPlannedCount)
@@ -1221,19 +1249,6 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
           recentPlannedHabits = Math.max(recentPlannedHabits, habitIds.length)
           lastWeekPlannedHabits = Math.max(lastWeekPlannedHabits, habitIds.length)
           previousWeekPlannedHabits = Math.max(previousWeekPlannedHabits, habitIds.length)
-          
-          console.log('📅 Total planned habits calculated:', {
-            before_minimum: totalPlannedHabits,
-            after_minimum: Math.max(totalPlannedHabits, habitIds.length),
-            recent_before_minimum: recentPlannedHabits,
-            recent_after_minimum: Math.max(recentPlannedHabits, habitIds.length),
-            lastWeek_before_minimum: lastWeekPlannedHabits,
-            lastWeek_after_minimum: Math.max(lastWeekPlannedHabits, habitIds.length),
-            previousWeek_before_minimum: previousWeekPlannedHabits,
-            previousWeek_after_minimum: Math.max(previousWeekPlannedHabits, habitIds.length),
-            habitCount: habitIds.length
-          })
-          console.log('📅 Habit stats before update:', habitStats)
           
           // Use the calculated planned habits, but ensure it's at least the number of completions
           habitStats.total_planned = Math.max(
@@ -1256,54 +1271,19 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
             parseInt(String(habitStats.previousWeek_completed || 0)),
             previousWeekPlannedHabits
           )
-          
-          console.log('📅 Habit stats after update:', {
-            total_planned: habitStats.total_planned,
-            recent_planned: habitStats.recent_planned,
-            lastWeek_planned: habitStats.lastWeek_planned,
-            previousWeek_planned: habitStats.previousWeek_planned,
-            total_completed: habitStats.total_completed,
-            recent_completed: habitStats.recent_completed,
-            lastWeek_completed: habitStats.lastWeek_completed,
-            previousWeek_completed: habitStats.previousWeek_completed
-          })
         } else {
           // Fallback to old logic if no habits
-          console.log('⏭️  No habits, skipping planned habits calculation')
           habitStats.total_planned = Math.max(parseInt(String(habitStats.total_planned || 0)), parseInt(String(habitStats.total_completed || 0)))
           habitStats.recent_planned = Math.max(parseInt(String(habitStats.recent_planned || 0)), parseInt(String(habitStats.recent_completed || 0)))
           habitStats.lastWeek_planned = Math.max(parseInt(String(habitStats.lastWeek_planned || 0)), parseInt(String(habitStats.lastWeek_completed || 0)))
           habitStats.previousWeek_planned = Math.max(parseInt(String(habitStats.previousWeek_planned || 0)), parseInt(String(habitStats.previousWeek_completed || 0)))
         }
-    } else {
-      console.log('⏭️  No habits, skipping habit stats calculation')
     }
     
     const totalCompleted = parseInt(String(stepStats.total_completed || 0)) + parseInt(String(habitStats.total_completed || 0))
     const totalPlanned = parseInt(String(stepStats.total_planned || 0)) + parseInt(String(habitStats.total_planned || 0))
     const recentCompleted = parseInt(String(stepStats.recent_completed || 0)) + parseInt(String(habitStats.recent_completed || 0))
     const recentPlanned = parseInt(String(stepStats.recent_planned || 0)) + parseInt(String(habitStats.recent_planned || 0))
-    
-    console.log('🔢 Final calculations:', {
-      stepStats: {
-        total_completed: parseInt(String(stepStats.total_completed || 0)),
-        total_planned: parseInt(String(stepStats.total_planned || 0)),
-        recent_completed: parseInt(String(stepStats.recent_completed || 0)),
-        recent_planned: parseInt(String(stepStats.recent_planned || 0))
-      },
-      habitStats: {
-        total_completed: parseInt(String(habitStats.total_completed || 0)),
-        total_planned: parseInt(String(habitStats.total_planned || 0)),
-        recent_completed: parseInt(String(habitStats.recent_completed || 0)),
-        recent_planned: parseInt(String(habitStats.recent_planned || 0))
-      },
-      totals: {
-        totalCompleted,
-        totalPlanned,
-        recentCompleted,
-        recentPlanned
-      }
-    })
     
     const completionRateAllTime = totalPlanned > 0 ? (totalCompleted / totalPlanned) * 100 : 0
     const completionRateRecent = recentPlanned > 0 ? (recentCompleted / recentPlanned) * 100 : 0
@@ -1398,7 +1378,12 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
   }
 }
 
-export async function getDailyStepsByUserId(userId: string, date?: Date): Promise<DailyStep[]> {
+export async function getDailyStepsByUserId(
+  userId: string, 
+  date?: Date, 
+  startDate?: string, 
+  endDate?: string
+): Promise<DailyStep[]> {
   try {
     let query
     if (date) {
@@ -1424,9 +1409,27 @@ export async function getDailyStepsByUserId(userId: string, date?: Date): Promis
           is_urgent DESC,
           created_at ASC
       `
+    } else if (startDate && endDate) {
+      // Get steps for date range (optimized query)
+      query = sql`
+        SELECT 
+          id, user_id, goal_id, title, description, completed, 
+          TO_CHAR(date, 'YYYY-MM-DD') as date,
+          is_important, is_urgent, aspiration_id, 
+          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
+        FROM daily_steps 
+        WHERE user_id = ${userId}
+        AND date >= ${startDate}::date
+        AND date <= ${endDate}::date
+        ORDER BY 
+          CASE WHEN completed THEN 1 ELSE 0 END,
+          date ASC,
+          is_important DESC,
+          is_urgent DESC,
+          created_at DESC
+      `
     } else {
-      // Get all steps for user
-      // Use TO_CHAR to return date as YYYY-MM-DD string to avoid timezone issues
+      // Get all steps for user (fallback - should be avoided for performance)
       query = sql`
         SELECT 
           id, user_id, goal_id, title, description, completed, 
@@ -1727,6 +1730,73 @@ export async function updateDailyStepValue(stepId: string, value: number): Promi
   } catch (error) {
     console.error('Error updating daily step value:', error)
     throw error
+  }
+}
+
+// Safe update function for daily steps with multiple fields
+export async function updateDailyStepFields(
+  stepId: string,
+  updates: {
+    title?: string
+    description?: string
+    goal_id?: string | null
+    aspiration_id?: string | null
+    is_important?: boolean
+    is_urgent?: boolean
+    estimated_time?: number
+    xp_reward?: number
+    date?: string | null
+  }
+): Promise<DailyStep | null> {
+  try {
+    // Use individual safe updates with template literals
+    if (updates.title !== undefined) {
+      await sql`UPDATE daily_steps SET title = ${updates.title}, updated_at = NOW() WHERE id = ${stepId}`
+    }
+    if (updates.description !== undefined) {
+      await sql`UPDATE daily_steps SET description = ${updates.description}, updated_at = NOW() WHERE id = ${stepId}`
+    }
+    if (updates.goal_id !== undefined) {
+      await sql`UPDATE daily_steps SET goal_id = ${updates.goal_id}, updated_at = NOW() WHERE id = ${stepId}`
+    }
+    if (updates.aspiration_id !== undefined) {
+      await sql`UPDATE daily_steps SET aspiration_id = ${updates.aspiration_id}, updated_at = NOW() WHERE id = ${stepId}`
+    }
+    if (updates.is_important !== undefined) {
+      await sql`UPDATE daily_steps SET is_important = ${updates.is_important}, updated_at = NOW() WHERE id = ${stepId}`
+    }
+    if (updates.is_urgent !== undefined) {
+      await sql`UPDATE daily_steps SET is_urgent = ${updates.is_urgent}, updated_at = NOW() WHERE id = ${stepId}`
+    }
+    if (updates.estimated_time !== undefined) {
+      await sql`UPDATE daily_steps SET estimated_time = ${updates.estimated_time}, updated_at = NOW() WHERE id = ${stepId}`
+    }
+    if (updates.xp_reward !== undefined) {
+      await sql`UPDATE daily_steps SET xp_reward = ${updates.xp_reward}, updated_at = NOW() WHERE id = ${stepId}`
+    }
+    if (updates.date !== undefined) {
+      await sql`UPDATE daily_steps SET date = ${updates.date}, updated_at = NOW() WHERE id = ${stepId}`
+    }
+
+    // Get the updated step with formatted date
+    const result = await sql`
+      SELECT 
+        id, user_id, goal_id, title, description, completed, 
+        TO_CHAR(date, 'YYYY-MM-DD') as date,
+        is_important, is_urgent, aspiration_id, 
+        estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
+      FROM daily_steps 
+      WHERE id = ${stepId}
+    `
+
+    if (result.length === 0) {
+      return null
+    }
+
+    return result[0] as DailyStep
+  } catch (error) {
+    console.error('Error updating daily step fields:', error)
+    return null
   }
 }
 
@@ -2383,7 +2453,8 @@ export async function updateUserOnboardingStatus(userId: string, hasCompletedOnb
       WHERE id = ${userId}
     `
     
-    console.log('Update result:', result)
+    // Invalidate cache for this user
+    await invalidateUserCacheByUserId(userId)
   } catch (error) {
     console.error('Error updating user onboarding status:', error)
     throw error
@@ -3433,7 +3504,6 @@ export async function updatePlayer(playerId: string, updates: Partial<Player>): 
 export async function createHabit(habitData: Omit<Habit, 'id' | 'created_at' | 'updated_at'>): Promise<Habit | null> {
   try {
     const id = crypto.randomUUID()
-    console.log('Creating habit with ID:', id, 'Data:', habitData)
     
     const result = await sql`
       INSERT INTO habits (
@@ -3446,12 +3516,12 @@ export async function createHabit(habitData: Omit<Habit, 'id' | 'created_at' | '
       ) RETURNING *
     `
     
-    console.log('Create habit result:', result)
-    
     if (result.length === 0) {
-      console.log('No habit created')
       return null
     }
+    
+    // Invalidate habits cache for this user
+    invalidateHabitsCache(habitData.user_id)
     
     return result[0] as Habit
   } catch (error) {
@@ -3462,7 +3532,12 @@ export async function createHabit(habitData: Omit<Habit, 'id' | 'created_at' | '
 
 export async function updateHabit(habitId: string, updates: Partial<Omit<Habit, 'id' | 'user_id' | 'created_at' | 'updated_at'>>): Promise<Habit | null> {
   try {
-    console.log('Updating habit with ID:', habitId, 'Updates:', updates)
+    // Get user_id first to invalidate cache
+    const habit = await sql`SELECT user_id FROM habits WHERE id = ${habitId} LIMIT 1`
+    if (habit.length === 0) {
+      return null
+    }
+    const userId = habit[0].user_id
     
     const result = await sql`
       UPDATE habits 
@@ -3482,12 +3557,12 @@ export async function updateHabit(habitId: string, updates: Partial<Omit<Habit, 
       RETURNING *
     `
     
-    console.log('Update result:', result)
-    
     if (result.length === 0) {
-      console.log('No habit found with ID:', habitId)
       return null
     }
+    
+    // Invalidate habits cache for this user
+    invalidateHabitsCache(userId)
     
     return result[0] as Habit
   } catch (error) {
@@ -3498,6 +3573,13 @@ export async function updateHabit(habitId: string, updates: Partial<Omit<Habit, 
 
 export async function getHabitsByUserId(userId: string): Promise<Habit[]> {
   try {
+    // Check cache first
+    cleanupHabitsCache()
+    const cached = habitsCache.get(userId)
+    if (cached && (Date.now() - cached.timestamp) < HABITS_CACHE_TTL) {
+      return cached.habits as Habit[]
+    }
+
     const result = await sql`
       SELECT h.*, 
              COALESCE(
@@ -3514,27 +3596,41 @@ export async function getHabitsByUserId(userId: string): Promise<Habit[]> {
       ORDER BY h.created_at DESC
     `
     
-    console.log('Debug - getHabitsByUserId result:', result)
-    const studenaSprcha = result.find((h: any) => h.name === 'Studená sprcha')
-    if (studenaSprcha) {
-      console.log('Debug - Studená sprcha from DB:', studenaSprcha)
-      console.log('Debug - Studená sprcha habit_completions from DB:', studenaSprcha.habit_completions)
-    }
-    
-    return result.map((habit: any) => ({
+    const habits = result.map((habit: any) => ({
       ...habit,
       habit_completions: habit.habit_completions || {}
     })) as Habit[]
+    
+    // Cache the result
+    if (habitsCache.size < MAX_CACHE_SIZE) {
+      habitsCache.set(userId, { habits, timestamp: Date.now() })
+    }
+    
+    return habits
   } catch (error) {
     console.error('Error fetching habits by user ID:', error)
     return []
   }
 }
 
+// Function to invalidate habits cache for a user (call after habit updates)
+export function invalidateHabitsCache(userId: string): void {
+  habitsCache.delete(userId)
+}
+
 
 export async function deleteHabit(habitId: string): Promise<boolean> {
   try {
-    await sql`DELETE FROM habits WHERE id = ${habitId}`
+    // Get user_id first to invalidate cache
+    const habit = await sql`SELECT user_id FROM habits WHERE id = ${habitId} LIMIT 1`
+    if (habit.length > 0) {
+      const userId = habit[0].user_id
+      await sql`DELETE FROM habits WHERE id = ${habitId}`
+      // Invalidate habits cache for this user
+      invalidateHabitsCache(userId)
+    } else {
+      await sql`DELETE FROM habits WHERE id = ${habitId}`
+    }
     return true
   } catch (error) {
     console.error('Error deleting habit:', error)
@@ -3569,6 +3665,9 @@ export async function toggleHabitCompletion(userId: string, habitId: string, dat
         UPDATE habits SET streak = ${newStreak} WHERE id = ${habitId} AND user_id = ${userId}
       `
       
+      // Invalidate habits cache for this user
+      invalidateHabitsCache(userId)
+      
       return { completed: false, streak: newStreak }
     } else {
       // Add completion (mark as completed)
@@ -3586,6 +3685,9 @@ export async function toggleHabitCompletion(userId: string, habitId: string, dat
       await sql`
         UPDATE habits SET streak = ${newStreak} WHERE id = ${habitId} AND user_id = ${userId}
       `
+      
+      // Invalidate habits cache for this user
+      invalidateHabitsCache(userId)
       
       return { completed: true, streak: newStreak }
     }
