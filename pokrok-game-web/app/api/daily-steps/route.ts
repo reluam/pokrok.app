@@ -44,6 +44,32 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userId')
     const date = searchParams.get('date')
+    const goalId = searchParams.get('goalId')
+    
+    // Support both userId and goalId queries
+    if (goalId) {
+      // Get steps for a specific goal
+      const { neon } = await import('@neondatabase/serverless')
+      const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
+      
+      const steps = await sql`
+        SELECT 
+          id, user_id, goal_id, title, description, completed, 
+          TO_CHAR(date, 'YYYY-MM-DD') as date,
+          is_important, is_urgent, step_type, custom_type_name, 
+          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
+        FROM daily_steps
+        WHERE goal_id = ${goalId}
+        ORDER BY created_at DESC
+      `
+      
+      const normalizedSteps = steps.map((step: any) => ({
+        ...step,
+        date: normalizeDateFromDB(step.date)
+      }))
+      
+      return NextResponse.json(normalizedSteps)
+    }
     
     if (!userId) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 })

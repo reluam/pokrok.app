@@ -785,52 +785,81 @@ struct AddGoalModal: View {
     @State private var selectedDate = Date()
     @State private var hasTargetDate = false
     @State private var priority = "meaningful"
+    @State private var aspirations: [Aspiration] = []
+    @State private var selectedAspirationId: String? = nil
     @State private var isLoading = false
+    @State private var isLoadingAspirations = false
     @State private var errorMessage = ""
     @State private var showError = false
     let onGoalAdded: () -> Void
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 20) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Název cíle")
-                        .font(.headline)
-                    TextField("Např. Naučit se španělsky", text: $goalTitle)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Popis (volitelné)")
-                        .font(.headline)
-                    TextField("Popište svůj cíl podrobněji...", text: $goalDescription, axis: .vertical)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .lineLimit(3...6)
-                }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Priorita")
-                        .font(.headline)
-                    Picker("Priorita", selection: $priority) {
-                        Text("Smysluplné").tag("meaningful")
-                        Text("Příjemné").tag("nice-to-have")
+            ScrollView {
+                VStack(spacing: 20) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Název cíle")
+                            .font(.headline)
+                        TextField("Např. Naučit se španělsky", text: $goalTitle)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
                     }
-                    .pickerStyle(SegmentedPickerStyle())
-                }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Toggle("Máte cílové datum?", isOn: $hasTargetDate)
-                        .font(.headline)
                     
-                    if hasTargetDate {
-                        DatePicker("Cílové datum", selection: $selectedDate, displayedComponents: .date)
-                            .datePickerStyle(CompactDatePickerStyle())
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Popis (volitelné)")
+                            .font(.headline)
+                        TextField("Popište svůj cíl podrobněji...", text: $goalDescription, axis: .vertical)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .lineLimit(3...6)
                     }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Aspirace (volitelné)")
+                            .font(.headline)
+                        
+                        if isLoadingAspirations {
+                            ProgressView()
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .padding()
+                        } else if aspirations.isEmpty {
+                            Text("Žádné aspirace")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .padding(.vertical, 8)
+                        } else {
+                            Picker("Aspirace", selection: $selectedAspirationId) {
+                                Text("Bez aspirace").tag(nil as String?)
+                                ForEach(aspirations, id: \.id) { aspiration in
+                                    Text(aspiration.title).tag(aspiration.id as String?)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                        }
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Priorita")
+                            .font(.headline)
+                        Picker("Priorita", selection: $priority) {
+                            Text("Smysluplné").tag("meaningful")
+                            Text("Příjemné").tag("nice-to-have")
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Toggle("Máte cílové datum?", isOn: $hasTargetDate)
+                            .font(.headline)
+                        
+                        if hasTargetDate {
+                            DatePicker("Cílové datum", selection: $selectedDate, displayedComponents: .date)
+                                .datePickerStyle(CompactDatePickerStyle())
+                        }
+                    }
+                    
+                    Spacer(minLength: 20)
                 }
-                
-                Spacer()
+                .padding()
             }
-                    .padding()
             .navigationTitle("Přidat cíl")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -852,6 +881,24 @@ struct AddGoalModal: View {
             } message: {
                 Text(errorMessage)
             }
+            .task {
+                await loadAspirations()
+            }
+        }
+    }
+    
+    private func loadAspirations() async {
+        isLoadingAspirations = true
+        do {
+            let fetchedAspirations = try await apiManager.fetchAspirations()
+            await MainActor.run {
+                self.aspirations = fetchedAspirations
+                self.isLoadingAspirations = false
+            }
+        } catch {
+            await MainActor.run {
+                self.isLoadingAspirations = false
+            }
         }
     }
     
@@ -865,7 +912,8 @@ struct AddGoalModal: View {
                     description: goalDescription.isEmpty ? nil : goalDescription,
                     targetDate: hasTargetDate ? selectedDate : nil,
                     priority: priority,
-                    icon: nil
+                    icon: nil,
+                    aspirationId: selectedAspirationId
                 )
                 
                 _ = try await apiManager.createGoal(goalRequest)
@@ -1196,6 +1244,10 @@ struct GoalDetailView: View {
     @State private var isLoading = false
     @State private var errorMessage = ""
     @State private var showError = false
+    @State private var showEditAspiration = false
+    @State private var aspirations: [Aspiration] = []
+    @State private var selectedAspirationId: String? = nil
+    @State private var isLoadingAspirations = false
     
     var body: some View {
         NavigationView {
@@ -1213,6 +1265,81 @@ struct GoalDetailView: View {
                             .font(.body)
                             .foregroundColor(.secondary)
                             .padding(.horizontal)
+                    }
+                    
+                    // Aspiration Section
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Aspirace")
+                            .font(.headline)
+                            .padding(.horizontal)
+                        
+                        if showEditAspiration {
+                            if isLoadingAspirations {
+                                ProgressView()
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                    .padding()
+                            } else if aspirations.isEmpty {
+                                Text("Žádné aspirace")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                    .padding(.horizontal)
+                            } else {
+                                Picker("Aspirace", selection: $selectedAspirationId) {
+                                    Text("Bez aspirace").tag(nil as String?)
+                                    ForEach(aspirations, id: \.id) { aspiration in
+                                        Text(aspiration.title).tag(aspiration.id as String?)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .padding(.horizontal)
+                                
+                                HStack {
+                                    Button("Zrušit") {
+                                        selectedAspirationId = goal.aspirationId
+                                        showEditAspiration = false
+                                    }
+                                    .foregroundColor(.secondary)
+                                    
+                                    Spacer()
+                                    
+                                    Button("Uložit") {
+                                        saveAspiration()
+                                    }
+                                    .foregroundColor(.blue)
+                                    .disabled(isLoading)
+                                }
+                                .padding(.horizontal)
+                            }
+                        } else {
+                            HStack {
+                                if let aspirationId = goal.aspirationId,
+                                   let aspiration = aspirations.first(where: { $0.id == aspirationId }) {
+                                    HStack {
+                                        Circle()
+                                            .fill(colorFromHex(aspiration.color))
+                                            .frame(width: 12, height: 12)
+                                        Text(aspiration.title)
+                                            .font(.subheadline)
+                                    }
+                                    .foregroundColor(.secondary)
+                                } else {
+                                    Text("Bez aspirace")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Spacer()
+                                
+                                Button("Změnit") {
+                                    selectedAspirationId = goal.aspirationId
+                                    loadAspirations()
+                                    showEditAspiration = true
+                                }
+                                .font(.subheadline)
+                                .foregroundColor(.blue)
+                            }
+                            .padding(.horizontal)
+                        }
                     }
                     
                     // Progress Section
@@ -1283,6 +1410,52 @@ struct GoalDetailView: View {
             } message: {
                 Text(errorMessage)
             }
+            .task {
+                await loadAspirations()
+            }
+        }
+    }
+    
+    private func loadAspirations() async {
+        isLoadingAspirations = true
+        do {
+            let fetchedAspirations = try await apiManager.fetchAspirations()
+            await MainActor.run {
+                self.aspirations = fetchedAspirations
+                self.isLoadingAspirations = false
+            }
+        } catch {
+            await MainActor.run {
+                self.isLoadingAspirations = false
+            }
+        }
+    }
+    
+    private func saveAspiration() {
+        isLoading = true
+        
+        Task {
+            do {
+                _ = try await apiManager.updateGoal(
+                    goalId: goal.id,
+                    title: nil,
+                    description: nil,
+                    targetDate: nil,
+                    aspirationId: selectedAspirationId
+                )
+                
+                await MainActor.run {
+                    isLoading = false
+                    showEditAspiration = false
+                    dismiss()
+                }
+            } catch {
+                await MainActor.run {
+                    isLoading = false
+                    errorMessage = error.localizedDescription
+                    showError = true
+                }
+            }
         }
     }
     
@@ -1297,6 +1470,21 @@ struct GoalDetailView: View {
                 dismiss()
             }
         }
+    }
+    
+    private func colorFromHex(_ hex: String) -> Color {
+        var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+        hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
+        
+        var rgb: UInt64 = 0
+        
+        Scanner(string: hexSanitized).scanHexInt64(&rgb)
+        
+        let red = Double((rgb & 0xFF0000) >> 16) / 255.0
+        let green = Double((rgb & 0x00FF00) >> 8) / 255.0
+        let blue = Double(rgb & 0x0000FF) / 255.0
+        
+        return Color(red: red, green: green, blue: blue)
     }
 }
 

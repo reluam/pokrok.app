@@ -101,7 +101,7 @@ export function JourneyGameView({
   const [selectedItem, setSelectedItem] = useState<any>(null)
   const [selectedItemType, setSelectedItemType] = useState<'step' | 'habit' | 'goal' | 'stat' | null>(null)
   const [currentMonth, setCurrentMonth] = useState(new Date())
-  const [currentProgram, setCurrentProgram] = useState<'day' | 'week' | 'month' | 'year'>('day')
+  const [currentProgram, setCurrentProgram] = useState<'day' | 'week' | 'month' | 'year' | 'overview'>('day')
   const [selectedDayDate, setSelectedDayDate] = useState<Date>(new Date()) // Currently displayed day in day view
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear()) // Currently displayed year in year view
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date()) // Currently displayed month in month view
@@ -173,12 +173,18 @@ export function JourneyGameView({
   const stepsRef = useRef<HTMLDivElement>(null)
   
   const [areas, setAreas] = useState<any[]>([])
+  const [aspirations, setAspirations] = useState<any[]>([])
+  const [overviewAspirations, setOverviewAspirations] = useState<any[]>([])
+  const [overviewBalances, setOverviewBalances] = useState<Record<string, any>>({})
+  const [isLoadingOverview, setIsLoadingOverview] = useState(false)
+  const [showAddAspirationModal, setShowAddAspirationModal] = useState(false)
   const [sortedGoals, setSortedGoals] = useState<any[]>([])
   const [showCreateGoal, setShowCreateGoal] = useState(false)
   const [newGoal, setNewGoal] = useState({
     title: '',
     description: '',
     areaId: null,
+    aspirationId: null,
     target_date: null,
     status: 'active',
     steps: [] as Array<{ id: string; title: string; description?: string; date?: string; isEditing?: boolean }>,
@@ -186,12 +192,15 @@ export function JourneyGameView({
   })
   const [showGoalDatePicker, setShowGoalDatePicker] = useState(false)
   const [showAreaPicker, setShowAreaPicker] = useState(false)
+  const [showAspirationPicker, setShowAspirationPicker] = useState(false)
   const [showStatusPicker, setShowStatusPicker] = useState(false)
   const [datePickerButtonRef, setDatePickerButtonRef] = useState<HTMLButtonElement | null>(null)
   const [areaPickerButtonRef, setAreaPickerButtonRef] = useState<HTMLButtonElement | null>(null)
+  const [aspirationPickerButtonRef, setAspirationPickerButtonRef] = useState<HTMLButtonElement | null>(null)
   const [statusPickerButtonRef, setStatusPickerButtonRef] = useState<HTMLButtonElement | null>(null)
   const [datePickerPosition, setDatePickerPosition] = useState<{ top: number; left: number } | null>(null)
   const [areaPickerPosition, setAreaPickerPosition] = useState<{ top: number; left: number; maxHeight: number } | null>(null)
+  const [aspirationPickerPosition, setAspirationPickerPosition] = useState<{ top: number; left: number; maxHeight: number } | null>(null)
   const [statusPickerPosition, setStatusPickerPosition] = useState<{ top: number; left: number } | null>(null)
   const [goalsWithMilestones, setGoalsWithMilestones] = useState<Array<{ goal: any; nextMilestone: any }>>([])
   const [isLoadingMilestones, setIsLoadingMilestones] = useState(false)
@@ -206,7 +215,18 @@ export function JourneyGameView({
     xpReward: 1,
     date: getLocalDateString() // Default to today
   })
-  const [newHabit, setNewHabit] = useState({
+  const [newHabit, setNewHabit] = useState<{
+    name: string
+    description: string
+    frequency: string
+    reminderTime: string
+    reminderEnabled: boolean
+    selectedDays: string[]
+    alwaysShow: boolean
+    xpReward: number
+    customXpReward: string
+    aspirationId: string | null
+  }>({
     name: '',
     description: '',
     frequency: 'daily',
@@ -215,7 +235,8 @@ export function JourneyGameView({
     selectedDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
     alwaysShow: false,
     xpReward: 1,
-    customXpReward: ''
+    customXpReward: '',
+    aspirationId: null
   })
   
   // Filters for steps page
@@ -251,6 +272,20 @@ export function JourneyGameView({
       setAreaPickerPosition(null)
     }
   }, [showAreaPicker, areaPickerButtonRef])
+
+  useLayoutEffect(() => {
+    if (showAspirationPicker && aspirationPickerButtonRef) {
+      const rect = aspirationPickerButtonRef.getBoundingClientRect()
+      const availableHeight = window.innerHeight - rect.bottom - 4
+      setAspirationPickerPosition({
+        top: rect.bottom - 2,
+        left: rect.left,
+        maxHeight: availableHeight < 256 ? availableHeight : 256
+      })
+    } else {
+      setAspirationPickerPosition(null)
+    }
+  }, [showAspirationPicker, aspirationPickerButtonRef])
 
   useLayoutEffect(() => {
     if (showStatusPicker && statusPickerButtonRef) {
@@ -552,7 +587,8 @@ export function JourneyGameView({
       selectedDays: habit.selected_days || [],
       alwaysShow: habit.always_show || false,
       xpReward: habit.xp_reward || 1,
-      customXpReward: ''
+      customXpReward: '',
+      aspirationId: habit.aspiration_id || habit.aspirationId || null
     })
   }
 
@@ -758,8 +794,8 @@ export function JourneyGameView({
           const currentUserId = userId || player?.user_id
           if (currentUserId) {
             const updatedSteps = await fetch(`/api/daily-steps?userId=${currentUserId}`)
-              .then(res => res.json())
-            onDailyStepsUpdate?.(updatedSteps)
+            .then(res => res.json())
+          onDailyStepsUpdate?.(updatedSteps)
           }
           
           // Update selectedItem to the newly created step (keep it open)
@@ -808,8 +844,8 @@ export function JourneyGameView({
           const currentUserId = userId || player?.user_id
           if (currentUserId) {
             const updatedSteps = await fetch(`/api/daily-steps?userId=${currentUserId}`)
-              .then(res => res.json())
-            onDailyStepsUpdate?.(updatedSteps)
+            .then(res => res.json())
+          onDailyStepsUpdate?.(updatedSteps)
           }
           setEditingStepTitle(false)
         }
@@ -1699,7 +1735,7 @@ export function JourneyGameView({
                         value={editingHabitFrequency || item.frequency || 'daily'}
                         onChange={(e) => setEditingHabitFrequency(e.target.value as 'daily' | 'weekly' | 'monthly' | 'custom')}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      >
+                    >
                         <option value="daily">Denně</option>
                         <option value="weekly">Týdně</option>
                         <option value="monthly">Měsíčně</option>
@@ -1734,13 +1770,13 @@ export function JourneyGameView({
                                     ? currentDays.filter((d: string) => d !== day)
                                     : [...currentDays, day]
                                   setEditingHabitSelectedDays(newDays)
-                                }}
+                      }}
                                 className={`px-3 py-1 rounded-lg font-medium transition-colors ${
                                   isSelected
                                     ? 'bg-orange-500 text-white'
                                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                 }`}
-                              >
+                    >
                                 {dayLabels[day]}
                     </button>
                             )
@@ -1799,7 +1835,7 @@ export function JourneyGameView({
                         value={editingHabitDifficulty || item.difficulty || 'medium'}
                         onChange={(e) => setEditingHabitDifficulty(e.target.value as 'easy' | 'medium' | 'hard')}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      >
+                    >
                         <option value="easy">Snadná</option>
                         <option value="medium">Střední</option>
                         <option value="hard">Těžká</option>
@@ -1816,7 +1852,7 @@ export function JourneyGameView({
                         value={editingHabitReminderTime || (item.reminder_time || '')}
                         onChange={(e) => setEditingHabitReminderTime(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      />
+                    />
                     </div>
                     
                     <div className="flex gap-2 pt-2">
@@ -1871,7 +1907,8 @@ export function JourneyGameView({
         // Create a goal object that matches GoalEditingForm's expected format
         const goalForEditing = {
           ...item,
-          areaId: item.area_id || item.areaId || ''
+          areaId: item.area_id || item.areaId || '',
+          aspirationId: item.aspiration_id || item.aspirationId || ''
         }
         
         const handleUpdateGoalForDetail = async (goalId: string, updates: any) => {
@@ -2318,6 +2355,8 @@ export function JourneyGameView({
         return renderMonthContent()
       case 'year':
         return renderYearContent()
+      case 'overview':
+        return renderOverviewContent()
       default:
         return renderDayContent()
     }
@@ -2481,7 +2520,7 @@ export function JourneyGameView({
     }
     
     return (
-      <div className="w-full h-full flex flex-col p-6">
+      <div className="w-full flex flex-col p-6">
         {/* Header with date, navigation arrows and progress */}
         <div className="mb-6 flex-shrink-0">
           <div className="flex items-center justify-between mb-3">
@@ -2818,9 +2857,9 @@ export function JourneyGameView({
   // Render Week Content - Weekly calendar view with habits and steps under each day
   const renderWeekContent = () => {
     return (
-      <div className="w-full h-full flex flex-col">
+      <div className="w-full flex flex-col">
         {/* Calendar Week View - Full width */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1">
           <CalendarProgram
             player={player}
             goals={goals}
@@ -2839,9 +2878,9 @@ export function JourneyGameView({
   // Render Month Content - Monthly calendar view with compact tiles and detail view on click
   const renderMonthContent = () => {
     return (
-      <div className="w-full h-full flex flex-col">
+      <div className="w-full flex flex-col">
         {/* Calendar Month View - Full width with detail view below */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1">
           <CalendarProgram
             player={player}
             goals={goals}
@@ -3208,6 +3247,299 @@ export function JourneyGameView({
             </div>
           </div>
         </div>
+      </div>
+    )
+  }
+
+  // Render Overview Content - Aspirations overview
+  const renderOverviewContent = () => {
+    const calculateInsights = () => {
+      const easy: string[] = []
+      const hard: string[] = []
+      
+      overviewAspirations.forEach(aspiration => {
+        const balance = overviewBalances[aspiration.id]
+        if (balance) {
+          const rate = balance.completion_rate_recent
+          if (rate >= 80) {
+            easy.push(aspiration.title)
+          } else if (rate < 30) {
+            hard.push(aspiration.title)
+          }
+        }
+      })
+      
+      return { easy, hard }
+    }
+
+    const handleAddAspiration = async (title: string, description: string, color: string) => {
+      try {
+        const response = await fetch('/api/aspirations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, description, color })
+        })
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+          console.error('Failed to create aspiration:', errorData)
+          alert(`Chyba při vytváření aspirace: ${errorData.error || errorData.details || 'Neznámá chyba'}`)
+          return
+        }
+        
+        const newAspiration = await response.json()
+        console.log('Aspiration created successfully:', newAspiration)
+        
+        // Reload overview data
+        const loadOverviewData = async () => {
+          setIsLoadingOverview(true)
+          try {
+            const res = await fetch('/api/aspirations')
+            if (res.ok) {
+              const data = await res.json()
+              setOverviewAspirations(data || [])
+              
+              const balances: Record<string, any> = {}
+              for (const aspiration of data || []) {
+                try {
+                  console.log(`🔄 Loading balance for aspiration ${aspiration.id}`)
+                  const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${aspiration.id}`)
+                  if (balanceResponse.ok) {
+                    const balance = await balanceResponse.json()
+                    console.log(`✅ Balance loaded for aspiration ${aspiration.id}:`, balance)
+                    balances[aspiration.id] = balance
+                  } else {
+                    console.error(`❌ Failed to load balance for aspiration ${aspiration.id}:`, balanceResponse.status)
+                  }
+                } catch (error) {
+                  console.error(`❌ Error loading balance for aspiration ${aspiration.id}:`, error)
+                }
+              }
+              console.log('📊 All balances loaded:', balances)
+              setOverviewBalances(balances)
+            }
+          } catch (error) {
+            console.error('Error loading aspirations:', error)
+          } finally {
+            setIsLoadingOverview(false)
+          }
+        }
+        loadOverviewData()
+        setShowAddAspirationModal(false)
+      } catch (error) {
+        console.error('Error creating aspiration:', error)
+        alert(`Chyba při vytváření aspirace: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
+      }
+    }
+
+    if (isLoadingOverview) {
+      return (
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Načítám přehled...</p>
+          </div>
+        </div>
+      )
+    }
+
+    const insights = calculateInsights()
+
+    return (
+      <div className="w-full flex flex-col p-6">
+        {/* Header */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Aspirace</h2>
+              <p className="text-sm text-gray-500 mt-1">Životní cíle a směr</p>
+            </div>
+            <button
+              onClick={() => setShowAddAspirationModal(true)}
+              className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+            >
+              + Přidat
+            </button>
+          </div>
+        </div>
+
+        {/* Aspirations List */}
+        {overviewAspirations.length === 0 ? (
+          <div className="text-center py-12 bg-gray-50 rounded-xl border border-gray-200">
+            <div className="text-4xl mb-4">✨</div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Žádné aspirace</h3>
+            <p className="text-sm text-gray-600 mb-4">Vytvořte svou první aspiraci, která vás povede k vašim životním cílům</p>
+            <button
+              onClick={() => setShowAddAspirationModal(true)}
+              className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+            >
+              Přidat aspiraci
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4 mb-6">
+            {overviewAspirations.map((aspiration: any) => {
+              const balance = overviewBalances[aspiration.id]
+              return (
+                <div key={aspiration.id} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                  {/* Header */}
+                  <div className="flex items-start gap-3 mb-4">
+                    <div 
+                      className="w-3 h-3 rounded-full flex-shrink-0 mt-1"
+                      style={{ backgroundColor: aspiration.color || '#3B82F6' }}
+                    ></div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">{aspiration.title}</h3>
+                      {aspiration.description && (
+                        <p className="text-sm text-gray-600 line-clamp-2">{aspiration.description}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Balance */}
+                  {balance ? (
+                    (() => {
+                      console.log('Balance for aspiration:', aspiration.id, balance)
+                      console.log('total_planned_steps:', balance.total_planned_steps, 'total_planned_habits:', balance.total_planned_habits)
+                      return balance.total_planned_steps === 0 && balance.total_planned_habits === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-8 text-center">
+                          <div className="text-gray-400 mb-2">
+                            <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                            </svg>
+                          </div>
+                          <p className="text-sm text-gray-500 mb-1">Tato aspirace zatím nemá přiřazené cíle ani návyky</p>
+                          <p className="text-xs text-gray-400">Přiřaďte cíle nebo návyky k této aspiraci pro sledování pokroku</p>
+                        </div>
+                      ) : (
+                      <div className="space-y-4">
+                        {/* XP Summary */}
+                        <div className="flex items-center gap-6">
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1">Celkem XP</p>
+                            <p className="text-xl font-semibold text-gray-900">{balance.total_xp}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1">Posledních 90 dní</p>
+                            <p className="text-xl font-semibold text-gray-900">{balance.recent_xp}</p>
+                          </div>
+                          <div className="ml-auto">
+                            {balance.trend === 'positive' && (
+                              <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
+                                <span>↑</span>
+                                <span>Roste</span>
+                              </div>
+                            )}
+                            {balance.trend === 'negative' && (
+                              <div className="flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium">
+                                <span>↓</span>
+                                <span>Klesá</span>
+                              </div>
+                            )}
+                            {balance.trend === 'neutral' && (
+                              <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
+                                <span>→</span>
+                                <span>Stabilní</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Completion Rate */}
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs text-gray-500">Úspěšnost</span>
+                            <span className={`text-xs font-semibold ${
+                              balance.completion_rate_recent >= 80 ? 'text-green-600' :
+                              balance.completion_rate_recent >= 50 ? 'text-orange-600' :
+                              'text-red-600'
+                            }`}>
+                              {Math.round(balance.completion_rate_recent)}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className={`h-2 rounded-full transition-all ${
+                                balance.completion_rate_recent >= 80 ? 'bg-green-500' :
+                                balance.completion_rate_recent >= 50 ? 'bg-orange-500' :
+                                'bg-red-500'
+                              }`}
+                              style={{ width: `${Math.min(balance.completion_rate_recent, 100)}%` }}
+                            ></div>
+                          </div>
+                        </div>
+
+                        {/* Activity Breakdown */}
+                        <div className="flex items-center gap-6 text-sm">
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1">Kroky</p>
+                            <p className="font-medium text-gray-900">
+                              {balance.recent_completed_steps}/{balance.recent_planned_steps}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1">Návyky</p>
+                            <p className="font-medium text-gray-900">
+                              {balance.recent_completed_habits}/{balance.recent_planned_habits}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                    })()
+                  ) : (
+                    <div className="flex items-center justify-center py-4">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Insights Section */}
+        {(insights.easy.length > 0 || insights.hard.length > 0) && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">Přehled</h3>
+            
+            {insights.easy.length > 0 && (
+              <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                <h4 className="text-sm font-semibold text-green-800 mb-2">Lehké</h4>
+                <ul className="space-y-1">
+                  {insights.easy.map((title: string) => (
+                    <li key={title} className="flex items-center gap-2 text-sm text-gray-700">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-600"></div>
+                      {title}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {insights.hard.length > 0 && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                <h4 className="text-sm font-semibold text-red-800 mb-2">Těžké</h4>
+                <ul className="space-y-1">
+                  {insights.hard.map((title: string) => (
+                    <li key={title} className="flex items-center gap-2 text-sm text-gray-700">
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-600"></div>
+                      {title}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Add Aspiration Modal */}
+        {showAddAspirationModal && (
+          <AddAspirationModalWeb
+            onClose={() => setShowAddAspirationModal(false)}
+            onAspirationAdded={handleAddAspiration}
+          />
+        )}
       </div>
     )
   }
@@ -4050,7 +4382,8 @@ export function JourneyGameView({
           reminderTime: editingHabit.reminderEnabled ? editingHabit.reminderTime : null,
           selectedDays: editingHabit.selectedDays,
           alwaysShow: editingHabit.alwaysShow,
-          xpReward: editingHabit.customXpReward ? parseInt(editingHabit.customXpReward) : editingHabit.xpReward
+          xpReward: editingHabit.customXpReward ? parseInt(editingHabit.customXpReward) : editingHabit.xpReward,
+          aspirationId: editingHabit.aspirationId
         }),
       })
 
@@ -4062,6 +4395,45 @@ export function JourneyGameView({
           onHabitsUpdate(habits.map(habit => 
             habit.id === updatedHabit.id ? updatedHabit : habit
           ))
+        }
+        
+        // Update overview balance if we're on overview page
+        if (currentProgram === 'overview' && updatedHabit.aspiration_id) {
+          try {
+            console.log(`🔄 Updating balance for aspiration ${updatedHabit.aspiration_id} after habit update`)
+            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${updatedHabit.aspiration_id}`)
+            if (balanceResponse.ok) {
+              const balance = await balanceResponse.json()
+              console.log(`✅ Balance updated for aspiration ${updatedHabit.aspiration_id}:`, balance)
+              setOverviewBalances((prev: Record<string, any>) => ({
+                ...prev,
+                [updatedHabit.aspiration_id]: balance
+              }))
+            } else {
+              console.error(`❌ Failed to update balance for aspiration ${updatedHabit.aspiration_id}:`, balanceResponse.status)
+            }
+          } catch (error) {
+            console.error('❌ Error updating aspiration balance:', error)
+          }
+        }
+        
+        // Also update balance for old aspiration if aspirationId changed
+        const oldHabit = habits.find(h => h.id === updatedHabit.id)
+        if (currentProgram === 'overview' && oldHabit && oldHabit.aspiration_id && oldHabit.aspiration_id !== updatedHabit.aspiration_id) {
+          try {
+            console.log(`🔄 Updating balance for old aspiration ${oldHabit.aspiration_id} after habit aspiration change`)
+            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${oldHabit.aspiration_id}`)
+            if (balanceResponse.ok) {
+              const balance = await balanceResponse.json()
+              console.log(`✅ Balance updated for old aspiration ${oldHabit.aspiration_id}:`, balance)
+              setOverviewBalances((prev: Record<string, any>) => ({
+                ...prev,
+                [oldHabit.aspiration_id]: balance
+              }))
+            }
+          } catch (error) {
+            console.error('❌ Error updating old aspiration balance:', error)
+          }
         }
         
         setEditingHabit(null)
@@ -4140,6 +4512,39 @@ export function JourneyGameView({
           ))
         }
         
+        // Update overview balance if we're on overview page
+        if (currentProgram === 'overview' && updatedGoal.aspiration_id) {
+          try {
+            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${updatedGoal.aspiration_id}`)
+            if (balanceResponse.ok) {
+              const balance = await balanceResponse.json()
+              setOverviewBalances((prev: Record<string, any>) => ({
+                ...prev,
+                [updatedGoal.aspiration_id]: balance
+              }))
+            }
+          } catch (error) {
+            console.error('Error updating aspiration balance:', error)
+          }
+        }
+        
+        // Also update balance for old aspiration if aspirationId changed
+        const oldGoal = goals.find(g => g.id === goalId)
+        if (currentProgram === 'overview' && oldGoal && oldGoal.aspiration_id && oldGoal.aspiration_id !== updatedGoal.aspiration_id) {
+          try {
+            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${oldGoal.aspiration_id}`)
+            if (balanceResponse.ok) {
+              const balance = await balanceResponse.json()
+              setOverviewBalances((prev: Record<string, any>) => ({
+                ...prev,
+                [oldGoal.aspiration_id]: balance
+              }))
+            }
+          } catch (error) {
+            console.error('Error updating old aspiration balance:', error)
+          }
+        }
+        
         setEditingGoal(null)
       } else {
         console.error('Failed to update goal')
@@ -4174,6 +4579,7 @@ export function JourneyGameView({
           description: newGoal.description,
           targetDate: newGoal.target_date,
           areaId: newGoal.areaId,
+          aspirationId: newGoal.aspirationId,
           status: newGoal.status,
           steps: newGoal.steps.map(step => ({
             title: step.title,
@@ -4196,11 +4602,28 @@ export function JourneyGameView({
           onGoalsUpdate([...goals, data.goal])
         }
         
+        // Update overview balance if we're on overview page and goal has aspiration
+        if (currentProgram === 'overview' && data.goal && data.goal.aspiration_id) {
+          try {
+            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${data.goal.aspiration_id}`)
+            if (balanceResponse.ok) {
+              const balance = await balanceResponse.json()
+              setOverviewBalances((prev: Record<string, any>) => ({
+                ...prev,
+                [data.goal.aspiration_id]: balance
+              }))
+            }
+          } catch (error) {
+            console.error('Error updating aspiration balance:', error)
+          }
+        }
+        
         // Reset form
         setNewGoal({
           title: '',
           description: '',
           areaId: null,
+          aspirationId: null,
           target_date: null,
           status: 'active',
           steps: [],
@@ -4654,7 +5077,8 @@ export function JourneyGameView({
           isCustom: true,
           selectedDays: newHabit.selectedDays,
           alwaysShow: newHabit.alwaysShow,
-          xpReward: newHabit.customXpReward ? parseInt(newHabit.customXpReward) : newHabit.xpReward
+          xpReward: newHabit.customXpReward ? parseInt(newHabit.customXpReward) : newHabit.xpReward,
+          aspirationId: newHabit.aspirationId
         }),
       })
 
@@ -4664,6 +5088,22 @@ export function JourneyGameView({
         // Update habits in parent component
         if (onHabitsUpdate) {
           onHabitsUpdate([...habits, createdHabit])
+        }
+        
+        // Update overview balance if we're on overview page and habit has aspiration
+        if (currentProgram === 'overview' && createdHabit.aspiration_id) {
+          try {
+            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${createdHabit.aspiration_id}`)
+            if (balanceResponse.ok) {
+              const balance = await balanceResponse.json()
+              setOverviewBalances((prev: Record<string, any>) => ({
+                ...prev,
+                [createdHabit.aspiration_id]: balance
+              }))
+            }
+          } catch (error) {
+            console.error('Error updating aspiration balance:', error)
+          }
         }
         
         // Reset form
@@ -4676,7 +5116,8 @@ export function JourneyGameView({
           selectedDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
           alwaysShow: false,
           xpReward: 1,
-          customXpReward: ''
+          customXpReward: '',
+          aspirationId: null
         })
         setShowAddHabitForm(false)
       } else {
@@ -4826,6 +5267,65 @@ export function JourneyGameView({
     loadAreas()
   }, [userId])
 
+  // Load aspirations
+  useEffect(() => {
+    const loadAspirations = async () => {
+      try {
+        if (userId) {
+          const response = await fetch('/api/aspirations')
+          if (response.ok) {
+            const aspirationsData = await response.json()
+            setAspirations(aspirationsData || [])
+          }
+        }
+      } catch (error) {
+        console.error('Error loading aspirations:', error)
+      }
+    }
+    loadAspirations()
+  }, [userId])
+
+  // Load overview data when program is overview
+  useEffect(() => {
+    if (currentProgram === 'overview') {
+      const loadOverviewData = async () => {
+        setIsLoadingOverview(true)
+        try {
+          const response = await fetch('/api/aspirations')
+          if (response.ok) {
+            const data = await response.json()
+            setOverviewAspirations(data || [])
+            
+            // Load balances for each aspiration
+            const balances: Record<string, any> = {}
+            for (const aspiration of data || []) {
+              try {
+                console.log(`🔄 Loading balance for aspiration ${aspiration.id}`)
+                const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${aspiration.id}`)
+                if (balanceResponse.ok) {
+                  const balance = await balanceResponse.json()
+                  console.log(`✅ Balance loaded for aspiration ${aspiration.id}:`, balance)
+                  balances[aspiration.id] = balance
+                } else {
+                  console.error(`❌ Failed to load balance for aspiration ${aspiration.id}:`, balanceResponse.status)
+                }
+              } catch (error) {
+                console.error(`❌ Error loading balance for aspiration ${aspiration.id}:`, error)
+              }
+            }
+            console.log('📊 All balances loaded:', balances)
+            setOverviewBalances(balances)
+          }
+        } catch (error) {
+          console.error('Error loading aspirations:', error)
+        } finally {
+          setIsLoadingOverview(false)
+        }
+      }
+      loadOverviewData()
+    }
+  }, [currentProgram])
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -4867,18 +5367,23 @@ export function JourneyGameView({
       description: goal.description || '',
       target_date: goal.target_date ? new Date(goal.target_date).toISOString().split('T')[0] : '',
       areaId: goal.areaId || '',
+      aspirationId: goal.aspirationId || '',
       status: goal.status || 'active',
       steps: [] as Array<{ id: string; title: string; description?: string; date?: string; isEditing?: boolean }>,
       milestones: [] as Array<{ id: string; title: string; description?: string; isEditing?: boolean }>
     })
+    const [aspirations, setAspirations] = useState<any[]>([])
     const [showGoalDatePicker, setShowGoalDatePicker] = useState(false)
     const [showAreaPicker, setShowAreaPicker] = useState(false)
+    const [showAspirationPicker, setShowAspirationPicker] = useState(false)
     const [showStatusPicker, setShowStatusPicker] = useState(false)
     const [datePickerButtonRef, setDatePickerButtonRef] = useState<HTMLButtonElement | null>(null)
     const [areaPickerButtonRef, setAreaPickerButtonRef] = useState<HTMLButtonElement | null>(null)
+    const [aspirationPickerButtonRef, setAspirationPickerButtonRef] = useState<HTMLButtonElement | null>(null)
     const [statusPickerButtonRef, setStatusPickerButtonRef] = useState<HTMLButtonElement | null>(null)
     const [datePickerPosition, setDatePickerPosition] = useState<{ top: number; left: number } | null>(null)
     const [areaPickerPosition, setAreaPickerPosition] = useState<{ top: number; left: number; maxHeight: number } | null>(null)
+    const [aspirationPickerPosition, setAspirationPickerPosition] = useState<{ top: number; left: number; maxHeight: number } | null>(null)
     const [statusPickerPosition, setStatusPickerPosition] = useState<{ top: number; left: number } | null>(null)
 
     // Calculate dropdown positions when they open
@@ -4909,6 +5414,20 @@ export function JourneyGameView({
     }, [showAreaPicker, areaPickerButtonRef])
 
     useLayoutEffect(() => {
+      if (showAspirationPicker && aspirationPickerButtonRef) {
+        const rect = aspirationPickerButtonRef.getBoundingClientRect()
+        const availableHeight = window.innerHeight - rect.bottom - 4
+        setAspirationPickerPosition({
+          top: rect.bottom - 2,
+          left: rect.left,
+          maxHeight: availableHeight < 256 ? availableHeight : 256
+        })
+      } else {
+        setAspirationPickerPosition(null)
+      }
+    }, [showAspirationPicker, aspirationPickerButtonRef])
+
+    useLayoutEffect(() => {
       if (showStatusPicker && statusPickerButtonRef) {
         const rect = statusPickerButtonRef.getBoundingClientRect()
         setStatusPickerPosition({
@@ -4920,7 +5439,7 @@ export function JourneyGameView({
       }
     }, [showStatusPicker, statusPickerButtonRef])
 
-    // Load steps and milestones for this goal
+    // Load steps, milestones, and aspirations for this goal
     useEffect(() => {
       const loadStepsAndMilestones = async () => {
         // Load steps for this goal
@@ -4962,6 +5481,17 @@ export function JourneyGameView({
         } catch (error) {
           console.error('Error loading milestones:', error)
         }
+
+        // Load aspirations
+        try {
+          const aspirationsResponse = await fetch('/api/aspirations')
+          if (aspirationsResponse.ok) {
+            const aspirationsData = await aspirationsResponse.json()
+            setAspirations(aspirationsData || [])
+          }
+        } catch (error) {
+          console.error('Error loading aspirations:', error)
+        }
       }
 
       loadStepsAndMilestones()
@@ -4989,6 +5519,7 @@ export function JourneyGameView({
         description: formData.description,
         target_date: formData.target_date ? new Date(formData.target_date).toISOString() : null,
         areaId: formData.areaId || null,
+        aspirationId: formData.aspirationId || null,
         status: formData.status
       }
       onUpdate(goal.id, updates)
@@ -5099,6 +5630,7 @@ export function JourneyGameView({
                       e.stopPropagation()
                       setShowAreaPicker(!showAreaPicker)
                       setShowGoalDatePicker(false)
+                      setShowAspirationPicker(false)
                       setShowStatusPicker(false)
                     }}
                     className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
@@ -5154,10 +5686,92 @@ export function JourneyGameView({
                           >
                   {area.name}
                           </button>
-                        ))}
+              ))}
                         {areas.length === 0 && (
                           <div className="px-4 py-3 text-sm text-gray-500 text-center">
                             Žádné oblasti
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+          </div>
+          
+                {/* Aspiration Picker Icon */}
+                <div className="relative">
+                  <button
+                    ref={setAspirationPickerButtonRef}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowAspirationPicker(!showAspirationPicker)
+                      setShowGoalDatePicker(false)
+                      setShowAreaPicker(false)
+                      setShowStatusPicker(false)
+                    }}
+                    className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
+                      formData.aspirationId 
+                        ? 'border-purple-300 bg-purple-50 text-purple-700' 
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-purple-300'
+                    }`}
+                    title="Aspirace"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="font-medium">
+                      {formData.aspirationId 
+                        ? aspirations.find((a: any) => a.id === formData.aspirationId)?.title || 'Aspirace'
+                        : 'Aspirace'}
+                    </span>
+                    <ChevronDown className={`w-3 h-3 transition-transform ${showAspirationPicker ? 'rotate-180' : ''}`} />
+                  </button>
+                  {showAspirationPicker && aspirationPickerPosition && (
+                    <>
+                      <div 
+                        className="fixed inset-0 z-40" 
+                        onClick={() => setShowAspirationPicker(false)}
+                      />
+                      <div 
+                        className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[200px] max-h-64 overflow-y-auto"
+                        style={{
+                          top: `${aspirationPickerPosition.top}px`,
+                          left: `${aspirationPickerPosition.left}px`,
+                          maxHeight: `${aspirationPickerPosition.maxHeight}px`
+                        }}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData({...formData, aspirationId: ''})
+                            setShowAspirationPicker(false)
+                          }}
+                          className="w-full text-left px-4 py-3 text-sm hover:bg-purple-50 border-b border-gray-100 font-medium transition-colors"
+                        >
+                          Žádná aspirace
+                        </button>
+                        {aspirations.map((aspiration: any) => (
+                          <button
+                            key={aspiration.id}
+                            type="button"
+                            onClick={() => {
+                              setFormData({...formData, aspirationId: aspiration.id})
+                              setShowAspirationPicker(false)
+                            }}
+                            className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors flex items-center gap-2 ${
+                              formData.aspirationId === aspiration.id ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
+                            }`}
+                          >
+                            <div 
+                              className="w-3 h-3 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: aspiration.color || '#3B82F6' }}
+                            ></div>
+                            {aspiration.title}
+                          </button>
+                        ))}
+                        {aspirations.length === 0 && (
+                          <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                            Žádné aspirace
                           </div>
                         )}
                       </div>
@@ -6193,6 +6807,7 @@ export function JourneyGameView({
                         title: '',
                         description: '',
                         areaId: null,
+                        aspirationId: null,
                         target_date: null,
                         status: 'active',
                         steps: [],
@@ -6200,6 +6815,7 @@ export function JourneyGameView({
                       })
                       setShowGoalDatePicker(false)
                       setShowAreaPicker(false)
+                      setShowAspirationPicker(false)
                       setShowStatusPicker(false)
                     }}
                     className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 transition-colors"
@@ -6290,7 +6906,7 @@ export function JourneyGameView({
                                   }}
                                   className="text-base px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                   autoFocus
-                                />
+                    />
                               </div>
                             </>
                           )}
@@ -6306,6 +6922,7 @@ export function JourneyGameView({
                               setShowAreaPicker(!showAreaPicker)
                               setShowGoalDatePicker(false)
                               setShowStatusPicker(false)
+                              setShowAspirationPicker(false)
                             }}
                             className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
                               newGoal.areaId 
@@ -6335,7 +6952,7 @@ export function JourneyGameView({
                                   left: `${areaPickerPosition.left}px`,
                                   maxHeight: `${areaPickerPosition.maxHeight}px`
                                 }}
-                              >
+                    >
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -6371,6 +6988,82 @@ export function JourneyGameView({
                           )}
                   </div>
                   
+                        {/* Aspiration Picker Icon */}
+                        <div className="relative">
+                          <button
+                            ref={setAspirationPickerButtonRef}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setShowAspirationPicker(!showAspirationPicker)
+                              setShowGoalDatePicker(false)
+                              setShowAreaPicker(false)
+                              setShowStatusPicker(false)
+                            }}
+                            className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
+                              newGoal.aspirationId 
+                                ? 'border-purple-300 bg-purple-50 text-purple-700' 
+                                : 'border-gray-200 bg-white text-gray-700 hover:border-purple-300'
+                            }`}
+                            title="Aspirace"
+                          >
+                            <span className="text-base">✨</span>
+                            <span className="font-medium">
+                              {newGoal.aspirationId 
+                                ? aspirations.find((a: any) => a.id === newGoal.aspirationId)?.title || 'Aspirace'
+                                : 'Aspirace'}
+                            </span>
+                            <ChevronDown className={`w-3 h-3 transition-transform ${showAspirationPicker ? 'rotate-180' : ''}`} />
+                          </button>
+                          {showAspirationPicker && aspirationPickerPosition && (
+                            <>
+                              <div 
+                                className="fixed inset-0 z-40" 
+                                onClick={() => setShowAspirationPicker(false)}
+                              />
+                              <div 
+                                className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[200px] max-h-64 overflow-y-auto"
+                                style={{
+                                  top: `${aspirationPickerPosition.top}px`,
+                                  left: `${aspirationPickerPosition.left}px`,
+                                  maxHeight: `${aspirationPickerPosition.maxHeight}px`
+                                }}
+                    >
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setNewGoal({...newGoal, aspirationId: null as any})
+                                    setShowAspirationPicker(false)
+                                  }}
+                                  className="w-full text-left px-4 py-3 text-sm hover:bg-purple-50 border-b border-gray-100 font-medium transition-colors"
+                                >
+                                  Žádná aspirace
+                                </button>
+                                {aspirations.map((aspiration: any) => (
+                                  <button
+                                    key={aspiration.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setNewGoal({...newGoal, aspirationId: aspiration.id})
+                                      setShowAspirationPicker(false)
+                                    }}
+                                    className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
+                                      newGoal.aspirationId === aspiration.id ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
+                                    }`}
+                                  >
+                            {aspiration.title}
+                                  </button>
+                                ))}
+                                {aspirations.length === 0 && (
+                                  <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                                    Žádné aspirace
+                                  </div>
+                                )}
+                              </div>
+                            </>
+                          )}
+                  </div>
+                  
                         {/* Status Picker Icon */}
                         <div className="relative">
                           <button
@@ -6381,6 +7074,7 @@ export function JourneyGameView({
                               setShowStatusPicker(!showStatusPicker)
                               setShowGoalDatePicker(false)
                               setShowAreaPicker(false)
+                              setShowAspirationPicker(false)
                             }}
                             className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
                               newGoal.status === 'active' 
@@ -6636,7 +7330,7 @@ export function JourneyGameView({
                             })
                           }}
                           className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-colors"
-                        >
+                    >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                           </svg>
@@ -6803,6 +7497,7 @@ export function JourneyGameView({
                           title: '',
                           description: '',
                           areaId: null,
+                          aspirationId: null,
                           target_date: null,
                         status: 'active',
                         steps: [],
@@ -6810,6 +7505,7 @@ export function JourneyGameView({
                         })
                       setShowGoalDatePicker(false)
                       setShowAreaPicker(false)
+                      setShowAspirationPicker(false)
                       setShowStatusPicker(false)
                       }}
                     className="px-6 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-200 transition-all"
@@ -6965,6 +7661,23 @@ export function JourneyGameView({
                         />
                       )}
                     </div>
+                  </div>
+
+                  {/* Aspiration Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Aspirace (volitelné)</label>
+                    <select
+                      value={newHabit.aspirationId || ''}
+                      onChange={(e) => setNewHabit({...newHabit, aspirationId: e.target.value ? e.target.value : null})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    >
+                      <option value="">Žádná aspirace</option>
+                      {aspirations.map((aspiration: any) => (
+                        <option key={aspiration.id} value={aspiration.id}>
+                          {aspiration.title}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -7256,6 +7969,23 @@ export function JourneyGameView({
                                 />
                               )}
                             </div>
+                          </div>
+
+                          {/* Aspiration Selection */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Aspirace (volitelné)</label>
+                            <select
+                              value={editingHabit.aspirationId || ''}
+                              onChange={(e) => setEditingHabit({...editingHabit, aspirationId: e.target.value ? e.target.value : null})}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                            >
+                              <option value="">Žádná aspirace</option>
+                              {aspirations.map((aspiration: any) => (
+                                <option key={aspiration.id} value={aspiration.id}>
+                                  {aspiration.title}
+                                </option>
+                              ))}
+                            </select>
                           </div>
 
                           <div className="grid grid-cols-2 gap-4">
@@ -7992,10 +8722,10 @@ export function JourneyGameView({
             </div>
 
             {/* Center Area - Dynamic Display - Full Width */}
-            <div className="flex items-start justify-center flex-1 overflow-hidden w-full">
-                <div className="flex flex-col h-full w-full">
+            <div className="flex items-start justify-center flex-1 w-full">
+                <div className="flex flex-col w-full">
                 {/* Content - Direct Display without Monitor */}
-                <div className="flex-1 overflow-y-auto p-6">
+                <div className="flex-1 p-6">
                       {renderDisplayContent()}
                   </div>
                     </div>
@@ -8006,7 +8736,7 @@ export function JourneyGameView({
                       }
                       
                       return (
-    <div className="bg-white overflow-hidden h-screen w-full flex flex-col" style={{
+    <div className="bg-white min-h-screen w-full flex flex-col" style={{
       fontFamily: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       fontSize: '14px',
       background: 'linear-gradient(135deg, #FFFAF5 0%, #fef3e7 50%, #fde4c4 100%)',
@@ -8231,6 +8961,23 @@ export function JourneyGameView({
                 }}
               >
                 Rok
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedItem(null)
+                  setSelectedItemType(null)
+                  setCurrentProgram('overview')
+                }}
+                className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  !selectedItem && currentProgram === 'overview' 
+                    ? 'bg-orange-500 text-white shadow-md' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
+                }`}
+                style={{
+                  boxShadow: !selectedItem && currentProgram === 'overview' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
+                }}
+              >
+                Přehled
                     </button>
                   </div>
                 </div>
@@ -8338,7 +9085,7 @@ export function JourneyGameView({
                         setSelectedDayDate(prevMonth)
                       }}
                       className="p-2 hover:bg-gray-100 rounded-lg"
-                    >
+              >
                       <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
@@ -8372,7 +9119,7 @@ export function JourneyGameView({
                         setSelectedWeek(new Date(prevYear, 0, 1))
                       }}
                       className="p-2 hover:bg-gray-100 rounded-lg"
-                    >
+              >
                       <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
@@ -8386,7 +9133,7 @@ export function JourneyGameView({
                         setSelectedWeek(new Date(nextYear, 0, 1))
                       }}
                       className="p-2 hover:bg-gray-100 rounded-lg"
-                    >
+              >
                       <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
@@ -8448,7 +9195,7 @@ export function JourneyGameView({
                                   ? 'bg-orange-100 text-orange-700 border-2 border-orange-300'
                                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                             }`}
-                          >
+              >
                             <div className="font-semibold">
                               Týden {index + 1} ({week.start.getDate()}. {week.start.getMonth() + 1}. - {week.end.getDate()}. {week.end.getMonth() + 1}. {week.end.getFullYear()})
                             </div>
@@ -8470,7 +9217,7 @@ export function JourneyGameView({
                         setSelectedMonth(new Date(prevYear, selectedMonth.getMonth(), 1))
                       }}
                       className="p-2 hover:bg-gray-100 rounded-lg"
-                    >
+              >
                       <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
@@ -8484,12 +9231,12 @@ export function JourneyGameView({
                         setSelectedMonth(new Date(nextYear, selectedMonth.getMonth(), 1))
                       }}
                       className="p-2 hover:bg-gray-100 rounded-lg"
-                    >
+              >
                       <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
               </button>
-          </div>
+            </div>
 
                   <div className="grid grid-cols-3 gap-3">
                     {['Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen', 'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec'].map((month, index) => {
@@ -8517,7 +9264,7 @@ export function JourneyGameView({
                         </button>
                       )
                     })}
-            </div>
+          </div>
             </div>
               )}
 
@@ -8567,6 +9314,121 @@ export function JourneyGameView({
       </div>
       )}
 
+            </div>
+  )
+}
+
+// Add Aspiration Modal Component
+function AddAspirationModalWeb({ onClose, onAspirationAdded }: { onClose: () => void; onAspirationAdded: (title: string, description: string, color: string) => void }) {
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [color, setColor] = useState('#3B82F6')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!title.trim()) return
+
+    setIsSubmitting(true)
+    try {
+      await onAspirationAdded(title.trim(), description.trim(), color)
+      setTitle('')
+      setDescription('')
+      setColor('#3B82F6')
+    } catch (error) {
+      console.error('Error creating aspiration:', error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const colors = [
+    { name: 'Modrá', value: '#3B82F6' },
+    { name: 'Zelená', value: '#10B981' },
+    { name: 'Fialová', value: '#8B5CF6' },
+    { name: 'Růžová', value: '#EC4899' },
+    { name: 'Oranžová', value: '#F59E0B' },
+    { name: 'Červená', value: '#EF4444' },
+  ]
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-2xl font-bold text-gray-900">Nová aspirace</h3>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Název *</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                placeholder="Např. Být zdravý a fit"
+                required
+                autoFocus
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Popis</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                placeholder="Volitelný popis vaší aspirace..."
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Barva</label>
+              <div className="flex gap-2 flex-wrap">
+                {colors.map((c) => (
+                  <button
+                    key={c.value}
+                    type="button"
+                    onClick={() => setColor(c.value)}
+                    className={`w-10 h-10 rounded-lg border-2 transition-all ${
+                      color === c.value ? 'border-gray-900 scale-110' : 'border-gray-300'
+                    }`}
+                    style={{ backgroundColor: c.value }}
+                    title={c.name}
+                  />
+                ))}
+          </div>
+        </div>
+        
+            <div className="flex gap-3 pt-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Zrušit
+              </button>
+              <button
+                type="submit"
+                disabled={!title.trim() || isSubmitting}
+                className="flex-1 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? 'Vytváření...' : 'Vytvořit'}
+              </button>
+      </div>
+          </form>
+      </div>
+      </div>
     </div>
   )
 }

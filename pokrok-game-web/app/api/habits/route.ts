@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, description, frequency, streak, maxStreak, category, difficulty, isCustom, reminderTime, selectedDays, alwaysShow, xpReward } = body
+    const { name, description, frequency, streak, maxStreak, category, difficulty, isCustom, reminderTime, selectedDays, alwaysShow, xpReward, aspirationId } = body
     
     if (!name) {
       return NextResponse.json({ error: 'Name is required' }, { status: 400 })
@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
       selected_days: selectedDays || null,
       always_show: alwaysShow || false,
       xp_reward: xpReward || 1,
+      aspiration_id: aspirationId || null,
       habit_completions: {}
     }
 
@@ -104,7 +105,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { habitId, name, description, frequency, category, difficulty, reminderTime, selectedDays, alwaysShow, xpReward } = body
+    const { habitId, name, description, frequency, category, difficulty, reminderTime, selectedDays, alwaysShow, xpReward, aspirationId } = body
     
     console.log('PUT request body:', body)
     console.log('Habit ID:', habitId)
@@ -122,7 +123,8 @@ export async function PUT(request: NextRequest) {
       reminder_time: reminderTime,
       selected_days: selectedDays,
       always_show: alwaysShow,
-      xp_reward: xpReward
+      xp_reward: xpReward,
+      aspiration_id: aspirationId
     }
 
     const habit = await updateHabit(habitId, updates)

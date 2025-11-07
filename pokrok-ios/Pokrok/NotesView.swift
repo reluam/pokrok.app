@@ -153,7 +153,6 @@ struct NotesView: View {
                     self.isLoading = false
                 }
             } catch {
-                print("❌ Failed to load notes: \(error)")
                 await MainActor.run {
                     self.errorMessage = error.localizedDescription
                     self.showError = true

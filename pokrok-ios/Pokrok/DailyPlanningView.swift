@@ -18,6 +18,8 @@ struct DailyPlanningView: View {
     @State private var dailyPlanning: DailyPlanning?
     @State private var loadingHabits: Set<String> = []
     @State private var selectedDate = Date()
+    @State private var showHabitAspirationModal = false
+    @State private var selectedHabitForAspiration: Habit? = nil
     
     // Stats
     @State private var stepStats = (completed: 0, total: 0)
@@ -179,6 +181,13 @@ struct DailyPlanningView: View {
                 loadData()
             })
         }
+        .sheet(isPresented: $showHabitAspirationModal) {
+            if let habit = selectedHabitForAspiration {
+                HabitAspirationEditorView(habit: habit, onAspirationUpdated: {
+                    loadData()
+                })
+            }
+        }
         .alert("Chyba", isPresented: $showError) {
             Button("OK") { }
         } message: {
@@ -330,6 +339,9 @@ struct DailyPlanningView: View {
                             isLoading: loadingHabits.contains(habit.id),
                             onToggle: {
                                 toggleHabitCompletion(habit: habit)
+                            },
+                            onLongPress: {
+                                showHabitAspirationEditor(habit: habit)
                             }
                         )
                     }
@@ -489,6 +501,11 @@ struct DailyPlanningView: View {
         }
     }
     
+    private func showHabitAspirationEditor(habit: Habit) {
+        selectedHabitForAspiration = habit
+        showHabitAspirationModal = true
+    }
+    
     private func toggleHabitCompletion(habit: Habit) {
         let todayStr = formatDateString(today)
         loadingHabits.insert(habit.id)
@@ -623,6 +640,15 @@ struct HabitRow: View {
     let isCompleted: Bool
     let isLoading: Bool
     let onToggle: () -> Void
+    let onLongPress: (() -> Void)?
+    
+    init(habit: Habit, isCompleted: Bool, isLoading: Bool, onToggle: @escaping () -> Void, onLongPress: (() -> Void)? = nil) {
+        self.habit = habit
+        self.isCompleted = isCompleted
+        self.isLoading = isLoading
+        self.onToggle = onToggle
+        self.onLongPress = onLongPress
+    }
     
     var body: some View {
         Button(action: onToggle) {
@@ -667,9 +693,141 @@ struct HabitRow: View {
         }
         .buttonStyle(PlainButtonStyle())
         .disabled(isLoading)
+        .onLongPressGesture {
+            onLongPress?()
+        }
     }
 }
 
 #Preview {
     DailyPlanningView()
+}
+
+// MARK: - Habit Aspiration Editor View
+struct HabitAspirationEditorView: View {
+    let habit: Habit
+    let onAspirationUpdated: () -> Void
+    @Environment(\.dismiss) private var dismiss
+    @StateObject private var apiManager = APIManager.shared
+    @State private var aspirations: [Aspiration] = []
+    @State private var selectedAspirationId: String? = nil
+    @State private var isLoading = false
+    @State private var isLoadingAspirations = false
+    @State private var errorMessage = ""
+    @State private var showError = false
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    // Habit Name
+                    Text(habit.name)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .padding(.horizontal)
+                    
+                    // Aspiration Selection
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Aspirace")
+                            .font(.headline)
+                            .padding(.horizontal)
+                        
+                        if isLoadingAspirations {
+                            ProgressView()
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .padding()
+                        } else if aspirations.isEmpty {
+                            Text("Žádné aspirace")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .padding(.horizontal)
+                        } else {
+                            Picker("Aspirace", selection: $selectedAspirationId) {
+                                Text("Bez aspirace").tag(nil as String?)
+                                ForEach(aspirations, id: \.id) { aspiration in
+                                    Text(aspiration.title).tag(aspiration.id as String?)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                            .padding(.horizontal)
+                        }
+                    }
+                    
+                    Spacer()
+                }
+            }
+            .navigationTitle("Upravit aspiraci")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Zrušit") {
+                        dismiss()
+                    }
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Uložit") {
+                        saveAspiration()
+                    }
+                    .disabled(isLoading)
+                }
+            }
+            .alert("Chyba", isPresented: $showError) {
+                Button("OK") { }
+            } message: {
+                Text(errorMessage)
+            }
+            .task {
+                selectedAspirationId = habit.aspirationId
+                await loadAspirations()
+            }
+        }
+    }
+    
+    private func loadAspirations() async {
+        isLoadingAspirations = true
+        do {
+            let fetchedAspirations = try await apiManager.fetchAspirations()
+            await MainActor.run {
+                self.aspirations = fetchedAspirations
+                self.isLoadingAspirations = false
+            }
+        } catch {
+            await MainActor.run {
+                self.isLoadingAspirations = false
+            }
+        }
+    }
+    
+    private func saveAspiration() {
+        isLoading = true
+        
+        Task {
+            do {
+                _ = try await apiManager.updateHabit(
+                    habitId: habit.id,
+                    name: nil,
+                    description: nil,
+                    frequency: nil,
+                    reminderTime: nil,
+                    selectedDays: nil,
+                    alwaysShow: nil,
+                    xpReward: nil,
+                    aspirationId: selectedAspirationId
+                )
+                
+                await MainActor.run {
+                    isLoading = false
+                    onAspirationUpdated()
+                    dismiss()
+                }
+            } catch {
+                await MainActor.run {
+                    isLoading = false
+                    errorMessage = error.localizedDescription
+                    showError = true
+                }
+            }
+        }
+    }
 }

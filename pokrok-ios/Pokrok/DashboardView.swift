@@ -34,20 +34,15 @@ struct DashboardView: View {
     
     // MARK: - Data Loading
     private func loadData() {
-        print("🔍 Main App: loadData called")
         Task {
             do {
-                print("🔍 Main App: Starting API call for user settings...")
                 let fetchedSettings = try await apiManager.fetchUserSettings()
-                
-                print("🔍 Main App: API call completed - Settings: \(fetchedSettings.workflow)")
                 
                 await MainActor.run {
                     self.userSettings = fetchedSettings
                     self.isLoading = false
                 }
             } catch {
-                print("🔍 Main App: API call failed: \(error)")
                 await MainActor.run {
                     self.errorMessage = error.localizedDescription
                     self.showError = true

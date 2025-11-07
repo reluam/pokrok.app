@@ -15,10 +15,10 @@ struct ContentView: View {
                             Text("Domů")
                         }
                     
-                    OverviewView()
+                    AspirationsOverviewView()
                         .tabItem {
-                            Image(systemName: "flag.fill")
-                            Text("Cíle")
+                            Image(systemName: "chart.bar.fill")
+                            Text("Přehled")
                         }
                     
                     StepsView()
@@ -46,11 +46,6 @@ struct ContentView: View {
             }
         }
         .onAppear {
-            if clerk.user != nil {
-                print("🔍 Main App: User is authenticated: \(clerk.user?.id ?? "unknown")")
-            } else {
-                print("🔍 Main App: User is NOT authenticated")
-            }
         }
     }
 }

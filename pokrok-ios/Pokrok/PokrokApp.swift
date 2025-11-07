@@ -32,7 +32,6 @@ struct PokrokApp: App {
     }
     
     private func startTokenRefreshTimer() {
-        print("🔄 Starting token refresh timer")
         refreshTimer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { _ in
             Task {
                 await APIManager.shared.refreshTokenForWidget()
@@ -41,7 +40,6 @@ struct PokrokApp: App {
     }
     
     private func stopTokenRefreshTimer() {
-        print("⏹️ Stopping token refresh timer")
         refreshTimer?.invalidate()
         refreshTimer = nil
     }

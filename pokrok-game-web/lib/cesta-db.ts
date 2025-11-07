@@ -24,6 +24,17 @@ export interface Area {
   updated_at: Date
 }
 
+export interface Aspiration {
+  id: string
+  user_id: string
+  title: string
+  description?: string
+  color: string
+  icon?: string
+  created_at: Date
+  updated_at: Date
+}
+
 export interface Value {
   id: string
   user_id: string
@@ -54,6 +65,7 @@ export interface Goal {
   progress_unit?: string
   icon?: string
   area_id?: string
+  aspiration_id?: string
   created_at: string | Date
   updated_at: string | Date
 }
@@ -233,6 +245,7 @@ export interface Habit {
   habit_completions: { [date: string]: boolean | null } | null
   always_show: boolean
   xp_reward: number
+  aspiration_id?: string
   created_at: Date
   updated_at: Date
 }
@@ -338,6 +351,7 @@ export async function initializeCestaDatabase() {
         selected_days TEXT[],
         always_show BOOLEAN DEFAULT FALSE,
         xp_reward INTEGER DEFAULT 0,
+        aspiration_id VARCHAR(255) REFERENCES aspirations(id) ON DELETE SET NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
@@ -373,6 +387,20 @@ export async function initializeCestaDatabase() {
       )
     `
 
+    // Create aspirations table
+    await sql`
+      CREATE TABLE IF NOT EXISTS aspirations (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        color VARCHAR(7) NOT NULL DEFAULT '#3B82F6',
+        icon VARCHAR(50),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+
     // Create goals table
     await sql`
       CREATE TABLE IF NOT EXISTS goals (
@@ -390,6 +418,9 @@ export async function initializeCestaDatabase() {
         progress_target INTEGER,
         progress_current INTEGER DEFAULT 0,
         progress_unit VARCHAR(50),
+        icon VARCHAR(50),
+        area_id VARCHAR(255) REFERENCES areas(id) ON DELETE SET NULL,
+        aspiration_id VARCHAR(255) REFERENCES aspirations(id) ON DELETE SET NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
@@ -761,6 +792,494 @@ export async function getGoalsByUserId(userId: string): Promise<Goal[]> {
   }
 }
 
+// MARK: - Aspiration Functions
+
+export async function getAspirationsByUserId(userId: string): Promise<Aspiration[]> {
+  try {
+    const aspirations = await sql`
+      SELECT * FROM aspirations
+      WHERE user_id = ${userId}
+      ORDER BY created_at DESC
+    `
+    return aspirations as Aspiration[]
+  } catch (error) {
+    console.error('Error fetching aspirations:', error)
+    return []
+  }
+}
+
+export async function createAspiration(aspirationData: Partial<Aspiration>): Promise<Aspiration> {
+  const id = crypto.randomUUID()
+  
+  const aspiration = await sql`
+    INSERT INTO aspirations (
+      id, user_id, title, description, color, icon
+    ) VALUES (
+      ${id}, ${aspirationData.user_id}, ${aspirationData.title}, 
+      ${aspirationData.description || null}, 
+      ${aspirationData.color || '#3B82F6'}, 
+      ${aspirationData.icon || null}
+    ) RETURNING *
+  `
+  return aspiration[0] as Aspiration
+}
+
+export async function updateAspiration(aspirationId: string, updates: Partial<Aspiration>): Promise<Aspiration | null> {
+  try {
+    if (updates.title !== undefined) {
+      await sql`UPDATE aspirations SET title = ${updates.title}, updated_at = NOW() WHERE id = ${aspirationId}`
+    }
+    if (updates.description !== undefined) {
+      await sql`UPDATE aspirations SET description = ${updates.description}, updated_at = NOW() WHERE id = ${aspirationId}`
+    }
+    if (updates.color !== undefined) {
+      await sql`UPDATE aspirations SET color = ${updates.color}, updated_at = NOW() WHERE id = ${aspirationId}`
+    }
+    if (updates.icon !== undefined) {
+      await sql`UPDATE aspirations SET icon = ${updates.icon}, updated_at = NOW() WHERE id = ${aspirationId}`
+    }
+    
+    const result = await sql`SELECT * FROM aspirations WHERE id = ${aspirationId}`
+    return result[0] as Aspiration || null
+  } catch (error) {
+    console.error('Error updating aspiration:', error)
+    throw error
+  }
+}
+
+export async function deleteAspiration(aspirationId: string): Promise<boolean> {
+  try {
+    const result = await sql`
+      DELETE FROM aspirations 
+      WHERE id = ${aspirationId}
+      RETURNING id
+    `
+    return result.length > 0
+  } catch (error) {
+    console.error('Error deleting aspiration:', error)
+    throw error
+  }
+}
+
+export interface AspirationBalance {
+  aspiration_id: string
+  total_xp: number
+  recent_xp: number // Last 90 days
+  total_completed_steps: number
+  recent_completed_steps: number
+  total_completed_habits: number
+  recent_completed_habits: number
+  total_planned_steps: number
+  recent_planned_steps: number
+  total_planned_habits: number
+  recent_planned_habits: number
+  completion_rate_all_time: number // percentage
+  completion_rate_recent: number // percentage
+  trend: 'positive' | 'negative' | 'neutral' // comparing recent vs all-time
+}
+
+export async function getAspirationBalance(userId: string, aspirationId: string): Promise<AspirationBalance> {
+  try {
+    console.log('=== getAspirationBalance START ===')
+    console.log('Input parameters:', { userId, aspirationId })
+    const now = new Date()
+    const ninetyDaysAgo = new Date(now)
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
+    console.log('Time range:', { now: now.toISOString(), ninetyDaysAgo: ninetyDaysAgo.toISOString() })
+    
+    // Get all goals for this aspiration
+    const goals = await sql`
+      SELECT id FROM goals
+      WHERE user_id = ${userId} AND aspiration_id = ${aspirationId}
+    `
+    console.log('Goals query result:', goals)
+    console.log('Goals for aspiration:', goals.length)
+    const goalIds = goals.map((g: any) => g.id)
+    console.log('Goal IDs:', goalIds)
+    
+    // Get all habits for this aspiration
+    // First, let's check all habits for this user to see what aspiration_id they have
+    const allUserHabits = await sql`
+      SELECT id, name, aspiration_id FROM habits
+      WHERE user_id = ${userId}
+    `
+    console.log('🔍 All habits for user:', allUserHabits.map((h: any) => ({
+      id: h.id,
+      name: h.name,
+      aspiration_id: h.aspiration_id
+    })))
+    
+    // Get habits with their completions from habit_completions JSON field
+    // We need to use getHabitsByUserId to get the habit_completions JSON, or query it directly
+    const habits = await sql`
+      SELECT h.id, h.frequency, h.selected_days, h.created_at, h.xp_reward,
+             COALESCE(
+               json_object_agg(
+                 hc.completion_date, 
+                 hc.completed
+               ) FILTER (WHERE hc.completion_date IS NOT NULL),
+               '{}'::json
+             ) as habit_completions
+      FROM habits h
+      LEFT JOIN habit_completions hc ON h.id = hc.habit_id
+      WHERE h.user_id = ${userId} AND h.aspiration_id = ${aspirationId}
+      GROUP BY h.id, h.frequency, h.selected_days, h.created_at, h.xp_reward
+    `
+    console.log('Habits query result:', habits)
+    console.log('Habits for aspiration:', habits.length)
+    console.log('🔍 Looking for habits with aspiration_id:', aspirationId)
+    const habitIds = habits.map((h: any) => h.id)
+    console.log('Habit IDs:', habitIds)
+    console.log('Habit details:', habits.map((h: any) => ({
+      id: h.id,
+      frequency: h.frequency,
+      selected_days: h.selected_days,
+      created_at: h.created_at
+    })))
+    
+    // If no goals and no habits, return empty balance
+    if (goalIds.length === 0 && habitIds.length === 0) {
+      console.log('❌ Aspiration has no goals or habits, returning empty balance')
+      return {
+        aspiration_id: aspirationId,
+        total_xp: 0,
+        recent_xp: 0,
+        total_completed_steps: 0,
+        recent_completed_steps: 0,
+        total_completed_habits: 0,
+        recent_completed_habits: 0,
+        total_planned_steps: 0,
+        recent_planned_steps: 0,
+        total_planned_habits: 0,
+        recent_planned_habits: 0,
+        completion_rate_all_time: 0,
+        completion_rate_recent: 0,
+        trend: 'neutral'
+      }
+    }
+    
+    console.log('✅ Aspiration has goals or habits, proceeding with calculation')
+    
+    // Calculate step statistics
+    let stepStats: any = {
+      total_completed: 0,
+      total_planned: 0,
+      recent_completed: 0,
+      recent_planned: 0,
+      total_xp: 0,
+      recent_xp: 0
+    }
+    
+    if (goalIds.length > 0) {
+      try {
+        console.log('📊 Calculating step stats for goalIds:', goalIds)
+        const stepQuery = await sql`
+          SELECT 
+            COUNT(*) FILTER (WHERE completed = true) as total_completed,
+            COUNT(*) as total_planned,
+            COUNT(*) FILTER (WHERE completed = true AND date >= ${ninetyDaysAgo}) as recent_completed,
+            COUNT(*) FILTER (WHERE date >= ${ninetyDaysAgo}) as recent_planned,
+            COALESCE(SUM(xp_reward) FILTER (WHERE completed = true), 0)::bigint as total_xp,
+            COALESCE(SUM(xp_reward) FILTER (WHERE completed = true AND date >= ${ninetyDaysAgo}), 0)::bigint as recent_xp
+          FROM daily_steps
+          WHERE goal_id = ANY(${sql.array(goalIds)})
+        `
+        stepStats = stepQuery[0] || stepStats
+        console.log('📊 Step stats result:', stepStats)
+        console.log('📊 Step stats parsed:', {
+          total_completed: parseInt(String(stepStats.total_completed || 0)),
+          total_planned: parseInt(String(stepStats.total_planned || 0)),
+          recent_completed: parseInt(String(stepStats.recent_completed || 0)),
+          recent_planned: parseInt(String(stepStats.recent_planned || 0)),
+          total_xp: parseInt(String(stepStats.total_xp || 0)),
+          recent_xp: parseInt(String(stepStats.recent_xp || 0))
+        })
+      } catch (error: any) {
+        console.error('❌ Error calculating step stats:', error)
+        console.error('Error details:', {
+          message: error?.message,
+          code: error?.code,
+          detail: error?.detail
+        })
+        // Don't throw, just use empty stats
+      }
+    } else {
+      console.log('⏭️  No goals, skipping step stats calculation')
+    }
+    
+    // Calculate habit statistics
+    let habitStats: any = {
+      total_completed: 0,
+      total_planned: 0,
+      recent_completed: 0,
+      recent_planned: 0,
+      total_xp: 0,
+      recent_xp: 0
+    }
+    
+    if (habitIds.length > 0) {
+      try {
+        console.log('🔄 Calculating habit stats for habitIds:', habitIds)
+        console.log('🔄 Habits with completions:', habits.map((h: any) => ({
+          id: h.id,
+          habit_completions: h.habit_completions
+        })))
+        
+        // Calculate completions from habit_completions JSON field in habits table
+        let totalCompleted = 0
+        let recentCompleted = 0
+        let totalXp = 0
+        let recentXp = 0
+        
+        for (const habit of habits) {
+          const completions = habit.habit_completions || {}
+          const xpReward = habit.xp_reward || 0
+          
+          // Count all completions (where value is true)
+          const allCompletions = Object.entries(completions).filter(([date, completed]) => completed === true)
+          totalCompleted += allCompletions.length
+          totalXp += allCompletions.length * xpReward
+          
+          // Count recent completions (last 90 days)
+          const recentCompletions = allCompletions.filter(([date]) => {
+            const completionDate = new Date(date)
+            return completionDate >= ninetyDaysAgo
+          })
+          recentCompleted += recentCompletions.length
+          recentXp += recentCompletions.length * xpReward
+        }
+        
+        habitStats.total_completed = totalCompleted
+        habitStats.recent_completed = recentCompleted
+        habitStats.total_xp = totalXp
+        habitStats.recent_xp = recentXp
+        
+        console.log('🔄 Habit completions calculated from JSON:', {
+          total_completed: habitStats.total_completed,
+          recent_completed: habitStats.recent_completed,
+          total_xp: habitStats.total_xp,
+          recent_xp: habitStats.recent_xp
+        })
+      } catch (error: any) {
+        console.error('❌ Error calculating habit stats:', error)
+        console.error('Error details:', {
+          message: error?.message,
+          code: error?.code,
+          detail: error?.detail
+        })
+        // If there's an error, return empty stats
+        habitStats = {
+          total_completed: 0,
+          total_planned: 0,
+          recent_completed: 0,
+          recent_planned: 0,
+          total_xp: 0,
+          recent_xp: 0
+        }
+      }
+      
+      // For planned habits, we need to estimate based on frequency
+      // Calculate planned habits based on habit frequency and creation date
+      if (habitIds.length > 0) {
+        console.log('📅 Calculating planned habits for', habitIds.length, 'habits')
+        const habitCreationDates = habits.map((h: any) => new Date(h.created_at))
+        const oldestHabitDate = new Date(Math.min(...habitCreationDates.map((d: Date) => d.getTime())))
+        const daysSinceOldestHabit = Math.floor((now.getTime() - oldestHabitDate.getTime()) / (1000 * 60 * 60 * 24))
+        
+        console.log('📅 Oldest habit date:', oldestHabitDate.toISOString(), 'Days since:', daysSinceOldestHabit)
+        console.log('📅 Current date:', now.toISOString())
+        
+        // Calculate planned habits based on frequency
+        let totalPlannedHabits = 0
+        let recentPlannedHabits = 0
+        
+        for (const habit of habits) {
+          const habitCreatedAt = new Date(habit.created_at)
+          const daysSinceCreation = Math.floor((now.getTime() - habitCreatedAt.getTime()) / (1000 * 60 * 60 * 24))
+          const daysSinceNinetyDaysAgo = Math.max(0, Math.min(daysSinceCreation, 90))
+          
+          console.log(`📅 Habit ${habit.id}:`, {
+            created_at: habit.created_at,
+            created_at_parsed: habitCreatedAt.toISOString(),
+            frequency: habit.frequency,
+            selected_days: habit.selected_days,
+            daysSinceCreation,
+            daysSinceNinetyDaysAgo
+          })
+          
+          let plannedCount = 0
+          let recentPlannedCount = 0
+          
+          switch (habit.frequency) {
+            case 'daily':
+              // For daily habits, count at least 1 if created today, otherwise count days
+              plannedCount = Math.max(1, daysSinceCreation)
+              recentPlannedCount = Math.max(1, daysSinceNinetyDaysAgo)
+              break
+            case 'weekly':
+              // For weekly habits, count at least 1 if created within last 7 days, otherwise count weeks
+              plannedCount = Math.max(1, Math.floor(daysSinceCreation / 7))
+              recentPlannedCount = Math.max(1, Math.floor(daysSinceNinetyDaysAgo / 7))
+              break
+            case 'monthly':
+              // For monthly habits, count at least 1 if created within last 30 days, otherwise count months
+              plannedCount = Math.max(1, Math.floor(daysSinceCreation / 30))
+              recentPlannedCount = Math.max(1, Math.floor(daysSinceNinetyDaysAgo / 30))
+              break
+            case 'custom':
+              // For custom, count based on selected_days per week
+              const selectedDaysCount = habit.selected_days?.length || 0
+              // At least 1 if created today, otherwise calculate based on frequency
+              plannedCount = Math.max(1, Math.floor((daysSinceCreation / 7) * selectedDaysCount))
+              recentPlannedCount = Math.max(1, Math.floor((daysSinceNinetyDaysAgo / 7) * selectedDaysCount))
+              break
+          }
+          
+          console.log(`📅 Habit ${habit.id} calculation:`, {
+            frequency: habit.frequency,
+            daysSinceCreation,
+            daysSinceNinetyDaysAgo,
+            plannedCount,
+            recentPlannedCount
+          })
+          
+          totalPlannedHabits += Math.max(0, plannedCount)
+          recentPlannedHabits += Math.max(0, recentPlannedCount)
+        }
+        
+        // Ensure at least the number of habits is counted (minimum 1 per habit)
+        totalPlannedHabits = Math.max(totalPlannedHabits, habitIds.length)
+        recentPlannedHabits = Math.max(recentPlannedHabits, habitIds.length)
+        
+        console.log('📅 Total planned habits calculated:', {
+          before_minimum: totalPlannedHabits,
+          after_minimum: Math.max(totalPlannedHabits, habitIds.length),
+          recent_before_minimum: recentPlannedHabits,
+          recent_after_minimum: Math.max(recentPlannedHabits, habitIds.length),
+          habitCount: habitIds.length
+        })
+        console.log('📅 Habit stats before update:', habitStats)
+        
+        // Use the calculated planned habits, but ensure it's at least the number of completions
+        habitStats.total_planned = Math.max(
+          parseInt(String(habitStats.total_planned || 0)),
+          parseInt(String(habitStats.total_completed || 0)),
+          totalPlannedHabits
+        )
+        habitStats.recent_planned = Math.max(
+          parseInt(String(habitStats.recent_planned || 0)),
+          parseInt(String(habitStats.recent_completed || 0)),
+          recentPlannedHabits
+        )
+        
+        console.log('📅 Habit stats after update:', {
+          total_planned: habitStats.total_planned,
+          recent_planned: habitStats.recent_planned,
+          total_completed: habitStats.total_completed,
+          recent_completed: habitStats.recent_completed
+        })
+      } else {
+        // Fallback to old logic if no habits
+        console.log('⏭️  No habits, skipping planned habits calculation')
+        habitStats.total_planned = Math.max(parseInt(String(habitStats.total_planned || 0)), parseInt(String(habitStats.total_completed || 0)))
+        habitStats.recent_planned = Math.max(parseInt(String(habitStats.recent_planned || 0)), parseInt(String(habitStats.recent_completed || 0)))
+      }
+    } else {
+      console.log('⏭️  No habits, skipping habit stats calculation')
+    }
+    
+    const totalCompleted = parseInt(String(stepStats.total_completed || 0)) + parseInt(String(habitStats.total_completed || 0))
+    const totalPlanned = parseInt(String(stepStats.total_planned || 0)) + parseInt(String(habitStats.total_planned || 0))
+    const recentCompleted = parseInt(String(stepStats.recent_completed || 0)) + parseInt(String(habitStats.recent_completed || 0))
+    const recentPlanned = parseInt(String(stepStats.recent_planned || 0)) + parseInt(String(habitStats.recent_planned || 0))
+    
+    console.log('🔢 Final calculations:', {
+      stepStats: {
+        total_completed: parseInt(String(stepStats.total_completed || 0)),
+        total_planned: parseInt(String(stepStats.total_planned || 0)),
+        recent_completed: parseInt(String(stepStats.recent_completed || 0)),
+        recent_planned: parseInt(String(stepStats.recent_planned || 0))
+      },
+      habitStats: {
+        total_completed: parseInt(String(habitStats.total_completed || 0)),
+        total_planned: parseInt(String(habitStats.total_planned || 0)),
+        recent_completed: parseInt(String(habitStats.recent_completed || 0)),
+        recent_planned: parseInt(String(habitStats.recent_planned || 0))
+      },
+      totals: {
+        totalCompleted,
+        totalPlanned,
+        recentCompleted,
+        recentPlanned
+      }
+    })
+    
+    const completionRateAllTime = totalPlanned > 0 ? (totalCompleted / totalPlanned) * 100 : 0
+    const completionRateRecent = recentPlanned > 0 ? (recentCompleted / recentPlanned) * 100 : 0
+    
+    console.log('📈 Completion rates:', {
+      completionRateAllTime,
+      completionRateRecent
+    })
+    
+    // Determine trend: positive if recent completion rate is higher than all-time
+    let trend: 'positive' | 'negative' | 'neutral' = 'neutral'
+    if (completionRateRecent > completionRateAllTime + 5) {
+      trend = 'positive'
+    } else if (completionRateRecent < completionRateAllTime - 5) {
+      trend = 'negative'
+    }
+    
+    console.log('📊 Trend:', trend)
+    
+    const result = {
+      aspiration_id: aspirationId,
+      total_xp: parseInt(String(stepStats.total_xp || 0)) + parseInt(String(habitStats.total_xp || 0)),
+      recent_xp: parseInt(String(stepStats.recent_xp || 0)) + parseInt(String(habitStats.recent_xp || 0)),
+      total_completed_steps: parseInt(String(stepStats.total_completed || 0)),
+      recent_completed_steps: parseInt(String(stepStats.recent_completed || 0)),
+      total_completed_habits: parseInt(String(habitStats.total_completed || 0)),
+      recent_completed_habits: parseInt(String(habitStats.recent_completed || 0)),
+      total_planned_steps: parseInt(String(stepStats.total_planned || 0)),
+      recent_planned_steps: parseInt(String(stepStats.recent_planned || 0)),
+      total_planned_habits: parseInt(String(habitStats.total_planned || 0)),
+      recent_planned_habits: parseInt(String(habitStats.recent_planned || 0)),
+      completion_rate_all_time: completionRateAllTime,
+      completion_rate_recent: completionRateRecent,
+      trend
+    }
+    
+    console.log('✅ Aspiration balance result:', result)
+    console.log('=== getAspirationBalance END ===')
+    return result
+  } catch (error: any) {
+    console.error('Error getting aspiration balance:', error)
+    console.error('Error details:', {
+      message: error?.message,
+      code: error?.code,
+      detail: error?.detail,
+      stack: error?.stack
+    })
+    // Return empty balance instead of throwing
+    return {
+      aspiration_id: aspirationId,
+      total_xp: 0,
+      recent_xp: 0,
+      total_completed_steps: 0,
+      recent_completed_steps: 0,
+      total_completed_habits: 0,
+      recent_completed_habits: 0,
+      total_planned_steps: 0,
+      recent_planned_steps: 0,
+      total_planned_habits: 0,
+      recent_planned_habits: 0,
+      completion_rate_all_time: 0,
+      completion_rate_recent: 0,
+      trend: 'neutral'
+    }
+  }
+}
+
 export async function getDailyStepsByUserId(userId: string, date?: Date): Promise<DailyStep[]> {
   try {
     let query
@@ -846,7 +1365,7 @@ export async function createGoal(goalData: Partial<Goal>): Promise<Goal> {
     INSERT INTO goals (
       id, user_id, title, description, target_date, status, priority, 
       category, goal_type, progress_percentage, progress_type, 
-      progress_target, progress_current, progress_unit, area_id
+      progress_target, progress_current, progress_unit, area_id, aspiration_id
     ) VALUES (
       ${id}, ${goalData.user_id}, ${goalData.title}, ${goalData.description || null}, 
       ${goalData.target_date || null}, ${goalData.status || 'active'}, 
@@ -854,7 +1373,7 @@ export async function createGoal(goalData: Partial<Goal>): Promise<Goal> {
       ${goalData.goal_type || 'outcome'}, ${goalData.progress_percentage || 0}, 
       ${goalData.progress_type || 'percentage'}, ${goalData.progress_target || null}, 
       ${goalData.progress_current || 0}, ${goalData.progress_unit || null},
-      ${goalData.area_id || null}
+      ${goalData.area_id || null}, ${goalData.aspiration_id || null}
     ) RETURNING *
   `
   return goal[0] as Goal
@@ -1259,6 +1778,7 @@ export async function updateGoalById(goalId: string, updates: Partial<Goal>): Pr
         title = COALESCE(${updates.title}, title),
         description = COALESCE(${updates.description}, description),
         area_id = COALESCE(${updates.area_id}, area_id),
+        aspiration_id = ${updates.aspiration_id !== undefined ? updates.aspiration_id : null},
         target_date = COALESCE(${updates.target_date}, target_date),
         status = COALESCE(${updates.status}, status),
         updated_at = NOW()
@@ -2803,11 +3323,11 @@ export async function createHabit(habitData: Omit<Habit, 'id' | 'created_at' | '
     const result = await sql`
       INSERT INTO habits (
         id, user_id, name, description, frequency, streak, 
-        max_streak, category, difficulty, is_custom, reminder_time, selected_days, always_show, xp_reward
+        max_streak, category, difficulty, is_custom, reminder_time, selected_days, always_show, xp_reward, aspiration_id
       ) VALUES (
         ${id}, ${habitData.user_id}, ${habitData.name}, ${habitData.description}, 
         ${habitData.frequency}, ${habitData.streak}, ${habitData.max_streak}, 
-        ${habitData.category}, ${habitData.difficulty}, ${habitData.is_custom}, ${habitData.reminder_time}, ${habitData.selected_days}, ${habitData.always_show}, ${habitData.xp_reward}
+        ${habitData.category}, ${habitData.difficulty}, ${habitData.is_custom}, ${habitData.reminder_time}, ${habitData.selected_days}, ${habitData.always_show}, ${habitData.xp_reward}, ${habitData.aspiration_id || null}
       ) RETURNING *
     `
     
@@ -2841,6 +3361,7 @@ export async function updateHabit(habitId: string, updates: Partial<Omit<Habit, 
         selected_days = COALESCE(${updates.selected_days}, selected_days),
         always_show = COALESCE(${updates.always_show}, always_show),
         xp_reward = COALESCE(${updates.xp_reward}, xp_reward),
+        aspiration_id = ${updates.aspiration_id !== undefined ? updates.aspiration_id : null},
         updated_at = NOW()
       WHERE id = ${habitId}
       RETURNING *
@@ -2937,8 +3458,8 @@ export async function toggleHabitCompletion(userId: string, habitId: string, dat
     } else {
       // Add completion (mark as completed)
       await sql`
-        INSERT INTO habit_completions (user_id, habit_id, completion_date, created_at)
-        VALUES (${userId}, ${habitId}, ${today}, NOW())
+        INSERT INTO habit_completions (user_id, habit_id, completion_date, completed, created_at)
+        VALUES (${userId}, ${habitId}, ${today}, true, NOW())
       `
       
       // Update streak

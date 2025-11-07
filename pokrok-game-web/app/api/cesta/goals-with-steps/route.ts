@@ -50,6 +50,8 @@ export async function POST(request: NextRequest) {
       description,
       targetDate,
       icon,
+      areaId,
+      aspirationId,
       metrics,
       steps,
       milestones
@@ -90,10 +92,10 @@ export async function POST(request: NextRequest) {
     const goal = await sql`
       INSERT INTO goals (
         id, user_id, title, description, target_date, status, priority, 
-        category, goal_type, progress_percentage, icon
+        category, goal_type, progress_percentage, icon, area_id, aspiration_id
       ) VALUES (
         ${goalId}, ${dbUser.id}, ${title}, ${description || null}, ${targetDateObj}, 'active',
-        'meaningful', 'medium-term', 'outcome', 0, ${icon || null}
+        'meaningful', 'medium-term', 'outcome', 0, ${icon || null}, ${areaId || null}, ${aspirationId || null}
       ) RETURNING *
     `
 

@@ -707,76 +707,76 @@ export function CalendarProgram({
                       <div className="mb-2">
                         <div className="text-xs text-gray-500 font-normal mb-1">{dayName}</div>
                         <div className={`text-xl font-bold ${isToday ? 'text-orange-600' : 'text-gray-800'}`}>{dayNumber}</div>
-                      </div>
-                      
-                      {/* Progress bar */}
-                      {totalTasks > 0 && (
-                        <div className="mb-2">
-                          <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
-                            <div 
-                              className={`h-1.5 rounded-full transition-all ${
-                                completedTasks === 0 ? 'bg-red-500' :
-                                completionPercentage === 100 ? 'bg-green-500' :
-                                'bg-orange-500'
-                              }`}
-                              style={{ width: `${completionPercentage}%` }}
-                            ></div>
-                          </div>
-                          <div className="text-xs text-gray-600 text-center">
-                            {completionPercentage}% ({completedTasks}/{totalTasks})
-                          </div>
-                        </div>
-                      )}
-                      {totalTasks === 0 && (
-                        <div className="mb-2">
-                          <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
-                            <div 
-                              className="h-1.5 rounded-full transition-all bg-orange-500"
-                              style={{ width: '100%' }}
-                            ></div>
-                          </div>
-                          <div className="text-xs text-gray-600 text-center">
-                            0% (0/0)
-                          </div>
-                        </div>
-                      )}
                     </div>
                     
+                    {/* Progress bar */}
+                    {totalTasks > 0 && (
+                        <div className="mb-2">
+                          <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
+                          <div 
+                              className={`h-1.5 rounded-full transition-all ${
+                              completedTasks === 0 ? 'bg-red-500' :
+                              completionPercentage === 100 ? 'bg-green-500' :
+                              'bg-orange-500'
+                            }`}
+                            style={{ width: `${completionPercentage}%` }}
+                          ></div>
+                        </div>
+                        <div className="text-xs text-gray-600 text-center">
+                          {completionPercentage}% ({completedTasks}/{totalTasks})
+                        </div>
+                      </div>
+                    )}
+                    {totalTasks === 0 && (
+                        <div className="mb-2">
+                          <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
+                          <div 
+                              className="h-1.5 rounded-full transition-all bg-orange-500"
+                            style={{ width: '100%' }}
+                          ></div>
+                        </div>
+                        <div className="text-xs text-gray-600 text-center">
+                          0% (0/0)
+                        </div>
+                      </div>
+                    )}
+        </div>
+
                     {/* Steps section */}
                     <div className="flex-1 min-h-0 px-3 pb-2 border-t border-gray-100 flex flex-col">
                       <div className="text-xs font-semibold text-gray-600 mb-1.5 mt-2 flex-shrink-0">Kroky</div>
                       {daySteps.length > 0 ? (
                         <div className="space-y-1 flex-1 overflow-y-auto min-h-0">
                           {daySteps.map(step => (
-                            <div
-                              key={step.id}
+                      <div
+                        key={step.id}
                               onClick={(e) => {
                                 e.stopPropagation()
                                 toggleStep(step.id)
                               }}
                               className="flex items-center gap-2 p-1.5 bg-gray-50 rounded hover:bg-gray-100 transition-colors cursor-pointer"
-                            >
-                              {loadingSteps.has(step.id) ? (
+                        >
+                          {loadingSteps.has(step.id) ? (
                                 <svg className="animate-spin h-3.5 w-3.5 text-gray-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                              ) : step.completed ? (
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          ) : step.completed ? (
                                 <CheckCircle className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
-                              ) : (
+                          ) : (
                                 <Circle className="w-3.5 h-3.5 text-gray-300 flex-shrink-0" />
-                              )}
+                          )}
                               <span className={`text-xs flex-1 truncate ${step.completed ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
-                                {step.title}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
+                          {step.title}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
                         <div className="text-xs text-gray-400 py-1 text-center">Žádné</div>
-                      )}
-                    </div>
-                    
+                )}
+              </div>
+
                     {/* Habits section */}
                     <div className="flex-1 min-h-0 px-3 pb-3 border-t border-gray-100 flex flex-col">
                       <div className="text-xs font-semibold text-gray-600 mb-1.5 mt-2 flex-shrink-0">Návyky</div>
@@ -784,24 +784,24 @@ export function CalendarProgram({
                         <div className="space-y-1.5 flex-1 overflow-y-auto min-h-0">
                           {dayHabits.map(habit => {
                             // Check if completed
-                            let isCompleted = false
-                            if (habit.habit_completions) {
-                              if (typeof habit.habit_completions === 'string') {
-                                try {
-                                  const parsed = JSON.parse(habit.habit_completions)
+                      let isCompleted = false
+                      if (habit.habit_completions) {
+                        if (typeof habit.habit_completions === 'string') {
+                          try {
+                            const parsed = JSON.parse(habit.habit_completions)
                                   isCompleted = parsed[dateStr] === true
-                                } catch {
-                                  isCompleted = false
-                                }
-                              } else if (typeof habit.habit_completions === 'object') {
+                          } catch {
+                            isCompleted = false
+                          }
+                        } else if (typeof habit.habit_completions === 'object') {
                                 isCompleted = habit.habit_completions[dateStr] === true || 
                                              habit.habit_completions[dateStr] === 'true'
-                              }
-                            }
+                        }
+                      }
                             
-                            return (
-                              <div
-                                key={habit.id}
+                      return (
+                        <div
+                          key={habit.id}
                                 onClick={(e) => {
                                   e.stopPropagation()
                                   toggleHabit(habit.id, dateStr)
@@ -816,14 +816,14 @@ export function CalendarProgram({
                                 }}
                               >
                                 <div className="flex items-center gap-2">
-                                  <button
+                          <button
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       if (!loadingHabits.has(habit.id)) {
                                         toggleHabit(habit.id, dateStr)
                                       }
                                     }}
-                                    disabled={loadingHabits.has(habit.id)}
+                            disabled={loadingHabits.has(habit.id)}
                                     className={`w-4 h-4 rounded-md border-2 flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
                                       loadingHabits.has(habit.id)
                                         ? 'border-gray-300 bg-gray-100 cursor-wait'
@@ -834,33 +834,33 @@ export function CalendarProgram({
                                     style={{
                                       boxShadow: isCompleted && !loadingHabits.has(habit.id) ? '0 1px 4px rgba(251, 146, 60, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)'
                                     }}
-                                  >
-                                    {loadingHabits.has(habit.id) ? (
+                          >
+                            {loadingHabits.has(habit.id) ? (
                                       <svg className="animate-spin h-2.5 w-2.5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                      </svg>
-                                    ) : isCompleted ? (
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                            ) : isCompleted ? (
                                       <span className="text-[10px] font-bold">✓</span>
                                     ) : null}
-                                  </button>
+                          </button>
                                   <span className={`text-xs flex-1 truncate ${
                                     isCompleted 
                                       ? 'line-through text-orange-600' 
                                       : 'text-gray-700'
                                   }`}>
-                                    {habit.name}
-                                  </span>
+                            {habit.name}
+                          </span>
                                 </div>
-                              </div>
-                            )
-                          })}
                         </div>
-                      ) : (
-                        <div className="text-xs text-gray-400 py-1 text-center">Žádné</div>
-                      )}
-                    </div>
+                      )
+                    })}
                   </div>
+                ) : (
+                        <div className="text-xs text-gray-400 py-1 text-center">Žádné</div>
+                )}
+              </div>
+            </div>
                 )
               })
             ) : (
@@ -876,11 +876,11 @@ export function CalendarProgram({
                       style={isFirstDay ? { gridColumnStart: adjustedStartingDay + 1 } : {}}
                     >
                       {renderCalendarDay(day)}
-                    </div>
+          </div>
                   )
                 })}
               </>
-            )}
+        )}
         </div>
 
         </div>

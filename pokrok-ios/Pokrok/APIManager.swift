@@ -124,6 +124,10 @@ class APIManager: ObservableObject {
             requestBody["icon"] = icon
         }
         
+        if let aspirationId = goal.aspirationId {
+            requestBody["aspirationId"] = aspirationId
+        }
+        
         let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
         request.httpBody = jsonData
         
@@ -141,6 +145,60 @@ class APIManager: ObservableObject {
         let decoder = createJSONDecoder()
         let createdGoal = try decoder.decode(Goal.self, from: data)
         return createdGoal
+    }
+    
+    func updateGoal(goalId: String, title: String?, description: String?, targetDate: Date?, aspirationId: String?) async throws -> Goal {
+        guard let url = URL(string: "\(baseURL)/goals") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add Clerk token if available
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        // Create request body
+        var requestBody: [String: Any] = [
+            "goalId": goalId
+        ]
+        
+        if let title = title {
+            requestBody["title"] = title
+        }
+        
+        if let description = description {
+            requestBody["description"] = description
+        }
+        
+        if let targetDate = targetDate {
+            requestBody["target_date"] = ISO8601DateFormatter().string(from: targetDate)
+        }
+        
+        if let aspirationId = aspirationId {
+            requestBody["aspirationId"] = aspirationId
+        }
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+        request.httpBody = jsonData
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.requestFailed
+        }
+        
+        // Parse response - API returns goal directly, not wrapped
+        let decoder = createJSONDecoder()
+        let updatedGoal = try decoder.decode(Goal.self, from: data)
+        return updatedGoal
     }
     
     // MARK: - Steps API
@@ -559,6 +617,219 @@ class APIManager: ObservableObject {
         }
     }
     
+    // MARK: - Aspirations API
+    
+    func fetchAspirations() async throws -> [Aspiration] {
+        guard let url = URL(string: "\(baseURL)/aspirations") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add Clerk token if available
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            if let errorData = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let errorMessage = errorData["error"] as? String {
+                print("❌ Error fetching aspirations: \(errorMessage)")
+            } else {
+                print("❌ Error fetching aspirations: HTTP \(httpResponse.statusCode)")
+            }
+            throw APIError.requestFailed
+        }
+        
+        // Parse response - API returns array directly, not wrapped
+        let decoder = createJSONDecoder()
+        let aspirations = try decoder.decode([Aspiration].self, from: data)
+        return aspirations
+    }
+    
+    func createAspiration(_ aspiration: CreateAspirationRequest) async throws -> Aspiration {
+        guard let url = URL(string: "\(baseURL)/aspirations") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add Clerk token if available
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        // Create request body
+        var requestBody: [String: Any] = [
+            "title": aspiration.title
+        ]
+        
+        if let description = aspiration.description {
+            requestBody["description"] = description
+        }
+        
+        if let color = aspiration.color {
+            requestBody["color"] = color
+        }
+        
+        if let icon = aspiration.icon {
+            requestBody["icon"] = icon
+        }
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+        request.httpBody = jsonData
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
+            throw APIError.requestFailed
+        }
+        
+        // Parse response - API returns aspiration directly, not wrapped
+        let decoder = createJSONDecoder()
+        let createdAspiration = try decoder.decode(Aspiration.self, from: data)
+        return createdAspiration
+    }
+    
+    func updateAspiration(aspirationId: String, title: String?, description: String?, color: String?, icon: String?) async throws -> Aspiration {
+        guard let url = URL(string: "\(baseURL)/aspirations") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add Clerk token if available
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        // Create request body
+        var requestBody: [String: Any] = [
+            "aspirationId": aspirationId
+        ]
+        
+        if let title = title {
+            requestBody["title"] = title
+        }
+        
+        if let description = description {
+            requestBody["description"] = description
+        }
+        
+        if let color = color {
+            requestBody["color"] = color
+        }
+        
+        if let icon = icon {
+            requestBody["icon"] = icon
+        }
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+        request.httpBody = jsonData
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.requestFailed
+        }
+        
+        // Parse response - API returns aspiration directly, not wrapped
+        let decoder = createJSONDecoder()
+        let updatedAspiration = try decoder.decode(Aspiration.self, from: data)
+        return updatedAspiration
+    }
+    
+    func deleteAspiration(aspirationId: String) async throws {
+        guard var urlComponents = URLComponents(string: "\(baseURL)/aspirations") else {
+            throw APIError.invalidURL
+        }
+        
+        urlComponents.queryItems = [
+            URLQueryItem(name: "aspirationId", value: aspirationId)
+        ]
+        
+        guard let url = urlComponents.url else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add Clerk token if available
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 || httpResponse.statusCode == 204 else {
+            throw APIError.requestFailed
+        }
+    }
+    
+    func fetchAspirationBalance(aspirationId: String) async throws -> AspirationBalance {
+        guard var urlComponents = URLComponents(string: "\(baseURL)/aspirations/balance") else {
+            throw APIError.invalidURL
+        }
+        
+        urlComponents.queryItems = [
+            URLQueryItem(name: "aspirationId", value: aspirationId)
+        ]
+        
+        guard let url = urlComponents.url else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add Clerk token if available
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.requestFailed
+        }
+        
+        // Parse response - API returns balance directly, not wrapped
+        let decoder = createJSONDecoder()
+        let balance = try decoder.decode(AspirationBalance.self, from: data)
+        return balance
+    }
+    
     // MARK: - Notes API
     
     func fetchNotes(goalId: String? = nil, standalone: Bool = false) async throws -> [Note] {
@@ -934,5 +1205,97 @@ class APIManager: ObservableObject {
         
         let dailyPlanningResponse = try createJSONDecoder().decode(DailyPlanningResponse.self, from: data)
         return dailyPlanningResponse.planning
+    }
+    
+    func updateHabit(habitId: String, name: String?, description: String?, frequency: String?, reminderTime: String?, selectedDays: [String]?, alwaysShow: Bool?, xpReward: Int?, aspirationId: String?) async throws -> Habit {
+        guard let url = URL(string: "\(baseURL)/habits") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add Clerk token if available
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        // Create request body
+        var requestBody: [String: Any] = [
+            "habitId": habitId
+        ]
+        
+        if let name = name {
+            requestBody["name"] = name
+        }
+        
+        if let description = description {
+            requestBody["description"] = description
+        }
+        
+        if let frequency = frequency {
+            requestBody["frequency"] = frequency
+        }
+        
+        if let reminderTime = reminderTime {
+            requestBody["reminderTime"] = reminderTime
+        }
+        
+        if let selectedDays = selectedDays {
+            requestBody["selectedDays"] = selectedDays
+        }
+        
+        if let alwaysShow = alwaysShow {
+            requestBody["alwaysShow"] = alwaysShow
+        }
+        
+        if let xpReward = xpReward {
+            requestBody["xpReward"] = xpReward
+        }
+        
+        if let aspirationId = aspirationId {
+            requestBody["aspirationId"] = aspirationId
+        }
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+        request.httpBody = jsonData
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.requestFailed
+        }
+        
+        // Parse response - API returns habit directly, not wrapped
+        let decoder = createJSONDecoder()
+        
+        // Handle habit_completions similar to fetchHabits
+        if let habitDict = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            var mutableHabitDict = habitDict
+            // Parse habit_completions if it's a string (JSON)
+            if let completionsString = mutableHabitDict["habit_completions"] as? String,
+               let completionsData = completionsString.data(using: .utf8),
+               let completionsDict = try? JSONSerialization.jsonObject(with: completionsData) as? [String: Bool] {
+                mutableHabitDict["habit_completions"] = completionsDict
+            } else if let completionsDict = mutableHabitDict["habit_completions"] as? [String: Bool] {
+                // Already a dictionary, keep it
+                mutableHabitDict["habit_completions"] = completionsDict
+            } else if mutableHabitDict["habit_completions"] == nil {
+                // Set to empty dictionary if nil
+                mutableHabitDict["habit_completions"] = [String: Bool]()
+            }
+            
+            let updatedData = try JSONSerialization.data(withJSONObject: mutableHabitDict)
+            let updatedHabit = try decoder.decode(Habit.self, from: updatedData)
+            return updatedHabit
+        } else {
+            let updatedHabit = try decoder.decode(Habit.self, from: data)
+            return updatedHabit
+        }
     }
 }

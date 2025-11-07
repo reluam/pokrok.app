@@ -8,6 +8,7 @@ struct CreateGoalRequest: Codable {
     let targetDate: Date?
     let priority: String
     let icon: String?
+    let aspirationId: String?
 }
 
 struct CreateStepRequest: Codable {
@@ -46,6 +47,7 @@ struct Goal: Codable, Identifiable {
     let status: String
     let progressPercentage: Int
     let icon: String?
+    let aspirationId: String?
     let createdAt: Date?
     let updatedAt: Date?
     
@@ -58,6 +60,7 @@ struct Goal: Codable, Identifiable {
         case status
         case progressPercentage = "progress_percentage"
         case icon
+        case aspirationId = "aspiration_id"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }
@@ -221,6 +224,7 @@ struct Habit: Codable, Identifiable {
     let habitCompletions: [String: Bool]?
     let alwaysShow: Bool
     let xpReward: Int
+    let aspirationId: String?
     let createdAt: Date?
     let updatedAt: Date?
     
@@ -240,12 +244,77 @@ struct Habit: Codable, Identifiable {
         case habitCompletions = "habit_completions"
         case alwaysShow = "always_show"
         case xpReward = "xp_reward"
+        case aspirationId = "aspiration_id"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }
 }
 
-// MARK: - API Errors
+// MARK: - Aspiration Model
+struct Aspiration: Codable, Identifiable {
+    let id: String
+    let userId: String
+    let title: String
+    let description: String?
+    let color: String
+    let icon: String?
+    let createdAt: Date?
+    let updatedAt: Date?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case title
+        case description
+        case color
+        case icon
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+}
+
+// MARK: - Aspiration Balance Model
+struct AspirationBalance: Codable {
+    let aspirationId: String
+    let totalXp: Int
+    let recentXp: Int // Last 90 days
+    let totalCompletedSteps: Int
+    let recentCompletedSteps: Int
+    let totalCompletedHabits: Int
+    let recentCompletedHabits: Int
+    let totalPlannedSteps: Int
+    let recentPlannedSteps: Int
+    let totalPlannedHabits: Int
+    let recentPlannedHabits: Int
+    let completionRateAllTime: Double // percentage
+    let completionRateRecent: Double // percentage
+    let trend: String // 'positive' | 'negative' | 'neutral'
+    
+    enum CodingKeys: String, CodingKey {
+        case aspirationId = "aspiration_id"
+        case totalXp = "total_xp"
+        case recentXp = "recent_xp"
+        case totalCompletedSteps = "total_completed_steps"
+        case recentCompletedSteps = "recent_completed_steps"
+        case totalCompletedHabits = "total_completed_habits"
+        case recentCompletedHabits = "recent_completed_habits"
+        case totalPlannedSteps = "total_planned_steps"
+        case recentPlannedSteps = "recent_planned_steps"
+        case totalPlannedHabits = "total_planned_habits"
+        case recentPlannedHabits = "recent_planned_habits"
+        case completionRateAllTime = "completion_rate_all_time"
+        case completionRateRecent = "completion_rate_recent"
+        case trend
+    }
+}
+
+// MARK: - Create Aspiration Request
+struct CreateAspirationRequest: Codable {
+    let title: String
+    let description: String?
+    let color: String?
+    let icon: String?
+}
 
 enum APIError: Error, LocalizedError {
     case invalidURL
