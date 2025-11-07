@@ -693,11 +693,41 @@ export async function initializeCestaDatabase() {
       )
     `
 
-    // Add metric_id column to daily_steps table
-    await sql`
-      ALTER TABLE daily_steps 
-      ADD COLUMN IF NOT EXISTS metric_id VARCHAR(255) REFERENCES metrics(id) ON DELETE SET NULL
-    `
+    // Add metric_id column to daily_steps table (if it doesn't exist)
+    try {
+      const metricIdCheck = await sql`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'daily_steps' AND column_name = 'metric_id'
+      `
+      if (metricIdCheck.length === 0) {
+        await sql`
+          ALTER TABLE daily_steps 
+          ADD COLUMN metric_id VARCHAR(255) REFERENCES metrics(id) ON DELETE SET NULL
+        `
+      }
+    } catch (error) {
+      // Ignore errors if column already exists
+      console.error('Error adding metric_id column:', error)
+    }
+    
+    // Ensure metrics table has step_id column (migration for existing tables)
+    try {
+      const stepIdCheck = await sql`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'metrics' AND column_name = 'step_id'
+      `
+      if (stepIdCheck.length === 0) {
+        await sql`
+          ALTER TABLE metrics 
+          ADD COLUMN step_id VARCHAR(255) REFERENCES daily_steps(id) ON DELETE CASCADE
+        `
+      }
+    } catch (error) {
+      // Ignore errors if column already exists
+      console.error('Error adding step_id column to metrics:', error)
+    }
 
     // Create indexes for better performance
     await sql`CREATE INDEX IF NOT EXISTS idx_values_user_id ON values(user_id)`
