@@ -973,6 +973,7 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
     if (goalIds.length > 0) {
       try {
         console.log('📊 Calculating step stats for goalIds:', goalIds)
+        // Use = ANY with array literal - Neon doesn't support sql.array()
         const stepQuery = await sql`
           SELECT 
             COUNT(*) FILTER (WHERE completed = true) as total_completed,
@@ -982,7 +983,7 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
             COALESCE(SUM(xp_reward) FILTER (WHERE completed = true), 0)::bigint as total_xp,
             COALESCE(SUM(xp_reward) FILTER (WHERE completed = true AND date >= ${ninetyDaysAgo}), 0)::bigint as recent_xp
           FROM daily_steps
-          WHERE goal_id = ANY(${sql.array(goalIds)})
+          WHERE goal_id = ANY(${goalIds})
         `
         stepStats = stepQuery[0] || stepStats
         console.log('📊 Step stats result:', stepStats)
