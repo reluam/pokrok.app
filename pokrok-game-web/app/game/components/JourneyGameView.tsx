@@ -3290,7 +3290,7 @@ export function JourneyGameView({
       return { easy, hard }
     }
 
-    const handleAddAspiration = async (title: string, description: string, color: string) => {
+    const handleAddAspiration = async (title: string, description: string, color: string, selectedGoalIds: string[] = [], selectedHabitIds: string[] = []) => {
       try {
         const response = await fetch('/api/aspirations', {
           method: 'POST',
@@ -3303,6 +3303,42 @@ export function JourneyGameView({
           setOverviewAspirations([...overviewAspirations, newAspiration])
           setAspirations([...aspirations, newAspiration])
           setShowAddAspirationModal(false)
+          
+          // Update aspiration_id for selected goals
+          for (const goalId of selectedGoalIds) {
+            try {
+              await fetch('/api/goals', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ goalId, aspirationId: newAspiration.id })
+              })
+            } catch (error) {
+              console.error(`Error updating goal ${goalId}:`, error)
+            }
+          }
+          
+          // Update aspiration_id for selected habits
+          for (const habitId of selectedHabitIds) {
+            try {
+              await fetch('/api/habits', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ habitId, aspirationId: newAspiration.id })
+              })
+            } catch (error) {
+              console.error(`Error updating habit ${habitId}:`, error)
+            }
+          }
+          
+          // Refresh goals and habits if we updated any
+          if (selectedGoalIds.length > 0 || selectedHabitIds.length > 0) {
+            onGoalsUpdate?.(goals.map(g => 
+              selectedGoalIds.includes(g.id) ? { ...g, aspiration_id: newAspiration.id } : g
+            ))
+            onHabitsUpdate?.(habits.map(h => 
+              selectedHabitIds.includes(h.id) ? { ...h, aspiration_id: newAspiration.id } : h
+            ))
+          }
           
           // Load balance for new aspiration
           try {
@@ -3327,7 +3363,7 @@ export function JourneyGameView({
       }
     }
 
-    const handleUpdateAspiration = async (title: string, description: string, color: string) => {
+    const handleUpdateAspiration = async (title: string, description: string, color: string, selectedGoalIds: string[] = [], selectedHabitIds: string[] = []) => {
       if (!editingAspiration) return
       
       try {
@@ -3350,6 +3386,95 @@ export function JourneyGameView({
           setAspirations(aspirations.map(a => 
             a.id === updatedAspiration.id ? updatedAspiration : a
           ))
+          
+          // Get current goals and habits assigned to this aspiration
+          const currentGoalIds = goals.filter(g => g.aspiration_id === editingAspiration.id).map(g => g.id)
+          const currentHabitIds = habits.filter(h => h.aspiration_id === editingAspiration.id).map(h => h.id)
+          
+          // Remove aspiration_id from goals that were unselected
+          const goalsToRemove = currentGoalIds.filter(id => !selectedGoalIds.includes(id))
+          for (const goalId of goalsToRemove) {
+            try {
+              await fetch('/api/goals', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ goalId, aspirationId: null })
+              })
+            } catch (error) {
+              console.error(`Error removing aspiration from goal ${goalId}:`, error)
+            }
+          }
+          
+          // Add aspiration_id to newly selected goals
+          const goalsToAdd = selectedGoalIds.filter(id => !currentGoalIds.includes(id))
+          for (const goalId of goalsToAdd) {
+            try {
+              await fetch('/api/goals', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ goalId, aspirationId: editingAspiration.id })
+              })
+            } catch (error) {
+              console.error(`Error adding aspiration to goal ${goalId}:`, error)
+            }
+          }
+          
+          // Remove aspiration_id from habits that were unselected
+          const habitsToRemove = currentHabitIds.filter(id => !selectedHabitIds.includes(id))
+          for (const habitId of habitsToRemove) {
+            try {
+              await fetch('/api/habits', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ habitId, aspirationId: null })
+              })
+            } catch (error) {
+              console.error(`Error removing aspiration from habit ${habitId}:`, error)
+            }
+          }
+          
+          // Add aspiration_id to newly selected habits
+          const habitsToAdd = selectedHabitIds.filter(id => !currentHabitIds.includes(id))
+          for (const habitId of habitsToAdd) {
+            try {
+              await fetch('/api/habits', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ habitId, aspirationId: editingAspiration.id })
+              })
+            } catch (error) {
+              console.error(`Error adding aspiration to habit ${habitId}:`, error)
+            }
+          }
+          
+          // Refresh goals and habits
+          if (goalsToRemove.length > 0 || goalsToAdd.length > 0 || habitsToRemove.length > 0 || habitsToAdd.length > 0) {
+            onGoalsUpdate?.(goals.map(g => {
+              if (goalsToRemove.includes(g.id)) return { ...g, aspiration_id: null }
+              if (goalsToAdd.includes(g.id)) return { ...g, aspiration_id: editingAspiration.id }
+              return g
+            }))
+            onHabitsUpdate?.(habits.map(h => {
+              if (habitsToRemove.includes(h.id)) return { ...h, aspiration_id: null }
+              if (habitsToAdd.includes(h.id)) return { ...h, aspiration_id: editingAspiration.id }
+              return h
+            }))
+          }
+          
+          // Update balance for this aspiration
+          try {
+            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${editingAspiration.id}`)
+            if (balanceResponse.ok) {
+              const balance = await balanceResponse.json()
+              setOverviewBalances((prev: Record<string, any>) => ({
+                ...prev,
+                [editingAspiration.id]: balance
+              }))
+            }
+          } catch (error) {
+            console.error('Error loading aspiration balance:', error)
+          }
+          
           setEditingAspiration(null)
         } else {
           const errorData = await response.json()
@@ -3465,14 +3590,14 @@ export function JourneyGameView({
                             {balance.trend === 'positive' && (
                               <div className="flex items-center text-green-600">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                 </svg>
                               </div>
                             )}
                             {balance.trend === 'negative' && (
                               <div className="flex items-center text-red-600">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17l5-5m0 0l-5-5m5 5H6" />
                                 </svg>
                               </div>
                             )}
@@ -3553,6 +3678,8 @@ export function JourneyGameView({
         {/* Add Aspiration Modal */}
         {showAddAspirationModal && (
           <AddAspirationModalWeb
+            goals={goals}
+            habits={habits}
             onClose={() => setShowAddAspirationModal(false)}
             onAspirationAdded={handleAddAspiration}
           />
@@ -3562,6 +3689,8 @@ export function JourneyGameView({
         {editingAspiration && (
           <AddAspirationModalWeb
             aspiration={editingAspiration}
+            goals={goals}
+            habits={habits}
             onClose={() => setEditingAspiration(null)}
             onAspirationAdded={handleUpdateAspiration}
           />
@@ -9346,17 +9475,25 @@ export function JourneyGameView({
 // Add Aspiration Modal Component
 function AddAspirationModalWeb({ 
   aspiration, 
+  goals = [],
+  habits = [],
   onClose, 
   onAspirationAdded 
 }: { 
   aspiration?: any
+  goals?: any[]
+  habits?: any[]
   onClose: () => void
-  onAspirationAdded: (title: string, description: string, color: string) => void 
+  onAspirationAdded: (title: string, description: string, color: string, selectedGoalIds?: string[], selectedHabitIds?: string[]) => void 
 }) {
   const [title, setTitle] = useState(aspiration?.title || '')
   const [description, setDescription] = useState(aspiration?.description || '')
   const [color, setColor] = useState(aspiration?.color || '#3B82F6')
+  const [selectedGoalIds, setSelectedGoalIds] = useState<string[]>([])
+  const [selectedHabitIds, setSelectedHabitIds] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showGoalDropdown, setShowGoalDropdown] = useState(false)
+  const [showHabitDropdown, setShowHabitDropdown] = useState(false)
   
   // Update state when aspiration prop changes
   useEffect(() => {
@@ -9364,12 +9501,19 @@ function AddAspirationModalWeb({
       setTitle(aspiration.title || '')
       setDescription(aspiration.description || '')
       setColor(aspiration.color || '#3B82F6')
+      // Load currently assigned goals and habits
+      const assignedGoalIds = goals.filter(g => g.aspiration_id === aspiration.id).map(g => g.id)
+      const assignedHabitIds = habits.filter(h => h.aspiration_id === aspiration.id).map(h => h.id)
+      setSelectedGoalIds(assignedGoalIds)
+      setSelectedHabitIds(assignedHabitIds)
     } else {
       setTitle('')
       setDescription('')
       setColor('#3B82F6')
+      setSelectedGoalIds([])
+      setSelectedHabitIds([])
     }
-  }, [aspiration])
+  }, [aspiration, goals, habits])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -9377,16 +9521,53 @@ function AddAspirationModalWeb({
 
     setIsSubmitting(true)
     try {
-      await onAspirationAdded(title.trim(), description.trim(), color)
+      await onAspirationAdded(title.trim(), description.trim(), color, selectedGoalIds, selectedHabitIds)
       setTitle('')
       setDescription('')
       setColor('#3B82F6')
+      setSelectedGoalIds([])
+      setSelectedHabitIds([])
     } catch (error) {
       console.error('Error creating aspiration:', error)
     } finally {
       setIsSubmitting(false)
     }
   }
+  
+  const toggleGoal = (goalId: string) => {
+    setSelectedGoalIds(prev => 
+      prev.includes(goalId) 
+        ? prev.filter(id => id !== goalId)
+        : [...prev, goalId]
+    )
+  }
+  
+  const toggleHabit = (habitId: string) => {
+    setSelectedHabitIds(prev => 
+      prev.includes(habitId) 
+        ? prev.filter(id => id !== habitId)
+        : [...prev, habitId]
+    )
+  }
+  
+  const availableGoals = goals.filter(g => !g.aspiration_id || g.aspiration_id === aspiration?.id)
+  const availableHabits = habits.filter(h => !h.aspiration_id || h.aspiration_id === aspiration?.id)
+  
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('.dropdown-container')) {
+        setShowGoalDropdown(false)
+        setShowHabitDropdown(false)
+      }
+    }
+    
+    if (showGoalDropdown || showHabitDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showGoalDropdown, showHabitDropdown])
 
   const colors = [
     { name: 'Modrá', value: '#3B82F6' },
@@ -9456,6 +9637,94 @@ function AddAspirationModalWeb({
           </div>
         </div>
         
+            {/* Goals Selection */}
+            <div className="relative dropdown-container">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Cíle</label>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowGoalDropdown(!showGoalDropdown)
+                  setShowHabitDropdown(false)
+                }}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-left flex items-center justify-between"
+              >
+                <span className="text-gray-700">
+                  {selectedGoalIds.length > 0 
+                    ? `${selectedGoalIds.length} ${selectedGoalIds.length === 1 ? 'cíl' : 'cílů'} vybráno`
+                    : 'Vyberte cíle...'}
+                </span>
+                <svg className={`w-5 h-5 text-gray-500 transition-transform ${showGoalDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {showGoalDropdown && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {availableGoals.length === 0 ? (
+                    <div className="px-4 py-3 text-sm text-gray-500">Žádné dostupné cíle</div>
+                  ) : (
+                    availableGoals.map((goal) => (
+                      <label
+                        key={goal.id}
+                        className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedGoalIds.includes(goal.id)}
+                          onChange={() => toggleGoal(goal.id)}
+                          className="mr-3 w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                        />
+                        <span className="text-sm text-gray-700">{goal.title}</span>
+                      </label>
+                    ))
+                  )}
+                </div>
+              )}
+      </div>
+
+            {/* Habits Selection */}
+            <div className="relative dropdown-container">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Návyky</label>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowHabitDropdown(!showHabitDropdown)
+                  setShowGoalDropdown(false)
+                }}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-left flex items-center justify-between"
+              >
+                <span className="text-gray-700">
+                  {selectedHabitIds.length > 0 
+                    ? `${selectedHabitIds.length} ${selectedHabitIds.length === 1 ? 'návyk' : 'návyků'} vybráno`
+                    : 'Vyberte návyky...'}
+                </span>
+                <svg className={`w-5 h-5 text-gray-500 transition-transform ${showHabitDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {showHabitDropdown && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {availableHabits.length === 0 ? (
+                    <div className="px-4 py-3 text-sm text-gray-500">Žádné dostupné návyky</div>
+                  ) : (
+                    availableHabits.map((habit) => (
+                      <label
+                        key={habit.id}
+                        className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedHabitIds.includes(habit.id)}
+                          onChange={() => toggleHabit(habit.id)}
+                          className="mr-3 w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                        />
+                        <span className="text-sm text-gray-700">{habit.name}</span>
+                      </label>
+                    ))
+                  )}
+                </div>
+              )}
+      </div>
+
             <div className="flex gap-3 pt-4">
               <button
                 type="button"
