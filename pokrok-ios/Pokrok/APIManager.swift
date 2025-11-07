@@ -6,6 +6,11 @@ class APIManager: ObservableObject {
     
     private let baseURL = "https://www.pokrok.app/api"
     
+    // Cache for user data (1 second TTL)
+    private var cachedUser: User?
+    private var userCacheTimestamp: Date?
+    private let userCacheTTL: TimeInterval = 1.0
+    
     private init() {}
     
     // MARK: - JSON Decoder Helper
@@ -203,7 +208,7 @@ class APIManager: ObservableObject {
     
     // MARK: - Steps API
     
-    func fetchSteps() async throws -> [DailyStep] {
+    func fetchSteps(startDate: Date? = nil, endDate: Date? = nil) async throws -> [DailyStep] {
         // First, get userId from user endpoint
         let user = try await fetchUser()
         
@@ -211,9 +216,19 @@ class APIManager: ObservableObject {
             throw APIError.invalidURL
         }
         
-        urlComponents.queryItems = [
+        var queryItems: [URLQueryItem] = [
             URLQueryItem(name: "userId", value: user.id)
         ]
+        
+        // Add date range if provided (optimized query)
+        if let startDate = startDate, let endDate = endDate {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            queryItems.append(URLQueryItem(name: "startDate", value: formatter.string(from: startDate)))
+            queryItems.append(URLQueryItem(name: "endDate", value: formatter.string(from: endDate)))
+        }
+        
+        urlComponents.queryItems = queryItems
         
         guard let url = urlComponents.url else {
             throw APIError.invalidURL
@@ -342,8 +357,6 @@ class APIManager: ObservableObject {
         let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
         request.httpBody = jsonData
         
-        print("📤 createStep: Sending request with body: \(String(data: jsonData, encoding: .utf8) ?? "nil")")
-        
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -351,39 +364,18 @@ class APIManager: ObservableObject {
         }
         
         guard httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
-            let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
-            print("❌ createStep failed with status \(httpResponse.statusCode): \(errorMessage)")
-            if let errorData = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                print("❌ Error details: \(errorData)")
-            }
             throw APIError.requestFailed
         }
         
         // Check if data is empty
         if data.isEmpty {
-            print("❌ createStep: Empty response from API")
             throw APIError.requestFailed
-        }
-        
-        // Log raw response for debugging
-        if let responseString = String(data: data, encoding: .utf8) {
-            print("📥 createStep: Raw response: \(responseString.prefix(500))")
         }
         
         // Parse response - API returns step directly, not wrapped
         let decoder = createJSONDecoder()
-        
-        do {
-            let createdStep = try decoder.decode(DailyStep.self, from: data)
-            print("✅ createStep: Successfully created step with id: \(createdStep.id)")
-            return createdStep
-        } catch {
-            print("❌ createStep: Failed to decode response: \(error.localizedDescription)")
-            if let errorResponse = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                print("❌ Error response: \(errorResponse)")
-            }
-            throw error
-        }
+        let createdStep = try decoder.decode(DailyStep.self, from: data)
+        return createdStep
     }
     
     func updateStepCompletion(stepId: String, completed: Bool, currentStep: DailyStep) async throws -> DailyStep {
@@ -428,6 +420,13 @@ class APIManager: ObservableObject {
     // MARK: - User API
     
     func fetchUser() async throws -> User {
+        // Check cache first
+        if let cached = cachedUser,
+           let timestamp = userCacheTimestamp,
+           Date().timeIntervalSince(timestamp) < userCacheTTL {
+            return cached
+        }
+        
         // Get Clerk user ID from session
         guard let session = await MainActor.run(body: { Clerk.shared.session }) else {
             throw APIError.requestFailed
@@ -469,7 +468,18 @@ class APIManager: ObservableObject {
         }
         
         let user = try createJSONDecoder().decode(User.self, from: data)
+        
+        // Cache the result
+        cachedUser = user
+        userCacheTimestamp = Date()
+        
         return user
+    }
+    
+    // Function to invalidate user cache (call after user updates)
+    func invalidateUserCache() {
+        cachedUser = nil
+        userCacheTimestamp = nil
     }
     
     // MARK: - Habits API
@@ -639,12 +649,6 @@ class APIManager: ObservableObject {
         }
         
         guard httpResponse.statusCode == 200 else {
-            if let errorData = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let errorMessage = errorData["error"] as? String {
-                print("❌ Error fetching aspirations: \(errorMessage)")
-            } else {
-                print("❌ Error fetching aspirations: HTTP \(httpResponse.statusCode)")
-            }
             throw APIError.requestFailed
         }
         
@@ -1052,6 +1056,117 @@ class APIManager: ObservableObject {
         
         let userSettingsResponse = try createJSONDecoder().decode(UserSettingsResponse.self, from: data)
         return userSettingsResponse.settings
+    }
+    
+    // MARK: - Game Init API (optimized - loads all initial data in one request)
+    
+    struct GameInitResponse: Codable {
+        let user: User
+        let player: Player?
+        let goals: [Goal]
+        let habits: [Habit]
+    }
+    
+    struct Player: Codable {
+        let id: String
+        let userId: String
+        let level: Int
+        let experience: Int
+        let totalXp: Int
+        let createdAt: Date?
+        let updatedAt: Date?
+        
+        enum CodingKeys: String, CodingKey {
+            case id
+            case userId = "user_id"
+            case level
+            case experience
+            case totalXp = "total_xp"
+            case createdAt = "created_at"
+            case updatedAt = "updated_at"
+        }
+    }
+    
+    func fetchGameInit() async throws -> GameInitResponse {
+        guard let url = URL(string: "\(baseURL)/game/init") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add Clerk token if available
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.requestFailed
+        }
+        
+        // Parse response
+        let decoder = createJSONDecoder()
+        
+        // Handle habits with habit_completions (similar to fetchHabits)
+        if let gameDataDict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            var mutableDict = gameDataDict
+            
+            // Parse habits array
+            if var habitsArray = mutableDict["habits"] as? [[String: Any]] {
+                for i in 0..<habitsArray.count {
+                    var habitDict = habitsArray[i]
+                    
+                    // Parse habit_completions
+                    if let completionsString = habitDict["habit_completions"] as? String,
+                       let completionsData = completionsString.data(using: .utf8),
+                       let completionsDict = try? JSONSerialization.jsonObject(with: completionsData) as? [String: Bool] {
+                        habitDict["habit_completions"] = completionsDict
+                    } else if habitDict["habit_completions"] is [String: Bool] {
+                        // Already a dictionary, keep it
+                    } else if let completionsDict = habitDict["habit_completions"] as? [String: Any] {
+                        let boolDict = completionsDict.compactMapValues { value in
+                            if let boolValue = value as? Bool {
+                                return boolValue
+                            } else if let intValue = value as? Int {
+                                return intValue != 0
+                            }
+                            return nil
+                        }
+                        habitDict["habit_completions"] = boolDict
+                    } else if habitDict["habit_completions"] == nil || habitDict["habit_completions"] is NSNull {
+                        habitDict["habit_completions"] = [String: Bool]()
+                    }
+                    
+                    habitsArray[i] = habitDict
+                }
+                mutableDict["habits"] = habitsArray
+            }
+            
+            let updatedData = try JSONSerialization.data(withJSONObject: mutableDict)
+            let gameData = try decoder.decode(GameInitResponse.self, from: updatedData)
+            
+            // Cache user data
+            cachedUser = gameData.user
+            userCacheTimestamp = Date()
+            
+            return gameData
+        } else {
+            // Fallback to direct decoding
+            let gameData = try decoder.decode(GameInitResponse.self, from: data)
+            
+            // Cache user data
+            cachedUser = gameData.user
+            userCacheTimestamp = Date()
+            
+            return gameData
+        }
     }
     
     // MARK: - Helper Methods

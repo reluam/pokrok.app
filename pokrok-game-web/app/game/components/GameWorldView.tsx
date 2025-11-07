@@ -28,28 +28,33 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
   // Default function if onPlayerUpdate is not provided
   const handlePlayerUpdate = onPlayerUpdate || (() => {})
 
-  // Load daily steps - load all steps (not just today's)
+  // Load daily steps - optimized: load only recent and upcoming steps (last 7 days + next 14 days)
   useEffect(() => {
     const loadDailySteps = async () => {
       // Use userId prop if available, otherwise fallback to player?.user_id
       const currentUserId = userId || player?.user_id
       if (!currentUserId) {
-        console.log('No userId available for loading daily steps')
         return
       }
 
       try {
-        // Load all steps for user (not filtered by date)
-        console.log('Loading daily steps for userId:', currentUserId, '(all steps)')
-        const response = await fetch(`/api/daily-steps?userId=${currentUserId}`)
+        // Calculate date range: 7 days ago to 14 days ahead
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const startDate = new Date(today)
+        startDate.setDate(startDate.getDate() - 7)
+        const endDate = new Date(today)
+        endDate.setDate(endDate.getDate() + 14)
+        
+        // Load steps for date range
+        const response = await fetch(
+          `/api/daily-steps?userId=${currentUserId}&startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`
+        )
         if (response.ok) {
           const steps = await response.json()
-          console.log('Daily steps loaded:', steps.length, 'steps (all)')
           setDailySteps(steps)
         } else {
           console.error('Failed to load daily steps, status:', response.status)
-          const errorText = await response.text()
-          console.error('Error response:', errorText)
         }
       } catch (error) {
         console.error('Error loading daily steps:', error)

@@ -173,7 +173,7 @@ struct DailyPlanningView: View {
             loadData()
             setRandomInspiration()
         }
-        .onChange(of: selectedDate) { _ in
+        .onChange(of: selectedDate) {
             loadData()
         }
         .sheet(isPresented: $showAddStepModal) {
@@ -404,41 +404,22 @@ struct DailyPlanningView: View {
     private func loadData() {
         Task {
             do {
-                // Calculate dates for selected day, yesterday, and tomorrow relative to selected date
+                // Calculate date range: 7 days ago to 14 days ahead (optimized)
                 let calendar = Calendar.current
                 let selectedDay = selectedDate
-                let yesterdayDate = calendar.date(byAdding: .day, value: -1, to: selectedDay) ?? selectedDay
-                let tomorrowDate = calendar.date(byAdding: .day, value: 1, to: selectedDay) ?? selectedDay
+                let startDate = calendar.date(byAdding: .day, value: -7, to: selectedDay) ?? selectedDay
+                let endDate = calendar.date(byAdding: .day, value: 14, to: selectedDay) ?? selectedDay
                 
-                // Load all data in parallel, including steps for yesterday, selected day, and tomorrow
+                // Load all data in parallel with optimized date range
                 async let settingsTask = apiManager.fetchUserSettings()
-                async let stepsSelectedTask = apiManager.fetchStepsForDate(date: selectedDay)
-                async let stepsYesterdayTask = apiManager.fetchStepsForDate(date: yesterdayDate)
-                async let stepsTomorrowTask = apiManager.fetchStepsForDate(date: tomorrowDate)
+                async let stepsTask = apiManager.fetchSteps(startDate: startDate, endDate: endDate)
                 async let goalsTask = apiManager.fetchGoals()
                 async let planningTask = apiManager.fetchDailyPlanning(date: selectedDate)
                 async let habitsTask = apiManager.fetchHabits()
                 
                 // Wait for all tasks, but handle errors individually
                 let settings = try? await settingsTask
-                
-                // Fetch steps for all three days
-                var allSteps: [DailyStep] = []
-                do {
-                    let stepsSelected = (try? await stepsSelectedTask) ?? []
-                    let stepsYesterday = (try? await stepsYesterdayTask) ?? []
-                    let stepsTomorrow = (try? await stepsTomorrowTask) ?? []
-                    
-                    // Combine all steps and remove duplicates (in case of overlap)
-                    var stepsDict: [String: DailyStep] = [:]
-                    for step in stepsYesterday + stepsSelected + stepsTomorrow {
-                        stepsDict[step.id] = step
-                    }
-                    allSteps = Array(stepsDict.values)
-                } catch {
-                    // Silently handle errors
-                }
-                
+                let allSteps = (try? await stepsTask) ?? []
                 let goals = (try? await goalsTask) ?? []
                 let planning = try? await planningTask
                 let habits = (try? await habitsTask) ?? []
@@ -451,7 +432,6 @@ struct DailyPlanningView: View {
                     self.habits = habits
                     self.isLoading = false
                     self.updateStepStats()
-                    
                 }
             } catch {
                 await MainActor.run {

@@ -239,7 +239,13 @@ struct NoWorkflowView: View {
     private func loadData() {
         Task {
             do {
-                async let stepsTask = apiManager.fetchSteps()
+                // Calculate date range: last 30 days to next 30 days (optimized)
+                let calendar = Calendar.current
+                let today = Date()
+                let startDate = calendar.date(byAdding: .day, value: -30, to: today) ?? today
+                let endDate = calendar.date(byAdding: .day, value: 30, to: today) ?? today
+                
+                async let stepsTask = apiManager.fetchSteps(startDate: startDate, endDate: endDate)
                 async let goalsTask = apiManager.fetchGoals()
                 
                 let (steps, goals) = try await (stepsTask, goalsTask)

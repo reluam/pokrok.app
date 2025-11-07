@@ -1,13 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createGoal, getGoalsByUserId, updateGoalById, deleteGoalById } from '@/lib/cesta-db'
+import { auth } from '@clerk/nextjs/server'
+import { createGoal, getGoalsByUserId, updateGoalById, deleteGoalById, getUserByClerkId } from '@/lib/cesta-db'
 
 export async function GET(request: NextRequest) {
   try {
+    const { userId: clerkUserId } = await auth()
+    
+    if (!clerkUserId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userId')
     
     if (!userId) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
+    }
+
+    // Verify that the userId belongs to the authenticated user
+    const dbUser = await getUserByClerkId(clerkUserId)
+    if (!dbUser || dbUser.id !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const goals = await getGoalsByUserId(userId)
@@ -20,11 +33,23 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { userId: clerkUserId } = await auth()
+    
+    if (!clerkUserId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
     const { userId, title, description, targetDate, status, priority, areaId, aspirationId, goalType, progressPercentage, progressType } = body
     
     if (!userId || !title) {
       return NextResponse.json({ error: 'User ID and title are required' }, { status: 400 })
+    }
+
+    // Verify that the userId belongs to the authenticated user
+    const dbUser = await getUserByClerkId(clerkUserId)
+    if (!dbUser || dbUser.id !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const goalData = {
@@ -52,11 +77,30 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    const { userId: clerkUserId } = await auth()
+    
+    if (!clerkUserId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
     const { goalId, title, description, target_date, status, areaId, aspirationId, progressPercentage } = body
     
     if (!goalId) {
       return NextResponse.json({ error: 'Goal ID is required' }, { status: 400 })
+    }
+
+    // Verify that the goal belongs to the authenticated user
+    const dbUser = await getUserByClerkId(clerkUserId)
+    if (!dbUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
+    // Get the goal to verify ownership
+    const goals = await getGoalsByUserId(dbUser.id)
+    const goal = goals.find(g => g.id === goalId)
+    if (!goal) {
+      return NextResponse.json({ error: 'Goal not found or access denied' }, { status: 404 })
     }
 
     const updates: any = {
@@ -86,11 +130,30 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    const { userId: clerkUserId } = await auth()
+    
+    if (!clerkUserId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
     const { goalId } = body
     
     if (!goalId) {
       return NextResponse.json({ error: 'Goal ID is required' }, { status: 400 })
+    }
+
+    // Verify that the goal belongs to the authenticated user
+    const dbUser = await getUserByClerkId(clerkUserId)
+    if (!dbUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
+    // Get the goal to verify ownership
+    const goals = await getGoalsByUserId(dbUser.id)
+    const goal = goals.find(g => g.id === goalId)
+    if (!goal) {
+      return NextResponse.json({ error: 'Goal not found or access denied' }, { status: 404 })
     }
 
     const success = await deleteGoalById(goalId)

@@ -2,9 +2,6 @@ import SwiftUI
 import Clerk
 import WidgetKit
 
-import SwiftUI
-import Clerk
-
 struct GoalsView: View {
     @StateObject private var apiManager = APIManager.shared
     @State private var goals: [Goal] = []
@@ -412,7 +409,13 @@ struct StepsView: View {
     private func loadSteps() {
         Task {
             do {
-                let fetchedSteps = try await apiManager.fetchSteps()
+                // Calculate date range: last 30 days to next 30 days (optimized)
+                let calendar = Calendar.current
+                let today = Date()
+                let startDate = calendar.date(byAdding: .day, value: -30, to: today) ?? today
+                let endDate = calendar.date(byAdding: .day, value: 30, to: today) ?? today
+                
+                let fetchedSteps = try await apiManager.fetchSteps(startDate: startDate, endDate: endDate)
                 
                 await MainActor.run {
                     self.dailySteps = fetchedSteps
@@ -1120,7 +1123,6 @@ struct AddStepModal: View {
                     dismiss()
                 }
             } catch {
-                print("❌ Error creating step: \(error.localizedDescription)")
                 await MainActor.run {
                     isLoading = false
                     errorMessage = "Chyba při vytváření kroku: \(error.localizedDescription)"

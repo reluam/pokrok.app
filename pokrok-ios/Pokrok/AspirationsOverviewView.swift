@@ -393,34 +393,37 @@ struct AspirationsOverviewView: View {
         isLoading = true
         
         do {
-            print("🔵 Loading aspirations...")
             let fetchedAspirations = try await apiManager.fetchAspirations()
-            print("🔵 Fetched \(fetchedAspirations.count) aspirations")
             
             await MainActor.run {
                 self.aspirations = fetchedAspirations
             }
             
-            // Load balances for all aspirations
+            // Load balances for all aspirations in parallel (optimized)
+            let balanceTasks = fetchedAspirations.map { aspiration in
+                Task<AspirationBalance?, Error> {
+                    do {
+                        let balance = try await apiManager.fetchAspirationBalance(aspirationId: aspiration.id)
+                        return balance
+                    } catch {
+                        return nil
+                    }
+                }
+            }
+            
+            // Wait for all balance tasks to complete
             var newBalances: [String: AspirationBalance] = [:]
-            for aspiration in fetchedAspirations {
-                do {
-                    print("🔵 Loading balance for aspiration: \(aspiration.id)")
-                    let balance = try await apiManager.fetchAspirationBalance(aspirationId: aspiration.id)
-                    newBalances[aspiration.id] = balance
-                    print("🔵 Balance loaded for aspiration: \(aspiration.id)")
-                } catch {
-                    print("❌ Error loading balance for aspiration \(aspiration.id): \(error)")
+            for (index, task) in balanceTasks.enumerated() {
+                if let balance = try? await task.value {
+                    newBalances[fetchedAspirations[index].id] = balance
                 }
             }
             
             await MainActor.run {
                 self.balances = newBalances
                 self.isLoading = false
-                print("🔵 Data loading completed. Aspirations: \(self.aspirations.count), Balances: \(self.balances.count)")
             }
         } catch {
-            print("❌ Error loading aspirations: \(error)")
             await MainActor.run {
                 self.errorMessage = error.localizedDescription
                 self.showError = true

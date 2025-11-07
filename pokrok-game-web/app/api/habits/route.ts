@@ -89,10 +89,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  console.log('PUT /api/habits endpoint called')
   try {
     const { userId: clerkUserId } = await auth()
-    console.log('Clerk user ID:', clerkUserId)
     
     if (!clerkUserId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -106,9 +104,6 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json()
     const { habitId, name, description, frequency, category, difficulty, reminderTime, selectedDays, alwaysShow, xpReward, aspirationId } = body
-    
-    console.log('PUT request body:', body)
-    console.log('Habit ID:', habitId)
     
     if (!habitId) {
       return NextResponse.json({ error: 'Habit ID is required' }, { status: 400 })

@@ -3,12 +3,9 @@ import SwiftUI
 struct DashboardView: View {
     @StateObject private var apiManager = APIManager.shared
     @State private var userSettings: UserSettings?
-    @State private var dailySteps: [DailyStep] = []
     @State private var isLoading = true
-    @State private var showAddStepModal = false
     @State private var errorMessage = ""
     @State private var showError = false
-    @State private var selectedStep: DailyStep?
     
     var body: some View {
         NavigationView {
@@ -25,7 +22,7 @@ struct DashboardView: View {
         }
         .onAppear {
             loadData()
-            // Refresh token for widget every time app becomes active
+            // Refresh token for widget every time app becomes active (non-blocking)
             Task {
                 await apiManager.refreshTokenForWidget()
             }
@@ -36,6 +33,7 @@ struct DashboardView: View {
     private func loadData() {
         Task {
             do {
+                // Load settings in background, don't block UI
                 let fetchedSettings = try await apiManager.fetchUserSettings()
                 
                 await MainActor.run {
