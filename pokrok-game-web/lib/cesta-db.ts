@@ -15,37 +15,39 @@ const HABITS_CACHE_TTL = 500 // 0.5 seconds - habits change more frequently
 
 function cleanupCache() {
   const now = Date.now()
-  for (const [key, value] of userCache.entries()) {
+  const keysToDelete: string[] = []
+  userCache.forEach((value, key) => {
     if (now - value.timestamp > USER_CACHE_TTL) {
-      userCache.delete(key)
+      keysToDelete.push(key)
     }
-  }
+  })
+  keysToDelete.forEach(key => userCache.delete(key))
+  
   // If cache is too large, clear oldest entries
   if (userCache.size > MAX_CACHE_SIZE) {
     const entries = Array.from(userCache.entries())
     entries.sort((a, b) => a[1].timestamp - b[1].timestamp)
     const toDelete = entries.slice(0, Math.floor(MAX_CACHE_SIZE / 2))
-    for (const [key] of toDelete) {
-      userCache.delete(key)
-    }
+    toDelete.forEach(([key]) => userCache.delete(key))
   }
 }
 
 function cleanupHabitsCache() {
   const now = Date.now()
-  for (const [key, value] of habitsCache.entries()) {
+  const keysToDelete: string[] = []
+  habitsCache.forEach((value, key) => {
     if (now - value.timestamp > HABITS_CACHE_TTL) {
-      habitsCache.delete(key)
+      keysToDelete.push(key)
     }
-  }
+  })
+  keysToDelete.forEach(key => habitsCache.delete(key))
+  
   // If cache is too large, clear oldest entries
   if (habitsCache.size > MAX_CACHE_SIZE) {
     const entries = Array.from(habitsCache.entries())
     entries.sort((a, b) => a[1].timestamp - b[1].timestamp)
     const toDelete = entries.slice(0, Math.floor(MAX_CACHE_SIZE / 2))
-    for (const [key] of toDelete) {
-      habitsCache.delete(key)
-    }
+    toDelete.forEach(([key]) => habitsCache.delete(key))
   }
 }
 
