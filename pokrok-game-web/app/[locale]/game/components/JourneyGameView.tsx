@@ -2114,6 +2114,16 @@ export function JourneyGameView({
                 {t('details.step.edit')}
               </button>
               <button
+                onClick={async () => {
+                  await handleDeleteStep(selectedItem.id)
+                  // Close detail after deletion (handleDeleteStep already handles the deletion and updates)
+                  handleCloseDetail()
+                }}
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-all duration-300"
+              >
+                {t('common.delete')}
+              </button>
+              <button
                 onClick={handleCloseDetail}
                 className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-500 text-white hover:bg-gray-600 transition-all duration-300"
               >
