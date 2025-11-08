@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useUser, useClerk } from '@clerk/nextjs'
 import { useTranslations, useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
-import { locales, type Locale } from '@/i18n/request'
+import { locales, type Locale } from '@/i18n/config'
 
 interface SettingsViewProps {
   player: any

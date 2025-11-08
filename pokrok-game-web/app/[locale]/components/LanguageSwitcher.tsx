@@ -4,7 +4,7 @@ import { useLocale } from 'next-intl'
 import { useRouter, usePathname } from 'next/navigation'
 import { Globe } from 'lucide-react'
 import { useState } from 'react'
-import { locales, type Locale } from '@/i18n/request'
+import { locales, type Locale } from '@/i18n/config'
 
 export function LanguageSwitcher() {
   const locale = useLocale() as Locale
