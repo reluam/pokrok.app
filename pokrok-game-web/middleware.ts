@@ -1,64 +1,51 @@
 import createMiddleware from 'next-intl/middleware'
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { locales, type Locale } from './i18n/config'
-import { getUserByClerkId } from './lib/cesta-db'
 
 const isProtectedRoute = createRouteMatcher([
   '/(cs|en)/game(.*)'
 ])
 
+// Create intl middleware once (outside of clerkMiddleware)
+const intlMiddleware = createMiddleware({
+  locales,
+  defaultLocale: 'cs',
+  localePrefix: 'always',
+  localeDetection: false, // Disable browser detection
+  alternateLinks: false
+})
+
 export default clerkMiddleware(async (auth, req) => {
-  // Redirect www.pokrok.app to pokrok.app
-  const hostname = req.headers.get('host') || ''
-  if (hostname === 'www.pokrok.app') {
-    const url = req.nextUrl.clone()
-    url.host = 'pokrok.app'
-    return Response.redirect(url, 301)
-  }
-  
-  // Check authentication first
-  if (isProtectedRoute(req)) {
-    auth.protect()
-  }
-  
-  // For API routes, just return (don't run intl middleware)
-  if (req.nextUrl.pathname.startsWith('/api/')) {
-    return
-  }
-  
-  // Create intl middleware with custom locale detection from database
-  const intlMiddleware = createMiddleware({
-    locales,
-    defaultLocale: 'cs',
-    localePrefix: 'always',
-    localeDetection: false, // Disable browser detection
-    // Custom locale detection from database
-    alternateLinks: false
-  })
-  
-  // Try to get user's preferred locale from database and redirect if needed
   try {
-    const { userId: clerkUserId } = await auth()
-    if (clerkUserId) {
-      const user = await getUserByClerkId(clerkUserId)
-      if (user?.preferred_locale && locales.includes(user.preferred_locale as Locale)) {
-        const currentPath = req.nextUrl.pathname
-        const currentLocale = currentPath.split('/')[1]
-        
-        // If user is on a different locale than preferred, redirect to preferred
-        if (currentLocale !== user.preferred_locale && !currentPath.startsWith('/api/')) {
-          const newPath = currentPath.replace(/^\/(cs|en)/, `/${user.preferred_locale}`)
-          return Response.redirect(new URL(newPath, req.url))
-        }
-      }
+    // Check authentication first
+    if (isProtectedRoute(req)) {
+      auth.protect()
     }
+    
+    // For API routes, just return (don't run intl middleware)
+    if (req.nextUrl.pathname.startsWith('/api/')) {
+      return
+    }
+    
+    // Try to get user's preferred locale from database and redirect if needed
+    // Note: We're removing database lookup from middleware to avoid failures
+    // Locale preference is handled client-side or in page components instead
+    // This prevents middleware failures on Vercel
+    
+    // Then run intl middleware for non-API routes
+    return intlMiddleware(req)
   } catch (error) {
-    // If we can't get user, continue with normal flow
-    console.error('Error getting user preferred locale in middleware:', error)
+    // If middleware fails, log error but don't crash
+    console.error('Middleware error:', error)
+    // Fallback to intl middleware to ensure app still works
+    try {
+      return intlMiddleware(req)
+    } catch (intlError) {
+      console.error('Intl middleware also failed:', intlError)
+      // Last resort: return undefined to let Next.js handle it
+      return
+    }
   }
-  
-  // Then run intl middleware for non-API routes
-  return intlMiddleware(req)
 })
 
 export const config = {
