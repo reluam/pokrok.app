@@ -106,18 +106,18 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
 
       if (response.ok) {
         setPreferredLocale(newLocale)
-        // Redirect to the new locale
+        // Redirect to the new locale - use window.location for immediate redirect
         const currentPath = window.location.pathname
         const newPath = currentPath.replace(/^\/(cs|en)/, `/${newLocale}`)
-        router.push(newPath)
-        // Reload page to apply new locale
-        window.location.reload()
+        // Use window.location.href for immediate navigation with full page reload
+        // This ensures the new locale is properly loaded
+        window.location.href = newPath
       } else {
         console.error('Failed to update locale')
+        setIsSavingLocale(false)
       }
     } catch (error) {
       console.error('Error updating locale:', error)
-    } finally {
       setIsSavingLocale(false)
     }
   }

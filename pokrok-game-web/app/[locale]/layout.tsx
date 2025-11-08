@@ -1,7 +1,10 @@
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
-import { notFound } from 'next/navigation'
-import { locales } from '@/i18n/config'
+import { notFound, redirect } from 'next/navigation'
+import { headers } from 'next/headers'
+import { auth } from '@clerk/nextjs/server'
+import { getUserByClerkId } from '@/lib/cesta-db'
+import { locales, type Locale } from '@/i18n/config'
 
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic'
@@ -22,6 +25,42 @@ export default async function LocaleLayout({
   // Ensure that the incoming `locale` is valid
   if (!locales.includes(locale as any)) {
     notFound()
+  }
+
+  // Check user's preferred locale from database and redirect if different
+  // This ensures users see their preferred language when they visit the site
+  try {
+    const { userId: clerkUserId } = await auth()
+    if (clerkUserId) {
+      const user = await getUserByClerkId(clerkUserId)
+      if (user?.preferred_locale && locales.includes(user.preferred_locale as Locale)) {
+        // If user has a preferred locale and it's different from current URL locale, redirect
+        if (user.preferred_locale !== locale) {
+          // Get the current pathname from headers to preserve the route
+          const headersList = await headers()
+          const referer = headersList.get('referer') || ''
+          // Extract the path after locale (e.g., /cs/game -> /game)
+          let pathWithoutLocale = ''
+          if (referer) {
+            // Extract path from referer URL
+            try {
+              const url = new URL(referer)
+              pathWithoutLocale = url.pathname.replace(/^\/(cs|en)/, '')
+            } catch {
+              // If referer is not a valid URL, try to extract path directly
+              pathWithoutLocale = referer.replace(/^https?:\/\/[^\/]+(\/(cs|en))?/, '').replace(/^\/(cs|en)/, '')
+            }
+          }
+          // Redirect to same path with preferred locale
+          const newPath = `/${user.preferred_locale}${pathWithoutLocale || '/game'}`
+          redirect(newPath)
+        }
+      }
+    }
+  } catch (error) {
+    // If we can't get user or DB fails, continue with current locale
+    // This prevents the page from crashing if DB is unavailable
+    console.error('[layout] Error checking user preferred locale:', error)
   }
 
   // Load messages with error handling and fallback
