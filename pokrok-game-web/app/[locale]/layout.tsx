@@ -3,12 +3,22 @@ import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { locales } from '@/i18n/config'
 
+// Static imports for all locales - ensures they're included in the build
+import csMessages from '@/locales/cs/common.json'
+import enMessages from '@/locales/en/common.json'
+
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic'
 export const dynamicParams = true
 
 // Note: generateStaticParams is removed to force dynamic rendering
 // This is necessary because pages require user authentication and cannot be statically generated
+
+// Map of locale to messages for quick lookup
+const messagesMap: Record<string, typeof csMessages> = {
+  cs: csMessages,
+  en: enMessages,
+}
 
 export default async function LocaleLayout({
   children,
@@ -25,27 +35,18 @@ export default async function LocaleLayout({
   }
 
   // Providing all messages to the client
-  // side is the easiest way to get started
-  // Try direct import first, then fallback to getMessages
-  let messages
-  try {
-    // Strategy 1: Direct import (most reliable)
-    messages = (await import(`@/locales/${locale}/common.json`)).default
-  } catch (directError) {
-    console.error(`Direct import failed for locale ${locale}, trying getMessages:`, directError)
+  // Try static import first (most reliable for Vercel), then fallback to getMessages
+  let messages: typeof csMessages = messagesMap[locale]
+  
+  if (!messages) {
+    // Fallback to getMessages if static import didn't work
     try {
-      // Strategy 2: Use getMessages (uses i18n.ts config)
-      messages = await getMessages({ locale })
+      const getMessagesResult = await getMessages({ locale })
+      messages = getMessagesResult as typeof csMessages
     } catch (getMessagesError) {
       console.error(`getMessages failed for locale ${locale}:`, getMessagesError)
-      // Strategy 3: Fallback to Czech
-      try {
-        messages = (await import(`@/locales/cs/common.json`)).default
-      } catch (fallbackError) {
-        console.error('All message loading strategies failed:', fallbackError)
-        // Last resort: empty messages
-        messages = {}
-      }
+      // Last resort: use Czech messages
+      messages = csMessages
     }
   }
 
