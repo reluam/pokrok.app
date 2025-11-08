@@ -11,9 +11,20 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale = 'cs' // Default to Czech
   }
 
-  return {
-    locale,
-    messages: (await import(`./locales/${locale}/common.json`)).default
+  try {
+    const messages = (await import(`./locales/${locale}/common.json`)).default
+    return {
+      locale,
+      messages
+    }
+  } catch (error) {
+    console.error(`Failed to load messages for locale ${locale}:`, error)
+    // Fallback to Czech if locale file doesn't exist
+    const fallbackMessages = (await import(`./locales/cs/common.json`)).default
+    return {
+      locale: 'cs',
+      messages: fallbackMessages
+    }
   }
 })
 

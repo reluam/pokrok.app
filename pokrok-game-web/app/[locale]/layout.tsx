@@ -26,7 +26,21 @@ export default async function LocaleLayout({
 
   // Providing all messages to the client
   // side is the easiest way to get started
-  const messages = await getMessages({ locale })
+  // getMessages uses the i18n.ts config file to load messages
+  let messages
+  try {
+    messages = await getMessages({ locale })
+  } catch (error) {
+    console.error(`Failed to load messages for locale ${locale}:`, error)
+    // Fallback to Czech messages if loading fails
+    try {
+      messages = await getMessages({ locale: 'cs' })
+    } catch (fallbackError) {
+      console.error('Failed to load fallback messages:', fallbackError)
+      // Last resort: try direct import
+      messages = (await import(`@/locales/cs/common.json`)).default
+    }
+  }
 
   return (
     <NextIntlClientProvider messages={messages}>
