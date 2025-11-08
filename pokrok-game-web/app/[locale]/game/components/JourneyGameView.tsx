@@ -4401,7 +4401,7 @@ export function JourneyGameView({
             // Store in global cache
             stepsCacheRef.current[goal.id] = { data: stepsArray, loaded: true }
             // Trigger reactivity
-            setStepsCacheVersion(prev => ({ ...prev, [goal.id]: (prev[goal.id] || 0) + 1 }))
+            setStepsCacheVersion((prev: Record<string, number>) => ({ ...prev, [goal.id]: (prev[goal.id] || 0) + 1 }))
           }
         } catch (error) {
           console.error('Error loading steps:', error)
@@ -4422,7 +4422,7 @@ export function JourneyGameView({
           // Update cache
           stepsCacheRef.current[goal.id] = { data: stepsArray, loaded: true }
           // Trigger reactivity
-          setStepsCacheVersion(prev => ({ ...prev, [goal.id]: (prev[goal.id] || 0) + 1 }))
+          setStepsCacheVersion((prev: Record<string, number>) => ({ ...prev, [goal.id]: (prev[goal.id] || 0) + 1 }))
         }
       } catch (error) {
         console.error('Error refreshing steps:', error)
@@ -4577,10 +4577,10 @@ export function JourneyGameView({
       try {
         const requestBody = {
           userId: currentUserId,
-          goalId: goal.id,
-          title: newStepTitle.trim(),
-          description: '',
-          date: null
+            goalId: goal.id,
+            title: newStepTitle.trim(),
+            description: '',
+            date: null
         }
         console.log('handleSaveStep: Sending request', requestBody)
         
@@ -4603,13 +4603,13 @@ export function JourneyGameView({
         console.log('handleSaveStep: Step saved successfully', savedStep)
         
         // Update cache first, then refresh steps
-        if (goal.id) {
-          const stepsResponse = await fetch(`/api/daily-steps?goalId=${goal.id}`)
-          if (stepsResponse.ok) {
-            const stepsData = await stepsResponse.json()
-            stepsCacheRef.current[goal.id] = { data: Array.isArray(stepsData) ? stepsData : [], loaded: true }
+          if (goal.id) {
+            const stepsResponse = await fetch(`/api/daily-steps?goalId=${goal.id}`)
+            if (stepsResponse.ok) {
+              const stepsData = await stepsResponse.json()
+              stepsCacheRef.current[goal.id] = { data: Array.isArray(stepsData) ? stepsData : [], loaded: true }
             // Trigger reactivity - update stepsCacheVersion to force re-render
-            setStepsCacheVersion(prev => ({ ...prev, [goal.id]: (prev[goal.id] || 0) + 1 }))
+            setStepsCacheVersion((prev: Record<string, number>) => ({ ...prev, [goal.id]: (prev[goal.id] || 0) + 1 }))
             // Also update local steps state directly for immediate UI update
             setSteps(Array.isArray(stepsData) ? stepsData : [])
             console.log('handleSaveStep: Cache updated', { goalId: goal.id, stepsCount: stepsData.length })
@@ -4644,9 +4644,9 @@ export function JourneyGameView({
       try {
         const requestBody = {
           goalId: goal.id,
-          title: newMilestoneTitle.trim(),
-          description: '',
-          order: milestones.length
+            title: newMilestoneTitle.trim(),
+            description: '',
+            order: milestones.length
         }
         console.log('handleSaveMilestone: Sending request', requestBody)
         
@@ -4670,15 +4670,15 @@ export function JourneyGameView({
         console.log('handleSaveMilestone: Milestone saved successfully', savedMilestone)
         
         // Update cache first, then refresh milestones
-        if (goal.id) {
-          const milestonesResponse = await fetch(`/api/cesta/goal-milestones?goalId=${goal.id}`)
-          if (milestonesResponse.ok) {
-            const data = await milestonesResponse.json()
+          if (goal.id) {
+            const milestonesResponse = await fetch(`/api/cesta/goal-milestones?goalId=${goal.id}`)
+            if (milestonesResponse.ok) {
+              const data = await milestonesResponse.json()
             const milestonesArray = data.milestones || []
             milestonesCacheRef.current[goal.id] = { data: milestonesArray, loaded: true }
             // Trigger reactivity - update milestonesCacheVersion to force re-render in SortableGoal
             if (setMilestonesCacheVersion) {
-              setMilestonesCacheVersion(prev => {
+              setMilestonesCacheVersion((prev: Record<string, number>) => {
                 const newVersion = (prev[goal.id] || 0) + 1
                 console.log('handleSaveMilestone: Updating milestonesCacheVersion', { goalId: goal.id, newVersion, milestonesCount: milestonesArray.length, prev: prev })
                 return { ...prev, [goal.id]: newVersion }
@@ -5510,7 +5510,7 @@ export function JourneyGameView({
               const stepsArray = Array.isArray(stepsData) ? stepsData : []
               stepsCacheRef.current[goalId] = { data: stepsArray, loaded: true }
               // Trigger reactivity - update stepsCacheVersion to force re-render in SortableGoal
-              setStepsCacheVersion(prev => {
+              setStepsCacheVersion((prev: Record<string, number>) => {
                 const newVersion = (prev[goalId] || 0) + 1
                 console.log('handleDeleteStep: Updating stepsCacheVersion', { goalId, newVersion, stepsCount: stepsArray.length })
                 return { ...prev, [goalId]: newVersion }
@@ -5964,7 +5964,7 @@ export function JourneyGameView({
                 const stepsArray = Array.isArray(stepsData) ? stepsData : []
                 stepsCacheRef.current[goalId] = { data: stepsArray, loaded: true }
                 // Trigger reactivity
-                setStepsCacheVersion(prev => ({ ...prev, [goalId]: (prev[goalId] || 0) + 1 }))
+                setStepsCacheVersion((prev: Record<string, number>) => ({ ...prev, [goalId]: (prev[goalId] || 0) + 1 }))
               }
             } catch (error) {
               console.error(`Error preloading steps for goal ${goalId}:`, error)
@@ -6232,13 +6232,13 @@ export function JourneyGameView({
           if (stepsCacheRef.current[goal.id]?.loaded) {
             // Use cached data
             const cachedSteps = stepsCacheRef.current[goal.id].data.map((step: any) => ({
-              id: step.id,
-              title: step.title,
-              description: step.description || '',
-              date: step.date ? new Date(step.date).toISOString().split('T')[0] : '',
-              completed: step.completed || false,
-              isEditing: false
-            }))
+                id: step.id,
+                title: step.title,
+                description: step.description || '',
+                date: step.date ? new Date(step.date).toISOString().split('T')[0] : '',
+                completed: step.completed || false,
+                isEditing: false
+              }))
             setFormData(prev => {
               // Only update if steps have changed (to preserve editing state)
               const currentStepIds = prev.steps.map(s => s.id).sort().join(',')
@@ -6246,7 +6246,7 @@ export function JourneyGameView({
               if (currentStepIds !== newStepIds) {
                 // Merge: keep existing steps that are being edited, add new ones from cache
                 const existingStepIds = new Set(prev.steps.map(s => s.id))
-                const newSteps = cachedSteps.filter(s => !existingStepIds.has(s))
+                const newSteps = cachedSteps.filter(s => !existingStepIds.has(s.id))
                 const mergedSteps = [
                   ...prev.steps.map(s => {
                     const cached = cachedSteps.find(cs => cs.id === s.id)
@@ -6282,7 +6282,7 @@ export function JourneyGameView({
                 // Store in cache
                 stepsCacheRef.current[goal.id] = { data: stepsArray, loaded: true }
                 // Trigger reactivity
-                setStepsCacheVersion(prev => ({ ...prev, [goal.id]: (prev[goal.id] || 0) + 1 }))
+                setStepsCacheVersion((prev: Record<string, number>) => ({ ...prev, [goal.id]: (prev[goal.id] || 0) + 1 }))
               }
             } catch (error) {
               console.error('Error loading steps:', error)
@@ -6510,11 +6510,11 @@ export function JourneyGameView({
         ) {
           return
         }
-        setFormData(prev => ({
-          ...prev,
-          steps: prev.steps.map(s => ({ ...s, isEditing: false })),
-          milestones: prev.milestones.map(m => ({ ...m, isEditing: false }))
-        }))
+          setFormData(prev => ({
+            ...prev,
+            steps: prev.steps.map(s => ({ ...s, isEditing: false })),
+            milestones: prev.milestones.map(m => ({ ...m, isEditing: false }))
+          }))
       }
       document.addEventListener('mousedown', handleClickOutside)
       return () => document.removeEventListener('mousedown', handleClickOutside)
@@ -6549,14 +6549,14 @@ export function JourneyGameView({
         try {
           const stepsResponse = await fetch(`/api/daily-steps?goalId=${goal.id}`)
           if (stepsResponse.ok) {
-          const stepsData = await stepsResponse.json()
-          stepsCacheRef.current[goal.id] = { data: Array.isArray(stepsData) ? stepsData : [], loaded: true }
+            const stepsData = await stepsResponse.json()
+            stepsCacheRef.current[goal.id] = { data: Array.isArray(stepsData) ? stepsData : [], loaded: true }
           // Trigger reactivity
-          setStepsCacheVersion(prev => ({ ...prev, [goal.id]: (prev[goal.id] || 0) + 1 }))
+          setStepsCacheVersion((prev: Record<string, number>) => ({ ...prev, [goal.id]: (prev[goal.id] || 0) + 1 }))
+          }
+        } catch (error) {
+          console.error('Error refreshing steps cache:', error)
         }
-      } catch (error) {
-        console.error('Error refreshing steps cache:', error)
-      }
         
         // Refresh milestones cache
         try {
@@ -6630,7 +6630,7 @@ export function JourneyGameView({
             const stepsArray = Array.isArray(stepsData) ? stepsData : []
             stepsCacheRef.current[goal.id] = { data: stepsArray, loaded: true }
             // Trigger reactivity - update stepsCacheVersion to force re-render in SortableGoal
-            setStepsCacheVersion(prev => {
+            setStepsCacheVersion((prev: Record<string, number>) => {
               const newVersion = (prev[goal.id] || 0) + 1
               console.log('GoalEditingForm: Updating stepsCacheVersion (handleSubmit)', { goalId: goal.id, newVersion, stepsCount: stepsArray.length })
               return { ...prev, [goal.id]: newVersion }
@@ -6701,7 +6701,7 @@ export function JourneyGameView({
             const milestonesArray = data.milestones || []
             milestonesCacheRef.current[goal.id] = { data: milestonesArray, loaded: true }
             // Trigger reactivity - update milestonesCacheVersion to force re-render in SortableGoal
-            setMilestonesCacheVersion(prev => {
+            setMilestonesCacheVersion((prev: Record<string, number>) => {
               const newVersion = (prev[goal.id] || 0) + 1
               console.log('GoalEditingForm: Updating milestonesCacheVersion (handleSubmit)', { goalId: goal.id, newVersion, milestonesCount: milestonesArray.length })
               return { ...prev, [goal.id]: newVersion }
@@ -7108,7 +7108,7 @@ export function JourneyGameView({
                                             const stepsArray = Array.isArray(stepsData) ? stepsData : []
                                             stepsCacheRef.current[goal.id] = { data: stepsArray, loaded: true }
                                             // Trigger reactivity - update stepsCacheVersion to force re-render in SortableGoal
-                                            setStepsCacheVersion(prev => {
+                                            setStepsCacheVersion((prev: Record<string, number>) => {
                                               const newVersion = (prev[goal.id] || 0) + 1
                                               console.log('GoalEditingForm: Updating stepsCacheVersion (create)', { goalId: goal.id, newVersion, stepsCount: stepsArray.length })
                                               return { ...prev, [goal.id]: newVersion }
@@ -7141,10 +7141,10 @@ export function JourneyGameView({
                                       
                                       if (response.ok) {
                                         // Update step in formData
-                                        const updatedSteps = formData.steps.map(s =>
-                                          s.id === step.id ? { ...s, isEditing: false } : s
-                                        )
-                                        setFormData({ ...formData, steps: updatedSteps })
+                                  const updatedSteps = formData.steps.map(s =>
+                                    s.id === step.id ? { ...s, isEditing: false } : s
+                                  )
+                                  setFormData({ ...formData, steps: updatedSteps })
                                         
                                         // Update cache and refresh steps count in SortableGoal
                                         if (goal.id) {
@@ -7154,7 +7154,7 @@ export function JourneyGameView({
                                             const stepsArray = Array.isArray(stepsData) ? stepsData : []
                                             stepsCacheRef.current[goal.id] = { data: stepsArray, loaded: true }
                                             // Trigger reactivity - update stepsCacheVersion to force re-render in SortableGoal
-                                            setStepsCacheVersion(prev => {
+                                            setStepsCacheVersion((prev: Record<string, number>) => {
                                               const newVersion = (prev[goal.id] || 0) + 1
                                               console.log('GoalEditingForm: Updating stepsCacheVersion (update)', { goalId: goal.id, newVersion, stepsCount: stepsArray.length })
                                               return { ...prev, [goal.id]: newVersion }
@@ -7275,7 +7275,7 @@ export function JourneyGameView({
                                           const stepsArray = Array.isArray(stepsData) ? stepsData : []
                                           stepsCacheRef.current[goal.id] = { data: stepsArray, loaded: true }
                                           // Trigger reactivity - update stepsCacheVersion to force re-render in SortableGoal
-                                          setStepsCacheVersion(prev => {
+                                          setStepsCacheVersion((prev: Record<string, number>) => {
                                             const newVersion = (prev[goal.id] || 0) + 1
                                             console.log('GoalEditingForm: Updating stepsCacheVersion (delete)', { goalId: goal.id, newVersion, stepsCount: stepsArray.length })
                                             return { ...prev, [goal.id]: newVersion }
@@ -7364,7 +7364,7 @@ export function JourneyGameView({
                                           milestonesCacheRef.current[goal.id] = { data: milestonesArray, loaded: true }
                                           // Trigger reactivity - update milestonesCacheVersion to force re-render in SortableGoal
                                           if (setMilestonesCacheVersion) {
-                                            setMilestonesCacheVersion(prev => {
+                                            setMilestonesCacheVersion((prev: Record<string, number>) => {
                                               const newVersion = (prev[goal.id] || 0) + 1
                                               console.log('GoalEditingForm: Updating milestonesCacheVersion (delete edit X button)', { goalId: goal.id, newVersion, milestonesCount: milestonesArray.length })
                                               return { ...prev, [goal.id]: newVersion }
@@ -7455,7 +7455,7 @@ export function JourneyGameView({
                                             const milestonesArray = data.milestones || []
                                             milestonesCacheRef.current[goal.id] = { data: milestonesArray, loaded: true }
                                             // Trigger reactivity - update milestonesCacheVersion to force re-render in SortableGoal
-                                            setMilestonesCacheVersion(prev => {
+                                            setMilestonesCacheVersion((prev: Record<string, number>) => {
                                               const newVersion = (prev[goal.id] || 0) + 1
                                               console.log('GoalEditingForm: Updating milestonesCacheVersion (create)', { goalId: goal.id, newVersion, milestonesCount: milestonesArray.length })
                                               return { ...prev, [goal.id]: newVersion }
@@ -7487,10 +7487,10 @@ export function JourneyGameView({
                                       
                                       if (response.ok) {
                                         // Update milestone in formData
-                                        const updatedMilestones = formData.milestones.map(m =>
-                                          m.id === milestone.id ? { ...m, isEditing: false } : m
-                                        )
-                                        setFormData({ ...formData, milestones: updatedMilestones })
+                                  const updatedMilestones = formData.milestones.map(m =>
+                                    m.id === milestone.id ? { ...m, isEditing: false } : m
+                                  )
+                                  setFormData({ ...formData, milestones: updatedMilestones })
                                         
                                         // Update cache and refresh milestones count in SortableGoal
                                         if (goal.id) {
@@ -7500,7 +7500,7 @@ export function JourneyGameView({
                                             const milestonesArray = data.milestones || []
                                             milestonesCacheRef.current[goal.id] = { data: milestonesArray, loaded: true }
                                             // Trigger reactivity - update milestonesCacheVersion to force re-render in SortableGoal
-                                            setMilestonesCacheVersion(prev => {
+                                            setMilestonesCacheVersion((prev: Record<string, number>) => {
                                               const newVersion = (prev[goal.id] || 0) + 1
                                               console.log('GoalEditingForm: Updating milestonesCacheVersion (update)', { goalId: goal.id, newVersion, milestonesCount: milestonesArray.length })
                                               return { ...prev, [goal.id]: newVersion }
@@ -7539,7 +7539,7 @@ export function JourneyGameView({
                                           const milestonesArray = data.milestones || []
                                           milestonesCacheRef.current[goal.id] = { data: milestonesArray, loaded: true }
                                           // Trigger reactivity - update milestonesCacheVersion to force re-render in SortableGoal
-                                          setMilestonesCacheVersion(prev => {
+                                          setMilestonesCacheVersion((prev: Record<string, number>) => {
                                             const newVersion = (prev[goal.id] || 0) + 1
                                             console.log('GoalEditingForm: Updating milestonesCacheVersion (delete)', { goalId: goal.id, newVersion, milestonesCount: milestonesArray.length })
                                             return { ...prev, [goal.id]: newVersion }
@@ -7643,7 +7643,7 @@ export function JourneyGameView({
                                           const milestonesArray = data.milestones || []
                                           milestonesCacheRef.current[goal.id] = { data: milestonesArray, loaded: true }
                                           // Trigger reactivity - update milestonesCacheVersion to force re-render in SortableGoal
-                                          setMilestonesCacheVersion(prev => {
+                                          setMilestonesCacheVersion((prev: Record<string, number>) => {
                                             const newVersion = (prev[goal.id] || 0) + 1
                                             console.log('GoalEditingForm: Updating milestonesCacheVersion (delete X button)', { goalId: goal.id, newVersion, milestonesCount: milestonesArray.length })
                                             return { ...prev, [goal.id]: newVersion }
