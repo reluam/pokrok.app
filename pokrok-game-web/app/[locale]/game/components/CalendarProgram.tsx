@@ -206,9 +206,9 @@ export function CalendarProgram({
   // Get month/year for display
   const monthYear = currentMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })
   
-  // Get first day of month and number of days
-  const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1)
-  const lastDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0)
+  // Get first day of month and number of days - memoized to prevent unnecessary re-renders
+  const firstDayOfMonth = useMemo(() => new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1), [currentMonth])
+  const lastDayOfMonth = useMemo(() => new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0), [currentMonth])
   const daysInMonth = lastDayOfMonth.getDate()
   const startingDayOfWeek = firstDayOfMonth.getDay() // 0 = Sunday, adjust to Monday = 0
   const adjustedStartingDay = startingDayOfWeek === 0 ? 6 : startingDayOfWeek - 1
@@ -250,7 +250,7 @@ export function CalendarProgram({
     }
     
     loadWorkflowResponses()
-  }, [player, viewMode, currentMonth, firstDayOfMonth, lastDayOfMonth, currentWeekStart])
+  }, [player?.user_id, viewMode, currentMonth, currentWeekStart])
 
   // Navigate months
   const goToPreviousMonth = () => {
