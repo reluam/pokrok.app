@@ -3,7 +3,7 @@
 import { useTranslations, useLocale } from 'next-intl'
 
 import { useState, useEffect, useMemo } from 'react'
-import { ChevronLeft, ChevronRight, CheckCircle, Circle, Target, Footprints } from 'lucide-react'
+import { ChevronLeft, ChevronRight, CheckCircle, Circle, Target, Footprints, Check } from 'lucide-react'
 
 // --- DATUM UTIL ---
 function normalizeDate(date: Date | string | null | undefined): string {
@@ -786,19 +786,21 @@ export function CalendarProgram({
                                 e.stopPropagation()
                                 toggleStep(step.id)
                               }}
-                              className="flex items-center gap-2 p-1.5 bg-gray-50 rounded hover:bg-gray-100 transition-colors cursor-pointer"
+                              className={`flex items-center gap-2 p-2 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
+                                step.completed ? 'bg-green-50/50 border-green-200' : ''
+                              }`}
                         >
                           {loadingSteps.has(step.id) ? (
-                                <svg className="animate-spin h-3.5 w-3.5 text-gray-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <svg className="animate-spin h-4 w-4 text-gray-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                           ) : step.completed ? (
-                                <CheckCircle className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+                                <Check className="w-4 h-4 text-green-600 flex-shrink-0" strokeWidth={3} />
                           ) : (
-                                <Circle className="w-3.5 h-3.5 text-gray-300 flex-shrink-0" />
+                                <Check className="w-4 h-4 text-gray-400 flex-shrink-0" strokeWidth={2.5} fill="none" />
                           )}
-                              <span className={`text-xs flex-1 truncate ${step.completed ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                              <span className={`text-xs flex-1 truncate font-semibold ${step.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                           {step.title}
                         </span>
                       </div>
@@ -838,14 +840,9 @@ export function CalendarProgram({
                                   e.stopPropagation()
                                   toggleHabit(habit.id, dateStr)
                                 }}
-                                className={`p-1.5 rounded-lg border transition-all duration-300 cursor-pointer ${
-                                  isCompleted 
-                                    ? 'bg-orange-100 border-orange-300 shadow-sm' 
-                                    : 'bg-gray-50 border-gray-200 hover:shadow-sm hover:bg-gray-100'
+                                className={`p-2 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
+                                  isCompleted ? 'bg-orange-50/50 border-orange-200' : ''
                                 }`}
-                                style={{
-                                  boxShadow: isCompleted ? '0 2px 6px rgba(251, 146, 60, 0.15)' : '0 1px 2px rgba(0, 0, 0, 0.05)'
-                                }}
                               >
                                 <div className="flex items-center gap-2">
                           <button
@@ -856,30 +853,23 @@ export function CalendarProgram({
                                       }
                                     }}
                             disabled={loadingHabits.has(habit.id)}
-                                    className={`w-4 h-4 rounded-md border-2 flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
-                                      loadingHabits.has(habit.id)
-                                        ? 'border-gray-300 bg-gray-100 cursor-wait'
-                                        : isCompleted
-                                          ? 'bg-orange-500 border-orange-500 text-white shadow-sm'
-                                          : 'border-gray-300 hover:border-orange-400 hover:shadow-sm'
-                                    }`}
-                                    style={{
-                                      boxShadow: isCompleted && !loadingHabits.has(habit.id) ? '0 1px 4px rgba(251, 146, 60, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)'
-                                    }}
+                                    className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
                           >
                             {loadingHabits.has(habit.id) ? (
-                                      <svg className="animate-spin h-2.5 w-2.5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                      <svg className="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                               </svg>
                             ) : isCompleted ? (
-                                      <span className="text-[10px] font-bold">✓</span>
-                                    ) : null}
+                                      <Check className="w-4 h-4 text-orange-600" strokeWidth={3} />
+                                    ) : (
+                                      <Check className="w-4 h-4 text-gray-400" strokeWidth={2.5} fill="none" />
+                                    )}
                           </button>
-                                  <span className={`text-xs flex-1 truncate ${
+                                  <span className={`text-xs flex-1 truncate font-semibold ${
                                     isCompleted 
                                       ? 'line-through text-orange-600' 
-                                      : 'text-gray-700'
+                                      : 'text-gray-900'
                                   }`}>
                             {habit.name}
                           </span>
@@ -957,12 +947,14 @@ export function CalendarProgram({
                           return (
                             <div
                               key={habit.id}
-                              className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
+                              className={`flex items-center gap-2 p-3 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
+                                isCompleted ? 'bg-orange-50/50 border-orange-200' : ''
+                              }`}
                             >
                               <button
                                 onClick={() => toggleHabit(habit.id, selectedDayData.dateStr)}
                                 disabled={loadingHabits.has(habit.id)}
-                                className="flex-shrink-0"
+                                className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
                               >
                                 {loadingHabits.has(habit.id) ? (
                                   <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -970,12 +962,12 @@ export function CalendarProgram({
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                   </svg>
                                 ) : isCompleted ? (
-                                  <CheckCircle className="w-5 h-5 text-green-500" />
+                                  <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
                                 ) : (
-                                  <Circle className="w-5 h-5 text-gray-300" />
+                                  <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
                                 )}
                               </button>
-                              <span className={`flex-1 text-sm ${isCompleted ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                              <span className={`flex-1 text-sm font-semibold ${isCompleted ? 'line-through text-orange-600' : 'text-gray-900'}`}>
                                 {habit.name}
                               </span>
                             </div>
@@ -997,12 +989,14 @@ export function CalendarProgram({
                         {selectedDayData.steps.map(step => (
                           <div
                             key={step.id}
-                            className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
+                            className={`flex items-center gap-2 p-3 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
+                              step.completed ? 'bg-green-50/50 border-green-200' : ''
+                            }`}
                           >
                             <button
                               onClick={() => toggleStep(step.id)}
                               disabled={loadingSteps.has(step.id)}
-                              className="flex-shrink-0"
+                              className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
                             >
                               {loadingSteps.has(step.id) ? (
                                 <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -1010,12 +1004,12 @@ export function CalendarProgram({
                                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
                               ) : step.completed ? (
-                                <CheckCircle className="w-5 h-5 text-green-500" />
+                                <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
                               ) : (
-                                <Circle className="w-5 h-5 text-gray-300" />
+                                <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
                               )}
                             </button>
-                            <span className={`flex-1 text-sm ${step.completed ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                            <span className={`flex-1 text-sm font-semibold ${step.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                               {step.title}
                             </span>
                           </div>
@@ -1166,12 +1160,14 @@ export function CalendarProgram({
                         return (
                           <div
                             key={habit.id}
-                            className="flex items-center gap-3 p-2 bg-white rounded-lg border border-gray-200"
+                            className={`flex items-center gap-2 p-2 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
+                              isCompleted ? 'bg-orange-50/50 border-orange-200' : ''
+                            }`}
                           >
                             <button
                               onClick={() => toggleHabit(habit.id, selectedDayData.dateStr)}
                               disabled={loadingHabits.has(habit.id)}
-                              className="flex-shrink-0"
+                              className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
                             >
                               {loadingHabits.has(habit.id) ? (
                                 <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -1179,12 +1175,12 @@ export function CalendarProgram({
                                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
                               ) : isCompleted ? (
-                                <CheckCircle className="w-5 h-5 text-green-500" />
+                                <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
                               ) : (
-                                <Circle className="w-5 h-5 text-gray-300" />
+                                <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
                               )}
                             </button>
-                            <span className={`flex-1 ${isCompleted ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                            <span className={`flex-1 font-semibold text-sm ${isCompleted ? 'line-through text-orange-600' : 'text-gray-900'}`}>
                               {habit.name}
                             </span>
                           </div>
@@ -1202,12 +1198,14 @@ export function CalendarProgram({
                       {selectedDayData.steps.map(step => (
                         <div
                           key={step.id}
-                          className="flex items-center gap-3 p-2 bg-white rounded-lg border border-gray-200"
+                          className={`flex items-center gap-2 p-2 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
+                            step.completed ? 'bg-green-50/50 border-green-200' : ''
+                          }`}
                         >
                           <button
                             onClick={() => toggleStep(step.id)}
                             disabled={loadingSteps.has(step.id)}
-                            className="flex-shrink-0"
+                            className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
                           >
                             {loadingSteps.has(step.id) ? (
                               <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -1215,12 +1213,12 @@ export function CalendarProgram({
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                               </svg>
                             ) : step.completed ? (
-                              <CheckCircle className="w-5 h-5 text-green-500" />
+                              <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
                             ) : (
-                              <Circle className="w-5 h-5 text-gray-300" />
+                              <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
                             )}
                           </button>
-                          <span className={`flex-1 ${step.completed ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                          <span className={`flex-1 font-semibold text-sm ${step.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                             {step.title}
                           </span>
                         </div>

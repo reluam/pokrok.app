@@ -2652,56 +2652,46 @@ export function JourneyGameView({
                   <div
                     key={habit.id}
                     onClick={() => handleItemClick(habit, 'habit')}
-                    className={`p-3 rounded-xl border transition-all duration-300 cursor-pointer ${
+                    className={`p-3 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
                       isCompleted 
-                        ? 'bg-orange-100 border-orange-300 shadow-md' 
+                        ? 'bg-orange-50/50 border-orange-200' 
                         : isNotScheduled
-                          ? 'bg-gray-50 border-gray-200 opacity-60'
-                          : 'bg-gray-50 border-gray-200 hover:shadow-md hover:bg-gray-100'
+                          ? 'opacity-60'
+                          : ''
                     }`}
-                    style={{
-                      boxShadow: isCompleted ? '0 4px 12px rgba(251, 146, 60, 0.2)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                    }}
                   >
-                    <div className="flex items-center justify-between gap-2 text-sm">
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            if (!loadingHabits.has(habit.id)) {
-                              handleHabitToggle(habit.id, displayDateStr)
-                            }
-                          }}
-                          disabled={loadingHabits.has(habit.id)}
-                          className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
-                            loadingHabits.has(habit.id)
-                              ? 'border-gray-300 bg-gray-100 cursor-wait'
-                              : isCompleted
-                                ? 'bg-orange-500 border-orange-500 text-white shadow-md'
-                                : 'border-gray-300 hover:border-orange-400 hover:shadow-sm'
-                          }`}
-                          style={{
-                            boxShadow: isCompleted && !loadingHabits.has(habit.id) ? '0 2px 8px rgba(251, 146, 60, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)'
-                          }}
-                          title={isCompleted ? 'Označit jako nesplněný' : 'Označit jako splněný'}
-                        >
-                          {loadingHabits.has(habit.id) ? (
-                            <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                          ) : isCompleted ? '✓' : null}
-                        </button>
-                        <span className={`truncate ${
-                          isCompleted 
-                            ? 'line-through text-orange-600' 
-                            : isNotScheduled 
-                              ? 'text-gray-500' 
-                              : 'text-gray-700'
-                        }`}>
-                          {habit.name}
-                        </span>
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          if (!loadingHabits.has(habit.id)) {
+                            handleHabitToggle(habit.id, displayDateStr)
+                          }
+                        }}
+                        disabled={loadingHabits.has(habit.id)}
+                        className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
+                        title={isCompleted ? 'Označit jako nesplněný' : 'Označit jako splněný'}
+                      >
+                        {loadingHabits.has(habit.id) ? (
+                          <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        ) : isCompleted ? (
+                          <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
+                        ) : (
+                          <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
+                        )}
+                      </button>
+                      <span className={`truncate flex-1 font-semibold text-sm ${
+                        isCompleted 
+                          ? 'line-through text-orange-600' 
+                          : isNotScheduled 
+                            ? 'text-gray-500' 
+                            : 'text-gray-900'
+                      }`}>
+                        {habit.name}
+                      </span>
                       <span className="text-orange-600 font-bold text-sm flex-shrink-0">🔥 {(() => {
                         // Calculate current streak dynamically from habit_completions
                         const habitCompletions = habit.habit_completions || {}
@@ -2809,13 +2799,11 @@ export function JourneyGameView({
                   <div
                     key={step.id}
                     onClick={() => handleItemClick(step, 'step')}
-                    className={`p-3 rounded-lg border transition-all duration-300 cursor-pointer ${
-                      isOverdue 
-                        ? 'bg-red-50 border-red-200' 
-                        : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                    className={`p-3 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
+                      step.completed ? 'bg-green-50/50 border-green-200' : ''
                     }`}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
@@ -2824,25 +2812,23 @@ export function JourneyGameView({
                           }
                         }}
                         disabled={loadingSteps.has(step.id)}
-                        className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                          loadingSteps.has(step.id)
-                            ? 'border-gray-300 bg-gray-100 cursor-wait'
-                            : isOverdue
-                              ? 'border-red-300 hover:border-red-400'
-                              : 'border-gray-300 hover:border-green-400'
-                        }`}
+                        className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
                       >
                         {loadingSteps.has(step.id) ? (
-                          <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
-                        ) : null}
+                        ) : step.completed ? (
+                          <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
+                        ) : (
+                          <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
+                        )}
                       </button>
-                      <span className={`truncate flex-1 ${isOverdue ? 'text-red-700 font-medium' : 'text-gray-700'}`}>
+                      <span className={`truncate flex-1 font-semibold text-sm ${step.completed ? 'line-through text-gray-500' : isOverdue ? 'text-red-700' : 'text-gray-900'}`}>
                         {step.title}
                       </span>
-                      {isOverdue && <span className="text-red-600 text-xs">⚠️</span>}
+                      {isOverdue && !step.completed && <span className="text-red-600 text-xs">⚠️</span>}
                     </div>
                   </div>
                 )
@@ -3818,14 +3804,10 @@ export function JourneyGameView({
               {todaysSteps.map((step, index) => (
                 <div
                   key={step.id}
-                  className={`p-3 rounded-xl border text-sm transition-all duration-300 cursor-pointer ${
-                    step.completed 
-                      ? 'bg-green-50 border-green-200 text-green-700 shadow-md' 
-                      : 'bg-gray-50 border-gray-200 hover:shadow-md'
+                  onClick={() => handleItemClick(step, 'step')}
+                  className={`p-3 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
+                    step.completed ? 'bg-green-50/50 border-green-200' : ''
                   }`}
-                  style={{
-                    boxShadow: step.completed ? '0 4px 12px rgba(34, 197, 94, 0.2)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                  }}
                 >
                   <div className="flex items-center gap-2">
                     <button
@@ -3836,29 +3818,21 @@ export function JourneyGameView({
                         }
                       }}
                       disabled={loadingSteps.has(step.id)}
-                      className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ${
-                        loadingSteps.has(step.id)
-                          ? 'border-gray-300 bg-gray-100 cursor-wait'
-                          : step.completed
-                            ? 'bg-green-500 border-green-500 text-white shadow-md'
-                            : 'border-gray-300 hover:border-green-400 hover:shadow-sm'
-                      }`}
-                      style={{
-                        boxShadow: step.completed && !loadingSteps.has(step.id) ? '0 2px 8px rgba(34, 197, 94, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)'
-                      }}
-                      title={step.completed ? 'Označit jako nedokončený' : 'Označit jako dokončený'}
+                      className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
                     >
                       {loadingSteps.has(step.id) ? (
-                        <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                      ) : step.completed ? '✓' : null}
+                      ) : step.completed ? (
+                        <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
+                      ) : (
+                        <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
+                      )}
                     </button>
-                    <span className="text-gray-400">#{index + 1}</span>
                     <span 
-                      className={`flex-1 truncate ${step.completed ? 'line-through' : 'cursor-pointer'}`}
-                      onClick={() => handleItemClick(step, 'step')}
+                      className={`flex-1 truncate font-semibold text-sm ${step.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}
                     >
                       {step.title}
                     </span>
@@ -3880,16 +3854,11 @@ export function JourneyGameView({
                   <div
                     key={habit.id}
                     onClick={() => handleItemClick(habit, 'habit')}
-                    className={`p-3 rounded-xl border transition-all duration-300 cursor-pointer ${
-                      isCompleted 
-                        ? 'bg-orange-100 border-orange-300 shadow-md' 
-                        : 'bg-gray-50 border-gray-200 hover:shadow-md hover:bg-gray-100'
+                    className={`p-3 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
+                      isCompleted ? 'bg-orange-50/50 border-orange-200' : ''
                     }`}
-                    style={{
-                      boxShadow: isCompleted ? '0 4px 12px rgba(251, 146, 60, 0.2)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                    }}
                   >
-                    <div className="flex items-center gap-2 text-sm">
+                    <div className="flex items-center gap-2">
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
@@ -3898,29 +3867,24 @@ export function JourneyGameView({
                           }
                         }}
                         disabled={loadingHabits.has(habit.id)}
-                        className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ${
-                          loadingHabits.has(habit.id)
-                            ? 'border-gray-300 bg-gray-100 cursor-wait'
-                            : isCompleted
-                              ? 'bg-orange-500 border-orange-500 text-white shadow-md'
-                              : 'border-gray-300 hover:border-orange-400 hover:shadow-sm'
-                        }`}
-                        style={{
-                          boxShadow: isCompleted && !loadingHabits.has(habit.id) ? '0 2px 8px rgba(251, 146, 60, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)'
-                        }}
+                        className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
                         title={isCompleted ? 'Označit jako nesplněný' : 'Označit jako splněný'}
                       >
                         {loadingHabits.has(habit.id) ? (
-                          <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
-                        ) : isCompleted ? '✓' : null}
+                        ) : isCompleted ? (
+                          <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
+                        ) : (
+                          <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
+                        )}
                       </button>
-                      <span className={`truncate flex-1 ${
+                      <span className={`truncate flex-1 font-semibold text-sm ${
                         isCompleted 
                           ? 'line-through text-orange-600' 
-                          : 'text-gray-700'
+                          : 'text-gray-900'
                       }`}>
                         {habit.name}
                       </span>
@@ -8607,7 +8571,9 @@ export function JourneyGameView({
       <div
         ref={setNodeRef}
         style={style}
-        className="p-3 rounded-lg border-2 bg-white hover:shadow-md transition-all relative"
+        className={`p-3 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all relative shadow-sm ${
+          step.completed ? 'bg-green-50/50 border-green-200' : ''
+        }`}
       >
         <div className="flex items-start gap-2">
           <button
@@ -8621,26 +8587,24 @@ export function JourneyGameView({
               e.stopPropagation() // Prevent drag when clicking checkbox
             }}
             disabled={isLoading}
-            className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-              isLoading 
-                ? 'border-gray-300 bg-gray-100 cursor-wait' 
-                : step.completed 
-                  ? 'bg-green-500 border-green-500 text-white' 
-                  : 'border-gray-300 hover:border-green-400'
-            }`}
+            className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
           >
             {isLoading ? (
-              <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-            ) : step.completed ? '✓' : null}
+            ) : step.completed ? (
+              <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
+            ) : (
+              <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
+            )}
           </button>
           <div 
             className="flex-1 min-w-0 cursor-pointer"
             onClick={() => isEditing ? setEditingStep(null) : initializeEditingStep(step)}
           >
-            <div className={`font-medium text-sm ${step.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+            <div className={`font-semibold text-sm ${step.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
               {step.title}
             </div>
             {step.description && (
@@ -8648,20 +8612,49 @@ export function JourneyGameView({
                 {step.description}
               </div>
             )}
-            <div className="flex items-center gap-2 mt-1 flex-wrap">
+            <div className="flex items-center gap-1.5 mt-2 flex-wrap">
               {step.goal_id && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
                     initializeEditingStep(step)
                   }}
-                  className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded hover:bg-gray-200 transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-purple-50 border border-purple-100 cursor-pointer hover:bg-purple-100 hover:border-purple-200 transition-all duration-200 shadow-sm"
                   title="Kliknutím otevřete úpravu"
                 >
-                  {goals.find((g: any) => g.id === step.goal_id)?.title || 'Cíl'}
+                  <Target className="w-3.5 h-3.5 text-purple-600" />
+                  <span className="text-purple-700 font-medium truncate max-w-[100px]">
+                    {goals.find((g: any) => g.id === step.goal_id)?.title || 'Cíl'}
+                  </span>
                 </button>
               )}
-              {step.xp_reward > 0 && (
+              {step.estimated_time && (
+                <div className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-blue-50 border border-blue-100 shadow-sm">
+                  <Clock className="w-3.5 h-3.5 text-blue-600" />
+                  <span className="text-blue-700 font-medium">{step.estimated_time || 0} min</span>
+                </div>
+              )}
+              {step.date && (
+                <div className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-gray-50 border border-gray-200 shadow-sm">
+                  <Calendar className="w-3.5 h-3.5 text-gray-600" />
+                  <span className="text-gray-700 font-medium">
+                    {new Date(step.date).toLocaleDateString(localeCode)}
+                  </span>
+                </div>
+              )}
+              {step.is_important && (
+                <div className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-yellow-50 border border-yellow-200 shadow-sm">
+                  <Star className="w-3.5 h-3.5 text-yellow-600 fill-yellow-600" />
+                  <span className="text-yellow-700 font-medium">Důležité</span>
+                </div>
+              )}
+              {step.is_urgent && (
+                <div className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-orange-50 border border-orange-200 shadow-sm">
+                  <Zap className="w-3.5 h-3.5 text-orange-600 fill-orange-600" />
+                  <span className="text-orange-700 font-medium">Urgentní</span>
+                </div>
+              )}
+              {false && step.xp_reward > 0 && (
                 <div className="relative">
                   <button
                     onClick={(e) => {
@@ -8775,71 +8768,6 @@ export function JourneyGameView({
                             setShowXpMenu(false)
                           }}
                           className="w-full px-3 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600"
-                        >
-                          {t('common.back')}
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-              {step.date && (
-                <div className="relative">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setShowDateMenu(!showDateMenu)
-                    }}
-                    className="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded hover:bg-gray-200 transition-colors cursor-pointer"
-                    title="Kliknutím upravíte datum"
-                  >
-                    📅 {new Date(step.date).toLocaleDateString(localeCode)}
-                  </button>
-                  {/* Date Menu Popup */}
-                  {showDateMenu && (
-                    <>
-                      <div 
-                        className="fixed inset-0 z-10" 
-                        onClick={() => setShowDateMenu(false)}
-                      />
-                      <div className="absolute left-0 top-full mt-1 z-30 bg-white rounded-lg shadow-lg border border-gray-200 p-3 min-w-[200px]">
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Datum</label>
-                        <input
-                          type="date"
-                          value={step.date ? new Date(step.date).toISOString().split('T')[0] : ''}
-                          onChange={async (e) => {
-                            const newDate = e.target.value
-                            try {
-                              const response = await fetch('/api/daily-steps', {
-                                method: 'PUT',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                  stepId: step.id,
-                                  date: newDate
-                                })
-                              })
-                              if (response.ok) {
-                                const updatedStep = await response.json()
-                                setShowDateMenu(false)
-                                // Refresh steps
-                                if (onDailyStepsUpdate) {
-                                  const allSteps = dailySteps.map((s: any) => s.id === step.id ? updatedStep : s)
-                                  onDailyStepsUpdate(allSteps)
-                                }
-                              }
-                            } catch (error) {
-                              console.error('Error updating date:', error)
-                            }
-                          }}
-                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-orange-500"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setShowDateMenu(false)
-                          }}
-                          className="mt-2 w-full px-3 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600"
                         >
                           {t('common.back')}
                         </button>
@@ -10458,11 +10386,11 @@ export function JourneyGameView({
             >
               <div className={`grid grid-cols-1 gap-4 mb-6 ${stepsShowCompleted ? 'md:grid-cols-4' : 'md:grid-cols-3'}`} style={{ height: 'calc(100vh - 300px)' }}>
                 {/* Overdue Column */}
-                <DroppableColumn id="column-overdue" className="bg-red-50 rounded-xl p-4 border-2 border-red-200 flex flex-col" style={{ minHeight: '400px', maxHeight: 'calc(100vh - 200px)', height: '100%' }}>
-                <div className="flex items-center justify-between mb-4 flex-shrink-0">
-                  <h3 className="font-bold text-red-800 flex items-center gap-2">
+                <DroppableColumn id="column-overdue" className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 flex flex-col" style={{ minHeight: '400px', maxHeight: 'calc(100vh - 200px)', height: '100%' }}>
+                <div className="flex items-center justify-between mb-4 flex-shrink-0 pb-3 border-b border-gray-200">
+                  <h3 className="font-semibold text-red-700 flex items-center gap-2 text-sm">
                     ⚠️ Zpožděné
-                    <span className="text-sm text-red-600 bg-red-100 px-2 py-0.5 rounded-full">
+                    <span className="text-xs text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-lg font-medium">
                       {overdueSteps.length}
                     </span>
                   </h3>
@@ -10488,17 +10416,17 @@ export function JourneyGameView({
                     )
                   })}
                   {overdueSteps.length === 0 && (
-                    <div className="text-center text-gray-400 text-sm py-8">Žádné zpožděné kroky</div>
+                    <div className="text-center text-gray-400 text-xs py-8">Žádné zpožděné kroky</div>
                   )}
                 </div>
                 </DroppableColumn>
 
               {/* Today Column */}
-              <DroppableColumn id="column-today" className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200 flex flex-col" style={{ minHeight: '400px', maxHeight: 'calc(100vh - 200px)', height: '100%' }}>
-                <div className="flex items-center justify-between mb-4 flex-shrink-0">
-                  <h3 className="font-bold text-orange-800 flex items-center gap-2">
+              <DroppableColumn id="column-today" className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 flex flex-col" style={{ minHeight: '400px', maxHeight: 'calc(100vh - 200px)', height: '100%' }}>
+                <div className="flex items-center justify-between mb-4 flex-shrink-0 pb-3 border-b border-gray-200">
+                  <h3 className="font-semibold text-orange-700 flex items-center gap-2 text-sm">
                     📅 Dnešní
-                    <span className="text-sm text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">
+                    <span className="text-xs text-orange-600 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-lg font-medium">
                       {todaySteps.length}
                     </span>
                   </h3>
@@ -10524,17 +10452,17 @@ export function JourneyGameView({
                     )
                   })}
                   {todaySteps.length === 0 && (
-                    <div className="text-center text-gray-400 text-sm py-8">Žádné dnešní kroky</div>
+                    <div className="text-center text-gray-400 text-xs py-8">Žádné dnešní kroky</div>
                   )}
                 </div>
                 </DroppableColumn>
 
               {/* Future Column */}
-              <DroppableColumn id="column-future" className="bg-blue-50 rounded-xl p-4 border-2 border-blue-200 flex flex-col" style={{ minHeight: '400px', maxHeight: 'calc(100vh - 200px)', height: '100%' }}>
-                <div className="flex items-center justify-between mb-4 flex-shrink-0">
-                  <h3 className="font-bold text-blue-800 flex items-center gap-2">
+              <DroppableColumn id="column-future" className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 flex flex-col" style={{ minHeight: '400px', maxHeight: 'calc(100vh - 200px)', height: '100%' }}>
+                <div className="flex items-center justify-between mb-4 flex-shrink-0 pb-3 border-b border-gray-200">
+                  <h3 className="font-semibold text-blue-700 flex items-center gap-2 text-sm">
                     🔮 Budoucí
-                    <span className="text-sm text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">
+                    <span className="text-xs text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-lg font-medium">
                       {futureSteps.length}
                     </span>
                   </h3>
@@ -10583,18 +10511,18 @@ export function JourneyGameView({
                     </div>
                   )}
                   {futureSteps.length === 0 && noDateSteps.length === 0 && (
-                    <div className="text-center text-gray-400 text-sm py-8">Žádné budoucí kroky</div>
+                    <div className="text-center text-gray-400 text-xs py-8">Žádné budoucí kroky</div>
                   )}
                 </div>
                 </DroppableColumn>
 
               {/* Completed Column (shown only if filter enabled) */}
               {stepsShowCompleted && (
-                <DroppableColumn id="column-completed" className="bg-green-50 rounded-xl p-4 border-2 border-green-200 flex flex-col" style={{ minHeight: '400px', maxHeight: 'calc(100vh - 200px)', height: '100%' }}>
-                  <div className="flex items-center justify-between mb-4 flex-shrink-0">
-                    <h3 className="font-bold text-green-800 flex items-center gap-2">
+                <DroppableColumn id="column-completed" className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 flex flex-col" style={{ minHeight: '400px', maxHeight: 'calc(100vh - 200px)', height: '100%' }}>
+                  <div className="flex items-center justify-between mb-4 flex-shrink-0 pb-3 border-b border-gray-200">
+                    <h3 className="font-semibold text-green-700 flex items-center gap-2 text-sm">
                       ✓ Dokončené
-                      <span className="text-sm text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
+                      <span className="text-xs text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-lg font-medium">
                         {completedSteps.length}
                       </span>
                     </h3>
@@ -10617,7 +10545,7 @@ export function JourneyGameView({
                       )
                     })}
                     {completedSteps.length === 0 && (
-                      <div className="text-center text-gray-400 text-sm py-8">Žádné dokončené kroky</div>
+                      <div className="text-center text-gray-400 text-xs py-8">Žádné dokončené kroky</div>
                     )}
                   </div>
                 </DroppableColumn>
@@ -10632,7 +10560,9 @@ export function JourneyGameView({
                   
                   return (
                     <div 
-                      className="p-3 rounded-lg border-2 bg-white cursor-move shadow-2xl opacity-95"
+                      className={`p-3 rounded-lg border border-gray-200 bg-white cursor-move shadow-2xl opacity-95 ${
+                        draggedStep.completed ? 'bg-green-50/50 border-green-200' : ''
+                      }`}
                       style={{
                         boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
                         transform: 'rotate(2deg) translate(-50%, -50%)',
@@ -10640,28 +10570,23 @@ export function JourneyGameView({
                       }}
                     >
                       <div className="flex items-start gap-2">
-                        <button
-                          className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                            draggedStep.completed 
-                              ? 'bg-green-500 border-green-500 text-white' 
-                              : 'border-gray-300'
-                          }`}
-                          disabled
-                        >
-                          {draggedStep.completed && '✓'}
-                        </button>
+                        <div className="flex items-center justify-center flex-shrink-0">
+                          {draggedStep.completed ? (
+                            <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
+                          ) : (
+                            <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
+                          )}
+                        </div>
                         <div className="flex-1 min-w-0">
-                          <div className={`font-medium text-sm ${draggedStep.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                          <div className={`font-semibold text-sm ${draggedStep.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                             {draggedStep.title}
                           </div>
                           {draggedStep.goal_id && (
-                            <div className="text-xs text-gray-500 mt-1">
-                              {goals.find((g: any) => g.id === draggedStep.goal_id)?.title || 'Cíl'}
-                            </div>
-                          )}
-                          {draggedStep.date && (
-                            <div className="text-xs text-gray-600 mt-1">
-                              {new Date(draggedStep.date).toLocaleDateString(localeCode)}
+                            <div className="flex items-center gap-1.5 text-xs px-2 py-1 mt-1 rounded-lg bg-purple-50 border border-purple-100 w-fit">
+                              <Target className="w-3 h-3 text-purple-600" />
+                              <span className="text-purple-700 font-medium">
+                                {goals.find((g: any) => g.id === draggedStep.goal_id)?.title || 'Cíl'}
+                              </span>
                             </div>
                           )}
                         </div>
