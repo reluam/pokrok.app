@@ -13,6 +13,10 @@ const MAX_CACHE_SIZE = 1000 // Prevent memory leaks
 const habitsCache = new Map<string, { habits: any[], timestamp: number }>()
 const HABITS_CACHE_TTL = 500 // 0.5 seconds - habits change more frequently
 
+// Cache for getGoalsByUserId (similar to habits)
+const goalsCache = new Map<string, { goals: any[], timestamp: number }>()
+const GOALS_CACHE_TTL = 500 // 0.5 seconds - goals change more frequently
+
 function cleanupCache() {
   const now = Date.now()
   const entries = Array.from(userCache.entries())
@@ -51,12 +55,32 @@ function cleanupHabitsCache() {
   }
 }
 
+function cleanupGoalsCache() {
+  const now = Date.now()
+  const entries = Array.from(goalsCache.entries())
+  for (const [key, value] of entries) {
+    if (now - value.timestamp > GOALS_CACHE_TTL) {
+      goalsCache.delete(key)
+    }
+  }
+  // If cache is too large, clear oldest entries
+  if (goalsCache.size > MAX_CACHE_SIZE) {
+    const sortedEntries = Array.from(goalsCache.entries())
+    sortedEntries.sort((a, b) => a[1].timestamp - b[1].timestamp)
+    const toDelete = sortedEntries.slice(0, Math.floor(MAX_CACHE_SIZE / 2))
+    for (const [key] of toDelete) {
+      goalsCache.delete(key)
+    }
+  }
+}
+
 export interface User {
   id: string
   clerk_user_id: string
   email: string
   name: string
   has_completed_onboarding: boolean
+  preferred_locale?: string | null
   created_at: Date
   updated_at: Date
 }
@@ -358,9 +382,16 @@ export async function initializeCestaDatabase() {
         email VARCHAR(255) NOT NULL,
         name VARCHAR(255) NOT NULL,
         has_completed_onboarding BOOLEAN DEFAULT FALSE,
+        preferred_locale VARCHAR(10),
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
+    `
+    
+    // Add preferred_locale column if it doesn't exist (for existing databases)
+    await sql`
+      ALTER TABLE users 
+      ADD COLUMN IF NOT EXISTS preferred_locale VARCHAR(10)
     `
 
     // Create players table
@@ -905,6 +936,13 @@ export async function createUser(clerkUserId: string, email: string, name: strin
 
 export async function getGoalsByUserId(userId: string): Promise<Goal[]> {
   try {
+    // Check cache first
+    cleanupGoalsCache()
+    const cached = goalsCache.get(userId)
+    if (cached && (Date.now() - cached.timestamp) < GOALS_CACHE_TTL) {
+      return cached.goals as Goal[]
+    }
+
     const goals = await sql`
       SELECT g.*, a.name as area_name
       FROM goals g
@@ -912,11 +950,23 @@ export async function getGoalsByUserId(userId: string): Promise<Goal[]> {
       WHERE g.user_id = ${userId}
       ORDER BY g.created_at DESC
     `
-    return goals as Goal[]
+    const goalsArray = goals as Goal[]
+    
+    // Cache the result
+    if (goalsCache.size < MAX_CACHE_SIZE) {
+      goalsCache.set(userId, { goals: goalsArray, timestamp: Date.now() })
+    }
+    
+    return goalsArray
   } catch (error) {
     console.error('Error fetching goals:', error)
     return []
   }
+}
+
+// Function to invalidate goals cache for a user (call after goal updates)
+export function invalidateGoalsCache(userId: string): void {
+  goalsCache.delete(userId)
 }
 
 // MARK: - Aspiration Functions
@@ -1499,6 +1549,12 @@ export async function createGoal(goalData: Partial<Goal>): Promise<Goal> {
       ${goalData.area_id || null}, ${goalData.aspiration_id || null}
     ) RETURNING *
   `
+  
+  // Invalidate goals cache for this user
+  if (goalData.user_id) {
+    invalidateGoalsCache(goalData.user_id)
+  }
+  
   return goal[0] as Goal
 }
 
@@ -1937,6 +1993,9 @@ export async function updateGoal(goalId: string, userId: string, goalData: Parti
       throw new Error('Goal not found or access denied')
     }
 
+    // Invalidate goals cache for this user
+    invalidateGoalsCache(userId)
+
     return row as Goal
   } catch (error) {
     console.error('Error updating goal:', error)
@@ -1988,6 +2047,11 @@ export async function updateGoalById(goalId: string, updates: Partial<Goal>): Pr
       WHERE g.id = ${goalId}
     `
     
+    // Invalidate goals cache for this user
+    if (goalWithArea.length > 0 && goalWithArea[0].user_id) {
+      invalidateGoalsCache(goalWithArea[0].user_id)
+    }
+    
     return goalWithArea[0] as Goal
   } catch (error) {
     console.error('Error updating goal:', error)
@@ -1999,6 +2063,11 @@ export async function deleteGoalById(goalId: string): Promise<boolean> {
   try {
     console.log('Deleting goal with ID:', goalId)
     
+    // Get userId before deleting
+    const goal = await sql`
+      SELECT user_id FROM goals WHERE id = ${goalId}
+    `
+    
     const result = await sql`
       DELETE FROM goals 
       WHERE id = ${goalId}
@@ -2006,6 +2075,11 @@ export async function deleteGoalById(goalId: string): Promise<boolean> {
     `
 
     console.log('Delete result:', result)
+    
+    // Invalidate goals cache for this user
+    if (goal.length > 0 && goal[0].user_id) {
+      invalidateGoalsCache(goal[0].user_id)
+    }
     
     return result.length > 0
   } catch (error) {
@@ -2018,6 +2092,16 @@ export async function updateGoalPriorities(priorities: Array<{id: string, priori
   try {
     console.log('Updating goal priorities:', priorities)
     
+    // Get userIds from goals to invalidate cache
+    const userIds = new Set<string>()
+    if (priorities.length > 0) {
+      const goalIds = priorities.map(p => p.id)
+      const goals = await sql`
+        SELECT DISTINCT user_id FROM goals WHERE id = ANY(${goalIds})
+      `
+      goals.forEach((g: any) => userIds.add(g.user_id))
+    }
+    
     // Update each goal's priority as string
     for (const { id, priority } of priorities) {
       console.log(`Updating goal ${id} with priority ${priority}`)
@@ -2027,6 +2111,9 @@ export async function updateGoalPriorities(priorities: Array<{id: string, priori
         WHERE id = ${id}
       `
     }
+    
+    // Invalidate goals cache for all affected users
+    userIds.forEach(userId => invalidateGoalsCache(userId))
     
     console.log('Successfully updated goal priorities')
     return true
@@ -2113,6 +2200,9 @@ export async function deleteGoal(goalId: string, userId: string): Promise<void> 
       DELETE FROM goals 
       WHERE id = ${goalId} AND user_id = ${userId}
     `
+    
+    // Invalidate goals cache for this user
+    invalidateGoalsCache(userId)
     
     console.log('✅ Goal deleted successfully')
   } catch (error) {
@@ -2445,6 +2535,42 @@ export async function addExperienceToValue(valueId: string, userId: string, expe
   }
 }
 
+export async function updateUserPreferredLocale(userId: string, locale: string | null): Promise<User> {
+  try {
+    // Ensure the column exists (for existing databases)
+    try {
+      await sql`
+        ALTER TABLE users 
+        ADD COLUMN IF NOT EXISTS preferred_locale VARCHAR(10)
+      `
+    } catch (alterError) {
+      // Column might already exist, ignore error
+      console.log('Column preferred_locale check:', alterError instanceof Error ? alterError.message : 'Unknown')
+    }
+    
+    const result = await sql`
+      UPDATE users 
+      SET preferred_locale = ${locale}, updated_at = NOW()
+      WHERE id = ${userId}
+      RETURNING *
+    `
+    
+    if (result.length === 0) {
+      throw new Error('User not found')
+    }
+    
+    const updatedUser = result[0] as User
+    
+    // Invalidate cache
+    await invalidateUserCacheByUserId(userId)
+    
+    return updatedUser
+  } catch (error) {
+    console.error('Error updating user preferred locale:', error)
+    throw error
+  }
+}
+
 export async function updateUserOnboardingStatus(userId: string, hasCompletedOnboarding: boolean): Promise<void> {
   try {
     const result = await sql`
@@ -2543,6 +2669,34 @@ export async function getGoalMilestonesByGoalId(goalId: string): Promise<GoalMil
   } catch (error) {
     console.error('Error fetching goal milestones:', error)
     return []
+  }
+}
+
+export async function getGoalMilestonesByGoalIds(goalIds: string[]): Promise<Record<string, GoalMilestone[]>> {
+  try {
+    if (goalIds.length === 0) {
+      return {}
+    }
+    
+    const milestones = await sql`
+      SELECT * FROM goal_milestones 
+      WHERE goal_id = ANY(${goalIds})
+      ORDER BY goal_id, "order" ASC, created_at ASC
+    `
+    
+    // Group milestones by goal_id
+    const grouped: Record<string, GoalMilestone[]> = {}
+    for (const milestone of milestones as GoalMilestone[]) {
+      if (!grouped[milestone.goal_id]) {
+        grouped[milestone.goal_id] = []
+      }
+      grouped[milestone.goal_id].push(milestone)
+    }
+    
+    return grouped
+  } catch (error) {
+    console.error('Error fetching goal milestones by goal IDs:', error)
+    return {}
   }
 }
 
