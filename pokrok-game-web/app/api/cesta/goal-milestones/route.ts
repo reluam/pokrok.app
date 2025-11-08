@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { getUserByClerkId } from '@/lib/cesta-db'
 import { 
   getGoalMilestonesByGoalId, 
+  getGoalMilestonesByGoalIds,
   createGoalMilestone, 
   updateGoalMilestone, 
   deleteGoalMilestone
@@ -11,7 +12,7 @@ import {
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
 
-// GET - Fetch goal milestones
+// GET - Fetch goal milestones (supports single goalId or batch goalIds)
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth()
@@ -21,7 +22,24 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const goalId = searchParams.get('goalId')
+    const goalIdsParam = searchParams.get('goalIds')
 
+    // Batch request - multiple goal IDs
+    if (goalIdsParam) {
+      try {
+        const goalIds = JSON.parse(goalIdsParam) as string[]
+        if (!Array.isArray(goalIds) || goalIds.length === 0) {
+          return NextResponse.json({ error: 'goalIds must be a non-empty array' }, { status: 400 })
+        }
+        
+        const milestonesByGoal = await getGoalMilestonesByGoalIds(goalIds)
+        return NextResponse.json({ milestonesByGoal })
+      } catch (parseError) {
+        return NextResponse.json({ error: 'Invalid goalIds format. Expected JSON array.' }, { status: 400 })
+      }
+    }
+
+    // Single goal request
     if (!goalId) {
       return NextResponse.json({ error: 'Goal ID is required' }, { status: 400 })
     }
