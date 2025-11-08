@@ -11,32 +11,32 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale = 'cs' // Default to Czech
   }
 
-  // Dynamic import - Next.js webpack will bundle these JSON files correctly
-  // This works both locally and on Vercel
+  // Load messages with explicit path resolution for Vercel compatibility
+  let messages
   try {
-    const messages = (await import(`./locales/${locale}/common.json`)).default
-    return { locale, messages }
+    // Use dynamic import with explicit path
+    const messagesModule = await import(`./locales/${locale}/common.json`)
+    messages = messagesModule.default || messagesModule
   } catch (error) {
     console.error(`[i18n] Failed to load messages for locale ${locale}:`, error)
-    
     // Fallback to Czech if other locale fails
     if (locale !== 'cs') {
       try {
-        const fallbackMessages = (await import(`./locales/cs/common.json`)).default
-        return {
-          locale: 'cs',
-          messages: fallbackMessages
-        }
+        const fallbackModule = await import('./locales/cs/common.json')
+        messages = fallbackModule.default || fallbackModule
+        locale = 'cs'
       } catch (fallbackError) {
         console.error('[i18n] Failed to load fallback messages:', fallbackError)
+        messages = {}
       }
+    } else {
+      messages = {}
     }
-    
-    // Last resort: return empty messages to prevent crash
-    return {
-      locale,
-      messages: {}
-    }
+  }
+
+  return {
+    locale,
+    messages
   }
 })
 
