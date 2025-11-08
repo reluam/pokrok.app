@@ -7,6 +7,9 @@ import { useTranslations, useLocale } from 'next-intl'
 // Database operations moved to API routes
 import { GameWorldView } from './components/GameWorldView'
 
+// Force dynamic rendering - this page requires user authentication
+export const dynamic = 'force-dynamic'
+
 export default function GamePage() {
   const { isSignedIn, isLoaded, user } = useUser()
   const router = useRouter()

@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation'
 import { SignInButton, SignUpButton, useUser } from '@clerk/nextjs'
 import { useTranslations, useLocale } from 'next-intl'
 
+// Force dynamic rendering - this page requires user authentication check
+export const dynamic = 'force-dynamic'
+
 export default function HomePage() {
   const router = useRouter()
   const { isSignedIn, isLoaded } = useUser()

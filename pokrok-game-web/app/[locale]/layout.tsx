@@ -3,9 +3,12 @@ import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { locales } from '@/i18n/config'
 
-export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }))
-}
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic'
+export const dynamicParams = true
+
+// Note: generateStaticParams is removed to force dynamic rendering
+// This is necessary because pages require user authentication and cannot be statically generated
 
 export default async function LocaleLayout({
   children,
