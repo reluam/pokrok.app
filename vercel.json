@@ -1,4 +1,17 @@
 {
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.pokrok.app"
+        }
+      ],
+      "destination": "https://pokrok.app/:1",
+      "permanent": true
+    }
+  ]
 }
 

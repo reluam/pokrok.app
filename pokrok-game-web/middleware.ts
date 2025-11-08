@@ -8,6 +8,12 @@ const isProtectedRoute = createRouteMatcher([
 ])
 
 export default clerkMiddleware(async (auth, req) => {
+  // Log hostname for debugging redirect issues
+  const hostname = req.headers.get('host') || ''
+  if (hostname.includes('www.pokrok.app')) {
+    console.log(`[middleware] WARNING: Request from www.pokrok.app - should redirect to pokrok.app`)
+  }
+  
   // Check authentication first
   if (isProtectedRoute(req)) {
     auth.protect()
