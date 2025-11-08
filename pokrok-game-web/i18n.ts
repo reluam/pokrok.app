@@ -26,8 +26,16 @@ export default getRequestConfig(async ({ requestLocale }) => {
   try {
     const messages = messageMap[locale as Locale]
     if (messages && typeof messages === 'object') {
+      // Validate that common.loading exists
+      if (!messages.common?.loading) {
+        console.warn(`[i18n] WARNING: common.loading missing in static import for locale ${locale}`)
+        console.warn(`[i18n] Available keys:`, Object.keys(messages))
+      }
       console.log(`[i18n] Successfully loaded messages for locale ${locale} using static import`)
+      console.log(`[i18n] Message count: ${Object.keys(messages).length}, has common.loading: ${!!messages.common?.loading}`)
       return { locale, messages }
+    } else {
+      console.warn(`[i18n] Static import returned invalid messages for locale ${locale}:`, typeof messages)
     }
   } catch (error) {
     console.error(`[i18n] Strategy 1 (static import) failed for locale ${locale}:`, error)
