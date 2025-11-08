@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef, memo } from 'react'
+import { createPortal } from 'react-dom'
 import { useUser } from '@clerk/nextjs'
 import { useTranslations, useLocale } from 'next-intl'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent, DragOverlay, useDroppable, useDraggable } from '@dnd-kit/core'
@@ -8,7 +9,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStr
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { SettingsView } from './SettingsView'
-import { Footprints, Calendar, Target, CheckCircle, X, ChevronDown, ChevronUp, Edit, Trash2, Plus } from 'lucide-react'
+import { Footprints, Calendar, Target, CheckCircle, X, ChevronDown, ChevronUp, Edit, Trash2, Plus, Clock, Star, Zap, Check, Settings } from 'lucide-react'
 import { DailyReviewWorkflow } from './DailyReviewWorkflow'
 import { CalendarProgram } from './CalendarProgram'
 import { getIconEmoji } from '@/lib/icon-utils'
@@ -256,6 +257,36 @@ export function JourneyGameView({
   const [stepsShowCompleted, setStepsShowCompleted] = useState(false)
   const [stepsDateFilter, setStepsDateFilter] = useState<'all' | 'overdue' | 'today' | 'future'>('all')
   const [stepsGoalFilter, setStepsGoalFilter] = useState<string | null>(null)
+  
+  // Track which step's goal/aspiration picker is open
+  const [openGoalPickerForStep, setOpenGoalPickerForStep] = useState<string | null>(null)
+  const [openAspirationPickerForStep, setOpenAspirationPickerForStep] = useState<string | null>(null)
+  
+  // Track which step's tag modals are open
+  const [openTimeModalForStep, setOpenTimeModalForStep] = useState<string | null>(null)
+  const [openDateModalForStep, setOpenDateModalForStep] = useState<string | null>(null)
+  const [openImportantModalForStep, setOpenImportantModalForStep] = useState<string | null>(null)
+  const [openUrgentModalForStep, setOpenUrgentModalForStep] = useState<string | null>(null)
+  
+  // Temporary values for tag modals
+  const [tempTimeValue, setTempTimeValue] = useState<number>(0)
+  const [tempDateValue, setTempDateValue] = useState<string>('')
+  const [selectedDateForStep, setSelectedDateForStep] = useState<Date>(new Date())
+  
+  // Refs for tag elements to calculate modal positions
+  const timeTagRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
+  const dateTagRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
+  const goalTagRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
+  const aspirationTagRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
+  
+  // Modal positions
+  const [timeModalPosition, setTimeModalPosition] = useState<{ top: number; left: number } | null>(null)
+  const [dateModalPosition, setDateModalPosition] = useState<{ top: number; left: number } | null>(null)
+  const [goalModalPosition, setGoalModalPosition] = useState<{ top: number; left: number } | null>(null)
+  const [aspirationModalPosition, setAspirationModalPosition] = useState<{ top: number; left: number } | null>(null)
+  
+  // Steps view mode: 'kanban' or 'list'
+  const [stepsViewMode, setStepsViewMode] = useState<'kanban' | 'list'>('kanban')
 
   // Calculate dropdown positions when they open
   useLayoutEffect(() => {
@@ -645,9 +676,9 @@ export function JourneyGameView({
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [selectedDate, setSelectedDate] = useState('')
   const [showTimeEditor, setShowTimeEditor] = useState(false)
-  const [showXpEditor, setShowXpEditor] = useState(false)
   const [stepEstimatedTime, setStepEstimatedTime] = useState<number>(0)
-  const [stepXpReward, setStepXpReward] = useState<number>(0)
+  // XP is always 1, not editable
+  const [stepXpReward] = useState<number>(1)
   const [stepIsImportant, setStepIsImportant] = useState<boolean>(false)
   const [stepIsUrgent, setStepIsUrgent] = useState<boolean>(false)
   const [stepGoalId, setStepGoalId] = useState<string | null>(null)
@@ -724,9 +755,8 @@ export function JourneyGameView({
       }
       setShowDatePicker(false)
       setShowTimeEditor(false)
-      setShowXpEditor(false)
       setStepEstimatedTime(selectedItem.estimated_time || 0)
-      setStepXpReward(selectedItem.xp_reward || 0)
+      // XP is always 1, not editable
       setStepIsImportant(selectedItem.is_important || false)
       setStepIsUrgent(selectedItem.is_urgent || false)
       setStepGoalId(selectedItem.goal_id || null)
@@ -786,7 +816,7 @@ export function JourneyGameView({
             description: stepDescription,
             date: selectedDate || getLocalDateString(),
             estimated_time: stepEstimatedTime,
-            xp_reward: stepXpReward
+            xp_reward: 1 // Always 1 XP
           })
         })
 
@@ -831,7 +861,7 @@ export function JourneyGameView({
           setStepDescription(newStep.description || '')
           setSelectedDate(normalizedDate)
           setStepEstimatedTime(newStep.estimated_time || 0)
-          setStepXpReward(newStep.xp_reward || 0)
+          // XP is always 1, not editable
           
           // Keep editing mode closed after initial save
           setEditingStepTitle(false)
@@ -846,7 +876,7 @@ export function JourneyGameView({
             title: stepTitle,
             description: stepDescription,
             estimated_time: stepEstimatedTime,
-            xp_reward: stepXpReward,
+            xp_reward: 1, // Always 1 XP
             is_important: stepIsImportant,
             is_urgent: stepIsUrgent,
             goal_id: stepGoalId,
@@ -1079,7 +1109,6 @@ export function JourneyGameView({
               <div className="flex flex-wrap gap-3">
                 <button
                   onClick={() => {
-                    setShowXpEditor(false)
                     setShowDatePicker(false)
                     setShowTimeEditor(!showTimeEditor)
                   }}
@@ -1095,21 +1124,6 @@ export function JourneyGameView({
                 <button
                   onClick={() => {
                     setShowTimeEditor(false)
-                    setShowDatePicker(false)
-                    setShowXpEditor(!showXpEditor)
-                  }}
-                  className={`text-sm px-4 py-2 rounded-full font-medium transition-colors ${
-                    stepXpReward > 0 
-                      ? 'bg-purple-200 bg-opacity-80 text-purple-800 hover:bg-purple-300' 
-                      : 'bg-gray-200 bg-opacity-80 text-gray-600 hover:bg-gray-300'
-                  }`}
-                >
-                  ⭐ {stepXpReward > 0 ? `${stepXpReward} XP` : t('details.step.addXp')}
-                </button>
-                <button
-                  onClick={() => {
-                    setShowTimeEditor(false)
-                    setShowXpEditor(false)
                     setShowDatePicker(!showDatePicker)
                   }}
                   className="text-sm px-4 py-2 bg-gray-200 bg-opacity-80 text-gray-800 rounded-full font-medium hover:bg-gray-300 transition-colors"
@@ -1150,7 +1164,6 @@ export function JourneyGameView({
                   <button
                     onClick={() => {
                       setShowTimeEditor(false)
-                      setShowXpEditor(false)
                       setShowDatePicker(false)
                       setShowStepAspirationPicker(false)
                       setShowStepGoalPicker(!showStepGoalPicker)
@@ -1180,6 +1193,7 @@ export function JourneyGameView({
                           key={goal.id}
                           onClick={() => {
                             setStepGoalId(goal.id)
+                            setStepAspirationId(null) // Clear aspiration when goal is selected
                             setShowStepGoalPicker(false)
                             handleSaveStep()
                           }}
@@ -1194,12 +1208,12 @@ export function JourneyGameView({
                   )}
                 </div>
                 
-                {/* Aspiration picker */}
+                {/* Aspiration picker - only show if no goal is selected */}
+                {!stepGoalId && (
                 <div className="relative">
                   <button
                     onClick={() => {
                       setShowTimeEditor(false)
-                      setShowXpEditor(false)
                       setShowDatePicker(false)
                       setShowStepGoalPicker(false)
                       setShowStepAspirationPicker(!showStepAspirationPicker)
@@ -1246,6 +1260,7 @@ export function JourneyGameView({
                     </div>
                   )}
                 </div>
+                )}
                 
               </div>
 
@@ -1282,38 +1297,6 @@ export function JourneyGameView({
                 </div>
               )}
 
-              {/* XP editor */}
-              {showXpEditor && (
-                <div className="p-4 bg-white bg-opacity-95 rounded-lg border border-orange-200">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    XP odměna:
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      value={stepXpReward}
-                      onChange={(e) => setStepXpReward(parseInt(e.target.value) || 0)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      min="0"
-                    />
-                    <button
-                      onClick={() => {
-                        handleSaveStep()
-                        setShowXpEditor(false)
-                      }}
-                      className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                    >
-                      {t('details.step.confirm')}
-                    </button>
-                    <button
-                      onClick={() => setShowXpEditor(false)}
-                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                    >
-                      {t('common.cancel')}
-                    </button>
-                  </div>
-                </div>
-              )}
 
               {/* Date picker */}
               {showDatePicker && (
@@ -3987,45 +3970,52 @@ export function JourneyGameView({
       <div className="w-full h-full flex flex-col justify-center items-center p-8">
         <div className="w-full max-w-4xl">
           <div className="space-y-4">
-            {sortedGoals.map((goal, index) => (
+            {sortedGoals.map((goal, index) => {
+              // Get steps and milestones count for this goal
+              const goalSteps = stepsCacheRef.current[goal.id]?.data || []
+              const goalMilestones = milestonesCacheRef.current[goal.id]?.data || []
+              const stepsCount = goalSteps.length
+              const milestonesCount = goalMilestones.length
+              
+              return (
               <div
                 key={goal.id}
                 onClick={() => handleItemClick(goal, 'goal')}
-                className="p-4 rounded-xl border cursor-pointer transition-all duration-300 hover:shadow-md"
+                  className="p-4 rounded-xl border cursor-pointer transition-all duration-300 hover:shadow-md bg-white"
                 style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   borderColor: 'rgba(251, 146, 60, 0.3)',
                   boxShadow: '0 2px 8px rgba(251, 146, 60, 0.1)'
                 }}
               >
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                  <div className="flex items-center gap-3">
+                    <span className="w-6 h-6 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-bold flex-shrink-0">
                       {index + 1}
                     </span>
-                    <h4 className="font-semibold text-orange-900">{goal.title}</h4>
+                    <h4 className="font-semibold text-orange-900 flex-1">{goal.title}</h4>
+                    <div className="flex items-center gap-4 flex-shrink-0">
+                      {/* Steps count with Footprints icon */}
+                      <div className="flex items-center gap-1.5">
+                        <Footprints className="w-4 h-4 text-gray-600" />
+                        <span className="text-sm text-gray-700">{stepsCount}</span>
                   </div>
-                  {goal.description && (
-                    <p className="text-orange-700 text-sm">{goal.description}</p>
-                  )}
-                  <div className="flex flex-wrap gap-1">
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      goal.status === 'active' ? 'bg-green-200 text-green-800' :
-                      goal.status === 'completed' ? 'bg-blue-200 text-blue-800' :
-                      'bg-yellow-200 text-yellow-800'
-                    }`}>
-                      {goal.status === 'active' ? t('goals.status.active') : 
-                       goal.status === 'completed' ? t('goals.status.completed') : t('goals.status.considering')}
+                      {/* Milestones count with Target icon */}
+                      <div className="flex items-center gap-1.5">
+                        <Target className="w-4 h-4 text-gray-600" />
+                        <span className="text-sm text-gray-700">{milestonesCount}</span>
+                      </div>
+                      {/* Date with Calendar icon and dropdown */}
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-4 h-4 text-gray-600" />
+                        <span className="text-sm text-gray-700">
+                          {goal.target_date ? new Date(goal.target_date).toLocaleDateString(localeCode) : t('common.noDeadline') || 'Bez termínu'}
                     </span>
-                    {goal.target_date && (
-                      <span className="text-xs px-2 py-1 bg-gray-200 text-gray-800 rounded-full">
-                        {new Date(goal.target_date).toLocaleDateString(localeCode)}
-                      </span>
-                    )}
+                        <ChevronDown className="w-3 h-3 text-gray-400" />
                   </div>
                 </div>
               </div>
-            ))}
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>
@@ -4111,51 +4101,737 @@ export function JourneyGameView({
   }
 
   const renderStepsContent = () => {
+    // Apply same filters as kanban view
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    const filteredSteps = dailySteps.filter(step => {
+      // Filter by completed status
+      if (!stepsShowCompleted && step.completed) {
+        return false
+      }
+      
+      // Filter by date
+      if (stepsDateFilter !== 'all') {
+        if (!step.date) {
+          return false // Steps without date don't match any date filter
+        }
+        const stepDate = new Date(step.date)
+        stepDate.setHours(0, 0, 0, 0)
+        const stepTime = stepDate.getTime()
+        const todayTime = today.getTime()
+        
+        if (stepsDateFilter === 'overdue' && stepTime >= todayTime) {
+          return false
+        }
+        if (stepsDateFilter === 'today' && stepTime !== todayTime) {
+          return false
+        }
+        if (stepsDateFilter === 'future' && stepTime <= todayTime) {
+          return false
+        }
+      }
+      
+      // Filter by goal
+      if (stepsGoalFilter && step.goal_id !== stepsGoalFilter) {
+        return false
+      }
+      
+      return true
+    })
+    
+    // Helper function to update step's goal or aspiration
+    const handleUpdateStepGoalOrAspiration = async (stepId: string, field: 'goal_id' | 'aspiration_id' | 'estimated_time' | 'date' | 'is_important' | 'is_urgent', value: any) => {
+      try {
+        const step = dailySteps.find((s: any) => s.id === stepId)
+        if (!step) return
+
+        const updateData: any = {
+          stepId: stepId,
+          title: step.title,
+          description: step.description,
+          estimated_time: field === 'estimated_time' ? value : (step.estimated_time || 0),
+          xp_reward: 1, // Always 1 XP
+          is_important: field === 'is_important' ? value : (step.is_important || false),
+          is_urgent: field === 'is_urgent' ? value : (step.is_urgent || false),
+          goal_id: field === 'goal_id' ? value : (step.goal_id || step.goalId || null),
+          aspiration_id: field === 'aspiration_id' ? value : (step.aspiration_id || step.aspirationId || null),
+          deadline: step.deadline || null,
+          date: field === 'date' ? value : (step.date || null)
+        }
+
+        const response = await fetch('/api/daily-steps', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updateData)
+        })
+
+        if (response.ok) {
+          const updatedStep = await response.json()
+          // Update dailySteps locally
+          const updatedSteps = dailySteps.map((s: any) => s.id === stepId ? { ...s, ...updatedStep } : s)
+          // Also notify parent component
+          if (onDailyStepsUpdate) {
+            onDailyStepsUpdate(updatedSteps)
+          }
+        }
+      } catch (error) {
+        console.error('Error updating step:', error)
+      }
+    }
+
+    // Sort steps by date (overdue first, then by date)
+    const sortedSteps = [...filteredSteps].sort((a, b) => {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      
+      const dateA = a.date ? new Date(a.date) : null
+      const dateB = b.date ? new Date(b.date) : null
+      
+      if (!dateA && !dateB) return 0
+      if (!dateA) return 1
+      if (!dateB) return -1
+      
+      dateA.setHours(0, 0, 0, 0)
+      dateB.setHours(0, 0, 0, 0)
+      
+      const isOverdueA = dateA < today
+      const isOverdueB = dateB < today
+      
+      if (isOverdueA && !isOverdueB) return -1
+      if (!isOverdueA && isOverdueB) return 1
+      
+      return dateA.getTime() - dateB.getTime()
+    })
+
     return (
-      <div className="w-full h-full flex flex-col justify-center items-center p-8">
-        <div className="w-full max-w-2xl">
-          <div className="space-y-4">
-            {dailySteps.map((step, index) => (
-              <div
+      <div className="w-full overflow-x-auto" style={{ overflowY: 'visible' }}>
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+          <table className="w-full border-collapse" style={{ overflow: 'visible' }}>
+            <thead>
+              <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-12 first:pl-6">#</th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Název</th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">Čas</th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Datum</th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-20">Důležité</th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-20">Urgentní</th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Cíl</th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40 last:pr-6">Aspirace</th>
+              </tr>
+            </thead>
+            <tbody style={{ overflow: 'visible' }}>
+            {sortedSteps.map((step, index) => {
+              const stepGoal = step.goal_id || step.goalId ? goals.find((g: any) => g.id === (step.goal_id || step.goalId)) : null
+              const stepAspiration = step.aspiration_id || step.aspirationId ? aspirations.find((a: any) => a.id === (step.aspiration_id || step.aspirationId)) : null
+              const goalArea = stepGoal?.area_id ? areas.find((a: any) => a.id === stepGoal.area_id) : null
+              const isEditing = editingStep && editingStep.id === step.id
+              
+              return (
+                <>
+              <tr
                 key={step.id}
-                onClick={() => handleItemClick(step, 'step')}
-                className="p-4 rounded-xl border cursor-pointer transition-all duration-300 hover:shadow-md"
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  borderColor: 'rgba(251, 146, 60, 0.3)',
-                  boxShadow: '0 2px 8px rgba(251, 146, 60, 0.1)'
+                onClick={() => {
+                  if (isEditing) {
+                    setEditingStep(null)
+                  } else {
+                    initializeEditingStep(step)
+                  }
                 }}
+                className={`border-b border-gray-100 hover:bg-orange-50/30 cursor-pointer transition-all duration-200 last:border-b-0 ${
+                  step.completed ? 'bg-green-50/50 hover:bg-green-50' : 'bg-white'
+                }`}
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-orange-400 font-bold">#{index + 1}</span>
-                  <div className="flex-1">
-                    <div className="font-semibold text-orange-900">{step.title}</div>
-                    {step.description && (
-                      <div className="text-orange-700 text-sm mt-1">{step.description}</div>
+                <td className="px-4 py-2 first:pl-6">
+                  <div className="flex items-center justify-center">
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation()
+                        try {
+                          const response = await fetch(`/api/cesta/daily-steps/${step.id}/toggle`, {
+                            method: 'PATCH',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ completed: !step.completed })
+                          })
+                          if (response.ok) {
+                            const data = await response.json()
+                            if (data.step) {
+                              const updatedSteps = dailySteps.map((s: any) => 
+                                s.id === step.id ? { ...s, completed: data.step.completed, completed_at: data.step.completed_at } : s
+                              )
+                              onDailyStepsUpdate?.(updatedSteps)
+                            }
+                          }
+                        } catch (error) {
+                          console.error('Error toggling step:', error)
+                        }
+                      }}
+                      className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
+                    >
+                      {step.completed ? (
+                        <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
+                      ) : (
+                        <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
+                      )}
+                    </button>
+                  </div>
+                </td>
+                <td className="px-4 py-2">
+                  <span className={`font-semibold text-sm ${step.completed ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                    {step.title}
+                      </span>
+                </td>
+                <td className="px-4 py-2">
+                  <div className="relative" style={{ overflow: 'visible' }}>
+                    <div 
+                      ref={(el) => { timeTagRefs.current[step.id] = el }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setTempTimeValue(step.estimated_time || 0)
+                        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                        setTimeModalPosition({ top: rect.bottom + 4, left: rect.left })
+                        setOpenTimeModalForStep(openTimeModalForStep === step.id ? null : step.id)
+                        setOpenDateModalForStep(null)
+                        setOpenImportantModalForStep(null)
+                        setOpenUrgentModalForStep(null)
+                      }}
+                      className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-100 cursor-pointer hover:bg-blue-100 hover:border-blue-200 transition-all duration-200 w-fit shadow-sm whitespace-nowrap"
+                      title="Kliknutím upravíte odhadovaný čas"
+                    >
+                      <Clock className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                      <span className="text-blue-700 font-medium">{step.estimated_time || 0} min</span>
+                    </div>
+                    {openTimeModalForStep === step.id && timeModalPosition && typeof window !== 'undefined' && createPortal(
+                      <>
+                        <div 
+                          className="fixed inset-0 z-40" 
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setOpenTimeModalForStep(null)
+                            setTimeModalPosition(null)
+                          }}
+                        />
+                        <div 
+                          className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-4 min-w-[250px]"
+                style={{
+                            top: `${timeModalPosition.top}px`,
+                            left: `${timeModalPosition.left}px`
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {t('details.step.estimatedTime') || 'Odhadovaný čas'}
+                          </label>
+                          <div className="flex gap-2 mb-2">
+                            <input
+                              type="number"
+                              value={tempTimeValue}
+                              onChange={(e) => setTempTimeValue(parseInt(e.target.value) || 0)}
+                              className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                              min="0"
+                              onClick={(e) => e.stopPropagation()}
+                              autoFocus
+                            />
+                            <span className="text-sm text-gray-600 flex items-center">min</span>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={async (e) => {
+                                e.stopPropagation()
+                                await handleUpdateStepGoalOrAspiration(step.id, 'estimated_time', tempTimeValue)
+                                setOpenTimeModalForStep(null)
+                              }}
+                              className="flex-1 px-3 py-2 bg-orange-500 text-white text-sm rounded-lg hover:bg-orange-600 transition-colors"
+                            >
+                              {t('details.step.confirm') || 'Uložit'}
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setOpenTimeModalForStep(null)
+                                setTimeModalPosition(null)
+                              }}
+                              className="px-3 py-2 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300 transition-colors"
+                            >
+                              {t('common.cancel') || 'Zrušit'}
+                            </button>
+                          </div>
+                        </div>
+                      </>,
+                      document.body
                     )}
                   </div>
-                  <div className="flex items-center gap-2">
-                    {step.estimated_time && (
-                      <span className="text-xs px-2 py-1 bg-blue-200 text-blue-800 rounded-full">
-                        {step.estimated_time} min
+                </td>
+                <td className="px-4 py-2">
+                  <div className="relative" style={{ overflow: 'visible' }}>
+                    <div 
+                      ref={(el) => { dateTagRefs.current[step.id] = el }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setSelectedDateForStep(step.date ? new Date(step.date) : new Date())
+                        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                        setDateModalPosition({ top: rect.bottom + 4, left: rect.left })
+                        setOpenDateModalForStep(openDateModalForStep === step.id ? null : step.id)
+                        setOpenTimeModalForStep(null)
+                        setOpenImportantModalForStep(null)
+                        setOpenUrgentModalForStep(null)
+                      }}
+                      className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-200 cursor-pointer hover:bg-gray-100 hover:border-gray-300 transition-all duration-200 w-fit shadow-sm whitespace-nowrap"
+                      title="Kliknutím upravíte datum"
+                    >
+                      <Calendar className="w-3.5 h-3.5 text-gray-600 flex-shrink-0" />
+                      <span className="text-gray-700 font-medium">
+                        {step.date ? new Date(step.date).toLocaleDateString(localeCode) : t('common.noDate') || 'Bez data'}
                       </span>
-                    )}
-                    {step.xp_reward && (
-                      <span className="text-xs px-2 py-1 bg-purple-200 text-purple-800 rounded-full">
-                        {step.xp_reward} XP
+                    </div>
+                    {openDateModalForStep === step.id && dateModalPosition && typeof window !== 'undefined' && createPortal(
+                      <>
+                        <div 
+                          className="fixed inset-0 z-40" 
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setOpenDateModalForStep(null)
+                            setDateModalPosition(null)
+                          }}
+                        />
+                        <div 
+                          className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-3"
+                          style={{
+                            top: `${dateModalPosition.top}px`,
+                            left: `${dateModalPosition.left}px`,
+                            maxWidth: 'calc(100vw - 1rem)',
+                            maxHeight: 'calc(100vh - 1rem)',
+                            overflow: 'auto'
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <h3 className="text-sm font-semibold text-gray-800 mb-2">
+                            {t('details.step.newDate') || 'Vyberte datum'}
+                          </h3>
+                          <div className="space-y-2">
+                            <div className="grid grid-cols-7 gap-1 mb-1">
+                              {['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(day => (
+                                <div key={day} className="text-center text-xs font-semibold text-gray-600 py-1">
+                                  {day}
+                                </div>
+                              ))}
+                            </div>
+                            {(() => {
+                              const today = new Date()
+                              const currentMonth = selectedDateForStep.getMonth()
+                              const currentYear = selectedDateForStep.getFullYear()
+                              const firstDay = new Date(currentYear, currentMonth, 1)
+                              const lastDay = new Date(currentYear, currentMonth + 1, 0)
+                              const daysInMonth = lastDay.getDate()
+                              const startingDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1
+                              const todayStr = getLocalDateString()
+                              
+                              const days = []
+                              for (let i = 0; i < startingDayOfWeek; i++) {
+                                days.push(null)
+                              }
+                              for (let day = 1; day <= daysInMonth; day++) {
+                                const date = new Date(currentYear, currentMonth, day)
+                                days.push(date)
+                              }
+
+                              return (
+                                <div className="grid grid-cols-7 gap-1">
+                                  {days.map((date, index) => {
+                                    if (!date) {
+                                      return <div key={`empty-${index}`} className="h-7"></div>
+                                    }
+                                    
+                                    const dateStr = getLocalDateString(date)
+                                    const isSelected = dateStr === getLocalDateString(selectedDateForStep)
+                                    const isToday = dateStr === todayStr
+                                    
+                                    return (
+                                      <button
+                                        key={dateStr}
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          setSelectedDateForStep(date)
+                                        }}
+                                        className={`h-7 rounded transition-all text-xs ${
+                                          isSelected 
+                                            ? 'bg-orange-500 text-white font-bold' 
+                                            : isToday
+                                              ? 'bg-orange-100 text-orange-700 font-semibold'
+                                              : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                      >
+                                        {date.getDate()}
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                              )
+                            })()}
+                            
+                            <div className="flex items-center justify-between mt-2 pt-2 border-t">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  const prevMonth = new Date(selectedDateForStep)
+                                  prevMonth.setMonth(prevMonth.getMonth() - 1)
+                                  setSelectedDateForStep(prevMonth)
+                                }}
+                                className="p-1 hover:bg-gray-100 rounded-lg"
+                              >
+                                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                                </svg>
+                              </button>
+                              <span className="text-xs font-semibold text-gray-800">
+                                {selectedDateForStep.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
                       </span>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  const nextMonth = new Date(selectedDateForStep)
+                                  nextMonth.setMonth(nextMonth.getMonth() + 1)
+                                  setSelectedDateForStep(nextMonth)
+                                }}
+                                className="p-1 hover:bg-gray-100 rounded-lg"
+                              >
+                                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                </svg>
+                              </button>
+                            </div>
+                            
+                            <div className="flex gap-2 mt-2">
+                              <button
+                                onClick={async (e) => {
+                                  e.stopPropagation()
+                                  const dateStr = getLocalDateString(selectedDateForStep)
+                                  await handleUpdateStepGoalOrAspiration(step.id, 'date', dateStr)
+                                  setOpenDateModalForStep(null)
+                                  setDateModalPosition(null)
+                                }}
+                                className="flex-1 px-3 py-1.5 bg-orange-500 text-white text-xs rounded-lg hover:bg-orange-600 transition-colors"
+                              >
+                                {t('details.step.confirm') || 'Uložit'}
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setOpenDateModalForStep(null)
+                                  setDateModalPosition(null)
+                                }}
+                                className="px-3 py-1.5 bg-gray-200 text-gray-700 text-xs rounded-lg hover:bg-gray-300 transition-colors"
+                              >
+                                {t('common.cancel') || 'Zrušit'}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </>,
+                      document.body
                     )}
-                    {step.date && (
-                      <span className="text-xs px-2 py-1 bg-gray-200 text-gray-800 rounded-full">
-                        {new Date(step.date).toLocaleDateString(localeCode)}
-                      </span>
-                    )}
-                    {step.completed && <span className="text-green-600">✓</span>}
                   </div>
+                </td>
+                <td className="px-4 py-2">
+                  <div 
+                    onClick={async (e) => {
+                      e.stopPropagation()
+                      await handleUpdateStepGoalOrAspiration(step.id, 'is_important', !step.is_important)
+                    }}
+                    className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border cursor-pointer transition-all duration-200 w-fit shadow-sm ${
+                      step.is_important 
+                        ? 'bg-yellow-50 border-yellow-200 hover:bg-yellow-100 hover:border-yellow-300' 
+                        : 'bg-gray-50 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
+                    }`}
+                    title="Kliknutím přepnete důležitost"
+                  >
+                    <Star className={`w-3.5 h-3.5 ${step.is_important ? 'text-yellow-600 fill-yellow-600' : 'text-gray-400'}`} />
+                    <span className={`font-medium ${step.is_important ? 'text-yellow-700' : 'text-gray-500'}`}>
+                      {step.is_important ? 'Ano' : 'Ne'}
+                      </span>
+                  </div>
+                </td>
+                <td className="px-4 py-2">
+                  <div 
+                    onClick={async (e) => {
+                      e.stopPropagation()
+                      await handleUpdateStepGoalOrAspiration(step.id, 'is_urgent', !step.is_urgent)
+                    }}
+                    className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border cursor-pointer transition-all duration-200 w-fit shadow-sm ${
+                      step.is_urgent 
+                        ? 'bg-orange-50 border-orange-200 hover:bg-orange-100 hover:border-orange-300' 
+                        : 'bg-gray-50 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
+                    }`}
+                    title="Kliknutím přepnete urgentnost"
+                  >
+                    <Zap className={`w-3.5 h-3.5 ${step.is_urgent ? 'text-orange-600 fill-orange-600' : 'text-gray-400'}`} />
+                    <span className={`font-medium ${step.is_urgent ? 'text-orange-700' : 'text-gray-500'}`}>
+                      {step.is_urgent ? 'Ano' : 'Ne'}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-4 py-2">
+                  <div className="relative" style={{ overflow: 'visible' }}>
+                    <div
+                      ref={(el) => { goalTagRefs.current[step.id] = el }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                        setGoalModalPosition({ top: rect.bottom + 4, left: rect.left })
+                        setOpenGoalPickerForStep(openGoalPickerForStep === step.id ? null : step.id)
+                        setOpenAspirationPickerForStep(null)
+                      }}
+                      className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-purple-50 border border-purple-100 cursor-pointer hover:bg-purple-100 hover:border-purple-200 transition-all duration-200 w-fit max-w-[150px] shadow-sm"
+                      title={stepGoal ? stepGoal.title : t('details.step.goal') || 'Cíl'}
+                    >
+                      <Target className="w-3.5 h-3.5 text-purple-600" />
+                      <span className="text-purple-700 truncate font-medium">
+                        {stepGoal ? stepGoal.title : t('details.step.goal') || 'Cíl'}
+                      </span>
+                      <ChevronDown className="w-3 h-3 text-purple-400" />
+                    </div>
+                    {openGoalPickerForStep === step.id && goalModalPosition && typeof window !== 'undefined' && createPortal(
+                      <>
+                        <div 
+                          className="fixed inset-0 z-40" 
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setOpenGoalPickerForStep(null)
+                            setGoalModalPosition(null)
+                          }}
+                        />
+                        <div 
+                          className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[200px] max-w-md max-h-[70vh] overflow-y-auto"
+                          style={{
+                            top: `${goalModalPosition.top}px`,
+                            left: `${goalModalPosition.left}px`
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation()
+                              await handleUpdateStepGoalOrAspiration(step.id, 'goal_id', null)
+                              setOpenGoalPickerForStep(null)
+                              setGoalModalPosition(null)
+                            }}
+                            className="w-full text-left px-4 py-3 text-sm hover:bg-blue-50 border-b border-gray-100 font-medium transition-colors"
+                          >
+                            {t('details.step.noGoal') || 'Bez cíle'}
+                          </button>
+                          {goals.map((goal: any) => {
+                            const goalAreaForPicker = goal.area_id ? areas.find((a: any) => a.id === goal.area_id) : null
+                            return (
+                              <button
+                                key={goal.id}
+                                onClick={async (e) => {
+                                  e.stopPropagation()
+                                  // Clear aspiration when goal is selected
+                                  if (step.aspiration_id || step.aspirationId) {
+                                    await handleUpdateStepGoalOrAspiration(step.id, 'aspiration_id', null)
+                                  }
+                                  await handleUpdateStepGoalOrAspiration(step.id, 'goal_id', goal.id)
+                                  setOpenGoalPickerForStep(null)
+                                  setGoalModalPosition(null)
+                                }}
+                                className={`w-full text-left px-4 py-3 text-sm hover:bg-blue-50 transition-colors flex items-center gap-2 ${
+                                  (step.goal_id || step.goalId) === goal.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-700'
+                                }`}
+                              >
+                                <span className="text-base flex-shrink-0">
+                                  {goal.icon ? getIconEmoji(goal.icon) : (goalAreaForPicker?.icon || '🎯')}
+                                </span>
+                                <span className="truncate">{goal.title}</span>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </>,
+                      document.body
+                    )}
+                  </div>
+                </td>
+                <td className="px-4 py-2 last:pr-6">
+                  {!(step.goal_id || step.goalId) && (
+                    <div className="relative" style={{ overflow: 'visible' }}>
+                      <div
+                        ref={(el) => { aspirationTagRefs.current[step.id] = el }}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                          setAspirationModalPosition({ top: rect.bottom + 4, left: rect.left })
+                          setOpenAspirationPickerForStep(openAspirationPickerForStep === step.id ? null : step.id)
+                          setOpenGoalPickerForStep(null)
+                        }}
+                        className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-gray-50 border border-gray-200 cursor-pointer hover:bg-gray-100 hover:border-gray-300 transition-all duration-200 w-fit max-w-[150px] shadow-sm"
+                        title={stepAspiration ? stepAspiration.title : t('details.step.aspiration') || 'Aspirace'}
+                      >
+                        <span className="text-sm">✨</span>
+                        <span className="text-gray-700 truncate font-medium">
+                          {stepAspiration ? stepAspiration.title : t('details.step.aspiration') || 'Aspirace'}
+                        </span>
+                        <ChevronDown className="w-3 h-3 text-gray-400" />
                 </div>
+                      {openAspirationPickerForStep === step.id && aspirationModalPosition && typeof window !== 'undefined' && createPortal(
+                        <>
+                          <div 
+                            className="fixed inset-0 z-40" 
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setOpenAspirationPickerForStep(null)
+                              setAspirationModalPosition(null)
+                            }}
+                          />
+                          <div 
+                            className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[200px] max-w-md max-h-[70vh] overflow-y-auto"
+                            style={{
+                              top: `${aspirationModalPosition.top}px`,
+                              left: `${aspirationModalPosition.left}px`
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button
+                              onClick={async (e) => {
+                                e.stopPropagation()
+                                await handleUpdateStepGoalOrAspiration(step.id, 'aspiration_id', null)
+                                setOpenAspirationPickerForStep(null)
+                                setAspirationModalPosition(null)
+                              }}
+                              className="w-full text-left px-4 py-3 text-sm hover:bg-purple-50 border-b border-gray-100 font-medium transition-colors"
+                            >
+                              {t('details.step.noAspiration') || 'Bez aspirace'}
+                            </button>
+                            {aspirations.map((aspiration: any) => (
+                              <button
+                                key={aspiration.id}
+                                onClick={async (e) => {
+                                  e.stopPropagation()
+                                  await handleUpdateStepGoalOrAspiration(step.id, 'aspiration_id', aspiration.id)
+                                  setOpenAspirationPickerForStep(null)
+                                  setAspirationModalPosition(null)
+                                }}
+                                className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors flex items-center gap-2 ${
+                                  (step.aspiration_id || step.aspirationId) === aspiration.id ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
+                                }`}
+                              >
+                                <div 
+                                  className="w-3 h-3 rounded-full flex-shrink-0"
+                                  style={{ backgroundColor: aspiration.color || '#9333EA' }}
+                                ></div>
+                                <span className="truncate">{aspiration.title}</span>
+                              </button>
+                            ))}
               </div>
-            ))}
+                        </>,
+                        document.body
+                      )}
+                    </div>
+                  )}
+                </td>
+              </tr>
+              {isEditing && (
+                <tr>
+                  <td colSpan={8} className="px-4 py-3 bg-orange-50/50 first:pl-6 last:pr-6">
+                    <div className="p-3 bg-white rounded-xl border border-orange-200 shadow-sm" onClick={(e) => e.stopPropagation()}>
+                      <div className="space-y-3">
+                        <input
+                          type="text"
+                          value={editingStep.title || ''}
+                          onChange={(e) => setEditingStep({...editingStep, title: e.target.value})}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                          placeholder="Název kroku"
+                        />
+                        <textarea
+                          value={editingStep.description || ''}
+                          onChange={(e) => setEditingStep({...editingStep, description: e.target.value})}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none"
+                          placeholder="Popis (volitelné)"
+                          rows={2}
+                        />
+                        <div className="grid grid-cols-2 gap-3">
+                          <select
+                            value={editingStep.goalId || ''}
+                            onChange={(e) => setEditingStep({...editingStep, goalId: e.target.value || null})}
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                          >
+                            <option value="">Vyberte cíl (volitelné)</option>
+                            {goals.filter((goal: any) => goal.status === 'active').map((goal: any) => (
+                              <option key={goal.id} value={goal.id}>
+                                {goal.title}
+                              </option>
+                            ))}
+                          </select>
+                          <input
+                            type="date"
+                            value={editingStep.date || ''}
+                            onChange={(e) => setEditingStep({...editingStep, date: e.target.value})}
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                          />
           </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <input
+                            type="number"
+                            min="0"
+                            value={editingStep.estimatedTime || 0}
+                            onChange={(e) => setEditingStep({...editingStep, estimatedTime: parseInt(e.target.value) || 0})}
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                            placeholder="Odhadovaný čas (min)"
+                          />
+                          <div className="flex items-center gap-2">
+                            <label className="text-xs text-gray-600 whitespace-nowrap flex items-center gap-1">
+                              <input
+                                type="checkbox"
+                                checked={editingStep.isImportant || false}
+                                onChange={(e) => setEditingStep({...editingStep, isImportant: e.target.checked})}
+                                className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                              />
+                              <Star className="w-4 h-4" />
+                              Důležité
+                            </label>
+                            <label className="text-xs text-gray-600 whitespace-nowrap flex items-center gap-1">
+                              <input
+                                type="checkbox"
+                                checked={editingStep.isUrgent || false}
+                                onChange={(e) => setEditingStep({...editingStep, isUrgent: e.target.checked})}
+                                className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                              />
+                              <Zap className="w-4 h-4" />
+                              Urgentní
+                            </label>
+        </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation()
+                              await handleUpdateStep()
+                            }}
+                            className="px-4 py-2 bg-orange-500 text-white text-sm rounded-lg hover:bg-orange-600 transition-colors"
+                          >
+                            Uložit
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setEditingStep(null)
+                            }}
+                            className="px-4 py-2 bg-gray-500 text-white text-sm rounded-lg hover:bg-gray-600 transition-colors"
+                          >
+                            Zrušit
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              )}
+                </>
+              )
+            })}
+          </tbody>
+        </table>
         </div>
       </div>
     )
@@ -9566,6 +10242,38 @@ export function JourneyGameView({
           <div className="p-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-orange-800" style={{ letterSpacing: '1px' }}>{t('sections.steps')}</h2>
+              <div className="flex items-center gap-3">
+                {/* View Mode Toggle */}
+                <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+                  <button
+                    onClick={() => setStepsViewMode('kanban')}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                      stepsViewMode === 'kanban'
+                        ? 'bg-white text-orange-600 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-800'
+                    }`}
+                    title="Kanbanové zobrazení"
+                  >
+                    <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                    </svg>
+                    Kanban
+                  </button>
+                  <button
+                    onClick={() => setStepsViewMode('list')}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                      stepsViewMode === 'list'
+                        ? 'bg-white text-orange-600 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-800'
+                    }`}
+                    title="Řádkové zobrazení"
+                  >
+                    <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    Seznam
+                  </button>
+                </div>
               <button
                 onClick={() => setShowCreateStep(!showCreateStep)}
                 className="p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
@@ -9575,6 +10283,7 @@ export function JourneyGameView({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
               </button>
+              </div>
             </div>
             
             {/* Filters */}
@@ -9630,36 +10339,37 @@ export function JourneyGameView({
             {/* Create Step Form */}
             {showCreateStep && (
               <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Vytvořit nový krok</h3>
-                <div className="space-y-4">
+                <h3 className="text-base font-semibold text-gray-800 mb-3">Vytvořit nový krok</h3>
+                <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Název kroku</label>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Název kroku</label>
                     <input
                       type="text"
                       value={newStep.title}
                       onChange={(e) => setNewStep({...newStep, title: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                       placeholder="Zadejte název kroku"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Popis kroku</label>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Popis kroku</label>
                     <textarea
                       value={newStep.description}
                       onChange={(e) => setNewStep({...newStep, description: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      rows={3}
+                      className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none"
+                      rows={2}
                       placeholder="Zadejte popis kroku"
                     />
                   </div>
                   
+                  <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Cíl (volitelné)</label>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Cíl (volitelné)</label>
                     <select
                       value={newStep.goalId || ''}
                       onChange={(e) => setNewStep({...newStep, goalId: e.target.value || null as any})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                     >
                       <option value="">Vyberte cíl</option>
                       {goals.filter(goal => goal.status === 'active').map((goal: any) => (
@@ -9671,92 +10381,61 @@ export function JourneyGameView({
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Datum (volitelné)</label>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Datum (volitelné)</label>
                     <input
                       type="date"
                       value={newStep.date}
                       onChange={(e) => setNewStep({...newStep, date: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                     />
+                    </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Odhadovaný čas (minuty)</label>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Odhadovaný čas (min)</label>
                       <input
                         type="number"
                         value={newStep.estimatedTime}
                         onChange={(e) => setNewStep({...newStep, estimatedTime: parseInt(e.target.value) || 30})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                         min="1"
                         max="480"
                       />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">XP odměna</label>
-                      <div className="flex gap-2 mb-2">
-                        {[1, 2, 3, 4, 5].map(xp => (
-                          <button
-                            key={xp}
-                            type="button"
-                            onClick={() => setNewStep({...newStep, xpReward: xp})}
-                            className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                              newStep.xpReward === xp 
-                                ? 'bg-orange-500 text-white' 
-                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                            }`}
-                          >
-                            {xp}
-                          </button>
-                        ))}
-                      </div>
-                      <input
-                        type="number"
-                        value={newStep.xpReward > 5 ? newStep.xpReward : ''}
-                        onChange={(e) => {
-                          const value = parseInt(e.target.value) || 1
-                          if (value > 5) {
-                            setNewStep({...newStep, xpReward: value})
-                          }
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                        placeholder="Vlastní XP (6+)"
-                        min="6"
-                      />
-                    </div>
                   </div>
                   
-                  <div className="flex gap-2">
-                    <label className="flex items-center">
+                    <div className="flex items-end gap-3">
+                      <label className="flex items-center gap-1.5 text-xs text-gray-700">
                       <input
                         type="checkbox"
                         checked={newStep.isImportant}
                         onChange={(e) => setNewStep({...newStep, isImportant: e.target.checked})}
-                        className="mr-2"
+                          className="w-4 h-4"
                       />
-                      <span className="text-sm text-gray-700">Důležitý</span>
+                        <span>Důležitý</span>
                     </label>
-                    <label className="flex items-center">
+                      <label className="flex items-center gap-1.5 text-xs text-gray-700">
                       <input
                         type="checkbox"
                         checked={newStep.isUrgent}
                         onChange={(e) => setNewStep({...newStep, isUrgent: e.target.checked})}
-                        className="mr-2"
+                          className="w-4 h-4"
                       />
-                      <span className="text-sm text-gray-700">Naléhavý</span>
+                        <span>Naléhavý</span>
                     </label>
+                    </div>
                   </div>
                   
-                  <div className="flex gap-3">
+                  <div className="flex gap-2 pt-1">
                     <button
                       onClick={handleCreateStep}
-                      className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                      className="px-3 py-1.5 text-sm bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
                     >
                       Vytvořit krok
                     </button>
                     <button
                       onClick={() => setShowCreateStep(false)}
-                      className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                      className="px-3 py-1.5 text-sm bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
                     >
                       {t('common.cancel')}
                     </button>
@@ -9765,7 +10444,12 @@ export function JourneyGameView({
               </div>
             )}
 
-            {/* Kanban Board with Columns */}
+            {/* Render based on view mode */}
+            {stepsViewMode === 'list' ? (
+              // List/Row view - use renderStepsContent
+              renderStepsContent()
+            ) : (
+              // Kanban Board with Columns
             <DndContext 
               sensors={sensors} 
               collisionDetection={closestCenter} 
@@ -9987,6 +10671,7 @@ export function JourneyGameView({
                 })() : null}
               </DragOverlay>
             </DndContext>
+            )}
             
             {filteredSteps.length === 0 && (
               <div className="text-center text-gray-500 py-8">
@@ -10152,19 +10837,9 @@ export function JourneyGameView({
       boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.04)'
     }}>
       {/* Header */}
-      <div className="relative overflow-hidden w-full" style={{
-        background: 'linear-gradient(135deg, #fb923c 0%, #ea580c 100%)',
+      <div className="relative overflow-hidden w-full bg-orange-500" style={{
         boxShadow: '0 4px 12px rgba(251, 146, 60, 0.3)'
       }}>
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-4 left-6 w-8 h-8 bg-yellow-300 rounded-full animate-bounce opacity-15"></div>
-          <div className="absolute top-8 right-8 w-4 h-4 bg-orange-200 rounded-full animate-pulse opacity-15"></div>
-          <div className="absolute bottom-4 left-1/4 w-6 h-6 bg-pink-300 rounded-full animate-bounce opacity-15"></div>
-          <div className="absolute top-4 right-6 w-4 h-4 bg-yellow-300 rounded-full animate-bounce opacity-15"></div>
-          <div className="absolute bottom-2 left-1/4 w-6 h-6 bg-pink-300 rounded-full animate-pulse opacity-15"></div>
-        </div>
-        
         <div className="relative z-10 py-3 px-6">
           {/* Single Row: Menu Icons and Statistics */}
           <div className="flex items-center justify-between">
@@ -10201,31 +10876,6 @@ export function JourneyGameView({
                               </svg>
                   <span className="text-white font-semibold text-sm">{loginStreak}</span>
                   <span className="text-white opacity-75 text-xs">Streak</span>
-                          </div>
-                          
-                <div className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
-                    <circle cx="12" cy="12" r="3" fill="currentColor"/>
-                  </svg>
-                  <span className="text-white font-semibold text-sm">{totalCompletedGoals}</span>
-                  <span className="text-white opacity-75 text-xs">{t('game.menu.goals')}</span>
-                                          </div>
-                                          
-                <div className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                  </svg>
-                  <span className="text-white font-semibold text-sm">{totalCompletedHabits}</span>
-                  <span className="text-white opacity-75 text-xs">{t('game.menu.habits')}</span>
-                                            </div>
-                                            
-                <div className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M3 12h2l3-9 6 18 3-9h2"/>
-                  </svg>
-                  <span className="text-white font-semibold text-sm">{totalCompletedSteps}</span>
-                  <span className="text-white opacity-75 text-xs">{t('game.menu.steps')}</span>
                                                 </div>
                                               </div>
 
@@ -10268,10 +10918,7 @@ export function JourneyGameView({
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'settings' ? 'bg-white bg-opacity-25' : ''}`}
                 title={t('game.menu.settings')}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="3"/>
-                  <path d="M12 1v6m0 6v6m9-9h-6M9 12H3m13.66-5.66l-4.24 4.24m0 4.48l4.24 4.24M4.34 18.66l4.24-4.24m0-4.48L4.34 5.66"/>
-                </svg>
+                <Settings className="w-5 h-5" strokeWidth="2" />
                 <span className="text-sm font-medium">{t('game.menu.settings')}</span>
               </button>
                                           </div>
