@@ -1,6 +1,10 @@
 import { getRequestConfig } from 'next-intl/server'
 import { locales, type Locale } from './i18n/config'
 
+// Static imports for Vercel compatibility - webpack can properly bundle these
+import csMessages from './locales/cs/common.json'
+import enMessages from './locales/en/common.json'
+
 export default getRequestConfig(async ({ requestLocale }) => {
   // This typically corresponds to the `[locale]` segment
   // The middleware handles redirecting to user's preferred locale from database
@@ -12,12 +16,21 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale = 'cs' // Default to Czech
   }
 
-  // Load messages with explicit path resolution for Vercel compatibility
+  // Use static imports instead of dynamic - this works reliably on Vercel
+  // Webpack can properly bundle static imports, but dynamic imports with template literals can fail
   let messages
   try {
-    // Use dynamic import with explicit path
-    const messagesModule = await import(`./locales/${locale}/common.json`)
-    messages = messagesModule.default || messagesModule
+    switch (locale) {
+      case 'cs':
+        messages = csMessages
+        break
+      case 'en':
+        messages = enMessages
+        break
+      default:
+        messages = csMessages // Fallback to Czech
+        locale = 'cs'
+    }
     
     // Validate that messages were loaded successfully
     if (!messages || typeof messages !== 'object' || Object.keys(messages).length === 0) {
@@ -30,22 +43,16 @@ export default getRequestConfig(async ({ requestLocale }) => {
     
     // Fallback to Czech if other locale fails
     if (locale !== 'cs') {
-      try {
-        console.warn(`[i18n] Attempting to load Czech fallback messages`)
-        const fallbackModule = await import('./locales/cs/common.json')
-        messages = fallbackModule.default || fallbackModule
-        
-        // Validate fallback messages
-        if (!messages || typeof messages !== 'object' || Object.keys(messages).length === 0) {
-          throw new Error('Czech fallback messages are also empty')
-        }
-        
-        locale = 'cs'
-        console.log(`[i18n] Successfully loaded ${Object.keys(messages).length} Czech fallback message keys`)
-      } catch (fallbackError) {
-        console.error('[i18n] Failed to load fallback Czech messages:', fallbackError)
+      console.warn(`[i18n] Attempting to load Czech fallback messages`)
+      messages = csMessages
+      locale = 'cs'
+      
+      // Validate fallback messages
+      if (!messages || typeof messages !== 'object' || Object.keys(messages).length === 0) {
+        console.error('[i18n] Czech fallback messages are also empty')
         messages = {} // Last resort: empty messages
-        console.error('[i18n] Using empty messages object - translations will not work!')
+      } else {
+        console.log(`[i18n] Successfully loaded ${Object.keys(messages).length} Czech fallback message keys`)
       }
     } else {
       console.error('[i18n] Failed to load Czech messages (default locale) - using empty messages')

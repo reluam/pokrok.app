@@ -9,7 +9,533 @@
     "delete": "Delete",
     "edit": "Edit",
     "add": "Add",
-    "back": "Back"
+    "back": "Back",
+    "loading": "Loading...",
+    "noDate": "No date",
+    "noDeadline": "No deadline",
+    "noTitle": "No title",
+    "endDate": "End date",
+    "close": "Close",
+    "error": "Something went wrong!",
+    "tryAgain": "Try again",
+    "notFound": "Not Found",
+    "pageNotFound": "Could not find requested resource",
+    "backToHome": "Return Home"
+  },
+  "homepage": {
+    "tagline": "Life game for achieving goals",
+    "description": "Pokrok is a goal-achievement app made in the form of a game. Transform your life into an adventure where every goal is a quest, every habit is a skill, and every day is a new opportunity for growth.",
+    "features": {
+      "goals": {
+        "title": "GOALS AS QUESTS",
+        "description": "Break down your goals into steps and track progress like in a game"
+      },
+      "habits": {
+        "title": "HABITS AS SKILLS",
+        "description": "Build habits and increase your skills every day"
+      },
+      "achievements": {
+        "title": "REWARDS AND ACHIEVEMENTS",
+        "description": "Get achievements for completed goals and habits"
+      }
+    },
+    "startJourney": "START YOUR JOURNEY",
+    "signUp": "SIGN UP",
+    "signIn": "SIGN IN",
+    "or": "or",
+    "continueAsGuest": "CONTINUE AS GUEST"
+  },
+  "goals": {
+    "title": "GOALS",
+    "addGoal": "Add goal",
+    "cancelAdd": "Cancel",
+    "addNewGoal": "ADD NEW GOAL",
+    "goalTitle": "GOAL TITLE",
+    "goalTitlePlaceholder": "E.g. Learn to program",
+    "goalDescription": "DESCRIPTION (optional)",
+    "goalDescriptionPlaceholder": "More detailed description of the goal...",
+    "category": "CATEGORY",
+    "deadline": "DEADLINE (optional)",
+    "addGoalButton": "ADD GOAL",
+    "cancelButton": "CANCEL",
+    "noGoals": "No goals set",
+    "noGoalsDescription": "Click the button below to add a new goal",
+    "categoryLabel": "Category",
+    "deadlineLabel": "Deadline",
+    "noDeadline": "No deadline",
+    "createdAt": "Created",
+    "completedAt": "Completed",
+    "delete": "DELETE",
+    "categories": {
+      "personal": "Personal",
+      "career": "Career",
+      "health": "Health",
+      "education": "Education",
+      "relationships": "Relationships",
+      "hobbies": "Hobbies",
+      "other": "Other"
+    },
+    "settings": "Settings",
+    "aspiration": "Aspiration",
+    "noAspiration": "No aspiration",
+    "status": {
+      "active": "Active",
+      "completed": "Completed",
+      "considering": "Considering"
+    },
+    "steps": "Steps",
+    "addStep": "Add step",
+    "milestones": "Milestones",
+    "addMilestone": "Add milestone",
+    "noMilestones": "No milestones",
+    "milestoneTitle": "Milestone title",
+    "milestoneNumber": "Milestone",
+    "stepNumber": "Step",
+    "saveChanges": "Save changes",
+    "delete": "Delete"
+  },
+  "habits": {
+    "title": "HABITS",
+    "addHabit": "Add habit",
+    "cancelAdd": "Cancel",
+    "addNewHabit": "ADD NEW HABIT",
+    "habitName": "HABIT NAME",
+    "habitNamePlaceholder": "E.g. Morning routine",
+    "habitDescription": "DESCRIPTION (optional)",
+    "habitDescriptionPlaceholder": "More detailed description of the habit...",
+    "category": "CATEGORY",
+    "addHabitButton": "ADD HABIT",
+    "cancelButton": "CANCEL",
+    "predefinedHabits": "PREDEFINED HABITS",
+    "noHabits": "No habits set",
+    "noHabitsDescription": "Click the button below to add a new habit",
+    "categoryLabel": "Category",
+    "difficultyLabel": "Difficulty",
+    "createdAt": "Created",
+    "custom": "Custom",
+    "streak": "Streak",
+    "maxStreak": "Max streak",
+    "days": "days",
+    "delete": "DELETE",
+    "categories": {
+      "personal": "Personal",
+      "health": "Health",
+      "education": "Education",
+      "mentalHealth": "Mental Health",
+      "reflection": "Reflection",
+      "relationships": "Relationships",
+      "other": "Other"
+    },
+    "difficulties": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    },
+    "predefined": {
+      "exercise": {
+        "name": "Exercise",
+        "description": "Regular exercise"
+      },
+      "reading": {
+        "name": "Reading",
+        "description": "Daily reading"
+      },
+      "meditation": {
+        "name": "Meditation",
+        "description": "Meditation or mindfulness"
+      },
+      "journaling": {
+        "name": "Journaling",
+        "description": "Writing in a journal"
+      },
+      "learning": {
+        "name": "Learning",
+        "description": "Learning new skills"
+      },
+      "social": {
+        "name": "Social Contact",
+        "description": "Contact with friends"
+      },
+      "healthyEating": {
+        "name": "Healthy Eating",
+        "description": "Eating healthy"
+      },
+      "sleep": {
+        "name": "Enough Sleep",
+        "description": "8 hours of sleep"
+      }
+    }
+  },
+  "settings": {
+    "title": "SETTINGS",
+    "tabs": {
+      "user": "User",
+      "areas": "Life Areas",
+      "goals": "Goals",
+      "steps": "Steps",
+      "dailyPlan": "Daily Plan",
+      "statistics": "Statistics",
+      "player": "Character",
+      "workflows": "Workflows",
+      "danger": "Danger Zone"
+    },
+    "user": {
+      "title": "USER INFORMATION",
+      "contactInfo": "Contact Information",
+      "account": "Account",
+      "email": "Email",
+      "name": "Name",
+      "userId": "User ID",
+      "registered": "Registered",
+          "lastLogin": "Last Login",
+          "accountStatus": "Account Status",
+          "language": {
+            "title": "Language",
+            "label": "Preferred Language",
+            "description": "This setting will be used on all devices (web, mobile app). Changes will take effect after page refresh."
+          }
+        },
+    "areas": {
+      "title": "LIFE AREAS",
+      "addArea": "Add Area",
+      "cancel": "Cancel",
+      "newArea": "New Life Area",
+      "areaName": "Name",
+      "areaNameLabel": "Name",
+      "areaDescription": "Description",
+      "areaDescriptionPlaceholder": "Short description of the area...",
+      "areaColor": "Color",
+      "areaIcon": "Icon",
+      "save": "Save",
+      "saving": "Saving...",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "noAreas": "You don't have any areas yet"
+    },
+    "goals": {
+      "title": "GOALS SETTINGS",
+      "basicSettings": "Basic Settings",
+      "defaultStatus": "Default Goal Status",
+      "active": "Active",
+      "completed": "Completed",
+      "autoComplete": "Automatically mark goal as completed when all steps are done",
+      "reminderDays": "Days Before Reminder",
+      "automation": "Automation"
+    },
+    "steps": {
+      "title": "STEPS SETTINGS",
+      "gameSettings": "Game Settings",
+      "defaultXpReward": "Default XP Reward",
+      "autoAddToDaily": "Automatically add new steps to daily plan",
+      "maxStepsPerGoal": "Maximum Steps Per Goal",
+      "estimatedTimeDefault": "Default Estimated Time (minutes)"
+    },
+    "dailyPlan": {
+      "title": "DAILY PLAN SETTINGS",
+      "maxDailySteps": "Maximum Daily Steps",
+      "resetHour": "Reset Hour",
+      "autoReset": "Automatically reset daily plan every day",
+      "showMotivation": "Show Motivation"
+    },
+    "statistics": {
+      "title": "STATISTICS SETTINGS",
+      "display": "Display",
+      "showStreaks": "Show Streak Statistics",
+      "showProgress": "Show Progress",
+      "showAchievements": "Show Achievements",
+      "dataRetentionDays": "Data Retention Days"
+    },
+    "player": {
+      "title": "CHARACTER SETTINGS",
+      "playerName": "Character Name",
+      "hairColor": "Hair Color",
+      "skinColor": "Skin Color",
+      "eyeColor": "Eye Color",
+      "save": "Save Changes",
+      "saveButton": "Save",
+      "saving": "Saving...",
+      "saved": "Saved!",
+      "cancel": "Cancel"
+    },
+    "workflows": {
+      "title": "WORKFLOWS",
+      "description": "Workflows are automated processes that help you with regular reflection and planning. Set when they should appear and let workflows guide your steps.",
+      "loading": "Loading workflows...",
+      "noWorkflows": "You don't have any workflows yet.",
+      "time": "Time",
+      "notSet": "Not Set",
+      "active": "✓ Active",
+      "inactive": "○ Inactive",
+      "stop": "Stop",
+      "start": "Start",
+      "configure": "Configure",
+      "availableWorkflows": "Available Workflows",
+      "dailyReview": {
+        "name": "Daily Review",
+        "description": "Every evening, the workflow will prompt you to reflect on the past day."
+      },
+      "activate": "Activate",
+      "deactivate": "Deactivate"
+    },
+    "danger": {
+      "title": "DANGER ZONE",
+      "warning": "Warning",
+      "warningText": "These actions cannot be undone. Be careful when using them!",
+      "logout": {
+        "title": "Sign Out",
+        "description": "Signs you out of the application. You will need to sign in again.",
+        "button": "Sign Out"
+      },
+      "deleteAccount": {
+        "title": "Delete Account",
+        "description": "Permanently deletes your account and all data. This action is irreversible!",
+        "button": "Delete Account (not available yet)"
+      },
+      "resetData": {
+        "title": "Reset All Data",
+        "description": "Deletes all goals, habits, steps and statistics. Character will be preserved.",
+        "button": "Reset Data"
+      }
+    }
+  },
+  "dailyPlanning": {
+    "title": "DAILY PLANNING",
+    "loading": "Loading daily steps...",
+    "startPlanning": "Prepare your daily plan and start achieving your goals!",
+    "startButton": "START PLANNING",
+    "current": "Current",
+    "remove": "Remove",
+    "estimatedTime": "min",
+    "noSteps": "No steps",
+    "habits": "Habits",
+    "selectDay": "Select a day in the calendar",
+    "selectDayDescription": "to view details",
+    "monthlyOverview": "Monthly Overview",
+    "totalProgress": "Total Progress",
+    "completed": "Completed",
+    "successRate": "Success Rate"
+  },
+  "game": {
+    "menu": {
+      "backToGame": "Back to Game",
+      "mainPanel": "Main Panel",
+      "goals": "Goals",
+      "habits": "Habits",
+      "steps": "Steps",
+      "notes": "Notes",
+      "statistics": "Statistics",
+      "achievements": "Achievements",
+      "settings": "Settings",
+      "logout": "Sign Out"
+    },
+    "level": "Level",
+    "xp": "XP"
+  },
+  "statistics": {
+    "title": "STATISTICS",
+    "level": "Level",
+    "xp": "XP",
+    "completedTasks": "Completed Tasks",
+    "gameDay": "Game Day",
+    "progressToNextLevel": "PROGRESS TO NEXT LEVEL",
+    "goals": {
+      "title": "GOALS",
+      "total": "Total Goals:",
+      "completed": "Completed:",
+      "active": "Active:",
+      "successRate": "Success Rate:",
+      "byCategory": "GOALS BY CATEGORY",
+      "noGoals": "You don't have any goals yet"
+    },
+    "habits": {
+      "title": "HABITS",
+      "total": "Total Habits:",
+      "totalStreak": "Total Streak:",
+      "bestStreak": "Best Streak:",
+      "averageStreak": "Average Streak:",
+      "byCategory": "HABITS BY CATEGORY",
+      "noHabits": "You don't have any habits yet"
+    }
+  },
+  "achievements": {
+    "title": "ACHIEVEMENTS",
+    "firstGoal": {
+      "title": "First Step",
+      "description": "Create your first goal"
+    },
+    "firstHabit": {
+      "title": "Habit Starter",
+      "description": "Create your first habit"
+    },
+    "goalCompleter": {
+      "title": "Goal Completer",
+      "description": "Complete your first goal"
+    },
+    "habitMaster": {
+      "title": "Habit Master",
+      "description": "Achieve a 7-day streak"
+    },
+    "taskCrusher": {
+      "title": "Task Crusher",
+      "description": "Complete 10 tasks"
+    },
+    "levelUp": {
+      "title": "Growth",
+      "description": "Reach level 5"
+    },
+    "goalSetter": {
+      "title": "Goal Setter",
+      "description": "Create 5 goals"
+    },
+    "habitBuilder": {
+      "title": "Habit Builder",
+      "description": "Create 5 habits"
+    },
+    "streakLegend": {
+      "title": "Streak Legend",
+      "description": "Achieve a 30-day streak"
+    },
+    "xpCollector": {
+      "title": "XP Collector",
+      "description": "Earn 1000 XP"
+    },
+    "unlocked": "Unlocked",
+    "locked": "Locked"
+  },
+  "calendar": {
+    "days": {
+      "sunday": "Sunday",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday"
+    },
+    "daysShort": {
+      "sunday": "Su",
+      "monday": "Mo",
+      "tuesday": "Tu",
+      "wednesday": "We",
+      "thursday": "Th",
+      "friday": "Fr",
+      "saturday": "Sa"
+    },
+    "viewMode": {
+      "day": "Day",
+      "week": "Week",
+      "month": "Month",
+      "year": "Year",
+      "overview": "Overview"
+    },
+    "noSteps": "None",
+    "habits": "Habits",
+    "selectDay": "Select a day in the calendar",
+    "selectDayDescription": "to view details",
+    "monthlyOverview": "Monthly Overview",
+    "totalProgress": "Total Progress",
+    "completed": "Completed",
+    "successRate": "Success Rate"
+  },
+  "sections": {
+    "habits": "HABITS",
+    "steps": "STEPS",
+    "goals": "GOALS",
+    "notes": "NOTES"
+  },
+  "dailyReview": {
+    "title": "Daily Review",
+    "description": "Reflection on the past day",
+    "skip": "Skip",
+    "whatWentWell": {
+      "label": "What went well today? ✨",
+      "placeholder": "Write down what went well today or what made you happy..."
+    },
+    "whatWentWrong": {
+      "label": "What didn't go well today? 🤔",
+      "placeholder": "Write down what didn't go well or what you would like to do differently next time..."
+    },
+    "updateGoalProgress": {
+      "label": "Update Goal Progress 📊",
+      "change": "Change",
+      "progress": "Progress",
+      "selectGoal": "Select Goal",
+      "noGoals": "You don't have any active goals"
+    },
+    "complete": "Complete",
+    "saving": "Saving...",
+    "addMore": "Add Another Goal"
+  },
+  "details": {
+    "backToOverview": "Back to daily overview",
+    "step": {
+      "title": "Step details",
+      "editTitle": "Edit title",
+      "descriptionPlaceholder": "Step description...",
+      "addTime": "Add time",
+      "addXp": "Add XP",
+      "estimatedTime": "Estimated time (min):",
+      "xpReward": "XP reward:",
+      "confirm": "Confirm",
+      "important": "Important",
+      "urgent": "Urgent",
+      "goal": "Goal",
+      "noGoal": "No goal",
+      "aspiration": "Aspiration",
+      "noAspiration": "No aspiration",
+      "newDate": "New date:",
+      "markCompleted": "Complete step",
+      "markIncomplete": "Mark as incomplete",
+      "edit": "Edit",
+      "delete": "Delete",
+      "newStep": "New step",
+      "updateError": "Failed to update step",
+      "updateDateError": "Failed to update step date",
+      "updateDateErrorGeneric": "Error updating step date"
+    },
+    "habit": {
+      "title": "Habit details",
+      "settings": "Habit settings",
+      "name": "Name:",
+      "description": "Description:",
+      "category": "Category:",
+      "saveChanges": "Save changes",
+      "currentStreak": "Current streak",
+      "longestStreak": "Longest streak",
+      "totalCompleted": "Total completed",
+      "totalMissed": "Total missed",
+      "calendar": "Calendar",
+      "settingsTab": "Settings",
+      "dayBeforeAccount": "Day before account creation - cannot edit",
+      "futureDay": "Future day - cannot edit"
+    },
+    "goal": {
+      "titleRequired": "Goal title is required",
+      "deleteConfirm": "Are you sure you want to delete this goal? This action cannot be undone.",
+      "deleteError": "Failed to delete goal"
+    }
+  },
+  "steps": {
+    "title": "STEPS",
+    "addStep": "Add step",
+    "newStep": "New step",
+    "stepTitle": "Step title",
+    "stepDescription": "Description",
+    "stepDate": "Date",
+    "stepGoal": "Goal",
+    "stepAspiration": "Aspiration",
+    "stepXp": "XP reward",
+    "stepTime": "Estimated time",
+    "stepImportant": "Important",
+    "stepUrgent": "Urgent",
+    "addStepButton": "ADD STEP",
+    "editStep": "Edit step",
+    "deleteStep": "Delete step",
+    "noSteps": "No steps",
+    "noStepsDescription": "Add your first step to get started",
+    "dateOptional": "Date (optional)",
+    "descriptionOptional": "Description (optional)"
   }
 }
 

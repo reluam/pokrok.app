@@ -9,7 +9,533 @@
     "delete": "Smazat",
     "edit": "Upravit",
     "add": "Přidat",
-    "back": "Zpět"
+    "back": "Zpět",
+    "loading": "Načítání...",
+    "noDate": "Bez data",
+    "noDeadline": "Bez termínu",
+    "noTitle": "Bez názvu",
+    "endDate": "Datum skončení",
+    "close": "Zavřít",
+    "error": "Něco se pokazilo!",
+    "tryAgain": "Zkusit znovu",
+    "notFound": "Nenalezeno",
+    "pageNotFound": "Požadovaná stránka nebyla nalezena",
+    "backToHome": "Zpět na hlavní stránku"
+  },
+  "homepage": {
+    "tagline": "Životní hra pro dosažení cílů",
+    "description": "Pokrok je aplikace pro plnění cílů udělaná formou hry. Transformuj svůj život na dobrodružství, kde každý cíl je quest, každý návyk je skill a každý den je nová příležitost k růstu.",
+    "features": {
+      "goals": {
+        "title": "CÍLE JAKO QUESTY",
+        "description": "Rozděl své cíle na kroky a sleduj pokrok jako ve hře"
+      },
+      "habits": {
+        "title": "NÁVYKY JAKO SKILLS",
+        "description": "Buduj návyky a zvyšuj své dovednosti každý den"
+      },
+      "achievements": {
+        "title": "ODMĚNY A ÚSPĚCHY",
+        "description": "Získej achievementy za dosažené cíle a návyky"
+      }
+    },
+    "startJourney": "ZAČNI SVOU CESTU",
+    "signUp": "REGISTROVAT SE",
+    "signIn": "PŘIHLÁSIT SE",
+    "or": "nebo",
+    "continueAsGuest": "POKRAČOVAT JAKO HOST"
+  },
+  "goals": {
+    "title": "CÍLE",
+    "addGoal": "Přidat cíl",
+    "cancelAdd": "Zrušit",
+    "addNewGoal": "PŘIDAT NOVÝ CÍL",
+    "goalTitle": "NÁZEV CÍLE",
+    "goalTitlePlaceholder": "Např. Naučit se programovat",
+    "goalDescription": "POPIS (volitelné)",
+    "goalDescriptionPlaceholder": "Podrobnější popis cíle...",
+    "category": "KATEGORIE",
+    "deadline": "DEADLINE (volitelné)",
+    "addGoalButton": "PŘIDAT CÍL",
+    "cancelButton": "ZRUŠIT",
+    "noGoals": "Žádné cíle nejsou nastavené",
+    "noGoalsDescription": "Klikněte na tlačítko níže pro přidání nového cíle",
+    "categoryLabel": "Kategorie",
+    "deadlineLabel": "Deadline",
+    "noDeadline": "Bez deadlinu",
+    "createdAt": "Vytvořeno",
+    "completedAt": "Dokončeno",
+    "delete": "SMAZAT",
+    "categories": {
+      "personal": "Osobní",
+      "career": "Kariéra",
+      "health": "Zdraví",
+      "education": "Vzdělání",
+      "relationships": "Vztahy",
+      "hobbies": "Koníčky",
+      "other": "Jiné"
+    },
+    "settings": "Nastavení",
+    "aspiration": "Aspirace",
+    "noAspiration": "Žádná aspirace",
+    "status": {
+      "active": "Aktivní",
+      "completed": "Splněný",
+      "considering": "Ke zvážení"
+    },
+    "steps": "Kroky",
+    "addStep": "Přidat krok",
+    "milestones": "Milníky",
+    "addMilestone": "Přidat milník",
+    "noMilestones": "Žádné milníky",
+    "milestoneTitle": "Název milníku",
+    "milestoneNumber": "Milník",
+    "stepNumber": "Krok",
+    "saveChanges": "Uložit změny",
+    "delete": "Smazat"
+  },
+  "habits": {
+    "title": "NÁVYKY",
+    "addHabit": "Přidat návyk",
+    "cancelAdd": "Zrušit",
+    "addNewHabit": "PŘIDAT NOVÝ NÁVYK",
+    "habitName": "NÁZEV NÁVYKU",
+    "habitNamePlaceholder": "Např. Ranní rutina",
+    "habitDescription": "POPIS (volitelné)",
+    "habitDescriptionPlaceholder": "Podrobnější popis návyku...",
+    "category": "KATEGORIE",
+    "addHabitButton": "PŘIDAT NÁVYK",
+    "cancelButton": "ZRUŠIT",
+    "predefinedHabits": "PŘEDNASTAVENÉ NÁVYKY",
+    "noHabits": "Žádné návyky nejsou nastavené",
+    "noHabitsDescription": "Klikněte na tlačítko níže pro přidání nového návyku",
+    "categoryLabel": "Kategorie",
+    "difficultyLabel": "Obtížnost",
+    "createdAt": "Vytvořeno",
+    "custom": "Vlastní",
+    "streak": "Streak",
+    "maxStreak": "Max streak",
+    "days": "dní",
+    "delete": "SMAZAT",
+    "categories": {
+      "personal": "Osobní",
+      "health": "Zdraví",
+      "education": "Vzdělání",
+      "mentalHealth": "Duševní zdraví",
+      "reflection": "Reflexe",
+      "relationships": "Vztahy",
+      "other": "Jiné"
+    },
+    "difficulties": {
+      "easy": "Snadná",
+      "medium": "Střední",
+      "hard": "Těžká"
+    },
+    "predefined": {
+      "exercise": {
+        "name": "Cvičení",
+        "description": "Pravidelné cvičení"
+      },
+      "reading": {
+        "name": "Čtení",
+        "description": "Denní čtení knih"
+      },
+      "meditation": {
+        "name": "Meditace",
+        "description": "Meditace nebo mindfulness"
+      },
+      "journaling": {
+        "name": "Deník",
+        "description": "Psaní do deníku"
+      },
+      "learning": {
+        "name": "Učení",
+        "description": "Učení nových dovedností"
+      },
+      "social": {
+        "name": "Sociální kontakt",
+        "description": "Kontakt s přáteli"
+      },
+      "healthyEating": {
+        "name": "Zdravé stravování",
+        "description": "Jíst zdravě"
+      },
+      "sleep": {
+        "name": "Dostatek spánku",
+        "description": "8 hodin spánku"
+      }
+    }
+  },
+  "settings": {
+    "title": "NASTAVENÍ",
+    "tabs": {
+      "user": "Uživatel",
+      "areas": "Životní oblasti",
+      "goals": "Cíle",
+      "steps": "Kroky",
+      "dailyPlan": "Denní plán",
+      "statistics": "Statistiky",
+      "player": "Postava",
+      "workflows": "Workflows",
+      "danger": "Nebezpečná zóna"
+    },
+    "user": {
+      "title": "INFORMACE O UŽIVATELI",
+      "contactInfo": "Kontaktní údaje",
+      "account": "Účet",
+      "email": "Email",
+      "name": "Jméno",
+      "userId": "Uživatelské ID",
+      "registered": "Registrován",
+          "lastLogin": "Poslední přihlášení",
+          "accountStatus": "Stav účtu",
+          "language": {
+            "title": "Jazyk",
+            "label": "Preferovaný jazyk",
+            "description": "Toto nastavení se použije na všech zařízeních (web, mobilní aplikace). Změna se projeví po obnovení stránky."
+          }
+        },
+    "areas": {
+      "title": "ŽIVOTNÍ OBLASTI",
+      "addArea": "Přidat oblast",
+      "cancel": "Zrušit",
+      "newArea": "Nová životní oblast",
+      "areaName": "Název",
+      "areaNameLabel": "Název",
+      "areaDescription": "Popis",
+      "areaDescriptionPlaceholder": "Krátký popis oblasti...",
+      "areaColor": "Barva",
+      "areaIcon": "Ikona",
+      "save": "Uložit",
+      "saving": "Ukládám...",
+      "edit": "Upravit",
+      "delete": "Smazat",
+      "deleting": "Mažu...",
+      "noAreas": "Zatím nemáte žádné oblasti"
+    },
+    "goals": {
+      "title": "NASTAVENÍ CÍLŮ",
+      "basicSettings": "Základní nastavení",
+      "defaultStatus": "Výchozí stav cíle",
+      "active": "Aktivní",
+      "completed": "Splněný",
+      "autoComplete": "Automaticky označit cíl jako splněný při dokončení všech kroků",
+      "reminderDays": "Dny před připomínkou",
+      "automation": "Automatizace"
+    },
+    "steps": {
+      "title": "NASTAVENÍ KROKŮ",
+      "gameSettings": "Herní nastavení",
+      "defaultXpReward": "Výchozí XP odměna",
+      "autoAddToDaily": "Automaticky přidávat nové kroky do denního plánu",
+      "maxStepsPerGoal": "Maximální počet kroků na cíl",
+      "estimatedTimeDefault": "Výchozí odhadovaný čas (minuty)"
+    },
+    "dailyPlan": {
+      "title": "NASTAVENÍ DENNÍHO PLÁNU",
+      "maxDailySteps": "Maximální počet denních kroků",
+      "resetHour": "Hodina resetu",
+      "autoReset": "Automaticky resetovat denní plán každý den",
+      "showMotivation": "Zobrazovat motivaci"
+    },
+    "statistics": {
+      "title": "NASTAVENÍ STATISTIK",
+      "display": "Zobrazení",
+      "showStreaks": "Zobrazovat streak statistiky",
+      "showProgress": "Zobrazovat pokrok",
+      "showAchievements": "Zobrazovat úspěchy",
+      "dataRetentionDays": "Dny uchování dat"
+    },
+    "player": {
+      "title": "NASTAVENÍ POSTAVY",
+      "playerName": "Jméno postavy",
+      "hairColor": "Barva vlasů",
+      "skinColor": "Barva pleti",
+      "eyeColor": "Barva očí",
+      "save": "Uložit změny",
+      "saveButton": "Uložit",
+      "saving": "Ukládám...",
+      "saved": "Uloženo!",
+      "cancel": "Zrušit"
+    },
+    "workflows": {
+      "title": "WORKFLOWS",
+      "description": "Workflows jsou automatizované procesy, které vám pomohou s pravidelnou reflexí a plánováním. Nastavte si, kdy se mají zobrazovat, a nechte workflow vést vaše kroky.",
+      "loading": "Načítání workflows...",
+      "noWorkflows": "Zatím nemáte žádné workflows.",
+      "time": "Čas",
+      "notSet": "Nenastaveno",
+      "active": "✓ Aktivní",
+      "inactive": "○ Neaktivní",
+      "stop": "Zastavit",
+      "start": "Zapnout",
+      "configure": "Konfigurovat",
+      "availableWorkflows": "Dostupné Workflows",
+      "dailyReview": {
+        "name": "Pohled za dneškem",
+        "description": "Každý večer vás workflow vyzve k reflexi nad uplynulým dnem."
+      },
+      "activate": "Aktivovat",
+      "deactivate": "Deaktivovat"
+    },
+    "danger": {
+      "title": "NEBEZPEČNÁ ZÓNA",
+      "warning": "Varování",
+      "warningText": "Tyto akce nelze vrátit zpět. Buďte opatrní při jejich používání!",
+      "logout": {
+        "title": "Odhlásit se",
+        "description": "Odhlásí vás z aplikace. Budete muset se znovu přihlásit.",
+        "button": "Odhlásit se"
+      },
+      "deleteAccount": {
+        "title": "Smazat účet",
+        "description": "Trvale smaže váš účet a všechna data. Tato akce je nevratná!",
+        "button": "Smazat účet (zatím nedostupné)"
+      },
+      "resetData": {
+        "title": "Resetovat všechna data",
+        "description": "Smaže všechny cíle, návyky, kroky a statistiky. Postava zůstane zachována.",
+        "button": "Resetovat data"
+      }
+    }
+  },
+  "dailyPlanning": {
+    "title": "DENNÍ PLÁNOVÁNÍ",
+    "loading": "Načítání denních kroků...",
+    "startPlanning": "Připravte si svůj denní plán a začněte dosahovat svých cílů!",
+    "startButton": "ZAČÍT PLÁNOVÁNÍ",
+    "current": "Aktuální",
+    "remove": "Odebrat",
+    "estimatedTime": "min",
+    "noSteps": "Žádné kroky",
+    "habits": "Návyky",
+    "selectDay": "Vyberte den v kalendáři",
+    "selectDayDescription": "pro zobrazení detailu",
+    "monthlyOverview": "Měsíční přehled",
+    "totalProgress": "Celkový pokrok",
+    "completed": "Dokončeno",
+    "successRate": "Úspěšnost"
+  },
+  "game": {
+    "menu": {
+      "backToGame": "Zpět do hry",
+      "mainPanel": "Hlavní panel",
+      "goals": "Cíle",
+      "habits": "Návyky",
+      "steps": "Kroky",
+      "notes": "Poznámky",
+      "statistics": "Statistiky",
+      "achievements": "Úspěchy",
+      "settings": "Nastavení",
+      "logout": "Odhlásit se"
+    },
+    "level": "Level",
+    "xp": "XP"
+  },
+  "statistics": {
+    "title": "STATISTIKY",
+    "level": "Level",
+    "xp": "XP",
+    "completedTasks": "Dokončené úkoly",
+    "gameDay": "Den hry",
+    "progressToNextLevel": "PROGRESS K DALŠÍMU LEVELU",
+    "goals": {
+      "title": "CÍLE",
+      "total": "Celkem cílů:",
+      "completed": "Dokončené:",
+      "active": "Aktivní:",
+      "successRate": "Úspěšnost:",
+      "byCategory": "CÍLE PODLE KATEGORIÍ",
+      "noGoals": "Zatím nemáš žádné cíle"
+    },
+    "habits": {
+      "title": "NÁVYKY",
+      "total": "Celkem návyků:",
+      "totalStreak": "Celkový streak:",
+      "bestStreak": "Nejlepší streak:",
+      "averageStreak": "Průměrný streak:",
+      "byCategory": "NÁVYKY PODLE KATEGORIÍ",
+      "noHabits": "Zatím nemáš žádné návyky"
+    }
+  },
+  "achievements": {
+    "title": "ÚSPĚCHY",
+    "firstGoal": {
+      "title": "První krok",
+      "description": "Vytvoř svůj první cíl"
+    },
+    "firstHabit": {
+      "title": "Začátek návyku",
+      "description": "Vytvoř svůj první návyk"
+    },
+    "goalCompleter": {
+      "title": "Dokončovatel",
+      "description": "Dokonči svůj první cíl"
+    },
+    "habitMaster": {
+      "title": "Mistr návyků",
+      "description": "Dosáhni 7denního streak"
+    },
+    "taskCrusher": {
+      "title": "Drtič úkolů",
+      "description": "Dokonči 10 úkolů"
+    },
+    "levelUp": {
+      "title": "Růst",
+      "description": "Dosáhni level 5"
+    },
+    "goalSetter": {
+      "title": "Stanovovatel cílů",
+      "description": "Vytvoř 5 cílů"
+    },
+    "habitBuilder": {
+      "title": "Budovatel návyků",
+      "description": "Vytvoř 5 návyků"
+    },
+    "streakLegend": {
+      "title": "Legenda streaků",
+      "description": "Dosáhni 30denního streak"
+    },
+    "xpCollector": {
+      "title": "Sběratel XP",
+      "description": "Získej 1000 XP"
+    },
+    "unlocked": "Odemčeno",
+    "locked": "Zamčeno"
+  },
+  "calendar": {
+    "days": {
+      "sunday": "Neděle",
+      "monday": "Pondělí",
+      "tuesday": "Úterý",
+      "wednesday": "Středa",
+      "thursday": "Čtvrtek",
+      "friday": "Pátek",
+      "saturday": "Sobota"
+    },
+    "daysShort": {
+      "sunday": "Ne",
+      "monday": "Po",
+      "tuesday": "Út",
+      "wednesday": "St",
+      "thursday": "Čt",
+      "friday": "Pá",
+      "saturday": "So"
+    },
+    "viewMode": {
+      "day": "Den",
+      "week": "Týden",
+      "month": "Měsíc",
+      "year": "Rok",
+      "overview": "Přehled"
+    },
+    "noSteps": "Žádné",
+    "habits": "Návyky",
+    "selectDay": "Vyberte den v kalendáři",
+    "selectDayDescription": "pro zobrazení detailu",
+    "monthlyOverview": "Měsíční přehled",
+    "totalProgress": "Celkový pokrok",
+    "completed": "Dokončeno",
+    "successRate": "Úspěšnost"
+  },
+  "sections": {
+    "habits": "NÁVYKY",
+    "steps": "KROKY",
+    "goals": "CÍLE",
+    "notes": "POZNÁMKY"
+  },
+  "dailyReview": {
+    "title": "Pohled za dneškem",
+    "description": "Reflexe nad uplynulým dnem",
+    "skip": "Přeskočit",
+    "whatWentWell": {
+      "label": "Co se dnes povedlo? ✨",
+      "placeholder": "Zapište si, co se vám dnes povedlo nebo co vás potěšilo..."
+    },
+    "whatWentWrong": {
+      "label": "Co se dnes nepovedlo? 🤔",
+      "placeholder": "Zapište si, co se nepovedlo nebo co byste chtěli příště udělat jinak..."
+    },
+    "updateGoalProgress": {
+      "label": "Aktualizovat pokrok cílů 📊",
+      "change": "Změnit",
+      "progress": "Pokrok",
+      "selectGoal": "Vybrat cíl",
+      "noGoals": "Nemáte žádné aktivní cíle"
+    },
+    "complete": "Dokončit",
+    "saving": "Ukládání...",
+    "addMore": "Přidat další cíl"
+  },
+  "details": {
+    "backToOverview": "Zpět na denní přehled",
+    "step": {
+      "title": "Detail kroku",
+      "editTitle": "Upravit název",
+      "descriptionPlaceholder": "Popis kroku...",
+      "addTime": "Přidat čas",
+      "addXp": "Přidat XP",
+      "estimatedTime": "Odhadovaný čas (min):",
+      "xpReward": "XP odměna:",
+      "confirm": "Potvrdit",
+      "important": "Důležité",
+      "urgent": "Urgentní",
+      "goal": "Cíl",
+      "noGoal": "Bez cíle",
+      "aspiration": "Aspirace",
+      "noAspiration": "Bez aspirace",
+      "newDate": "Nové datum:",
+      "markCompleted": "Dokončit krok",
+      "markIncomplete": "Označit jako nedokončený",
+      "edit": "Upravit",
+      "delete": "Smazat",
+      "newStep": "Nový krok",
+      "updateError": "Nepodařilo se aktualizovat krok",
+      "updateDateError": "Nepodařilo se aktualizovat datum kroku",
+      "updateDateErrorGeneric": "Chyba při aktualizaci datumu kroku"
+    },
+    "habit": {
+      "title": "Detail návyku",
+      "settings": "Nastavení návyku",
+      "name": "Název:",
+      "description": "Popis:",
+      "category": "Kategorie:",
+      "saveChanges": "Uložit změny",
+      "currentStreak": "Aktuální streak",
+      "longestStreak": "Nejdelší streak",
+      "totalCompleted": "Celkem splněno",
+      "totalMissed": "Celkem vynecháno",
+      "calendar": "Kalendář",
+      "settingsTab": "Nastavení",
+      "dayBeforeAccount": "Den před vytvořením účtu - nelze upravit",
+      "futureDay": "Budoucí den - nelze upravit"
+    },
+    "goal": {
+      "titleRequired": "Název cíle je povinný",
+      "deleteConfirm": "Opravdu chcete smazat tento cíl? Tato akce je nevratná.",
+      "deleteError": "Nepodařilo se smazat cíl"
+    }
+  },
+  "steps": {
+    "title": "KROKY",
+    "addStep": "Přidat krok",
+    "newStep": "Nový krok",
+    "stepTitle": "Název kroku",
+    "stepDescription": "Popis",
+    "stepDate": "Datum",
+    "stepGoal": "Cíl",
+    "stepAspiration": "Aspirace",
+    "stepXp": "XP odměna",
+    "stepTime": "Odhadovaný čas",
+    "stepImportant": "Důležité",
+    "stepUrgent": "Urgentní",
+    "addStepButton": "PŘIDAT KROK",
+    "editStep": "Upravit krok",
+    "deleteStep": "Smazat krok",
+    "noSteps": "Žádné kroky",
+    "noStepsDescription": "Přidejte první krok pro začátek",
+    "dateOptional": "Datum (volitelné)",
+    "descriptionOptional": "Popis (volitelné)"
   }
 }
 
