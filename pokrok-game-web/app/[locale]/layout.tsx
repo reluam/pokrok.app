@@ -1,9 +1,9 @@
 import { NextIntlClientProvider } from 'next-intl'
-import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { locales } from '@/i18n/config'
 
 // Static imports for all locales - ensures they're included in the build
+// This is the most reliable way for Vercel deployment
 import csMessages from '@/locales/cs/common.json'
 import enMessages from '@/locales/en/common.json'
 
@@ -15,6 +15,7 @@ export const dynamicParams = true
 // This is necessary because pages require user authentication and cannot be statically generated
 
 // Map of locale to messages for quick lookup
+// Using static imports ensures Next.js includes these files in the build
 const messagesMap: Record<string, typeof csMessages> = {
   cs: csMessages,
   en: enMessages,
@@ -34,21 +35,8 @@ export default async function LocaleLayout({
     notFound()
   }
 
-  // Providing all messages to the client
-  // Try static import first (most reliable for Vercel), then fallback to getMessages
-  let messages: typeof csMessages = messagesMap[locale]
-  
-  if (!messages) {
-    // Fallback to getMessages if static import didn't work
-    try {
-      const getMessagesResult = await getMessages({ locale })
-      messages = getMessagesResult as typeof csMessages
-    } catch (getMessagesError) {
-      console.error(`getMessages failed for locale ${locale}:`, getMessagesError)
-      // Last resort: use Czech messages
-      messages = csMessages
-    }
-  }
+  // Use static imports only - no getMessages to avoid i18n.ts issues on Vercel
+  const messages = messagesMap[locale] || csMessages
 
   return (
     <NextIntlClientProvider messages={messages}>
