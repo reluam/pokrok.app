@@ -321,6 +321,7 @@
       "backToGame": "Back to Game",
       "mainPanel": "Main Panel",
       "goals": "Goals",
+      "aspirace": "Aspirations",
       "habits": "Habits",
       "steps": "Steps",
       "notes": "Notes",
@@ -331,6 +332,36 @@
     },
     "level": "Level",
     "xp": "XP"
+  },
+  "aspirace": {
+    "title": "Aspirations",
+    "description": "Life goals and direction",
+    "loading": "Loading overview...",
+    "noAspirace": "No aspirations",
+    "noAspiraceDescription": "Create your first aspiration that will guide you to your life goals",
+    "addAspirace": "Add aspiration",
+    "editAspirace": "Edit aspiration",
+    "newAspirace": "New aspiration",
+    "editTitle": "Edit aspiration",
+    "noGoalsHabits": "This aspiration doesn't have any assigned goals or habits yet",
+    "noGoalsHabitsDescription": "Assign goals or habits to this aspiration to track progress",
+    "insights": {
+      "title": "Overview",
+      "easy": "Easy",
+      "hard": "Hard"
+    },
+    "balance": {
+      "totalXp": "Total XP",
+      "recentXp": "XP in last 90 days",
+      "completionRate": "Completion Rate",
+      "allTime": "All Time",
+      "recent": "Recent"
+    },
+    "error": {
+      "create": "Error creating aspiration",
+      "update": "Error updating aspiration",
+      "delete": "Error deleting aspiration"
+    }
   },
   "statistics": {
     "title": "STATISTICS",

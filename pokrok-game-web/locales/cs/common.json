@@ -321,6 +321,7 @@
       "backToGame": "Zpět do hry",
       "mainPanel": "Hlavní panel",
       "goals": "Cíle",
+      "aspirace": "Aspirace",
       "habits": "Návyky",
       "steps": "Kroky",
       "notes": "Poznámky",
@@ -331,6 +332,36 @@
     },
     "level": "Level",
     "xp": "XP"
+  },
+  "aspirace": {
+    "title": "Aspirace",
+    "description": "Životní cíle a směr",
+    "loading": "Načítám přehled...",
+    "noAspirace": "Žádné aspirace",
+    "noAspiraceDescription": "Vytvořte svou první aspiraci, která vás povede k vašim životním cílům",
+    "addAspirace": "Přidat aspiraci",
+    "editAspirace": "Upravit aspirace",
+    "newAspirace": "Nová aspirace",
+    "editTitle": "Upravit aspiraci",
+    "noGoalsHabits": "Tato aspirace zatím nemá přiřazené cíle ani návyky",
+    "noGoalsHabitsDescription": "Přiřaďte cíle nebo návyky k této aspiraci pro sledování pokroku",
+    "insights": {
+      "title": "Přehled",
+      "easy": "Lehké",
+      "hard": "Těžké"
+    },
+    "balance": {
+      "totalXp": "Celkové XP",
+      "recentXp": "XP za posledních 90 dní",
+      "completionRate": "Úspěšnost",
+      "allTime": "Celkem",
+      "recent": "Nedávno"
+    },
+    "error": {
+      "create": "Chyba při vytváření aspirace",
+      "update": "Chyba při aktualizaci aspirace",
+      "delete": "Chyba při mazání aspirace"
+    }
   },
   "statistics": {
     "title": "STATISTIKY",

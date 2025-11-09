@@ -98,7 +98,7 @@ export function JourneyGameView({
     
     loadUserId()
   }, [user?.id, userId])
-  const [currentPage, setCurrentPage] = useState<'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings'>('main')
+  const [currentPage, setCurrentPage] = useState<'main' | 'goals' | 'aspirace' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings'>('main')
   const [showAddHabitForm, setShowAddHabitForm] = useState(false)
   const [editingHabit, setEditingHabit] = useState<any>(null)
   const [editingGoal, setEditingGoal] = useState<any>(null)
@@ -107,7 +107,7 @@ export function JourneyGameView({
   const [selectedItem, setSelectedItem] = useState<any>(null)
   const [selectedItemType, setSelectedItemType] = useState<'step' | 'habit' | 'goal' | 'stat' | null>(null)
   const [currentMonth, setCurrentMonth] = useState(new Date())
-  const [currentProgram, setCurrentProgram] = useState<'day' | 'week' | 'month' | 'year' | 'overview'>('day')
+  const [currentProgram, setCurrentProgram] = useState<'day' | 'week' | 'month' | 'year'>('day')
   const [selectedDayDate, setSelectedDayDate] = useState<Date>(new Date()) // Currently displayed day in day view
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear()) // Currently displayed year in year view
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date()) // Currently displayed month in month view
@@ -182,6 +182,7 @@ export function JourneyGameView({
   const [aspirations, setAspirations] = useState<any[]>([])
   const [overviewAspirations, setOverviewAspirations] = useState<any[]>([])
   const [overviewBalances, setOverviewBalances] = useState<Record<string, any>>({})
+  const [dayAspirationBalances, setDayAspirationBalances] = useState<Record<string, any>>({})
   const [isLoadingOverview, setIsLoadingOverview] = useState(false)
   const [showAddAspirationModal, setShowAddAspirationModal] = useState(false)
   const [editingAspiration, setEditingAspiration] = useState<any | null>(null)
@@ -2386,8 +2387,6 @@ export function JourneyGameView({
         return renderMonthContent()
       case 'year':
         return renderYearContent()
-      case 'overview':
-        return renderOverviewContent()
       default:
         return renderDayContent()
     }
@@ -2607,27 +2606,55 @@ export function JourneyGameView({
             </div>
           </div>
           
-          {/* Milestones Row */}
-          {goalsWithMilestones.length > 0 && (
+          {/* Aspiration Development Row */}
+          {aspirations.length > 0 && (
             <div className="mt-4 pt-4 border-t border-gray-200">
               <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-2 px-2">
-                {goalsWithMilestones.map(({ goal, nextMilestone }) => (
-                  <div
-                    key={goal.id}
-                    onClick={() => handleItemClick(goal, 'goal')}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all cursor-pointer flex-shrink-0 bg-white"
-                  >
-                    {goal.icon && (
-                      <span className="text-base flex-shrink-0">{getIconEmoji(goal.icon)}</span>
-                    )}
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-xs font-medium text-gray-700 truncate max-w-[120px]">{goal.title}</span>
-                      <span className="text-gray-400">•</span>
-                      <Target className="w-3.5 h-3.5 text-orange-500 flex-shrink-0" />
-                      <span className="text-xs text-gray-600 truncate max-w-[100px]">{nextMilestone?.title}</span>
+                {aspirations.map((aspiration) => {
+                  const balance = dayAspirationBalances[aspiration.id]
+                  const changePercentage = balance?.change_percentage || 0
+                  const trend = balance?.trend || 'neutral'
+                  const completionRate = balance?.completion_rate_recent || 0
+                  
+                  return (
+                    <div
+                      key={aspiration.id}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all cursor-pointer flex-shrink-0 bg-white"
+                    >
+                      <div 
+                        className="w-3 h-3 rounded-full flex-shrink-0" 
+                        style={{ backgroundColor: aspiration.color || '#3B82F6' }}
+                      />
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-xs font-medium text-gray-700 truncate max-w-[120px]">{aspiration.title}</span>
+                        <span className="text-gray-400">•</span>
+                        {trend === 'positive' && (
+                          <ChevronUp className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />
+                        )}
+                        {trend === 'negative' && (
+                          <ChevronDown className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
+                        )}
+                        {trend === 'neutral' && (
+                          <div className="w-3.5 h-3.5 flex-shrink-0" />
+                        )}
+                        {changePercentage !== 0 && (
+                          <span className={`text-xs font-medium ${
+                            trend === 'positive' ? 'text-green-600' : 
+                            trend === 'negative' ? 'text-red-600' : 
+                            'text-gray-600'
+                          }`}>
+                            {changePercentage > 0 ? '+' : ''}{changePercentage.toFixed(1)}%
+                          </span>
+                        )}
+                        {changePercentage === 0 && trend === 'neutral' && (
+                          <span className="text-xs text-gray-500">
+                            {completionRate.toFixed(1)}%
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           )}
@@ -3268,8 +3295,8 @@ export function JourneyGameView({
     )
   }
 
-  // Render Overview Content - Aspirations overview
-  const renderOverviewContent = () => {
+  // Render Aspirace Content - Aspirations overview
+  const renderAspiraceContent = () => {
     const calculateInsights = () => {
       const easy: string[] = []
       const hard: string[] = []
@@ -3354,11 +3381,11 @@ export function JourneyGameView({
           }
         } else {
           const errorData = await response.json()
-          alert(`Chyba: ${errorData.error || 'Nepodařilo se vytvořit aspiraci'}`)
+          alert(`Chyba: ${errorData.error || t('aspirace.error.create')}`)
         }
       } catch (error) {
         console.error('Error creating aspiration:', error)
-        alert('Chyba při vytváření aspirace')
+        alert(t('aspirace.error.create'))
       }
     }
 
@@ -3477,11 +3504,11 @@ export function JourneyGameView({
           setEditingAspiration(null)
         } else {
           const errorData = await response.json()
-          alert(`Chyba: ${errorData.error || 'Nepodařilo se aktualizovat aspiraci'}`)
+          alert(`Chyba: ${errorData.error || t('aspirace.error.update')}`)
         }
       } catch (error) {
         console.error('Error updating aspiration:', error)
-        alert('Chyba při aktualizaci aspirace')
+        alert(t('aspirace.error.update'))
       }
     }
 
@@ -3490,7 +3517,7 @@ export function JourneyGameView({
         <div className="w-full h-full flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">Načítám přehled...</p>
+            <p className="text-gray-600">{t('aspirace.loading')}</p>
           </div>
         </div>
       )
@@ -3504,14 +3531,15 @@ export function JourneyGameView({
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Aspirace</h2>
-              <p className="text-sm text-gray-500 mt-1">Životní cíle a směr</p>
+              <h2 className="text-2xl font-bold text-gray-900">{t('aspirace.title')}</h2>
+              <p className="text-sm text-gray-500 mt-1">{t('aspirace.description')}</p>
             </div>
             <button
               onClick={() => setShowAddAspirationModal(true)}
-              className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+              className="w-10 h-10 rounded-full bg-orange-500 text-white hover:bg-orange-600 transition-colors flex items-center justify-center text-lg font-bold"
+              title={t('aspirace.addAspirace')}
             >
-              + Přidat
+              +
             </button>
           </div>
         </div>
@@ -3520,13 +3548,13 @@ export function JourneyGameView({
         {overviewAspirations.length === 0 ? (
           <div className="text-center py-12 bg-gray-50 rounded-xl border border-gray-200">
             <div className="text-4xl mb-4">✨</div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Žádné aspirace</h3>
-            <p className="text-sm text-gray-600 mb-4">Vytvořte svou první aspiraci, která vás povede k vašim životním cílům</p>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('aspirace.noAspirace')}</h3>
+            <p className="text-sm text-gray-600 mb-4">{t('aspirace.noAspiraceDescription')}</p>
             <button
               onClick={() => setShowAddAspirationModal(true)}
               className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
             >
-              Přidat aspiraci
+              {t('aspirace.addAspirace')}
             </button>
           </div>
         ) : (
@@ -3550,7 +3578,7 @@ export function JourneyGameView({
                     <button
                       onClick={() => setEditingAspiration(aspiration)}
                       className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600 hover:text-gray-900"
-                      title="Upravit aspiraci"
+                      title={t('aspirace.editAspirace')}
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -3570,8 +3598,8 @@ export function JourneyGameView({
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                             </svg>
                           </div>
-                          <p className="text-sm text-gray-500 mb-1">Tato aspirace zatím nemá přiřazené cíle ani návyky</p>
-                          <p className="text-xs text-gray-400">Přiřaďte cíle nebo návyky k této aspiraci pro sledování pokroku</p>
+                          <p className="text-sm text-gray-500 mb-1">{t('aspirace.noGoalsHabits')}</p>
+                          <p className="text-xs text-gray-400">{t('aspirace.noGoalsHabitsDescription')}</p>
                         </div>
                       ) : (
                       <div className="space-y-4">
@@ -3642,11 +3670,11 @@ export function JourneyGameView({
         {/* Insights Section */}
         {(insights.easy.length > 0 || insights.hard.length > 0) && (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Přehled</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('aspirace.insights.title')}</h3>
             
             {insights.easy.length > 0 && (
               <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-                <h4 className="text-sm font-semibold text-green-800 mb-2">Lehké</h4>
+                <h4 className="text-sm font-semibold text-green-800 mb-2">{t('aspirace.insights.easy')}</h4>
                 <ul className="space-y-1">
                   {insights.easy.map((title: string) => (
                     <li key={title} className="flex items-center gap-2 text-sm text-gray-700">
@@ -3660,7 +3688,7 @@ export function JourneyGameView({
 
             {insights.hard.length > 0 && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                <h4 className="text-sm font-semibold text-red-800 mb-2">Těžké</h4>
+                <h4 className="text-sm font-semibold text-red-800 mb-2">{t('aspirace.insights.hard')}</h4>
                 <ul className="space-y-1">
                   {insights.hard.map((title: string) => (
                     <li key={title} className="flex items-center gap-2 text-sm text-gray-700">
@@ -5727,7 +5755,7 @@ export function JourneyGameView({
         }
         
         // Update overview balance if we're on overview page
-        if (currentProgram === 'overview' && updatedHabit.aspiration_id) {
+        if (currentPage === 'aspirace' && updatedHabit.aspiration_id) {
           try {
             console.log(`🔄 Updating balance for aspiration ${updatedHabit.aspiration_id} after habit update`)
             const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${updatedHabit.aspiration_id}`)
@@ -5748,7 +5776,7 @@ export function JourneyGameView({
         
         // Also update balance for old aspiration if aspirationId changed
         const oldHabit = habits.find(h => h.id === updatedHabit.id)
-        if (currentProgram === 'overview' && oldHabit && oldHabit.aspiration_id && oldHabit.aspiration_id !== updatedHabit.aspiration_id) {
+        if (currentPage === 'aspirace' && oldHabit && oldHabit.aspiration_id && oldHabit.aspiration_id !== updatedHabit.aspiration_id) {
           try {
             console.log(`🔄 Updating balance for old aspiration ${oldHabit.aspiration_id} after habit aspiration change`)
             const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${oldHabit.aspiration_id}`)
@@ -5842,7 +5870,7 @@ export function JourneyGameView({
         }
         
         // Update overview balance if we're on overview page
-        if (currentProgram === 'overview' && updatedGoal.aspiration_id) {
+        if (currentPage === 'aspirace' && updatedGoal.aspiration_id) {
           try {
             const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${updatedGoal.aspiration_id}`)
             if (balanceResponse.ok) {
@@ -5859,7 +5887,7 @@ export function JourneyGameView({
         
         // Also update balance for old aspiration if aspirationId changed
         const oldGoal = goals.find(g => g.id === goalId)
-        if (currentProgram === 'overview' && oldGoal && oldGoal.aspiration_id && oldGoal.aspiration_id !== updatedGoal.aspiration_id) {
+        if (currentPage === 'aspirace' && oldGoal && oldGoal.aspiration_id && oldGoal.aspiration_id !== updatedGoal.aspiration_id) {
           try {
             const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${oldGoal.aspiration_id}`)
             if (balanceResponse.ok) {
@@ -5932,7 +5960,7 @@ export function JourneyGameView({
         }
         
         // Update overview balance if we're on overview page and goal has aspiration
-        if (currentProgram === 'overview' && data.goal && data.goal.aspiration_id) {
+        if (currentPage === 'aspirace' && data.goal && data.goal.aspiration_id) {
           try {
             const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${data.goal.aspiration_id}`)
             if (balanceResponse.ok) {
@@ -6443,7 +6471,7 @@ export function JourneyGameView({
         }
         
         // Update overview balance if we're on overview page and habit has aspiration
-        if (currentProgram === 'overview' && createdHabit.aspiration_id) {
+        if (currentPage === 'aspirace' && createdHabit.aspiration_id) {
           try {
             const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${createdHabit.aspiration_id}`)
             if (balanceResponse.ok) {
@@ -6696,10 +6724,32 @@ export function JourneyGameView({
     loadAspirations()
   }, [userId])
 
-  // Load overview data when program is overview
+  // Load balances for day program
   useEffect(() => {
-    if (currentProgram === 'overview') {
-      const loadOverviewData = async () => {
+    const loadBalances = async () => {
+      if (currentProgram === 'day' && aspirations.length > 0 && userId) {
+        const balances: Record<string, any> = {}
+        for (const aspiration of aspirations) {
+          try {
+            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${aspiration.id}`)
+            if (balanceResponse.ok) {
+              const balance = await balanceResponse.json()
+              balances[aspiration.id] = balance
+            }
+          } catch (error) {
+            console.error(`Error loading balance for aspiration ${aspiration.id}:`, error)
+          }
+        }
+        setDayAspirationBalances(balances)
+      }
+    }
+    loadBalances()
+  }, [currentProgram, aspirations, userId])
+
+  // Load aspirations data when on aspirace page
+  useEffect(() => {
+    if (currentPage === 'aspirace') {
+      const loadAspiraceData = async () => {
         setIsLoadingOverview(true)
         try {
           const response = await fetch('/api/aspirations')
@@ -6733,9 +6783,9 @@ export function JourneyGameView({
           setIsLoadingOverview(false)
         }
       }
-      loadOverviewData()
+      loadAspiraceData()
     }
-  }, [currentProgram])
+  }, [currentPage])
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -8876,6 +8926,8 @@ export function JourneyGameView({
 
   const renderPageContent = () => {
     switch (currentPage) {
+      case 'aspirace':
+        return renderAspiraceContent()
       case 'goals':
         return (
           <div className="p-8">
@@ -9593,9 +9645,10 @@ export function JourneyGameView({
               <h2 className="text-2xl font-bold text-orange-800" style={{ letterSpacing: '1px' }}>{t('sections.habits')}</h2>
               <button
                 onClick={() => setShowAddHabitForm(!showAddHabitForm)}
-                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+                className="w-10 h-10 rounded-full bg-orange-500 text-white hover:bg-orange-600 transition-colors flex items-center justify-center text-lg font-bold"
+                title={showAddHabitForm ? t('common.cancel') : t('habits.addHabit')}
               >
-                {showAddHabitForm ? 'Zrušit' : '+ Přidat návyk'}
+                +
               </button>
             </div>
 
@@ -10709,19 +10762,58 @@ export function JourneyGameView({
               
               <div ref={goalsRef} style={{ width: '288px' }}>
                 <div className="bg-white bg-opacity-95 rounded-2xl p-6 border border-orange-200 shadow-xl backdrop-blur-sm">
-                  <h4 className="text-base font-bold text-orange-800 mb-4">AKTIVNÍ CÍLE</h4>
+                  <h4 className="text-base font-bold text-orange-800 mb-4">VÝVOJ ASPIRACE</h4>
                   <div className="space-y-4">
-                    {goals.filter(goal => goal.status === 'active').slice(0, 4).map((goal, index) => {
-                      const goalArea = areas.find(area => area.id === goal.area_id);
+                    {aspirations.slice(0, 4).map((aspiration) => {
+                      const balance = dayAspirationBalances[aspiration.id]
+                      const changePercentage = balance?.change_percentage || 0
+                      const trend = balance?.trend || 'neutral'
+                      const completionRate = balance?.completion_rate_recent || 0
+                      
                       return (
-                        <div key={goal.id} className="bg-white border border-orange-200 rounded-xl p-3">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-lg">{goalArea?.icon || '🎯'}</span>
-                            <h5 className="font-semibold text-gray-800">{goal.title}</h5>
+                        <div key={aspiration.id} className="bg-white border border-orange-200 rounded-xl p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <div 
+                                className="w-3 h-3 rounded-full flex-shrink-0" 
+                                style={{ backgroundColor: aspiration.color || '#3B82F6' }}
+                              />
+                              <h5 className="font-semibold text-gray-800 truncate">{aspiration.title}</h5>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {trend === 'positive' && (
+                              <ChevronUp className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            )}
+                            {trend === 'negative' && (
+                              <ChevronDown className="w-4 h-4 text-red-600 flex-shrink-0" />
+                            )}
+                            {trend === 'neutral' && (
+                              <div className="w-4 h-4 flex-shrink-0" />
+                            )}
+                            {changePercentage !== 0 && (
+                              <span className={`text-sm font-medium ${
+                                trend === 'positive' ? 'text-green-600' : 
+                                trend === 'negative' ? 'text-red-600' : 
+                                'text-gray-600'
+                              }`}>
+                                {changePercentage > 0 ? '+' : ''}{changePercentage.toFixed(1)}%
+                              </span>
+                            )}
+                            {changePercentage === 0 && trend === 'neutral' && (
+                              <span className="text-sm text-gray-500">
+                                {completionRate.toFixed(1)}%
+                              </span>
+                            )}
                           </div>
                         </div>
                       )
                     })}
+                    {aspirations.length === 0 && (
+                      <div className="text-center text-gray-500 py-4">
+                        <p className="text-sm">Žádné aspirace</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -10806,6 +10898,17 @@ export function JourneyGameView({
 
               {/* Menu Icons */}
               <div className="flex items-center space-x-4 lg:border-l lg:border-white lg:border-opacity-30 lg:pl-6">
+              <button
+                onClick={() => setCurrentPage('aspirace')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'aspirace' ? 'bg-white bg-opacity-25' : ''}`}
+                title={t('game.menu.aspirace')}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                <span className="text-sm font-medium">{t('game.menu.aspirace')}</span>
+              </button>
+              
               <button
                 onClick={() => setCurrentPage('goals')}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'goals' ? 'bg-white bg-opacity-25' : ''}`}
@@ -10928,23 +11031,6 @@ export function JourneyGameView({
               >
                 {t('calendar.viewMode.year')}
               </button>
-              <button
-                onClick={() => {
-                  setSelectedItem(null)
-                  setSelectedItemType(null)
-                  setCurrentProgram('overview')
-                }}
-                className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                  !selectedItem && currentProgram === 'overview' 
-                    ? 'bg-orange-500 text-white shadow-md' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
-                }`}
-                style={{
-                  boxShadow: !selectedItem && currentProgram === 'overview' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                }}
-              >
-                {t('calendar.viewMode.overview')}
-                    </button>
                   </div>
                 </div>
               </div>
@@ -11395,7 +11481,7 @@ function AddAspirationModalWeb({
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold text-gray-900">{aspiration ? 'Upravit aspiraci' : 'Nová aspirace'}</h3>
+            <h3 className="text-2xl font-bold text-gray-900">{aspiration ? t('aspirace.editTitle') : t('aspirace.newAspirace')}</h3>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"

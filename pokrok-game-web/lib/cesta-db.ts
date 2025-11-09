@@ -1053,6 +1053,7 @@ export interface AspirationBalance {
   completion_rate_all_time: number // percentage
   completion_rate_recent: number // percentage
   trend: 'positive' | 'negative' | 'neutral' // week over week comparison (last week vs previous week)
+  change_percentage?: number // percentage change week over week
 }
 
 export async function getAspirationBalance(userId: string, aspirationId: string): Promise<AspirationBalance> {
@@ -1382,6 +1383,11 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
       previousWeek: `${previousWeekCompleted}/${previousWeekPlanned} (${previousWeekCompletionRate.toFixed(1)}%)`
     })
     
+    // Calculate percentage change week over week
+    const changePercentage = previousWeekCompletionRate > 0 
+      ? ((lastWeekCompletionRate - previousWeekCompletionRate) / previousWeekCompletionRate) * 100
+      : (lastWeekPlanned > 0 && previousWeekPlanned === 0) ? 100 : 0
+
     const result = {
       aspiration_id: aspirationId,
       total_xp: parseInt(String(stepStats.total_xp || 0)) + parseInt(String(habitStats.total_xp || 0)),
@@ -1396,7 +1402,8 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
       recent_planned_habits: parseInt(String(habitStats.recent_planned || 0)),
       completion_rate_all_time: completionRateAllTime,
       completion_rate_recent: completionRateRecent,
-      trend
+      trend,
+      change_percentage: changePercentage
     }
     
     console.log('✅ Aspiration balance result:', result)
@@ -1425,7 +1432,8 @@ export async function getAspirationBalance(userId: string, aspirationId: string)
       recent_planned_habits: 0,
       completion_rate_all_time: 0,
       completion_rate_recent: 0,
-      trend: 'neutral'
+      trend: 'neutral',
+      change_percentage: 0
     }
   }
 }
