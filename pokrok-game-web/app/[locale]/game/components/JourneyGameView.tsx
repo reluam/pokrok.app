@@ -11384,6 +11384,7 @@ function AddAspirationModalWeb({
   onClose: () => void
   onAspirationAdded: (title: string, description: string, color: string, selectedGoalIds?: string[], selectedHabitIds?: string[]) => void 
 }) {
+  const t = useTranslations()
   const [title, setTitle] = useState(aspiration?.title || '')
   const [description, setDescription] = useState(aspiration?.description || '')
   const [color, setColor] = useState(aspiration?.color || '#3B82F6')
