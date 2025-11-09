@@ -9443,6 +9443,34 @@ export function JourneyGameView({
                       const isEditing = editingHabit && editingHabit.id === habit.id
                       const habitAspiration = habit.aspiration_id || habit.aspirationId ? aspirations.find((a: any) => a.id === (habit.aspiration_id || habit.aspirationId)) : null
                       
+                      // Check if habit is active today
+                      const todayDay = now.getDay() // 0 = Sunday, 1 = Monday, etc.
+                      const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+                      const todayName = dayNames[todayDay]
+                      
+                      let isActiveToday = false
+                      if (habit.always_show || habit.alwaysShow) {
+                        isActiveToday = true
+                      } else {
+                        switch (habit.frequency) {
+                          case 'daily':
+                            isActiveToday = true
+                            break
+                          case 'weekly':
+                          case 'custom':
+                            if (habit.selected_days && habit.selected_days.length > 0) {
+                              isActiveToday = habit.selected_days.includes(todayName)
+                            }
+                            break
+                          case 'monthly':
+                            const createdDate = habit.created_at ? new Date(habit.created_at) : new Date()
+                            isActiveToday = now.getDate() === createdDate.getDate()
+                            break
+                        }
+                      }
+                      
+                      const shouldGrayOut = !isActiveToday && !(habit.always_show || habit.alwaysShow)
+                      
                 return (
                         <Fragment key={habit.id}>
                           <tr
@@ -9455,7 +9483,7 @@ export function JourneyGameView({
                             }}
                             className={`border-b border-gray-100 hover:bg-orange-50/30 cursor-pointer transition-all duration-200 last:border-b-0 ${
                               isCompletedToday ? 'bg-orange-50/50 hover:bg-orange-50' : 'bg-white'
-                            }`}
+                            } ${shouldGrayOut ? 'opacity-50' : ''}`}
                           >
                             <td className="px-4 py-2 first:pl-6">
                               <div className="flex items-center justify-center">
@@ -9477,13 +9505,13 @@ export function JourneyGameView({
                   ) : isCompletedToday ? (
                     <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
                   ) : (
-                    <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
+                    <Check className={`w-5 h-5 ${shouldGrayOut ? 'text-gray-300' : 'text-gray-400'}`} strokeWidth={2.5} fill="none" />
                   )}
                         </button>
                               </div>
                             </td>
                             <td className="px-4 py-2">
-                              <span className={`font-semibold text-sm ${isCompletedToday ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                              <span className={`font-semibold text-sm ${isCompletedToday ? 'text-gray-500 line-through' : shouldGrayOut ? 'text-gray-400' : 'text-gray-900'}`}>
                             {habit.name}
                               </span>
                             </td>
@@ -9496,7 +9524,9 @@ export function JourneyGameView({
                                   setQuickEditHabitId(habit.id)
                                   setQuickEditHabitField('frequency')
                                 }}
-                                className="text-xs px-2.5 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-700 font-medium cursor-pointer hover:opacity-80 transition-opacity"
+                                className={`text-xs px-2.5 py-1.5 rounded-lg bg-gray-50 border border-gray-200 font-medium cursor-pointer hover:opacity-80 transition-opacity ${
+                                  shouldGrayOut ? 'text-gray-400' : 'text-gray-700'
+                                }`}
                               >
                                 {habit.frequency === 'custom' ? 'Vlastní' :
                               habit.frequency === 'daily' ? 'Denně' :
@@ -9518,14 +9548,18 @@ export function JourneyGameView({
                                     sunday: 'Ne'
                                   }
                                   return (
-                                      <span key={day} className="text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded">
+                                      <span key={day} className={`text-xs px-1.5 py-0.5 rounded ${
+                                        shouldGrayOut 
+                                          ? 'bg-gray-100 text-gray-400' 
+                                          : 'bg-orange-100 text-orange-700'
+                                      }`}>
                                       {dayLabels[day]}
                                     </span>
                                   )
                                 })}
                               </div>
                               ) : (
-                                <span className="text-xs text-gray-400">-</span>
+                                <span className={`text-xs ${shouldGrayOut ? 'text-gray-300' : 'text-gray-400'}`}>-</span>
                               )}
                             </td>
                             <td className="px-4 py-2 last:pr-6">
@@ -9543,14 +9577,16 @@ export function JourneyGameView({
                                   <>
                                     <div 
                                       className="w-3 h-3 rounded-full"
-                                      style={{ backgroundColor: habitAspiration.color || '#9333EA' }}
+                                      style={{ backgroundColor: habitAspiration.color || '#9333EA', opacity: shouldGrayOut ? 0.5 : 1 }}
                                     />
-                                    <span className="text-xs text-gray-700 truncate max-w-[150px]">
+                                    <span className={`text-xs truncate max-w-[150px] ${
+                                      shouldGrayOut ? 'text-gray-400' : 'text-gray-700'
+                                    }`}>
                                       {habitAspiration.title}
                                     </span>
                                   </>
                                 ) : (
-                                  <span className="text-xs text-gray-400">Bez aspirace</span>
+                                  <span className={`text-xs ${shouldGrayOut ? 'text-gray-300' : 'text-gray-400'}`}>Bez aspirace</span>
                             )}
                           </div>
                             </td>
