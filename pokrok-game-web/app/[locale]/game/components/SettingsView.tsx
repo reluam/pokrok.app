@@ -628,35 +628,28 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
   }
 
   return (
-    <div className="w-full min-h-screen bg-gray-50">
-      {/* Main Content Area */}
-      <div className="flex min-h-screen">
-        {/* Sidebar with Tabs */}
-        <div className="w-64 bg-gray-50 border-r border-gray-200 min-h-screen flex-shrink-0">
-          <nav className="p-4">
-            <div className="space-y-2">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full text-left px-4 py-3 rounded-lg font-medium text-sm transition-colors ${
-                    activeTab === tab.id
-                      ? 'bg-orange-500 text-white shadow-md'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                  }`}
-                >
-                  <span className="mr-3">{tab.icon}</span>
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </nav>
-        </div>
+    <div className="w-full h-full flex flex-col bg-gray-50">
+      {/* Program Selector */}
+      <div className="flex items-center justify-center gap-2 p-4 border-b border-gray-200 bg-white">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-4 py-2 rounded-lg font-medium transition-all ${
+              activeTab === tab.id
+                ? 'bg-orange-500 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            <span className="mr-2">{tab.icon}</span>
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-        {/* Tab Content */}
-        <div className="flex-1 p-6 bg-white min-h-screen">
-          {renderTabContent()}
-        </div>
+      {/* Tab Content */}
+      <div className="flex-1 overflow-y-auto p-6 bg-white">
+        {renderTabContent()}
       </div>
     </div>
   )

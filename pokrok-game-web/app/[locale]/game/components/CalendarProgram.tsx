@@ -787,7 +787,7 @@ export function CalendarProgram({
                                 toggleStep(step.id)
                               }}
                               className={`flex items-center gap-2 p-2 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
-                                step.completed ? 'bg-green-50/50 border-green-200' : ''
+                                step.completed ? 'bg-orange-50/50 border-orange-200' : ''
                               }`}
                         >
                           {loadingSteps.has(step.id) ? (
@@ -796,7 +796,7 @@ export function CalendarProgram({
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                           ) : step.completed ? (
-                                <Check className="w-4 h-4 text-green-600 flex-shrink-0" strokeWidth={3} />
+                                <Check className="w-4 h-4 text-orange-600 flex-shrink-0" strokeWidth={3} />
                           ) : (
                                 <Check className="w-4 h-4 text-gray-400 flex-shrink-0" strokeWidth={2.5} fill="none" />
                           )}
@@ -1004,7 +1004,7 @@ export function CalendarProgram({
                                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
                               ) : step.completed ? (
-                                <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
+                                <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
                               ) : (
                                 <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
                               )}
@@ -1213,7 +1213,7 @@ export function CalendarProgram({
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                               </svg>
                             ) : step.completed ? (
-                              <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
+                              <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
                             ) : (
                               <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
                             )}

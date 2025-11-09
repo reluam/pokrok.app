@@ -78,10 +78,26 @@
     "settings": "Settings",
     "aspiration": "Aspiration",
     "noAspiration": "No aspiration",
+    "noArea": "No area",
+    "statusLabel": "Status",
     "status": {
       "active": "Active",
       "completed": "Completed",
       "considering": "Considering"
+    },
+    "filters": {
+      "status": {
+        "all": "All statuses",
+        "active": "Active",
+        "completed": "Completed",
+        "considering": "Considering"
+      },
+      "area": {
+        "all": "All areas"
+      },
+      "aspiration": {
+        "all": "All aspirations"
+      }
     },
     "steps": "Steps",
     "addStep": "Add step",
@@ -113,6 +129,8 @@
     "difficultyLabel": "Difficulty",
     "createdAt": "Created",
     "custom": "Custom",
+    "frequency": "Frequency",
+    "xpReward": "XP Reward",
     "streak": "Streak",
     "maxStreak": "Max streak",
     "days": "days",
@@ -130,6 +148,19 @@
       "easy": "Easy",
       "medium": "Medium",
       "hard": "Hard"
+    },
+    "filters": {
+      "frequency": {
+        "all": "All frequencies",
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly",
+        "custom": "Custom"
+      },
+      "aspiration": {
+        "all": "All aspirations"
+      },
+      "showCompletedToday": "Show completed today"
     },
     "predefined": {
       "exercise": {
@@ -320,6 +351,7 @@
     "menu": {
       "backToGame": "Back to Game",
       "mainPanel": "Main Panel",
+      "management": "Management",
       "goals": "Goals",
       "aspirace": "Aspirations",
       "habits": "Habits",
@@ -550,6 +582,21 @@
   "steps": {
     "title": "STEPS",
     "addStep": "Add step",
+    "filters": {
+      "showCompleted": "Show completed",
+      "date": {
+        "all": "All dates",
+        "today": "Today",
+        "overdue": "Overdue",
+        "future": "Future"
+      },
+      "goal": {
+        "all": "All goals"
+      },
+      "aspiration": {
+        "all": "All aspirations"
+      }
+    },
     "newStep": "New step",
     "stepTitle": "Step title",
     "stepDescription": "Description",
@@ -569,4 +616,5 @@
     "descriptionOptional": "Description (optional)"
   }
 }
+
 

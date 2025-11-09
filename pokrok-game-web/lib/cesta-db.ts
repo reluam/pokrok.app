@@ -2015,36 +2015,54 @@ export async function updateGoalById(goalId: string, updates: Partial<Goal>): Pr
   try {
     console.log('Updating goal with ID:', goalId, 'Updates:', updates)
     
-    // If status is being set to 'completed', check if all milestones are completed
-    if (updates.status === 'completed') {
-      const milestones = await getGoalMilestonesByGoalId(goalId)
-      if (milestones.length > 0) {
-        const incompleteMilestones = milestones.filter(m => !m.completed)
-        if (incompleteMilestones.length > 0) {
-          throw new Error(`Cíl nelze označit jako splněný, dokud nejsou dokončeny všechny milníky. Zbývá ${incompleteMilestones.length} nedokončených milníků.`)
-        }
-      }
+    // Build dynamic update query to only update provided fields
+    const setParts: string[] = []
+    const values: any[] = []
+    
+    if (updates.title !== undefined) {
+      setParts.push(`title = $${values.length + 1}`)
+      values.push(updates.title)
+    }
+    if (updates.description !== undefined) {
+      setParts.push(`description = $${values.length + 1}`)
+      values.push(updates.description)
+    }
+    if (updates.area_id !== undefined) {
+      setParts.push(`area_id = $${values.length + 1}`)
+      values.push(updates.area_id)
+    }
+    if (updates.aspiration_id !== undefined) {
+      setParts.push(`aspiration_id = $${values.length + 1}`)
+      values.push(updates.aspiration_id)
+    }
+    if (updates.target_date !== undefined) {
+      setParts.push(`target_date = $${values.length + 1}`)
+      values.push(updates.target_date)
+    }
+    if (updates.status !== undefined) {
+      setParts.push(`status = $${values.length + 1}`)
+      values.push(updates.status)
     }
     
-    const result = await sql`
-      UPDATE goals 
-      SET 
-        title = COALESCE(${updates.title}, title),
-        description = COALESCE(${updates.description}, description),
-        area_id = COALESCE(${updates.area_id}, area_id),
-        aspiration_id = ${updates.aspiration_id !== undefined ? updates.aspiration_id : null},
-        target_date = COALESCE(${updates.target_date}, target_date),
-        status = COALESCE(${updates.status}, status),
-        updated_at = NOW()
-      WHERE id = ${goalId}
-      RETURNING *
-    `
-
-    console.log('Update result:', result)
+    // Always update updated_at
+    setParts.push('updated_at = NOW()')
     
-    if (result.length === 0) {
-      console.log('No goal found for ID:', goalId)
-      return null
+    if (setParts.length === 1) {
+      // Only updated_at, no actual updates
+      console.log('No fields to update')
+      // Still fetch and return the goal
+    } else {
+      const query = `UPDATE goals SET ${setParts.join(', ')} WHERE id = $${values.length + 1} RETURNING *`
+      values.push(goalId)
+      
+      const result = await sql.query(query, values)
+      console.log('Update result:', result)
+      
+      const rows = result as any[]
+      if (rows.length === 0) {
+        console.log('No goal found for ID:', goalId)
+        return null
+      }
     }
     
     // Get the updated goal with area name

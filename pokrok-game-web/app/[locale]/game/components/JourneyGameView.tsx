@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef, memo } from 'react'
+import { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef, memo, Fragment } from 'react'
 import { createPortal } from 'react-dom'
 import { useUser } from '@clerk/nextjs'
 import { useTranslations, useLocale } from 'next-intl'
@@ -13,6 +13,13 @@ import { Footprints, Calendar, Target, CheckCircle, X, ChevronDown, ChevronUp, E
 import { DailyReviewWorkflow } from './DailyReviewWorkflow'
 import { CalendarProgram } from './CalendarProgram'
 import { getIconEmoji } from '@/lib/icon-utils'
+import { AddAspirationModal } from './components/AddAspirationModal'
+import { getLocalDateString, normalizeDate } from './utils/dateHelpers'
+import { DayView } from './views/DayView'
+import { WeekView } from './views/WeekView'
+import { MonthView } from './views/MonthView'
+import { YearView } from './views/YearView'
+import { AspiraceView } from './views/AspiraceView'
 
 interface JourneyGameViewProps {
   player?: any
@@ -53,14 +60,6 @@ export function JourneyGameView({
   const locale = useLocale()
   const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
   
-  // Helper function to get today's date in local timezone (YYYY-MM-DD)
-  const getLocalDateString = (date?: Date): string => {
-    const d = date || new Date()
-    const year = d.getFullYear()
-    const month = String(d.getMonth() + 1).padStart(2, '0')
-    const day = String(d.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
-  }
   
   const { user } = useUser()
   const [userId, setUserId] = useState<string | null>(userIdProp || null)
@@ -98,7 +97,8 @@ export function JourneyGameView({
     
     loadUserId()
   }, [user?.id, userId])
-  const [currentPage, setCurrentPage] = useState<'main' | 'goals' | 'aspirace' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings'>('main')
+  const [currentPage, setCurrentPage] = useState<'main' | 'management' | 'statistics' | 'achievements' | 'settings'>('main')
+  const [currentManagementProgram, setCurrentManagementProgram] = useState<'aspirace' | 'goals' | 'habits' | 'steps'>('aspirace')
   const [showAddHabitForm, setShowAddHabitForm] = useState(false)
   const [editingHabit, setEditingHabit] = useState<any>(null)
   const [editingGoal, setEditingGoal] = useState<any>(null)
@@ -258,10 +258,42 @@ export function JourneyGameView({
   const [stepsShowCompleted, setStepsShowCompleted] = useState(false)
   const [stepsDateFilter, setStepsDateFilter] = useState<'all' | 'overdue' | 'today' | 'future'>('all')
   const [stepsGoalFilter, setStepsGoalFilter] = useState<string | null>(null)
+  const [stepsAspirationFilter, setStepsAspirationFilter] = useState<string | null>(null)
+  
+  // Goals filters
+  const [goalsStatusFilter, setGoalsStatusFilter] = useState<'all' | 'active' | 'completed' | 'considering'>('all')
+  const [goalsAreaFilter, setGoalsAreaFilter] = useState<string | null>(null)
+  const [goalsAspirationFilter, setGoalsAspirationFilter] = useState<string | null>(null)
+  
+  // Habits filters
+  const [habitsFrequencyFilter, setHabitsFrequencyFilter] = useState<'all' | 'daily' | 'weekly' | 'monthly' | 'custom'>('all')
+  const [habitsAspirationFilter, setHabitsAspirationFilter] = useState<string | null>(null)
+  const [habitsShowCompletedToday, setHabitsShowCompletedToday] = useState(true)
   
   // Track which step's goal/aspiration picker is open
   const [openGoalPickerForStep, setOpenGoalPickerForStep] = useState<string | null>(null)
   const [openAspirationPickerForStep, setOpenAspirationPickerForStep] = useState<string | null>(null)
+  
+  // Quick edit modals for goals
+  const [quickEditGoalId, setQuickEditGoalId] = useState<string | null>(null)
+  const [quickEditGoalField, setQuickEditGoalField] = useState<'status' | 'area' | 'aspiration' | 'date' | null>(null)
+  const [quickEditGoalPosition, setQuickEditGoalPosition] = useState<{ top: number; left: number } | null>(null)
+  
+  // Initialize date value when date modal opens
+  useEffect(() => {
+    if (quickEditGoalField === 'date' && quickEditGoalId) {
+      const goal = goals.find((g: any) => g.id === quickEditGoalId)
+      if (goal) {
+        const initialDate = goal.target_date ? new Date(goal.target_date) : new Date()
+        setSelectedDateForGoal(initialDate)
+      }
+    }
+  }, [quickEditGoalField, quickEditGoalId, goals])
+  
+  // Quick edit modals for habits
+  const [quickEditHabitId, setQuickEditHabitId] = useState<string | null>(null)
+  const [quickEditHabitField, setQuickEditHabitField] = useState<'frequency' | 'aspiration' | 'days' | null>(null)
+  const [quickEditHabitPosition, setQuickEditHabitPosition] = useState<{ top: number; left: number } | null>(null)
   
   // Track which step's tag modals are open
   const [openTimeModalForStep, setOpenTimeModalForStep] = useState<string | null>(null)
@@ -273,6 +305,7 @@ export function JourneyGameView({
   const [tempTimeValue, setTempTimeValue] = useState<number>(0)
   const [tempDateValue, setTempDateValue] = useState<string>('')
   const [selectedDateForStep, setSelectedDateForStep] = useState<Date>(new Date())
+  const [selectedDateForGoal, setSelectedDateForGoal] = useState<Date>(new Date())
   
   // Refs for tag elements to calculate modal positions
   const timeTagRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
@@ -2392,1339 +2425,102 @@ export function JourneyGameView({
     }
   }
 
-  // Helper function to normalize date to YYYY-MM-DD
-  const normalizeDate = (date: Date | string | null | undefined): string => {
-    if (!date) return ''
-    
-    if (typeof date === 'string') {
-      if (date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        return date
-      }
-      if (date.includes('T')) {
-        const datePart = date.split('T')[0]
-        if (datePart.match(/^\d{4}-\d{2}-\d{2}$/)) {
-          return datePart
-        }
-      }
-      const parsed = new Date(date)
-      if (!isNaN(parsed.getTime())) {
-        if (date.includes('T') && date.includes('Z')) {
-          const y = parsed.getUTCFullYear()
-          const m = String(parsed.getUTCMonth() + 1).padStart(2, '0')
-          const d = String(parsed.getUTCDate()).padStart(2, '0')
-          return `${y}-${m}-${d}`
-        } else {
-          const y = parsed.getFullYear()
-          const m = String(parsed.getMonth() + 1).padStart(2, '0')
-          const d = String(parsed.getDate()).padStart(2, '0')
-          return `${y}-${m}-${d}`
-        }
-      }
-      return ''
-    }
-    
-    if (date instanceof Date && !isNaN(date.getTime())) {
-      const hours = date.getUTCHours()
-      const minutes = date.getUTCMinutes()
-      const seconds = date.getUTCSeconds()
-      const milliseconds = date.getUTCMilliseconds()
-      
-      if (hours === 0 && minutes === 0 && seconds === 0 && milliseconds === 0) {
-        const y = date.getUTCFullYear()
-        const m = String(date.getUTCMonth() + 1).padStart(2, '0')
-        const d = String(date.getUTCDate()).padStart(2, '0')
-        return `${y}-${m}-${d}`
-      } else {
-        const y = date.getFullYear()
-        const m = String(date.getMonth() + 1).padStart(2, '0')
-        const d = String(date.getDate()).padStart(2, '0')
-        return `${y}-${m}-${d}`
-      }
-    }
-    
-    return ''
-  }
 
   // Render Day Content - Calendar day view with selected day's habits (including always_show) and steps (overdue + selected day)
   const renderDayContent = () => {
-    const today = getLocalDateString()
-    const todayObj = new Date()
-    todayObj.setHours(0, 0, 0, 0)
-    
-    // Use selectedDayDate or default to today
-    const displayDate = new Date(selectedDayDate)
-    displayDate.setHours(0, 0, 0, 0)
-    const displayDateStr = getLocalDateString(displayDate)
-    const isToday = displayDateStr === today
-    
-    // Filter habits for selected day - only selected day's habits + always_show habits
-    const dayOfWeek = displayDate.getDay()
-    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-    const dayName = dayNames[dayOfWeek]
-    
-    // Filter habits for display - includes always_show habits even if not scheduled
-    const todaysHabits = habits.filter(habit => {
-      // Always show if always_show is true
-      if (habit.always_show) return true
-      
-      // Check if scheduled for selected day
-      if (habit.frequency === 'daily') return true
-      if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
-      
-      return false
-    })
-    
-    // Filter habits for progress calculation - only habits actually scheduled for this day
-    // Always_show habits are only counted if they are also scheduled for this day
-    const habitsForProgress = habits.filter(habit => {
-      // Check if scheduled for selected day
-      if (habit.frequency === 'daily') return true
-      if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
-      
-      // Always_show habits are NOT counted unless they are also scheduled for this day
-      return false
-    })
-    
-    // Filter steps - overdue (incomplete) + selected day's steps (incomplete) - for display
-    const todaySteps = dailySteps.filter(step => {
-      if (!step.date) return false // Exclude steps without date
-      if (step.completed) return false // Exclude completed steps
-      
-      const stepDate = normalizeDate(step.date)
-      const stepDateObj = new Date(stepDate)
-      stepDateObj.setHours(0, 0, 0, 0)
-      
-      // Include if overdue or on selected day
-      return stepDateObj <= displayDate
-    })
-    
-    // Filter steps for progress calculation - only steps on selected day (exclude overdue)
-    const stepsForProgress = dailySteps.filter(step => {
-      if (!step.date) return false // Exclude steps without date
-      if (step.completed) return false // Exclude completed steps
-      
-      const stepDate = normalizeDate(step.date)
-      const stepDateObj = new Date(stepDate)
-      stepDateObj.setHours(0, 0, 0, 0)
-      
-      // Only include steps on selected day (not overdue)
-      return stepDateObj.getTime() === displayDate.getTime()
-    })
-    
-    // Calculate selected day's stats
-    const completedSteps = dailySteps.filter(step => {
-      const stepDate = normalizeDate(step.date)
-      return stepDate === displayDateStr && step.completed
-    }).length
-    
-    // Count only habits scheduled for this day (not always_show habits that aren't scheduled)
-    // Always_show habits are only counted if they are also scheduled for this day
-    const totalHabits = habitsForProgress.length
-    const completedHabits = habitsForProgress.filter(habit => {
-      return habit.habit_completions && habit.habit_completions[displayDateStr] === true
-    }).length
-    
-    // Only count steps on selected day (not overdue) for progress
-    const totalTasks = totalHabits + stepsForProgress.length
-    const completedTasks = completedHabits + completedSteps
-    const progressPercentage = totalTasks > 0 ? Math.min(Math.round((completedTasks / totalTasks) * 100), 100) : 0
-    
-    // Format selected day's date for display
-    const formattedDate = displayDate.toLocaleDateString(localeCode, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-    
-    // Navigation functions
-    const goToPreviousDay = () => {
-      const prevDate = new Date(displayDate)
-      prevDate.setDate(prevDate.getDate() - 1)
-      setSelectedDayDate(prevDate)
-    }
-    
-    const goToNextDay = () => {
-      const nextDate = new Date(displayDate)
-      nextDate.setDate(nextDate.getDate() + 1)
-      setSelectedDayDate(nextDate)
-    }
-    
-    const goToToday = () => {
-      setSelectedDayDate(new Date())
-    }
-    
     return (
-      <div className="w-full flex flex-col p-6">
-        {/* Header with date, navigation arrows and progress */}
-        <div className="mb-6 flex-shrink-0">
-          <div className="flex items-center justify-between mb-3">
-            <button
-              onClick={goToPreviousDay}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center"
-              title="Předchozí den"
-            >
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            
-            <div className="flex items-center gap-3 flex-1 justify-center">
-              <button
-                onClick={() => setShowDatePickerModal(true)}
-                className="cursor-pointer hover:opacity-80 transition-opacity"
-              >
-                <h2 className="text-2xl font-bold text-gray-900">{formattedDate}</h2>
-              </button>
-              {!isToday && (
-                <button
-                  onClick={goToToday}
-                  className="px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors"
-                  title="Přejít na dnes"
-                >
-                  Dnes
-                </button>
-              )}
-            </div>
-            
-            <button
-              onClick={goToNextDay}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center"
-              title="Následující den"
-            >
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <div className="text-3xl font-bold text-orange-600">{progressPercentage}%</div>
-            <div className="flex-1 bg-orange-200 bg-opacity-50 rounded-full h-4 overflow-hidden">
-              <div 
-                className="bg-orange-500 h-4 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(progressPercentage, 100)}%` }}
-              ></div>
-            </div>
-            <div className="text-base text-gray-600 font-medium">
-              {completedTasks}/{totalTasks}
-            </div>
-          </div>
-          
-          {/* Aspiration Development Row */}
-          {aspirations.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-2 px-2">
-                {aspirations.map((aspiration) => {
-                  const balance = dayAspirationBalances[aspiration.id]
-                  const changePercentage = balance?.change_percentage || 0
-                  const trend = balance?.trend || 'neutral'
-                  const completionRate = balance?.completion_rate_recent || 0
-                  
-                  return (
-                    <div
-                      key={aspiration.id}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all cursor-pointer flex-shrink-0 bg-white"
-                    >
-                      <div 
-                        className="w-3 h-3 rounded-full flex-shrink-0" 
-                        style={{ backgroundColor: aspiration.color || '#3B82F6' }}
-                      />
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-xs font-medium text-gray-700 truncate max-w-[120px]">{aspiration.title}</span>
-                        <span className="text-gray-400">•</span>
-                        {trend === 'positive' && (
-                          <ChevronUp className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />
-                        )}
-                        {trend === 'negative' && (
-                          <ChevronDown className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
-                        )}
-                        {trend === 'neutral' && (
-                          <div className="w-3.5 h-3.5 flex-shrink-0" />
-                        )}
-                        {changePercentage !== 0 && (
-                          <span className={`text-xs font-medium ${
-                            trend === 'positive' ? 'text-green-600' : 
-                            trend === 'negative' ? 'text-red-600' : 
-                            'text-gray-600'
-                          }`}>
-                            {changePercentage > 0 ? '+' : ''}{changePercentage.toFixed(1)}%
-                          </span>
-                        )}
-                        {changePercentage === 0 && trend === 'neutral' && (
-                          <span className="text-xs text-gray-500">
-                            {completionRate.toFixed(1)}%
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-        
-        {/* Two Column Layout - Habits and Steps */}
-        <div className="grid grid-cols-2 gap-6 flex-1 overflow-hidden">
-          {/* Habits Section */}
-          <div className="flex flex-col bg-white rounded-xl p-6 border border-orange-200 shadow-sm">
-            <h3 className="text-lg font-bold text-orange-800 mb-4">{t('sections.habits')}</h3>
-            <div className="space-y-3 overflow-y-auto flex-1">
-              {todaysHabits.map((habit) => {
-                const isCompleted = habit.habit_completions && habit.habit_completions[displayDateStr] === true
-                const isNotScheduled = habit.always_show ? (() => {
-                  // Check if scheduled for selected day
-                  if (habit.frequency === 'daily') return false
-                  if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return false
-                  return true
-                })() : false
-                
-                return (
-                  <div
-                    key={habit.id}
-                    onClick={() => handleItemClick(habit, 'habit')}
-                    className={`p-3 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
-                      isCompleted 
-                        ? 'bg-orange-50/50 border-orange-200' 
-                        : isNotScheduled
-                          ? 'opacity-60'
-                          : ''
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          if (!loadingHabits.has(habit.id)) {
-                            handleHabitToggle(habit.id, displayDateStr)
-                          }
-                        }}
-                        disabled={loadingHabits.has(habit.id)}
-                        className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
-                        title={isCompleted ? 'Označit jako nesplněný' : 'Označit jako splněný'}
-                      >
-                        {loadingHabits.has(habit.id) ? (
-                          <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                        ) : isCompleted ? (
-                          <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
-                        ) : (
-                          <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
-                        )}
-                      </button>
-                      <span className={`truncate flex-1 font-semibold text-sm ${
-                        isCompleted 
-                          ? 'line-through text-orange-600' 
-                          : isNotScheduled 
-                            ? 'text-gray-500' 
-                            : 'text-gray-900'
-                      }`}>
-                        {habit.name}
-                      </span>
-                      <span className="text-orange-600 font-bold text-sm flex-shrink-0">🔥 {(() => {
-                        // Calculate current streak dynamically from habit_completions
-                        const habitCompletions = habit.habit_completions || {}
-                        const completionDates = Object.keys(habitCompletions).sort()
-                        
-                        // Calculate current streak by going backwards from the last completed day
-                        let currentStreak = 0
-                        const userCreatedDateFull = new Date(player?.created_at || '2024-01-01')
-                        const userCreatedDate = new Date(userCreatedDateFull.getFullYear(), userCreatedDateFull.getMonth(), userCreatedDateFull.getDate())
-                        
-                        // Find the last completed day chronologically
-                        let lastCompletedDate = null
-                        for (const dateKey of completionDates) {
-                          const completion = habitCompletions[dateKey]
-                          if (completion === true) {
-                            const date = new Date(dateKey)
-                            if (!lastCompletedDate || date > lastCompletedDate) {
-                              lastCompletedDate = date
-                            }
-                          }
-                        }
-                        
-                        // If we have a last completed day, count streak backwards from there
-                        if (lastCompletedDate) {
-                          const lastCompletedDateOnly = new Date(lastCompletedDate!.getFullYear(), lastCompletedDate!.getMonth(), lastCompletedDate!.getDate())
-                          for (let d = new Date(lastCompletedDateOnly); d >= userCreatedDate; d.setDate(d.getDate() - 1)) {
-                            const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-                            const completion = habitCompletions[dateKey]
-                            
-                            if (completion === true) {
-                              currentStreak++
-                            } else if (completion === false) {
-                              // Missed day breaks the streak
-                              break
-                            }
-                            // completion === undefined (not-scheduled) doesn't break the streak, just doesn't add to it
-                          }
-                        }
-                        
-                        return currentStreak
-                      })()}</span>
-                    </div>
-                  </div>
-                )
-              })}
-              {todaysHabits.length === 0 && (
-                <div className="text-gray-400 text-sm text-center py-8">
-                  {isToday ? 'Žádné návyky na dnes' : `Žádné návyky na ${formattedDate.split(' ')[0]}`}
-                </div>
-              )}
-            </div>
-          </div>
-          
-          {/* Steps Section */}
-          <div className="flex flex-col bg-white rounded-xl p-6 border border-orange-200 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-orange-800">{t('sections.steps')}</h3>
-              <button
-                onClick={() => {
-                  const newStep = {
-                    id: 'new-step',
-                    title: '',
-                    description: '',
-                    completed: false,
-                    date: displayDateStr,
-                    estimated_time: 0,
-                    xp_reward: 0
-                  }
-                  setSelectedItem(newStep)
-                  setSelectedItemType('step')
-                }}
-                className="w-8 h-8 rounded-full bg-orange-500 text-white hover:bg-orange-600 transition-colors flex items-center justify-center text-lg font-bold"
-                title="Přidat krok"
-              >
-                +
-              </button>
-            </div>
-            
-            <div className="space-y-3 overflow-y-auto flex-1">
-              {(() => {
-                // Separate steps into today's steps and overdue steps
-                const todaysStepsList: typeof dailySteps = []
-                const overdueStepsList: typeof dailySteps = []
-                
-                todaySteps.forEach(step => {
-                const stepDate = normalizeDate(step.date)
-                const stepDateObj = new Date(stepDate)
-                stepDateObj.setHours(0, 0, 0, 0)
-                  const isOverdue = stepDateObj < displayDate
-                  
-                  if (isOverdue) {
-                    overdueStepsList.push(step)
-                  } else {
-                    todaysStepsList.push(step)
-                  }
-                })
-                
-                const renderStep = (step: typeof dailySteps[0]) => {
-                  const stepDate = normalizeDate(step.date)
-                  const stepDateObj = new Date(stepDate)
-                  stepDateObj.setHours(0, 0, 0, 0)
-                  const isOverdue = stepDateObj < displayDate
-                
-                return (
-                  <div
-                    key={step.id}
-                    onClick={() => handleItemClick(step, 'step')}
-                    className={`p-3 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
-                      step.completed ? 'bg-green-50/50 border-green-200' : ''
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          if (!loadingSteps.has(step.id)) {
-                            handleStepToggle(step.id, !step.completed)
-                          }
-                        }}
-                        disabled={loadingSteps.has(step.id)}
-                        className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
-                      >
-                        {loadingSteps.has(step.id) ? (
-                          <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                        ) : step.completed ? (
-                          <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
-                        ) : (
-                          <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
-                        )}
-                      </button>
-                      <span className={`truncate flex-1 font-semibold text-sm ${step.completed ? 'line-through text-gray-500' : isOverdue ? 'text-red-700' : 'text-gray-900'}`}>
-                        {step.title}
-                      </span>
-                      {isOverdue && !step.completed && <span className="text-red-600 text-xs">⚠️</span>}
-                    </div>
-                  </div>
-                )
-                }
-                
-                return (
-                  <>
-                    {/* Today's steps */}
-                    {todaysStepsList.length > 0 && (
-                      <>
-                        {todaysStepsList.map(renderStep)}
-                      </>
-                    )}
-                    
-                    {/* Overdue steps with header */}
-                    {overdueStepsList.length > 0 && (
-                      <>
-                        {todaysStepsList.length > 0 && (
-                          <div className="pt-3 mt-3 border-t border-gray-200">
-                            <h4 className="text-xs font-semibold text-red-600 mb-2 uppercase tracking-wide">Zpožděné kroky</h4>
-                          </div>
-                        )}
-                        {overdueStepsList.map(renderStep)}
-                      </>
-                    )}
-                    
-                    {/* Empty state */}
-              {todaySteps.length === 0 && (
-                <div className="text-gray-400 text-sm text-center py-8">
-                        {isToday ? 'Žádné kroky na dnes' : `Žádné kroky na ${formattedDate.split(' ')[0]}`}
-                </div>
-              )}
-                  </>
-                )
-              })()}
-            </div>
-          </div>
-        </div>
-      </div>
+      <DayView
+        habits={habits}
+        dailySteps={dailySteps}
+        aspirations={aspirations}
+        dayAspirationBalances={dayAspirationBalances}
+        selectedDayDate={selectedDayDate}
+        setSelectedDayDate={setSelectedDayDate}
+        setShowDatePickerModal={setShowDatePickerModal}
+        handleItemClick={handleItemClick}
+        handleHabitToggle={handleHabitToggle}
+        handleStepToggle={handleStepToggle}
+        setSelectedItem={setSelectedItem}
+        setSelectedItemType={setSelectedItemType}
+        loadingHabits={loadingHabits}
+        loadingSteps={loadingSteps}
+        player={player}
+      />
     )
   }
 
   // Render Week Content - Weekly calendar view with habits and steps under each day
   const renderWeekContent = () => {
     return (
-      <div className="w-full flex flex-col">
-        {/* Calendar Week View - Full width */}
-        <div className="flex-1">
-          <CalendarProgram
+      <WeekView
             player={player}
             goals={goals}
             habits={habits}
             dailySteps={dailySteps}
             onHabitsUpdate={onHabitsUpdate}
             onDailyStepsUpdate={onDailyStepsUpdate}
-            viewMode={currentProgram === 'day' ? 'day' : currentProgram === 'week' ? 'week' : 'month'}
-            onDateClick={() => setShowDatePickerModal(true)}
+        setShowDatePickerModal={setShowDatePickerModal}
           />
-        </div>
-      </div>
     )
   }
 
   // Render Month Content - Monthly calendar view with compact tiles and detail view on click
   const renderMonthContent = () => {
     return (
-      <div className="w-full flex flex-col">
-        {/* Calendar Month View - Full width with detail view below */}
-        <div className="flex-1">
-          <CalendarProgram
+      <MonthView
             player={player}
             goals={goals}
             habits={habits}
             dailySteps={dailySteps}
             onHabitsUpdate={onHabitsUpdate}
             onDailyStepsUpdate={onDailyStepsUpdate}
-            viewMode={currentProgram === 'day' ? 'day' : currentProgram === 'week' ? 'week' : 'month'}
-            onDateClick={() => setShowDatePickerModal(true)}
+        setShowDatePickerModal={setShowDatePickerModal}
           />
-        </div>
-      </div>
     )
   }
 
   // Render Year Content - Year overview with goals and annual statistics
   const renderYearContent = () => {
-    const displayYear = selectedYear
-    const currentYear = new Date().getFullYear()
-    const isCurrentYear = displayYear === currentYear
-    const yearStart = new Date(displayYear, 0, 1) // January 1st
-    const yearEnd = new Date(displayYear, 11, 31) // December 31st
-    
-    // Filter goals for selected year
-    const yearGoals = goals.filter(goal => {
-      if (!goal.target_date) return goal.status === 'active'
-      const targetDate = new Date(goal.target_date)
-      return targetDate >= yearStart && targetDate <= yearEnd
-    })
-    
-    // Calculate statistics for the selected year
-    const statsYearStart = new Date(displayYear, 0, 1)
-    const statsYearEnd = new Date(displayYear, 11, 31)
-    
-    // Navigation functions
-    const goToPreviousYear = () => {
-      setSelectedYear(displayYear - 1)
-    }
-    
-    const goToNextYear = () => {
-      setSelectedYear(displayYear + 1)
-    }
-    
-    const goToCurrentYear = () => {
-      setSelectedYear(currentYear)
-    }
-    
-    // Calculate completed steps in selected year
-    const completedStepsInYear = dailySteps.filter(step => {
-      if (!step.completed || !step.date) return false
-      const stepDate = normalizeDate(step.date)
-      const stepDateObj = new Date(stepDate)
-      return stepDateObj >= statsYearStart && stepDateObj <= statsYearEnd
-    }).length
-    
-    // Calculate total steps in selected year
-    const totalStepsInYear = dailySteps.filter(step => {
-      if (!step.date) return false
-      const stepDate = normalizeDate(step.date)
-      const stepDateObj = new Date(stepDate)
-      return stepDateObj >= statsYearStart && stepDateObj <= statsYearEnd
-    }).length
-    
-    // Calculate completed habits in selected year
-    let completedHabitsInYear = 0
-    habits.forEach(habit => {
-      if (habit.habit_completions) {
-        Object.keys(habit.habit_completions).forEach(dateStr => {
-          if (habit.habit_completions[dateStr] === true) {
-            const habitDate = new Date(dateStr)
-            if (habitDate >= statsYearStart && habitDate <= statsYearEnd) {
-              completedHabitsInYear++
-            }
-          }
-        })
-      }
-    })
-    
-    // Calculate completed goals for selected year
-    const completedGoals = yearGoals.filter(goal => goal.status === 'completed' || goal.completed).length
-    const activeGoals = yearGoals.filter(goal => goal.status === 'active').length
-    
-    // Calculate total XP earned in selected year
-    let totalXpInYear = 0
-    dailySteps.forEach(step => {
-      if (step.completed && step.xp_reward && step.date) {
-        const stepDate = normalizeDate(step.date)
-        const stepDateObj = new Date(stepDate)
-        if (stepDateObj >= statsYearStart && stepDateObj <= statsYearEnd) {
-          totalXpInYear += step.xp_reward || 0
-        }
-      }
-    })
-    habits.forEach(habit => {
-      if (habit.habit_completions && habit.xp_reward) {
-        Object.keys(habit.habit_completions).forEach(dateStr => {
-          if (habit.habit_completions[dateStr] === true) {
-            const habitDate = new Date(dateStr)
-            if (habitDate >= statsYearStart && habitDate <= statsYearEnd) {
-              totalXpInYear += habit.xp_reward || 0
-            }
-          }
-        })
-      }
-    })
-    
-    // Group goals by area
-    const goalsByArea = areas.map(area => {
-      const areaGoals = yearGoals.filter(goal => goal.area_id === area.id)
-      return { area, goals: areaGoals }
-    }).filter(item => item.goals.length > 0)
-    
-    // Add goals without area
-    const goalsWithoutArea = yearGoals.filter(goal => !goal.area_id || !areas.find(a => a.id === goal.area_id))
-    if (goalsWithoutArea.length > 0) {
-      goalsByArea.push({ 
-        area: { id: null, name: 'Ostatní', color: '#9CA3AF', icon: '📌' }, 
-        goals: goalsWithoutArea 
-      })
-    }
-    
     return (
-      <div className="w-full h-full flex flex-col p-6 overflow-y-auto">
-        {/* Header with navigation */}
-        <div className="mb-6 flex-shrink-0">
-          <div className="flex items-center justify-between mb-3">
-            <button
-              onClick={goToPreviousYear}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center"
-              title="Předchozí rok"
-            >
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            
-            <div className="flex items-center gap-3 flex-1 justify-center">
-              <button
-                onClick={() => setShowDatePickerModal(true)}
-                className="cursor-pointer hover:opacity-80 transition-opacity"
-              >
-                <h2 className="text-3xl font-bold text-gray-900">Roční přehled {displayYear}</h2>
-              </button>
-              {!isCurrentYear && (
-                <button
-                  onClick={goToCurrentYear}
-                  className="px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors"
-                  title="Přejít na aktuální rok"
-                >
-                  {currentYear}
-                </button>
-              )}
-            </div>
-            
-            <button
-              onClick={goToNextYear}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center"
-              title="Následující rok"
-            >
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-          <p className="text-gray-600 text-center">Přehled cílů a statistik za rok {displayYear}</p>
-        </div>
-        
-        {/* Two Column Layout - Goals and Statistics */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1">
-          {/* Left Column - Goals */}
-          <div className="flex flex-col bg-white rounded-xl p-6 border border-orange-200 shadow-sm">
-            <h3 className="text-xl font-bold text-orange-800 mb-4">CÍLE</h3>
-            <div className="space-y-4 overflow-y-auto flex-1">
-              {goalsByArea.map(({ area, goals: areaGoals }) => {
-                const areaKey = area.id || 'other'
-                const isExpanded = expandedAreas.has(areaKey)
-                
-                // Sort goals by target date
-                const sortedGoals = [...areaGoals].sort((a, b) => {
-                  const dateA = a.target_date ? new Date(a.target_date).getTime() : Infinity
-                  const dateB = b.target_date ? new Date(b.target_date).getTime() : Infinity
-                  if (dateA === Infinity && dateB === Infinity) return 0
-                  if (dateA === Infinity) return 1
-                  if (dateB === Infinity) return -1
-                  return dateA - dateB
-                })
-                
-                const goalsToShow = isExpanded ? sortedGoals : sortedGoals.slice(0, 3)
-                
-                const toggleArea = () => {
-                  setExpandedAreas(prev => {
-                    const newSet = new Set(prev)
-                    if (newSet.has(areaKey)) {
-                      newSet.delete(areaKey)
-                    } else {
-                      newSet.add(areaKey)
-                    }
-                    return newSet
-                  })
-                }
-                
-                return (
-                  <div key={areaKey} className="bg-gray-100 rounded-lg border border-gray-200">
-                    <div 
-                      className="flex items-center justify-between cursor-pointer p-3 hover:bg-gray-150 transition-colors"
-                      onClick={toggleArea}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span 
-                          className="w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0"
-                          style={{ backgroundColor: area.color }}
-                        >
-                          <span className="text-white text-xs">{area.icon}</span>
-                        </span>
-                        <span className="text-base font-bold text-gray-800">{area.name}</span>
-                        <span className="text-sm text-gray-500">({areaGoals.length})</span>
-                      </div>
-                      {isExpanded ? (
-                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      ) : (
-                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      )}
-                    </div>
-                    
-                    {goalsToShow.length > 0 && (
-                      <div className="p-3 space-y-2">
-                        {goalsToShow.map((goal) => {
-                          const goalProgress = goal.steps ? (goal.steps.filter((step: any) => step.completed).length / Math.max(goal.steps.length, 1)) * 100 : 0
-                          const goalArea = areas.find(a => a.id === goal.area_id)
-                          const areaIcon = goalArea?.icon || '🎯'
-                          
-                          return (
-                            <div 
-                              key={goal.id} 
-                              className="bg-white rounded-lg p-3 cursor-pointer hover:opacity-80 transition-opacity"
-                              onClick={() => handleItemClick(goal, 'goal')}
-                            >
-                              <div className="flex gap-3">
-                                <div className="flex-shrink-0">
-                                  <span 
-                                    className="w-10 h-10 rounded-full flex items-center justify-center"
-                                    style={{ backgroundColor: '#FB923C' }}
-                                  >
-                                    <span className="text-white text-lg">{areaIcon}</span>
-                                  </span>
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-start justify-between mb-2">
-                                    <span className="text-sm font-medium text-gray-800">{goal.title}</span>
-                                    {goal.target_date && (
-                                      <span className="text-xs text-orange-600 ml-2 whitespace-nowrap">
-                                        {new Date(goal.target_date).toLocaleDateString(localeCode, { day: 'numeric', month: 'short' })}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <div className="flex-1 bg-gray-200 rounded-full h-2">
-                                      <div 
-                                        className="bg-orange-500 h-2 rounded-full transition-all duration-300"
-                                        style={{ width: `${goalProgress}%` }}
-                                      ></div>
-                                    </div>
-                                    <span className="text-xs text-gray-500 whitespace-nowrap">{Math.round(goalProgress)}%</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          )
-                        })}
-                        {!isExpanded && sortedGoals.length > 3 && (
-                          <div className="text-xs text-gray-500 text-center pt-1">
-                            +{sortedGoals.length - 3} dalších
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-              {goalsByArea.length === 0 && (
-                <div className="text-gray-400 text-center py-8">
-                  Žádné cíle pro tento rok
-                </div>
-              )}
-            </div>
-          </div>
-          
-              {/* Right Column - Statistics */}
-              <div className="flex flex-col bg-white rounded-xl p-6 border border-orange-200 shadow-sm">
-                <h3 className="text-xl font-bold text-orange-800 mb-4">STATISTIKY ZA ROK {displayYear}</h3>
-            <div className="space-y-6 flex-1">
-              {/* Overall Stats */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
-                  <div className="text-2xl font-bold text-orange-600">{completedStepsInYear}</div>
-                  <div className="text-sm text-gray-600 mt-1">Dokončené kroky</div>
-                  {totalStepsInYear > 0 && (
-                    <div className="text-xs text-gray-500 mt-1">
-                      z {totalStepsInYear} celkem ({Math.round((completedStepsInYear / totalStepsInYear) * 100)}%)
-                    </div>
-                  )}
-                </div>
-                
-                <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
-                  <div className="text-2xl font-bold text-orange-600">{completedHabitsInYear}</div>
-                  <div className="text-sm text-gray-600 mt-1">Dokončené návyky</div>
-                </div>
-              </div>
-              
-              {/* Goals Stats */}
-              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <h4 className="text-sm font-bold text-gray-700 mb-3">CÍLE</h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Celkem cílů:</span>
-                    <span className="font-bold text-gray-900">{goals.length}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Dokončené:</span>
-                    <span className="font-bold text-green-600">{completedGoals}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Aktivní:</span>
-                    <span className="font-bold text-blue-600">{activeGoals}</span>
-                  </div>
-                  {goals.length > 0 && (
-                    <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-                      <span className="text-sm text-gray-600">Úspěšnost:</span>
-                      <span className="font-bold text-purple-600">
-                        {Math.round((completedGoals / goals.length) * 100)}%
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              {/* XP Stats */}
-              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200">
-                <h4 className="text-sm font-bold text-orange-800 mb-2">XP ZÍSKÁNO</h4>
-                <div className="text-3xl font-bold text-orange-600">{totalXpInYear.toLocaleString(localeCode)}</div>
-                <div className="text-xs text-gray-600 mt-1">Celkem za rok {displayYear}</div>
-              </div>
-              
-              {/* Player Stats */}
-              {player && (
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <h4 className="text-sm font-bold text-gray-700 mb-3">TVAŘ HRÁČE</h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Level:</span>
-                      <span className="font-bold text-gray-900">{player.level || 1}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">XP:</span>
-                      <span className="font-bold text-gray-900">{(player.experience || 0).toLocaleString(localeCode)}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      <YearView
+        goals={goals}
+        habits={habits}
+        dailySteps={dailySteps}
+        areas={areas}
+        selectedYear={selectedYear}
+        setSelectedYear={setSelectedYear}
+        setShowDatePickerModal={setShowDatePickerModal}
+        handleItemClick={handleItemClick}
+        expandedAreas={expandedAreas}
+        setExpandedAreas={setExpandedAreas}
+        player={player}
+      />
     )
   }
 
   // Render Aspirace Content - Aspirations overview
   const renderAspiraceContent = () => {
-    const calculateInsights = () => {
-      const easy: string[] = []
-      const hard: string[] = []
-      
-      overviewAspirations.forEach(aspiration => {
-        const balance = overviewBalances[aspiration.id]
-        if (balance) {
-          const rate = balance.completion_rate_recent
-          if (rate >= 80) {
-            easy.push(aspiration.title)
-          } else if (rate < 30) {
-            hard.push(aspiration.title)
-          }
-        }
-      })
-      
-      return { easy, hard }
-    }
-
-    const handleAddAspiration = async (title: string, description: string, color: string, selectedGoalIds: string[] = [], selectedHabitIds: string[] = []) => {
-      try {
-        const response = await fetch('/api/aspirations', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, description, color })
-        })
-
-        if (response.ok) {
-          const newAspiration = await response.json()
-          setOverviewAspirations([...overviewAspirations, newAspiration])
-          setAspirations([...aspirations, newAspiration])
-          setShowAddAspirationModal(false)
-          
-          // Update aspiration_id for selected goals
-          for (const goalId of selectedGoalIds) {
-            try {
-              await fetch('/api/goals', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ goalId, aspirationId: newAspiration.id })
-              })
-            } catch (error) {
-              console.error(`Error updating goal ${goalId}:`, error)
-            }
-          }
-          
-          // Update aspiration_id for selected habits
-          for (const habitId of selectedHabitIds) {
-            try {
-              await fetch('/api/habits', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ habitId, aspirationId: newAspiration.id })
-              })
-            } catch (error) {
-              console.error(`Error updating habit ${habitId}:`, error)
-            }
-          }
-          
-          // Refresh goals and habits if we updated any
-          if (selectedGoalIds.length > 0 || selectedHabitIds.length > 0) {
-            onGoalsUpdate?.(goals.map(g => 
-              selectedGoalIds.includes(g.id) ? { ...g, aspiration_id: newAspiration.id } : g
-            ))
-            onHabitsUpdate?.(habits.map(h => 
-              selectedHabitIds.includes(h.id) ? { ...h, aspiration_id: newAspiration.id } : h
-            ))
-          }
-          
-          // Load balance for new aspiration
-          try {
-            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${newAspiration.id}`)
-            if (balanceResponse.ok) {
-              const balance = await balanceResponse.json()
-              setOverviewBalances((prev: Record<string, any>) => ({
-                ...prev,
-                [newAspiration.id]: balance
-              }))
-            }
-          } catch (error) {
-            console.error('Error loading aspiration balance:', error)
-          }
-        } else {
-          const errorData = await response.json()
-          alert(`Chyba: ${errorData.error || t('aspirace.error.create')}`)
-        }
-      } catch (error) {
-        console.error('Error creating aspiration:', error)
-        alert(t('aspirace.error.create'))
-      }
-    }
-
-    const handleUpdateAspiration = async (title: string, description: string, color: string, selectedGoalIds: string[] = [], selectedHabitIds: string[] = []) => {
-      if (!editingAspiration) return
-      
-      try {
-        const response = await fetch('/api/aspirations', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            aspirationId: editingAspiration.id,
-            title, 
-            description, 
-            color 
-          })
-        })
-
-        if (response.ok) {
-          const updatedAspiration = await response.json()
-          setOverviewAspirations(overviewAspirations.map(a => 
-            a.id === updatedAspiration.id ? updatedAspiration : a
-          ))
-          setAspirations(aspirations.map(a => 
-            a.id === updatedAspiration.id ? updatedAspiration : a
-          ))
-          
-          // Get current goals and habits assigned to this aspiration
-          const currentGoalIds = goals.filter(g => g.aspiration_id === editingAspiration.id).map(g => g.id)
-          const currentHabitIds = habits.filter(h => h.aspiration_id === editingAspiration.id).map(h => h.id)
-          
-          // Remove aspiration_id from goals that were unselected
-          const goalsToRemove = currentGoalIds.filter(id => !selectedGoalIds.includes(id))
-          for (const goalId of goalsToRemove) {
-            try {
-              await fetch('/api/goals', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ goalId, aspirationId: null })
-              })
-            } catch (error) {
-              console.error(`Error removing aspiration from goal ${goalId}:`, error)
-            }
-          }
-          
-          // Add aspiration_id to newly selected goals
-          const goalsToAdd = selectedGoalIds.filter(id => !currentGoalIds.includes(id))
-          for (const goalId of goalsToAdd) {
-            try {
-              await fetch('/api/goals', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ goalId, aspirationId: editingAspiration.id })
-              })
-            } catch (error) {
-              console.error(`Error adding aspiration to goal ${goalId}:`, error)
-            }
-          }
-          
-          // Remove aspiration_id from habits that were unselected
-          const habitsToRemove = currentHabitIds.filter(id => !selectedHabitIds.includes(id))
-          for (const habitId of habitsToRemove) {
-            try {
-              await fetch('/api/habits', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ habitId, aspirationId: null })
-              })
-            } catch (error) {
-              console.error(`Error removing aspiration from habit ${habitId}:`, error)
-            }
-          }
-          
-          // Add aspiration_id to newly selected habits
-          const habitsToAdd = selectedHabitIds.filter(id => !currentHabitIds.includes(id))
-          for (const habitId of habitsToAdd) {
-            try {
-              await fetch('/api/habits', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ habitId, aspirationId: editingAspiration.id })
-              })
-            } catch (error) {
-              console.error(`Error adding aspiration to habit ${habitId}:`, error)
-            }
-          }
-          
-          // Refresh goals and habits
-          if (goalsToRemove.length > 0 || goalsToAdd.length > 0 || habitsToRemove.length > 0 || habitsToAdd.length > 0) {
-            onGoalsUpdate?.(goals.map(g => {
-              if (goalsToRemove.includes(g.id)) return { ...g, aspiration_id: null }
-              if (goalsToAdd.includes(g.id)) return { ...g, aspiration_id: editingAspiration.id }
-              return g
-            }))
-            onHabitsUpdate?.(habits.map(h => {
-              if (habitsToRemove.includes(h.id)) return { ...h, aspiration_id: null }
-              if (habitsToAdd.includes(h.id)) return { ...h, aspiration_id: editingAspiration.id }
-              return h
-            }))
-          }
-          
-          // Update balance for this aspiration
-          try {
-            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${editingAspiration.id}`)
-            if (balanceResponse.ok) {
-              const balance = await balanceResponse.json()
-              setOverviewBalances((prev: Record<string, any>) => ({
-                ...prev,
-                [editingAspiration.id]: balance
-              }))
-            }
-          } catch (error) {
-            console.error('Error loading aspiration balance:', error)
-          }
-          
-          setEditingAspiration(null)
-        } else {
-          const errorData = await response.json()
-          alert(`Chyba: ${errorData.error || t('aspirace.error.update')}`)
-        }
-      } catch (error) {
-        console.error('Error updating aspiration:', error)
-        alert(t('aspirace.error.update'))
-      }
-    }
-
-    if (isLoadingOverview) {
       return (
-        <div className="w-full h-full flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">{t('aspirace.loading')}</p>
-          </div>
-        </div>
-      )
-    }
-
-    const insights = calculateInsights()
-
-    return (
-      <div className="w-full flex flex-col p-6">
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">{t('aspirace.title')}</h2>
-              <p className="text-sm text-gray-500 mt-1">{t('aspirace.description')}</p>
-            </div>
-            <button
-              onClick={() => setShowAddAspirationModal(true)}
-              className="w-10 h-10 rounded-full bg-orange-500 text-white hover:bg-orange-600 transition-colors flex items-center justify-center text-lg font-bold"
-              title={t('aspirace.addAspirace')}
-            >
-              +
-            </button>
-          </div>
-        </div>
-
-        {/* Aspirations List */}
-        {overviewAspirations.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-xl border border-gray-200">
-            <div className="text-4xl mb-4">✨</div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('aspirace.noAspirace')}</h3>
-            <p className="text-sm text-gray-600 mb-4">{t('aspirace.noAspiraceDescription')}</p>
-            <button
-              onClick={() => setShowAddAspirationModal(true)}
-              className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
-            >
-              {t('aspirace.addAspirace')}
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-4 mb-6">
-            {overviewAspirations.map((aspiration: any) => {
-              const balance = overviewBalances[aspiration.id]
-              return (
-                <div key={aspiration.id} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                  {/* Header */}
-                  <div className="flex items-start gap-3 mb-4">
-                    <div 
-                      className="w-3 h-3 rounded-full flex-shrink-0 mt-1"
-                      style={{ backgroundColor: aspiration.color || '#3B82F6' }}
-                    ></div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-1">{aspiration.title}</h3>
-                      {aspiration.description && (
-                        <p className="text-sm text-gray-600 line-clamp-2">{aspiration.description}</p>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => setEditingAspiration(aspiration)}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600 hover:text-gray-900"
-                      title={t('aspirace.editAspirace')}
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  {/* Balance */}
-                  {balance ? (
-                    (() => {
-                      console.log('Balance for aspiration:', aspiration.id, balance)
-                      console.log('total_planned_steps:', balance.total_planned_steps, 'total_planned_habits:', balance.total_planned_habits)
-                      return balance.total_planned_steps === 0 && balance.total_planned_habits === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-8 text-center">
-                          <div className="text-gray-400 mb-2">
-                            <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                            </svg>
-                          </div>
-                          <p className="text-sm text-gray-500 mb-1">{t('aspirace.noGoalsHabits')}</p>
-                          <p className="text-xs text-gray-400">{t('aspirace.noGoalsHabitsDescription')}</p>
-                        </div>
-                      ) : (
-                      <div className="space-y-4">
-                        {/* XP Summary */}
-                        <div className="flex items-center gap-6">
-                          <div>
-                            <p className="text-xs text-gray-500 mb-1">Celkem XP</p>
-                            <p className="text-xl font-semibold text-gray-900">{balance.total_xp}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500 mb-1">Posledních 90 dní</p>
-                            <p className="text-xl font-semibold text-gray-900">{balance.recent_xp}</p>
-                          </div>
-                          <div className="ml-auto">
-                            {balance.trend === 'positive' && (
-                              <div className="flex items-center text-green-600">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                </svg>
-                              </div>
-                            )}
-                            {balance.trend === 'negative' && (
-                              <div className="flex items-center text-red-600">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17l5-5m0 0l-5-5m5 5H6" />
-                                </svg>
-                              </div>
-                            )}
-                            {balance.trend === 'neutral' && (
-                              <div className="flex items-center text-gray-500">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14" />
-                                </svg>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Activity Breakdown */}
-                        <div className="flex items-center gap-6 text-sm">
-                          <div>
-                            <p className="text-xs text-gray-500 mb-1">Kroky</p>
-                            <p className="font-medium text-gray-900">
-                              {balance.recent_completed_steps}/{balance.recent_planned_steps}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500 mb-1">Návyky</p>
-                            <p className="font-medium text-gray-900">
-                              {balance.recent_completed_habits}/{balance.recent_planned_habits}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                    })()
-                  ) : (
-                    <div className="flex items-center justify-center py-4">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        )}
-
-        {/* Insights Section */}
-        {(insights.easy.length > 0 || insights.hard.length > 0) && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">{t('aspirace.insights.title')}</h3>
-            
-            {insights.easy.length > 0 && (
-              <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-                <h4 className="text-sm font-semibold text-green-800 mb-2">{t('aspirace.insights.easy')}</h4>
-                <ul className="space-y-1">
-                  {insights.easy.map((title: string) => (
-                    <li key={title} className="flex items-center gap-2 text-sm text-gray-700">
-                      <div className="w-1.5 h-1.5 rounded-full bg-green-600"></div>
-                      {title}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {insights.hard.length > 0 && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                <h4 className="text-sm font-semibold text-red-800 mb-2">{t('aspirace.insights.hard')}</h4>
-                <ul className="space-y-1">
-                  {insights.hard.map((title: string) => (
-                    <li key={title} className="flex items-center gap-2 text-sm text-gray-700">
-                      <div className="w-1.5 h-1.5 rounded-full bg-red-600"></div>
-                      {title}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Add Aspiration Modal */}
-        {showAddAspirationModal && (
-          <AddAspirationModalWeb
+      <AspiraceView
+        overviewAspirations={overviewAspirations}
+        overviewBalances={overviewBalances}
+        aspirations={aspirations}
+        setAspirations={setAspirations}
             goals={goals}
             habits={habits}
-            onClose={() => setShowAddAspirationModal(false)}
-            onAspirationAdded={handleAddAspiration}
-          />
-        )}
-
-        {/* Edit Aspiration Modal */}
-        {editingAspiration && (
-          <AddAspirationModalWeb
-            aspiration={editingAspiration}
-            goals={goals}
-            habits={habits}
-            onClose={() => setEditingAspiration(null)}
-            onAspirationAdded={handleUpdateAspiration}
-          />
-        )}
-      </div>
+        onGoalsUpdate={onGoalsUpdate}
+        onHabitsUpdate={onHabitsUpdate}
+        isLoadingOverview={isLoadingOverview}
+        showAddAspirationModal={showAddAspirationModal}
+        setShowAddAspirationModal={setShowAddAspirationModal}
+        editingAspiration={editingAspiration}
+        setEditingAspiration={setEditingAspiration}
+        setOverviewAspirations={setOverviewAspirations}
+        setOverviewBalances={setOverviewBalances}
+      />
     )
   }
+
 
   const renderWorkflowContent = () => {
     if (!pendingWorkflow || pendingWorkflow.type !== 'daily_review') {
@@ -3834,7 +2630,7 @@ export function JourneyGameView({
                   key={step.id}
                   onClick={() => handleItemClick(step, 'step')}
                   className={`p-3 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
-                    step.completed ? 'bg-green-50/50 border-green-200' : ''
+                    step.completed ? 'bg-orange-50/50 border-orange-200' : ''
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -3854,7 +2650,7 @@ export function JourneyGameView({
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                       ) : step.completed ? (
-                        <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
+                        <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
                       ) : (
                         <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
                       )}
@@ -3957,140 +2753,7 @@ export function JourneyGameView({
     )
   }
 
-  const renderGoalsContent = () => {
-    return (
-      <div className="w-full h-full flex flex-col justify-center items-center p-8">
-        <div className="w-full max-w-4xl">
-          <div className="space-y-4">
-            {sortedGoals.map((goal, index) => {
-              // Get steps and milestones count for this goal
-              const goalSteps = stepsCacheRef.current[goal.id]?.data || []
-              const goalMilestones = milestonesCacheRef.current[goal.id]?.data || []
-              const stepsCount = goalSteps.length
-              const milestonesCount = goalMilestones.length
-              
-              return (
-              <div
-                key={goal.id}
-                onClick={() => handleItemClick(goal, 'goal')}
-                  className="p-4 rounded-xl border cursor-pointer transition-all duration-300 hover:shadow-md bg-white"
-                style={{
-                  borderColor: 'rgba(251, 146, 60, 0.3)',
-                  boxShadow: '0 2px 8px rgba(251, 146, 60, 0.1)'
-                }}
-              >
-                  <div className="flex items-center gap-3">
-                    <span className="w-6 h-6 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-bold flex-shrink-0">
-                      {index + 1}
-                    </span>
-                    <h4 className="font-semibold text-orange-900 flex-1">{goal.title}</h4>
-                    <div className="flex items-center gap-4 flex-shrink-0">
-                      {/* Steps count with Footprints icon */}
-                      <div className="flex items-center gap-1.5">
-                        <Footprints className="w-4 h-4 text-gray-600" />
-                        <span className="text-sm text-gray-700">{stepsCount}</span>
-                  </div>
-                      {/* Milestones count with Target icon */}
-                      <div className="flex items-center gap-1.5">
-                        <Target className="w-4 h-4 text-gray-600" />
-                        <span className="text-sm text-gray-700">{milestonesCount}</span>
-                      </div>
-                      {/* Date with Calendar icon and dropdown */}
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="w-4 h-4 text-gray-600" />
-                        <span className="text-sm text-gray-700">
-                          {goal.target_date ? new Date(goal.target_date).toLocaleDateString(localeCode) : t('common.noDeadline') || 'Bez termínu'}
-                    </span>
-                        <ChevronDown className="w-3 h-3 text-gray-400" />
-                  </div>
-                </div>
-              </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  const renderHabitsContent = () => {
-    return (
-      <div className="w-full h-full flex flex-col justify-center items-center p-8">
-        <div className="w-full max-w-2xl">
-          <div className="space-y-4">
-            {habits.map((habit) => {
-              // Calculate isCompletedToday using local date and habit_completions
-              const now = new Date()
-              const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-              const isCompletedToday = habit && habit.habit_completions && habit.habit_completions[today] === true;
-              return (
-                <div
-                  key={habit.id}
-                  onClick={() => handleItemClick(habit, 'habit')}
-                  className="p-4 rounded-xl border cursor-pointer transition-all duration-300 hover:shadow-md"
-                  style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    borderColor: 'rgba(251, 146, 60, 0.3)',
-                    boxShadow: '0 2px 8px rgba(251, 146, 60, 0.1)'
-                  }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h4 className="text-lg font-semibold text-orange-900">{habit.name}</h4>
-                      {habit.description && (
-                        <p className="text-sm text-orange-700 mt-1">{habit.description}</p>
-                      )}
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        <span className="text-xs px-2 py-1 bg-orange-200 text-orange-800 rounded-full">
-                          {habit.frequency === 'daily' ? 'Denně' : 
-                           habit.frequency === 'weekly' ? 'Týdně' : 
-                           habit.frequency === 'monthly' ? 'Měsíčně' : 'Vlastní'}
-                        </span>
-                        {habit.xp_reward && (
-                          <span className="text-xs px-2 py-1 bg-purple-200 text-purple-800 rounded-full">
-                            {habit.xp_reward} XP
-                          </span>
-                        )}
-                        {habit.streak && (
-                          <span className="text-xs px-2 py-1 bg-green-200 text-green-800 rounded-full">
-                            Streak: {habit.streak}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        if (!loadingHabits.has(habit.id)) {
-                          handleHabitToggle(habit.id)
-                        }
-                      }}
-                      disabled={loadingHabits.has(habit.id)}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
-                        loadingHabits.has(habit.id)
-                          ? 'bg-gray-200 text-gray-400 cursor-wait'
-                          : isCompletedToday 
-                            ? 'bg-green-500 text-white' 
-                            : 'bg-orange-200 text-orange-600 hover:bg-orange-300'
-                      }`}
-                    >
-                      {loadingHabits.has(habit.id) ? (
-                        <svg className="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                      ) : isCompletedToday ? '✓' : '○'}
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    )
-  }
+  // Old renderGoalsContent and renderHabitsContent removed - now using new versions in renderManagementContent
 
   const renderStepsContent = () => {
     // Apply same filters as kanban view
@@ -4126,6 +2789,11 @@ export function JourneyGameView({
       
       // Filter by goal
       if (stepsGoalFilter && step.goal_id !== stepsGoalFilter) {
+        return false
+      }
+      
+      // Filter by aspiration
+      if (stepsAspirationFilter && (step.aspiration_id || step.aspirationId) !== stepsAspirationFilter) {
         return false
       }
       
@@ -4197,21 +2865,95 @@ export function JourneyGameView({
     })
 
     return (
-      <div className="w-full overflow-x-auto" style={{ overflowY: 'visible' }}>
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-          <table className="w-full border-collapse" style={{ overflow: 'visible' }}>
-            <thead>
-              <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-12 first:pl-6">#</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Název</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">Čas</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Datum</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-20">Důležité</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-20">Urgentní</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Cíl</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40 last:pr-6">Aspirace</th>
-              </tr>
-            </thead>
+      <div className="w-full h-full flex flex-col">
+        {/* Filters Row */}
+        <div className="flex items-center justify-between gap-4 p-4 bg-white border-b border-gray-200">
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Completed Filter */}
+            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={stepsShowCompleted}
+                onChange={(e) => setStepsShowCompleted(e.target.checked)}
+                className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+              />
+              <span>{t('steps.filters.showCompleted')}</span>
+            </label>
+            
+            {/* Date Filter */}
+            <select
+              value={stepsDateFilter}
+              onChange={(e) => setStepsDateFilter(e.target.value as any)}
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+            >
+              <option value="all">{t('steps.filters.date.all')}</option>
+              <option value="today">{t('steps.filters.date.today')}</option>
+              <option value="overdue">{t('steps.filters.date.overdue')}</option>
+              <option value="future">{t('steps.filters.date.future')}</option>
+            </select>
+            
+            {/* Goal Filter */}
+            <select
+              value={stepsGoalFilter || ''}
+              onChange={(e) => setStepsGoalFilter(e.target.value || null)}
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white min-w-[150px]"
+            >
+              <option value="">{t('steps.filters.goal.all')}</option>
+              {goals.map((goal: any) => (
+                <option key={goal.id} value={goal.id}>{goal.title}</option>
+              ))}
+            </select>
+            
+            {/* Aspiration Filter */}
+            <select
+              value={stepsAspirationFilter || ''}
+              onChange={(e) => setStepsAspirationFilter(e.target.value || null)}
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white min-w-[150px]"
+            >
+              <option value="">{t('steps.filters.aspiration.all')}</option>
+              {aspirations.map((aspiration: any) => (
+                <option key={aspiration.id} value={aspiration.id}>{aspiration.title}</option>
+              ))}
+            </select>
+          </div>
+          
+          {/* Add Button */}
+          <button
+            onClick={() => {
+              setEditingStep({
+                id: '',
+                title: '',
+                description: '',
+                goalId: null,
+                aspirationId: null,
+                estimatedTime: 0,
+                date: getLocalDateString(),
+                isImportant: false,
+                isUrgent: false
+              })
+            }}
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2 text-sm font-medium"
+          >
+            <span className="text-lg">+</span>
+            {t('steps.addStep')}
+          </button>
+                  </div>
+        
+        <div className="flex-1 overflow-y-auto">
+          <div className="w-full overflow-x-auto" style={{ overflowY: 'visible' }}>
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+              <table className="w-full border-collapse" style={{ overflow: 'visible' }}>
+                <thead>
+                  <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-12 first:pl-6">#</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Název</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">Čas</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Datum</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Cíl</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Aspirace</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-12 last:pr-6"></th>
+                  </tr>
+                </thead>
             <tbody style={{ overflow: 'visible' }}>
             {sortedSteps.map((step, index) => {
               const stepGoal = step.goal_id || step.goalId ? goals.find((g: any) => g.id === (step.goal_id || step.goalId)) : null
@@ -4220,9 +2962,8 @@ export function JourneyGameView({
               const isEditing = editingStep && editingStep.id === step.id
               
               return (
-                <>
+                <Fragment key={step.id}>
               <tr
-                key={step.id}
                 onClick={() => {
                   if (isEditing) {
                     setEditingStep(null)
@@ -4231,7 +2972,7 @@ export function JourneyGameView({
                   }
                 }}
                 className={`border-b border-gray-100 hover:bg-orange-50/30 cursor-pointer transition-all duration-200 last:border-b-0 ${
-                  step.completed ? 'bg-green-50/50 hover:bg-green-50' : 'bg-white'
+                  step.completed ? 'bg-orange-50/50 hover:bg-orange-50' : 'bg-white'
                 }`}
               >
                 <td className="px-4 py-2 first:pl-6">
@@ -4263,7 +3004,7 @@ export function JourneyGameView({
                       className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
                     >
                       {step.completed ? (
-                        <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
+                        <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
                       ) : (
                         <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
                       )}
@@ -4273,7 +3014,7 @@ export function JourneyGameView({
                 <td className="px-4 py-2">
                   <span className={`font-semibold text-sm ${step.completed ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
                     {step.title}
-                      </span>
+                    </span>
                 </td>
                 <td className="px-4 py-2">
                   <div className="relative" style={{ overflow: 'visible' }}>
@@ -4294,7 +3035,7 @@ export function JourneyGameView({
                     >
                       <Clock className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
                       <span className="text-blue-700 font-medium">{step.estimated_time || 0} min</span>
-                    </div>
+                  </div>
                     {openTimeModalForStep === step.id && timeModalPosition && typeof window !== 'undefined' && createPortal(
                       <>
                         <div 
@@ -4306,11 +3047,47 @@ export function JourneyGameView({
                           }}
                         />
                         <div 
-                          className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-4 min-w-[250px]"
-                style={{
-                            top: `${timeModalPosition.top}px`,
-                            left: `${timeModalPosition.left}px`
-                          }}
+                          className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-4 min-w-[250px] max-w-[90vw]"
+                          style={(() => {
+                            if (typeof window === 'undefined') {
+                              return {
+                                top: `${timeModalPosition.top}px`,
+                                left: `${timeModalPosition.left}px`
+                              }
+                            }
+                            
+                            // Calculate adjusted position to keep modal on screen
+                            const modalWidth = 250
+                            const modalHeight = 200
+                            const padding = 10
+                            
+                            let adjustedTop = timeModalPosition.top
+                            let adjustedLeft = timeModalPosition.left
+                            
+                            // Adjust horizontal position
+                            if (adjustedLeft + modalWidth > window.innerWidth - padding) {
+                              adjustedLeft = window.innerWidth - modalWidth - padding
+                            }
+                            if (adjustedLeft < padding) {
+                              adjustedLeft = padding
+                            }
+                            
+                            // Adjust vertical position
+                            if (adjustedTop + modalHeight > window.innerHeight - padding) {
+                              adjustedTop = timeModalPosition.top - modalHeight - 40
+                              if (adjustedTop < padding) {
+                                adjustedTop = padding
+                              }
+                            }
+                            if (adjustedTop < padding) {
+                              adjustedTop = padding
+                            }
+                            
+                            return {
+                              top: `${adjustedTop}px`,
+                              left: `${adjustedLeft}px`
+                            }
+                          })()}
                           onClick={(e) => e.stopPropagation()}
                         >
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -4327,8 +3104,8 @@ export function JourneyGameView({
                               autoFocus
                             />
                             <span className="text-sm text-gray-600 flex items-center">min</span>
-                          </div>
-                          <div className="flex gap-2">
+                </div>
+                          <div className="flex gap-2 mb-2">
                             <button
                               onClick={async (e) => {
                                 e.stopPropagation()
@@ -4349,12 +3126,12 @@ export function JourneyGameView({
                             >
                               {t('common.cancel') || 'Zrušit'}
                             </button>
-                          </div>
-                        </div>
+              </div>
+          </div>
                       </>,
                       document.body
                     )}
-                  </div>
+        </div>
                 </td>
                 <td className="px-4 py-2">
                   <div className="relative" style={{ overflow: 'visible' }}>
@@ -4377,7 +3154,7 @@ export function JourneyGameView({
                       <span className="text-gray-700 font-medium">
                         {step.date ? new Date(step.date).toLocaleDateString(localeCode) : t('common.noDate') || 'Bez data'}
                       </span>
-                    </div>
+      </div>
                     {openDateModalForStep === step.id && dateModalPosition && typeof window !== 'undefined' && createPortal(
                       <>
                         <div 
@@ -4389,14 +3166,51 @@ export function JourneyGameView({
                           }}
                         />
                         <div 
-                          className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-3"
-                          style={{
-                            top: `${dateModalPosition.top}px`,
-                            left: `${dateModalPosition.left}px`,
-                            maxWidth: 'calc(100vw - 1rem)',
-                            maxHeight: 'calc(100vh - 1rem)',
-                            overflow: 'auto'
-                          }}
+                          className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-4 min-w-[300px] max-w-[90vw]"
+                          style={(() => {
+                            if (typeof window === 'undefined') {
+                              return {
+                                top: `${dateModalPosition.top}px`,
+                                left: `${dateModalPosition.left}px`,
+                                maxHeight: 'calc(100vh - 1rem)',
+                                overflow: 'auto'
+                              }
+                            }
+                            
+                            // Calculate adjusted position to keep modal on screen
+                            const modalWidth = 350
+                            const modalHeight = 400
+                            const padding = 10
+                            
+                            let adjustedTop = dateModalPosition.top
+                            let adjustedLeft = dateModalPosition.left
+                            
+                            // Adjust horizontal position
+                            if (adjustedLeft + modalWidth > window.innerWidth - padding) {
+                              adjustedLeft = window.innerWidth - modalWidth - padding
+                            }
+                            if (adjustedLeft < padding) {
+                              adjustedLeft = padding
+                            }
+                            
+                            // Adjust vertical position
+                            if (adjustedTop + modalHeight > window.innerHeight - padding) {
+                              adjustedTop = dateModalPosition.top - modalHeight - 40
+                              if (adjustedTop < padding) {
+                                adjustedTop = padding
+                              }
+                            }
+                            if (adjustedTop < padding) {
+                              adjustedTop = padding
+                            }
+                            
+                            return {
+                              top: `${adjustedTop}px`,
+                              left: `${adjustedLeft}px`,
+                              maxHeight: 'calc(100vh - 1rem)',
+                              overflow: 'auto'
+                            }
+                          })()}
                           onClick={(e) => e.stopPropagation()}
                         >
                           <h3 className="text-sm font-semibold text-gray-800 mb-2">
@@ -4429,7 +3243,7 @@ export function JourneyGameView({
                                 days.push(date)
                               }
 
-                              return (
+    return (
                                 <div className="grid grid-cols-7 gap-1">
                                   {days.map((date, index) => {
                                     if (!date) {
@@ -4440,7 +3254,7 @@ export function JourneyGameView({
                                     const isSelected = dateStr === getLocalDateString(selectedDateForStep)
                                     const isToday = dateStr === todayStr
                                     
-                                    return (
+              return (
                                       <button
                                         key={dateStr}
                                         onClick={(e) => {
@@ -4459,14 +3273,14 @@ export function JourneyGameView({
                                       </button>
                                     )
                                   })}
-                                </div>
+                      </div>
                               )
                             })()}
                             
                             <div className="flex items-center justify-between mt-2 pt-2 border-t">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
                                   const prevMonth = new Date(selectedDateForStep)
                                   prevMonth.setMonth(prevMonth.getMonth() - 1)
                                   setSelectedDateForStep(prevMonth)
@@ -4475,11 +3289,11 @@ export function JourneyGameView({
                               >
                                 <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                                </svg>
+                        </svg>
                               </button>
                               <span className="text-xs font-semibold text-gray-800">
                                 {selectedDateForStep.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
-                      </span>
+                        </span>
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation()
@@ -4492,8 +3306,8 @@ export function JourneyGameView({
                                 <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                                 </svg>
-                              </button>
-                            </div>
+                    </button>
+                  </div>
                             
                             <div className="flex gap-2 mt-2">
                               <button
@@ -4518,51 +3332,13 @@ export function JourneyGameView({
                               >
                                 {t('common.cancel') || 'Zrušit'}
                               </button>
-                            </div>
-                          </div>
-                        </div>
+                </div>
+          </div>
+        </div>
                       </>,
                       document.body
                     )}
-                  </div>
-                </td>
-                <td className="px-4 py-2">
-                  <div 
-                    onClick={async (e) => {
-                      e.stopPropagation()
-                      await handleUpdateStepGoalOrAspiration(step.id, 'is_important', !step.is_important)
-                    }}
-                    className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border cursor-pointer transition-all duration-200 w-fit shadow-sm ${
-                      step.is_important 
-                        ? 'bg-yellow-50 border-yellow-200 hover:bg-yellow-100 hover:border-yellow-300' 
-                        : 'bg-gray-50 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
-                    }`}
-                    title="Kliknutím přepnete důležitost"
-                  >
-                    <Star className={`w-3.5 h-3.5 ${step.is_important ? 'text-yellow-600 fill-yellow-600' : 'text-gray-400'}`} />
-                    <span className={`font-medium ${step.is_important ? 'text-yellow-700' : 'text-gray-500'}`}>
-                      {step.is_important ? 'Ano' : 'Ne'}
-                      </span>
-                  </div>
-                </td>
-                <td className="px-4 py-2">
-                  <div 
-                    onClick={async (e) => {
-                      e.stopPropagation()
-                      await handleUpdateStepGoalOrAspiration(step.id, 'is_urgent', !step.is_urgent)
-                    }}
-                    className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border cursor-pointer transition-all duration-200 w-fit shadow-sm ${
-                      step.is_urgent 
-                        ? 'bg-orange-50 border-orange-200 hover:bg-orange-100 hover:border-orange-300' 
-                        : 'bg-gray-50 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
-                    }`}
-                    title="Kliknutím přepnete urgentnost"
-                  >
-                    <Zap className={`w-3.5 h-3.5 ${step.is_urgent ? 'text-orange-600 fill-orange-600' : 'text-gray-400'}`} />
-                    <span className={`font-medium ${step.is_urgent ? 'text-orange-700' : 'text-gray-500'}`}>
-                      {step.is_urgent ? 'Ano' : 'Ne'}
-                    </span>
-                  </div>
+      </div>
                 </td>
                 <td className="px-4 py-2">
                   <div className="relative" style={{ overflow: 'visible' }}>
@@ -4595,11 +3371,44 @@ export function JourneyGameView({
                           }}
                         />
                         <div 
-                          className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[200px] max-w-md max-h-[70vh] overflow-y-auto"
-                          style={{
-                            top: `${goalModalPosition.top}px`,
-                            left: `${goalModalPosition.left}px`
-                          }}
+                          className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[200px] max-w-md max-h-[70vh] overflow-y-auto max-w-[90vw]"
+                          style={(() => {
+                            if (typeof window === 'undefined') {
+                              return {
+                                top: `${goalModalPosition.top}px`,
+                                left: `${goalModalPosition.left}px`
+                              }
+                            }
+                            
+                            const modalWidth = 300
+                            const modalHeight = 400
+                            const padding = 10
+                            
+                            let adjustedTop = goalModalPosition.top
+                            let adjustedLeft = goalModalPosition.left
+                            
+                            if (adjustedLeft + modalWidth > window.innerWidth - padding) {
+                              adjustedLeft = window.innerWidth - modalWidth - padding
+                            }
+                            if (adjustedLeft < padding) {
+                              adjustedLeft = padding
+                            }
+                            
+                            if (adjustedTop + modalHeight > window.innerHeight - padding) {
+                              adjustedTop = goalModalPosition.top - modalHeight - 40
+                              if (adjustedTop < padding) {
+                                adjustedTop = padding
+                              }
+                            }
+                            if (adjustedTop < padding) {
+                              adjustedTop = padding
+                            }
+                            
+                            return {
+                              top: `${adjustedTop}px`,
+                              left: `${adjustedLeft}px`
+                            }
+                          })()}
                           onClick={(e) => e.stopPropagation()}
                         >
                           <button
@@ -4615,7 +3424,7 @@ export function JourneyGameView({
                           </button>
                           {goals.map((goal: any) => {
                             const goalAreaForPicker = goal.area_id ? areas.find((a: any) => a.id === goal.area_id) : null
-                            return (
+    return (
                               <button
                                 key={goal.id}
                                 onClick={async (e) => {
@@ -4636,10 +3445,10 @@ export function JourneyGameView({
                                   {goal.icon ? getIconEmoji(goal.icon) : (goalAreaForPicker?.icon || '🎯')}
                                 </span>
                                 <span className="truncate">{goal.title}</span>
-                              </button>
+                    </button>
                             )
-                          })}
-                        </div>
+            })}
+          </div>
                       </>,
                       document.body
                     )}
@@ -4663,9 +3472,9 @@ export function JourneyGameView({
                         <span className="text-sm">✨</span>
                         <span className="text-gray-700 truncate font-medium">
                           {stepAspiration ? stepAspiration.title : t('details.step.aspiration') || 'Aspirace'}
-                        </span>
+                      </span>
                         <ChevronDown className="w-3 h-3 text-gray-400" />
-                </div>
+      </div>
                       {openAspirationPickerForStep === step.id && aspirationModalPosition && typeof window !== 'undefined' && createPortal(
                         <>
                           <div 
@@ -4677,11 +3486,44 @@ export function JourneyGameView({
                             }}
                           />
                           <div 
-                            className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[200px] max-w-md max-h-[70vh] overflow-y-auto"
-                            style={{
-                              top: `${aspirationModalPosition.top}px`,
-                              left: `${aspirationModalPosition.left}px`
-                            }}
+                            className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[200px] max-w-md max-h-[70vh] overflow-y-auto max-w-[90vw]"
+                            style={(() => {
+                              if (typeof window === 'undefined') {
+                                return {
+                                  top: `${aspirationModalPosition.top}px`,
+                                  left: `${aspirationModalPosition.left}px`
+                                }
+                              }
+                              
+                              const modalWidth = 300
+                              const modalHeight = 400
+                              const padding = 10
+                              
+                              let adjustedTop = aspirationModalPosition.top
+                              let adjustedLeft = aspirationModalPosition.left
+                              
+                              if (adjustedLeft + modalWidth > window.innerWidth - padding) {
+                                adjustedLeft = window.innerWidth - modalWidth - padding
+                              }
+                              if (adjustedLeft < padding) {
+                                adjustedLeft = padding
+                              }
+                              
+                              if (adjustedTop + modalHeight > window.innerHeight - padding) {
+                                adjustedTop = aspirationModalPosition.top - modalHeight - 40
+                                if (adjustedTop < padding) {
+                                  adjustedTop = padding
+                                }
+                              }
+                              if (adjustedTop < padding) {
+                                adjustedTop = padding
+                              }
+                              
+                              return {
+                                top: `${adjustedTop}px`,
+                                left: `${adjustedLeft}px`
+                              }
+                            })()}
                             onClick={(e) => e.stopPropagation()}
                           >
                             <button
@@ -4718,14 +3560,28 @@ export function JourneyGameView({
               </div>
                         </>,
                         document.body
-                      )}
-                    </div>
+                    )}
+                  </div>
                   )}
+                </td>
+                <td className="px-4 py-2 last:pr-6">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      initializeEditingStep(step)
+                    }}
+                    className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                    title={t('common.edit') || 'Upravit'}
+                  >
+                    <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
                 </td>
               </tr>
               {isEditing && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-3 bg-orange-50/50 first:pl-6 last:pr-6">
+                  <td colSpan={7} className="px-4 py-3 bg-orange-50/50 first:pl-6 last:pr-6">
                     <div className="p-3 bg-white rounded-xl border border-orange-200 shadow-sm" onClick={(e) => e.stopPropagation()}>
                       <div className="space-y-3">
                         <input
@@ -4761,7 +3617,7 @@ export function JourneyGameView({
                             onChange={(e) => setEditingStep({...editingStep, date: e.target.value})}
                             className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                           />
-          </div>
+                  </div>
                         <div className="grid grid-cols-2 gap-3">
                           <input
                             type="number"
@@ -4792,8 +3648,8 @@ export function JourneyGameView({
                               <Zap className="w-4 h-4" />
                               Urgentní
                             </label>
-        </div>
-                        </div>
+                </div>
+              </div>
                         <div className="flex gap-2">
                           <button
                             onClick={async (e) => {
@@ -4819,11 +3675,13 @@ export function JourneyGameView({
                   </td>
                 </tr>
               )}
-                </>
+                </Fragment>
               )
             })}
-          </tbody>
-        </table>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -5755,7 +4613,7 @@ export function JourneyGameView({
         }
         
         // Update overview balance if we're on overview page
-        if (currentPage === 'aspirace' && updatedHabit.aspiration_id) {
+        if (currentPage === 'management' && currentManagementProgram === 'aspirace' && updatedHabit.aspiration_id) {
           try {
             console.log(`🔄 Updating balance for aspiration ${updatedHabit.aspiration_id} after habit update`)
             const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${updatedHabit.aspiration_id}`)
@@ -5776,7 +4634,7 @@ export function JourneyGameView({
         
         // Also update balance for old aspiration if aspirationId changed
         const oldHabit = habits.find(h => h.id === updatedHabit.id)
-        if (currentPage === 'aspirace' && oldHabit && oldHabit.aspiration_id && oldHabit.aspiration_id !== updatedHabit.aspiration_id) {
+        if (currentPage === 'management' && currentManagementProgram === 'aspirace' && oldHabit && oldHabit.aspiration_id && oldHabit.aspiration_id !== updatedHabit.aspiration_id) {
           try {
             console.log(`🔄 Updating balance for old aspiration ${oldHabit.aspiration_id} after habit aspiration change`)
             const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${oldHabit.aspiration_id}`)
@@ -5870,7 +4728,7 @@ export function JourneyGameView({
         }
         
         // Update overview balance if we're on overview page
-        if (currentPage === 'aspirace' && updatedGoal.aspiration_id) {
+        if (currentPage === 'management' && currentManagementProgram === 'aspirace' && updatedGoal.aspiration_id) {
           try {
             const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${updatedGoal.aspiration_id}`)
             if (balanceResponse.ok) {
@@ -5887,7 +4745,7 @@ export function JourneyGameView({
         
         // Also update balance for old aspiration if aspirationId changed
         const oldGoal = goals.find(g => g.id === goalId)
-        if (currentPage === 'aspirace' && oldGoal && oldGoal.aspiration_id && oldGoal.aspiration_id !== updatedGoal.aspiration_id) {
+        if (currentPage === 'management' && currentManagementProgram === 'aspirace' && oldGoal && oldGoal.aspiration_id && oldGoal.aspiration_id !== updatedGoal.aspiration_id) {
           try {
             const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${oldGoal.aspiration_id}`)
             if (balanceResponse.ok) {
@@ -5960,7 +4818,7 @@ export function JourneyGameView({
         }
         
         // Update overview balance if we're on overview page and goal has aspiration
-        if (currentPage === 'aspirace' && data.goal && data.goal.aspiration_id) {
+        if (currentPage === 'management' && currentManagementProgram === 'aspirace' && data.goal && data.goal.aspiration_id) {
           try {
             const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${data.goal.aspiration_id}`)
             if (balanceResponse.ok) {
@@ -6471,7 +5329,7 @@ export function JourneyGameView({
         }
         
         // Update overview balance if we're on overview page and habit has aspiration
-        if (currentPage === 'aspirace' && createdHabit.aspiration_id) {
+        if (currentPage === 'management' && currentManagementProgram === 'aspirace' && createdHabit.aspiration_id) {
           try {
             const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${createdHabit.aspiration_id}`)
             if (balanceResponse.ok) {
@@ -6748,7 +5606,7 @@ export function JourneyGameView({
 
   // Load aspirations data when on aspirace page
   useEffect(() => {
-    if (currentPage === 'aspirace') {
+    if (currentPage === 'management' && currentManagementProgram === 'aspirace') {
       const loadAspiraceData = async () => {
         setIsLoadingOverview(true)
         try {
@@ -8645,7 +7503,7 @@ export function JourneyGameView({
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
             ) : step.completed ? (
-              <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
+              <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
             ) : (
               <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
             )}
@@ -8674,7 +7532,7 @@ export function JourneyGameView({
                 >
                   <Target className="w-3.5 h-3.5 text-purple-600" />
                   <span className="text-purple-700 font-medium truncate max-w-[100px]">
-                    {goals.find((g: any) => g.id === step.goal_id)?.title || 'Cíl'}
+                  {goals.find((g: any) => g.id === step.goal_id)?.title || 'Cíl'}
                   </span>
                 </button>
               )}
@@ -8924,30 +7782,71 @@ export function JourneyGameView({
     )
   }
 
-  const renderPageContent = () => {
-    switch (currentPage) {
-      case 'aspirace':
-        return renderAspiraceContent()
-      case 'goals':
+  const renderManagementContent = () => {
         return (
-          <div className="p-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-orange-800" style={{ letterSpacing: '1px' }}>{t('goals.title')}</h2>
+      <div className="w-full h-full flex flex-col">
+        {/* Program Selector - similar to main panel */}
+        <div className="flex items-center justify-center gap-2 p-4 border-b border-gray-200 bg-white">
               <button
-                onClick={() => setShowCreateGoal(true)}
-                className="p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                title="Přidat cíl"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
+            onClick={() => setCurrentManagementProgram('aspirace')}
+            className={`px-4 py-2 rounded-lg font-medium transition-all ${
+              currentManagementProgram === 'aspirace'
+                ? 'bg-orange-500 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            {t('game.menu.aspirace')}
+          </button>
+          <button
+            onClick={() => setCurrentManagementProgram('goals')}
+            className={`px-4 py-2 rounded-lg font-medium transition-all ${
+              currentManagementProgram === 'goals'
+                ? 'bg-orange-500 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            {t('game.menu.goals')}
+          </button>
+          <button
+            onClick={() => setCurrentManagementProgram('habits')}
+            className={`px-4 py-2 rounded-lg font-medium transition-all ${
+              currentManagementProgram === 'habits'
+                ? 'bg-orange-500 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            {t('game.menu.habits')}
+          </button>
+          <button
+            onClick={() => setCurrentManagementProgram('steps')}
+            className={`px-4 py-2 rounded-lg font-medium transition-all ${
+              currentManagementProgram === 'steps'
+                ? 'bg-orange-500 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            {t('game.menu.steps')}
               </button>
             </div>
             
+        {/* Program Content */}
+        <div className="flex-1 overflow-y-auto">
+          {currentManagementProgram === 'aspirace' && renderAspiraceContent()}
+          {currentManagementProgram === 'goals' && renderGoalsContent()}
+          {currentManagementProgram === 'habits' && renderHabitsContent()}
+          {currentManagementProgram === 'steps' && renderStepsContent()}
+        </div>
+      </div>
+    )
+  }
+
+  const renderGoalsContent = () => {
+    return (
+      <div className="w-full h-full flex flex-col">
             {/* Create Goal Form */}
             {showCreateGoal && (
-              <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border border-gray-200 shadow-lg mb-6 max-h-[85vh] overflow-y-auto">
-                <div className="flex items-center justify-between mb-6 sticky top-0 bg-gradient-to-br from-white to-gray-50 pb-4 z-10 border-b border-gray-200">
+          <div className="p-6 bg-gradient-to-br from-white to-gray-50 border-b border-gray-200 max-h-[50vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
                   <div>
                     <h3 className="text-xl font-bold text-gray-900">Vytvořit nový cíl</h3>
                     <p className="text-sm text-gray-500 mt-1">Vyplňte informace o vašem cíli</p>
@@ -9593,68 +8492,692 @@ export function JourneyGameView({
               </div>
             )}
             
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
+        {/* Filters Row */}
+        <div className="flex items-center justify-between gap-4 p-4 bg-white border-b border-gray-200">
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Status Filter */}
+            <select
+              value={goalsStatusFilter}
+              onChange={(e) => setGoalsStatusFilter(e.target.value as any)}
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
             >
-              <SortableContext
-                items={sortedGoals.map(goal => goal.id)}
-                strategy={rectSortingStrategy}
-              >
-                <div className="space-y-4">
-                  {sortedGoals.map((goal, index) => {
-                    const isEditing = editingGoal && editingGoal.id === goal.id;
+              <option value="all">{t('goals.filters.status.all')}</option>
+              <option value="active">{t('goals.filters.status.active')}</option>
+              <option value="completed">{t('goals.filters.status.completed')}</option>
+              <option value="considering">{t('goals.filters.status.considering')}</option>
+            </select>
+            
+            {/* Area Filter */}
+            <select
+              value={goalsAreaFilter || ''}
+              onChange={(e) => setGoalsAreaFilter(e.target.value || null)}
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white min-w-[150px]"
+            >
+              <option value="">{t('goals.filters.area.all')}</option>
+              {areas.map((area: any) => (
+                <option key={area.id} value={area.id}>{area.name}</option>
+              ))}
+            </select>
+            
+            {/* Aspiration Filter */}
+            <select
+              value={goalsAspirationFilter || ''}
+              onChange={(e) => setGoalsAspirationFilter(e.target.value || null)}
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white min-w-[150px]"
+            >
+              <option value="">{t('goals.filters.aspiration.all')}</option>
+              {aspirations.map((aspiration: any) => (
+                <option key={aspiration.id} value={aspiration.id}>{aspiration.title}</option>
+              ))}
+            </select>
+          </div>
+          
+          {/* Add Button */}
+          <button
+            onClick={() => setShowCreateGoal(true)}
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2 text-sm font-medium"
+          >
+            <span className="text-lg">+</span>
+            {t('goals.addGoal')}
+          </button>
+        </div>
+        
+        <div className="flex-1 overflow-y-auto">
+          <div className="w-full overflow-x-auto" style={{ overflowY: 'visible' }}>
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+              <table className="w-full border-collapse" style={{ overflow: 'visible' }}>
+                <thead>
+                  <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 first:pl-6">Název</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">Status</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Datum</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Oblast</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Aspirace</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-12 last:pr-6"></th>
+                  </tr>
+                </thead>
+              <tbody style={{ overflow: 'visible' }}>
+                {sortedGoals.filter((goal: any) => {
+                  // Filter by status
+                  if (goalsStatusFilter !== 'all' && goal.status !== goalsStatusFilter) {
+                    return false
+                  }
+                  
+                  // Filter by area
+                  if (goalsAreaFilter && goal.area_id !== goalsAreaFilter) {
+                    return false
+                  }
+                  
+                  // Filter by aspiration
+                  if (goalsAspirationFilter && (goal.aspiration_id || goal.aspirationId) !== goalsAspirationFilter) {
+                    return false
+                  }
+                  
+                  return true
+                }).map((goal, index) => {
+                  const isEditing = editingGoal && editingGoal.id === goal.id
+                  const goalArea = goal.area_id ? areas.find((a: any) => a.id === goal.area_id) : null
+                  const goalAspiration = goal.aspiration_id || goal.aspirationId ? aspirations.find((a: any) => a.id === (goal.aspiration_id || goal.aspirationId)) : null
+                  
                     return (
-                      <SortableGoal
-                        key={goal.id}
+                    <Fragment key={goal.id}>
+                      <tr
+                        onClick={() => {
+                          if (isEditing) {
+                            setEditingGoal(null)
+                          } else {
+                            initializeEditingGoal(goal)
+                          }
+                        }}
+                        className={`border-b border-gray-100 hover:bg-orange-50/30 cursor-pointer transition-all duration-200 last:border-b-0 ${
+                          goal.status === 'completed' ? 'bg-green-50/50 hover:bg-green-50' : 'bg-white'
+                        }`}
+                      >
+                        <td className="px-4 py-2 first:pl-6">
+                          <span className={`font-semibold text-sm ${goal.status === 'completed' ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                            {goal.title}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2">
+                          <span 
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                              setQuickEditGoalPosition({ top: rect.bottom + 4, left: rect.left })
+                              setQuickEditGoalId(goal.id)
+                              setQuickEditGoalField('status')
+                            }}
+                            className={`text-xs px-2.5 py-1.5 rounded-lg font-medium cursor-pointer hover:opacity-80 transition-opacity ${
+                              goal.status === 'active' ? 'bg-green-100 text-green-700' :
+                              goal.status === 'completed' ? 'bg-blue-100 text-blue-700' :
+                              'bg-yellow-100 text-yellow-700'
+                            }`}
+                          >
+                            {goal.status === 'active' ? t('goals.status.active') :
+                             goal.status === 'completed' ? t('goals.status.completed') :
+                             t('goals.status.considering')}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2">
+                          <span
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                              setQuickEditGoalPosition({ top: rect.bottom + 4, left: rect.left })
+                              setQuickEditGoalId(goal.id)
+                              setQuickEditGoalField('date')
+                            }}
+                            className="text-xs text-gray-700 cursor-pointer hover:text-orange-600 transition-colors"
+                          >
+                            {goal.target_date ? (
+                              new Date(goal.target_date).toLocaleDateString(localeCode)
+                            ) : (
+                              <span className="text-gray-400">Bez data</span>
+                            )}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2">
+                          <span
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                              setQuickEditGoalPosition({ top: rect.bottom + 4, left: rect.left })
+                              setQuickEditGoalId(goal.id)
+                              setQuickEditGoalField('area')
+                            }}
+                            className="cursor-pointer hover:opacity-80 transition-opacity"
+                          >
+                            {goalArea ? (
+                              <span className="text-xs px-2.5 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-700 font-medium">
+                                {goalArea.name}
+                              </span>
+                            ) : (
+                              <span className="text-xs text-gray-400">Bez oblasti</span>
+                            )}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2 last:pr-6">
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                              setQuickEditGoalPosition({ top: rect.bottom + 4, left: rect.left })
+                              setQuickEditGoalId(goal.id)
+                              setQuickEditGoalField('aspiration')
+                            }}
+                            className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
+                          >
+                            {goalAspiration ? (
+                              <>
+                                <div 
+                                  className="w-3 h-3 rounded-full"
+                                  style={{ backgroundColor: goalAspiration.color || '#9333EA' }}
+                                />
+                                <span className="text-xs text-gray-700 truncate max-w-[150px]">
+                                  {goalAspiration.title}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-xs text-gray-400">Bez aspirace</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-2 last:pr-6">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              initializeEditingGoal(goal)
+                            }}
+                            className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                            title={t('common.edit') || 'Upravit'}
+                          >
+                            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                      {isEditing && (
+                        <tr>
+                          <td colSpan={6} className="px-4 py-3 bg-orange-50/50 first:pl-6 last:pr-6">
+                            <GoalEditingForm
                         goal={goal}
-                        index={index}
-                        isEditing={isEditing}
-                        editingGoal={editingGoal}
-                        setEditingGoal={setEditingGoal}
-                        handleUpdateGoal={handleUpdateGoal}
-                        getStatusColor={getStatusColor}
+                              userId={userId}
+                              player={player}
+                              onUpdate={handleUpdateGoal}
+                              onCancel={() => setEditingGoal(null)}
+                              onDelete={handleDeleteGoal}
                         areas={areas}
-                        initializeEditingGoal={initializeEditingGoal}
-                        userId={userId}
-                        player={player}
-                        stepsCacheVersion={stepsCacheVersion}
-                        milestonesCacheVersion={milestonesCacheVersion}
-                        setStepsCacheVersion={setStepsCacheVersion}
-                        setMilestonesCacheVersion={setMilestonesCacheVersion}
-                      />
-                    );
+                              setStepsCacheVersion={setStepsCacheVersion}
+                              setMilestonesCacheVersion={setMilestonesCacheVersion}
+                            />
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  )
                   })}
                   {sortedGoals.length === 0 && (
-                    <div className="text-center text-gray-500 py-8">
+                  <tr>
+                    <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
                       <p className="text-lg">Žádné cíle nejsou nastavené</p>
-                      <p className="text-sm">Klikněte na tlačítko níže pro přidání nového cíle</p>
-                    </div>
+                      <p className="text-sm">Klikněte na tlačítko výše pro přidání nového cíle</p>
+                    </td>
+                  </tr>
                   )}
+                </tbody>
+              </table>
                 </div>
-              </SortableContext>
-            </DndContext>
           </div>
-        );
-
-      case 'habits':
+        </div>
+        
+        {/* Quick Edit Modals for Goals */}
+        {quickEditGoalId && quickEditGoalPosition && typeof window !== 'undefined' && createPortal(
+          <>
+            <div 
+              className="fixed inset-0 z-40" 
+              onClick={(e) => {
+                e.stopPropagation()
+                setQuickEditGoalId(null)
+                setQuickEditGoalField(null)
+                setQuickEditGoalPosition(null)
+              }}
+            />
+            <div 
+              className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-4 min-w-[250px] max-w-[90vw]"
+              style={(() => {
+                if (typeof window === 'undefined') {
+                  return {
+                    top: `${quickEditGoalPosition.top}px`,
+                    left: `${quickEditGoalPosition.left}px`
+                  }
+                }
+                
+                // Calculate adjusted position to keep modal on screen
+                const modalWidth = 250 // min-w-[250px]
+                const modalHeight = 200 // estimated height
+                const padding = 10 // padding from screen edges
+                
+                let adjustedTop = quickEditGoalPosition.top
+                let adjustedLeft = quickEditGoalPosition.left
+                
+                // Adjust horizontal position
+                if (adjustedLeft + modalWidth > window.innerWidth - padding) {
+                  adjustedLeft = window.innerWidth - modalWidth - padding
+                }
+                if (adjustedLeft < padding) {
+                  adjustedLeft = padding
+                }
+                
+                // Adjust vertical position
+                if (adjustedTop + modalHeight > window.innerHeight - padding) {
+                  adjustedTop = quickEditGoalPosition.top - modalHeight - 40 // Position above the element
+                  // If still off screen, position at top
+                  if (adjustedTop < padding) {
+                    adjustedTop = padding
+                  }
+                }
+                if (adjustedTop < padding) {
+                  adjustedTop = padding
+                }
+                
+                return {
+                  top: `${adjustedTop}px`,
+                  left: `${adjustedLeft}px`
+                }
+              })()}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {(() => {
+                const goal = sortedGoals.find((g: any) => g.id === quickEditGoalId)
+                if (!goal) return null
+                
+                if (quickEditGoalField === 'status') {
         return (
-          <div className="p-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-orange-800" style={{ letterSpacing: '1px' }}>{t('sections.habits')}</h2>
+                    <>
+                      <div className="max-h-[300px] overflow-y-auto">
               <button
-                onClick={() => setShowAddHabitForm(!showAddHabitForm)}
-                className="w-10 h-10 rounded-full bg-orange-500 text-white hover:bg-orange-600 transition-colors flex items-center justify-center text-lg font-bold"
-                title={showAddHabitForm ? t('common.cancel') : t('habits.addHabit')}
-              >
-                +
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            try {
+                              const response = await fetch('/api/goals', {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ goalId: goal.id, status: 'active' })
+                              })
+                              if (response.ok) {
+                                const updatedGoal = await response.json()
+                                const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
+                                onGoalsUpdate?.(updatedGoals)
+                                setQuickEditGoalId(null)
+                                setQuickEditGoalField(null)
+                                setQuickEditGoalPosition(null)
+                              }
+                            } catch (error) {
+                              console.error('Error updating goal status:', error)
+                            }
+                          }}
+                          className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
+                            goal.status === 'active' ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
+                          }`}
+                        >
+                          {t('goals.status.active')}
+                        </button>
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            try {
+                              const response = await fetch('/api/goals', {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ goalId: goal.id, status: 'completed' })
+                              })
+                              if (response.ok) {
+                                const updatedGoal = await response.json()
+                                const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
+                                onGoalsUpdate?.(updatedGoals)
+                                setQuickEditGoalId(null)
+                                setQuickEditGoalField(null)
+                                setQuickEditGoalPosition(null)
+                              }
+                            } catch (error) {
+                              console.error('Error updating goal status:', error)
+                            }
+                          }}
+                          className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
+                            goal.status === 'completed' ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
+                          }`}
+                        >
+                          {t('goals.status.completed')}
+                        </button>
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            try {
+                              const response = await fetch('/api/goals', {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ goalId: goal.id, status: 'considering' })
+                              })
+                              if (response.ok) {
+                                const updatedGoal = await response.json()
+                                const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
+                                onGoalsUpdate?.(updatedGoals)
+                                setQuickEditGoalId(null)
+                                setQuickEditGoalField(null)
+                                setQuickEditGoalPosition(null)
+                              }
+                            } catch (error) {
+                              console.error('Error updating goal status:', error)
+                            }
+                          }}
+                          className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
+                            goal.status === 'considering' ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
+                          }`}
+                        >
+                          {t('goals.status.considering')}
               </button>
             </div>
+                    </>
+                  )
+                }
+                
+                if (quickEditGoalField === 'area') {
+                  return (
+                    <>
+                      <div className="max-h-[300px] overflow-y-auto">
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            try {
+                              const response = await fetch('/api/goals', {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ goalId: goal.id, areaId: null })
+                              })
+                              if (response.ok) {
+                                const updatedGoal = await response.json()
+                                const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
+                                onGoalsUpdate?.(updatedGoals)
+                                setQuickEditGoalId(null)
+                                setQuickEditGoalField(null)
+                                setQuickEditGoalPosition(null)
+                              }
+                            } catch (error) {
+                              console.error('Error updating goal area:', error)
+                            }
+                          }}
+                          className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
+                            !goal.area_id ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
+                          }`}
+                        >
+                          {t('goals.noArea') || 'Bez oblasti'}
+                        </button>
+                        {areas.map((area: any) => (
+                          <button
+                            key={area.id}
+                            onClick={async (e) => {
+                              e.stopPropagation()
+                              try {
+                                const response = await fetch('/api/goals', {
+                                  method: 'PUT',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ goalId: goal.id, areaId: area.id })
+                                })
+                                if (response.ok) {
+                                  const updatedGoal = await response.json()
+                                  const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
+                                  onGoalsUpdate?.(updatedGoals)
+                                  setQuickEditGoalId(null)
+                                  setQuickEditGoalField(null)
+                                  setQuickEditGoalPosition(null)
+                                }
+                              } catch (error) {
+                                console.error('Error updating goal area:', error)
+                              }
+                            }}
+                            className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors flex items-center gap-2 ${
+                              goal.area_id === area.id ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
+                            }`}
+                          >
+                            {area.icon && <span className="text-sm">{area.icon}</span>}
+                            <span className="truncate">{area.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )
+                }
+                
+                if (quickEditGoalField === 'aspiration') {
+                  return (
+                    <>
+                      <div className="max-h-[300px] overflow-y-auto">
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            try {
+                              const response = await fetch('/api/goals', {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ goalId: goal.id, aspirationId: null })
+                              })
+                              if (response.ok) {
+                                const updatedGoal = await response.json()
+                                const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
+                                onGoalsUpdate?.(updatedGoals)
+                                setQuickEditGoalId(null)
+                                setQuickEditGoalField(null)
+                                setQuickEditGoalPosition(null)
+                              }
+                            } catch (error) {
+                              console.error('Error updating goal aspiration:', error)
+                            }
+                          }}
+                          className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
+                            !goal.aspiration_id && !goal.aspirationId ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
+                          }`}
+                        >
+                          {t('goals.noAspiration') || 'Bez aspirace'}
+                        </button>
+                        {aspirations.map((aspiration: any) => (
+                          <button
+                            key={aspiration.id}
+                            onClick={async (e) => {
+                              e.stopPropagation()
+                              try {
+                                const response = await fetch('/api/goals', {
+                                  method: 'PUT',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ goalId: goal.id, aspirationId: aspiration.id })
+                                })
+                                if (response.ok) {
+                                  const updatedGoal = await response.json()
+                                  const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
+                                  onGoalsUpdate?.(updatedGoals)
+                                  setQuickEditGoalId(null)
+                                  setQuickEditGoalField(null)
+                                  setQuickEditGoalPosition(null)
+                                }
+                              } catch (error) {
+                                console.error('Error updating goal aspiration:', error)
+                              }
+                            }}
+                            className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors flex items-center gap-2 ${
+                              (goal.aspiration_id || goal.aspirationId) === aspiration.id ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
+                            }`}
+                          >
+                            <div 
+                              className="w-3 h-3 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: aspiration.color || '#9333EA' }}
+                            ></div>
+                            <span className="truncate">{aspiration.title}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )
+                }
+                
+                if (quickEditGoalField === 'date') {
+                  return (
+                    <>
+                      <h3 className="text-sm font-semibold text-gray-800 mb-2">
+                        {t('details.step.newDate') || 'Vyberte datum'}
+                      </h3>
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-7 gap-1 mb-1">
+                          {['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(day => (
+                            <div key={day} className="text-center text-xs font-semibold text-gray-600 py-1">
+                              {day}
+                            </div>
+                          ))}
+                        </div>
+                        {(() => {
+                          const today = new Date()
+                          const currentMonth = selectedDateForGoal.getMonth()
+                          const currentYear = selectedDateForGoal.getFullYear()
+                          const firstDay = new Date(currentYear, currentMonth, 1)
+                          const lastDay = new Date(currentYear, currentMonth + 1, 0)
+                          const daysInMonth = lastDay.getDate()
+                          const startingDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1
+                          const todayStr = getLocalDateString()
+                          
+                          const days = []
+                          for (let i = 0; i < startingDayOfWeek; i++) {
+                            days.push(null)
+                          }
+                          for (let day = 1; day <= daysInMonth; day++) {
+                            const date = new Date(currentYear, currentMonth, day)
+                            days.push(date)
+                          }
 
+                          return (
+                            <div className="grid grid-cols-7 gap-1">
+                              {days.map((date, index) => {
+                                if (!date) {
+                                  return <div key={`empty-${index}`} className="h-7"></div>
+                                }
+                                
+                                const dateStr = getLocalDateString(date)
+                                const isSelected = dateStr === getLocalDateString(selectedDateForGoal)
+                                const isToday = dateStr === todayStr
+                                
+                                return (
+                                  <button
+                                    key={dateStr}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setSelectedDateForGoal(date)
+                                    }}
+                                    className={`h-7 rounded transition-all text-xs ${
+                                      isSelected 
+                                        ? 'bg-orange-500 text-white font-bold' 
+                                        : isToday
+                                          ? 'bg-orange-100 text-orange-700 font-semibold'
+                                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                                    }`}
+                                  >
+                                    {date.getDate()}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          )
+                        })()}
+                        
+                        <div className="flex items-center justify-between mt-2 pt-2 border-t">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              const prevMonth = new Date(selectedDateForGoal)
+                              prevMonth.setMonth(prevMonth.getMonth() - 1)
+                              setSelectedDateForGoal(prevMonth)
+                            }}
+                            className="p-1 hover:bg-gray-100 rounded-lg"
+                          >
+                            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                            </svg>
+                          </button>
+                          <span className="text-xs font-semibold text-gray-800">
+                            {selectedDateForGoal.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              const nextMonth = new Date(selectedDateForGoal)
+                              nextMonth.setMonth(nextMonth.getMonth() + 1)
+                              setSelectedDateForGoal(nextMonth)
+                            }}
+                            className="p-1 hover:bg-gray-100 rounded-lg"
+                          >
+                            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                        </div>
+                        
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation()
+                              const dateStr = getLocalDateString(selectedDateForGoal)
+                              try {
+                                const response = await fetch('/api/goals', {
+                                  method: 'PUT',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ goalId: goal.id, target_date: dateStr })
+                                })
+                                if (response.ok) {
+                                  const updatedGoal = await response.json()
+                                  const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
+                                  onGoalsUpdate?.(updatedGoals)
+                                  setQuickEditGoalId(null)
+                                  setQuickEditGoalField(null)
+                                  setQuickEditGoalPosition(null)
+                                }
+                              } catch (error) {
+                                console.error('Error updating goal date:', error)
+                              }
+                            }}
+                            className="flex-1 px-3 py-1.5 bg-orange-500 text-white text-xs rounded-lg hover:bg-orange-600 transition-colors"
+                          >
+                            {t('details.step.confirm') || 'Uložit'}
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setQuickEditGoalId(null)
+                              setQuickEditGoalField(null)
+                              setQuickEditGoalPosition(null)
+                            }}
+                            className="px-3 py-1.5 bg-gray-200 text-gray-700 text-xs rounded-lg hover:bg-gray-300 transition-colors"
+                          >
+                            {t('common.cancel') || 'Zrušit'}
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )
+                }
+                
+                return null
+              })()}
+            </div>
+          </>,
+          document.body
+        )}
+      </div>
+    )
+  }
+
+  const renderHabitsContent = () => {
+    return (
+      <div className="w-full h-full flex flex-col">
             {/* Add Habit Form */}
             {showAddHabitForm && (
-              <div className="mb-6 p-6 bg-gray-50 rounded-xl border border-gray-200">
+          <div className="p-6 bg-gray-50 border-b border-gray-200 max-h-[50vh] overflow-y-auto">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Nový návyk</h3>
                 <div className="space-y-4">
                   <div>
@@ -9825,120 +9348,165 @@ export function JourneyGameView({
               </div>
             )}
 
+        {/* Filters Row */}
+        <div className="flex items-center justify-between gap-4 p-4 bg-white border-b border-gray-200">
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Frequency Filter */}
+            <select
+              value={habitsFrequencyFilter}
+              onChange={(e) => setHabitsFrequencyFilter(e.target.value as any)}
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+            >
+              <option value="all">{t('habits.filters.frequency.all')}</option>
+              <option value="daily">{t('habits.filters.frequency.daily')}</option>
+              <option value="weekly">{t('habits.filters.frequency.weekly')}</option>
+              <option value="monthly">{t('habits.filters.frequency.monthly')}</option>
+              <option value="custom">{t('habits.filters.frequency.custom')}</option>
+            </select>
+            
+            {/* Aspiration Filter */}
+            <select
+              value={habitsAspirationFilter || ''}
+              onChange={(e) => setHabitsAspirationFilter(e.target.value || null)}
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white min-w-[150px]"
+            >
+              <option value="">{t('habits.filters.aspiration.all')}</option>
+              {aspirations.map((aspiration: any) => (
+                <option key={aspiration.id} value={aspiration.id}>{aspiration.title}</option>
+              ))}
+            </select>
+            
+            {/* Completed Today Filter */}
+            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={habitsShowCompletedToday}
+                onChange={(e) => setHabitsShowCompletedToday(e.target.checked)}
+                className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+              />
+              <span>{t('habits.filters.showCompletedToday')}</span>
+            </label>
+          </div>
+          
+          {/* Add Button */}
+          <button
+            onClick={() => setShowAddHabitForm(!showAddHabitForm)}
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2 text-sm font-medium"
+          >
+            <span className="text-lg">+</span>
+            {t('habits.addHabit')}
+          </button>
+        </div>
+
             {/* Habits List */}
-            <div className="space-y-4">
-              {habits.map((habit, index) => {
+        <div className="flex-1 overflow-y-auto">
+          <div className="w-full overflow-x-auto" style={{ overflowY: 'visible' }}>
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+              <table className="w-full border-collapse" style={{ overflow: 'visible' }}>
+                <thead>
+                  <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-12 first:pl-6">#</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Název</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">Frekvence</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Dny</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40 last:pr-6">Aspirace</th>
+                  </tr>
+                </thead>
+                  <tbody style={{ overflow: 'visible' }}>
+                    {habits.filter((habit: any) => {
+                      // Filter by frequency
+                      if (habitsFrequencyFilter !== 'all' && habit.frequency !== habitsFrequencyFilter) {
+                        return false
+                      }
+                      
+                      // Filter by aspiration
+                      if (habitsAspirationFilter && (habit.aspiration_id || habit.aspirationId) !== habitsAspirationFilter) {
+                        return false
+                      }
+                      
+                      // Filter by completed today (if unchecked, hide completed)
+                      if (!habitsShowCompletedToday) {
+                        const today = new Date().toISOString().split('T')[0]
+                        const habitCompletions = habit.completions || []
+                        const isCompletedToday = habitCompletions.some((c: any) => c.date === today)
+                        if (isCompletedToday) {
+                          return false
+                        }
+                      }
+                      
+                      return true
+                    }).map((habit, index) => {
                 // Calculate isCompletedToday using local date and habit_completions
               const now = new Date()
               const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-              const isCompletedToday = habit && habit.habit_completions && habit.habit_completions[today] === true;
-                const isEditing = editingHabit && editingHabit.id === habit.id;
+                      const isCompletedToday = habit && habit.habit_completions && habit.habit_completions[today] === true
+                      const isEditing = editingHabit && editingHabit.id === habit.id
+                      const habitAspiration = habit.aspiration_id || habit.aspirationId ? aspirations.find((a: any) => a.id === (habit.aspiration_id || habit.aspirationId)) : null
+                      
                 return (
-                  <div key={habit.id} className={`rounded-xl border transition-all duration-300 ${
-                    isCompletedToday 
-                      ? 'bg-orange-100 border-orange-300 shadow-md' 
-                      : 'bg-gray-50 border-gray-200 hover:shadow-md'
-                  }`} style={{
-                    boxShadow: isCompletedToday ? '0 4px 12px rgba(251, 146, 60, 0.2)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                  }}>
-                    {/* Habit Display */}
-                    <div className={`p-4 cursor-pointer ${isEditing ? 'border-b border-gray-200' : ''}`} onClick={() => initializeEditingHabit(habit)}>
-                      <div className="flex items-center gap-3">
+                        <Fragment key={habit.id}>
+                          <tr
+                            onClick={() => {
+                              if (isEditing) {
+                                setEditingHabit(null)
+                              } else {
+                                initializeEditingHabit(habit)
+                              }
+                            }}
+                            className={`border-b border-gray-100 hover:bg-orange-50/30 cursor-pointer transition-all duration-200 last:border-b-0 ${
+                              isCompletedToday ? 'bg-orange-50/50 hover:bg-orange-50' : 'bg-white'
+                            }`}
+                          >
+                            <td className="px-4 py-2 first:pl-6">
+                              <div className="flex items-center justify-center">
                         <button
-                          onClick={(e) => {
+                                  onClick={async (e) => {
                             e.stopPropagation()
                             if (!loadingHabits.has(habit.id)) {
                               handleHabitToggle(habit.id)
                             }
                           }}
                           disabled={loadingHabits.has(habit.id)}
-                          className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ${
-                            loadingHabits.has(habit.id)
-                              ? 'border-gray-300 bg-gray-100 cursor-wait'
-                              : isCompletedToday
-                                ? 'bg-orange-500 border-orange-500 text-white shadow-md'
-                                : 'border-gray-300 hover:border-orange-400 hover:shadow-sm'
-                          }`}
-                          style={{
-                            boxShadow: isCompletedToday && !loadingHabits.has(habit.id) ? '0 2px 8px rgba(251, 146, 60, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)'
-                          }}
-                          title={isCompletedToday ? 'Označit jako nesplněný' : 'Označit jako splněný'}
+                                  className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
                         >
                           {loadingHabits.has(habit.id) ? (
-                            <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                          ) : isCompletedToday ? '✓' : null}
+                  ) : isCompletedToday ? (
+                    <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
+                  ) : (
+                    <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
+                  )}
                         </button>
-                        <div className="flex-1">
-                          <h3 className={`font-semibold ${isCompletedToday ? 'line-through text-orange-600' : 'text-gray-700'}`}>
+                              </div>
+                            </td>
+                            <td className="px-4 py-2">
+                              <span className={`font-semibold text-sm ${isCompletedToday ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
                             {habit.name}
-                          </h3>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-orange-600 font-bold text-sm">🔥 {(() => {
-                              // Calculate current streak dynamically from habit_completions
-                              const habitCompletions = habit.habit_completions || {}
-                              const completionDates = Object.keys(habitCompletions).sort()
-                              
-                              // Debug log for left sidebar
-                              if (habit.name === 'Studená sprcha') {
-                                console.log('Debug - Left sidebar habit_completions:', habitCompletions)
-                                console.log('Debug - Left sidebar completionDates:', completionDates)
-                                console.log('Debug - Left sidebar habit object:', habit)
-                              }
-                              
-                              // Calculate current streak by going backwards from the last completed day
-                              let currentStreak = 0
-                              const userCreatedDateFull = new Date(player?.created_at || '2024-01-01')
-                              const userCreatedDate = new Date(userCreatedDateFull.getFullYear(), userCreatedDateFull.getMonth(), userCreatedDateFull.getDate())
-                              
-                              // Find the last completed day chronologically
-                              let lastCompletedDate = null
-                              for (const dateKey of completionDates) {
-                                const completion = habitCompletions[dateKey]
-                                if (completion === true) {
-                                  const date = new Date(dateKey)
-                                  if (!lastCompletedDate || date > lastCompletedDate) {
-                                    lastCompletedDate = date
-                                  }
-                                }
-                              }
-                              
-                              // If we have a last completed day, count streak backwards from there
-                              if (lastCompletedDate) {
-                                const lastCompletedDateOnly = new Date(lastCompletedDate!.getFullYear(), lastCompletedDate!.getMonth(), lastCompletedDate!.getDate())
-                                for (let d = new Date(lastCompletedDateOnly); d >= userCreatedDate; d.setDate(d.getDate() - 1)) {
-                                  const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-                                  const completion = habitCompletions[dateKey]
-                                  
-                                  if (completion === true) {
-                                    currentStreak++
-                                  } else if (completion === false) {
-                                    // Missed day breaks the streak
-                                    break
-                                  }
-                                  // completion === undefined (not-scheduled) doesn't break the streak, just doesn't add to it
-                                }
-                              }
-                              
-                              return currentStreak
-                            })()}</span>
-                            <span className="text-gray-500 text-xs">• {
-                              habit.frequency === 'custom' ? 'Vlastní' :
+                              </span>
+                            </td>
+                            <td className="px-4 py-2">
+                              <span 
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                                  setQuickEditHabitPosition({ top: rect.bottom + 4, left: rect.left })
+                                  setQuickEditHabitId(habit.id)
+                                  setQuickEditHabitField('frequency')
+                                }}
+                                className="text-xs px-2.5 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-700 font-medium cursor-pointer hover:opacity-80 transition-opacity"
+                              >
+                                {habit.frequency === 'custom' ? 'Vlastní' :
                               habit.frequency === 'daily' ? 'Denně' :
                               habit.frequency === 'weekly' ? 'Týdně' :
-                              habit.frequency === 'monthly' ? 'Měsíčně' : 'Denně'
-                            }</span>
-                            {habit.reminder_time && (
-                              <span className="text-gray-500 text-xs">• {habit.reminder_time}</span>
-                            )}
-                            {habit.always_show && (
-                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Vždy</span>
-                            )}
-                            <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">+{habit.xp_reward || 1} XP</span>
-                            {habit.selected_days && habit.selected_days.length > 0 && (
-                              <div className="flex gap-1">
+                                 habit.frequency === 'monthly' ? 'Měsíčně' : 'Denně'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-2">
+                              {habit.selected_days && habit.selected_days.length > 0 ? (
+                                <div className="flex gap-1 flex-wrap">
                                 {habit.selected_days.map((day: string) => {
                                   const dayLabels: { [key: string]: string } = {
                                     monday: 'Po',
@@ -9950,21 +9518,61 @@ export function JourneyGameView({
                                     sunday: 'Ne'
                                   }
                                   return (
-                                    <span key={day} className="text-xs bg-orange-100 text-orange-700 px-1 rounded">
+                                      <span key={day} className="text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded">
                                       {dayLabels[day]}
                                     </span>
                                   )
                                 })}
                               </div>
+                              ) : (
+                                <span className="text-xs text-gray-400">-</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-2 last:pr-6">
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                                  setQuickEditHabitPosition({ top: rect.bottom + 4, left: rect.left })
+                                  setQuickEditHabitId(habit.id)
+                                  setQuickEditHabitField('aspiration')
+                                }}
+                                className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
+                              >
+                                {habitAspiration ? (
+                                  <>
+                                    <div 
+                                      className="w-3 h-3 rounded-full"
+                                      style={{ backgroundColor: habitAspiration.color || '#9333EA' }}
+                                    />
+                                    <span className="text-xs text-gray-700 truncate max-w-[150px]">
+                                      {habitAspiration.title}
+                                    </span>
+                                  </>
+                                ) : (
+                                  <span className="text-xs text-gray-400">Bez aspirace</span>
                             )}
                           </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Edit Form - Expanded */}
+                            </td>
+                            <td className="px-4 py-2 last:pr-6">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  initializeEditingHabit(habit)
+                                }}
+                                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                                title={t('common.edit') || 'Upravit'}
+                              >
+                                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </button>
+                            </td>
+                          </tr>
         {isEditing && (
-          <div className="editing-form p-4 bg-gray-50 border-t border-gray-200">
+                            <tr>
+                              <td colSpan={7} className="px-4 py-3 bg-orange-50/50 first:pl-6 last:pr-6">
+                                <div className="editing-form p-4 bg-white rounded-xl border border-orange-200 shadow-sm">
                         <h4 className="text-md font-semibold text-gray-800 mb-4">Upravit návyk</h4>
                         <div className="space-y-4">
                           <div>
@@ -10138,528 +9746,315 @@ export function JourneyGameView({
                           </div>
                         </div>
                       </div>
+                    </td>
+                  </tr>
                     )}
-                  </div>
-                );
+                        </Fragment>
+                      )
               })}
               {habits.length === 0 && (
-                <div className="text-center text-gray-500 py-8">
+                      <tr>
+                        <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
                   <p className="text-lg">Žádné návyky nejsou nastavené</p>
-                  <p className="text-sm">Klikněte na tlačítko "Přidat návyk" pro vytvoření nového návyku</p>
-                </div>
+                          <p className="text-sm">Klikněte na tlačítko výše pro přidání nového návyku</p>
+                        </td>
+                      </tr>
               )}
+                  </tbody>
+              </table>
             </div>
-
           </div>
-        );
-
-      case 'steps':
-        // Filter and categorize steps
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
+        </div>
         
-        const filteredSteps = dailySteps.filter(step => {
-          // Filter by completed status
-          if (!stepsShowCompleted && step.completed) {
-            return false
-          }
-          
-          // Filter by date
-          if (stepsDateFilter !== 'all') {
-            if (!step.date) {
-              return false // Steps without date don't match any date filter
-            }
-            const stepDate = new Date(step.date)
-            stepDate.setHours(0, 0, 0, 0)
-            const stepTime = stepDate.getTime()
-            const todayTime = today.getTime()
-            
-            if (stepsDateFilter === 'overdue' && stepTime >= todayTime) {
-              return false
-            }
-            if (stepsDateFilter === 'today' && stepTime !== todayTime) {
-              return false
-            }
-            if (stepsDateFilter === 'future' && stepTime <= todayTime) {
-              return false
-            }
-          }
-          
-          // Filter by goal
-          if (stepsGoalFilter && step.goal_id !== stepsGoalFilter) {
-            return false
-          }
-          
-          return true
-        })
-        
-        // Categorize steps into columns
-        const overdueSteps = filteredSteps.filter(step => {
-          if (!step.date || step.completed) return false
-          const stepDate = new Date(step.date)
-          stepDate.setHours(0, 0, 0, 0)
-          return stepDate < today
-        })
-        
-        const todaySteps = filteredSteps.filter(step => {
-          if (!step.date || step.completed) return false
-          const stepDate = new Date(step.date)
-          stepDate.setHours(0, 0, 0, 0)
-          return stepDate.getTime() === today.getTime()
-        })
-        
-        const futureSteps = filteredSteps.filter(step => {
-          if (!step.date || step.completed) return false
-          const stepDate = new Date(step.date)
-          stepDate.setHours(0, 0, 0, 0)
-          return stepDate > today
-        })
-        
-        const noDateSteps = filteredSteps.filter(step => !step.date && !step.completed)
-        
-        const completedSteps = filteredSteps.filter(step => step.completed)
-        
-        return (
-          <div className="p-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-orange-800" style={{ letterSpacing: '1px' }}>{t('sections.steps')}</h2>
-              <div className="flex items-center gap-3">
-                {/* View Mode Toggle */}
-                <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
-                  <button
-                    onClick={() => setStepsViewMode('kanban')}
-                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                      stepsViewMode === 'kanban'
-                        ? 'bg-white text-orange-600 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-800'
-                    }`}
-                    title="Kanbanové zobrazení"
-                  >
-                    <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-                    </svg>
-                    Kanban
-                  </button>
-                  <button
-                    onClick={() => setStepsViewMode('list')}
-                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                      stepsViewMode === 'list'
-                        ? 'bg-white text-orange-600 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-800'
-                    }`}
-                    title="Řádkové zobrazení"
-                  >
-                    <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                    Seznam
-                  </button>
-                </div>
-              <button
-                onClick={() => setShowCreateStep(!showCreateStep)}
-                className="p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                title="Přidat krok"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-              </button>
-              </div>
-            </div>
-            
-            {/* Filters */}
-            <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Date Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Filtr podle data</label>
-                  <select
-                    value={stepsDateFilter}
-                    onChange={(e) => setStepsDateFilter(e.target.value as 'all' | 'overdue' | 'today' | 'future')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  >
-                    <option value="all">Všechny</option>
-                    <option value="overdue">Zpožděné</option>
-                    <option value="today">Dnešní</option>
-                    <option value="future">Budoucí</option>
-                  </select>
-                </div>
+        {/* Quick Edit Modals for Habits */}
+        {quickEditHabitId && quickEditHabitPosition && typeof window !== 'undefined' && createPortal(
+          <>
+            <div 
+              className="fixed inset-0 z-40" 
+              onClick={(e) => {
+                e.stopPropagation()
+                setQuickEditHabitId(null)
+                setQuickEditHabitField(null)
+                setQuickEditHabitPosition(null)
+              }}
+            />
+            <div 
+              className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-4 min-w-[250px] max-w-[90vw]"
+              style={(() => {
+                if (typeof window === 'undefined') {
+                  return {
+                    top: `${quickEditHabitPosition.top}px`,
+                    left: `${quickEditHabitPosition.left}px`
+                  }
+                }
                 
-                {/* Goal Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Filtr podle cíle</label>
+                const modalWidth = 250
+                const modalHeight = 200
+                const padding = 10
+                
+                let adjustedTop = quickEditHabitPosition.top
+                let adjustedLeft = quickEditHabitPosition.left
+                
+                if (adjustedLeft + modalWidth > window.innerWidth - padding) {
+                  adjustedLeft = window.innerWidth - modalWidth - padding
+                }
+                if (adjustedLeft < padding) {
+                  adjustedLeft = padding
+                }
+                
+                if (adjustedTop + modalHeight > window.innerHeight - padding) {
+                  adjustedTop = quickEditHabitPosition.top - modalHeight - 40
+                  if (adjustedTop < padding) {
+                    adjustedTop = padding
+                  }
+                }
+                if (adjustedTop < padding) {
+                  adjustedTop = padding
+                }
+                
+                return {
+                  top: `${adjustedTop}px`,
+                  left: `${adjustedLeft}px`
+                }
+              })()}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {(() => {
+                const habit = habits.find((h: any) => h.id === quickEditHabitId)
+                if (!habit) return null
+                
+                if (quickEditHabitField === 'frequency') {
+        return (
+                    <>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('habits.frequency') || 'Frekvence'}
+                      </label>
+                      <select
+                        value={habit.frequency || 'daily'}
+                        onChange={async (e) => {
+                          const newFrequency = e.target.value
+                          try {
+                            const response = await fetch(`/api/cesta/habits/${habit.id}`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ frequency: newFrequency })
+                            })
+                            if (response.ok) {
+                              const updatedHabit = await response.json()
+                              const updatedHabits = habits.map((h: any) => h.id === habit.id ? updatedHabit : h)
+                              onHabitsUpdate?.(updatedHabits)
+                              setQuickEditHabitId(null)
+                              setQuickEditHabitField(null)
+                              setQuickEditHabitPosition(null)
+                            }
+                          } catch (error) {
+                            console.error('Error updating habit frequency:', error)
+                          }
+                        }}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 mb-2"
+                        autoFocus
+                      >
+                        <option value="daily">{t('habits.filters.frequency.daily')}</option>
+                        <option value="weekly">{t('habits.filters.frequency.weekly')}</option>
+                        <option value="monthly">{t('habits.filters.frequency.monthly')}</option>
+                        <option value="custom">{t('habits.filters.frequency.custom')}</option>
+                      </select>
+              <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setQuickEditHabitId(null)
+                          setQuickEditHabitField(null)
+                          setQuickEditHabitPosition(null)
+                          initializeEditingHabit(habit)
+                        }}
+                        className="w-full px-3 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 border-t border-gray-200 mt-2 pt-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                        {t('common.edit') || 'Upravit'}
+              </button>
+                    </>
+                  )
+                }
+                
+                if (quickEditHabitField === 'aspiration') {
+                  return (
+                    <>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('goals.aspiration') || 'Aspirace'}
+                      </label>
                   <select
-                    value={stepsGoalFilter || ''}
-                    onChange={(e) => setStepsGoalFilter(e.target.value || null)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  >
-                    <option value="">Všechny cíle</option>
-                    {goals.filter(goal => goal.status === 'active').map((goal: any) => (
-                      <option key={goal.id} value={goal.id}>
-                        {goal.title}
-                      </option>
+                        value={habit.aspiration_id || habit.aspirationId || ''}
+                        onChange={async (e) => {
+                          const newAspirationId = e.target.value || null
+                          try {
+                            const response = await fetch(`/api/cesta/habits/${habit.id}`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ aspiration_id: newAspirationId })
+                            })
+                            if (response.ok) {
+                              const updatedHabit = await response.json()
+                              const updatedHabits = habits.map((h: any) => h.id === habit.id ? updatedHabit : h)
+                              onHabitsUpdate?.(updatedHabits)
+                              setQuickEditHabitId(null)
+                              setQuickEditHabitField(null)
+                              setQuickEditHabitPosition(null)
+                            }
+                          } catch (error) {
+                            console.error('Error updating habit aspiration:', error)
+                          }
+                        }}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 mb-2"
+                        autoFocus
+                      >
+                        <option value="">{t('goals.noAspiration') || 'Bez aspirace'}</option>
+                        {aspirations.map((aspiration: any) => (
+                          <option key={aspiration.id} value={aspiration.id}>{aspiration.title}</option>
                     ))}
                   </select>
-                </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setQuickEditHabitId(null)
+                          setQuickEditHabitField(null)
+                          setQuickEditHabitPosition(null)
+                          initializeEditingHabit(habit)
+                        }}
+                        className="w-full px-3 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 border-t border-gray-200 mt-2 pt-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        {t('common.edit') || 'Upravit'}
+                      </button>
+                    </>
+                  )
+                }
                 
-                {/* Completed Filter */}
-                <div className="flex items-center">
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={stepsShowCompleted}
-                      onChange={(e) => setStepsShowCompleted(e.target.checked)}
-                      className="mr-2 w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
-                    />
-                    <span className="text-sm font-medium text-gray-700">Zobrazit dokončené</span>
-                  </label>
+                return null
+              })()}
                 </div>
+          </>,
+          document.body
+        )}
               </div>
-            </div>
+    )
+  }
 
-            {/* Create Step Form */}
-            {showCreateStep && (
-              <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                <h3 className="text-base font-semibold text-gray-800 mb-3">Vytvořit nový krok</h3>
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Název kroku</label>
-                    <input
-                      type="text"
-                      value={newStep.title}
-                      onChange={(e) => setNewStep({...newStep, title: e.target.value})}
-                      className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      placeholder="Zadejte název kroku"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Popis kroku</label>
-                    <textarea
-                      value={newStep.description}
-                      onChange={(e) => setNewStep({...newStep, description: e.target.value})}
-                      className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none"
-                      rows={2}
-                      placeholder="Zadejte popis kroku"
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                  <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Cíl (volitelné)</label>
-                    <select
-                      value={newStep.goalId || ''}
-                      onChange={(e) => setNewStep({...newStep, goalId: e.target.value || null as any})}
-                        className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    >
-                      <option value="">Vyberte cíl</option>
-                      {goals.filter(goal => goal.status === 'active').map((goal: any) => (
-                        <option key={goal.id} value={goal.id}>
-                          {goal.title}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Datum (volitelné)</label>
-                    <input
-                      type="date"
-                      value={newStep.date}
-                      onChange={(e) => setNewStep({...newStep, date: e.target.value})}
-                        className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Odhadovaný čas (min)</label>
-                      <input
-                        type="number"
-                        value={newStep.estimatedTime}
-                        onChange={(e) => setNewStep({...newStep, estimatedTime: parseInt(e.target.value) || 30})}
-                        className="w-full px-2.5 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                        min="1"
-                        max="480"
-                      />
-                  </div>
-                  
-                    <div className="flex items-end gap-3">
-                      <label className="flex items-center gap-1.5 text-xs text-gray-700">
-                      <input
-                        type="checkbox"
-                        checked={newStep.isImportant}
-                        onChange={(e) => setNewStep({...newStep, isImportant: e.target.checked})}
-                          className="w-4 h-4"
-                      />
-                        <span>Důležitý</span>
-                    </label>
-                      <label className="flex items-center gap-1.5 text-xs text-gray-700">
-                      <input
-                        type="checkbox"
-                        checked={newStep.isUrgent}
-                        onChange={(e) => setNewStep({...newStep, isUrgent: e.target.checked})}
-                          className="w-4 h-4"
-                      />
-                        <span>Naléhavý</span>
-                    </label>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2 pt-1">
+  const renderPageContent = () => {
+    switch (currentPage) {
+      case 'management':
+        return renderManagementContent()
+      case 'main':
+        return (
+          <div className="w-full h-full flex flex-col">
+            {/* Program Selector */}
+            <div className="flex items-center justify-center gap-2 p-4 border-b border-gray-200 bg-white">
                     <button
-                      onClick={handleCreateStep}
-                      className="px-3 py-1.5 text-sm bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                    >
-                      Vytvořit krok
+                onClick={() => setCurrentProgram('day')}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  currentProgram === 'day'
+                    ? 'bg-orange-500 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {t('calendar.viewMode.day')}
+                    </button>
+                          <button
+                onClick={() => setCurrentProgram('week')}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  currentProgram === 'week'
+                    ? 'bg-orange-500 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {t('calendar.viewMode.week')}
+                          </button>
+                    <button
+                onClick={() => setCurrentProgram('month')}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  currentProgram === 'month'
+                    ? 'bg-orange-500 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {t('calendar.viewMode.month')}
                     </button>
                     <button
-                      onClick={() => setShowCreateStep(false)}
-                      className="px-3 py-1.5 text-sm bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-                    >
-                      {t('common.cancel')}
+                onClick={() => setCurrentProgram('year')}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  currentProgram === 'year'
+                    ? 'bg-orange-500 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {t('calendar.viewMode.year')}
                     </button>
                   </div>
-                </div>
-              </div>
-            )}
 
-            {/* Render based on view mode */}
-            {stepsViewMode === 'list' ? (
-              // List/Row view - use renderStepsContent
-              renderStepsContent()
-            ) : (
-              // Kanban Board with Columns
-            <DndContext 
-              sensors={sensors} 
-              collisionDetection={closestCenter} 
-              onDragStart={handleStepDragStart}
-              onDragEnd={handleStepDragEnd}
-            >
-              <div className={`grid grid-cols-1 gap-4 mb-6 ${stepsShowCompleted ? 'md:grid-cols-4' : 'md:grid-cols-3'}`} style={{ height: 'calc(100vh - 300px)' }}>
-                {/* Overdue Column */}
-                <DroppableColumn id="column-overdue" className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 flex flex-col" style={{ minHeight: '400px', maxHeight: 'calc(100vh - 200px)', height: '100%' }}>
-                <div className="flex items-center justify-between mb-4 flex-shrink-0 pb-3 border-b border-gray-200">
-                  <h3 className="font-semibold text-red-700 flex items-center gap-2 text-sm">
-                    ⚠️ Zpožděné
-                    <span className="text-xs text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-lg font-medium">
-                      {overdueSteps.length}
-                    </span>
-                  </h3>
-                </div>
-                <div className="space-y-2 flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
-                  {overdueSteps.map((step) => {
-                    const isEditing = editingStep && editingStep.id === step.id
-                    return (
-                      <DraggableStep
-                        key={step.id}
-                        step={step}
-                        isEditing={isEditing}
-                        initializeEditingStep={initializeEditingStep}
-                        handleStepToggle={handleStepToggle}
-                        goals={goals}
-                        editingStep={editingStep}
-                        setEditingStep={setEditingStep}
-                        handleUpdateStep={handleUpdateStep}
+            {/* Program Content */}
+            <div className="flex-1 overflow-y-auto">
+              {currentProgram === 'day' && (
+                <DayView
+                  habits={habits}
                         dailySteps={dailySteps}
-                        onDailyStepsUpdate={onDailyStepsUpdate}
-                        isLoading={loadingSteps.has(step.id)}
-                      />
-                    )
-                  })}
-                  {overdueSteps.length === 0 && (
-                    <div className="text-center text-gray-400 text-xs py-8">Žádné zpožděné kroky</div>
-                  )}
-                </div>
-                </DroppableColumn>
-
-              {/* Today Column */}
-              <DroppableColumn id="column-today" className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 flex flex-col" style={{ minHeight: '400px', maxHeight: 'calc(100vh - 200px)', height: '100%' }}>
-                <div className="flex items-center justify-between mb-4 flex-shrink-0 pb-3 border-b border-gray-200">
-                  <h3 className="font-semibold text-orange-700 flex items-center gap-2 text-sm">
-                    📅 Dnešní
-                    <span className="text-xs text-orange-600 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-lg font-medium">
-                      {todaySteps.length}
-                    </span>
-                  </h3>
-                </div>
-                <div className="space-y-2 flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
-                  {todaySteps.map((step) => {
-                    const isEditing = editingStep && editingStep.id === step.id
-                    return (
-                      <DraggableStep
-                        key={step.id}
-                        step={step}
-                        isEditing={isEditing}
-                        initializeEditingStep={initializeEditingStep}
-                        handleStepToggle={handleStepToggle}
-                        goals={goals}
-                        editingStep={editingStep}
-                        setEditingStep={setEditingStep}
-                        handleUpdateStep={handleUpdateStep}
-                        dailySteps={dailySteps}
-                        onDailyStepsUpdate={onDailyStepsUpdate}
-                        isLoading={loadingSteps.has(step.id)}
-                      />
-                    )
-                  })}
-                  {todaySteps.length === 0 && (
-                    <div className="text-center text-gray-400 text-xs py-8">Žádné dnešní kroky</div>
-                  )}
-                </div>
-                </DroppableColumn>
-
-              {/* Future Column */}
-              <DroppableColumn id="column-future" className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 flex flex-col" style={{ minHeight: '400px', maxHeight: 'calc(100vh - 200px)', height: '100%' }}>
-                <div className="flex items-center justify-between mb-4 flex-shrink-0 pb-3 border-b border-gray-200">
-                  <h3 className="font-semibold text-blue-700 flex items-center gap-2 text-sm">
-                    🔮 Budoucí
-                    <span className="text-xs text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-lg font-medium">
-                      {futureSteps.length}
-                    </span>
-                  </h3>
-                </div>
-                <div className="space-y-2 flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
-                  {futureSteps.map((step) => {
-                    const isEditing = editingStep && editingStep.id === step.id
-                    return (
-                      <DraggableStep
-                        key={step.id}
-                        step={step}
-                        isEditing={isEditing}
-                        initializeEditingStep={initializeEditingStep}
-                        handleStepToggle={handleStepToggle}
-                        goals={goals}
-                        editingStep={editingStep}
-                        setEditingStep={setEditingStep}
-                        handleUpdateStep={handleUpdateStep}
-                        dailySteps={dailySteps}
-                        onDailyStepsUpdate={onDailyStepsUpdate}
-                        isLoading={loadingSteps.has(step.id)}
-                      />
-                    )
-                  })}
-                  {noDateSteps.length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-blue-300">
-                      <DroppableColumn id="column-no-date" className="">
-                        <div className="text-xs font-semibold text-blue-700 mb-2">{t('common.noDate')} ({noDateSteps.length})</div>
-                        {noDateSteps.map((step) => {
-                          const isEditing = editingStep && editingStep.id === step.id
-                          return (
-                            <DraggableStep
-                              key={step.id}
-                              step={step}
-                              isEditing={isEditing}
-                              initializeEditingStep={initializeEditingStep}
-                              handleStepToggle={handleStepToggle}
-                              goals={goals}
-                              editingStep={editingStep}
-                              setEditingStep={setEditingStep}
-                              handleUpdateStep={handleUpdateStep}
-                            />
-                          )
-                        })}
-                      </DroppableColumn>
-                    </div>
-                  )}
-                  {futureSteps.length === 0 && noDateSteps.length === 0 && (
-                    <div className="text-center text-gray-400 text-xs py-8">Žádné budoucí kroky</div>
-                  )}
-                </div>
-                </DroppableColumn>
-
-              {/* Completed Column (shown only if filter enabled) */}
-              {stepsShowCompleted && (
-                <DroppableColumn id="column-completed" className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 flex flex-col" style={{ minHeight: '400px', maxHeight: 'calc(100vh - 200px)', height: '100%' }}>
-                  <div className="flex items-center justify-between mb-4 flex-shrink-0 pb-3 border-b border-gray-200">
-                    <h3 className="font-semibold text-green-700 flex items-center gap-2 text-sm">
-                      ✓ Dokončené
-                      <span className="text-xs text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-lg font-medium">
-                        {completedSteps.length}
-                      </span>
-                    </h3>
-                  </div>
-                  <div className="space-y-2 flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
-                    {completedSteps.map((step) => {
-                      const isEditing = editingStep && editingStep.id === step.id
-                      return (
-                        <DraggableStep
-                          key={step.id}
-                          step={step}
-                          isEditing={isEditing}
-                          initializeEditingStep={initializeEditingStep}
-                          handleStepToggle={handleStepToggle}
-                          goals={goals}
-                          editingStep={editingStep}
-                          setEditingStep={setEditingStep}
-                          handleUpdateStep={handleUpdateStep}
-                        />
-                      )
-                    })}
-                    {completedSteps.length === 0 && (
-                      <div className="text-center text-gray-400 text-xs py-8">Žádné dokončené kroky</div>
-                    )}
-                  </div>
-                </DroppableColumn>
+                  aspirations={aspirations}
+                  dayAspirationBalances={dayAspirationBalances}
+                  selectedDayDate={selectedDayDate}
+                  setSelectedDayDate={setSelectedDayDate}
+                  setShowDatePickerModal={setShowDatePickerModal}
+                  handleItemClick={handleItemClick}
+                  handleHabitToggle={handleHabitToggle}
+                  handleStepToggle={handleStepToggle}
+                  setSelectedItem={setSelectedItem}
+                  setSelectedItemType={setSelectedItemType}
+                  loadingHabits={loadingHabits}
+                  loadingSteps={loadingSteps}
+                  player={player}
+                />
               )}
-              </div>
-              
-              {/* Drag Overlay - shows the dragged step */}
-              <DragOverlay adjustScale={false} dropAnimation={null}>
-                {activeDragId ? (() => {
-                  const draggedStep = dailySteps.find((s: any) => s.id === activeDragId)
-                  if (!draggedStep) return null
-                  
-                  return (
-                    <div 
-                      className={`p-3 rounded-lg border border-gray-200 bg-white cursor-move shadow-2xl opacity-95 ${
-                        draggedStep.completed ? 'bg-green-50/50 border-green-200' : ''
-                      }`}
-                      style={{
-                        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
-                        transform: 'rotate(2deg) translate(-50%, -50%)',
-                        pointerEvents: 'none'
-                      }}
-                    >
-                      <div className="flex items-start gap-2">
-                        <div className="flex items-center justify-center flex-shrink-0">
-                          {draggedStep.completed ? (
-                            <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
-                          ) : (
-                            <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className={`font-semibold text-sm ${draggedStep.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
-                            {draggedStep.title}
-                          </div>
-                          {draggedStep.goal_id && (
-                            <div className="flex items-center gap-1.5 text-xs px-2 py-1 mt-1 rounded-lg bg-purple-50 border border-purple-100 w-fit">
-                              <Target className="w-3 h-3 text-purple-600" />
-                              <span className="text-purple-700 font-medium">
-                                {goals.find((g: any) => g.id === draggedStep.goal_id)?.title || 'Cíl'}
-                              </span>
-                            </div>
-                          )}
-                        </div>
+              {currentProgram === 'week' && (
+                <WeekView
+                  player={player}
+                        goals={goals}
+                  habits={habits}
+                        dailySteps={dailySteps}
+                  onHabitsUpdate={onHabitsUpdate}
+                        onDailyStepsUpdate={onDailyStepsUpdate}
+                  setShowDatePickerModal={setShowDatePickerModal}
+                />
+              )}
+              {currentProgram === 'month' && (
+                <MonthView
+                  player={player}
+                        goals={goals}
+                  habits={habits}
+                        dailySteps={dailySteps}
+                  onHabitsUpdate={onHabitsUpdate}
+                        onDailyStepsUpdate={onDailyStepsUpdate}
+                  setShowDatePickerModal={setShowDatePickerModal}
+                />
+              )}
+              {currentProgram === 'year' && (
+                <YearView
+                          goals={goals}
+                  habits={habits}
+                  dailySteps={dailySteps}
+                  areas={areas}
+                  selectedYear={selectedYear}
+                  setSelectedYear={setSelectedYear}
+                  setShowDatePickerModal={setShowDatePickerModal}
+                  handleItemClick={handleItemClick}
+                  expandedAreas={expandedAreas}
+                  setExpandedAreas={setExpandedAreas}
+                  player={player}
+                />
+              )}
                       </div>
                     </div>
                   )
-                })() : null}
-              </DragOverlay>
-            </DndContext>
-            )}
-            
-            {filteredSteps.length === 0 && (
-              <div className="text-center text-gray-500 py-8">
-                <p className="text-lg">Žádné kroky neodpovídají filtru</p>
-                <p className="text-sm">Změňte nastavení filtru nebo přidejte nové kroky</p>
-              </div>
-            )}
-          </div>
-        );
-
       case 'statistics':
         return (
           <div className="bg-white bg-opacity-95 rounded-2xl p-8 border border-orange-200 shadow-xl backdrop-blur-sm" style={{
@@ -10899,46 +10294,14 @@ export function JourneyGameView({
               {/* Menu Icons */}
               <div className="flex items-center space-x-4 lg:border-l lg:border-white lg:border-opacity-30 lg:pl-6">
               <button
-                onClick={() => setCurrentPage('aspirace')}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'aspirace' ? 'bg-white bg-opacity-25' : ''}`}
-                title={t('game.menu.aspirace')}
+                onClick={() => setCurrentPage('management')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'management' ? 'bg-white bg-opacity-25' : ''}`}
+                title={t('game.menu.management')}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                 </svg>
-                <span className="text-sm font-medium">{t('game.menu.aspirace')}</span>
-              </button>
-              
-              <button
-                onClick={() => setCurrentPage('goals')}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'goals' ? 'bg-white bg-opacity-25' : ''}`}
-                title={t('game.menu.goals')}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="10"/>
-                  <circle cx="12" cy="12" r="3"/>
-                </svg>
-                <span className="text-sm font-medium">{t('game.menu.goals')}</span>
-              </button>
-              
-              <button
-                onClick={() => setCurrentPage('habits')}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'habits' ? 'bg-white bg-opacity-25' : ''}`}
-                title={t('game.menu.habits')}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                </svg>
-                <span className="text-sm font-medium">{t('game.menu.habits')}</span>
-              </button>
-              
-              <button
-                onClick={() => setCurrentPage('steps')}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'steps' ? 'bg-white bg-opacity-25' : ''}`}
-                title={t('game.menu.steps')}
-              >
-                <Footprints className="w-5 h-5" strokeWidth="2" />
-                <span className="text-sm font-medium">{t('game.menu.steps')}</span>
+                <span className="text-sm font-medium">{t('game.menu.management')}</span>
               </button>
               
               <button
@@ -10957,84 +10320,6 @@ export function JourneyGameView({
         {/* Bottom divider line - separates menu from page content */}
         <div className="h-px bg-orange-300 opacity-50 w-full"></div>
             </div>
-
-      {/* Program Tabs - Only show on main page */}
-      {currentPage === 'main' && (
-        <div className="bg-white border-b border-orange-200 shadow-sm">
-          <div className="px-6 py-3">
-            <div className="flex items-center justify-center gap-2">
-                    <button
-                      onClick={() => {
-                        setSelectedItem(null)
-                        setSelectedItemType(null)
-                        setCurrentProgram('day')
-                      }}
-                className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                        !selectedItem && currentProgram === 'day' 
-                          ? 'bg-orange-500 text-white shadow-md' 
-                          : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
-                      }`}
-                      style={{
-                        boxShadow: !selectedItem && currentProgram === 'day' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                      }}
-                    >
-                      {t('calendar.viewMode.day')}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedItem(null)
-                        setSelectedItemType(null)
-                        setCurrentProgram('week')
-                      }}
-                className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                        !selectedItem && currentProgram === 'week' 
-                          ? 'bg-orange-500 text-white shadow-md' 
-                          : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
-                      }`}
-                      style={{
-                        boxShadow: !selectedItem && currentProgram === 'week' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                      }}
-                    >
-                      {t('calendar.viewMode.week')}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedItem(null)
-                        setSelectedItemType(null)
-                        setCurrentProgram('month')
-                      }}
-                className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                        !selectedItem && currentProgram === 'month' 
-                          ? 'bg-orange-500 text-white shadow-md' 
-                          : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
-                      }`}
-                      style={{
-                        boxShadow: !selectedItem && currentProgram === 'month' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                      }}
-                    >
-                      {t('calendar.viewMode.month')}
-                    </button>
-              <button
-                onClick={() => {
-                  setSelectedItem(null)
-                  setSelectedItemType(null)
-                  setCurrentProgram('year')
-                }}
-                className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                  !selectedItem && currentProgram === 'year' 
-                    ? 'bg-orange-500 text-white shadow-md' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-orange-700'
-                }`}
-                style={{
-                  boxShadow: !selectedItem && currentProgram === 'year' ? '0 4px 12px rgba(251, 146, 60, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.05)'
-                }}
-              >
-                {t('calendar.viewMode.year')}
-              </button>
-                  </div>
-                </div>
-              </div>
-            )}
 
       {/* Main Content Area */}
       <div className="relative flex flex-col flex-1 overflow-hidden">
@@ -11367,282 +10652,5 @@ export function JourneyGameView({
       )}
 
             </div>
-  )
-}
-
-// Add Aspiration Modal Component
-function AddAspirationModalWeb({ 
-  aspiration, 
-  goals = [],
-  habits = [],
-  onClose, 
-  onAspirationAdded 
-}: { 
-  aspiration?: any
-  goals?: any[]
-  habits?: any[]
-  onClose: () => void
-  onAspirationAdded: (title: string, description: string, color: string, selectedGoalIds?: string[], selectedHabitIds?: string[]) => void 
-}) {
-  const t = useTranslations()
-  const [title, setTitle] = useState(aspiration?.title || '')
-  const [description, setDescription] = useState(aspiration?.description || '')
-  const [color, setColor] = useState(aspiration?.color || '#3B82F6')
-  const [selectedGoalIds, setSelectedGoalIds] = useState<string[]>([])
-  const [selectedHabitIds, setSelectedHabitIds] = useState<string[]>([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showGoalDropdown, setShowGoalDropdown] = useState(false)
-  const [showHabitDropdown, setShowHabitDropdown] = useState(false)
-  
-  // Update state when aspiration prop changes
-  useEffect(() => {
-    if (aspiration) {
-      setTitle(aspiration.title || '')
-      setDescription(aspiration.description || '')
-      setColor(aspiration.color || '#3B82F6')
-      // Load currently assigned goals and habits
-      const assignedGoalIds = goals.filter(g => g.aspiration_id === aspiration.id).map(g => g.id)
-      const assignedHabitIds = habits.filter(h => h.aspiration_id === aspiration.id).map(h => h.id)
-      setSelectedGoalIds(assignedGoalIds)
-      setSelectedHabitIds(assignedHabitIds)
-    } else {
-      setTitle('')
-      setDescription('')
-      setColor('#3B82F6')
-      setSelectedGoalIds([])
-      setSelectedHabitIds([])
-    }
-  }, [aspiration, goals, habits])
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!title.trim()) return
-
-    setIsSubmitting(true)
-    try {
-      await onAspirationAdded(title.trim(), description.trim(), color, selectedGoalIds, selectedHabitIds)
-      setTitle('')
-      setDescription('')
-      setColor('#3B82F6')
-      setSelectedGoalIds([])
-      setSelectedHabitIds([])
-    } catch (error) {
-      console.error('Error creating aspiration:', error)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-  
-  const toggleGoal = (goalId: string) => {
-    setSelectedGoalIds(prev => 
-      prev.includes(goalId) 
-        ? prev.filter(id => id !== goalId)
-        : [...prev, goalId]
-    )
-  }
-  
-  const toggleHabit = (habitId: string) => {
-    setSelectedHabitIds(prev => 
-      prev.includes(habitId) 
-        ? prev.filter(id => id !== habitId)
-        : [...prev, habitId]
-    )
-  }
-  
-  const availableGoals = goals.filter(g => !g.aspiration_id || g.aspiration_id === aspiration?.id)
-  const availableHabits = habits.filter(h => !h.aspiration_id || h.aspiration_id === aspiration?.id)
-  
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement
-      if (!target.closest('.dropdown-container')) {
-        setShowGoalDropdown(false)
-        setShowHabitDropdown(false)
-      }
-    }
-    
-    if (showGoalDropdown || showHabitDropdown) {
-      document.addEventListener('mousedown', handleClickOutside)
-      return () => document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [showGoalDropdown, showHabitDropdown])
-
-  const colors = [
-    { name: 'Modrá', value: '#3B82F6' },
-    { name: 'Zelená', value: '#10B981' },
-    { name: 'Fialová', value: '#8B5CF6' },
-    { name: 'Růžová', value: '#EC4899' },
-    { name: 'Oranžová', value: '#F59E0B' },
-    { name: 'Červená', value: '#EF4444' },
-  ]
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold text-gray-900">{aspiration ? t('aspirace.editTitle') : t('aspirace.newAspirace')}</h3>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Název *</label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                placeholder="Např. Být zdravý a fit"
-                required
-                autoFocus
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Popis</label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                placeholder="Volitelný popis vaší aspirace..."
-                rows={3}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Barva</label>
-              <div className="flex gap-2 flex-wrap">
-                {colors.map((c) => (
-                  <button
-                    key={c.value}
-                    type="button"
-                    onClick={() => setColor(c.value)}
-                    className={`w-10 h-10 rounded-lg border-2 transition-all ${
-                      color === c.value ? 'border-gray-900 scale-110' : 'border-gray-300'
-                    }`}
-                    style={{ backgroundColor: c.value }}
-                    title={c.name}
-                  />
-                ))}
-          </div>
-        </div>
-        
-            {/* Goals Selection */}
-            <div className="relative dropdown-container">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Cíle</label>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowGoalDropdown(!showGoalDropdown)
-                  setShowHabitDropdown(false)
-                }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-left flex items-center justify-between"
-              >
-                <span className="text-gray-700">
-                  {selectedGoalIds.length > 0 
-                    ? `${selectedGoalIds.length} ${selectedGoalIds.length === 1 ? 'cíl' : 'cílů'} vybráno`
-                    : 'Vyberte cíle...'}
-                </span>
-                <svg className={`w-5 h-5 text-gray-500 transition-transform ${showGoalDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {showGoalDropdown && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                  {availableGoals.length === 0 ? (
-                    <div className="px-4 py-3 text-sm text-gray-500">Žádné dostupné cíle</div>
-                  ) : (
-                    availableGoals.map((goal) => (
-                      <label
-                        key={goal.id}
-                        className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedGoalIds.includes(goal.id)}
-                          onChange={() => toggleGoal(goal.id)}
-                          className="mr-3 w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
-                        />
-                        <span className="text-sm text-gray-700">{goal.title}</span>
-                      </label>
-                    ))
-                  )}
-                </div>
-              )}
-      </div>
-
-            {/* Habits Selection */}
-            <div className="relative dropdown-container">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Návyky</label>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowHabitDropdown(!showHabitDropdown)
-                  setShowGoalDropdown(false)
-                }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-left flex items-center justify-between"
-              >
-                <span className="text-gray-700">
-                  {selectedHabitIds.length > 0 
-                    ? `${selectedHabitIds.length} ${selectedHabitIds.length === 1 ? 'návyk' : 'návyků'} vybráno`
-                    : 'Vyberte návyky...'}
-                </span>
-                <svg className={`w-5 h-5 text-gray-500 transition-transform ${showHabitDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {showHabitDropdown && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                  {availableHabits.length === 0 ? (
-                    <div className="px-4 py-3 text-sm text-gray-500">Žádné dostupné návyky</div>
-                  ) : (
-                    availableHabits.map((habit) => (
-                      <label
-                        key={habit.id}
-                        className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedHabitIds.includes(habit.id)}
-                          onChange={() => toggleHabit(habit.id)}
-                          className="mr-3 w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
-                        />
-                        <span className="text-sm text-gray-700">{habit.name}</span>
-                      </label>
-                    ))
-                  )}
-                </div>
-              )}
-      </div>
-
-            <div className="flex gap-3 pt-4">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Zrušit
-              </button>
-              <button
-                type="submit"
-                disabled={!title.trim() || isSubmitting}
-                className="flex-1 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? (aspiration ? 'Ukládání...' : 'Vytváření...') : (aspiration ? 'Uložit' : 'Vytvořit')}
-              </button>
-      </div>
-          </form>
-      </div>
-      </div>
-    </div>
   )
 }

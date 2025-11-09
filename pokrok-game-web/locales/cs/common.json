@@ -78,10 +78,26 @@
     "settings": "Nastavení",
     "aspiration": "Aspirace",
     "noAspiration": "Žádná aspirace",
+    "noArea": "Bez oblasti",
+    "statusLabel": "Status",
     "status": {
       "active": "Aktivní",
       "completed": "Splněný",
       "considering": "Ke zvážení"
+    },
+    "filters": {
+      "status": {
+        "all": "Všechny statusy",
+        "active": "Aktivní",
+        "completed": "Splněné",
+        "considering": "Ke zvážení"
+      },
+      "area": {
+        "all": "Všechny oblasti"
+      },
+      "aspiration": {
+        "all": "Všechny aspirace"
+      }
     },
     "steps": "Kroky",
     "addStep": "Přidat krok",
@@ -113,6 +129,8 @@
     "difficultyLabel": "Obtížnost",
     "createdAt": "Vytvořeno",
     "custom": "Vlastní",
+    "frequency": "Frekvence",
+    "xpReward": "XP odměna",
     "streak": "Streak",
     "maxStreak": "Max streak",
     "days": "dní",
@@ -130,6 +148,19 @@
       "easy": "Snadná",
       "medium": "Střední",
       "hard": "Těžká"
+    },
+    "filters": {
+      "frequency": {
+        "all": "Všechny frekvence",
+        "daily": "Denní",
+        "weekly": "Týdenní",
+        "monthly": "Měsíční",
+        "custom": "Vlastní"
+      },
+      "aspiration": {
+        "all": "Všechny aspirace"
+      },
+      "showCompletedToday": "Zobrazit dokončené dnes"
     },
     "predefined": {
       "exercise": {
@@ -320,6 +351,7 @@
     "menu": {
       "backToGame": "Zpět do hry",
       "mainPanel": "Hlavní panel",
+      "management": "Správa",
       "goals": "Cíle",
       "aspirace": "Aspirace",
       "habits": "Návyky",
@@ -550,6 +582,21 @@
   "steps": {
     "title": "KROKY",
     "addStep": "Přidat krok",
+    "filters": {
+      "showCompleted": "Zobrazit dokončené",
+      "date": {
+        "all": "Všechna data",
+        "today": "Dnes",
+        "overdue": "Po termínu",
+        "future": "Budoucí"
+      },
+      "goal": {
+        "all": "Všechny cíle"
+      },
+      "aspiration": {
+        "all": "Všechny aspirace"
+      }
+    },
     "newStep": "Nový krok",
     "stepTitle": "Název kroku",
     "stepDescription": "Popis",
