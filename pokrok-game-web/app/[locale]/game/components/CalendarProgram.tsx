@@ -2,7 +2,7 @@
 
 import { useTranslations, useLocale } from 'next-intl'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { ChevronLeft, ChevronRight, CheckCircle, Circle, Target, Footprints, Check } from 'lucide-react'
 
 // --- DATUM UTIL ---
@@ -603,7 +603,7 @@ export function CalendarProgram({
   }
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="w-full h-full flex flex-col overflow-hidden">
       {/* Navigation for week view - simplified */}
       {viewMode === 'week' && (
         <div className="flex items-center justify-between mb-4 flex-shrink-0">
@@ -665,9 +665,15 @@ export function CalendarProgram({
       )}
 
       {/* Responsive layout: full width for week view, 2 columns for month view */}
-      <div className={viewMode === 'week' ? 'flex-1 overflow-hidden flex flex-col' : viewMode === 'month' ? 'grid grid-cols-1 md:grid-cols-[minmax(0,_50%)_1fr] gap-3 md:gap-4 items-stretch flex-1 min-h-0' : 'grid grid-cols-1 xl:grid-cols-2 gap-5 xl:gap-6 items-start flex-1 min-h-0'}>
-        {/* Calendar Grid */}
-        <div className={viewMode === 'week' ? 'w-full flex flex-col flex-1 min-h-0 overflow-hidden' : viewMode === 'month' ? 'flex flex-col h-full min-h-0' : ''}>
+      <div 
+        className={viewMode === 'week' ? 'flex-1 overflow-hidden flex flex-col' : viewMode === 'month' ? 'flex flex-col md:flex-row gap-4 md:gap-6 flex-1 min-h-0 overflow-hidden' : 'grid grid-cols-1 xl:grid-cols-2 gap-5 xl:gap-6 items-start flex-1 min-h-0'}
+        style={viewMode === 'month' ? { maxHeight: '100%', height: '100%', overflow: 'hidden' } : {}}
+      >
+        {/* Calendar Grid - Left Column (Fixed, never scrolls) */}
+        <div 
+          className={viewMode === 'week' ? 'w-full flex flex-col flex-1 min-h-0 overflow-hidden' : viewMode === 'month' ? 'flex flex-col md:w-1/2 flex-shrink-0 h-full min-h-0 max-h-full overflow-hidden' : ''}
+          style={viewMode === 'month' ? { overscrollBehavior: 'none', overscrollBehaviorY: 'none' } : {}}
+        >
           {/* Day headers - only for month view */}
           {viewMode === 'month' && (
             <div className="grid grid-cols-7 gap-1 mb-2 flex-shrink-0">
@@ -680,9 +686,11 @@ export function CalendarProgram({
           )}
           
           <div 
-            className={`grid grid-cols-7 ${viewMode === 'week' ? 'gap-2 flex-1 min-h-0 items-stretch' : 'gap-1'} ${viewMode === 'month' ? 'flex-1 min-h-0' : ''}`}
+            className={`grid grid-cols-7 ${viewMode === 'week' ? 'gap-2 flex-1 min-h-0 items-stretch' : 'gap-1'} ${viewMode === 'month' ? 'flex-1 min-h-0 overflow-hidden' : ''}`}
             style={viewMode === 'month' ? { 
-              gridTemplateRows: `repeat(${Math.ceil((adjustedStartingDay + daysInMonth) / 7)}, minmax(0, 1fr))`
+              gridTemplateRows: `repeat(${Math.ceil((adjustedStartingDay + daysInMonth) / 7)}, minmax(0, 1fr))`,
+              height: '100%',
+              maxHeight: '100%'
             } : viewMode === 'week' ? {
               gridTemplateRows: '1fr',
               height: '100%'
@@ -907,22 +915,53 @@ export function CalendarProgram({
 
         </div>
 
-        {/* Selected Day Detail (show for month view only - right side column) */}
+        {/* Selected Day Detail (show for month view only - right side column - Scrollable) */}
         {viewMode === 'month' && (
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_200px] xl:grid-cols-[1fr_250px] gap-3 lg:gap-4 h-full min-h-0">
-            {/* Main detail panel */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col h-full min-h-0 overflow-hidden">
+          <div 
+            className="flex flex-col lg:flex-row gap-3 lg:gap-4 md:w-1/2 flex-1" 
+            style={{ 
+              height: '100%', 
+              maxHeight: '100%', 
+              overflow: 'hidden',
+              minHeight: 0
+            }}
+          >
+            {/* Main detail panel - fixed container with scrollbar, constrained to parent height */}
+            <div 
+              className="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col flex-1" 
+              style={{ 
+                height: '100%', 
+                maxHeight: '100%',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                minHeight: 0
+              }}
+            >
               {selectedDayData ? (
-                <div className="flex flex-col h-full min-h-0">
-                  {/* Header - fixed */}
-                  <div className="flex-shrink-0 p-4 border-b border-gray-200 bg-gray-50">
+                <>
+                  {/* Header - fixed at top, never scrolls */}
+                  <div 
+                    className="flex-shrink-0 p-4 border-b border-gray-200 bg-gray-50"
+                    style={{ flexShrink: 0 }}
+                  >
                     <h3 className="text-lg font-bold text-gray-900">
                       {selectedDayData.date.toLocaleDateString(localeCode, { weekday: 'long' })} {selectedDayData.date.getDate()}. {selectedDayData.date.getMonth() + 1}. {selectedDayData.date.getFullYear()}
                     </h3>
                   </div>
 
-                  {/* Scrollable content */}
-                  <div className="flex-1 overflow-y-auto min-h-0 p-4">
+                  {/* Scrollable content - ONLY this div scrolls, header stays fixed */}
+                  <div 
+                    className="flex-1 min-h-0 p-4"
+                    style={{ 
+                      overflowY: 'auto',
+                      overflowX: 'hidden',
+                      overscrollBehavior: 'contain',
+                      WebkitOverflowScrolling: 'touch',
+                      flex: '1 1 auto',
+                      minHeight: 0
+                    }}
+                  >
                   {/* Habits - Top section */}
                   <div className="mb-6">
                     <h4 className="font-semibold text-gray-800 mb-3 text-sm uppercase tracking-wide">{t('calendar.habits')}</h4>
@@ -990,7 +1029,7 @@ export function CalendarProgram({
                           <div
                             key={step.id}
                             className={`flex items-center gap-2 p-3 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
-                              step.completed ? 'bg-green-50/50 border-green-200' : ''
+                              step.completed ? 'bg-orange-50/30 border-orange-200' : ''
                             }`}
                           >
                             <button
@@ -1022,7 +1061,7 @@ export function CalendarProgram({
                     )}
                   </div>
                   </div>
-                </div>
+                </>
               ) : (
                 <div className="flex items-center justify-center h-full text-center text-gray-500 py-8 px-4">
                   <div>
@@ -1199,7 +1238,7 @@ export function CalendarProgram({
                         <div
                           key={step.id}
                           className={`flex items-center gap-2 p-2 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
-                            step.completed ? 'bg-green-50/50 border-green-200' : ''
+                            step.completed ? 'bg-orange-50/30 border-orange-200' : ''
                           }`}
                         >
                           <button

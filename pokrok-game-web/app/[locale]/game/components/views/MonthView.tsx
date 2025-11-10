@@ -22,9 +22,21 @@ export function MonthView({
   setShowDatePickerModal
 }: MonthViewProps) {
   return (
-    <div className="w-full flex flex-col">
+    <div 
+      className="w-full h-full flex flex-col"
+      style={{ 
+        height: '100%', 
+        maxHeight: '100%', 
+        overflow: 'hidden'
+      }}
+    >
       {/* Calendar Month View - Full width with detail view below */}
-      <div className="flex-1">
+      <div 
+        className="flex-1 min-h-0"
+        style={{ 
+          overflow: 'hidden'
+        }}
+      >
         <CalendarProgram
           player={player}
           goals={goals}
