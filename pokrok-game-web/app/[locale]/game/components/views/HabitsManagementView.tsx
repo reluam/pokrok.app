@@ -44,8 +44,6 @@ export function HabitsManagementView({
       reminderEnabled: !!habit.reminder_time,
       selectedDays: habit.selected_days || [],
       alwaysShow: habit.always_show || false,
-      xpReward: habit.xp_reward || 1,
-      customXpReward: '',
       aspirationId: habit.aspiration_id || habit.aspirationId || null
     })
   }
@@ -79,7 +77,7 @@ export function HabitsManagementView({
           isCustom: true,
           selectedDays: editingHabit.selectedDays,
           alwaysShow: editingHabit.alwaysShow,
-          xpReward: editingHabit.customXpReward ? parseInt(editingHabit.customXpReward) : editingHabit.xpReward,
+          xpReward: 1,
           aspirationId: editingHabit.aspirationId
         } : {
           habitId: editingHabit.id,
@@ -89,7 +87,7 @@ export function HabitsManagementView({
           reminderTime: editingHabit.reminderEnabled ? editingHabit.reminderTime : null,
           selectedDays: editingHabit.selectedDays,
           alwaysShow: editingHabit.alwaysShow,
-          xpReward: editingHabit.customXpReward ? parseInt(editingHabit.customXpReward) : editingHabit.xpReward,
+          xpReward: 1,
           aspirationId: editingHabit.aspirationId
         }),
       })
@@ -240,8 +238,6 @@ export function HabitsManagementView({
               reminderTime: '09:00',
               selectedDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
               alwaysShow: false,
-              xpReward: 1,
-              customXpReward: '',
               aspirationId: null
             })
           }}
@@ -599,51 +595,22 @@ export function HabitsManagementView({
                   </select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <input
-                        type="checkbox"
-                        id="editAlwaysShow"
-                        checked={editingHabit.alwaysShow || false}
-                        onChange={(e) => setEditingHabit({...editingHabit, alwaysShow: e.target.checked})}
-                        className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                      />
-                      <label htmlFor="editAlwaysShow" className="text-sm font-semibold text-gray-800">
-                        Zobrazit vždy
-                      </label>
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      Návyk se zobrazí v hlavním panelu nehledě na frekvenci
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">XP odměna</label>
-                    <div className="flex gap-2 mb-2">
-                      {[1, 2, 3, 4, 5].map(xp => (
-                        <button
-                          key={xp}
-                          type="button"
-                          onClick={() => setEditingHabit({...editingHabit, xpReward: xp, customXpReward: ''})}
-                          className={`px-3 py-1 text-sm rounded-lg border transition-all duration-200 ${
-                            editingHabit.xpReward === xp && !editingHabit.customXpReward
-                              ? 'bg-orange-500 text-white border-orange-500'
-                              : 'bg-white text-gray-700 border-gray-300 hover:border-orange-400'
-                          }`}
-                        >
-                          {xp}
-                        </button>
-                      ))}
-                    </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
                     <input
-                      type="number"
-                      value={editingHabit.customXpReward || ''}
-                      onChange={(e) => setEditingHabit({...editingHabit, customXpReward: e.target.value, xpReward: parseInt(e.target.value) || 1})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
-                      placeholder="Vlastní XP"
-                      min="1"
+                      type="checkbox"
+                      id="editAlwaysShow"
+                      checked={editingHabit.alwaysShow || false}
+                      onChange={(e) => setEditingHabit({...editingHabit, alwaysShow: e.target.checked})}
+                      className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                     />
+                    <label htmlFor="editAlwaysShow" className="text-sm font-semibold text-gray-800">
+                      Zobrazit vždy
+                    </label>
                   </div>
+                  <p className="text-xs text-gray-500">
+                    Návyk se zobrazí v hlavním panelu nehledě na frekvenci
+                  </p>
                 </div>
               </div>
 
