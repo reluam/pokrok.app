@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, Fragment } from 'react'
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations, useLocale } from 'next-intl'
-import { Check, ChevronDown, Plus } from 'lucide-react'
+import { Check, ChevronDown, Plus, X } from 'lucide-react'
 
 interface HabitsManagementViewProps {
   habits: any[]
@@ -26,31 +26,7 @@ export function HabitsManagementView({
   const localeCode = useLocale()
   
   // States for habits management
-  const [showAddHabitForm, setShowAddHabitForm] = useState(false)
   const [editingHabit, setEditingHabit] = useState<any>(null)
-  const [newHabit, setNewHabit] = useState<{
-    name: string
-    description: string
-    frequency: string
-    reminderTime: string
-    reminderEnabled: boolean
-    selectedDays: string[]
-    alwaysShow: boolean
-    xpReward: number
-    customXpReward: string
-    aspirationId: string | null
-  }>({
-    name: '',
-    description: '',
-    frequency: 'daily',
-    reminderTime: '09:00',
-    reminderEnabled: true,
-    selectedDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-    alwaysShow: false,
-    xpReward: 1,
-    customXpReward: '',
-    aspirationId: null
-  })
   
   // Filters
   const [habitsFrequencyFilter, setHabitsFrequencyFilter] = useState<'all' | 'daily' | 'weekly' | 'monthly' | 'custom'>('all')
@@ -61,25 +37,6 @@ export function HabitsManagementView({
   const [quickEditHabitId, setQuickEditHabitId] = useState<string | null>(null)
   const [quickEditHabitField, setQuickEditHabitField] = useState<'frequency' | 'aspiration' | 'days' | null>(null)
   const [quickEditHabitPosition, setQuickEditHabitPosition] = useState<{ top: number; left: number } | null>(null)
-
-  const toggleDay = (day: string) => {
-    setNewHabit(prev => ({
-      ...prev,
-      selectedDays: prev.selectedDays.includes(day)
-        ? prev.selectedDays.filter(d => d !== day)
-        : [...prev.selectedDays, day]
-    }))
-  }
-
-  const toggleAllDays = () => {
-    const allDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
-    const isAllSelected = allDays.every(day => newHabit.selectedDays.includes(day))
-    
-    setNewHabit(prev => ({
-      ...prev,
-      selectedDays: isAllSelected ? [] : allDays
-    }))
-  }
 
   const initializeEditingHabit = (habit: any) => {
     setEditingHabit({
@@ -93,100 +50,38 @@ export function HabitsManagementView({
     })
   }
 
-  const handleCreateHabit = async () => {
-    if (!newHabit.name.trim()) {
-      alert('Název návyku je povinný')
-      return
-    }
-
-    // Validate custom frequency
-    if (newHabit.frequency === 'custom' && newHabit.selectedDays.length === 0) {
-      alert('Pro vlastní frekvenci musíte vybrat alespoň jeden den')
-      return
-    }
-
-    try {
-      const response = await fetch('/api/habits', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: newHabit.name,
-          description: '',
-          frequency: newHabit.frequency,
-          reminderTime: newHabit.reminderEnabled ? newHabit.reminderTime : null,
-          category: 'custom',
-          difficulty: 'medium',
-          isCustom: true,
-          selectedDays: newHabit.selectedDays,
-          alwaysShow: newHabit.alwaysShow,
-          xpReward: newHabit.customXpReward ? parseInt(newHabit.customXpReward) : newHabit.xpReward,
-          aspirationId: newHabit.aspirationId
-        }),
-      })
-
-      if (response.ok) {
-        const createdHabit = await response.json()
-        
-        // Update habits in parent component
-        if (onHabitsUpdate) {
-          onHabitsUpdate([...habits, createdHabit])
-        }
-        
-        // Update overview balance if habit has aspiration
-        if (createdHabit.aspiration_id && setOverviewBalances) {
-          try {
-            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${createdHabit.aspiration_id}`)
-            if (balanceResponse.ok) {
-              const balance = await balanceResponse.json()
-              setOverviewBalances((prev: Record<string, any>) => ({
-                ...prev,
-                [createdHabit.aspiration_id]: balance
-              }))
-            }
-          } catch (error) {
-            console.error('Error updating aspiration balance:', error)
-          }
-        }
-        
-        // Reset form
-        setNewHabit({
-          name: '',
-          description: '',
-          frequency: 'daily',
-          reminderTime: '09:00',
-          reminderEnabled: true,
-          selectedDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-          alwaysShow: false,
-          xpReward: 1,
-          customXpReward: '',
-          aspirationId: null
-        })
-        setShowAddHabitForm(false)
-      } else {
-        console.error('Failed to create habit')
-        alert('Nepodařilo se vytvořit návyk')
-      }
-    } catch (error) {
-      console.error('Error creating habit:', error)
-      alert('Chyba při vytváření návyku')
-    }
-  }
-
   const handleUpdateHabit = async () => {
     if (!editingHabit || !editingHabit.name.trim()) {
       alert('Název návyku je povinný')
       return
     }
 
+    // Validate custom frequency
+    if (editingHabit.frequency === 'custom' && editingHabit.selectedDays.length === 0) {
+      alert('Pro vlastní frekvenci musíte vybrat alespoň jeden den')
+      return
+    }
+
     try {
+      const isCreating = !editingHabit.id
       const response = await fetch('/api/habits', {
-        method: 'PUT',
+        method: isCreating ? 'POST' : 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
+        body: JSON.stringify(isCreating ? {
+          name: editingHabit.name,
+          description: '',
+          frequency: editingHabit.frequency,
+          reminderTime: editingHabit.reminderEnabled ? editingHabit.reminderTime : null,
+          category: 'custom',
+          difficulty: 'medium',
+          isCustom: true,
+          selectedDays: editingHabit.selectedDays,
+          alwaysShow: editingHabit.alwaysShow,
+          xpReward: editingHabit.customXpReward ? parseInt(editingHabit.customXpReward) : editingHabit.xpReward,
+          aspirationId: editingHabit.aspirationId
+        } : {
           habitId: editingHabit.id,
           name: editingHabit.name,
           description: editingHabit.description,
@@ -200,24 +95,26 @@ export function HabitsManagementView({
       })
 
       if (response.ok) {
-        const updatedHabit = await response.json()
+        const habit = await response.json()
         
         // Update habits in parent component
         if (onHabitsUpdate) {
-          onHabitsUpdate(habits.map(habit => 
-            habit.id === updatedHabit.id ? updatedHabit : habit
-          ))
+          if (isCreating) {
+            onHabitsUpdate([...habits, habit])
+          } else {
+            onHabitsUpdate(habits.map(h => h.id === habit.id ? habit : h))
+          }
         }
         
-        // Update overview balance if we're on overview page
-        if (updatedHabit.aspiration_id && setOverviewBalances) {
+        // Update overview balance if habit has aspiration
+        if (habit.aspiration_id && setOverviewBalances) {
           try {
-            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${updatedHabit.aspiration_id}`)
+            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${habit.aspiration_id}`)
             if (balanceResponse.ok) {
               const balance = await balanceResponse.json()
               setOverviewBalances((prev: Record<string, any>) => ({
                 ...prev,
-                [updatedHabit.aspiration_id]: balance
+                [habit.aspiration_id]: balance
               }))
             }
           } catch (error) {
@@ -225,31 +122,33 @@ export function HabitsManagementView({
           }
         }
         
-        // Also update balance for old aspiration if aspirationId changed
-        const oldHabit = habits.find(h => h.id === updatedHabit.id)
-        if (oldHabit && oldHabit.aspiration_id && oldHabit.aspiration_id !== updatedHabit.aspiration_id && setOverviewBalances) {
-          try {
-            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${oldHabit.aspiration_id}`)
-            if (balanceResponse.ok) {
-              const balance = await balanceResponse.json()
-              setOverviewBalances((prev: Record<string, any>) => ({
-                ...prev,
-                [oldHabit.aspiration_id]: balance
-              }))
+        // Also update balance for old aspiration if aspirationId changed (only for updates)
+        if (!isCreating) {
+          const oldHabit = habits.find(h => h.id === habit.id)
+          if (oldHabit && oldHabit.aspiration_id && oldHabit.aspiration_id !== habit.aspiration_id && setOverviewBalances) {
+            try {
+              const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${oldHabit.aspiration_id}`)
+              if (balanceResponse.ok) {
+                const balance = await balanceResponse.json()
+                setOverviewBalances((prev: Record<string, any>) => ({
+                  ...prev,
+                  [oldHabit.aspiration_id]: balance
+                }))
+              }
+            } catch (error) {
+              console.error('Error updating old aspiration balance:', error)
             }
-          } catch (error) {
-            console.error('Error updating old aspiration balance:', error)
           }
         }
         
         setEditingHabit(null)
       } else {
-        console.error('Failed to update habit')
-        alert('Nepodařilo se aktualizovat návyk')
+        console.error(`Failed to ${isCreating ? 'create' : 'update'} habit`)
+        alert(`Nepodařilo se ${isCreating ? 'vytvořit' : 'aktualizovat'} návyk`)
       }
     } catch (error) {
-      console.error('Error updating habit:', error)
-      alert('Chyba při aktualizaci návyku')
+      console.error(`Error ${editingHabit.id ? 'updating' : 'creating'} habit:`, error)
+      alert(`Chyba při ${editingHabit.id ? 'aktualizaci' : 'vytváření'} návyku`)
     }
   }
 
@@ -290,179 +189,6 @@ export function HabitsManagementView({
 
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Add Habit Form */}
-      {showAddHabitForm && (
-        <div className="p-6 bg-gray-50 border-b border-gray-200 max-h-[50vh] overflow-y-auto">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Nový návyk</h3>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Název návyku</label>
-              <input
-                type="text"
-                value={newHabit.name}
-                onChange={(e) => setNewHabit({...newHabit, name: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                placeholder="Např. Ranní cvičení"
-              />
-            </div>
-
-            {/* Days selection - only show for custom frequency */}
-            {newHabit.frequency === 'custom' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Dny v týdnu</label>
-                <div className="grid grid-cols-7 gap-2 mb-3">
-                  {[
-                    { key: 'monday', label: 'Po' },
-                    { key: 'tuesday', label: 'Út' },
-                    { key: 'wednesday', label: 'St' },
-                    { key: 'thursday', label: 'Čt' },
-                    { key: 'friday', label: 'Pá' },
-                    { key: 'saturday', label: 'So' },
-                    { key: 'sunday', label: 'Ne' }
-                  ].map(({ key, label }) => (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => toggleDay(key)}
-                      className={`px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${
-                        newHabit.selectedDays.includes(key)
-                          ? 'bg-orange-500 text-white border-orange-500 shadow-md'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-orange-400 hover:bg-orange-50'
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                <button
-                  type="button"
-                  onClick={toggleAllDays}
-                  className="text-sm text-orange-600 hover:text-orange-700 font-medium"
-                >
-                  {newHabit.selectedDays.length === 7 ? 'Zrušit všechny' : 'Vybrat všechny'}
-                </button>
-              </div>
-            )}
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Frekvence</label>
-                <select
-                  value={newHabit.frequency}
-                  onChange={(e) => setNewHabit({...newHabit, frequency: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                >
-                  <option value="daily">Denně</option>
-                  <option value="weekly">Týdně</option>
-                  <option value="monthly">Měsíčně</option>
-                  <option value="custom">Vlastní</option>
-                </select>
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <input
-                    type="checkbox"
-                    id="reminderEnabled"
-                    checked={newHabit.reminderEnabled}
-                    onChange={(e) => setNewHabit({...newHabit, reminderEnabled: e.target.checked})}
-                    className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                  />
-                  <label htmlFor="reminderEnabled" className="text-sm font-medium text-gray-700">
-                    Zapnout připomenutí
-                  </label>
-                </div>
-                {newHabit.reminderEnabled && (
-                  <input
-                    type="time"
-                    value={newHabit.reminderTime}
-                    onChange={(e) => setNewHabit({...newHabit, reminderTime: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  />
-                )}
-              </div>
-            </div>
-
-            {/* Aspiration Selection */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Aspirace (volitelné)</label>
-              <select
-                value={newHabit.aspirationId || ''}
-                onChange={(e) => setNewHabit({...newHabit, aspirationId: e.target.value ? e.target.value : null})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-              >
-                <option value="">Žádná aspirace</option>
-                {aspirations.map((aspiration: any) => (
-                  <option key={aspiration.id} value={aspiration.id}>
-                    {aspiration.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <input
-                    type="checkbox"
-                    id="alwaysShow"
-                    checked={newHabit.alwaysShow}
-                    onChange={(e) => setNewHabit({...newHabit, alwaysShow: e.target.checked})}
-                    className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                  />
-                  <label htmlFor="alwaysShow" className="text-sm font-medium text-gray-700">
-                    Zobrazit vždy
-                  </label>
-                </div>
-                <p className="text-xs text-gray-500">
-                  Návyk se zobrazí v hlavním panelu nehledě na frekvenci
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">XP odměna</label>
-                <div className="flex gap-2 mb-2">
-                  {[1, 2, 3, 4, 5].map(xp => (
-                    <button
-                      key={xp}
-                      type="button"
-                      onClick={() => setNewHabit({...newHabit, xpReward: xp, customXpReward: ''})}
-                      className={`px-3 py-1 text-sm rounded-lg border transition-all duration-200 ${
-                        newHabit.xpReward === xp && !newHabit.customXpReward
-                          ? 'bg-orange-500 text-white border-orange-500'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-orange-400'
-                      }`}
-                    >
-                      {xp}
-                    </button>
-                  ))}
-                </div>
-                <input
-                  type="number"
-                  value={newHabit.customXpReward}
-                  onChange={(e) => setNewHabit({...newHabit, customXpReward: e.target.value, xpReward: parseInt(e.target.value) || 1})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="Vlastní XP"
-                  min="1"
-                />
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={handleCreateHabit}
-                className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
-              >
-                Vytvořit návyk
-              </button>
-              <button
-                onClick={() => setShowAddHabitForm(false)}
-                className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium"
-              >
-                {t('common.cancel')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Filters Row */}
       <div className="flex items-center justify-between gap-4 px-4 py-2 bg-white border-b border-gray-200">
         <div className="flex items-center gap-3 flex-wrap">
@@ -505,11 +231,24 @@ export function HabitsManagementView({
         
         {/* Add Button */}
         <button
-          onClick={() => setShowAddHabitForm(!showAddHabitForm)}
+          onClick={() => {
+            setEditingHabit({
+              id: null,
+              name: '',
+              frequency: 'daily',
+              reminderEnabled: true,
+              reminderTime: '09:00',
+              selectedDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+              alwaysShow: false,
+              xpReward: 1,
+              customXpReward: '',
+              aspirationId: null
+            })
+          }}
           className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
-          {t('habits.addHabit')}
+          {t('habits.add')}
         </button>
       </div>
 
@@ -555,7 +294,6 @@ export function HabitsManagementView({
                   const now = new Date()
                   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
                   const isCompletedToday = habit && habit.habit_completions && habit.habit_completions[today] === true
-                  const isEditing = editingHabit && editingHabit.id === habit.id
                   const habitAspiration = habit.aspiration_id || habit.aspirationId ? aspirations.find((a: any) => a.id === (habit.aspiration_id || habit.aspirationId)) : null
                   
                   // Check if habit is active today
@@ -587,15 +325,9 @@ export function HabitsManagementView({
                   const shouldGrayOut = !isActiveToday && !(habit.always_show || habit.alwaysShow)
                   
                   return (
-                    <Fragment key={habit.id}>
-                      <tr
-                        onClick={() => {
-                          if (isEditing) {
-                            setEditingHabit(null)
-                          } else {
-                            initializeEditingHabit(habit)
-                          }
-                        }}
+                    <tr
+                      key={habit.id}
+                        onClick={() => initializeEditingHabit(habit)}
                         className={`border-b border-gray-100 hover:bg-orange-50/30 cursor-pointer transition-all duration-200 last:border-b-0 ${
                           isCompletedToday ? 'bg-orange-50/50 hover:bg-orange-50' : 'bg-white'
                         } ${shouldGrayOut ? 'opacity-50' : ''}`}
@@ -713,6 +445,7 @@ export function HabitsManagementView({
                             }}
                             className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
                             title={t('common.edit') || 'Upravit'}
+                            onMouseDown={(e) => e.stopPropagation()}
                           >
                             <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -720,187 +453,6 @@ export function HabitsManagementView({
                           </button>
                         </td>
                       </tr>
-                      {isEditing && (
-                        <tr>
-                          <td colSpan={7} className="px-4 py-3 bg-orange-50/50 first:pl-6 last:pr-6">
-                            <div className="editing-form p-4 bg-white rounded-xl border border-orange-200 shadow-sm">
-                              <h4 className="text-md font-semibold text-gray-800 mb-4">Upravit návyk</h4>
-                              <div className="space-y-4">
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">Název návyku</label>
-                                  <input
-                                    type="text"
-                                    value={editingHabit.name}
-                                    onChange={(e) => setEditingHabit({...editingHabit, name: e.target.value})}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                    placeholder="Např. Ranní cvičení"
-                                  />
-                                </div>
-
-                                {/* Days selection - only show for custom frequency */}
-                                {editingHabit.frequency === 'custom' && (
-                                  <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Dny v týdnu</label>
-                                    <div className="grid grid-cols-7 gap-2 mb-3">
-                                      {[
-                                        { key: 'monday', label: 'Po' },
-                                        { key: 'tuesday', label: 'Út' },
-                                        { key: 'wednesday', label: 'St' },
-                                        { key: 'thursday', label: 'Čt' },
-                                        { key: 'friday', label: 'Pá' },
-                                        { key: 'saturday', label: 'So' },
-                                        { key: 'sunday', label: 'Ne' }
-                                      ].map(({ key, label }) => (
-                                        <button
-                                          key={key}
-                                          type="button"
-                                          onClick={() => {
-                                            const newDays = editingHabit.selectedDays.includes(key)
-                                              ? editingHabit.selectedDays.filter((d: string) => d !== key)
-                                              : [...editingHabit.selectedDays, key]
-                                            setEditingHabit({...editingHabit, selectedDays: newDays})
-                                          }}
-                                          className={`px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${
-                                            editingHabit.selectedDays.includes(key)
-                                              ? 'bg-orange-500 text-white border-orange-500 shadow-md'
-                                              : 'bg-white text-gray-700 border-gray-300 hover:border-orange-400 hover:bg-orange-50'
-                                          }`}
-                                        >
-                                          {label}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Frekvence</label>
-                                    <select
-                                      value={editingHabit.frequency}
-                                      onChange={(e) => setEditingHabit({...editingHabit, frequency: e.target.value})}
-                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                    >
-                                      <option value="daily">Denně</option>
-                                      <option value="weekly">Týdně</option>
-                                      <option value="monthly">Měsíčně</option>
-                                      <option value="custom">Vlastní</option>
-                                    </select>
-                                  </div>
-                                  <div>
-                                    <div className="flex items-center gap-2 mb-2">
-                                      <input
-                                        type="checkbox"
-                                        id={`editReminderEnabled-${habit.id}`}
-                                        checked={editingHabit.reminderEnabled}
-                                        onChange={(e) => setEditingHabit({...editingHabit, reminderEnabled: e.target.checked})}
-                                        className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                                      />
-                                      <label htmlFor={`editReminderEnabled-${habit.id}`} className="text-sm font-medium text-gray-700">
-                                        Zapnout připomenutí
-                                      </label>
-                                    </div>
-                                    {editingHabit.reminderEnabled && (
-                                      <input
-                                        type="time"
-                                        value={editingHabit.reminderTime}
-                                        onChange={(e) => setEditingHabit({...editingHabit, reminderTime: e.target.value})}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                      />
-                                    )}
-                                  </div>
-                                </div>
-
-                                {/* Aspiration Selection */}
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">Aspirace (volitelné)</label>
-                                  <select
-                                    value={editingHabit.aspirationId || ''}
-                                    onChange={(e) => setEditingHabit({...editingHabit, aspirationId: e.target.value ? e.target.value : null})}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                  >
-                                    <option value="">Žádná aspirace</option>
-                                    {aspirations.map((aspiration: any) => (
-                                      <option key={aspiration.id} value={aspiration.id}>
-                                        {aspiration.title}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <div className="flex items-center gap-2 mb-2">
-                                      <input
-                                        type="checkbox"
-                                        id={`editAlwaysShow-${habit.id}`}
-                                        checked={editingHabit.alwaysShow}
-                                        onChange={(e) => setEditingHabit({...editingHabit, alwaysShow: e.target.checked})}
-                                        className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                                      />
-                                      <label htmlFor={`editAlwaysShow-${habit.id}`} className="text-sm font-medium text-gray-700">
-                                        Zobrazit vždy
-                                      </label>
-                                    </div>
-                                    <p className="text-xs text-gray-500">
-                                      Návyk se zobrazí v hlavním panelu nehledě na frekvenci
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">XP odměna</label>
-                                    <div className="flex gap-2 mb-2">
-                                      {[1, 2, 3, 4, 5].map(xp => (
-                                        <button
-                                          key={xp}
-                                          type="button"
-                                          onClick={() => setEditingHabit({...editingHabit, xpReward: xp, customXpReward: ''})}
-                                          className={`px-3 py-1 text-sm rounded-lg border transition-all duration-200 ${
-                                            editingHabit.xpReward === xp && !editingHabit.customXpReward
-                                              ? 'bg-orange-500 text-white border-orange-500'
-                                              : 'bg-white text-gray-700 border-gray-300 hover:border-orange-400'
-                                          }`}
-                                        >
-                                          {xp}
-                                        </button>
-                                      ))}
-                                    </div>
-                                    <input
-                                      type="number"
-                                      value={editingHabit.customXpReward}
-                                      onChange={(e) => setEditingHabit({...editingHabit, customXpReward: e.target.value, xpReward: parseInt(e.target.value) || 1})}
-                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                      placeholder="Vlastní XP"
-                                      min="1"
-                                    />
-                                  </div>
-                                </div>
-
-                                <div className="flex gap-3">
-                                  <button
-                                    onClick={handleUpdateHabit}
-                                    className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
-                                  >
-                                    {t('details.habit.saveChanges')}
-                                  </button>
-                                  <button
-                                    onClick={() => setEditingHabit(null)}
-                                    className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium"
-                                  >
-                                    {t('common.cancel')}
-                                  </button>
-                                  <button
-                                    onClick={handleDeleteHabit}
-                                    className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
-                                  >
-                                    Smazat návyk
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </Fragment>
                   )
                 })}
                 {habits.length === 0 && (
@@ -916,6 +468,214 @@ export function HabitsManagementView({
           </div>
         </div>
       </div>
+
+      {/* Edit Habit Modal */}
+      {editingHabit && typeof window !== 'undefined' && createPortal(
+        <>
+          <div 
+            className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+            onClick={() => setEditingHabit(null)}
+          >
+            <div 
+              className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {editingHabit.id ? t('habits.edit') : t('habits.create')}
+                  </h2>
+                  <button
+                    onClick={() => setEditingHabit(null)}
+                    className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-2">
+                    Název návyku <span className="text-orange-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={editingHabit.name || ''}
+                    onChange={(e) => setEditingHabit({...editingHabit, name: e.target.value})}
+                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                    placeholder="Např. Ranní cvičení"
+                  />
+                </div>
+
+                {/* Days selection - only show for custom frequency */}
+                {editingHabit.frequency === 'custom' && (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-2">Dny v týdnu</label>
+                    <div className="grid grid-cols-7 gap-2 mb-3">
+                      {[
+                        { key: 'monday', label: 'Po' },
+                        { key: 'tuesday', label: 'Út' },
+                        { key: 'wednesday', label: 'St' },
+                        { key: 'thursday', label: 'Čt' },
+                        { key: 'friday', label: 'Pá' },
+                        { key: 'saturday', label: 'So' },
+                        { key: 'sunday', label: 'Ne' }
+                      ].map(({ key, label }) => (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => {
+                            const newDays = editingHabit.selectedDays.includes(key)
+                              ? editingHabit.selectedDays.filter((d: string) => d !== key)
+                              : [...editingHabit.selectedDays, key]
+                            setEditingHabit({...editingHabit, selectedDays: newDays})
+                          }}
+                          className={`px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${
+                            editingHabit.selectedDays.includes(key)
+                              ? 'bg-orange-500 text-white border-orange-500 shadow-md'
+                              : 'bg-white text-gray-700 border-gray-300 hover:border-orange-400 hover:bg-orange-50'
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-2">Frekvence</label>
+                    <select
+                      value={editingHabit.frequency || 'daily'}
+                      onChange={(e) => setEditingHabit({...editingHabit, frequency: e.target.value})}
+                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                    >
+                      <option value="daily">Denně</option>
+                      <option value="weekly">Týdně</option>
+                      <option value="monthly">Měsíčně</option>
+                      <option value="custom">Vlastní</option>
+                    </select>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <input
+                        type="checkbox"
+                        id="editReminderEnabled"
+                        checked={editingHabit.reminderEnabled || false}
+                        onChange={(e) => setEditingHabit({...editingHabit, reminderEnabled: e.target.checked})}
+                        className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                      />
+                      <label htmlFor="editReminderEnabled" className="text-sm font-semibold text-gray-800">
+                        Zapnout připomenutí
+                      </label>
+                    </div>
+                    {editingHabit.reminderEnabled && (
+                      <input
+                        type="time"
+                        value={editingHabit.reminderTime || '09:00'}
+                        onChange={(e) => setEditingHabit({...editingHabit, reminderTime: e.target.value})}
+                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                      />
+                    )}
+                  </div>
+                </div>
+
+                {/* Aspiration Selection */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-2">Aspirace (volitelné)</label>
+                  <select
+                    value={editingHabit.aspirationId || ''}
+                    onChange={(e) => setEditingHabit({...editingHabit, aspirationId: e.target.value ? e.target.value : null})}
+                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                  >
+                    <option value="">Žádná aspirace</option>
+                    {aspirations.map((aspiration: any) => (
+                      <option key={aspiration.id} value={aspiration.id}>
+                        {aspiration.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <input
+                        type="checkbox"
+                        id="editAlwaysShow"
+                        checked={editingHabit.alwaysShow || false}
+                        onChange={(e) => setEditingHabit({...editingHabit, alwaysShow: e.target.checked})}
+                        className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                      />
+                      <label htmlFor="editAlwaysShow" className="text-sm font-semibold text-gray-800">
+                        Zobrazit vždy
+                      </label>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Návyk se zobrazí v hlavním panelu nehledě na frekvenci
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-2">XP odměna</label>
+                    <div className="flex gap-2 mb-2">
+                      {[1, 2, 3, 4, 5].map(xp => (
+                        <button
+                          key={xp}
+                          type="button"
+                          onClick={() => setEditingHabit({...editingHabit, xpReward: xp, customXpReward: ''})}
+                          className={`px-3 py-1 text-sm rounded-lg border transition-all duration-200 ${
+                            editingHabit.xpReward === xp && !editingHabit.customXpReward
+                              ? 'bg-orange-500 text-white border-orange-500'
+                              : 'bg-white text-gray-700 border-gray-300 hover:border-orange-400'
+                          }`}
+                        >
+                          {xp}
+                        </button>
+                      ))}
+                    </div>
+                    <input
+                      type="number"
+                      value={editingHabit.customXpReward || ''}
+                      onChange={(e) => setEditingHabit({...editingHabit, customXpReward: e.target.value, xpReward: parseInt(e.target.value) || 1})}
+                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                      placeholder="Vlastní XP"
+                      min="1"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-gray-200 flex items-center justify-between">
+                {editingHabit.id && (
+                  <button
+                    onClick={handleDeleteHabit}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                  >
+                    {t('common.delete') || 'Smazat'}
+                  </button>
+                )}
+                <div className={`flex gap-3 ${editingHabit.id ? '' : 'ml-auto'}`}>
+                  <button
+                    onClick={() => setEditingHabit(null)}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                  >
+                    {t('common.cancel') || 'Zrušit'}
+                  </button>
+                  <button
+                    onClick={handleUpdateHabit}
+                    className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+                  >
+                    {t('common.save') || 'Uložit'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>,
+        document.body
+      )}
       
       {/* Quick Edit Modals for Habits */}
       {quickEditHabitId && quickEditHabitPosition && typeof window !== 'undefined' && createPortal(

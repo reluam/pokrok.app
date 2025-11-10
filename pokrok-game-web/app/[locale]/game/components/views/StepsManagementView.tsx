@@ -378,7 +378,8 @@ export function StepsManagementView({
                   return (
                     <tr
                       key={step.id}
-                      className={`border-b border-gray-100 hover:bg-orange-50/30 transition-all duration-200 last:border-b-0 ${
+                      onClick={() => handleOpenEditModal(step)}
+                      className={`border-b border-gray-100 hover:bg-orange-50/30 transition-all duration-200 last:border-b-0 cursor-pointer ${
                         step.completed ? 'bg-orange-50/30 hover:bg-orange-50/50' : 'bg-white'
                       }`}
                     >

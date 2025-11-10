@@ -81,6 +81,7 @@
     "settings": "Settings",
     "aspiration": "Aspiration",
     "noAspiration": "No aspiration",
+    "area": "Area",
     "noArea": "No area",
     "statusLabel": "Status",
     "status": {
@@ -115,7 +116,10 @@
   },
   "habits": {
     "title": "HABITS",
+    "add": "Add habit",
     "addHabit": "Add habit",
+    "create": "Create habit",
+    "edit": "Edit habit",
     "cancelAdd": "Cancel",
     "addNewHabit": "ADD NEW HABIT",
     "habitName": "HABIT NAME",

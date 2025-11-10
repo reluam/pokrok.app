@@ -81,6 +81,7 @@
     "settings": "Nastavení",
     "aspiration": "Aspirace",
     "noAspiration": "Žádná aspirace",
+    "area": "Oblast",
     "noArea": "Bez oblasti",
     "statusLabel": "Status",
     "status": {
@@ -115,7 +116,10 @@
   },
   "habits": {
     "title": "NÁVYKY",
+    "add": "Přidat návyk",
     "addHabit": "Přidat návyk",
+    "create": "Vytvořit návyk",
+    "edit": "Upravit návyk",
     "cancelAdd": "Zrušit",
     "addNewHabit": "PŘIDAT NOVÝ NÁVYK",
     "habitName": "NÁZEV NÁVYKU",
