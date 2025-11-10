@@ -72,11 +72,11 @@ export function ManagementPage({
         onHabitsUpdate={onHabitsUpdate}
         isLoadingOverview={isLoadingOverview}
         showAddAspirationModal={showAddAspirationModal}
-        setShowAddAspirationModal={setShowAddAspirationModal}
+        setShowAddAspirationModal={setShowAddAspirationModal || (() => {})}
         editingAspiration={editingAspiration}
-        setEditingAspiration={setEditingAspiration}
-        setOverviewAspirations={setOverviewAspirations}
-        setOverviewBalances={setOverviewBalances}
+        setEditingAspiration={setEditingAspiration || (() => {})}
+        setOverviewAspirations={setOverviewAspirations || (() => {})}
+        setOverviewBalances={setOverviewBalances || (() => {})}
       />
     )
   }
