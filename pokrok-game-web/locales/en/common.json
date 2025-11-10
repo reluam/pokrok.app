@@ -47,7 +47,10 @@
   },
   "goals": {
     "title": "GOALS",
+    "add": "Add goal",
     "addGoal": "Add goal",
+    "create": "Create goal",
+    "edit": "Edit goal",
     "cancelAdd": "Cancel",
     "addNewGoal": "ADD NEW GOAL",
     "goalTitle": "GOAL TITLE",
@@ -584,6 +587,11 @@
     "addStep": "Add step",
     "filters": {
       "showCompleted": "Show completed",
+      "status": {
+        "all": "All",
+        "completed": "Completed",
+        "pending": "Pending"
+      },
       "date": {
         "all": "All dates",
         "today": "Today",
@@ -597,6 +605,21 @@
         "all": "All aspirations"
       }
     },
+    "status": {
+      "completed": "Completed",
+      "pending": "Pending"
+    },
+    "add": "Add step",
+    "create": "Create step",
+    "edit": "Edit step",
+    "title": "Title",
+    "description": "Description",
+    "date": "Date",
+    "goal": "Goal",
+    "noGoal": "No goal",
+    "completed": "Completed",
+    "titlePlaceholder": "Step title",
+    "descriptionPlaceholder": "Step description (optional)",
     "newStep": "New step",
     "stepTitle": "Step title",
     "stepDescription": "Description",

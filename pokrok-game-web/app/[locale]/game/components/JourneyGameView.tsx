@@ -8,14 +8,15 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { SettingsView } from './SettingsView'
+import { SettingsPage } from './SettingsPage'
 import { Footprints, Calendar, Target, CheckCircle, X, ChevronDown, ChevronUp, Edit, Trash2, Plus, Clock, Star, Zap, Check, Settings } from 'lucide-react'
 import { DailyReviewWorkflow } from './DailyReviewWorkflow'
 import { CalendarProgram } from './CalendarProgram'
 import { getIconEmoji } from '@/lib/icon-utils'
 import { AddAspirationModal } from './components/AddAspirationModal'
 import { getLocalDateString, normalizeDate } from './utils/dateHelpers'
-import { DayView } from './views/DayView'
+import { MainPanelDay } from './pages/MainPanelDay'
+import { ManagementPage } from './pages/ManagementPage'
 import { WeekView } from './views/WeekView'
 import { MonthView } from './views/MonthView'
 import { YearView } from './views/YearView'
@@ -99,8 +100,6 @@ export function JourneyGameView({
   }, [user?.id, userId])
   const [currentPage, setCurrentPage] = useState<'main' | 'management' | 'statistics' | 'achievements' | 'settings'>('main')
   const [currentManagementProgram, setCurrentManagementProgram] = useState<'aspirace' | 'goals' | 'habits' | 'steps'>('aspirace')
-  const [showAddHabitForm, setShowAddHabitForm] = useState(false)
-  const [editingHabit, setEditingHabit] = useState<any>(null)
   const [editingGoal, setEditingGoal] = useState<any>(null)
   const [editingStep, setEditingStep] = useState<any>(null)
   const [displayMode, setDisplayMode] = useState<'character' | 'progress' | 'motivation' | 'stats' | 'dialogue'>('character')
@@ -230,29 +229,6 @@ export function JourneyGameView({
     xpReward: 1,
     date: getLocalDateString() // Default to today
   })
-  const [newHabit, setNewHabit] = useState<{
-    name: string
-    description: string
-    frequency: string
-    reminderTime: string
-    reminderEnabled: boolean
-    selectedDays: string[]
-    alwaysShow: boolean
-    xpReward: number
-    customXpReward: string
-    aspirationId: string | null
-  }>({
-    name: '',
-    description: '',
-    frequency: 'daily',
-    reminderTime: '09:00',
-    reminderEnabled: true,
-    selectedDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-    alwaysShow: false,
-    xpReward: 1,
-    customXpReward: '',
-    aspirationId: null
-  })
   
   // Filters for steps page
   const [stepsShowCompleted, setStepsShowCompleted] = useState(false)
@@ -264,11 +240,6 @@ export function JourneyGameView({
   const [goalsStatusFilter, setGoalsStatusFilter] = useState<'all' | 'active' | 'completed' | 'considering'>('all')
   const [goalsAreaFilter, setGoalsAreaFilter] = useState<string | null>(null)
   const [goalsAspirationFilter, setGoalsAspirationFilter] = useState<string | null>(null)
-  
-  // Habits filters
-  const [habitsFrequencyFilter, setHabitsFrequencyFilter] = useState<'all' | 'daily' | 'weekly' | 'monthly' | 'custom'>('all')
-  const [habitsAspirationFilter, setHabitsAspirationFilter] = useState<string | null>(null)
-  const [habitsShowCompletedToday, setHabitsShowCompletedToday] = useState(true)
   
   // Track which step's goal/aspiration picker is open
   const [openGoalPickerForStep, setOpenGoalPickerForStep] = useState<string | null>(null)
@@ -289,11 +260,6 @@ export function JourneyGameView({
       }
     }
   }, [quickEditGoalField, quickEditGoalId, goals])
-  
-  // Quick edit modals for habits
-  const [quickEditHabitId, setQuickEditHabitId] = useState<string | null>(null)
-  const [quickEditHabitField, setQuickEditHabitField] = useState<'frequency' | 'aspiration' | 'days' | null>(null)
-  const [quickEditHabitPosition, setQuickEditHabitPosition] = useState<{ top: number; left: number } | null>(null)
   
   // Track which step's tag modals are open
   const [openTimeModalForStep, setOpenTimeModalForStep] = useState<string | null>(null)
@@ -666,18 +632,6 @@ export function JourneyGameView({
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [newGoal.steps, newGoal.milestones])
-
-  const initializeEditingHabit = (habit: any) => {
-    setEditingHabit({
-      ...habit,
-      reminderEnabled: !!habit.reminder_time,
-      selectedDays: habit.selected_days || [],
-      alwaysShow: habit.always_show || false,
-      xpReward: habit.xp_reward || 1,
-      customXpReward: '',
-      aspirationId: habit.aspiration_id || habit.aspirationId || null
-    })
-  }
 
   const initializeEditingGoal = (goal: any, options?: { autoAddStep?: boolean; autoAddMilestone?: boolean }) => {
     setEditingGoal({
@@ -2175,15 +2129,6 @@ export function JourneyGameView({
                 )}
               </button>
               <button
-                onClick={() => {
-                  initializeEditingHabit(selectedItem)
-                  handleCloseDetail()
-                }}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-500 text-white hover:bg-blue-600 transition-all duration-300"
-              >
-                {t('details.step.edit')}
-              </button>
-              <button
                 onClick={handleCloseDetail}
                 className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-500 text-white hover:bg-gray-600 transition-all duration-300"
               >
@@ -2429,7 +2374,7 @@ export function JourneyGameView({
   // Render Day Content - Calendar day view with selected day's habits (including always_show) and steps (overdue + selected day)
   const renderDayContent = () => {
     return (
-      <DayView
+      <MainPanelDay
         habits={habits}
         dailySteps={dailySteps}
         aspirations={aspirations}
@@ -2497,30 +2442,6 @@ export function JourneyGameView({
       />
     )
   }
-
-  // Render Aspirace Content - Aspirations overview
-  const renderAspiraceContent = () => {
-      return (
-      <AspiraceView
-        overviewAspirations={overviewAspirations}
-        overviewBalances={overviewBalances}
-        aspirations={aspirations}
-        setAspirations={setAspirations}
-            goals={goals}
-            habits={habits}
-        onGoalsUpdate={onGoalsUpdate}
-        onHabitsUpdate={onHabitsUpdate}
-        isLoadingOverview={isLoadingOverview}
-        showAddAspirationModal={showAddAspirationModal}
-        setShowAddAspirationModal={setShowAddAspirationModal}
-        editingAspiration={editingAspiration}
-        setEditingAspiration={setEditingAspiration}
-        setOverviewAspirations={setOverviewAspirations}
-        setOverviewBalances={setOverviewBalances}
-      />
-    )
-  }
-
 
   const renderWorkflowContent = () => {
     if (!pendingWorkflow || pendingWorkflow.type !== 'daily_review') {
@@ -2754,938 +2675,7 @@ export function JourneyGameView({
   }
 
   // Old renderGoalsContent and renderHabitsContent removed - now using new versions in renderManagementContent
-
-  const renderStepsContent = () => {
-    // Apply same filters as kanban view
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    
-    const filteredSteps = dailySteps.filter(step => {
-      // Filter by completed status
-      if (!stepsShowCompleted && step.completed) {
-        return false
-      }
-      
-      // Filter by date
-      if (stepsDateFilter !== 'all') {
-        if (!step.date) {
-          return false // Steps without date don't match any date filter
-        }
-        const stepDate = new Date(step.date)
-        stepDate.setHours(0, 0, 0, 0)
-        const stepTime = stepDate.getTime()
-        const todayTime = today.getTime()
-        
-        if (stepsDateFilter === 'overdue' && stepTime >= todayTime) {
-          return false
-        }
-        if (stepsDateFilter === 'today' && stepTime !== todayTime) {
-          return false
-        }
-        if (stepsDateFilter === 'future' && stepTime <= todayTime) {
-          return false
-        }
-      }
-      
-      // Filter by goal
-      if (stepsGoalFilter && step.goal_id !== stepsGoalFilter) {
-        return false
-      }
-      
-      // Filter by aspiration
-      if (stepsAspirationFilter && (step.aspiration_id || step.aspirationId) !== stepsAspirationFilter) {
-        return false
-      }
-      
-      return true
-    })
-    
-    // Helper function to update step's goal or aspiration
-    const handleUpdateStepGoalOrAspiration = async (stepId: string, field: 'goal_id' | 'aspiration_id' | 'estimated_time' | 'date' | 'is_important' | 'is_urgent', value: any) => {
-      try {
-        const step = dailySteps.find((s: any) => s.id === stepId)
-        if (!step) return
-
-        const updateData: any = {
-          stepId: stepId,
-          title: step.title,
-          description: step.description,
-          estimated_time: field === 'estimated_time' ? value : (step.estimated_time || 0),
-          xp_reward: 1, // Always 1 XP
-          is_important: field === 'is_important' ? value : (step.is_important || false),
-          is_urgent: field === 'is_urgent' ? value : (step.is_urgent || false),
-          goal_id: field === 'goal_id' ? value : (step.goal_id || step.goalId || null),
-          aspiration_id: field === 'aspiration_id' ? value : (step.aspiration_id || step.aspirationId || null),
-          deadline: step.deadline || null,
-          date: field === 'date' ? value : (step.date || null)
-        }
-
-        const response = await fetch('/api/daily-steps', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updateData)
-        })
-
-        if (response.ok) {
-          const updatedStep = await response.json()
-          // Update dailySteps locally
-          const updatedSteps = dailySteps.map((s: any) => s.id === stepId ? { ...s, ...updatedStep } : s)
-          // Also notify parent component
-          if (onDailyStepsUpdate) {
-            onDailyStepsUpdate(updatedSteps)
-          }
-        }
-      } catch (error) {
-        console.error('Error updating step:', error)
-      }
-    }
-
-    // Sort steps by date (overdue first, then by date)
-    const sortedSteps = [...filteredSteps].sort((a, b) => {
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      
-      const dateA = a.date ? new Date(a.date) : null
-      const dateB = b.date ? new Date(b.date) : null
-      
-      if (!dateA && !dateB) return 0
-      if (!dateA) return 1
-      if (!dateB) return -1
-      
-      dateA.setHours(0, 0, 0, 0)
-      dateB.setHours(0, 0, 0, 0)
-      
-      const isOverdueA = dateA < today
-      const isOverdueB = dateB < today
-      
-      if (isOverdueA && !isOverdueB) return -1
-      if (!isOverdueA && isOverdueB) return 1
-      
-      return dateA.getTime() - dateB.getTime()
-    })
-
-    return (
-      <div className="w-full h-full flex flex-col">
-        {/* Filters Row */}
-        <div className="flex items-center justify-between gap-4 p-4 bg-white border-b border-gray-200">
-          <div className="flex items-center gap-3 flex-wrap">
-            {/* Completed Filter */}
-            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={stepsShowCompleted}
-                onChange={(e) => setStepsShowCompleted(e.target.checked)}
-                className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-              />
-              <span>{t('steps.filters.showCompleted')}</span>
-            </label>
-            
-            {/* Date Filter */}
-            <select
-              value={stepsDateFilter}
-              onChange={(e) => setStepsDateFilter(e.target.value as any)}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
-            >
-              <option value="all">{t('steps.filters.date.all')}</option>
-              <option value="today">{t('steps.filters.date.today')}</option>
-              <option value="overdue">{t('steps.filters.date.overdue')}</option>
-              <option value="future">{t('steps.filters.date.future')}</option>
-            </select>
-            
-            {/* Goal Filter */}
-            <select
-              value={stepsGoalFilter || ''}
-              onChange={(e) => setStepsGoalFilter(e.target.value || null)}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white min-w-[150px]"
-            >
-              <option value="">{t('steps.filters.goal.all')}</option>
-              {goals.map((goal: any) => (
-                <option key={goal.id} value={goal.id}>{goal.title}</option>
-              ))}
-            </select>
-            
-            {/* Aspiration Filter */}
-            <select
-              value={stepsAspirationFilter || ''}
-              onChange={(e) => setStepsAspirationFilter(e.target.value || null)}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white min-w-[150px]"
-            >
-              <option value="">{t('steps.filters.aspiration.all')}</option>
-              {aspirations.map((aspiration: any) => (
-                <option key={aspiration.id} value={aspiration.id}>{aspiration.title}</option>
-              ))}
-            </select>
-          </div>
-          
-          {/* Add Button */}
-          <button
-            onClick={() => {
-              setEditingStep({
-                id: '',
-                title: '',
-                description: '',
-                goalId: null,
-                aspirationId: null,
-                estimatedTime: 0,
-                date: getLocalDateString(),
-                isImportant: false,
-                isUrgent: false
-              })
-            }}
-            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2 text-sm font-medium"
-          >
-            <span className="text-lg">+</span>
-            {t('steps.addStep')}
-          </button>
-                  </div>
-        
-        <div className="flex-1 overflow-y-auto">
-          <div className="w-full overflow-x-auto" style={{ overflowY: 'visible' }}>
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-              <table className="w-full border-collapse" style={{ overflow: 'visible' }}>
-                <thead>
-                  <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-12 first:pl-6">#</th>
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Název</th>
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">Čas</th>
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Datum</th>
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Cíl</th>
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Aspirace</th>
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-12 last:pr-6"></th>
-                  </tr>
-                </thead>
-            <tbody style={{ overflow: 'visible' }}>
-            {sortedSteps.map((step, index) => {
-              const stepGoal = step.goal_id || step.goalId ? goals.find((g: any) => g.id === (step.goal_id || step.goalId)) : null
-              const stepAspiration = step.aspiration_id || step.aspirationId ? aspirations.find((a: any) => a.id === (step.aspiration_id || step.aspirationId)) : null
-              const goalArea = stepGoal?.area_id ? areas.find((a: any) => a.id === stepGoal.area_id) : null
-              const isEditing = editingStep && editingStep.id === step.id
-              
-              return (
-                <Fragment key={step.id}>
-              <tr
-                onClick={() => {
-                  if (isEditing) {
-                    setEditingStep(null)
-                  } else {
-                    initializeEditingStep(step)
-                  }
-                }}
-                className={`border-b border-gray-100 hover:bg-orange-50/30 cursor-pointer transition-all duration-200 last:border-b-0 ${
-                  step.completed ? 'bg-orange-50/50 hover:bg-orange-50' : 'bg-white'
-                }`}
-              >
-                <td className="px-4 py-2 first:pl-6">
-                  <div className="flex items-center justify-center">
-                    <button
-                      onClick={async (e) => {
-                        e.stopPropagation()
-                        try {
-                          const response = await fetch(`/api/cesta/daily-steps/${step.id}/toggle`, {
-                            method: 'PATCH',
-                            headers: {
-                              'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ completed: !step.completed })
-                          })
-                          if (response.ok) {
-                            const data = await response.json()
-                            if (data.step) {
-                              const updatedSteps = dailySteps.map((s: any) => 
-                                s.id === step.id ? { ...s, completed: data.step.completed, completed_at: data.step.completed_at } : s
-                              )
-                              onDailyStepsUpdate?.(updatedSteps)
-                            }
-                          }
-                        } catch (error) {
-                          console.error('Error toggling step:', error)
-                        }
-                      }}
-                      className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
-                    >
-                      {step.completed ? (
-                        <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
-                      ) : (
-                        <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
-                      )}
-                    </button>
-                  </div>
-                </td>
-                <td className="px-4 py-2">
-                  <span className={`font-semibold text-sm ${step.completed ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
-                    {step.title}
-                    </span>
-                </td>
-                <td className="px-4 py-2">
-                  <div className="relative" style={{ overflow: 'visible' }}>
-                    <div 
-                      ref={(el) => { timeTagRefs.current[step.id] = el }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setTempTimeValue(step.estimated_time || 0)
-                        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                        setTimeModalPosition({ top: rect.bottom + 4, left: rect.left })
-                        setOpenTimeModalForStep(openTimeModalForStep === step.id ? null : step.id)
-                        setOpenDateModalForStep(null)
-                        setOpenImportantModalForStep(null)
-                        setOpenUrgentModalForStep(null)
-                      }}
-                      className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-100 cursor-pointer hover:bg-blue-100 hover:border-blue-200 transition-all duration-200 w-fit shadow-sm whitespace-nowrap"
-                      title="Kliknutím upravíte odhadovaný čas"
-                    >
-                      <Clock className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
-                      <span className="text-blue-700 font-medium">{step.estimated_time || 0} min</span>
-                  </div>
-                    {openTimeModalForStep === step.id && timeModalPosition && typeof window !== 'undefined' && createPortal(
-                      <>
-                        <div 
-                          className="fixed inset-0 z-40" 
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setOpenTimeModalForStep(null)
-                            setTimeModalPosition(null)
-                          }}
-                        />
-                        <div 
-                          className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-4 min-w-[250px] max-w-[90vw]"
-                          style={(() => {
-                            if (typeof window === 'undefined') {
-                              return {
-                                top: `${timeModalPosition.top}px`,
-                                left: `${timeModalPosition.left}px`
-                              }
-                            }
-                            
-                            // Calculate adjusted position to keep modal on screen
-                            const modalWidth = 250
-                            const modalHeight = 200
-                            const padding = 10
-                            
-                            let adjustedTop = timeModalPosition.top
-                            let adjustedLeft = timeModalPosition.left
-                            
-                            // Adjust horizontal position
-                            if (adjustedLeft + modalWidth > window.innerWidth - padding) {
-                              adjustedLeft = window.innerWidth - modalWidth - padding
-                            }
-                            if (adjustedLeft < padding) {
-                              adjustedLeft = padding
-                            }
-                            
-                            // Adjust vertical position
-                            if (adjustedTop + modalHeight > window.innerHeight - padding) {
-                              adjustedTop = timeModalPosition.top - modalHeight - 40
-                              if (adjustedTop < padding) {
-                                adjustedTop = padding
-                              }
-                            }
-                            if (adjustedTop < padding) {
-                              adjustedTop = padding
-                            }
-                            
-                            return {
-                              top: `${adjustedTop}px`,
-                              left: `${adjustedLeft}px`
-                            }
-                          })()}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {t('details.step.estimatedTime') || 'Odhadovaný čas'}
-                          </label>
-                          <div className="flex gap-2 mb-2">
-                            <input
-                              type="number"
-                              value={tempTimeValue}
-                              onChange={(e) => setTempTimeValue(parseInt(e.target.value) || 0)}
-                              className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                              min="0"
-                              onClick={(e) => e.stopPropagation()}
-                              autoFocus
-                            />
-                            <span className="text-sm text-gray-600 flex items-center">min</span>
-                </div>
-                          <div className="flex gap-2 mb-2">
-                            <button
-                              onClick={async (e) => {
-                                e.stopPropagation()
-                                await handleUpdateStepGoalOrAspiration(step.id, 'estimated_time', tempTimeValue)
-                                setOpenTimeModalForStep(null)
-                              }}
-                              className="flex-1 px-3 py-2 bg-orange-500 text-white text-sm rounded-lg hover:bg-orange-600 transition-colors"
-                            >
-                              {t('details.step.confirm') || 'Uložit'}
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setOpenTimeModalForStep(null)
-                                setTimeModalPosition(null)
-                              }}
-                              className="px-3 py-2 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300 transition-colors"
-                            >
-                              {t('common.cancel') || 'Zrušit'}
-                            </button>
-              </div>
-          </div>
-                      </>,
-                      document.body
-                    )}
-        </div>
-                </td>
-                <td className="px-4 py-2">
-                  <div className="relative" style={{ overflow: 'visible' }}>
-                    <div 
-                      ref={(el) => { dateTagRefs.current[step.id] = el }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setSelectedDateForStep(step.date ? new Date(step.date) : new Date())
-                        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                        setDateModalPosition({ top: rect.bottom + 4, left: rect.left })
-                        setOpenDateModalForStep(openDateModalForStep === step.id ? null : step.id)
-                        setOpenTimeModalForStep(null)
-                        setOpenImportantModalForStep(null)
-                        setOpenUrgentModalForStep(null)
-                      }}
-                      className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-200 cursor-pointer hover:bg-gray-100 hover:border-gray-300 transition-all duration-200 w-fit shadow-sm whitespace-nowrap"
-                      title="Kliknutím upravíte datum"
-                    >
-                      <Calendar className="w-3.5 h-3.5 text-gray-600 flex-shrink-0" />
-                      <span className="text-gray-700 font-medium">
-                        {step.date ? new Date(step.date).toLocaleDateString(localeCode) : t('common.noDate') || 'Bez data'}
-                      </span>
-      </div>
-                    {openDateModalForStep === step.id && dateModalPosition && typeof window !== 'undefined' && createPortal(
-                      <>
-                        <div 
-                          className="fixed inset-0 z-40" 
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setOpenDateModalForStep(null)
-                            setDateModalPosition(null)
-                          }}
-                        />
-                        <div 
-                          className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-4 min-w-[300px] max-w-[90vw]"
-                          style={(() => {
-                            if (typeof window === 'undefined') {
-                              return {
-                                top: `${dateModalPosition.top}px`,
-                                left: `${dateModalPosition.left}px`,
-                                maxHeight: 'calc(100vh - 1rem)',
-                                overflow: 'auto'
-                              }
-                            }
-                            
-                            // Calculate adjusted position to keep modal on screen
-                            const modalWidth = 350
-                            const modalHeight = 400
-                            const padding = 10
-                            
-                            let adjustedTop = dateModalPosition.top
-                            let adjustedLeft = dateModalPosition.left
-                            
-                            // Adjust horizontal position
-                            if (adjustedLeft + modalWidth > window.innerWidth - padding) {
-                              adjustedLeft = window.innerWidth - modalWidth - padding
-                            }
-                            if (adjustedLeft < padding) {
-                              adjustedLeft = padding
-                            }
-                            
-                            // Adjust vertical position
-                            if (adjustedTop + modalHeight > window.innerHeight - padding) {
-                              adjustedTop = dateModalPosition.top - modalHeight - 40
-                              if (adjustedTop < padding) {
-                                adjustedTop = padding
-                              }
-                            }
-                            if (adjustedTop < padding) {
-                              adjustedTop = padding
-                            }
-                            
-                            return {
-                              top: `${adjustedTop}px`,
-                              left: `${adjustedLeft}px`,
-                              maxHeight: 'calc(100vh - 1rem)',
-                              overflow: 'auto'
-                            }
-                          })()}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <h3 className="text-sm font-semibold text-gray-800 mb-2">
-                            {t('details.step.newDate') || 'Vyberte datum'}
-                          </h3>
-                          <div className="space-y-2">
-                            <div className="grid grid-cols-7 gap-1 mb-1">
-                              {['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(day => (
-                                <div key={day} className="text-center text-xs font-semibold text-gray-600 py-1">
-                                  {day}
-                                </div>
-                              ))}
-                            </div>
-                            {(() => {
-                              const today = new Date()
-                              const currentMonth = selectedDateForStep.getMonth()
-                              const currentYear = selectedDateForStep.getFullYear()
-                              const firstDay = new Date(currentYear, currentMonth, 1)
-                              const lastDay = new Date(currentYear, currentMonth + 1, 0)
-                              const daysInMonth = lastDay.getDate()
-                              const startingDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1
-                              const todayStr = getLocalDateString()
-                              
-                              const days = []
-                              for (let i = 0; i < startingDayOfWeek; i++) {
-                                days.push(null)
-                              }
-                              for (let day = 1; day <= daysInMonth; day++) {
-                                const date = new Date(currentYear, currentMonth, day)
-                                days.push(date)
-                              }
-
-    return (
-                                <div className="grid grid-cols-7 gap-1">
-                                  {days.map((date, index) => {
-                                    if (!date) {
-                                      return <div key={`empty-${index}`} className="h-7"></div>
-                                    }
-                                    
-                                    const dateStr = getLocalDateString(date)
-                                    const isSelected = dateStr === getLocalDateString(selectedDateForStep)
-                                    const isToday = dateStr === todayStr
-                                    
-              return (
-                                      <button
-                                        key={dateStr}
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          setSelectedDateForStep(date)
-                                        }}
-                                        className={`h-7 rounded transition-all text-xs ${
-                                          isSelected 
-                                            ? 'bg-orange-500 text-white font-bold' 
-                                            : isToday
-                                              ? 'bg-orange-100 text-orange-700 font-semibold'
-                                              : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                                        }`}
-                                      >
-                                        {date.getDate()}
-                                      </button>
-                                    )
-                                  })}
-                      </div>
-                              )
-                            })()}
-                            
-                            <div className="flex items-center justify-between mt-2 pt-2 border-t">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                                  const prevMonth = new Date(selectedDateForStep)
-                                  prevMonth.setMonth(prevMonth.getMonth() - 1)
-                                  setSelectedDateForStep(prevMonth)
-                                }}
-                                className="p-1 hover:bg-gray-100 rounded-lg"
-                              >
-                                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                        </svg>
-                              </button>
-                              <span className="text-xs font-semibold text-gray-800">
-                                {selectedDateForStep.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
-                        </span>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  const nextMonth = new Date(selectedDateForStep)
-                                  nextMonth.setMonth(nextMonth.getMonth() + 1)
-                                  setSelectedDateForStep(nextMonth)
-                                }}
-                                className="p-1 hover:bg-gray-100 rounded-lg"
-                              >
-                                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                                </svg>
-                    </button>
-                  </div>
-                            
-                            <div className="flex gap-2 mt-2">
-                              <button
-                                onClick={async (e) => {
-                                  e.stopPropagation()
-                                  const dateStr = getLocalDateString(selectedDateForStep)
-                                  await handleUpdateStepGoalOrAspiration(step.id, 'date', dateStr)
-                                  setOpenDateModalForStep(null)
-                                  setDateModalPosition(null)
-                                }}
-                                className="flex-1 px-3 py-1.5 bg-orange-500 text-white text-xs rounded-lg hover:bg-orange-600 transition-colors"
-                              >
-                                {t('details.step.confirm') || 'Uložit'}
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  setOpenDateModalForStep(null)
-                                  setDateModalPosition(null)
-                                }}
-                                className="px-3 py-1.5 bg-gray-200 text-gray-700 text-xs rounded-lg hover:bg-gray-300 transition-colors"
-                              >
-                                {t('common.cancel') || 'Zrušit'}
-                              </button>
-                </div>
-          </div>
-        </div>
-                      </>,
-                      document.body
-                    )}
-      </div>
-                </td>
-                <td className="px-4 py-2">
-                  <div className="relative" style={{ overflow: 'visible' }}>
-                    <div
-                      ref={(el) => { goalTagRefs.current[step.id] = el }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                        setGoalModalPosition({ top: rect.bottom + 4, left: rect.left })
-                        setOpenGoalPickerForStep(openGoalPickerForStep === step.id ? null : step.id)
-                        setOpenAspirationPickerForStep(null)
-                      }}
-                      className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-purple-50 border border-purple-100 cursor-pointer hover:bg-purple-100 hover:border-purple-200 transition-all duration-200 w-fit max-w-[150px] shadow-sm"
-                      title={stepGoal ? stepGoal.title : t('details.step.goal') || 'Cíl'}
-                    >
-                      <Target className="w-3.5 h-3.5 text-purple-600" />
-                      <span className="text-purple-700 truncate font-medium">
-                        {stepGoal ? stepGoal.title : t('details.step.goal') || 'Cíl'}
-                      </span>
-                      <ChevronDown className="w-3 h-3 text-purple-400" />
-                    </div>
-                    {openGoalPickerForStep === step.id && goalModalPosition && typeof window !== 'undefined' && createPortal(
-                      <>
-                        <div 
-                          className="fixed inset-0 z-40" 
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setOpenGoalPickerForStep(null)
-                            setGoalModalPosition(null)
-                          }}
-                        />
-                        <div 
-                          className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[200px] max-w-md max-h-[70vh] overflow-y-auto max-w-[90vw]"
-                          style={(() => {
-                            if (typeof window === 'undefined') {
-                              return {
-                                top: `${goalModalPosition.top}px`,
-                                left: `${goalModalPosition.left}px`
-                              }
-                            }
-                            
-                            const modalWidth = 300
-                            const modalHeight = 400
-                            const padding = 10
-                            
-                            let adjustedTop = goalModalPosition.top
-                            let adjustedLeft = goalModalPosition.left
-                            
-                            if (adjustedLeft + modalWidth > window.innerWidth - padding) {
-                              adjustedLeft = window.innerWidth - modalWidth - padding
-                            }
-                            if (adjustedLeft < padding) {
-                              adjustedLeft = padding
-                            }
-                            
-                            if (adjustedTop + modalHeight > window.innerHeight - padding) {
-                              adjustedTop = goalModalPosition.top - modalHeight - 40
-                              if (adjustedTop < padding) {
-                                adjustedTop = padding
-                              }
-                            }
-                            if (adjustedTop < padding) {
-                              adjustedTop = padding
-                            }
-                            
-                            return {
-                              top: `${adjustedTop}px`,
-                              left: `${adjustedLeft}px`
-                            }
-                          })()}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <button
-                            onClick={async (e) => {
-                              e.stopPropagation()
-                              await handleUpdateStepGoalOrAspiration(step.id, 'goal_id', null)
-                              setOpenGoalPickerForStep(null)
-                              setGoalModalPosition(null)
-                            }}
-                            className="w-full text-left px-4 py-3 text-sm hover:bg-blue-50 border-b border-gray-100 font-medium transition-colors"
-                          >
-                            {t('details.step.noGoal') || 'Bez cíle'}
-                          </button>
-                          {goals.map((goal: any) => {
-                            const goalAreaForPicker = goal.area_id ? areas.find((a: any) => a.id === goal.area_id) : null
-    return (
-                              <button
-                                key={goal.id}
-                                onClick={async (e) => {
-                                  e.stopPropagation()
-                                  // Clear aspiration when goal is selected
-                                  if (step.aspiration_id || step.aspirationId) {
-                                    await handleUpdateStepGoalOrAspiration(step.id, 'aspiration_id', null)
-                                  }
-                                  await handleUpdateStepGoalOrAspiration(step.id, 'goal_id', goal.id)
-                                  setOpenGoalPickerForStep(null)
-                                  setGoalModalPosition(null)
-                                }}
-                                className={`w-full text-left px-4 py-3 text-sm hover:bg-blue-50 transition-colors flex items-center gap-2 ${
-                                  (step.goal_id || step.goalId) === goal.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-700'
-                                }`}
-                              >
-                                <span className="text-base flex-shrink-0">
-                                  {goal.icon ? getIconEmoji(goal.icon) : (goalAreaForPicker?.icon || '🎯')}
-                                </span>
-                                <span className="truncate">{goal.title}</span>
-                    </button>
-                            )
-            })}
-          </div>
-                      </>,
-                      document.body
-                    )}
-                  </div>
-                </td>
-                <td className="px-4 py-2 last:pr-6">
-                  {!(step.goal_id || step.goalId) && (
-                    <div className="relative" style={{ overflow: 'visible' }}>
-                      <div
-                        ref={(el) => { aspirationTagRefs.current[step.id] = el }}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                          setAspirationModalPosition({ top: rect.bottom + 4, left: rect.left })
-                          setOpenAspirationPickerForStep(openAspirationPickerForStep === step.id ? null : step.id)
-                          setOpenGoalPickerForStep(null)
-                        }}
-                        className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-gray-50 border border-gray-200 cursor-pointer hover:bg-gray-100 hover:border-gray-300 transition-all duration-200 w-fit max-w-[150px] shadow-sm"
-                        title={stepAspiration ? stepAspiration.title : t('details.step.aspiration') || 'Aspirace'}
-                      >
-                        <span className="text-sm">✨</span>
-                        <span className="text-gray-700 truncate font-medium">
-                          {stepAspiration ? stepAspiration.title : t('details.step.aspiration') || 'Aspirace'}
-                      </span>
-                        <ChevronDown className="w-3 h-3 text-gray-400" />
-      </div>
-                      {openAspirationPickerForStep === step.id && aspirationModalPosition && typeof window !== 'undefined' && createPortal(
-                        <>
-                          <div 
-                            className="fixed inset-0 z-40" 
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setOpenAspirationPickerForStep(null)
-                              setAspirationModalPosition(null)
-                            }}
-                          />
-                          <div 
-                            className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[200px] max-w-md max-h-[70vh] overflow-y-auto max-w-[90vw]"
-                            style={(() => {
-                              if (typeof window === 'undefined') {
-                                return {
-                                  top: `${aspirationModalPosition.top}px`,
-                                  left: `${aspirationModalPosition.left}px`
-                                }
-                              }
-                              
-                              const modalWidth = 300
-                              const modalHeight = 400
-                              const padding = 10
-                              
-                              let adjustedTop = aspirationModalPosition.top
-                              let adjustedLeft = aspirationModalPosition.left
-                              
-                              if (adjustedLeft + modalWidth > window.innerWidth - padding) {
-                                adjustedLeft = window.innerWidth - modalWidth - padding
-                              }
-                              if (adjustedLeft < padding) {
-                                adjustedLeft = padding
-                              }
-                              
-                              if (adjustedTop + modalHeight > window.innerHeight - padding) {
-                                adjustedTop = aspirationModalPosition.top - modalHeight - 40
-                                if (adjustedTop < padding) {
-                                  adjustedTop = padding
-                                }
-                              }
-                              if (adjustedTop < padding) {
-                                adjustedTop = padding
-                              }
-                              
-                              return {
-                                top: `${adjustedTop}px`,
-                                left: `${adjustedLeft}px`
-                              }
-                            })()}
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <button
-                              onClick={async (e) => {
-                                e.stopPropagation()
-                                await handleUpdateStepGoalOrAspiration(step.id, 'aspiration_id', null)
-                                setOpenAspirationPickerForStep(null)
-                                setAspirationModalPosition(null)
-                              }}
-                              className="w-full text-left px-4 py-3 text-sm hover:bg-purple-50 border-b border-gray-100 font-medium transition-colors"
-                            >
-                              {t('details.step.noAspiration') || 'Bez aspirace'}
-                            </button>
-                            {aspirations.map((aspiration: any) => (
-                              <button
-                                key={aspiration.id}
-                                onClick={async (e) => {
-                                  e.stopPropagation()
-                                  await handleUpdateStepGoalOrAspiration(step.id, 'aspiration_id', aspiration.id)
-                                  setOpenAspirationPickerForStep(null)
-                                  setAspirationModalPosition(null)
-                                }}
-                                className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors flex items-center gap-2 ${
-                                  (step.aspiration_id || step.aspirationId) === aspiration.id ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
-                                }`}
-                              >
-                                <div 
-                                  className="w-3 h-3 rounded-full flex-shrink-0"
-                                  style={{ backgroundColor: aspiration.color || '#9333EA' }}
-                                ></div>
-                                <span className="truncate">{aspiration.title}</span>
-                              </button>
-                            ))}
-              </div>
-                        </>,
-                        document.body
-                    )}
-                  </div>
-                  )}
-                </td>
-                <td className="px-4 py-2 last:pr-6">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      initializeEditingStep(step)
-                    }}
-                    className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-                    title={t('common.edit') || 'Upravit'}
-                  >
-                    <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </button>
-                </td>
-              </tr>
-              {isEditing && (
-                <tr>
-                  <td colSpan={7} className="px-4 py-3 bg-orange-50/50 first:pl-6 last:pr-6">
-                    <div className="p-3 bg-white rounded-xl border border-orange-200 shadow-sm" onClick={(e) => e.stopPropagation()}>
-                      <div className="space-y-3">
-                        <input
-                          type="text"
-                          value={editingStep.title || ''}
-                          onChange={(e) => setEditingStep({...editingStep, title: e.target.value})}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                          placeholder="Název kroku"
-                        />
-                        <textarea
-                          value={editingStep.description || ''}
-                          onChange={(e) => setEditingStep({...editingStep, description: e.target.value})}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none"
-                          placeholder="Popis (volitelné)"
-                          rows={2}
-                        />
-                        <div className="grid grid-cols-2 gap-3">
-                          <select
-                            value={editingStep.goalId || ''}
-                            onChange={(e) => setEditingStep({...editingStep, goalId: e.target.value || null})}
-                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                          >
-                            <option value="">Vyberte cíl (volitelné)</option>
-                            {goals.filter((goal: any) => goal.status === 'active').map((goal: any) => (
-                              <option key={goal.id} value={goal.id}>
-                                {goal.title}
-                              </option>
-                            ))}
-                          </select>
-                          <input
-                            type="date"
-                            value={editingStep.date || ''}
-                            onChange={(e) => setEditingStep({...editingStep, date: e.target.value})}
-                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                          />
-                  </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <input
-                            type="number"
-                            min="0"
-                            value={editingStep.estimatedTime || 0}
-                            onChange={(e) => setEditingStep({...editingStep, estimatedTime: parseInt(e.target.value) || 0})}
-                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                            placeholder="Odhadovaný čas (min)"
-                          />
-                          <div className="flex items-center gap-2">
-                            <label className="text-xs text-gray-600 whitespace-nowrap flex items-center gap-1">
-                              <input
-                                type="checkbox"
-                                checked={editingStep.isImportant || false}
-                                onChange={(e) => setEditingStep({...editingStep, isImportant: e.target.checked})}
-                                className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
-                              />
-                              <Star className="w-4 h-4" />
-                              Důležité
-                            </label>
-                            <label className="text-xs text-gray-600 whitespace-nowrap flex items-center gap-1">
-                              <input
-                                type="checkbox"
-                                checked={editingStep.isUrgent || false}
-                                onChange={(e) => setEditingStep({...editingStep, isUrgent: e.target.checked})}
-                                className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
-                              />
-                              <Zap className="w-4 h-4" />
-                              Urgentní
-                            </label>
-                </div>
-              </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={async (e) => {
-                              e.stopPropagation()
-                              await handleUpdateStep()
-                            }}
-                            className="px-4 py-2 bg-orange-500 text-white text-sm rounded-lg hover:bg-orange-600 transition-colors"
-                          >
-                            Uložit
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setEditingStep(null)
-                            }}
-                            className="px-4 py-2 bg-gray-500 text-white text-sm rounded-lg hover:bg-gray-600 transition-colors"
-                          >
-                            Zrušit
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              )}
-                </Fragment>
-              )
-            })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  // renderStepsContent removed - now in ManagementPage
 
   const renderDisplayContentOld = () => {
     // If there's a selected item, show its detail
@@ -3695,6 +2685,80 @@ export function JourneyGameView({
 
     switch (displayMode) {
       case 'character':
+        return (
+          <div className="text-center">
+            {/* Journey-style Character */}
+            <div 
+              className="w-36 h-36 mx-auto mb-6 rounded-full border-4 border-orange-200 flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100 cursor-pointer hover:scale-105 transition-all duration-500 shadow-xl"
+              onClick={handleCharacterClick}
+              style={{
+                background: 'radial-gradient(circle at 30% 30%, #fff7ed, #fed7aa)',
+                boxShadow: '0 15px 30px rgba(251, 146, 60, 0.2), inset 0 2px 0 rgba(255,255,255,0.3)'
+              }}
+            >
+              <div className="w-28 h-28 rounded-full relative" style={{ backgroundColor: player?.appearance?.skinColor || '#FDBCB4' }}>
+                {/* Hair */}
+                <div
+                  className="absolute top-0 left-1/2 transform -translate-x-1/2 w-24 h-12 rounded-full"
+                  style={{ backgroundColor: player?.appearance?.hairColor || '#8B4513' }}
+                />
+                {/* Eyes */}
+                <div className="absolute top-8 left-1/2 transform -translate-x-1/2 flex gap-4">
+                  <div 
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: player?.appearance?.eyeColor || '#4A90E2' }}
+                  />
+                  <div 
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: player?.appearance?.eyeColor || '#4A90E2' }}
+                  />
+                </div>
+                {/* Smile */}
+                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-12 h-3 bg-gray-700 rounded-sm" />
+              </div>
+            </div>
+
+            {/* Character Name */}
+            <h2 className="text-2xl font-bold text-orange-800 mb-6" style={{
+              textShadow: '2px 2px 4px rgba(0,0,0,0.1)',
+              letterSpacing: '1px'
+            }}>
+              {player?.name || 'Hrdina'}
+            </h2>
+          </div>
+        )
+
+      case 'progress':
+        return (
+          <div className="text-center">
+            <h3 className="text-xl font-bold text-orange-800 mb-6" style={{ letterSpacing: '1px' }}>DNEŠNÍ CESTA</h3>
+            <div className="bg-white bg-opacity-90 rounded-xl p-6 max-w-md mx-auto shadow-lg border border-orange-200" style={{
+              background: 'linear-gradient(135deg, #ffffff, #f8fafc)',
+              boxShadow: '0 8px 16px rgba(251, 146, 60, 0.1)'
+            }}>
+              <div className="mb-4">
+                <div className="w-full bg-gray-200 rounded-full h-4 mb-2" style={{ backgroundColor: '#e5e7eb' }}>
+                  <div 
+                    className="bg-orange-500 h-4 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
+                    style={{ width: `${progressPercentage}%` }}
+                  >
+                    {progressPercentage > 20 && (
+                      <span className="text-xs font-bold text-white">{Math.round(progressPercentage)}%</span>
+                    )}
+                  </div>
+                </div>
+                <div className="text-sm text-gray-600 text-center">
+                  {progressPercentage === 100 ? '🎉 Všechny kroky dokončeny!' : `${Math.round(progressPercentage)}% dokončeno`}
+                </div>
+              </div>
+              <p className="text-sm text-gray-700 italic text-center mt-4">
+                Každý krok tě přibližuje k cíli!
+              </p>
+            </div>
+          </div>
+        )
+
+      case 'motivation':
         return (
           <div className="text-center">
             {/* Journey-style Character */}
@@ -4574,129 +3638,6 @@ export function JourneyGameView({
     }
   }
 
-  const handleUpdateHabit = async () => {
-    if (!editingHabit || !editingHabit.name.trim()) {
-      alert('Název návyku je povinný')
-      return
-    }
-
-    try {
-      console.log('Updating habit:', editingHabit)
-      console.log('Habit ID:', editingHabit.id)
-      
-      const response = await fetch('/api/habits', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          habitId: editingHabit.id,
-          name: editingHabit.name,
-          description: editingHabit.description,
-          frequency: editingHabit.frequency,
-          reminderTime: editingHabit.reminderEnabled ? editingHabit.reminderTime : null,
-          selectedDays: editingHabit.selectedDays,
-          alwaysShow: editingHabit.alwaysShow,
-          xpReward: editingHabit.customXpReward ? parseInt(editingHabit.customXpReward) : editingHabit.xpReward,
-          aspirationId: editingHabit.aspirationId
-        }),
-      })
-
-      if (response.ok) {
-        const updatedHabit = await response.json()
-        
-        // Update habits in parent component
-        if (onHabitsUpdate) {
-          onHabitsUpdate(habits.map(habit => 
-            habit.id === updatedHabit.id ? updatedHabit : habit
-          ))
-        }
-        
-        // Update overview balance if we're on overview page
-        if (currentPage === 'management' && currentManagementProgram === 'aspirace' && updatedHabit.aspiration_id) {
-          try {
-            console.log(`🔄 Updating balance for aspiration ${updatedHabit.aspiration_id} after habit update`)
-            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${updatedHabit.aspiration_id}`)
-            if (balanceResponse.ok) {
-              const balance = await balanceResponse.json()
-              console.log(`✅ Balance updated for aspiration ${updatedHabit.aspiration_id}:`, balance)
-              setOverviewBalances((prev: Record<string, any>) => ({
-                ...prev,
-                [updatedHabit.aspiration_id]: balance
-              }))
-            } else {
-              console.error(`❌ Failed to update balance for aspiration ${updatedHabit.aspiration_id}:`, balanceResponse.status)
-            }
-          } catch (error) {
-            console.error('❌ Error updating aspiration balance:', error)
-          }
-        }
-        
-        // Also update balance for old aspiration if aspirationId changed
-        const oldHabit = habits.find(h => h.id === updatedHabit.id)
-        if (currentPage === 'management' && currentManagementProgram === 'aspirace' && oldHabit && oldHabit.aspiration_id && oldHabit.aspiration_id !== updatedHabit.aspiration_id) {
-          try {
-            console.log(`🔄 Updating balance for old aspiration ${oldHabit.aspiration_id} after habit aspiration change`)
-            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${oldHabit.aspiration_id}`)
-            if (balanceResponse.ok) {
-              const balance = await balanceResponse.json()
-              console.log(`✅ Balance updated for old aspiration ${oldHabit.aspiration_id}:`, balance)
-              setOverviewBalances((prev: Record<string, any>) => ({
-                ...prev,
-                [oldHabit.aspiration_id]: balance
-              }))
-            }
-          } catch (error) {
-            console.error('❌ Error updating old aspiration balance:', error)
-          }
-        }
-        
-        setEditingHabit(null)
-      } else {
-        console.error('Failed to update habit')
-        alert('Nepodařilo se aktualizovat návyk')
-      }
-    } catch (error) {
-      console.error('Error updating habit:', error)
-      alert('Chyba při aktualizaci návyku')
-    }
-  }
-
-  const handleDeleteHabit = async () => {
-    if (!editingHabit) return
-
-    if (!confirm(`Opravdu chcete smazat návyk "${editingHabit.name}"? Tato akce je nevratná.`)) {
-      return
-    }
-
-    try {
-      const response = await fetch('/api/habits', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          habitId: editingHabit.id
-        }),
-      })
-
-      if (response.ok) {
-        // Remove habit from parent component
-        if (onHabitsUpdate) {
-          onHabitsUpdate(habits.filter(habit => habit.id !== editingHabit.id))
-        }
-        
-        setEditingHabit(null)
-      } else {
-        console.error('Failed to delete habit')
-        alert('Nepodařilo se smazat návyk')
-      }
-    } catch (error) {
-      console.error('Error deleting habit:', error)
-      alert('Chyba při mazání návyku')
-    }
-  }
-
   const handleUpdateGoal = async (goalId: string, updates: any) => {
     if (!updates.title || !updates.title.trim()) {
       alert('Název cíle je povinný')
@@ -5285,106 +4226,6 @@ export function JourneyGameView({
       console.error('Error deleting goal:', error)
       alert('Chyba při mazání cíle')
     }
-  }
-
-  const handleCreateHabit = async () => {
-    if (!newHabit.name.trim()) {
-      alert('Název návyku je povinný')
-      return
-    }
-
-    // Validate custom frequency
-    if (newHabit.frequency === 'custom' && newHabit.selectedDays.length === 0) {
-      alert('Pro vlastní frekvenci musíte vybrat alespoň jeden den')
-      return
-    }
-
-    try {
-      const response = await fetch('/api/habits', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: newHabit.name,
-          description: '',
-          frequency: newHabit.frequency,
-          reminderTime: newHabit.reminderEnabled ? newHabit.reminderTime : null,
-          category: 'custom',
-          difficulty: 'medium',
-          isCustom: true,
-          selectedDays: newHabit.selectedDays,
-          alwaysShow: newHabit.alwaysShow,
-          xpReward: newHabit.customXpReward ? parseInt(newHabit.customXpReward) : newHabit.xpReward,
-          aspirationId: newHabit.aspirationId
-        }),
-      })
-
-      if (response.ok) {
-        const createdHabit = await response.json()
-        
-        // Update habits in parent component
-        if (onHabitsUpdate) {
-          onHabitsUpdate([...habits, createdHabit])
-        }
-        
-        // Update overview balance if we're on overview page and habit has aspiration
-        if (currentPage === 'management' && currentManagementProgram === 'aspirace' && createdHabit.aspiration_id) {
-          try {
-            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${createdHabit.aspiration_id}`)
-            if (balanceResponse.ok) {
-              const balance = await balanceResponse.json()
-              setOverviewBalances((prev: Record<string, any>) => ({
-                ...prev,
-                [createdHabit.aspiration_id]: balance
-              }))
-            }
-          } catch (error) {
-            console.error('Error updating aspiration balance:', error)
-          }
-        }
-        
-        // Reset form
-        setNewHabit({
-          name: '',
-          description: '',
-          frequency: 'daily',
-          reminderTime: '09:00',
-          reminderEnabled: true,
-          selectedDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-          alwaysShow: false,
-          xpReward: 1,
-          customXpReward: '',
-          aspirationId: null
-        })
-        setShowAddHabitForm(false)
-      } else {
-        console.error('Failed to create habit')
-        alert('Nepodařilo se vytvořit návyk')
-      }
-    } catch (error) {
-      console.error('Error creating habit:', error)
-      alert('Chyba při vytváření návyku')
-    }
-  }
-
-  const toggleDay = (day: string) => {
-    setNewHabit(prev => ({
-      ...prev,
-      selectedDays: prev.selectedDays.includes(day)
-        ? prev.selectedDays.filter(d => d !== day)
-        : [...prev.selectedDays, day]
-    }))
-  }
-
-  const toggleAllDays = () => {
-    const allDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
-    const isAllSelected = allDays.every(day => newHabit.selectedDays.includes(day))
-    
-    setNewHabit(prev => ({
-      ...prev,
-      selectedDays: isAllSelected ? [] : allDays
-    }))
   }
 
   // Filter habits for main page display
@@ -7782,64 +6623,6 @@ export function JourneyGameView({
     )
   }
 
-  const renderManagementContent = () => {
-        return (
-      <div className="w-full h-full flex flex-col">
-        {/* Program Selector - similar to main panel */}
-        <div className="flex items-center justify-center gap-2 p-4 border-b border-gray-200 bg-white">
-              <button
-            onClick={() => setCurrentManagementProgram('aspirace')}
-            className={`px-4 py-2 rounded-lg font-medium transition-all ${
-              currentManagementProgram === 'aspirace'
-                ? 'bg-orange-500 text-white shadow-md'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            {t('game.menu.aspirace')}
-          </button>
-          <button
-            onClick={() => setCurrentManagementProgram('goals')}
-            className={`px-4 py-2 rounded-lg font-medium transition-all ${
-              currentManagementProgram === 'goals'
-                ? 'bg-orange-500 text-white shadow-md'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            {t('game.menu.goals')}
-          </button>
-          <button
-            onClick={() => setCurrentManagementProgram('habits')}
-            className={`px-4 py-2 rounded-lg font-medium transition-all ${
-              currentManagementProgram === 'habits'
-                ? 'bg-orange-500 text-white shadow-md'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            {t('game.menu.habits')}
-          </button>
-          <button
-            onClick={() => setCurrentManagementProgram('steps')}
-            className={`px-4 py-2 rounded-lg font-medium transition-all ${
-              currentManagementProgram === 'steps'
-                ? 'bg-orange-500 text-white shadow-md'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            {t('game.menu.steps')}
-              </button>
-            </div>
-            
-        {/* Program Content */}
-        <div className="flex-1 overflow-y-auto">
-          {currentManagementProgram === 'aspirace' && renderAspiraceContent()}
-          {currentManagementProgram === 'goals' && renderGoalsContent()}
-          {currentManagementProgram === 'habits' && renderHabitsContent()}
-          {currentManagementProgram === 'steps' && renderStepsContent()}
-        </div>
-      </div>
-    )
-  }
-
   const renderGoalsContent = () => {
     return (
       <div className="w-full h-full flex flex-col">
@@ -9172,817 +7955,37 @@ export function JourneyGameView({
     )
   }
 
-  const renderHabitsContent = () => {
-    return (
-      <div className="w-full h-full flex flex-col">
-            {/* Add Habit Form */}
-            {showAddHabitForm && (
-          <div className="p-6 bg-gray-50 border-b border-gray-200 max-h-[50vh] overflow-y-auto">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Nový návyk</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Název návyku</label>
-                    <input
-                      type="text"
-                      value={newHabit.name}
-                      onChange={(e) => setNewHabit({...newHabit, name: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      placeholder="Např. Ranní cvičení"
-                    />
-                  </div>
-
-                  {/* Days selection - only show for custom frequency */}
-                  {newHabit.frequency === 'custom' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Dny v týdnu</label>
-                      <div className="grid grid-cols-7 gap-2 mb-3">
-                        {[
-                          { key: 'monday', label: 'Po' },
-                          { key: 'tuesday', label: 'Út' },
-                          { key: 'wednesday', label: 'St' },
-                          { key: 'thursday', label: 'Čt' },
-                          { key: 'friday', label: 'Pá' },
-                          { key: 'saturday', label: 'So' },
-                          { key: 'sunday', label: 'Ne' }
-                        ].map(({ key, label }) => (
-                          <button
-                            key={key}
-                            type="button"
-                            onClick={() => toggleDay(key)}
-                            className={`px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${
-                              newHabit.selectedDays.includes(key)
-                                ? 'bg-orange-500 text-white border-orange-500 shadow-md'
-                                : 'bg-white text-gray-700 border-gray-300 hover:border-orange-400 hover:bg-orange-50'
-                            }`}
-                          >
-                            {label}
-                          </button>
-                        ))}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={toggleAllDays}
-                        className="text-sm text-orange-600 hover:text-orange-700 font-medium"
-                      >
-                        {newHabit.selectedDays.length === 7 ? 'Zrušit všechny' : 'Vybrat všechny'}
-                      </button>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Frekvence</label>
-                      <select
-                        value={newHabit.frequency}
-                        onChange={(e) => setNewHabit({...newHabit, frequency: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      >
-                        <option value="daily">Denně</option>
-                        <option value="weekly">Týdně</option>
-                        <option value="monthly">Měsíčně</option>
-                        <option value="custom">Vlastní</option>
-                      </select>
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <input
-                          type="checkbox"
-                          id="reminderEnabled"
-                          checked={newHabit.reminderEnabled}
-                          onChange={(e) => setNewHabit({...newHabit, reminderEnabled: e.target.checked})}
-                          className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                        />
-                        <label htmlFor="reminderEnabled" className="text-sm font-medium text-gray-700">
-                          Zapnout připomenutí
-                        </label>
-                      </div>
-                      {newHabit.reminderEnabled && (
-                        <input
-                          type="time"
-                          value={newHabit.reminderTime}
-                          onChange={(e) => setNewHabit({...newHabit, reminderTime: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Aspiration Selection */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Aspirace (volitelné)</label>
-                    <select
-                      value={newHabit.aspirationId || ''}
-                      onChange={(e) => setNewHabit({...newHabit, aspirationId: e.target.value ? e.target.value : null})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    >
-                      <option value="">Žádná aspirace</option>
-                      {aspirations.map((aspiration: any) => (
-                        <option key={aspiration.id} value={aspiration.id}>
-                          {aspiration.title}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <input
-                          type="checkbox"
-                          id="alwaysShow"
-                          checked={newHabit.alwaysShow}
-                          onChange={(e) => setNewHabit({...newHabit, alwaysShow: e.target.checked})}
-                          className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                        />
-                        <label htmlFor="alwaysShow" className="text-sm font-medium text-gray-700">
-                          Zobrazit vždy
-                        </label>
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        Návyk se zobrazí v hlavním panelu nehledě na frekvenci
-                      </p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">XP odměna</label>
-                      <div className="flex gap-2 mb-2">
-                        {[1, 2, 3, 4, 5].map(xp => (
-                          <button
-                            key={xp}
-                            type="button"
-                            onClick={() => setNewHabit({...newHabit, xpReward: xp, customXpReward: ''})}
-                            className={`px-3 py-1 text-sm rounded-lg border transition-all duration-200 ${
-                              newHabit.xpReward === xp && !newHabit.customXpReward
-                                ? 'bg-orange-500 text-white border-orange-500'
-                                : 'bg-white text-gray-700 border-gray-300 hover:border-orange-400'
-                            }`}
-                          >
-                            {xp}
-                          </button>
-                        ))}
-                      </div>
-                      <input
-                        type="number"
-                        value={newHabit.customXpReward}
-                        onChange={(e) => setNewHabit({...newHabit, customXpReward: e.target.value, xpReward: parseInt(e.target.value) || 1})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                        placeholder="Vlastní XP"
-                        min="1"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={handleCreateHabit}
-                      className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
-                    >
-                      Vytvořit návyk
-                    </button>
-                    <button
-                      onClick={() => setShowAddHabitForm(false)}
-                      className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium"
-                    >
-                      {t('common.cancel')}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-        {/* Filters Row */}
-        <div className="flex items-center justify-between gap-4 p-4 bg-white border-b border-gray-200">
-          <div className="flex items-center gap-3 flex-wrap">
-            {/* Frequency Filter */}
-            <select
-              value={habitsFrequencyFilter}
-              onChange={(e) => setHabitsFrequencyFilter(e.target.value as any)}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
-            >
-              <option value="all">{t('habits.filters.frequency.all')}</option>
-              <option value="daily">{t('habits.filters.frequency.daily')}</option>
-              <option value="weekly">{t('habits.filters.frequency.weekly')}</option>
-              <option value="monthly">{t('habits.filters.frequency.monthly')}</option>
-              <option value="custom">{t('habits.filters.frequency.custom')}</option>
-            </select>
-            
-            {/* Aspiration Filter */}
-            <select
-              value={habitsAspirationFilter || ''}
-              onChange={(e) => setHabitsAspirationFilter(e.target.value || null)}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white min-w-[150px]"
-            >
-              <option value="">{t('habits.filters.aspiration.all')}</option>
-              {aspirations.map((aspiration: any) => (
-                <option key={aspiration.id} value={aspiration.id}>{aspiration.title}</option>
-              ))}
-            </select>
-            
-            {/* Completed Today Filter */}
-            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={habitsShowCompletedToday}
-                onChange={(e) => setHabitsShowCompletedToday(e.target.checked)}
-                className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-              />
-              <span>{t('habits.filters.showCompletedToday')}</span>
-            </label>
-          </div>
-          
-          {/* Add Button */}
-          <button
-            onClick={() => setShowAddHabitForm(!showAddHabitForm)}
-            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2 text-sm font-medium"
-          >
-            <span className="text-lg">+</span>
-            {t('habits.addHabit')}
-          </button>
-        </div>
-
-            {/* Habits List */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="w-full overflow-x-auto" style={{ overflowY: 'visible' }}>
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-              <table className="w-full border-collapse" style={{ overflow: 'visible' }}>
-                <thead>
-                  <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-12 first:pl-6">#</th>
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Název</th>
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">Frekvence</th>
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Dny</th>
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40 last:pr-6">Aspirace</th>
-                  </tr>
-                </thead>
-                  <tbody style={{ overflow: 'visible' }}>
-                    {habits.filter((habit: any) => {
-                      // Filter by frequency
-                      if (habitsFrequencyFilter !== 'all' && habit.frequency !== habitsFrequencyFilter) {
-                        return false
-                      }
-                      
-                      // Filter by aspiration
-                      if (habitsAspirationFilter && (habit.aspiration_id || habit.aspirationId) !== habitsAspirationFilter) {
-                        return false
-                      }
-                      
-                      // Filter by completed today (if unchecked, hide completed)
-                      if (!habitsShowCompletedToday) {
-                        const today = new Date().toISOString().split('T')[0]
-                        const habitCompletions = habit.completions || []
-                        const isCompletedToday = habitCompletions.some((c: any) => c.date === today)
-                        if (isCompletedToday) {
-                          return false
-                        }
-                      }
-                      
-                      return true
-                    }).map((habit, index) => {
-                // Calculate isCompletedToday using local date and habit_completions
-              const now = new Date()
-              const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-                      const isCompletedToday = habit && habit.habit_completions && habit.habit_completions[today] === true
-                      const isEditing = editingHabit && editingHabit.id === habit.id
-                      const habitAspiration = habit.aspiration_id || habit.aspirationId ? aspirations.find((a: any) => a.id === (habit.aspiration_id || habit.aspirationId)) : null
-                      
-                      // Check if habit is active today
-                      const todayDay = now.getDay() // 0 = Sunday, 1 = Monday, etc.
-                      const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-                      const todayName = dayNames[todayDay]
-                      
-                      let isActiveToday = false
-                      if (habit.always_show || habit.alwaysShow) {
-                        isActiveToday = true
-                      } else {
-                        switch (habit.frequency) {
-                          case 'daily':
-                            isActiveToday = true
-                            break
-                          case 'weekly':
-                          case 'custom':
-                            if (habit.selected_days && habit.selected_days.length > 0) {
-                              isActiveToday = habit.selected_days.includes(todayName)
-                            }
-                            break
-                          case 'monthly':
-                            const createdDate = habit.created_at ? new Date(habit.created_at) : new Date()
-                            isActiveToday = now.getDate() === createdDate.getDate()
-                            break
-                        }
-                      }
-                      
-                      const shouldGrayOut = !isActiveToday && !(habit.always_show || habit.alwaysShow)
-                      
-                return (
-                        <Fragment key={habit.id}>
-                          <tr
-                            onClick={() => {
-                              if (isEditing) {
-                                setEditingHabit(null)
-                              } else {
-                                initializeEditingHabit(habit)
-                              }
-                            }}
-                            className={`border-b border-gray-100 hover:bg-orange-50/30 cursor-pointer transition-all duration-200 last:border-b-0 ${
-                              isCompletedToday ? 'bg-orange-50/50 hover:bg-orange-50' : 'bg-white'
-                            } ${shouldGrayOut ? 'opacity-50' : ''}`}
-                          >
-                            <td className="px-4 py-2 first:pl-6">
-                              <div className="flex items-center justify-center">
-                        <button
-                                  onClick={async (e) => {
-                            e.stopPropagation()
-                            if (!loadingHabits.has(habit.id)) {
-                              handleHabitToggle(habit.id)
-                            }
-                          }}
-                          disabled={loadingHabits.has(habit.id)}
-                                  className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
-                        >
-                          {loadingHabits.has(habit.id) ? (
-                                    <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                  ) : isCompletedToday ? (
-                    <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
-                  ) : (
-                    <Check className={`w-5 h-5 ${shouldGrayOut ? 'text-gray-300' : 'text-gray-400'}`} strokeWidth={2.5} fill="none" />
-                  )}
-                        </button>
-                              </div>
-                            </td>
-                            <td className="px-4 py-2">
-                              <span className={`font-semibold text-sm ${isCompletedToday ? 'text-gray-500 line-through' : shouldGrayOut ? 'text-gray-400' : 'text-gray-900'}`}>
-                            {habit.name}
-                              </span>
-                            </td>
-                            <td className="px-4 py-2">
-                              <span 
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                                  setQuickEditHabitPosition({ top: rect.bottom + 4, left: rect.left })
-                                  setQuickEditHabitId(habit.id)
-                                  setQuickEditHabitField('frequency')
-                                }}
-                                className={`text-xs px-2.5 py-1.5 rounded-lg bg-gray-50 border border-gray-200 font-medium cursor-pointer hover:opacity-80 transition-opacity ${
-                                  shouldGrayOut ? 'text-gray-400' : 'text-gray-700'
-                                }`}
-                              >
-                                {habit.frequency === 'custom' ? 'Vlastní' :
-                              habit.frequency === 'daily' ? 'Denně' :
-                              habit.frequency === 'weekly' ? 'Týdně' :
-                                 habit.frequency === 'monthly' ? 'Měsíčně' : 'Denně'}
-                              </span>
-                            </td>
-                            <td className="px-4 py-2">
-                              {habit.selected_days && habit.selected_days.length > 0 ? (
-                                <div className="flex gap-1 flex-wrap">
-                                {habit.selected_days.map((day: string) => {
-                                  const dayLabels: { [key: string]: string } = {
-                                    monday: 'Po',
-                                    tuesday: 'Út',
-                                    wednesday: 'St',
-                                    thursday: 'Čt',
-                                    friday: 'Pá',
-                                    saturday: 'So',
-                                    sunday: 'Ne'
-                                  }
-                                  return (
-                                      <span key={day} className={`text-xs px-1.5 py-0.5 rounded ${
-                                        shouldGrayOut 
-                                          ? 'bg-gray-100 text-gray-400' 
-                                          : 'bg-orange-100 text-orange-700'
-                                      }`}>
-                                      {dayLabels[day]}
-                                    </span>
-                                  )
-                                })}
-                              </div>
-                              ) : (
-                                <span className={`text-xs ${shouldGrayOut ? 'text-gray-300' : 'text-gray-400'}`}>-</span>
-                              )}
-                            </td>
-                            <td className="px-4 py-2 last:pr-6">
-                              <div
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                                  setQuickEditHabitPosition({ top: rect.bottom + 4, left: rect.left })
-                                  setQuickEditHabitId(habit.id)
-                                  setQuickEditHabitField('aspiration')
-                                }}
-                                className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
-                              >
-                                {habitAspiration ? (
-                                  <>
-                                    <div 
-                                      className="w-3 h-3 rounded-full"
-                                      style={{ backgroundColor: habitAspiration.color || '#9333EA', opacity: shouldGrayOut ? 0.5 : 1 }}
-                                    />
-                                    <span className={`text-xs truncate max-w-[150px] ${
-                                      shouldGrayOut ? 'text-gray-400' : 'text-gray-700'
-                                    }`}>
-                                      {habitAspiration.title}
-                                    </span>
-                                  </>
-                                ) : (
-                                  <span className={`text-xs ${shouldGrayOut ? 'text-gray-300' : 'text-gray-400'}`}>Bez aspirace</span>
-                            )}
-                          </div>
-                            </td>
-                            <td className="px-4 py-2 last:pr-6">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  initializeEditingHabit(habit)
-                                }}
-                                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-                                title={t('common.edit') || 'Upravit'}
-                              >
-                                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                              </button>
-                            </td>
-                          </tr>
-        {isEditing && (
-                            <tr>
-                              <td colSpan={7} className="px-4 py-3 bg-orange-50/50 first:pl-6 last:pr-6">
-                                <div className="editing-form p-4 bg-white rounded-xl border border-orange-200 shadow-sm">
-                        <h4 className="text-md font-semibold text-gray-800 mb-4">Upravit návyk</h4>
-                        <div className="space-y-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Název návyku</label>
-                            <input
-                              type="text"
-                              value={editingHabit.name}
-                              onChange={(e) => setEditingHabit({...editingHabit, name: e.target.value})}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                              placeholder="Např. Ranní cvičení"
-                            />
-                          </div>
-
-                          {/* Days selection - only show for custom frequency */}
-                          {editingHabit.frequency === 'custom' && (
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Dny v týdnu</label>
-                              <div className="grid grid-cols-7 gap-2 mb-3">
-                                {[
-                                  { key: 'monday', label: 'Po' },
-                                  { key: 'tuesday', label: 'Út' },
-                                  { key: 'wednesday', label: 'St' },
-                                  { key: 'thursday', label: 'Čt' },
-                                  { key: 'friday', label: 'Pá' },
-                                  { key: 'saturday', label: 'So' },
-                                  { key: 'sunday', label: 'Ne' }
-                                ].map(({ key, label }) => (
-                                  <button
-                                    key={key}
-                                    type="button"
-                                    onClick={() => {
-                                      const newDays = editingHabit.selectedDays.includes(key)
-                                        ? editingHabit.selectedDays.filter((d: string) => d !== key)
-                                        : [...editingHabit.selectedDays, key]
-                                      setEditingHabit({...editingHabit, selectedDays: newDays})
-                                    }}
-                                    className={`px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${
-                                      editingHabit.selectedDays.includes(key)
-                                        ? 'bg-orange-500 text-white border-orange-500 shadow-md'
-                                        : 'bg-white text-gray-700 border-gray-300 hover:border-orange-400 hover:bg-orange-50'
-                                    }`}
-                                  >
-                                    {label}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Frekvence</label>
-                              <select
-                                value={editingHabit.frequency}
-                                onChange={(e) => setEditingHabit({...editingHabit, frequency: e.target.value})}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                              >
-                                <option value="daily">Denně</option>
-                                <option value="weekly">Týdně</option>
-                                <option value="monthly">Měsíčně</option>
-                                <option value="custom">Vlastní</option>
-                              </select>
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2 mb-2">
-                                <input
-                                  type="checkbox"
-                                  id={`editReminderEnabled-${habit.id}`}
-                                  checked={editingHabit.reminderEnabled}
-                                  onChange={(e) => setEditingHabit({...editingHabit, reminderEnabled: e.target.checked})}
-                                  className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                                />
-                                <label htmlFor={`editReminderEnabled-${habit.id}`} className="text-sm font-medium text-gray-700">
-                                  Zapnout připomenutí
-                                </label>
-                              </div>
-                              {editingHabit.reminderEnabled && (
-                                <input
-                                  type="time"
-                                  value={editingHabit.reminderTime}
-                                  onChange={(e) => setEditingHabit({...editingHabit, reminderTime: e.target.value})}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                />
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Aspiration Selection */}
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Aspirace (volitelné)</label>
-                            <select
-                              value={editingHabit.aspirationId || ''}
-                              onChange={(e) => setEditingHabit({...editingHabit, aspirationId: e.target.value ? e.target.value : null})}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                            >
-                              <option value="">Žádná aspirace</option>
-                              {aspirations.map((aspiration: any) => (
-                                <option key={aspiration.id} value={aspiration.id}>
-                                  {aspiration.title}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <div className="flex items-center gap-2 mb-2">
-                                <input
-                                  type="checkbox"
-                                  id={`editAlwaysShow-${habit.id}`}
-                                  checked={editingHabit.alwaysShow}
-                                  onChange={(e) => setEditingHabit({...editingHabit, alwaysShow: e.target.checked})}
-                                  className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                                />
-                                <label htmlFor={`editAlwaysShow-${habit.id}`} className="text-sm font-medium text-gray-700">
-                                  Zobrazit vždy
-                                </label>
-                              </div>
-                              <p className="text-xs text-gray-500">
-                                Návyk se zobrazí v hlavním panelu nehledě na frekvenci
-                              </p>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">XP odměna</label>
-                              <div className="flex gap-2 mb-2">
-                                {[1, 2, 3, 4, 5].map(xp => (
-                                  <button
-                                    key={xp}
-                                    type="button"
-                                    onClick={() => setEditingHabit({...editingHabit, xpReward: xp, customXpReward: ''})}
-                                    className={`px-3 py-1 text-sm rounded-lg border transition-all duration-200 ${
-                                      editingHabit.xpReward === xp && !editingHabit.customXpReward
-                                        ? 'bg-orange-500 text-white border-orange-500'
-                                        : 'bg-white text-gray-700 border-gray-300 hover:border-orange-400'
-                                    }`}
-                                  >
-                                    {xp}
-                                  </button>
-                                ))}
-                              </div>
-                              <input
-                                type="number"
-                                value={editingHabit.customXpReward}
-                                onChange={(e) => setEditingHabit({...editingHabit, customXpReward: e.target.value, xpReward: parseInt(e.target.value) || 1})}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                placeholder="Vlastní XP"
-                                min="1"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="flex gap-3">
-                            <button
-                              onClick={handleUpdateHabit}
-                              className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
-                            >
-                              {t('details.habit.saveChanges')}
-                            </button>
-                            <button
-                              onClick={() => setEditingHabit(null)}
-                              className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium"
-                            >
-                              {t('common.cancel')}
-                            </button>
-                            <button
-                              onClick={handleDeleteHabit}
-                              className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
-                            >
-                              Smazat návyk
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                    )}
-                        </Fragment>
-                      )
-              })}
-              {habits.length === 0 && (
-                      <tr>
-                        <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
-                  <p className="text-lg">Žádné návyky nejsou nastavené</p>
-                          <p className="text-sm">Klikněte na tlačítko výše pro přidání nového návyku</p>
-                        </td>
-                      </tr>
-              )}
-                  </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        
-        {/* Quick Edit Modals for Habits */}
-        {quickEditHabitId && quickEditHabitPosition && typeof window !== 'undefined' && createPortal(
-          <>
-            <div 
-              className="fixed inset-0 z-40" 
-              onClick={(e) => {
-                e.stopPropagation()
-                setQuickEditHabitId(null)
-                setQuickEditHabitField(null)
-                setQuickEditHabitPosition(null)
-              }}
-            />
-            <div 
-              className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-4 min-w-[250px] max-w-[90vw]"
-              style={(() => {
-                if (typeof window === 'undefined') {
-                  return {
-                    top: `${quickEditHabitPosition.top}px`,
-                    left: `${quickEditHabitPosition.left}px`
-                  }
-                }
-                
-                const modalWidth = 250
-                const modalHeight = 200
-                const padding = 10
-                
-                let adjustedTop = quickEditHabitPosition.top
-                let adjustedLeft = quickEditHabitPosition.left
-                
-                if (adjustedLeft + modalWidth > window.innerWidth - padding) {
-                  adjustedLeft = window.innerWidth - modalWidth - padding
-                }
-                if (adjustedLeft < padding) {
-                  adjustedLeft = padding
-                }
-                
-                if (adjustedTop + modalHeight > window.innerHeight - padding) {
-                  adjustedTop = quickEditHabitPosition.top - modalHeight - 40
-                  if (adjustedTop < padding) {
-                    adjustedTop = padding
-                  }
-                }
-                if (adjustedTop < padding) {
-                  adjustedTop = padding
-                }
-                
-                return {
-                  top: `${adjustedTop}px`,
-                  left: `${adjustedLeft}px`
-                }
-              })()}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {(() => {
-                const habit = habits.find((h: any) => h.id === quickEditHabitId)
-                if (!habit) return null
-                
-                if (quickEditHabitField === 'frequency') {
-        return (
-                    <>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('habits.frequency') || 'Frekvence'}
-                      </label>
-                      <select
-                        value={habit.frequency || 'daily'}
-                        onChange={async (e) => {
-                          const newFrequency = e.target.value
-                          try {
-                            const response = await fetch(`/api/cesta/habits/${habit.id}`, {
-                              method: 'PATCH',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ frequency: newFrequency })
-                            })
-                            if (response.ok) {
-                              const updatedHabit = await response.json()
-                              const updatedHabits = habits.map((h: any) => h.id === habit.id ? updatedHabit : h)
-                              onHabitsUpdate?.(updatedHabits)
-                              setQuickEditHabitId(null)
-                              setQuickEditHabitField(null)
-                              setQuickEditHabitPosition(null)
-                            }
-                          } catch (error) {
-                            console.error('Error updating habit frequency:', error)
-                          }
-                        }}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 mb-2"
-                        autoFocus
-                      >
-                        <option value="daily">{t('habits.filters.frequency.daily')}</option>
-                        <option value="weekly">{t('habits.filters.frequency.weekly')}</option>
-                        <option value="monthly">{t('habits.filters.frequency.monthly')}</option>
-                        <option value="custom">{t('habits.filters.frequency.custom')}</option>
-                      </select>
-              <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setQuickEditHabitId(null)
-                          setQuickEditHabitField(null)
-                          setQuickEditHabitPosition(null)
-                          initializeEditingHabit(habit)
-                        }}
-                        className="w-full px-3 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 border-t border-gray-200 mt-2 pt-2"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                        {t('common.edit') || 'Upravit'}
-              </button>
-                    </>
-                  )
-                }
-                
-                if (quickEditHabitField === 'aspiration') {
-                  return (
-                    <>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('goals.aspiration') || 'Aspirace'}
-                      </label>
-                  <select
-                        value={habit.aspiration_id || habit.aspirationId || ''}
-                        onChange={async (e) => {
-                          const newAspirationId = e.target.value || null
-                          try {
-                            const response = await fetch(`/api/cesta/habits/${habit.id}`, {
-                              method: 'PATCH',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ aspiration_id: newAspirationId })
-                            })
-                            if (response.ok) {
-                              const updatedHabit = await response.json()
-                              const updatedHabits = habits.map((h: any) => h.id === habit.id ? updatedHabit : h)
-                              onHabitsUpdate?.(updatedHabits)
-                              setQuickEditHabitId(null)
-                              setQuickEditHabitField(null)
-                              setQuickEditHabitPosition(null)
-                            }
-                          } catch (error) {
-                            console.error('Error updating habit aspiration:', error)
-                          }
-                        }}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 mb-2"
-                        autoFocus
-                      >
-                        <option value="">{t('goals.noAspiration') || 'Bez aspirace'}</option>
-                        {aspirations.map((aspiration: any) => (
-                          <option key={aspiration.id} value={aspiration.id}>{aspiration.title}</option>
-                    ))}
-                  </select>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setQuickEditHabitId(null)
-                          setQuickEditHabitField(null)
-                          setQuickEditHabitPosition(null)
-                          initializeEditingHabit(habit)
-                        }}
-                        className="w-full px-3 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 border-t border-gray-200 mt-2 pt-2"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        {t('common.edit') || 'Upravit'}
-                      </button>
-                    </>
-                  )
-                }
-                
-                return null
-              })()}
-                </div>
-          </>,
-          document.body
-        )}
-              </div>
-    )
-  }
+  // renderHabitsContent removed - now in HabitsManagementView
 
   const renderPageContent = () => {
     switch (currentPage) {
       case 'management':
-        return renderManagementContent()
+        return (
+          <ManagementPage
+            goals={goals}
+            habits={habits}
+            dailySteps={dailySteps}
+            aspirations={aspirations}
+            setAspirations={setAspirations}
+            overviewAspirations={overviewAspirations}
+            overviewBalances={overviewBalances}
+            isLoadingOverview={isLoadingOverview}
+            showAddAspirationModal={showAddAspirationModal}
+            setShowAddAspirationModal={setShowAddAspirationModal}
+            editingAspiration={editingAspiration}
+            setEditingAspiration={setEditingAspiration}
+            setOverviewAspirations={setOverviewAspirations}
+            setOverviewBalances={setOverviewBalances}
+            onGoalsUpdate={onGoalsUpdate}
+            onHabitsUpdate={onHabitsUpdate}
+            onDailyStepsUpdate={onDailyStepsUpdate}
+            handleHabitToggle={handleHabitToggle}
+            loadingHabits={loadingHabits}
+            areas={areas}
+            userId={userId}
+            player={player}
+          />
+        )
       case 'main':
         return (
           <div className="w-full h-full flex flex-col">
@@ -10033,9 +8036,9 @@ export function JourneyGameView({
             {/* Program Content */}
             <div className="flex-1 overflow-y-auto">
               {currentProgram === 'day' && (
-                <DayView
+                <MainPanelDay
                   habits={habits}
-                        dailySteps={dailySteps}
+                  dailySteps={dailySteps}
                   aspirations={aspirations}
                   dayAspirationBalances={dayAspirationBalances}
                   selectedDayDate={selectedDayDate}
@@ -10133,7 +8136,7 @@ export function JourneyGameView({
 
       case 'settings':
         return (
-          <SettingsView 
+          <SettingsPage 
             player={player} 
             onPlayerUpdate={(updatedPlayer) => {
               // Update player in parent component if needed

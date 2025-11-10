@@ -47,7 +47,10 @@
   },
   "goals": {
     "title": "CÍLE",
+    "add": "Přidat cíl",
     "addGoal": "Přidat cíl",
+    "create": "Vytvořit cíl",
+    "edit": "Upravit cíl",
     "cancelAdd": "Zrušit",
     "addNewGoal": "PŘIDAT NOVÝ CÍL",
     "goalTitle": "NÁZEV CÍLE",
@@ -584,6 +587,11 @@
     "addStep": "Přidat krok",
     "filters": {
       "showCompleted": "Zobrazit dokončené",
+      "status": {
+        "all": "Všechny",
+        "completed": "Dokončené",
+        "pending": "Nedokončené"
+      },
       "date": {
         "all": "Všechna data",
         "today": "Dnes",
@@ -597,6 +605,21 @@
         "all": "Všechny aspirace"
       }
     },
+    "status": {
+      "completed": "Dokončeno",
+      "pending": "Nedokončeno"
+    },
+    "add": "Přidat krok",
+    "create": "Vytvořit krok",
+    "edit": "Upravit krok",
+    "title": "Název",
+    "description": "Popis",
+    "date": "Datum",
+    "goal": "Cíl",
+    "noGoal": "Bez cíle",
+    "completed": "Dokončeno",
+    "titlePlaceholder": "Název kroku",
+    "descriptionPlaceholder": "Popis kroku (volitelné)",
     "newStep": "Nový krok",
     "stepTitle": "Název kroku",
     "stepDescription": "Popis",
