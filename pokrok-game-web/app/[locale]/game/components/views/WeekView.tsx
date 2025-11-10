@@ -22,9 +22,9 @@ export function WeekView({
   setShowDatePickerModal
 }: WeekViewProps) {
   return (
-    <div className="w-full flex flex-col">
+    <div className="w-full h-full flex flex-col" style={{ height: '100%', minHeight: 0 }}>
       {/* Calendar Week View - Full width */}
-      <div className="flex-1">
+      <div className="flex-1" style={{ minHeight: 0 }}>
         <CalendarProgram
           player={player}
           goals={goals}

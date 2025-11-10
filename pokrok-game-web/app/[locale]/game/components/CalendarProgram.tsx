@@ -603,7 +603,7 @@ export function CalendarProgram({
   }
 
   return (
-    <div className="w-full h-full flex flex-col overflow-hidden">
+    <div className="w-full h-full flex flex-col overflow-hidden" style={{ height: '100%' }}>
       {/* Navigation for week view - simplified */}
       {viewMode === 'week' && (
         <div className="flex items-center justify-between mb-4 flex-shrink-0">
@@ -665,96 +665,60 @@ export function CalendarProgram({
       )}
 
       {/* Responsive layout: full width for week view, 2 columns for month view */}
-      <div 
-        className={viewMode === 'week' ? 'flex-1 overflow-hidden flex flex-col' : viewMode === 'month' ? 'flex flex-col md:flex-row gap-4 md:gap-6 flex-1 min-h-0 overflow-hidden' : 'grid grid-cols-1 xl:grid-cols-2 gap-5 xl:gap-6 items-start flex-1 min-h-0'}
-        style={viewMode === 'month' ? { maxHeight: '100%', height: '100%', overflow: 'hidden' } : {}}
-      >
-        {/* Calendar Grid - Left Column (Fixed, never scrolls) */}
-        <div 
-          className={viewMode === 'week' ? 'w-full flex flex-col flex-1 min-h-0 overflow-hidden' : viewMode === 'month' ? 'flex flex-col md:w-1/2 flex-shrink-0 h-full min-h-0 max-h-full overflow-hidden' : ''}
-          style={viewMode === 'month' ? { overscrollBehavior: 'none', overscrollBehaviorY: 'none' } : {}}
-        >
-          {/* Day headers - only for month view */}
-          {viewMode === 'month' && (
-            <div className="grid grid-cols-7 gap-1 mb-2 flex-shrink-0">
-              {dayNamesShort.map((day) => (
-                <div key={day} className="text-center text-xs font-bold text-gray-700 py-1">
-                  {day}
-                </div>
-              ))}
-            </div>
-          )}
-          
-          <div 
-            className={`grid grid-cols-7 ${viewMode === 'week' ? 'gap-2 flex-1 min-h-0 items-stretch' : 'gap-1'} ${viewMode === 'month' ? 'flex-1 min-h-0 overflow-hidden' : ''}`}
-            style={viewMode === 'month' ? { 
-              gridTemplateRows: `repeat(${Math.ceil((adjustedStartingDay + daysInMonth) / 7)}, minmax(0, 1fr))`,
-              height: '100%',
-              maxHeight: '100%'
-            } : viewMode === 'week' ? {
-              gridTemplateRows: '1fr',
-              height: '100%'
-            } : {}}
-          >
-            {viewMode === 'week' ? (
-              // Week view - show 7 days of the week (simplified, without habits/steps lists)
-              getWeekDays().map((day, index) => {
-                const dayNumber = day.getDate()
-                const dateStr = normalizeDate(day)
-                const today = normalizeDate(new Date())
-                const isToday = dateStr === today
-                const isSelected = selectedDate === dateStr
-                const stats = getDayStats(day)
-                const isPast = day < new Date() && !isToday
-                
-                // Get day name
-                const dayName = dayNames[day.getDay()]
-                
-                // Get habits for this day
-                const dayHabits = habits.filter(h => {
-                  const dateObj = new Date(day)
-                  dateObj.setHours(0, 0, 0, 0)
-                  return isHabitScheduledForDate(h, dateObj, dateStr)
-                })
-                
-                // Get steps for this day
-                // All steps (completed and incomplete) are shown based on their scheduled date (date field)
-                // This ensures tasks appear on the day they were scheduled, not when they were completed
-                const daySteps = dailySteps.filter(s => {
-                  const stepDate = normalizeDate(s.date)
-                  
-                  // All steps are shown based on their scheduled date, regardless of completion status
-                  return stepDate === dateStr
-                })
-                
-                // Calculate completion percentage
-                const totalTasks = stats.totalHabits + stats.totalSteps
-                const completedTasks = stats.completedHabits + stats.completedSteps
-                const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
-                
-                return (
-                  <div
-                    key={index}
-                    className={`flex flex-col border border-gray-200 rounded-lg transition-all hover:shadow-md select-none h-full ${
-                      isSelected ? 'ring-2 ring-orange-500 bg-orange-50' : 'bg-white'
-                    } ${isToday ? 'border-orange-400 border-2' : ''} ${isPast ? 'opacity-90' : ''}`}
+      {viewMode === 'week' ? (
+        // Week view - clean structure with full height columns
+        <div className="flex-1 flex flex-col px-2 py-2" style={{ flex: '1 1 auto', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+          <div className="grid grid-cols-7 gap-2" style={{ flex: '1 1 0%', minHeight: 0, gridTemplateRows: '1fr', alignContent: 'stretch', alignItems: 'stretch' }}>
+            {getWeekDays().map((day, index) => {
+              const dayNumber = day.getDate()
+              const dateStr = normalizeDate(day)
+              const today = normalizeDate(new Date())
+              const isToday = dateStr === today
+              const isSelected = selectedDate === dateStr
+              const stats = getDayStats(day)
+              const isPast = day < new Date() && !isToday
+              
+              const dayName = dayNames[day.getDay()]
+              
+              const dayHabits = habits.filter(h => {
+                const dateObj = new Date(day)
+                dateObj.setHours(0, 0, 0, 0)
+                return isHabitScheduledForDate(h, dateObj, dateStr)
+              })
+              
+              const daySteps = dailySteps.filter(s => {
+                const stepDate = normalizeDate(s.date)
+                return stepDate === dateStr
+              })
+              
+              const totalTasks = stats.totalHabits + stats.totalSteps
+              const completedTasks = stats.completedHabits + stats.completedSteps
+              const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+              
+              return (
+                <div
+                  key={index}
+                  className={`flex flex-col border border-gray-200 rounded-lg transition-all hover:shadow-md select-none ${
+                    isSelected ? 'ring-2 ring-orange-500 bg-orange-50' : 'bg-white'
+                  } ${isToday ? 'border-orange-400 border-2' : ''} ${isPast ? 'opacity-90' : ''}`}
+                  style={{ minHeight: 0, display: 'flex', flexDirection: 'column', alignSelf: 'stretch' }}
+                >
+                  {/* Header: Day name, number, and progress bar */}
+                  <div 
+                    onClick={() => setSelectedDate(dateStr)}
+                    className="p-2 cursor-pointer flex-shrink-0"
                   >
-                    {/* Header: Day name, number, and progress bar */}
-                    <div 
-                      onClick={() => setSelectedDate(dateStr)}
-                      className="p-3 cursor-pointer"
-                    >
-                      <div className="mb-2">
-                        <div className="text-xs text-gray-500 font-normal mb-1">{dayName}</div>
-                        <div className={`text-xl font-bold ${isToday ? 'text-orange-600' : 'text-gray-800'}`}>{dayNumber}</div>
+                    <div className="mb-1">
+                      <div className="text-xs text-gray-500 font-normal mb-0.5">{dayName}</div>
+                      <div className={`text-xl font-bold ${isToday ? 'text-orange-600' : 'text-gray-800'}`}>{dayNumber}</div>
                     </div>
                     
                     {/* Progress bar */}
-                    {totalTasks > 0 && (
-                        <div className="mb-2">
-                          <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
+                    {totalTasks > 0 ? (
+                      <div className="mb-1">
+                        <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
                           <div 
-                              className={`h-1.5 rounded-full transition-all ${
+                            className={`h-1.5 rounded-full transition-all ${
                               completedTasks === 0 ? 'bg-red-500' :
                               completionPercentage === 100 ? 'bg-green-500' :
                               'bg-orange-500'
@@ -766,12 +730,11 @@ export function CalendarProgram({
                           {completionPercentage}% ({completedTasks}/{totalTasks})
                         </div>
                       </div>
-                    )}
-                    {totalTasks === 0 && (
-                        <div className="mb-2">
-                          <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
+                    ) : (
+                      <div className="mb-1">
+                        <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
                           <div 
-                              className="h-1.5 rounded-full transition-all bg-orange-500"
+                            className="h-1.5 rounded-full transition-all bg-orange-500"
                             style={{ width: '100%' }}
                           ></div>
                         </div>
@@ -780,121 +743,143 @@ export function CalendarProgram({
                         </div>
                       </div>
                     )}
-        </div>
-
-                    {/* Steps section */}
-                    <div className="flex-1 min-h-0 px-3 pb-2 border-t border-gray-100 flex flex-col">
-                      <div className="text-xs font-semibold text-gray-600 mb-1.5 mt-2 flex-shrink-0">Kroky</div>
-                      {daySteps.length > 0 ? (
-                        <div className="space-y-1 flex-1 overflow-y-auto min-h-0">
-                          {daySteps.map(step => (
-                      <div
-                        key={step.id}
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                toggleStep(step.id)
-                              }}
-                              className={`flex items-center gap-2 p-2 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
-                                step.completed ? 'bg-orange-50/50 border-orange-200' : ''
-                              }`}
-                        >
-                          {loadingSteps.has(step.id) ? (
-                                <svg className="animate-spin h-4 w-4 text-gray-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                          ) : step.completed ? (
-                                <Check className="w-4 h-4 text-orange-600 flex-shrink-0" strokeWidth={3} />
-                          ) : (
-                                <Check className="w-4 h-4 text-gray-400 flex-shrink-0" strokeWidth={2.5} fill="none" />
-                          )}
-                              <span className={`text-xs flex-1 truncate font-semibold ${step.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
-                          {step.title}
-                        </span>
-                      </div>
-                    ))}
                   </div>
-                ) : (
-                        <div className="text-xs text-gray-400 py-1 text-center">Žádné</div>
-                )}
-              </div>
 
-                    {/* Habits section */}
-                    <div className="flex-1 min-h-0 px-3 pb-3 border-t border-gray-100 flex flex-col">
-                      <div className="text-xs font-semibold text-gray-600 mb-1.5 mt-2 flex-shrink-0">{t('calendar.habits')}</div>
-                      {dayHabits.length > 0 ? (
-                        <div className="space-y-1.5 flex-1 overflow-y-auto min-h-0">
-                          {dayHabits.map(habit => {
-                            // Check if completed
-                      let isCompleted = false
-                      if (habit.habit_completions) {
-                        if (typeof habit.habit_completions === 'string') {
-                          try {
-                            const parsed = JSON.parse(habit.habit_completions)
-                                  isCompleted = parsed[dateStr] === true
-                          } catch {
-                            isCompleted = false
-                          }
-                        } else if (typeof habit.habit_completions === 'object') {
-                                isCompleted = habit.habit_completions[dateStr] === true || 
-                                             habit.habit_completions[dateStr] === 'true'
-                        }
-                      }
-                            
-                      return (
-                        <div
-                          key={habit.id}
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  toggleHabit(habit.id, dateStr)
-                                }}
-                                className={`p-2 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
-                                  isCompleted ? 'bg-orange-50/50 border-orange-200' : ''
-                                }`}
-                              >
-                                <div className="flex items-center gap-2">
-                          <button
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      if (!loadingHabits.has(habit.id)) {
-                                        toggleHabit(habit.id, dateStr)
-                                      }
-                                    }}
-                            disabled={loadingHabits.has(habit.id)}
-                                    className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
+                  {/* Steps section */}
+                  <div className="flex-1 px-2 pb-1 border-t border-gray-100 flex flex-col" style={{ minHeight: '200px', flexBasis: 0 }}>
+                    <div className="text-xs font-semibold text-gray-600 mb-1 mt-1.5 flex-shrink-0">Kroky</div>
+                    {daySteps.length > 0 ? (
+                      <div className="space-y-1 flex-1 overflow-y-auto min-h-0">
+                        {daySteps.map(step => (
+                          <div
+                            key={step.id}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              toggleStep(step.id)
+                            }}
+                            className={`flex items-center gap-2 p-1.5 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
+                              step.completed ? 'bg-orange-50/50 border-orange-200' : ''
+                            }`}
                           >
-                            {loadingHabits.has(habit.id) ? (
-                                      <svg className="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            {loadingSteps.has(step.id) ? (
+                              <svg className="animate-spin h-4 w-4 text-gray-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                               </svg>
-                            ) : isCompleted ? (
-                                      <Check className="w-4 h-4 text-orange-600" strokeWidth={3} />
-                                    ) : (
-                                      <Check className="w-4 h-4 text-gray-400" strokeWidth={2.5} fill="none" />
-                                    )}
-                          </button>
-                                  <span className={`text-xs flex-1 truncate font-semibold ${
-                                    isCompleted 
-                                      ? 'line-through text-orange-600' 
-                                      : 'text-gray-900'
-                                  }`}>
-                            {habit.name}
-                          </span>
-                                </div>
-                        </div>
-                      )
-                    })}
+                            ) : step.completed ? (
+                              <Check className="w-4 h-4 text-orange-600 flex-shrink-0" strokeWidth={3} />
+                            ) : (
+                              <Check className="w-4 h-4 text-gray-400 flex-shrink-0" strokeWidth={2.5} fill="none" />
+                            )}
+                            <span className={`text-xs flex-1 truncate font-semibold ${step.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                              {step.title}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-xs text-gray-400 py-1 text-center">Žádné</div>
+                    )}
                   </div>
-                ) : (
-                        <div className="text-xs text-gray-400 py-1 text-center">Žádné</div>
-                )}
-              </div>
+
+                  {/* Habits section */}
+                  <div className="flex-1 px-2 pb-2 border-t border-gray-100 flex flex-col" style={{ minHeight: '200px', flexBasis: 0 }}>
+                    <div className="text-xs font-semibold text-gray-600 mb-1 mt-1.5 flex-shrink-0">{t('calendar.habits')}</div>
+                    {dayHabits.length > 0 ? (
+                      <div className="space-y-1.5 flex-1 overflow-y-auto min-h-0">
+                        {dayHabits.map(habit => {
+                          let isCompleted = false
+                          if (habit.habit_completions) {
+                            if (typeof habit.habit_completions === 'string') {
+                              try {
+                                const parsed = JSON.parse(habit.habit_completions)
+                                isCompleted = parsed[dateStr] === true
+                              } catch {
+                                isCompleted = false
+                              }
+                            } else if (typeof habit.habit_completions === 'object') {
+                              isCompleted = habit.habit_completions[dateStr] === true || 
+                                           habit.habit_completions[dateStr] === 'true'
+                            }
+                          }
+                          
+                          return (
+                            <div
+                              key={habit.id}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                toggleHabit(habit.id, dateStr)
+                              }}
+                              className={`p-1.5 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
+                                isCompleted ? 'bg-orange-50/50 border-orange-200' : ''
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    if (!loadingHabits.has(habit.id)) {
+                                      toggleHabit(habit.id, dateStr)
+                                    }
+                                  }}
+                                  disabled={loadingHabits.has(habit.id)}
+                                  className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
+                                >
+                                  {loadingHabits.has(habit.id) ? (
+                                    <svg className="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                  ) : isCompleted ? (
+                                    <Check className="w-4 h-4 text-orange-600" strokeWidth={3} />
+                                  ) : (
+                                    <Check className="w-4 h-4 text-gray-400" strokeWidth={2.5} fill="none" />
+                                  )}
+                                </button>
+                                <span className={`text-xs flex-1 truncate font-semibold ${
+                                  isCompleted 
+                                    ? 'line-through text-orange-600' 
+                                    : 'text-gray-900'
+                                }`}>
+                                  {habit.name}
+                                </span>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    ) : (
+                      <div className="text-xs text-gray-400 py-1 text-center">Žádné</div>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      ) : viewMode === 'month' ? (
+        // Month view - existing structure
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6 flex-1 min-h-0 overflow-hidden p-4" style={{ maxHeight: '100%', height: '100%', overflow: 'hidden' }}>
+          {/* Calendar Grid - Left Column (Fixed, never scrolls) */}
+          <div className="flex flex-col md:w-1/2 flex-shrink-0 h-full min-h-0 max-h-full overflow-hidden" style={{ overscrollBehavior: 'none', overscrollBehaviorY: 'none' }}>
+            {/* Day headers */}
+            <div className="grid grid-cols-7 gap-1 mb-2 flex-shrink-0">
+              {dayNamesShort.map((day) => (
+                <div key={day} className="text-center text-xs font-bold text-gray-700 py-1">
+                  {day}
+                </div>
+              ))}
             </div>
-                )
-              })
-            ) : (
-              // Month view - start from first day of month, no empty cells
+            
+            <div 
+              className="grid grid-cols-7 gap-1 flex-1 min-h-0 overflow-hidden"
+              style={{ 
+                gridTemplateRows: `repeat(${Math.ceil((adjustedStartingDay + daysInMonth) / 7)}, minmax(0, 1fr))`,
+                height: '100%',
+                maxHeight: '100%'
+              }}
+            >
+              {/* Month view - start from first day of month, no empty cells */}
               <>
                 {/* Days of month - first day starts at correct grid position */}
                 {Array.from({ length: daysInMonth }, (_, i) => {
@@ -906,17 +891,14 @@ export function CalendarProgram({
                       style={isFirstDay ? { gridColumnStart: adjustedStartingDay + 1 } : {}}
                     >
                       {renderCalendarDay(day)}
-          </div>
+                    </div>
                   )
                 })}
               </>
-        )}
-        </div>
+            </div>
+          </div>
 
-        </div>
-
-        {/* Selected Day Detail (show for month view only - right side column - Scrollable) */}
-        {viewMode === 'month' && (
+          {/* Selected Day Detail (show for month view only - right side column - Scrollable) */}
           <div 
             className="flex flex-col lg:flex-row gap-3 lg:gap-4 md:w-1/2 flex-1" 
             style={{ 
@@ -1071,237 +1053,14 @@ export function CalendarProgram({
                 </div>
               )}
             </div>
-
-            {/* Monthly Statistics Panel */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col h-full min-h-0 overflow-hidden hidden lg:flex">
-              <div className="flex flex-col h-full min-h-0">
-                {/* Header - fixed */}
-                <div className="flex-shrink-0 p-4 border-b border-gray-200 bg-gray-50">
-                  <h3 className="text-lg font-bold text-gray-900">{t('calendar.monthlyOverview')}</h3>
-                </div>
-
-                {/* Statistics content */}
-                <div className="flex-1 overflow-y-auto min-h-0 p-4">
-                  {(() => {
-                    const monthStats = getMonthStats()
-                    return (
-                      <div className="space-y-6">
-                        {/* Overall Progress */}
-                        <div>
-                          <h4 className="text-sm font-semibold text-gray-800 mb-3">{t('calendar.totalProgress')}</h4>
-                          <div className="space-y-3">
-                            <div>
-                              <div className="flex justify-between items-center mb-2">
-                                <span className="text-xs text-gray-600">{t('calendar.completed')}</span>
-                                <span className="text-sm font-bold text-orange-600">{monthStats.completionPercentage}%</span>
-                              </div>
-                              <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                                <div 
-                                  className={`h-full rounded-full transition-all ${
-                                    monthStats.completionPercentage === 100 ? 'bg-green-500' : 'bg-orange-500'
-                                  }`}
-                                  style={{ width: `${Math.min(monthStats.completionPercentage, 100)}%` }}
-                                />
-                              </div>
-                              <div className="text-xs text-gray-500 mt-1">
-                                {monthStats.completedTasks} / {monthStats.totalTasks} úkolů
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Habits Statistics */}
-                        <div>
-                          <h4 className="text-sm font-semibold text-gray-800 mb-3">{t('calendar.habits')}</h4>
-                          <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs text-gray-600">Celkem</span>
-                              <span className="text-sm font-semibold text-gray-900">{monthStats.totalHabits}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs text-gray-600">Dokončeno</span>
-                              <span className="text-sm font-semibold text-green-600">{monthStats.completedHabits}</span>
-                            </div>
-                            {monthStats.totalHabits > 0 && (
-                              <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-                                <span className="text-xs font-medium text-gray-700">{t('calendar.successRate')}</span>
-                                <span className="text-sm font-bold text-blue-600">
-                                  {Math.round((monthStats.completedHabits / monthStats.totalHabits) * 100)}%
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Steps Statistics */}
-                        <div>
-                          <h4 className="text-sm font-semibold text-gray-800 mb-3">Kroky</h4>
-                          <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs text-gray-600">Celkem</span>
-                              <span className="text-sm font-semibold text-gray-900">{monthStats.totalSteps}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs text-gray-600">Dokončeno</span>
-                              <span className="text-sm font-semibold text-green-600">{monthStats.completedSteps}</span>
-                            </div>
-                            {monthStats.totalSteps > 0 && (
-                              <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-                                <span className="text-xs font-medium text-gray-700">{t('calendar.successRate')}</span>
-                                <span className="text-sm font-bold text-purple-600">
-                                  {Math.round((monthStats.completedSteps / monthStats.totalSteps) * 100)}%
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })()}
-                </div>
-              </div>
-            </div>
           </div>
-        )}
-
-        {/* Selected Day Detail (show for day view only) */}
-        {viewModeProp === 'day' && (
-          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 xl:sticky xl:top-4 xl:max-h-[65vh] overflow-y-auto">
-            {selectedDayData ? (
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-1">
-                    {selectedDayData.date.toLocaleDateString(localeCode, { weekday: 'long' })} {selectedDayData.date.getDate()}. {selectedDayData.date.getMonth() + 1}. {selectedDayData.date.getFullYear()}
-                  </h3>
-                </div>
-
-                {/* Habits */}
-                {selectedDayData.habits.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold text-gray-800 mb-1.5">Návyky</h4>
-                    <div className="space-y-1.5">
-                      {selectedDayData.habits.map(habit => {
-                        // Handle different formats of habit_completions
-                        let isCompleted = false
-                        if (habit.habit_completions) {
-                          if (typeof habit.habit_completions === 'string') {
-                            try {
-                              const parsed = JSON.parse(habit.habit_completions)
-                              isCompleted = parsed[selectedDayData.dateStr] === true
-                            } catch {
-                              isCompleted = false
-                            }
-                          } else if (typeof habit.habit_completions === 'object') {
-                            isCompleted = habit.habit_completions[selectedDayData.dateStr] === true || 
-                                         habit.habit_completions[selectedDayData.dateStr] === 'true'
-                          }
-                        }
-                        return (
-                          <div
-                            key={habit.id}
-                            className={`flex items-center gap-2 p-2 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
-                              isCompleted ? 'bg-orange-50/50 border-orange-200' : ''
-                            }`}
-                          >
-                            <button
-                              onClick={() => toggleHabit(habit.id, selectedDayData.dateStr)}
-                              disabled={loadingHabits.has(habit.id)}
-                              className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
-                            >
-                              {loadingHabits.has(habit.id) ? (
-                                <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                              ) : isCompleted ? (
-                                <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
-                              ) : (
-                                <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
-                              )}
-                            </button>
-                            <span className={`flex-1 font-semibold text-sm ${isCompleted ? 'line-through text-orange-600' : 'text-gray-900'}`}>
-                              {habit.name}
-                            </span>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Steps */}
-                {selectedDayData.steps.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold text-gray-800 mb-1.5">Kroky</h4>
-                    <div className="space-y-1.5">
-                      {selectedDayData.steps.map(step => (
-                        <div
-                          key={step.id}
-                          className={`flex items-center gap-2 p-2 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
-                            step.completed ? 'bg-orange-50/30 border-orange-200' : ''
-                          }`}
-                        >
-                          <button
-                            onClick={() => toggleStep(step.id)}
-                            disabled={loadingSteps.has(step.id)}
-                            className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
-                          >
-                            {loadingSteps.has(step.id) ? (
-                              <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                            ) : step.completed ? (
-                              <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
-                            ) : (
-                              <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
-                            )}
-                          </button>
-                          <span className={`flex-1 font-semibold text-sm ${step.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
-                            {step.title}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Workflow Response */}
-                {selectedDayData.workflowResponse && (
-                  <div>
-                    <h4 className="font-semibold text-gray-800 mb-1.5">🌅 Pohled za dnem</h4>
-                    <div className="bg-white rounded-lg p-3 border border-gray-200 space-y-2.5">
-                      {selectedDayData.workflowResponse.responses?.whatWentWell && (
-                        <div>
-                          <p className="text-sm font-medium text-gray-700 mb-1">Co se povedlo:</p>
-                          <p className="text-sm text-gray-600">{selectedDayData.workflowResponse.responses.whatWentWell}</p>
-                        </div>
-                      )}
-                      {selectedDayData.workflowResponse.responses?.whatWentWrong && (
-                        <div>
-                          <p className="text-sm font-medium text-gray-700 mb-1">Co se nepovedlo:</p>
-                          <p className="text-sm text-gray-600">{selectedDayData.workflowResponse.responses.whatWentWrong}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {selectedDayData.habits.length === 0 && selectedDayData.steps.length === 0 && !selectedDayData.workflowResponse && (
-                  <div className="text-center text-gray-500 py-8">
-                    Pro tento den nejsou žádná data
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center text-gray-500 py-8">
-                Klikněte na den v kalendáři pro zobrazení detailu
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        // Year view or other
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 xl:gap-6 items-start flex-1 min-h-0">
+          {/* Year view content */}
+        </div>
+      )}
     </div>
   )
 }
-

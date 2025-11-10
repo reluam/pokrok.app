@@ -2685,7 +2685,7 @@ export function JourneyGameView({
 
     switch (displayMode) {
       case 'character':
-        return (
+    return (
           <div className="text-center">
             {/* Journey-style Character */}
             <div 
@@ -2712,10 +2712,10 @@ export function JourneyGameView({
                     className="w-4 h-4 rounded-full"
                     style={{ backgroundColor: player?.appearance?.eyeColor || '#4A90E2' }}
                   />
-                </div>
+                                </div>
                 {/* Smile */}
                 <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-12 h-3 bg-gray-700 rounded-sm" />
-              </div>
+                            </div>
             </div>
 
             {/* Character Name */}
@@ -2725,11 +2725,11 @@ export function JourneyGameView({
             }}>
               {player?.name || 'Hrdina'}
             </h2>
-          </div>
-        )
+                      </div>
+                              )
 
       case 'progress':
-        return (
+    return (
           <div className="text-center">
             <h3 className="text-xl font-bold text-orange-800 mb-6" style={{ letterSpacing: '1px' }}>DNEŠNÍ CESTA</h3>
             <div className="bg-white bg-opacity-90 rounded-xl p-6 max-w-md mx-auto shadow-lg border border-orange-200" style={{
@@ -2746,7 +2746,7 @@ export function JourneyGameView({
                       <span className="text-xs font-bold text-white">{Math.round(progressPercentage)}%</span>
                     )}
                   </div>
-                </div>
+                  </div>
                 <div className="text-sm text-gray-600 text-center">
                   {progressPercentage === 100 ? '🎉 Všechny kroky dokončeny!' : `${Math.round(progressPercentage)}% dokončeno`}
                 </div>
@@ -2754,8 +2754,8 @@ export function JourneyGameView({
               <p className="text-sm text-gray-700 italic text-center mt-4">
                 Každý krok tě přibližuje k cíli!
               </p>
-            </div>
-          </div>
+                        </div>
+                      </div>
         )
 
       case 'motivation':
@@ -8034,11 +8034,11 @@ export function JourneyGameView({
                   </div>
 
             {/* Program Content */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
               {currentProgram === 'day' && (
                 <MainPanelDay
                   habits={habits}
-                  dailySteps={dailySteps}
+                        dailySteps={dailySteps}
                   aspirations={aspirations}
                   dayAspirationBalances={dayAspirationBalances}
                   selectedDayDate={selectedDayDate}
