@@ -30,7 +30,9 @@ export default function SignUpPage() {
               footerActionLink: 'text-orange-600 hover:text-orange-700',
               socialButtonsBlockButton: 'border-gray-300 hover:bg-orange-50',
             },
-            socialButtonsMode: 'redirect'
+            layout: {
+              socialButtonsMode: 'redirect'
+            }
           }}
           routing="path"
           path="/sign-up"
