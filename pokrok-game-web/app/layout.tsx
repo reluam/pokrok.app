@@ -18,7 +18,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      appearance={{
+        layout: {
+          socialButtonsMode: 'redirect'
+        }
+      }}
+    >
       <html>
         <head>
           <link rel="preconnect" href="https://fonts.googleapis.com" />

@@ -27,9 +27,6 @@ export default async function SignUpPage() {
               formFieldInput: 'border-gray-300 focus:border-orange-500 focus:ring-orange-500',
               footerActionLink: 'text-orange-600 hover:text-orange-700',
               socialButtonsBlockButton: 'border-gray-300 hover:bg-orange-50',
-            },
-            layout: {
-              socialButtonsMode: 'redirect'
             }
           }}
           routing="path"
