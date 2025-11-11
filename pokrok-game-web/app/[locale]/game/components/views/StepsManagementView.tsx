@@ -239,6 +239,7 @@ export function StepsManagementView({
     if (!currentUserId) return
 
     try {
+      // Load ALL steps (no date filter) to include overdue steps
       const response = await fetch(`/api/daily-steps?userId=${currentUserId}`)
       if (response.ok) {
         const steps = await response.json()
@@ -249,12 +250,10 @@ export function StepsManagementView({
     }
   }
 
-  // Load steps on mount
+  // Load steps on mount - always reload to get all steps including overdue
   useEffect(() => {
-    if (dailySteps.length === 0) {
-      reloadSteps()
-    }
-  }, [])
+    reloadSteps()
+  }, [userId, player?.user_id])
 
   // Sort and filter steps
   const sortedSteps = useMemo(() => {
