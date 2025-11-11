@@ -23,20 +23,20 @@
     "backToHome": "Zpět na hlavní stránku"
   },
   "homepage": {
-    "tagline": "Životní hra pro dosažení cílů",
-    "description": "Pokrok je aplikace pro plnění cílů udělaná formou hry. Transformuj svůj život na dobrodružství, kde každý cíl je quest, každý návyk je skill a každý den je nová příležitost k růstu.",
+    "tagline": "Aplikace pro plánování života",
+    "description": "Pokrok spojuje velký přehled s konkrétními kroky, čímž pomáhá zvýšit motivaci a snížit přehlcení. Plánujte svůj život efektivně a dosahujte svých cílů krok za krokem.",
     "features": {
-      "goals": {
-        "title": "CÍLE JAKO QUESTY",
-        "description": "Rozděl své cíle na kroky a sleduj pokrok jako ve hře"
+      "overview": {
+        "title": "VELKÝ PŘEHLED",
+        "description": "Mějte přehled o všech svých cílech, návycích a krocích na jednom místě"
       },
-      "habits": {
-        "title": "NÁVYKY JAKO SKILLS",
-        "description": "Buduj návyky a zvyšuj své dovednosti každý den"
+      "steps": {
+        "title": "KONKRÉTNÍ KROKY",
+        "description": "Rozdělte své cíle na malé, dosažitelné kroky a sledujte pokrok"
       },
-      "achievements": {
-        "title": "ODMĚNY A ÚSPĚCHY",
-        "description": "Získej achievementy za dosažené cíle a návyky"
+      "motivation": {
+        "title": "VYŠŠÍ MOTIVACE",
+        "description": "Snížení přehlcení a jasná struktura pomáhají udržet motivaci"
       }
     },
     "startJourney": "ZAČNI SVOU CESTU",

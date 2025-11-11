@@ -3,15 +3,16 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { locales, type Locale } from './i18n/config'
 
 const isProtectedRoute = createRouteMatcher([
-  '/(cs|en)/game(.*)'
+  '/(cs|en)/game(.*)',
+  '/game(.*)' // Also protect /game routes without locale prefix
 ])
 
 // Create intl middleware once (outside of clerkMiddleware)
 const intlMiddleware = createMiddleware({
   locales,
   defaultLocale: 'cs',
-  localePrefix: 'always',
-  localeDetection: false, // Disable browser detection
+  localePrefix: 'as-needed', // Default locale (cs) won't have prefix, others will
+  localeDetection: true, // Enable browser language detection for sign-in/sign-up
   alternateLinks: false
 })
 

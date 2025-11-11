@@ -241,8 +241,16 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
     }
   }
 
-  const handleLogout = () => {
-    signOut()
+  const handleLogout = async () => {
+    try {
+      await signOut()
+      // Redirect to homepage after sign-out
+      router.push('/')
+    } catch (error) {
+      console.error('Error signing out:', error)
+      // Fallback: redirect anyway
+      router.push('/')
+    }
   }
 
   const tabs = [

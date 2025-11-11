@@ -23,20 +23,20 @@
     "backToHome": "Return Home"
   },
   "homepage": {
-    "tagline": "Life game for achieving goals",
-    "description": "Pokrok is a goal-achievement app made in the form of a game. Transform your life into an adventure where every goal is a quest, every habit is a skill, and every day is a new opportunity for growth.",
+    "tagline": "Life planning app",
+    "description": "Pokrok connects the big overview with concrete steps, helping to increase motivation and reduce overwhelm. Plan your life effectively and achieve your goals step by step.",
     "features": {
-      "goals": {
-        "title": "GOALS AS QUESTS",
-        "description": "Break down your goals into steps and track progress like in a game"
+      "overview": {
+        "title": "BIG OVERVIEW",
+        "description": "Keep track of all your goals, habits, and steps in one place"
       },
-      "habits": {
-        "title": "HABITS AS SKILLS",
-        "description": "Build habits and increase your skills every day"
+      "steps": {
+        "title": "CONCRETE STEPS",
+        "description": "Break down your goals into small, achievable steps and track progress"
       },
-      "achievements": {
-        "title": "REWARDS AND ACHIEVEMENTS",
-        "description": "Get achievements for completed goals and habits"
+      "motivation": {
+        "title": "HIGHER MOTIVATION",
+        "description": "Reduced overwhelm and clear structure help maintain motivation"
       }
     },
     "startJourney": "START YOUR JOURNEY",

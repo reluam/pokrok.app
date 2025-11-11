@@ -108,9 +108,12 @@ export default function GamePage() {
   // Show loading while checking auth and loading data
   if (!isLoaded || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-purple-50 to-pink-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-orange-50">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 pixel-art">{t('common.loading')}</h1>
+          <div className="mb-6">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
+          </div>
+          <h1 className="text-2xl font-bold text-orange-600">{t('common.loading')}</h1>
         </div>
       </div>
     )
@@ -126,7 +129,7 @@ export default function GamePage() {
 
   // Render the game world directly - no onboarding
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-50 to-pink-100">
+    <div className="min-h-screen bg-white">
       <GameWorldView 
         player={player} 
         userId={userId}

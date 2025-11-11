@@ -2,7 +2,8 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { SignInButton, SignUpButton, useUser } from '@clerk/nextjs'
+import Link from 'next/link'
+import { useUser } from '@clerk/nextjs'
 import { useTranslations, useLocale } from 'next-intl'
 
 // Force dynamic rendering - this page requires user authentication check
@@ -31,69 +32,66 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-50 to-pink-100">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
-          <h1 className="text-6xl font-bold text-gray-900 mb-8 pixel-art" style={{
-            textShadow: '4px 4px 0px #000000',
-            color: '#2d5016'
-          }}>
+          <h1 className="text-6xl font-bold text-orange-600 mb-8">
             {t('app.name')}
           </h1>
-          <p className="text-2xl text-gray-700 mb-4 pixel-art">
+          <p className="text-2xl text-gray-800 mb-4 font-semibold">
             {t('homepage.tagline')}
           </p>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto pixel-art">
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
             {t('homepage.description')}
           </p>
         </div>
 
         {/* Features */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          <div className="bg-white rounded-xl p-6 shadow-lg text-center">
+          <div className="bg-white rounded-xl p-6 shadow-lg text-center border border-orange-100 hover:border-orange-300 transition-all">
+            <div className="text-4xl mb-4">📊</div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">{t('homepage.features.overview.title')}</h3>
+            <p className="text-gray-600">{t('homepage.features.overview.description')}</p>
+          </div>
+          <div className="bg-white rounded-xl p-6 shadow-lg text-center border border-orange-100 hover:border-orange-300 transition-all">
             <div className="text-4xl mb-4">🎯</div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2 pixel-art">{t('homepage.features.goals.title')}</h3>
-            <p className="text-gray-600 pixel-art">{t('homepage.features.goals.description')}</p>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">{t('homepage.features.steps.title')}</h3>
+            <p className="text-gray-600">{t('homepage.features.steps.description')}</p>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-lg text-center">
-            <div className="text-4xl mb-4">⚡</div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2 pixel-art">{t('homepage.features.habits.title')}</h3>
-            <p className="text-gray-600 pixel-art">{t('homepage.features.habits.description')}</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-lg text-center">
-            <div className="text-4xl mb-4">🏆</div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2 pixel-art">{t('homepage.features.achievements.title')}</h3>
-            <p className="text-gray-600 pixel-art">{t('homepage.features.achievements.description')}</p>
+          <div className="bg-white rounded-xl p-6 shadow-lg text-center border border-orange-100 hover:border-orange-300 transition-all">
+            <div className="text-4xl mb-4">💪</div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">{t('homepage.features.motivation.title')}</h3>
+            <p className="text-gray-600">{t('homepage.features.motivation.description')}</p>
           </div>
         </div>
 
-        {/* Start Game Section */}
-        <div className="max-w-md mx-auto bg-white rounded-xl p-8 shadow-lg">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center pixel-art">
+        {/* Start Journey Section */}
+        <div className="max-w-md mx-auto bg-white rounded-xl p-8 shadow-lg border border-orange-100">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             {t('homepage.startJourney')}
           </h2>
           
           <div className="space-y-4">
-            <SignUpButton mode="modal">
-              <button className="w-full px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-lg transition-all duration-300 pixel-art">
+            <Link href="/sign-up" className="block">
+              <button className="w-full px-6 py-3 rounded-xl font-bold bg-orange-500 text-white hover:bg-orange-600 shadow-lg transition-all duration-300">
                 {t('homepage.signUp')}
               </button>
-            </SignUpButton>
+            </Link>
             
-            <SignInButton mode="modal">
-              <button className="w-full px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-lg transition-all duration-300 pixel-art">
+            <Link href="/sign-in" className="block">
+              <button className="w-full px-6 py-3 rounded-xl font-bold bg-white text-orange-600 border-2 border-orange-500 hover:bg-orange-50 shadow-lg transition-all duration-300">
                 {t('homepage.signIn')}
               </button>
-            </SignInButton>
+            </Link>
             
-            <div className="text-center text-gray-500 text-sm pixel-art">
+            <div className="text-center text-gray-500 text-sm">
               {t('homepage.or')}
             </div>
             
             <button 
               onClick={handleGuestContinue}
-              className="w-full px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-gray-500 to-gray-600 text-white hover:from-gray-600 hover:to-gray-700 shadow-lg transition-all duration-300 pixel-art"
+              className="w-full px-6 py-3 rounded-xl font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300 transition-all duration-300"
             >
               {t('homepage.continueAsGuest')}
             </button>

@@ -38,21 +38,25 @@ export default async function LocaleLayout({
         if (user.preferred_locale !== locale) {
           // Get the current pathname from headers to preserve the route
           const headersList = await headers()
-          const referer = headersList.get('referer') || ''
-          // Extract the path after locale (e.g., /cs/game -> /game)
-          let pathWithoutLocale = ''
-          if (referer) {
-            // Extract path from referer URL
-            try {
-              const url = new URL(referer)
-              pathWithoutLocale = url.pathname.replace(/^\/(cs|en)/, '')
-            } catch {
-              // If referer is not a valid URL, try to extract path directly
-              pathWithoutLocale = referer.replace(/^https?:\/\/[^\/]+(\/(cs|en))?/, '').replace(/^\/(cs|en)/, '')
-            }
+          // Try to get pathname from various headers
+          const pathname = headersList.get('x-pathname') || 
+                          headersList.get('x-invoke-path') || 
+                          headersList.get('referer')?.split('?')[0] || 
+                          ''
+          
+          // Extract the path after locale (e.g., /cs/game -> /game, /game -> /game)
+          let pathWithoutLocale = pathname.replace(/^\/(cs|en)/, '') || '/game'
+          
+          // Ensure path starts with /
+          if (!pathWithoutLocale.startsWith('/')) {
+            pathWithoutLocale = '/' + pathWithoutLocale
           }
+          
           // Redirect to same path with preferred locale
-          const newPath = `/${user.preferred_locale}${pathWithoutLocale || '/game'}`
+          // If preferred locale is default (cs), use path without prefix
+          const newPath = user.preferred_locale === 'cs' 
+            ? pathWithoutLocale 
+            : `/${user.preferred_locale}${pathWithoutLocale}`
           redirect(newPath)
         }
       }
