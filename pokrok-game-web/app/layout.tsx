@@ -19,7 +19,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      signInFallbackRedirectUrl="/game"
+      signUpFallbackRedirectUrl="/game"
+    >
       <html>
         <head>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
