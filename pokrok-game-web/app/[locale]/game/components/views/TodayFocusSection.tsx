@@ -227,18 +227,18 @@ export function TodayFocusSection({
       }
       
       // Then by priority: important + urgent > urgent > important > others
-      const aPriority = (a.is_important ? 2 : 0) + (a.is_urgent ? 1 : 0)
-      const bPriority = (b.is_important ? 2 : 0) + (b.is_urgent ? 1 : 0)
-      
-      if (aPriority !== bPriority) {
-        return bPriority - aPriority
-      }
-      
-      // If same priority, sort by date
-      const dateA = new Date(normalizeDate(a.date))
-      const dateB = new Date(normalizeDate(b.date))
-      return dateA.getTime() - dateB.getTime()
-    })
+        const aPriority = (a.is_important ? 2 : 0) + (a.is_urgent ? 1 : 0)
+        const bPriority = (b.is_important ? 2 : 0) + (b.is_urgent ? 1 : 0)
+        
+        if (aPriority !== bPriority) {
+          return bPriority - aPriority
+        }
+        
+        // If same priority, sort by date
+        const dateA = new Date(normalizeDate(a.date))
+        const dateB = new Date(normalizeDate(b.date))
+        return dateA.getTime() - dateB.getTime()
+      })
   }, [focusSteps, dailySteps, activeFocusGoals, displayDate, isWeekView, weekStart, weekEnd, goals])
   
   // Keep todaysSteps for backward compatibility (used in displayedStepIds)
@@ -266,8 +266,8 @@ export function TodayFocusSection({
     if (onDisplayedStepsChange) {
       // Only call callback if the set of IDs actually changed
       const prevIds = prevDisplayedStepIdsRef.current
-      const prevIdsArray = [...prevIds].sort()
-      const currentIdsArray = [...displayedStepIds].sort()
+      const prevIdsArray = Array.from(prevIds).sort()
+      const currentIdsArray = Array.from(displayedStepIds).sort()
       
       if (prevIdsArray.length !== currentIdsArray.length || 
           prevIdsArray.some((id, i) => id !== currentIdsArray[i])) {
@@ -443,12 +443,12 @@ export function TodayFocusSection({
               </div>
             )}
             {!isWeekView && (
-              <div className="flex-shrink-0 border-r border-gray-200 pr-6" style={{ width: `${maxHabitWidth}px` }}>
-                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Návyky</h4>
-                {todaysHabits.length > 0 ? (
-                  <div className="space-y-2">
-                    {todaysHabits.map((habit) => {
-                      const isCompleted = habit.habit_completions && habit.habit_completions[displayDateStr] === true
+            <div className="flex-shrink-0 border-r border-gray-200 pr-6" style={{ width: `${maxHabitWidth}px` }}>
+              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Návyky</h4>
+              {todaysHabits.length > 0 ? (
+                <div className="space-y-2">
+                  {todaysHabits.map((habit) => {
+                    const isCompleted = habit.habit_completions && habit.habit_completions[displayDateStr] === true
                     const isNotScheduled = habit.always_show ? (() => {
                       if (habit.frequency === 'daily') return false
                       if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return false
@@ -545,7 +545,7 @@ export function TodayFocusSection({
               ) : (
                 <div className="text-xs text-gray-400 text-center py-4">Žádné návyky</div>
               )}
-              </div>
+            </div>
             )}
             
             {/* Right Column: Today's Steps (with goals if they have one) */}
@@ -666,67 +666,67 @@ export function TodayFocusSection({
                         ) : (
                           // Show without goal (normal step)
                           <div
-                            onClick={() => handleItemClick(step, 'step')}
-                            className={`p-2.5 rounded-lg border transition-all duration-200 cursor-pointer ${
-                              step.is_important && step.is_urgent
-                                ? 'border-yellow-400 bg-yellow-50/50 hover:bg-yellow-50 hover:border-yellow-500'
-                                : step.is_important
-                                  ? 'border-yellow-300 bg-yellow-50/30 hover:bg-yellow-50/50 hover:border-yellow-400'
-                                  : step.is_urgent
-                                    ? 'border-orange-300 bg-orange-50/30 hover:bg-orange-50/50 hover:border-orange-400'
-                                    : 'border-gray-200 bg-white hover:bg-gray-50'
-                            } ${step.completed ? 'opacity-60' : ''} ${isOverdue ? 'border-red-300 bg-red-50/30' : ''}`}
+                        onClick={() => handleItemClick(step, 'step')}
+                        className={`p-2.5 rounded-lg border transition-all duration-200 cursor-pointer ${
+                          step.is_important && step.is_urgent
+                            ? 'border-yellow-400 bg-yellow-50/50 hover:bg-yellow-50 hover:border-yellow-500'
+                            : step.is_important
+                              ? 'border-yellow-300 bg-yellow-50/30 hover:bg-yellow-50/50 hover:border-yellow-400'
+                              : step.is_urgent
+                                ? 'border-orange-300 bg-orange-50/30 hover:bg-orange-50/50 hover:border-orange-400'
+                                : 'border-gray-200 bg-white hover:bg-gray-50'
+                        } ${step.completed ? 'opacity-60' : ''} ${isOverdue ? 'border-red-300 bg-red-50/30' : ''}`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (!loadingSteps.has(step.id)) {
+                                handleStepToggle(step.id, !step.completed)
+                              }
+                            }}
+                            disabled={loadingSteps.has(step.id)}
+                            className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
                           >
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  if (!loadingSteps.has(step.id)) {
-                                    handleStepToggle(step.id, !step.completed)
-                                  }
-                                }}
-                                disabled={loadingSteps.has(step.id)}
-                                className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
-                              >
-                                {loadingSteps.has(step.id) ? (
-                                  <svg className="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                  </svg>
-                                ) : step.completed ? (
-                                  <Check className="w-4 h-4 text-orange-600" strokeWidth={3} />
-                                ) : (
-                                  <Check className="w-4 h-4 text-gray-400" strokeWidth={2.5} fill="none" />
-                                )}
-                              </button>
+                            {loadingSteps.has(step.id) ? (
+                              <svg className="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                            ) : step.completed ? (
+                              <Check className="w-4 h-4 text-orange-600" strokeWidth={3} />
+                            ) : (
+                              <Check className="w-4 h-4 text-gray-400" strokeWidth={2.5} fill="none" />
+                            )}
+                          </button>
                               <div className="flex-1 min-w-0">
                                 <span className={`truncate block font-medium text-sm ${
-                                  step.completed 
-                                    ? 'line-through text-gray-500' 
-                                    : isOverdue 
-                                      ? 'text-red-700 font-semibold' 
-                                      : 'text-gray-900'
-                                }`}>
-                                  {step.title}
-                                </span>
+                            step.completed 
+                              ? 'line-through text-gray-500' 
+                              : isOverdue 
+                                ? 'text-red-700 font-semibold' 
+                                : 'text-gray-900'
+                          }`}>
+                            {step.title}
+                          </span>
                                 {isWeekView && stepDateFormatted && (
                                   <span className="text-[10px] text-gray-500 mt-0.5 block">
                                     {stepDateFormatted}
                                   </span>
                                 )}
                               </div>
-                              <div className="flex items-center gap-1 flex-shrink-0">
-                                {step.is_important && (
-                                  <span className="text-yellow-600 text-xs">⭐</span>
-                                )}
-                                {step.is_urgent && (
-                                  <span className="text-orange-600 text-xs">⚡</span>
-                                )}
-                                {isOverdue && !step.completed && (
-                                  <span className="text-red-600 text-xs">⚠️</span>
-                                )}
-                              </div>
-                            </div>
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            {step.is_important && (
+                              <span className="text-yellow-600 text-xs">⭐</span>
+                            )}
+                            {step.is_urgent && (
+                              <span className="text-orange-600 text-xs">⚡</span>
+                            )}
+                            {isOverdue && !step.completed && (
+                              <span className="text-red-600 text-xs">⚠️</span>
+                            )}
+                          </div>
+                        </div>
                           </div>
                         )}
                       </div>
@@ -819,13 +819,13 @@ export function TodayFocusSection({
                     }
                   } else {
                     // In day view: overdue = before today, future = after today
-                    const isOverdue = stepDateObj < displayDate
-                    const isFuture = stepDateObj > displayDate
-                    
-                    if (isOverdue) {
-                      overdueStepsList.push(step)
-                    } else if (isFuture) {
-                      futureStepsList.push(step)
+                  const isOverdue = stepDateObj < displayDate
+                  const isFuture = stepDateObj > displayDate
+                  
+                  if (isOverdue) {
+                    overdueStepsList.push(step)
+                  } else if (isFuture) {
+                    futureStepsList.push(step)
                     }
                   }
                 })
