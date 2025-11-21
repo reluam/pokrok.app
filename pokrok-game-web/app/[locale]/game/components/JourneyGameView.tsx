@@ -9081,7 +9081,11 @@ export function JourneyGameView({
                         description: '',
                         date: '',
                         goalId: '',
-                        completed: false
+                        completed: false,
+                        is_important: false,
+                        is_urgent: false,
+                        deadline: '',
+                        estimated_time: 0
                       })
                     }}
                     className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 transition-colors"
