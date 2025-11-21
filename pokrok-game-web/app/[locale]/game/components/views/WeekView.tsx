@@ -20,6 +20,8 @@ interface WeekViewProps {
   loadingHabits?: Set<string>
   loadingSteps?: Set<string>
   onOpenStepModal?: (date?: string) => void
+  onNavigateToHabits?: () => void
+  onNavigateToSteps?: () => void
 }
 
 export function WeekView({
@@ -35,7 +37,9 @@ export function WeekView({
   handleStepToggle,
   loadingHabits = new Set(),
   loadingSteps = new Set(),
-  onOpenStepModal
+  onOpenStepModal,
+  onNavigateToHabits,
+  onNavigateToSteps
 }: WeekViewProps) {
   const t = useTranslations()
   const locale = useLocale()
@@ -236,6 +240,8 @@ export function WeekView({
             todaySteps={additionalSteps}
             onOpenStepModal={onOpenStepModal}
             onDisplayedStepsChange={handleDisplayedStepsChange}
+            onNavigateToHabits={onNavigateToHabits}
+            onNavigateToSteps={onNavigateToSteps}
           />
         </div>
       ) : (
@@ -260,6 +266,8 @@ export function WeekView({
             isWeekView={true}
             weekStartDate={currentWeekStart}
             weekSelectedDayDate={selectedDayDate}
+            onNavigateToHabits={onNavigateToHabits}
+            onNavigateToSteps={onNavigateToSteps}
           />
         </div>
       )}

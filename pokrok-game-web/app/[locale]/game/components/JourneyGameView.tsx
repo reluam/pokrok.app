@@ -21,6 +21,7 @@ import { WeekView } from './views/WeekView'
 import { MonthView } from './views/MonthView'
 import { YearView } from './views/YearView'
 import { AspiraceView } from './views/AspiraceView'
+import { FocusManagementView } from './views/FocusManagementView'
 
 interface JourneyGameViewProps {
   player?: any
@@ -98,15 +99,107 @@ export function JourneyGameView({
     
     loadUserId()
   }, [user?.id, userId])
-  const [currentPage, setCurrentPage] = useState<'main' | 'management' | 'statistics' | 'achievements' | 'settings'>('main')
-  const [currentManagementProgram, setCurrentManagementProgram] = useState<'aspirace' | 'goals' | 'habits' | 'steps'>('aspirace')
+
+  const [currentPage, setCurrentPage] = useState<'main' | 'focus' | 'management' | 'statistics' | 'achievements' | 'settings'>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedPage = localStorage.getItem('journeyGame_currentPage')
+        if (savedPage && ['main', 'focus', 'management', 'statistics', 'achievements', 'settings'].includes(savedPage)) {
+          return savedPage as 'main' | 'focus' | 'management' | 'statistics' | 'achievements' | 'settings'
+        }
+      } catch (error) {
+        console.error('Error loading currentPage:', error)
+      }
+    }
+    return 'main'
+  })
+  const [currentManagementProgram, setCurrentManagementProgram] = useState<'aspirace' | 'goals' | 'habits' | 'steps'>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedManagementProgram = localStorage.getItem('journeyGame_currentManagementProgram')
+        if (savedManagementProgram && ['aspirace', 'goals', 'habits', 'steps'].includes(savedManagementProgram)) {
+          return savedManagementProgram as 'aspirace' | 'goals' | 'habits' | 'steps'
+        }
+      } catch (error) {
+        console.error('Error loading currentManagementProgram:', error)
+      }
+    }
+    return 'aspirace'
+  })
+
+  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [currentProgram, setCurrentProgram] = useState<'day' | 'week' | 'month' | 'year'>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedProgram = localStorage.getItem('journeyGame_currentProgram')
+        if (savedProgram && ['day', 'week', 'month', 'year'].includes(savedProgram)) {
+          return savedProgram as 'day' | 'week' | 'month' | 'year'
+        }
+      } catch (error) {
+        console.error('Error loading currentProgram:', error)
+      }
+    }
+    return 'day'
+  })
+
+  // Load default view from user settings (only if not restored from localStorage)
+  useEffect(() => {
+    if (!userId) return
+    
+    // Check if we already restored from localStorage
+    const savedProgram = localStorage.getItem('journeyGame_currentProgram')
+    if (savedProgram) return // Skip if already restored
+    
+    const loadDefaultView = async () => {
+      try {
+        const response = await fetch('/api/cesta/user-settings')
+        if (response.ok) {
+          const data = await response.json()
+          if (data.settings?.default_view) {
+            setCurrentProgram(data.settings.default_view as 'day' | 'week' | 'month' | 'year')
+          }
+        }
+      } catch (error) {
+        console.error('Error loading default view:', error)
+      }
+    }
+    
+    loadDefaultView()
+  }, [userId])
+
+  // Save navigation state to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('journeyGame_currentPage', currentPage)
+      localStorage.setItem('journeyGame_currentProgram', currentProgram)
+      localStorage.setItem('journeyGame_currentManagementProgram', currentManagementProgram)
+    } catch (error) {
+      console.error('Error saving navigation state:', error)
+    }
+  }, [currentPage, currentProgram, currentManagementProgram])
+
   const [editingGoal, setEditingGoal] = useState<any>(null)
   const [editingStep, setEditingStep] = useState<any>(null)
   const [displayMode, setDisplayMode] = useState<'character' | 'progress' | 'motivation' | 'stats' | 'dialogue'>('character')
   const [selectedItem, setSelectedItem] = useState<any>(null)
   const [selectedItemType, setSelectedItemType] = useState<'step' | 'habit' | 'goal' | 'stat' | null>(null)
-  const [currentMonth, setCurrentMonth] = useState(new Date())
-  const [currentProgram, setCurrentProgram] = useState<'day' | 'week' | 'month' | 'year'>('day')
+  
+  // Step modal state (same as in StepsManagementView)
+  const [showStepModal, setShowStepModal] = useState(false)
+  const [stepModalData, setStepModalData] = useState({
+    id: null as string | null,
+    title: '',
+    description: '',
+    date: '',
+    goalId: '',
+    completed: false,
+    is_important: false,
+    is_urgent: false,
+    deadline: '',
+    estimated_time: 0
+  })
+  const [showHabitModal, setShowHabitModal] = useState(false)
+  const [habitModalData, setHabitModalData] = useState<any>(null)
   const [selectedDayDate, setSelectedDayDate] = useState<Date>(new Date()) // Currently displayed day in day view
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear()) // Currently displayed year in year view
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date()) // Currently displayed month in month view
@@ -353,9 +446,15 @@ export function JourneyGameView({
   }
 
   const handleItemClick = (item: any, type: 'step' | 'habit' | 'goal' | 'stat') => {
-    setSelectedItem(item)
-    setSelectedItemType(type)
-    // Don't change displayMode, just show detail in current program
+    if (type === 'step') {
+      handleOpenStepModal(undefined, item)
+    } else if (type === 'habit') {
+      handleOpenHabitModal(item)
+    } else {
+      // For goals and stats, keep old behavior
+      setSelectedItem(item)
+      setSelectedItemType(type)
+    }
   }
 
   const handleCloseDetail = () => {
@@ -383,7 +482,7 @@ export function JourneyGameView({
         newState = true // Not scheduled -> completed
       } else if (currentState === 'today') {
         // For today, cycle between completed and original state
-        const habitCompletions = selectedItem?.habit_completions || {}
+        const habitCompletions = (habitModalData || selectedItem)?.habit_completions || {}
         const isCompletedToday = habitCompletions[date] === true
         if (isCompletedToday) {
           newState = null // Completed today -> back to original state (planned/not-scheduled)
@@ -421,6 +520,14 @@ export function JourneyGameView({
             console.log('Debug - Studená sprcha from server:', updatedHabits.find((h: any) => h.name === 'Studená sprcha'))
             console.log('Debug - Studená sprcha habit_completions from server:', updatedHabits.find((h: any) => h.name === 'Studená sprcha')?.habit_completions)
             onHabitsUpdate(updatedHabits)
+            
+            // Update habit modal data if it's the same habit
+            if (habitModalData && habitModalData.id === habitId) {
+              const freshHabit = updatedHabits.find((h: any) => h.id === habitId)
+              if (freshHabit) {
+                setHabitModalData(freshHabit)
+              }
+            }
           }
         }
         
@@ -777,6 +884,213 @@ export function JourneyGameView({
       setHabitDetailTab('calendar')
     }
   }, [selectedItem, selectedItemType])
+
+  // Handle step modal
+  const handleOpenStepModal = (date?: string, step?: any) => {
+    if (step) {
+      // Open existing step for editing
+      const stepDate = step.date ? (typeof step.date === 'string' && step.date.match(/^\d{4}-\d{2}-\d{2}$/) ? step.date : step.date.split('T')[0]) : getLocalDateString(selectedDayDate)
+      setStepModalData({
+        id: step.id,
+        title: step.title || '',
+        description: step.description || '',
+        date: stepDate,
+        goalId: step.goal_id || '',
+        completed: step.completed || false,
+        is_important: step.is_important || false,
+        is_urgent: step.is_urgent || false,
+        deadline: step.deadline ? (typeof step.deadline === 'string' ? step.deadline.split('T')[0] : new Date(step.deadline).toISOString().split('T')[0]) : '',
+        estimated_time: step.estimated_time || 0
+      })
+    } else {
+      // Create new step
+      const defaultDate = date || getLocalDateString(selectedDayDate)
+      setStepModalData({
+        id: null,
+        title: '',
+        description: '',
+        date: defaultDate,
+        goalId: '',
+        completed: false,
+        is_important: false,
+        is_urgent: false,
+        deadline: '',
+        estimated_time: 0
+      })
+    }
+    setShowStepModal(true)
+  }
+
+  // Handle habit modal
+  const handleOpenHabitModal = (habit: any) => {
+    setHabitModalData(habit)
+    setEditingHabitName(habit.name || '')
+    setEditingHabitDescription(habit.description || '')
+    setEditingHabitFrequency(habit.frequency || 'daily')
+    setEditingHabitSelectedDays(habit.selected_days || [])
+    setEditingHabitAlwaysShow(habit.always_show || false)
+    setEditingHabitXpReward(habit.xp_reward || 0)
+    setEditingHabitCategory(habit.category || '')
+    setEditingHabitDifficulty(habit.difficulty || 'medium')
+    setEditingHabitReminderTime(habit.reminder_time || '')
+    setHabitDetailTab('calendar')
+    setShowHabitModal(true)
+  }
+
+  const handleSaveHabitModal = async () => {
+    if (!habitModalData || !editingHabitName.trim()) {
+      alert('Název návyku je povinný')
+      return
+    }
+
+    // Validate custom frequency
+    if (editingHabitFrequency === 'custom' && editingHabitSelectedDays.length === 0) {
+      alert('Pro vlastní frekvenci musíte vybrat alespoň jeden den')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/habits', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          habitId: habitModalData.id,
+          name: editingHabitName,
+          description: editingHabitDescription,
+          frequency: editingHabitFrequency,
+          reminderTime: editingHabitReminderTime || null,
+          selectedDays: editingHabitSelectedDays,
+          alwaysShow: editingHabitAlwaysShow,
+          xpReward: editingHabitXpReward,
+          category: editingHabitCategory,
+          difficulty: editingHabitDifficulty
+        }),
+      })
+
+      if (response.ok) {
+        const updatedHabit = await response.json()
+        
+        // Update habits in parent component
+        if (onHabitsUpdate) {
+          const updatedHabits = habits.map(habit => 
+            habit.id === updatedHabit.id ? updatedHabit : habit
+          )
+          onHabitsUpdate(updatedHabits)
+          
+          // Update habitModalData with fresh data from server
+          const freshHabit = updatedHabits.find(h => h.id === updatedHabit.id)
+          if (freshHabit) {
+            setHabitModalData(freshHabit)
+          }
+        }
+        
+        // Don't close modal, just update the data
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
+        alert(`Chyba při aktualizaci návyku: ${errorData.error || 'Nepodařilo se uložit návyk'}`)
+      }
+    } catch (error) {
+      console.error('Error saving habit:', error)
+      alert('Chyba při aktualizaci návyku')
+    }
+  }
+
+  const handleSaveStepModal = async () => {
+    if (!stepModalData.title.trim()) {
+      alert('Název kroku je povinný')
+      return
+    }
+
+    const currentUserId = userId || player?.user_id
+    if (!currentUserId) {
+      console.error('Cannot save step: userId not available', { userId, playerUserId: player?.user_id, user: user?.id })
+      alert('Chyba: Uživatel není nalezen. Zkuste to prosím znovu za chvíli.')
+      return
+    }
+
+    console.log('Saving step:', { 
+      isUpdate: !!stepModalData.id, 
+      title: stepModalData.title, 
+      userId: currentUserId,
+      date: stepModalData.date 
+    })
+
+    try {
+      const requestBody = stepModalData.id ? {
+        stepId: stepModalData.id,
+        title: stepModalData.title,
+        description: stepModalData.description || '',
+        date: stepModalData.date || null,
+        goalId: stepModalData.goalId || null,
+        completed: stepModalData.completed,
+        isImportant: stepModalData.is_important,
+        isUrgent: stepModalData.is_urgent,
+        estimatedTime: stepModalData.estimated_time
+      } : {
+        userId: currentUserId,
+        goalId: stepModalData.goalId || null,
+        title: stepModalData.title,
+        description: stepModalData.description || '',
+        date: stepModalData.date || null,
+        isImportant: stepModalData.is_important,
+        isUrgent: stepModalData.is_urgent,
+        estimatedTime: stepModalData.estimated_time
+      }
+
+      console.log('Sending request:', requestBody)
+
+      const response = await fetch('/api/daily-steps', {
+        method: stepModalData.id ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      })
+
+      console.log('Response status:', response.status, response.ok)
+
+      if (response.ok) {
+        const savedStep = await response.json()
+        console.log('Step saved successfully:', savedStep)
+        
+        // Reload steps
+        const stepsResponse = await fetch(`/api/daily-steps?userId=${currentUserId}`)
+        if (stepsResponse.ok) {
+          const steps = await stepsResponse.json()
+          console.log('Steps reloaded:', steps.length)
+          onDailyStepsUpdate?.(steps)
+        }
+        setShowStepModal(false)
+        setStepModalData({
+          id: null,
+          title: '',
+          description: '',
+          date: '',
+          goalId: '',
+          completed: false,
+          is_important: false,
+          is_urgent: false,
+          deadline: '',
+          estimated_time: 0
+        })
+      } else {
+        const errorText = await response.text()
+        console.error('Error response:', response.status, errorText)
+        let errorData
+        try {
+          errorData = JSON.parse(errorText)
+        } catch {
+          errorData = { error: errorText || 'Neznámá chyba' }
+        }
+        alert(`Chyba při ${stepModalData.id ? 'aktualizaci' : 'vytváření'} kroku: ${errorData.error || 'Nepodařilo se uložit krok'}`)
+      }
+    } catch (error) {
+      console.error('Error saving step:', error)
+      alert(`Chyba při ${stepModalData.id ? 'aktualizaci' : 'vytváření'} kroku: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
+    }
+  }
 
   const handleSaveStep = async () => {
     if (!selectedItem || selectedItemType !== 'step') return
@@ -1582,7 +1896,7 @@ export function JourneyGameView({
                         
                         // Get actual data from habit_completions
                         const habitCompletions = item.habit_completions || {}
-                        const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+                        const dateKey = getLocalDateString(date)
                         const isCompleted = habitCompletions[dateKey] === true
                         const isMissed = habitCompletions[dateKey] === false
                         
@@ -1597,6 +1911,8 @@ export function JourneyGameView({
                         const isAfterUserCreation = date >= userCreatedDate
                         
                         // Determine day state based on new logic
+                        // For past days (before today), only show "completed" or "missed"
+                        // If scheduled but not completed in the past, automatically show as "missed"
                         let dayState = 'not-planned' // default
                         let className = 'text-center text-xs py-1 rounded transition-all duration-200 '
                         let onClick = () => {}
@@ -1610,6 +1926,14 @@ export function JourneyGameView({
                           }
                         } else if (isMissed) {
                           // 2. Vynecháno - červeně
+                          dayState = 'missed'
+                          className += 'bg-red-200 text-red-800 hover:bg-red-300 cursor-pointer'
+                          onClick = () => {
+                            handleHabitCalendarToggle(item.id, dateKey, 'missed', isScheduled)
+                          }
+                        } else if (isPast && isAfterUserCreation) {
+                          // Past days: if scheduled but not completed, show as "missed"
+                          // If not scheduled and not completed, also show as "missed" (user can mark as completed)
                           dayState = 'missed'
                           className += 'bg-red-200 text-red-800 hover:bg-red-300 cursor-pointer'
                           onClick = () => {
@@ -1630,24 +1954,10 @@ export function JourneyGameView({
                           onClick = () => {
                             handleHabitCalendarToggle(item.id, dateKey, isCompleted ? 'completed' : isMissed ? 'missed' : isScheduled ? 'planned' : 'not-scheduled', isScheduled)
                           }
-                        } else if (isScheduled && isAfterUserCreation && !isFuture) {
-                          // 4. Naplánováno - světle šedě (pouze minulost a dnešek)
-                          dayState = 'planned'
-                          className += 'bg-gray-100 text-gray-500 cursor-pointer hover:bg-gray-200'
-                          onClick = () => {
-                            handleHabitCalendarToggle(item.id, dateKey, 'planned', isScheduled)
-                          }
                         } else if (isScheduled && isAfterUserCreation && isFuture) {
                           // 4b. Budoucí naplánovaný den - světle šedě (nelze kliknout)
                           dayState = 'planned-future'
                           className += 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        } else if (isAfterUserCreation && !isFuture) {
-                          // 5. Nenaplánováno - šedě (ale klikatelné pouze pro minulost a dnešek)
-                          dayState = 'not-scheduled'
-                          className += 'bg-gray-200 text-gray-600 hover:bg-gray-300 cursor-pointer'
-                          onClick = () => {
-                            handleHabitCalendarToggle(item.id, dateKey, 'not-scheduled', isScheduled)
-                          }
                         } else if (isAfterUserCreation && isFuture) {
                           // 5b. Budoucí nenaplánovaný den - šedě (nelze kliknout)
                           dayState = 'not-scheduled-future'
@@ -2375,6 +2685,7 @@ export function JourneyGameView({
   const renderDayContent = () => {
     return (
       <MainPanelDay
+        goals={goals}
         habits={habits}
         dailySteps={dailySteps}
         aspirations={aspirations}
@@ -2387,9 +2698,12 @@ export function JourneyGameView({
         handleStepToggle={handleStepToggle}
         setSelectedItem={setSelectedItem}
         setSelectedItemType={setSelectedItemType}
+        onOpenStepModal={handleOpenStepModal}
         loadingHabits={loadingHabits}
         loadingSteps={loadingSteps}
         player={player}
+        onNavigateToHabits={onNavigateToHabits}
+        onNavigateToSteps={onNavigateToSteps}
       />
     )
   }
@@ -2405,6 +2719,8 @@ export function JourneyGameView({
             onHabitsUpdate={onHabitsUpdate}
             onDailyStepsUpdate={onDailyStepsUpdate}
         setShowDatePickerModal={setShowDatePickerModal}
+            onNavigateToHabits={onNavigateToHabits}
+            onNavigateToSteps={onNavigateToSteps}
           />
     )
   }
@@ -2695,7 +3011,7 @@ export function JourneyGameView({
                 background: 'radial-gradient(circle at 30% 30%, #fff7ed, #fed7aa)',
                 boxShadow: '0 15px 30px rgba(251, 146, 60, 0.2), inset 0 2px 0 rgba(255,255,255,0.3)'
               }}
-            >
+              >
               <div className="w-28 h-28 rounded-full relative" style={{ backgroundColor: player?.appearance?.skinColor || '#FDBCB4' }}>
                 {/* Hair */}
                 <div
@@ -2707,8 +3023,8 @@ export function JourneyGameView({
                   <div 
                     className="w-4 h-4 rounded-full"
                     style={{ backgroundColor: player?.appearance?.eyeColor || '#4A90E2' }}
-                  />
-                  <div 
+                        />
+                        <div 
                     className="w-4 h-4 rounded-full"
                     style={{ backgroundColor: player?.appearance?.eyeColor || '#4A90E2' }}
                   />
@@ -7959,6 +8275,15 @@ export function JourneyGameView({
 
   const renderPageContent = () => {
     switch (currentPage) {
+      case 'focus':
+        return (
+          <FocusManagementView
+            goals={goals}
+            onGoalsUpdate={onGoalsUpdate}
+            userId={userId}
+            player={player}
+          />
+        )
       case 'management':
         return (
           <ManagementPage
@@ -7987,58 +8312,66 @@ export function JourneyGameView({
           />
         )
       case 'main':
+        // If there's a selected item, show its detail for editing
+        if (selectedItem && selectedItemType) {
+          return renderItemDetail(selectedItem, selectedItemType)
+        }
+        
         return (
           <div className="w-full h-full flex flex-col">
-            {/* Program Selector */}
-            <div className="flex items-center justify-center gap-2 p-4 border-b border-gray-200 bg-white">
-                    <button
-                onClick={() => setCurrentProgram('day')}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  currentProgram === 'day'
-                    ? 'bg-orange-500 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {t('calendar.viewMode.day')}
-                    </button>
-                          <button
-                onClick={() => setCurrentProgram('week')}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  currentProgram === 'week'
-                    ? 'bg-orange-500 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {t('calendar.viewMode.week')}
-                          </button>
-                    <button
-                onClick={() => setCurrentProgram('month')}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  currentProgram === 'month'
-                    ? 'bg-orange-500 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {t('calendar.viewMode.month')}
-                    </button>
-                    <button
-                onClick={() => setCurrentProgram('year')}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  currentProgram === 'year'
-                    ? 'bg-orange-500 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {t('calendar.viewMode.year')}
-                    </button>
-                  </div>
+            {/* Program Selector - Link Navigation */}
+            <div className="px-4 py-2 border-b border-gray-200 bg-white">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setCurrentProgram('day')}
+                  className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
+                    currentProgram === 'day'
+                      ? 'text-orange-600 border-orange-600'
+                      : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
+                  }`}
+                >
+                  {t('calendar.viewMode.day')}
+                </button>
+                <button
+                  onClick={() => setCurrentProgram('week')}
+                  className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
+                    currentProgram === 'week'
+                      ? 'text-orange-600 border-orange-600'
+                      : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
+                  }`}
+                >
+                  {t('calendar.viewMode.week')}
+                </button>
+                <button
+                  onClick={() => setCurrentProgram('month')}
+                  className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
+                    currentProgram === 'month'
+                      ? 'text-orange-600 border-orange-600'
+                      : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
+                  }`}
+                >
+                  {t('calendar.viewMode.month')}
+                </button>
+                <button
+                  onClick={() => setCurrentProgram('year')}
+                  className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
+                    currentProgram === 'year'
+                      ? 'text-orange-600 border-orange-600'
+                      : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
+                  }`}
+                >
+                  {t('calendar.viewMode.year')}
+                </button>
+              </div>
+            </div>
 
             {/* Program Content */}
             <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
               {currentProgram === 'day' && (
                 <MainPanelDay
+                  goals={goals}
                   habits={habits}
-                        dailySteps={dailySteps}
+                  dailySteps={dailySteps}
                   aspirations={aspirations}
                   dayAspirationBalances={dayAspirationBalances}
                   selectedDayDate={selectedDayDate}
@@ -8049,20 +8382,31 @@ export function JourneyGameView({
                   handleStepToggle={handleStepToggle}
                   setSelectedItem={setSelectedItem}
                   setSelectedItemType={setSelectedItemType}
+                  onOpenStepModal={handleOpenStepModal}
                   loadingHabits={loadingHabits}
                   loadingSteps={loadingSteps}
                   player={player}
+                  onNavigateToHabits={onNavigateToHabits}
+                  onNavigateToSteps={onNavigateToSteps}
                 />
               )}
               {currentProgram === 'week' && (
                 <WeekView
                   player={player}
-                        goals={goals}
+                  goals={goals}
                   habits={habits}
-                        dailySteps={dailySteps}
+                  dailySteps={dailySteps}
                   onHabitsUpdate={onHabitsUpdate}
-                        onDailyStepsUpdate={onDailyStepsUpdate}
+                  onDailyStepsUpdate={onDailyStepsUpdate}
                   setShowDatePickerModal={setShowDatePickerModal}
+                  handleItemClick={handleItemClick}
+                  handleHabitToggle={handleHabitToggle}
+                  handleStepToggle={handleStepToggle}
+                  loadingHabits={loadingHabits}
+                  loadingSteps={loadingSteps}
+                  onOpenStepModal={handleOpenStepModal}
+                  onNavigateToHabits={onNavigateToHabits}
+                  onNavigateToSteps={onNavigateToSteps}
                 />
               )}
               {currentProgram === 'month' && (
@@ -8332,6 +8676,14 @@ export function JourneyGameView({
 
               {/* Menu Icons */}
               <div className="flex items-center space-x-4 lg:border-l lg:border-white lg:border-opacity-30 lg:pl-6">
+              <button
+                onClick={() => setCurrentPage('focus')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'focus' ? 'bg-white bg-opacity-25' : ''}`}
+                title="Fokus"
+              >
+                <Target className="w-5 h-5" />
+                <span className="hidden lg:inline">Fokus</span>
+              </button>
               <button
                 onClick={() => setCurrentPage('management')}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'management' ? 'bg-white bg-opacity-25' : ''}`}
@@ -8685,9 +9037,539 @@ export function JourneyGameView({
             </div>
           </div>
               )}
-        </div>
+            </div>
+          </div>
       </div>
-      </div>
+      )}
+
+      {/* Step Modal (same as in StepsManagementView) */}
+      {showStepModal && typeof window !== 'undefined' && createPortal(
+        <>
+          <div 
+            className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+            onClick={() => {
+              setShowStepModal(false)
+              setStepModalData({
+                id: null,
+                title: '',
+                description: '',
+                date: '',
+                goalId: '',
+                completed: false
+              })
+            }}
+          >
+            <div 
+              className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {stepModalData.id ? t('steps.edit') : t('steps.create')}
+                  </h2>
+                  <button
+                    onClick={() => {
+                      setShowStepModal(false)
+                      setStepModalData({
+                        id: null,
+                        title: '',
+                        description: '',
+                        date: '',
+                        goalId: '',
+                        completed: false
+                      })
+                    }}
+                    className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-2">
+                    {t('steps.title')} <span className="text-orange-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={stepModalData.title}
+                    onChange={(e) => setStepModalData({...stepModalData, title: e.target.value})}
+                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                    placeholder={t('steps.titlePlaceholder')}
+                    autoFocus
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-2">
+                    {t('steps.description')}
+                  </label>
+                  <textarea
+                    value={stepModalData.description}
+                    onChange={(e) => setStepModalData({...stepModalData, description: e.target.value})}
+                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white resize-none"
+                    rows={4}
+                    placeholder={t('steps.descriptionPlaceholder')}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-2">
+                      {t('steps.date')}
+                    </label>
+                    <input
+                      type="date"
+                      value={stepModalData.date}
+                      onChange={(e) => setStepModalData({...stepModalData, date: e.target.value})}
+                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-2">
+                      {t('steps.goal')}
+                    </label>
+                    <select
+                      value={stepModalData.goalId}
+                      onChange={(e) => setStepModalData({...stepModalData, goalId: e.target.value})}
+                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                    >
+                      <option value="">{t('steps.noGoal')}</option>
+                      {goals.map((goal: any) => (
+                        <option key={goal.id} value={goal.id}>{goal.title}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-2">
+                      Deadline
+                    </label>
+                    <input
+                      type="date"
+                      value={stepModalData.deadline}
+                      onChange={(e) => setStepModalData({...stepModalData, deadline: e.target.value})}
+                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-2">
+                      Odhadovaný čas (minuty)
+                    </label>
+                    <input
+                      type="number"
+                      value={stepModalData.estimated_time}
+                      onChange={(e) => setStepModalData({...stepModalData, estimated_time: parseInt(e.target.value) || 0})}
+                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                      min="0"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={stepModalData.is_important}
+                      onChange={(e) => setStepModalData({...stepModalData, is_important: e.target.checked})}
+                      className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                    />
+                    <span className="text-sm text-gray-700">⭐ Důležitý</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={stepModalData.is_urgent}
+                      onChange={(e) => setStepModalData({...stepModalData, is_urgent: e.target.checked})}
+                      className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                    />
+                    <span className="text-sm text-gray-700">⚡ Urgentní</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-gray-200 flex items-center justify-end gap-3">
+                <button
+                  onClick={() => {
+                    setShowStepModal(false)
+                    setStepModalData({
+                      id: null,
+                      title: '',
+                      description: '',
+                      date: '',
+                      goalId: '',
+                      completed: false
+                    })
+                  }}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  onClick={handleSaveStepModal}
+                  disabled={!userId && !player?.user_id}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    !userId && !player?.user_id
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-orange-500 text-white hover:bg-orange-600'
+                  }`}
+                >
+                  {t('common.save')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>,
+        document.body
+      )}
+
+      {/* Habit Modal */}
+      {showHabitModal && habitModalData && typeof window !== 'undefined' && createPortal(
+        <>
+          <div 
+            className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+            onClick={() => {
+              setShowHabitModal(false)
+              setHabitModalData(null)
+            }}
+          >
+            <div 
+              className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {habitModalData.name}
+                  </h2>
+                  <button
+                    onClick={() => {
+                      setShowHabitModal(false)
+                      setHabitModalData(null)
+                    }}
+                    className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Tabs */}
+              <div className="px-6 pt-4 border-b border-gray-200">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setHabitDetailTab('calendar')}
+                    className={`px-4 py-2 font-medium transition-colors ${
+                      habitDetailTab === 'calendar'
+                        ? 'text-orange-600 border-b-2 border-orange-600 -mb-[2px]'
+                        : 'text-gray-600 hover:text-orange-600'
+                    }`}
+                  >
+                    📅 Kalendář
+                  </button>
+                  <button
+                    onClick={() => setHabitDetailTab('settings')}
+                    className={`px-4 py-2 font-medium transition-colors ${
+                      habitDetailTab === 'settings'
+                        ? 'text-orange-600 border-b-2 border-orange-600 -mb-[2px]'
+                        : 'text-gray-600 hover:text-orange-600'
+                    }`}
+                  >
+                    ⚙️ Nastavení
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6">
+                {/* Calendar Tab */}
+                {habitDetailTab === 'calendar' && (
+                  <div className="space-y-4">
+                    {/* Month Navigation */}
+                    <div className="flex items-center justify-between mb-4">
+                      <button
+                        onClick={() => {
+                          const newDate = new Date(currentMonth)
+                          newDate.setMonth(newDate.getMonth() - 1)
+                          setCurrentMonth(newDate)
+                        }}
+                        className="px-3 py-1 rounded-lg bg-orange-200 text-orange-800 hover:bg-orange-300 transition-all duration-200"
+                      >
+                        ←
+                      </button>
+                      <h5 className="text-lg font-semibold text-gray-900">
+                        {currentMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
+                      </h5>
+                      <button
+                        onClick={() => {
+                          const newDate = new Date(currentMonth)
+                          newDate.setMonth(newDate.getMonth() + 1)
+                          setCurrentMonth(newDate)
+                        }}
+                        className="px-3 py-1 rounded-lg bg-orange-200 text-orange-800 hover:bg-orange-300 transition-all duration-200"
+                      >
+                        →
+                      </button>
+                    </div>
+                    
+                    {/* Calendar Grid */}
+                    <div className="grid grid-cols-7 gap-1 mb-3">
+                      {['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(day => (
+                        <div key={day} className="text-center text-xs font-medium text-gray-700 py-1">
+                          {day}
+                        </div>
+                      ))}
+                      {/* Generate calendar days for current month */}
+                      {(() => {
+                        const year = currentMonth.getFullYear()
+                        const month = currentMonth.getMonth()
+                        const firstDay = new Date(year, month, 1)
+                        const lastDay = new Date(year, month + 1, 0)
+                        const daysInMonth = lastDay.getDate()
+                        const startDay = (firstDay.getDay() + 6) % 7 // Convert Sunday=0 to Monday=0
+                        
+                        const days = []
+                        
+                        // Empty cells for days before month starts
+                        for (let i = 0; i < startDay; i++) {
+                          days.push(
+                            <div key={`empty-${i}`} className="text-center text-xs py-1"></div>
+                          )
+                        }
+                        
+                        // Days of the month
+                        for (let day = 1; day <= daysInMonth; day++) {
+                          const date = new Date(year, month, day)
+                          const today = new Date()
+                          const isToday = date.toDateString() === today.toDateString()
+                          const isFuture = date > today
+                          const isPast = date < today
+                          
+                          // Get actual data from habit_completions
+                          const habitCompletions = habitModalData.habit_completions || {}
+                          const dateKey = getLocalDateString(date)
+                          const isCompleted = habitCompletions[dateKey] === true
+                          const isMissed = habitCompletions[dateKey] === false
+                          
+                          // Check if this day is scheduled for this habit
+                          const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+                          const dayName = dayNames[date.getDay()]
+                          const isScheduled = habitModalData.selected_days && habitModalData.selected_days.includes(dayName)
+                          
+                          // Check if this date is after user account creation
+                          const userCreatedDateFull = new Date(player?.created_at || '2024-01-01')
+                          const userCreatedDate = new Date(userCreatedDateFull.getFullYear(), userCreatedDateFull.getMonth(), userCreatedDateFull.getDate())
+                          const isAfterUserCreation = date >= userCreatedDate
+                          
+                          // Determine day state
+                          // For past days (before today), only show "completed" or "missed"
+                          // If scheduled but not completed in the past, automatically show as "missed"
+                          let dayState = 'not-planned'
+                          let className = 'text-center text-xs py-1 rounded transition-all duration-200 '
+                          let onClick = () => {}
+                          
+                          if (isCompleted) {
+                            dayState = 'completed'
+                            className += 'bg-green-200 text-green-800 hover:bg-green-300 cursor-pointer'
+                            onClick = () => {
+                              handleHabitCalendarToggle(habitModalData.id, dateKey, 'completed', isScheduled)
+                            }
+                          } else if (isMissed) {
+                            dayState = 'missed'
+                            className += 'bg-red-200 text-red-800 hover:bg-red-300 cursor-pointer'
+                            onClick = () => {
+                              handleHabitCalendarToggle(habitModalData.id, dateKey, 'missed', isScheduled)
+                            }
+                          } else if (isPast && isAfterUserCreation) {
+                            // Past days: if scheduled but not completed, show as "missed"
+                            // If not scheduled and not completed, also show as "missed" (user can mark as completed)
+                            dayState = 'missed'
+                            className += 'bg-red-200 text-red-800 hover:bg-red-300 cursor-pointer'
+                            onClick = () => {
+                              handleHabitCalendarToggle(habitModalData.id, dateKey, 'missed', isScheduled)
+                            }
+                          } else if (isToday) {
+                            dayState = 'today'
+                            if (isCompleted) {
+                              className += 'bg-green-200 text-green-800 hover:bg-green-300 cursor-pointer border-b-2 border-orange-500'
+                            } else if (isMissed) {
+                              className += 'bg-red-200 text-red-800 hover:bg-red-300 cursor-pointer border-b-2 border-orange-500'
+                            } else if (isScheduled) {
+                              className += 'bg-gray-100 text-gray-500 cursor-pointer hover:bg-gray-200 border-b-2 border-orange-500'
+                            } else {
+                              className += 'bg-gray-200 text-gray-600 hover:bg-gray-300 cursor-pointer border-b-2 border-orange-500'
+                            }
+                            onClick = () => {
+                              handleHabitCalendarToggle(habitModalData.id, dateKey, isCompleted ? 'completed' : isMissed ? 'missed' : isScheduled ? 'planned' : 'not-scheduled', isScheduled)
+                            }
+                          } else if (isScheduled && isAfterUserCreation && isFuture) {
+                            dayState = 'planned-future'
+                            className += 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          } else if (isAfterUserCreation && isFuture) {
+                            dayState = 'not-scheduled-future'
+                            className += 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          } else {
+                            dayState = 'inactive'
+                            className += 'bg-gray-50 text-gray-300 cursor-not-allowed'
+                          }
+                          
+                          days.push(
+                            <div
+                              key={day}
+                              className={className}
+                              onClick={onClick}
+                              title={
+                                isFuture ? 'Budoucí den' :
+                                dayState === 'completed' || dayState === 'missed' || dayState === 'not-scheduled' || dayState === 'planned' ? `Den ${day}.${month + 1}. - klikněte pro změnu` :
+                                'Den před vytvořením účtu'
+                              }
+                            >
+                              {day}
+                            </div>
+                          )
+                        }
+                        
+                        return days
+                      })()}
+                    </div>
+                    
+                    {/* Legend */}
+                    <div className="flex gap-2 justify-center text-xs flex-wrap">
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-green-200 rounded"></div>
+                        <span className="text-gray-700">Splněno</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-red-200 rounded"></div>
+                        <span className="text-gray-700">Vynecháno</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-gray-100 rounded"></div>
+                        <span className="text-gray-700">Naplánováno</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-gray-200 rounded"></div>
+                        <span className="text-gray-700">Nenaplánováno</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Settings Tab */}
+                {habitDetailTab === 'settings' && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-2">
+                        Název <span className="text-orange-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={editingHabitName}
+                        onChange={(e) => setEditingHabitName(e.target.value)}
+                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                        placeholder="Název návyku"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-2">
+                        Popis
+                      </label>
+                      <textarea
+                        value={editingHabitDescription}
+                        onChange={(e) => setEditingHabitDescription(e.target.value)}
+                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white resize-none"
+                        rows={3}
+                        placeholder="Popis návyku"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-2">
+                        Frekvence
+                      </label>
+                      <select
+                        value={editingHabitFrequency}
+                        onChange={(e) => setEditingHabitFrequency(e.target.value as 'daily' | 'weekly' | 'monthly' | 'custom')}
+                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                      >
+                        <option value="daily">Denně</option>
+                        <option value="weekly">Týdně</option>
+                        <option value="monthly">Měsíčně</option>
+                        <option value="custom">Vlastní</option>
+                      </select>
+                    </div>
+
+                    {editingHabitFrequency === 'custom' && (
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-800 mb-2">
+                          Vyberte dny
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => (
+                            <button
+                              key={day}
+                              onClick={() => {
+                                if (editingHabitSelectedDays.includes(day)) {
+                                  setEditingHabitSelectedDays(editingHabitSelectedDays.filter(d => d !== day))
+                                } else {
+                                  setEditingHabitSelectedDays([...editingHabitSelectedDays, day])
+                                }
+                              }}
+                              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                                editingHabitSelectedDays.includes(day)
+                                  ? 'bg-orange-500 text-white'
+                                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              }`}
+                            >
+                              {day === 'monday' ? 'Po' : day === 'tuesday' ? 'Út' : day === 'wednesday' ? 'St' : day === 'thursday' ? 'Čt' : day === 'friday' ? 'Pá' : day === 'saturday' ? 'So' : 'Ne'}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={editingHabitAlwaysShow}
+                        onChange={(e) => setEditingHabitAlwaysShow(e.target.checked)}
+                        className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                      />
+                      <label className="text-sm text-gray-700">
+                        Vždy zobrazovat (i když není naplánováno)
+                      </label>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="p-6 border-t border-gray-200 flex items-center justify-end gap-3">
+                <button
+                  onClick={() => {
+                    setShowHabitModal(false)
+                    setHabitModalData(null)
+                  }}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  onClick={handleSaveHabitModal}
+                  className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+                >
+                  {t('common.save')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>,
+        document.body
       )}
 
             </div>

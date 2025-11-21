@@ -26,6 +26,8 @@ interface DayViewProps {
   loadingHabits: Set<string>
   loadingSteps: Set<string>
   player?: any
+  onNavigateToHabits?: () => void
+  onNavigateToSteps?: () => void
 }
 
 export function DayView({
@@ -45,7 +47,9 @@ export function DayView({
   onOpenStepModal,
   loadingHabits,
   loadingSteps,
-  player
+  player,
+  onNavigateToHabits,
+  onNavigateToSteps
 }: DayViewProps) {
   const t = useTranslations()
   const locale = useLocale()
@@ -241,6 +245,8 @@ export function DayView({
         todaySteps={todaySteps}
         onOpenStepModal={onOpenStepModal}
         onDisplayedStepsChange={handleDisplayedStepsChange}
+        onNavigateToHabits={onNavigateToHabits}
+        onNavigateToSteps={onNavigateToSteps}
       />
     </div>
   )

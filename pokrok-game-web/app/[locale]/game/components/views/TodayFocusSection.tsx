@@ -23,6 +23,8 @@ interface TodayFocusSectionProps {
   isWeekView?: boolean // If true, show all habits from the week, not just one day
   weekStartDate?: Date // For week view - start of the week
   weekSelectedDayDate?: Date | null // For week view - selected day for highlighting
+  onNavigateToHabits?: () => void
+  onNavigateToSteps?: () => void
 }
 
 export function TodayFocusSection({
@@ -41,7 +43,9 @@ export function TodayFocusSection({
   onDisplayedStepsChange,
   isWeekView = false,
   weekStartDate,
-  weekSelectedDayDate = null
+  weekSelectedDayDate = null,
+  onNavigateToHabits,
+  onNavigateToSteps
 }: TodayFocusSectionProps) {
   const t = useTranslations()
   const locale = useLocale()
@@ -343,6 +347,24 @@ export function TodayFocusSection({
                 {isWeekView ? 'Týdenní fokus' : 'Dnešní fokus'}
               </h3>
             </div>
+            {onOpenStepModal && (
+              <button
+                onClick={() => {
+                  // For week view, use selected day if available, otherwise use today
+                  const dateToUse = isWeekView && weekSelectedDayDate 
+                    ? getLocalDateString(weekSelectedDayDate)
+                    : displayDateStr
+                  onOpenStepModal(dateToUse)
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors border border-orange-200"
+                title="Přidat krok"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Přidat krok
+              </button>
+            )}
           </div>
           
           {/* Two Column Layout */}
@@ -350,7 +372,12 @@ export function TodayFocusSection({
             {/* Left Column: Habits - Week view shows compact table, day view shows list */}
             {isWeekView && weekStartDate && (
               <div className="flex-shrink-0 border-r border-gray-200 pr-6" style={{ minWidth: '200px' }}>
-                <h4 className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-2">Návyky</h4>
+                <h4 
+                  onClick={() => onNavigateToHabits?.()}
+                  className={`text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-2 ${onNavigateToHabits ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
+                >
+                  Návyky
+                </h4>
                 {weekHabits.length > 0 ? (
                   <div className="overflow-y-auto max-h-[500px]">
                     <table className="border-collapse text-left">
@@ -444,7 +471,12 @@ export function TodayFocusSection({
             )}
             {!isWeekView && (
             <div className="flex-shrink-0 border-r border-gray-200 pr-6" style={{ width: `${maxHabitWidth}px` }}>
-              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Návyky</h4>
+              <h4 
+                onClick={() => onNavigateToHabits?.()}
+                className={`text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 ${onNavigateToHabits ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
+              >
+                Návyky
+              </h4>
               {todaysHabits.length > 0 ? (
                 <div className="space-y-2">
                   {todaysHabits.map((habit) => {
@@ -550,7 +582,10 @@ export function TodayFocusSection({
             
             {/* Right Column: Today's Steps (with goals if they have one) */}
             <div className={`flex-1 min-w-0 ${isWeekView ? '' : ''}`}>
-              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              <h4 
+                onClick={() => onNavigateToSteps?.()}
+                className={`text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 ${onNavigateToSteps ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
+              >
                 {isWeekView ? 'Kroky v týdnu' : 'Dnešní kroky'}
               </h4>
               {allTodaysSteps.length > 0 ? (
