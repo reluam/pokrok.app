@@ -1,10 +1,15 @@
 'use client'
 
+import { useState, useCallback } from 'react'
 import { Check, ChevronUp, ChevronDown } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
+import { QuickOverviewWidget } from './QuickOverviewWidget'
+import { TodayFocusSection } from './TodayFocusSection'
+import { Timeline } from './Timeline'
 
 interface DayViewProps {
+  goals?: any[]
   habits: any[]
   dailySteps: any[]
   aspirations: any[]
@@ -17,12 +22,14 @@ interface DayViewProps {
   handleStepToggle: (stepId: string, completed: boolean) => Promise<void>
   setSelectedItem: (item: any) => void
   setSelectedItemType: (type: 'step' | 'habit' | 'goal' | 'stat' | null) => void
+  onOpenStepModal?: (date?: string) => void
   loadingHabits: Set<string>
   loadingSteps: Set<string>
   player?: any
 }
 
 export function DayView({
+  goals = [],
   habits,
   dailySteps,
   aspirations,
@@ -35,6 +42,7 @@ export function DayView({
   handleStepToggle,
   setSelectedItem,
   setSelectedItemType,
+  onOpenStepModal,
   loadingHabits,
   loadingSteps,
   player
@@ -52,6 +60,13 @@ export function DayView({
   displayDate.setHours(0, 0, 0, 0)
   const displayDateStr = getLocalDateString(displayDate)
   const isToday = displayDateStr === today
+  
+  // Track which steps are displayed in TodayFocusSection to exclude them from "Další kroky"
+  const [displayedStepIds, setDisplayedStepIds] = useState<Set<string>>(new Set())
+  
+  const handleDisplayedStepsChange = useCallback((stepIds: Set<string>) => {
+    setDisplayedStepIds(stepIds)
+  }, [])
   
   // Filter habits for selected day - only selected day's habits + always_show habits
   const dayOfWeek = displayDate.getDay()
@@ -82,9 +97,13 @@ export function DayView({
   })
   
   // Filter steps - overdue (incomplete) + selected day's steps (incomplete) - for display
+  // Exclude steps that are already displayed in TodayFocusSection
   const todaySteps = dailySteps.filter(step => {
     if (!step.date) return false // Exclude steps without date
     if (step.completed) return false // Exclude completed steps
+    
+    // Exclude steps that are already displayed in TodayFocusSection
+    if (displayedStepIds.has(step.id)) return false
     
     const stepDate = normalizeDate(step.date)
     const stepDateObj = new Date(stepDate)
@@ -95,9 +114,9 @@ export function DayView({
   })
   
   // Filter steps for progress calculation - only steps on selected day (exclude overdue)
+  // Include ALL steps (both completed and incomplete) for total count
   const stepsForProgress = dailySteps.filter(step => {
     if (!step.date) return false // Exclude steps without date
-    if (step.completed) return false // Exclude completed steps
     
     const stepDate = normalizeDate(step.date)
     const stepDateObj = new Date(stepDate)
@@ -120,7 +139,7 @@ export function DayView({
     return habit.habit_completions && habit.habit_completions[displayDateStr] === true
   }).length
   
-  // Only count steps on selected day (not overdue) for progress
+  // Count ALL tasks (habits + steps) on selected day for progress calculation
   const totalTasks = totalHabits + stepsForProgress.length
   const completedTasks = completedHabits + completedSteps
   const progressPercentage = totalTasks > 0 ? Math.min(Math.round((completedTasks / totalTasks) * 100), 100) : 0
@@ -146,10 +165,10 @@ export function DayView({
   }
   
   return (
-    <div className="w-full flex flex-col p-6">
-      {/* Header with date, navigation arrows and progress */}
-      <div className="mb-6 flex-shrink-0">
-        <div className="flex items-center justify-between mb-3">
+    <div className="w-full flex flex-col p-6 space-y-6">
+      {/* Header with date and navigation */}
+      <div className="flex-shrink-0">
+        <div className="flex items-center justify-between mb-4">
           <button
             onClick={goToPreviousDay}
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center"
@@ -189,307 +208,40 @@ export function DayView({
           </button>
         </div>
         
-        <div className="flex items-center gap-4">
-          <div className="text-3xl font-bold text-orange-600">{progressPercentage}%</div>
-          <div className="flex-1 bg-orange-200 bg-opacity-50 rounded-full h-4 overflow-hidden">
-            <div 
-              className="bg-orange-500 h-4 rounded-full transition-all duration-500"
-              style={{ width: `${Math.min(progressPercentage, 100)}%` }}
-            ></div>
-          </div>
-          <div className="text-base text-gray-600 font-medium">
-            {completedTasks}/{totalTasks}
-          </div>
-        </div>
+        {/* Timeline */}
+        <Timeline
+          selectedDate={selectedDayDate}
+          viewMode="day"
+          onDateClick={(date) => setSelectedDayDate(date)}
+          habits={habits}
+          dailySteps={dailySteps}
+        />
         
-        {/* Aspiration Development Row */}
-        {aspirations.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-2 px-2">
-              {aspirations.map((aspiration) => {
-                const balance = dayAspirationBalances[aspiration.id]
-                const changePercentage = balance?.change_percentage || 0
-                const trend = balance?.trend || 'neutral'
-                const completionRate = balance?.completion_rate_recent || 0
-                
-                return (
-                  <div
-                    key={aspiration.id}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all cursor-pointer flex-shrink-0 bg-white"
-                  >
-                    <div 
-                      className="w-3 h-3 rounded-full flex-shrink-0" 
-                      style={{ backgroundColor: aspiration.color || '#3B82F6' }}
-                    />
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-xs font-medium text-gray-700 truncate max-w-[120px]">{aspiration.title}</span>
-                      <span className="text-gray-400">•</span>
-                      {trend === 'positive' && (
-                        <ChevronUp className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />
-                      )}
-                      {trend === 'negative' && (
-                        <ChevronDown className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
-                      )}
-                      {trend === 'neutral' && (
-                        <div className="w-3.5 h-3.5 flex-shrink-0" />
-                      )}
-                      {changePercentage !== 0 && (
-                        <span className={`text-xs font-medium ${
-                          trend === 'positive' ? 'text-green-600' : 
-                          trend === 'negative' ? 'text-red-600' : 
-                          'text-gray-600'
-                        }`}>
-                          {changePercentage > 0 ? '+' : ''}{changePercentage.toFixed(1)}%
-                        </span>
-                      )}
-                      {changePercentage === 0 && trend === 'neutral' && (
-                        <span className="text-xs text-gray-500">
-                          {completionRate.toFixed(1)}%
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
+        {/* Quick Overview Widget */}
+        <QuickOverviewWidget
+          habits={habits}
+          dailySteps={dailySteps}
+          selectedDayDate={selectedDayDate}
+          player={player}
+        />
       </div>
       
-      {/* Two Column Layout - Habits and Steps */}
-      <div className="grid grid-cols-2 gap-6 flex-1 overflow-hidden">
-        {/* Habits Section */}
-        <div className="flex flex-col bg-white rounded-xl p-6 border border-orange-200 shadow-sm">
-          <h3 className="text-lg font-bold text-orange-800 mb-4">{t('sections.habits')}</h3>
-          <div className="space-y-3 overflow-y-auto flex-1">
-            {todaysHabits.map((habit) => {
-              const isCompleted = habit.habit_completions && habit.habit_completions[displayDateStr] === true
-              const isNotScheduled = habit.always_show ? (() => {
-                // Check if scheduled for selected day
-                if (habit.frequency === 'daily') return false
-                if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return false
-                return true
-              })() : false
-              
-              return (
-                <div
-                  key={habit.id}
-                  onClick={() => handleItemClick(habit, 'habit')}
-                  className={`p-3 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
-                    isCompleted 
-                      ? 'bg-orange-50/50 border-orange-200' 
-                      : isNotScheduled
-                        ? 'opacity-60'
-                        : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        if (!loadingHabits.has(habit.id)) {
-                          handleHabitToggle(habit.id, displayDateStr)
-                        }
-                      }}
-                      disabled={loadingHabits.has(habit.id)}
-                      className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
-                      title={isCompleted ? 'Označit jako nesplněný' : 'Označit jako splněný'}
-                    >
-                      {loadingHabits.has(habit.id) ? (
-                        <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                      ) : isCompleted ? (
-                        <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
-                      ) : (
-                        <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
-                      )}
-                    </button>
-                    <span className={`truncate flex-1 font-semibold text-sm ${
-                      isCompleted 
-                        ? 'line-through text-orange-600' 
-                        : isNotScheduled 
-                          ? 'text-gray-500' 
-                          : 'text-gray-900'
-                    }`}>
-                      {habit.name}
-                    </span>
-                    <span className="text-orange-600 font-bold text-sm flex-shrink-0">🔥 {(() => {
-                      // Calculate current streak dynamically from habit_completions
-                      const habitCompletions = habit.habit_completions || {}
-                      const completionDates = Object.keys(habitCompletions).sort()
-                      
-                      // Calculate current streak by going backwards from the last completed day
-                      let currentStreak = 0
-                      const userCreatedDateFull = new Date(player?.created_at || '2024-01-01')
-                      const userCreatedDate = new Date(userCreatedDateFull.getFullYear(), userCreatedDateFull.getMonth(), userCreatedDateFull.getDate())
-                      
-                      // Find the last completed day chronologically
-                      let lastCompletedDate = null
-                      for (const dateKey of completionDates) {
-                        const completion = habitCompletions[dateKey]
-                        if (completion === true) {
-                          const date = new Date(dateKey)
-                          if (!lastCompletedDate || date > lastCompletedDate) {
-                            lastCompletedDate = date
-                          }
-                        }
-                      }
-                      
-                      // If we have a last completed day, count streak backwards from there
-                      if (lastCompletedDate) {
-                        const lastCompletedDateOnly = new Date(lastCompletedDate!.getFullYear(), lastCompletedDate!.getMonth(), lastCompletedDate!.getDate())
-                        for (let d = new Date(lastCompletedDateOnly); d >= userCreatedDate; d.setDate(d.getDate() - 1)) {
-                          const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-                          const completion = habitCompletions[dateKey]
-                          
-                          if (completion === true) {
-                            currentStreak++
-                          } else if (completion === false) {
-                            // Missed day breaks the streak
-                            break
-                          }
-                          // completion === undefined (not-scheduled) doesn't break the streak, just doesn't add to it
-                        }
-                      }
-                      
-                      return currentStreak
-                    })()}</span>
-                  </div>
-                </div>
-              )
-            })}
-            {todaysHabits.length === 0 && (
-              <div className="text-gray-400 text-sm text-center py-8">
-                {isToday ? 'Žádné návyky na dnes' : `Žádné návyky na ${formattedDate.split(' ')[0]}`}
-              </div>
-            )}
-          </div>
-        </div>
-        
-        {/* Steps Section */}
-        <div className="flex flex-col bg-white rounded-xl p-6 border border-orange-200 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-orange-800">{t('sections.steps')}</h3>
-            <button
-              onClick={() => {
-                const newStep = {
-                  id: 'new-step',
-                  title: '',
-                  description: '',
-                  completed: false,
-                  date: displayDateStr,
-                  estimated_time: 0,
-                  xp_reward: 0
-                }
-                setSelectedItem(newStep)
-                setSelectedItemType('step')
-              }}
-              className="w-8 h-8 rounded-full bg-orange-500 text-white hover:bg-orange-600 transition-colors flex items-center justify-center text-lg font-bold"
-              title="Přidat krok"
-            >
-              +
-            </button>
-          </div>
-          
-          <div className="space-y-3 overflow-y-auto flex-1">
-            {(() => {
-              // Separate steps into today's steps and overdue steps
-              const todaysStepsList: typeof dailySteps = []
-              const overdueStepsList: typeof dailySteps = []
-              
-              todaySteps.forEach(step => {
-                const stepDate = normalizeDate(step.date)
-                const stepDateObj = new Date(stepDate)
-                stepDateObj.setHours(0, 0, 0, 0)
-                const isOverdue = stepDateObj < displayDate
-                
-                if (isOverdue) {
-                  overdueStepsList.push(step)
-                } else {
-                  todaysStepsList.push(step)
-                }
-              })
-              
-              const renderStep = (step: typeof dailySteps[0]) => {
-                const stepDate = normalizeDate(step.date)
-                const stepDateObj = new Date(stepDate)
-                stepDateObj.setHours(0, 0, 0, 0)
-                const isOverdue = stepDateObj < displayDate
-              
-                return (
-                  <div
-                    key={step.id}
-                    onClick={() => handleItemClick(step, 'step')}
-                    className={`p-3 rounded-lg border border-gray-200 bg-white hover:bg-orange-50/30 hover:border-orange-200 transition-all duration-200 cursor-pointer shadow-sm ${
-                      step.completed ? 'bg-orange-50/50 border-orange-200' : ''
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          if (!loadingSteps.has(step.id)) {
-                            handleStepToggle(step.id, !step.completed)
-                          }
-                        }}
-                        disabled={loadingSteps.has(step.id)}
-                        className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
-                      >
-                        {loadingSteps.has(step.id) ? (
-                          <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                        ) : step.completed ? (
-                          <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
-                        ) : (
-                          <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
-                        )}
-                      </button>
-                      <span className={`truncate flex-1 font-semibold text-sm ${step.completed ? 'line-through text-gray-500' : isOverdue ? 'text-red-700' : 'text-gray-900'}`}>
-                        {step.title}
-                      </span>
-                      {isOverdue && !step.completed && <span className="text-red-600 text-xs">⚠️</span>}
-                    </div>
-                  </div>
-                )
-              }
-              
-              return (
-                <>
-                  {/* Today's steps */}
-                  {todaysStepsList.length > 0 && (
-                    <>
-                      {todaysStepsList.map(renderStep)}
-                    </>
-                  )}
-                  
-                  {/* Overdue steps with header */}
-                  {overdueStepsList.length > 0 && (
-                    <>
-                      {todaysStepsList.length > 0 && (
-                        <div className="pt-3 mt-3 border-t border-gray-200">
-                          <h4 className="text-xs font-semibold text-red-600 mb-2 uppercase tracking-wide">Zpožděné kroky</h4>
-                        </div>
-                      )}
-                      {overdueStepsList.map(renderStep)}
-                    </>
-                  )}
-                  
-                  {/* Empty state */}
-                  {todaySteps.length === 0 && (
-                    <div className="text-gray-400 text-sm text-center py-8">
-                      {isToday ? 'Žádné kroky na dnes' : `Žádné kroky na ${formattedDate.split(' ')[0]}`}
-                    </div>
-                  )}
-                </>
-              )
-            })()}
-          </div>
-        </div>
-      </div>
+      {/* Today Focus Section */}
+      <TodayFocusSection
+        goals={goals}
+        dailySteps={dailySteps}
+        habits={habits}
+        selectedDayDate={selectedDayDate}
+        handleStepToggle={handleStepToggle}
+        handleHabitToggle={handleHabitToggle}
+        handleItemClick={handleItemClick}
+        loadingSteps={loadingSteps}
+        loadingHabits={loadingHabits}
+        player={player}
+        todaySteps={todaySteps}
+        onOpenStepModal={onOpenStepModal}
+        onDisplayedStepsChange={handleDisplayedStepsChange}
+      />
     </div>
   )
 }
