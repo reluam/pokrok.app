@@ -8,6 +8,7 @@ import { HabitsManagementView } from './HabitsManagementView'
 import { StatisticsView } from './StatisticsView'
 import { AchievementsView } from './AchievementsView'
 import { SettingsView } from './SettingsView'
+import { OnboardingModal } from './OnboardingModal'
 
 interface GameWorldViewProps {
   player?: any
@@ -24,9 +25,36 @@ type GameView = 'character' | 'daily-plan' | 'goals' | 'steps' | 'notes' | 'map'
 export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, onHabitsUpdate, onPlayerUpdate }: GameWorldViewProps) {
   const [currentView, setCurrentView] = useState<GameView>('character')
   const [dailySteps, setDailySteps] = useState<any[]>([])
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const [userHasCompletedOnboarding, setUserHasCompletedOnboarding] = useState<boolean | null>(null)
   
   // Default function if onPlayerUpdate is not provided
   const handlePlayerUpdate = onPlayerUpdate || (() => {})
+
+  // Check onboarding status
+  useEffect(() => {
+    const checkOnboardingStatus = async () => {
+      if (!userId) return
+      
+      try {
+        const response = await fetch('/api/game/init')
+        if (response.ok) {
+          const data = await response.json()
+          const hasCompleted = data.user?.has_completed_onboarding ?? false
+          setUserHasCompletedOnboarding(hasCompleted)
+          if (!hasCompleted) {
+            setShowOnboarding(true)
+          }
+        }
+      } catch (error) {
+        console.error('Error checking onboarding status:', error)
+        // Default to showing onboarding if we can't check
+        setShowOnboarding(true)
+      }
+    }
+
+    checkOnboardingStatus()
+  }, [userId])
 
   // Load daily steps - optimized: load only recent and upcoming steps (last 7 days + next 14 days)
   useEffect(() => {
@@ -106,6 +134,11 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
 
   const handleDailyStepsUpdate = (steps: any[]) => {
     setDailySteps(steps)
+  }
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false)
+    setUserHasCompletedOnboarding(true)
   }
 
   const renderCurrentView = () => {
@@ -237,5 +270,16 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
     }
   }
 
-  return renderCurrentView()
+  return (
+    <>
+      {renderCurrentView()}
+      <OnboardingModal
+        isOpen={showOnboarding}
+        onClose={handleOnboardingComplete}
+        onComplete={handleOnboardingComplete}
+        onNavigateToGoals={handleNavigateToGoals}
+        onNavigateToHabits={handleNavigateToHabits}
+      />
+    </>
+  )
 }

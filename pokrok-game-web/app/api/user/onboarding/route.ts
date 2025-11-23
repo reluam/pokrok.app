@@ -1,16 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { updateUserOnboardingStatus } from '@/lib/cesta-db'
+import { auth } from '@clerk/nextjs/server'
+import { getUserByClerkId, updateUserOnboardingStatus } from '@/lib/cesta-db'
 
 export async function PUT(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { userId, hasCompletedOnboarding } = body
+    const { userId: clerkUserId } = await auth()
     
-    if (!userId || typeof hasCompletedOnboarding !== 'boolean') {
-      return NextResponse.json({ error: 'User ID and onboarding status are required' }, { status: 400 })
+    if (!clerkUserId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    await updateUserOnboardingStatus(userId, hasCompletedOnboarding)
+    const dbUser = await getUserByClerkId(clerkUserId)
+    if (!dbUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
+    await updateUserOnboardingStatus(dbUser.id, true)
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error updating onboarding status:', error)

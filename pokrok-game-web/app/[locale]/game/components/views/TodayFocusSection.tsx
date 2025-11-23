@@ -465,7 +465,17 @@ export function TodayFocusSection({
                     </table>
                   </div>
                 ) : (
-                  <div className="text-[10px] text-gray-400 text-center py-4">Žádné návyky</div>
+                  <div className="text-center py-4">
+                    <p className="text-xs text-gray-400 mb-2">Žádné návyky</p>
+                    {onNavigateToHabits && (
+                      <button
+                        onClick={() => onNavigateToHabits()}
+                        className="text-xs text-orange-600 hover:text-orange-700 font-medium underline"
+                      >
+                        Přidat návyk
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
             )}
@@ -575,7 +585,17 @@ export function TodayFocusSection({
                   })}
                 </div>
               ) : (
-                <div className="text-xs text-gray-400 text-center py-4">Žádné návyky</div>
+                <div className="text-center py-4">
+                  <p className="text-xs text-gray-400 mb-2">Žádné návyky</p>
+                  {onNavigateToHabits && (
+                    <button
+                      onClick={() => onNavigateToHabits()}
+                      className="text-xs text-orange-600 hover:text-orange-700 font-medium underline"
+                    >
+                      Přidat návyk
+                    </button>
+                  )}
+                </div>
               )}
             </div>
             )}
@@ -769,8 +789,31 @@ export function TodayFocusSection({
                   })}
                 </div>
               ) : (
-                <div className="text-xs text-gray-400 text-center py-4">
-                  {isWeekView ? 'Žádné kroky v týdnu' : 'Žádné dnešní kroky'}
+                <div className="text-center py-4">
+                  <p className="text-xs text-gray-400 mb-2">
+                    {isWeekView ? 'Žádné kroky v týdnu' : 'Žádné dnešní kroky'}
+                  </p>
+                  {onOpenStepModal && (
+                    <button
+                      onClick={() => {
+                        const dateToUse = isWeekView && weekSelectedDayDate 
+                          ? getLocalDateString(weekSelectedDayDate)
+                          : displayDateStr
+                        onOpenStepModal(dateToUse)
+                      }}
+                      className="text-xs text-orange-600 hover:text-orange-700 font-medium underline"
+                    >
+                      Přidat krok
+                    </button>
+                  )}
+                  {!onOpenStepModal && onNavigateToSteps && (
+                    <button
+                      onClick={() => onNavigateToSteps()}
+                      className="text-xs text-orange-600 hover:text-orange-700 font-medium underline"
+                    >
+                      Přidat krok
+                    </button>
+                  )}
                 </div>
               )}
             </div>
