@@ -321,15 +321,76 @@ export function TodayFocusSection({
   if (allTodaysSteps.length === 0 && !hasHabits) {
     return (
       <div className="bg-white rounded-xl p-6 border border-orange-200 shadow-sm">
-        <div className="flex items-center gap-2 mb-4">
-          <Target className="w-5 h-5 text-orange-600" />
-          <h3 className="text-lg font-bold text-orange-800">
-            {isWeekView ? 'Týdenní fokus' : 'Dnešní fokus'}
-          </h3>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Target className="w-5 h-5 text-orange-600" />
+            <h3 className="text-lg font-bold text-orange-800">
+              {isWeekView ? 'Týdenní fokus' : 'Dnešní fokus'}
+            </h3>
+          </div>
+          {onOpenStepModal && (
+            <button
+              onClick={() => {
+                const dateToUse = isWeekView && weekSelectedDayDate 
+                  ? getLocalDateString(weekSelectedDayDate)
+                  : displayDateStr
+                onOpenStepModal(dateToUse)
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors border border-orange-200"
+              title="Přidat krok"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Přidat krok
+            </button>
+          )}
         </div>
-        <div className="text-center py-8 text-gray-500">
-          <p className="mb-2">Žádné kroky na dnes.</p>
-          <p className="text-sm">Všechny kroky jsou dokončené nebo nejsou naplánované.</p>
+        <div className="text-center py-8">
+          <p className="mb-2 text-gray-500">Žádné kroky na dnes.</p>
+          <p className="text-sm text-gray-400 mb-6">Všechny kroky jsou dokončené nebo nejsou naplánované.</p>
+          
+          {/* Action buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+            {onOpenStepModal && (
+              <button
+                onClick={() => {
+                  const dateToUse = isWeekView && weekSelectedDayDate 
+                    ? getLocalDateString(weekSelectedDayDate)
+                    : displayDateStr
+                  onOpenStepModal(dateToUse)
+                }}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors border border-orange-200"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Přidat krok
+              </button>
+            )}
+            {!onOpenStepModal && onNavigateToSteps && (
+              <button
+                onClick={() => onNavigateToSteps()}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors border border-orange-200"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Přidat krok
+              </button>
+            )}
+            {onNavigateToHabits && (
+              <button
+                onClick={() => onNavigateToHabits()}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors border border-orange-200"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Přidat návyk
+              </button>
+            )}
+          </div>
         </div>
       </div>
     )
