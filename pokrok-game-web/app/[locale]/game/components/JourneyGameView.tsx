@@ -9,7 +9,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStr
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { SettingsPage } from './SettingsPage'
-import { Footprints, Calendar, Target, CheckCircle, X, ChevronDown, ChevronUp, Edit, Trash2, Plus, Clock, Star, Zap, Check, Settings } from 'lucide-react'
+import { Footprints, Calendar, Target, CheckCircle, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Edit, Trash2, Plus, Clock, Star, Zap, Check, Settings, HelpCircle, LayoutDashboard, Sparkles, CheckSquare } from 'lucide-react'
 import { DailyReviewWorkflow } from './DailyReviewWorkflow'
 import { CalendarProgram } from './CalendarProgram'
 import { getIconEmoji } from '@/lib/icon-utils'
@@ -22,6 +22,10 @@ import { MonthView } from './views/MonthView'
 import { YearView } from './views/YearView'
 import { AspiraceView } from './views/AspiraceView'
 import { FocusManagementView } from './views/FocusManagementView'
+import { HelpView } from './views/HelpView'
+import { GoalsManagementView } from './views/GoalsManagementView'
+import { HabitsManagementView } from './views/HabitsManagementView'
+import { StepsManagementView } from './views/StepsManagementView'
 
 interface JourneyGameViewProps {
   player?: any
@@ -100,18 +104,46 @@ export function JourneyGameView({
     loadUserId()
   }, [user?.id, userId])
 
-  const [currentPage, setCurrentPage] = useState<'main' | 'focus' | 'management' | 'statistics' | 'achievements' | 'settings'>(() => {
+  const [currentPage, setCurrentPage] = useState<'main' | 'statistics' | 'achievements' | 'settings' | 'help'>(() => {
     if (typeof window !== 'undefined') {
       try {
         const savedPage = localStorage.getItem('journeyGame_currentPage')
-        if (savedPage && ['main', 'focus', 'management', 'statistics', 'achievements', 'settings'].includes(savedPage)) {
-          return savedPage as 'main' | 'focus' | 'management' | 'statistics' | 'achievements' | 'settings'
+        if (savedPage && ['main', 'statistics', 'achievements', 'settings', 'help'].includes(savedPage)) {
+          return savedPage as 'main' | 'statistics' | 'achievements' | 'settings' | 'help'
         }
       } catch (error) {
         console.error('Error loading currentPage:', error)
       }
     }
     return 'main'
+  })
+  
+  // Navigation within main panel
+  const [mainPanelSection, setMainPanelSection] = useState<'overview' | 'goals' | 'steps' | 'habits' | 'aspirace'>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedSection = localStorage.getItem('journeyGame_mainPanelSection')
+        if (savedSection && ['overview', 'goals', 'steps', 'habits', 'aspirace'].includes(savedSection)) {
+          return savedSection as 'overview' | 'goals' | 'steps' | 'habits' | 'aspirace'
+        }
+      } catch (error) {
+        console.error('Error loading mainPanelSection:', error)
+      }
+    }
+    return 'overview'
+  })
+  
+  // Sidebar collapsed state
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('journeyGame_sidebarCollapsed')
+        return saved === 'true'
+      } catch (error) {
+        console.error('Error loading sidebarCollapsed:', error)
+      }
+    }
+    return false
   })
   const [currentManagementProgram, setCurrentManagementProgram] = useState<'aspirace' | 'goals' | 'habits' | 'steps'>(() => {
     if (typeof window !== 'undefined') {
@@ -173,10 +205,12 @@ export function JourneyGameView({
       localStorage.setItem('journeyGame_currentPage', currentPage)
       localStorage.setItem('journeyGame_currentProgram', currentProgram)
       localStorage.setItem('journeyGame_currentManagementProgram', currentManagementProgram)
+      localStorage.setItem('journeyGame_mainPanelSection', mainPanelSection)
+      localStorage.setItem('journeyGame_sidebarCollapsed', sidebarCollapsed.toString())
     } catch (error) {
       console.error('Error saving navigation state:', error)
     }
-  }, [currentPage, currentProgram, currentManagementProgram])
+  }, [currentPage, currentProgram, currentManagementProgram, mainPanelSection, sidebarCollapsed])
 
   const [editingGoal, setEditingGoal] = useState<any>(null)
   const [editingStep, setEditingStep] = useState<any>(null)
@@ -8275,169 +8309,255 @@ export function JourneyGameView({
 
   const renderPageContent = () => {
     switch (currentPage) {
-      case 'focus':
-        return (
-          <FocusManagementView
-            goals={goals}
-            onGoalsUpdate={onGoalsUpdate}
-            userId={userId}
-            player={player}
-          />
-        )
-      case 'management':
-        return (
-          <ManagementPage
-            goals={goals}
-            habits={habits}
-            dailySteps={dailySteps}
-            aspirations={aspirations}
-            setAspirations={setAspirations}
-            overviewAspirations={overviewAspirations}
-            overviewBalances={overviewBalances}
-            isLoadingOverview={isLoadingOverview}
-            showAddAspirationModal={showAddAspirationModal}
-            setShowAddAspirationModal={setShowAddAspirationModal}
-            editingAspiration={editingAspiration}
-            setEditingAspiration={setEditingAspiration}
-            setOverviewAspirations={setOverviewAspirations}
-            setOverviewBalances={setOverviewBalances}
-            onGoalsUpdate={onGoalsUpdate}
-            onHabitsUpdate={onHabitsUpdate}
-            onDailyStepsUpdate={onDailyStepsUpdate}
-            handleHabitToggle={handleHabitToggle}
-            loadingHabits={loadingHabits}
-            areas={areas}
-            userId={userId}
-            player={player}
-          />
-        )
       case 'main':
         // If there's a selected item, show its detail for editing
         if (selectedItem && selectedItemType) {
           return renderItemDetail(selectedItem, selectedItemType)
         }
         
+        // Sidebar navigation items
+        const sidebarItems = [
+          { id: 'overview' as const, label: 'Přehled', icon: LayoutDashboard },
+          { id: 'goals' as const, label: 'Cíle', icon: Target },
+          { id: 'steps' as const, label: 'Kroky', icon: Footprints },
+          { id: 'habits' as const, label: 'Návyky', icon: CheckSquare },
+          { id: 'aspirace' as const, label: 'Aspirace', icon: Sparkles },
+        ]
+        
+        const renderMainContent = () => {
+          switch (mainPanelSection) {
+            case 'overview':
+              return (
+                <div className="w-full h-full flex flex-col">
+                  {/* Program Selector - Link Navigation */}
+                  <div className="px-4 py-2 border-b border-gray-200 bg-white">
+                    <div className="flex items-center justify-between">
+                      <button
+                        onClick={() => setCurrentProgram('day')}
+                        className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
+                          currentProgram === 'day'
+                            ? 'text-orange-600 border-orange-600'
+                            : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
+                        }`}
+                      >
+                        {t('calendar.viewMode.day')}
+                      </button>
+                      <button
+                        onClick={() => setCurrentProgram('week')}
+                        className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
+                          currentProgram === 'week'
+                            ? 'text-orange-600 border-orange-600'
+                            : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
+                        }`}
+                      >
+                        {t('calendar.viewMode.week')}
+                      </button>
+                      <button
+                        onClick={() => setCurrentProgram('month')}
+                        className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
+                          currentProgram === 'month'
+                            ? 'text-orange-600 border-orange-600'
+                            : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
+                        }`}
+                      >
+                        {t('calendar.viewMode.month')}
+                      </button>
+                      <button
+                        onClick={() => setCurrentProgram('year')}
+                        className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
+                          currentProgram === 'year'
+                            ? 'text-orange-600 border-orange-600'
+                            : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
+                        }`}
+                      >
+                        {t('calendar.viewMode.year')}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Program Content */}
+                  <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
+                    {currentProgram === 'day' && (
+                      <MainPanelDay
+                        goals={goals}
+                        habits={habits}
+                        dailySteps={dailySteps}
+                        aspirations={aspirations}
+                        dayAspirationBalances={dayAspirationBalances}
+                        selectedDayDate={selectedDayDate}
+                        setSelectedDayDate={setSelectedDayDate}
+                        setShowDatePickerModal={setShowDatePickerModal}
+                        handleItemClick={handleItemClick}
+                        handleHabitToggle={handleHabitToggle}
+                        handleStepToggle={handleStepToggle}
+                        setSelectedItem={setSelectedItem}
+                        setSelectedItemType={setSelectedItemType}
+                        onOpenStepModal={handleOpenStepModal}
+                        loadingHabits={loadingHabits}
+                        loadingSteps={loadingSteps}
+                        player={player}
+                        onNavigateToHabits={onNavigateToHabits}
+                        onNavigateToSteps={onNavigateToSteps}
+                      />
+                    )}
+                    {currentProgram === 'week' && (
+                      <WeekView
+                        player={player}
+                        goals={goals}
+                        habits={habits}
+                        dailySteps={dailySteps}
+                        onHabitsUpdate={onHabitsUpdate}
+                        onDailyStepsUpdate={onDailyStepsUpdate}
+                        setShowDatePickerModal={setShowDatePickerModal}
+                        handleItemClick={handleItemClick}
+                        handleHabitToggle={handleHabitToggle}
+                        handleStepToggle={handleStepToggle}
+                        loadingHabits={loadingHabits}
+                        loadingSteps={loadingSteps}
+                        onOpenStepModal={handleOpenStepModal}
+                        onNavigateToHabits={onNavigateToHabits}
+                        onNavigateToSteps={onNavigateToSteps}
+                      />
+                    )}
+                    {currentProgram === 'month' && (
+                      <MonthView
+                        player={player}
+                        goals={goals}
+                        habits={habits}
+                        dailySteps={dailySteps}
+                        onHabitsUpdate={onHabitsUpdate}
+                        onDailyStepsUpdate={onDailyStepsUpdate}
+                        setShowDatePickerModal={setShowDatePickerModal}
+                      />
+                    )}
+                    {currentProgram === 'year' && (
+                      <YearView
+                        goals={goals}
+                        habits={habits}
+                        dailySteps={dailySteps}
+                        areas={areas}
+                        selectedYear={selectedYear}
+                        setSelectedYear={setSelectedYear}
+                        setShowDatePickerModal={setShowDatePickerModal}
+                        handleItemClick={handleItemClick}
+                        expandedAreas={expandedAreas}
+                        setExpandedAreas={setExpandedAreas}
+                        player={player}
+                      />
+                    )}
+                  </div>
+                </div>
+              )
+            case 'goals':
+              return (
+                <GoalsManagementView
+                  goals={goals}
+                  aspirations={aspirations}
+                  areas={areas}
+                  onGoalsUpdate={onGoalsUpdate}
+                  setOverviewBalances={setOverviewBalances}
+                  userId={userId}
+                  player={player}
+                />
+              )
+            case 'steps':
+              return (
+                <StepsManagementView
+                  dailySteps={dailySteps}
+                  goals={goals}
+                  onDailyStepsUpdate={onDailyStepsUpdate}
+                  userId={userId}
+                  player={player}
+                />
+              )
+            case 'habits':
+              return (
+                <HabitsManagementView
+                  habits={habits}
+                  aspirations={aspirations}
+                  onHabitsUpdate={onHabitsUpdate}
+                  handleHabitToggle={handleHabitToggle}
+                  loadingHabits={loadingHabits}
+                  setOverviewBalances={setOverviewBalances}
+                />
+              )
+            case 'aspirace':
+              return (
+                <AspiraceView
+                  overviewAspirations={overviewAspirations}
+                  overviewBalances={overviewBalances}
+                  aspirations={aspirations}
+                  setAspirations={setAspirations}
+                  goals={goals}
+                  habits={habits}
+                  onGoalsUpdate={onGoalsUpdate}
+                  onHabitsUpdate={onHabitsUpdate}
+                  isLoadingOverview={isLoadingOverview}
+                  showAddAspirationModal={showAddAspirationModal}
+                  setShowAddAspirationModal={setShowAddAspirationModal}
+                  editingAspiration={editingAspiration}
+                  setEditingAspiration={setEditingAspiration}
+                  setOverviewAspirations={setOverviewAspirations}
+                  setOverviewBalances={setOverviewBalances}
+                />
+              )
+            default:
+              return null
+          }
+        }
+        
         return (
-          <div className="w-full h-full flex flex-col">
-            {/* Program Selector - Link Navigation */}
-            <div className="px-4 py-2 border-b border-gray-200 bg-white">
-              <div className="flex items-center justify-between">
-                <button
-                  onClick={() => setCurrentProgram('day')}
-                  className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
-                    currentProgram === 'day'
-                      ? 'text-orange-600 border-orange-600'
-                      : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
-                  }`}
-                >
-                  {t('calendar.viewMode.day')}
-                </button>
-                <button
-                  onClick={() => setCurrentProgram('week')}
-                  className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
-                    currentProgram === 'week'
-                      ? 'text-orange-600 border-orange-600'
-                      : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
-                  }`}
-                >
-                  {t('calendar.viewMode.week')}
-                </button>
-                <button
-                  onClick={() => setCurrentProgram('month')}
-                  className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
-                    currentProgram === 'month'
-                      ? 'text-orange-600 border-orange-600'
-                      : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
-                  }`}
-                >
-                  {t('calendar.viewMode.month')}
-                </button>
-                <button
-                  onClick={() => setCurrentProgram('year')}
-                  className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
-                    currentProgram === 'year'
-                      ? 'text-orange-600 border-orange-600'
-                      : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
-                  }`}
-                >
-                  {t('calendar.viewMode.year')}
-                </button>
+          <div className="w-full h-full flex bg-white">
+            {/* Left sidebar - Navigation */}
+            <div className={`${sidebarCollapsed ? 'w-16' : 'w-64'} border-r border-gray-200 bg-gray-50 flex-shrink-0 transition-all duration-300 relative`}>
+              <div className="p-4">
+                {!sidebarCollapsed && (
+                  <h2 className="text-lg font-bold text-gray-900 mb-4">Navigace</h2>
+                )}
+                <nav className="space-y-1">
+                  {sidebarItems.map((item) => {
+                    const Icon = item.icon
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => setMainPanelSection(item.id)}
+                        className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-4'} py-3 rounded-lg transition-colors ${
+                          mainPanelSection === item.id
+                            ? 'bg-orange-600 text-white'
+                            : 'text-gray-700 hover:bg-gray-100'
+                        }`}
+                        title={sidebarCollapsed ? item.label : undefined}
+                      >
+                        <Icon className="w-5 h-5 flex-shrink-0" />
+                        {!sidebarCollapsed && (
+                          <span className="font-medium">{item.label}</span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </nav>
               </div>
+              
+              {/* Toggle button */}
+              <button
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className="absolute top-4 right-0 translate-x-1/2 w-6 h-6 bg-orange-600 text-white rounded-full flex items-center justify-center hover:bg-orange-700 transition-colors shadow-md z-10"
+                title={sidebarCollapsed ? 'Rozbalit navigaci' : 'Sbalit navigaci'}
+              >
+                {sidebarCollapsed ? (
+                  <ChevronRight className="w-4 h-4" />
+                ) : (
+                  <ChevronLeft className="w-4 h-4" />
+                )}
+              </button>
             </div>
 
-            {/* Program Content */}
-            <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
-              {currentProgram === 'day' && (
-                <MainPanelDay
-                  goals={goals}
-                  habits={habits}
-                  dailySteps={dailySteps}
-                  aspirations={aspirations}
-                  dayAspirationBalances={dayAspirationBalances}
-                  selectedDayDate={selectedDayDate}
-                  setSelectedDayDate={setSelectedDayDate}
-                  setShowDatePickerModal={setShowDatePickerModal}
-                  handleItemClick={handleItemClick}
-                  handleHabitToggle={handleHabitToggle}
-                  handleStepToggle={handleStepToggle}
-                  setSelectedItem={setSelectedItem}
-                  setSelectedItemType={setSelectedItemType}
-                  onOpenStepModal={handleOpenStepModal}
-                  loadingHabits={loadingHabits}
-                  loadingSteps={loadingSteps}
-                  player={player}
-                  onNavigateToHabits={onNavigateToHabits}
-                  onNavigateToSteps={onNavigateToSteps}
-                />
-              )}
-              {currentProgram === 'week' && (
-                <WeekView
-                  player={player}
-                  goals={goals}
-                  habits={habits}
-                  dailySteps={dailySteps}
-                  onHabitsUpdate={onHabitsUpdate}
-                  onDailyStepsUpdate={onDailyStepsUpdate}
-                  setShowDatePickerModal={setShowDatePickerModal}
-                  handleItemClick={handleItemClick}
-                  handleHabitToggle={handleHabitToggle}
-                  handleStepToggle={handleStepToggle}
-                  loadingHabits={loadingHabits}
-                  loadingSteps={loadingSteps}
-                  onOpenStepModal={handleOpenStepModal}
-                  onNavigateToHabits={onNavigateToHabits}
-                  onNavigateToSteps={onNavigateToSteps}
-                />
-              )}
-              {currentProgram === 'month' && (
-                <MonthView
-                  player={player}
-                        goals={goals}
-                  habits={habits}
-                        dailySteps={dailySteps}
-                  onHabitsUpdate={onHabitsUpdate}
-                        onDailyStepsUpdate={onDailyStepsUpdate}
-                  setShowDatePickerModal={setShowDatePickerModal}
-                />
-              )}
-              {currentProgram === 'year' && (
-                <YearView
-                          goals={goals}
-                  habits={habits}
-                  dailySteps={dailySteps}
-                  areas={areas}
-                  selectedYear={selectedYear}
-                  setSelectedYear={setSelectedYear}
-                  setShowDatePickerModal={setShowDatePickerModal}
-                  handleItemClick={handleItemClick}
-                  expandedAreas={expandedAreas}
-                  setExpandedAreas={setExpandedAreas}
-                  player={player}
-                />
-              )}
-                      </div>
-                    </div>
-                  )
+            {/* Right content area */}
+            <div className="flex-1 overflow-y-auto">
+              {renderMainContent()}
+            </div>
+          </div>
+        )
       case 'statistics':
         return (
           <div className="bg-white bg-opacity-95 rounded-2xl p-8 border border-orange-200 shadow-xl backdrop-blur-sm" style={{
@@ -8487,6 +8607,53 @@ export function JourneyGameView({
               console.log('Player updated:', updatedPlayer)
             }}
             onBack={() => setCurrentPage('main')}
+          />
+        );
+
+      case 'help':
+        return (
+          <HelpView
+            onAddGoal={() => {
+              setCurrentPage('main')
+              setMainPanelSection('goals')
+              // Store flag to auto-open modal
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('autoOpenGoalModal', 'true')
+              }
+            }}
+            onAddStep={() => {
+              setCurrentPage('main')
+              setMainPanelSection('steps')
+              // Open step modal after a short delay to ensure component is mounted
+              setTimeout(() => {
+                handleOpenStepModal()
+              }, 300)
+            }}
+            onAddHabit={() => {
+              setCurrentPage('main')
+              setMainPanelSection('habits')
+              // Store flag to auto-open modal
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('autoOpenHabitModal', 'true')
+              }
+            }}
+            onNavigateToGoals={() => {
+              setCurrentPage('main')
+              setMainPanelSection('goals')
+            }}
+            onNavigateToHabits={() => {
+              setCurrentPage('main')
+              setMainPanelSection('habits')
+            }}
+            onNavigateToManagement={() => {
+              setCurrentPage('main')
+              setMainPanelSection('overview')
+            }}
+            realGoals={goals}
+            realHabits={habits}
+            realSteps={dailySteps}
+            realAspirations={aspirations}
+            realAreas={areas}
           />
         );
 
@@ -8677,22 +8844,12 @@ export function JourneyGameView({
               {/* Menu Icons */}
               <div className="flex items-center space-x-4 lg:border-l lg:border-white lg:border-opacity-30 lg:pl-6">
               <button
-                onClick={() => setCurrentPage('focus')}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'focus' ? 'bg-white bg-opacity-25' : ''}`}
-                title="Fokus"
+                onClick={() => setCurrentPage('help')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'help' ? 'bg-white bg-opacity-25' : ''}`}
+                title="Nápověda"
               >
-                <Target className="w-5 h-5" />
-                <span className="hidden lg:inline">Fokus</span>
-              </button>
-              <button
-                onClick={() => setCurrentPage('management')}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'management' ? 'bg-white bg-opacity-25' : ''}`}
-                title={t('game.menu.management')}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                </svg>
-                <span className="text-sm font-medium">{t('game.menu.management')}</span>
+                <HelpCircle className="w-5 h-5" />
+                <span className="text-sm font-medium">Nápověda</span>
               </button>
               
               <button

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations, useLocale } from 'next-intl'
 import { Check, ChevronDown, Plus, X } from 'lucide-react'
@@ -37,6 +37,27 @@ export function HabitsManagementView({
   const [quickEditHabitId, setQuickEditHabitId] = useState<string | null>(null)
   const [quickEditHabitField, setQuickEditHabitField] = useState<'frequency' | 'aspiration' | 'days' | null>(null)
   const [quickEditHabitPosition, setQuickEditHabitPosition] = useState<{ top: number; left: number } | null>(null)
+
+  // Auto-open modal if flag is set
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const autoOpen = localStorage.getItem('autoOpenHabitModal')
+      if (autoOpen === 'true') {
+        localStorage.removeItem('autoOpenHabitModal')
+        setEditingHabit({
+          id: null,
+          name: '',
+          description: '',
+          frequency: 'daily',
+          selectedDays: [],
+          alwaysShow: false,
+          reminderEnabled: false,
+          reminderTime: '',
+          aspirationId: null
+        })
+      }
+    }
+  }, [])
 
   const initializeEditingHabit = (habit: any) => {
     setEditingHabit({

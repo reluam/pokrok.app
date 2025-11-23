@@ -33,6 +33,9 @@ export function GoalsManagementView({
   const [goalsAreaFilter, setGoalsAreaFilter] = useState<string | null>(null)
   const [goalsAspirationFilter, setGoalsAspirationFilter] = useState<string | null>(null)
 
+  // Counters for steps and milestones per goal
+  const [goalCounts, setGoalCounts] = useState<Record<string, { steps: number; milestones: number }>>({})
+
   // Quick edit modals for goals
   const [quickEditGoalId, setQuickEditGoalId] = useState<string | null>(null)
   const [quickEditGoalField, setQuickEditGoalField] = useState<'status' | 'area' | 'aspiration' | 'date' | null>(null)
@@ -41,6 +44,7 @@ export function GoalsManagementView({
 
   // Edit modal
   const [editingGoal, setEditingGoal] = useState<any | null>(null)
+  const [activeTab, setActiveTab] = useState<'general' | 'milestones' | 'steps'>('general')
   const [editFormData, setEditFormData] = useState({
     title: '',
     description: '',
@@ -48,8 +52,34 @@ export function GoalsManagementView({
     areaId: '',
     aspirationId: '',
     status: 'active',
-    steps: [] as Array<{ id: string; title: string; description?: string; date?: string; completed?: boolean; isEditing?: boolean }>,
-    milestones: [] as Array<{ id: string; title: string; description?: string; completed?: boolean; isEditing?: boolean }>
+    is_focused: false,
+    steps: [] as Array<{ 
+      id: string; 
+      title: string; 
+      description?: string; 
+      date?: string; 
+      completed?: boolean; 
+      isEditing?: boolean;
+      target_value?: number | null;
+      current_value?: number;
+      update_value?: number | null;
+      update_frequency?: 'daily' | 'weekly' | 'monthly' | null;
+      update_day_of_week?: number | null;
+      update_day_of_month?: number | null;
+    }>,
+    milestones: [] as Array<{ 
+      id: string; 
+      title: string; 
+      description?: string; 
+      completed?: boolean; 
+      isEditing?: boolean;
+      target_value?: number | null;
+      current_value?: number;
+      update_value?: number | null;
+      update_frequency?: 'daily' | 'weekly' | 'monthly' | null;
+      update_day_of_week?: number | null;
+      update_day_of_month?: number | null;
+    }>
   })
 
   // Initialize date value when date modal opens
@@ -63,6 +93,28 @@ export function GoalsManagementView({
     }
   }, [quickEditGoalField, quickEditGoalId, goals])
 
+  // Auto-open modal if flag is set
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const autoOpen = localStorage.getItem('autoOpenGoalModal')
+      if (autoOpen === 'true') {
+        localStorage.removeItem('autoOpenGoalModal')
+        setEditingGoal({ id: null, title: '', description: '', target_date: '', areaId: '', aspirationId: '', status: 'active' })
+        setEditFormData({
+          title: '',
+          description: '',
+          target_date: '',
+          areaId: '',
+          aspirationId: '',
+          status: 'active',
+          is_focused: false,
+          steps: [],
+          milestones: []
+        })
+      }
+    }
+  }, [])
+
   // Initialize edit form when editing goal
   useEffect(() => {
     if (editingGoal) {
@@ -73,6 +125,7 @@ export function GoalsManagementView({
         areaId: editingGoal.area_id || editingGoal.areaId || '',
         aspirationId: editingGoal.aspiration_id || editingGoal.aspirationId || '',
         status: editingGoal.status || 'active',
+        is_focused: editingGoal.is_focused || false,
         steps: [],
         milestones: []
       })
@@ -163,7 +216,8 @@ export function GoalsManagementView({
           targetDate: editFormData.target_date || null,
           areaId: editFormData.areaId || null,
           aspirationId: editFormData.aspirationId || null,
-          status: editFormData.status
+          status: editFormData.status,
+          isFocused: editFormData.is_focused
         }),
       })
 
@@ -230,7 +284,8 @@ export function GoalsManagementView({
           target_date: editFormData.target_date || null,
           areaId: editFormData.areaId || null,
           aspirationId: editFormData.aspirationId || null,
-          status: editFormData.status
+          status: editFormData.status,
+          isFocused: editFormData.is_focused
         }),
       })
 
@@ -340,6 +395,8 @@ export function GoalsManagementView({
                 isEditing: false
               }))
             }))
+            // Update counts - reload goal counts if needed
+            // Note: goalCounts are updated automatically when goals are reloaded
           }
         } catch (reloadError) {
           console.error('Error reloading steps:', reloadError)
@@ -356,6 +413,8 @@ export function GoalsManagementView({
                 : s
             )
           }))
+          // Update counts even on error - reload goal counts if needed
+          // Note: goalCounts are updated automatically when goals are reloaded
         }
       } else {
         // Existing step - update
@@ -396,6 +455,8 @@ export function GoalsManagementView({
                 isEditing: false
               }))
             }))
+            // Update counts - reload goal counts if needed
+            // Note: goalCounts are updated automatically when goals are reloaded
           }
         } catch (reloadError) {
           console.error('Error reloading steps:', reloadError)
@@ -412,6 +473,8 @@ export function GoalsManagementView({
                 : s
             )
           }))
+          // Update counts even on error - reload goal counts if needed
+          // Note: goalCounts are updated automatically when goals are reloaded
         }
       }
     } catch (error) {
@@ -468,6 +531,8 @@ export function GoalsManagementView({
                 isEditing: false
               }))
             }))
+            // Update counts - reload goal counts if needed
+            // Note: goalCounts are updated automatically when goals are reloaded
           }
         } catch (reloadError) {
           console.error('Error reloading steps:', reloadError)
@@ -476,6 +541,8 @@ export function GoalsManagementView({
             ...prev,
             steps: prev.steps.filter(s => s.id !== stepId)
           }))
+          // Update counts even on error - reload goal counts if needed
+          // Note: goalCounts are updated automatically when goals are reloaded
         }
       } else {
         // Fallback: just remove from local state
@@ -494,7 +561,18 @@ export function GoalsManagementView({
   const handleAddMilestone = () => {
     setEditFormData({
       ...editFormData,
-      milestones: [...editFormData.milestones, { id: `temp-${crypto.randomUUID()}`, title: '', description: '', isEditing: true }]
+      milestones: [...editFormData.milestones, { 
+        id: `temp-${crypto.randomUUID()}`, 
+        title: '', 
+        description: '', 
+        isEditing: true,
+        target_value: null,
+        current_value: 0,
+        update_value: null,
+        update_frequency: null,
+        update_day_of_week: null,
+        update_day_of_month: null
+      }]
     })
   }
 
@@ -520,8 +598,19 @@ export function GoalsManagementView({
           const savedMilestone = data.milestone || data
           setEditFormData(prev => ({
             ...prev,
-            milestones: prev.milestones.map(m => m.id === milestoneId ? { ...savedMilestone, isEditing: false } : m)
+            milestones: prev.milestones.map(m => m.id === milestoneId ? { 
+              ...savedMilestone, 
+              isEditing: false,
+              target_value: savedMilestone.target_value || null,
+              current_value: savedMilestone.current_value || 0,
+              update_value: savedMilestone.update_value || null,
+              update_frequency: savedMilestone.update_frequency || null,
+              update_day_of_week: savedMilestone.update_day_of_week || null,
+              update_day_of_month: savedMilestone.update_day_of_month || null
+            } : m)
           }))
+          // Update counts - reload goal counts if needed
+          // Note: goalCounts are updated automatically when goals are reloaded
         }
       } else {
         // Existing milestone - update
@@ -541,6 +630,8 @@ export function GoalsManagementView({
             ...prev,
             milestones: prev.milestones.map(m => m.id === milestoneId ? { ...m, isEditing: false } : m)
           }))
+          // Update counts - reload goal counts if needed
+          // Note: goalCounts are updated automatically when goals are reloaded
         }
       }
     } catch (error) {
@@ -572,6 +663,8 @@ export function GoalsManagementView({
           ...prev,
           milestones: prev.milestones.filter(m => m.id !== milestoneId)
         }))
+        // Update counts - reload goal counts if needed
+        // Note: goalCounts are updated automatically when goals are reloaded
       }
     } catch (error) {
       console.error('Error deleting milestone:', error)
@@ -680,6 +773,7 @@ export function GoalsManagementView({
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Datum</th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Oblast</th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Aspirace</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">Kroky / Milníky</th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-12 last:pr-6"></th>
                 </tr>
               </thead>
@@ -702,24 +796,42 @@ export function GoalsManagementView({
                         </span>
                       </td>
                       <td className="px-4 py-2">
-                        <span 
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                            setQuickEditGoalPosition({ top: rect.bottom + 4, left: rect.left })
-                            setQuickEditGoalId(goal.id)
-                            setQuickEditGoalField('status')
-                          }}
-                          className={`text-xs px-2.5 py-1.5 rounded-lg font-medium cursor-pointer hover:opacity-80 transition-opacity ${
-                            goal.status === 'active' ? 'bg-green-100 text-green-700' :
-                            goal.status === 'completed' ? 'bg-blue-100 text-blue-700' :
-                            'bg-yellow-100 text-yellow-700'
-                          }`}
-                        >
-                          {goal.status === 'active' ? t('goals.status.active') :
-                           goal.status === 'completed' ? t('goals.status.completed') :
-                           t('goals.status.considering')}
-                        </span>
+                        {goal.status === 'completed' ? (
+                          <span className="text-xs px-2.5 py-1.5 rounded-lg font-medium bg-blue-100 text-blue-700">
+                            {t('goals.status.completed')}
+                          </span>
+                        ) : (
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation()
+                              const newStatus = goal.status === 'active' ? 'considering' : 'active'
+                              try {
+                                const response = await fetch('/api/goals', {
+                                  method: 'PUT',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ goalId: goal.id, status: newStatus })
+                                })
+                                if (response.ok) {
+                                  const updatedGoal = await response.json()
+                                  const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
+                                  onGoalsUpdate?.(updatedGoals)
+                                }
+                              } catch (error) {
+                                console.error('Error updating goal status:', error)
+                              }
+                            }}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 ${
+                              goal.status === 'active' ? 'bg-orange-600' : 'bg-gray-300'
+                            }`}
+                            title={goal.status === 'active' ? 'Aktivní - klikněte pro odložení' : 'Odložené - klikněte pro aktivaci'}
+                          >
+                            <span
+                              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                goal.status === 'active' ? 'translate-x-6' : 'translate-x-1'
+                              }`}
+                            />
+                          </button>
+                        )}
                       </td>
                       <td className="px-4 py-2">
                         <span
@@ -785,6 +897,19 @@ export function GoalsManagementView({
                           )}
                         </div>
                       </td>
+                      <td className="px-4 py-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-600 flex items-center gap-1">
+                            <Target className="w-3 h-3" />
+                            {goalCounts[goal.id]?.steps || 0}
+                          </span>
+                          <span className="text-xs text-gray-400">/</span>
+                          <span className="text-xs text-gray-600 flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {goalCounts[goal.id]?.milestones || 0}
+                          </span>
+                        </div>
+                      </td>
                       <td className="px-4 py-2 last:pr-6">
                         <button
                           onClick={(e) => {
@@ -802,7 +927,7 @@ export function GoalsManagementView({
                 })}
                 {filteredGoals.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
                       <p className="text-lg">Žádné cíle nejsou nastavené</p>
                       <p className="text-sm">Klikněte na tlačítko výše pro přidání nového cíle</p>
                     </td>
@@ -1275,13 +1400,49 @@ export function GoalsManagementView({
                     <X className="w-5 h-5" />
                   </button>
                 </div>
+                
+                {/* Tabs */}
+                <div className="flex gap-2 mt-4 border-b border-gray-200">
+                  <button
+                    onClick={() => setActiveTab('general')}
+                    className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
+                      activeTab === 'general'
+                        ? 'border-orange-500 text-orange-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Obecné informace
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('milestones')}
+                    className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
+                      activeTab === 'milestones'
+                        ? 'border-orange-500 text-orange-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Milníky
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('steps')}
+                    className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
+                      activeTab === 'steps'
+                        ? 'border-orange-500 text-orange-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Kroky
+                  </button>
+                </div>
               </div>
 
               <div className="p-6 space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800 mb-2">
-                    {t('goals.goalTitle')} <span className="text-orange-500">*</span>
-                  </label>
+                {activeTab === 'general' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-2">
+                        {t('goals.goalTitle')} <span className="text-orange-500">*</span>
+                      </label>
                   <input
                     type="text"
                     value={editFormData.title}
@@ -1367,6 +1528,27 @@ export function GoalsManagementView({
                   </div>
                 </div>
 
+                <div className="pt-2">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editFormData.is_focused}
+                      onChange={(e) => setEditFormData({...editFormData, is_focused: e.target.checked})}
+                      className="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                    />
+                    <span className="text-sm font-semibold text-gray-800">
+                      Přidat do fokusu
+                    </span>
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1 ml-8">
+                    Cíle ve fokusu budou zvýrazněny a zobrazí se na hlavním panelu
+                  </p>
+                </div>
+                  </>
+                )}
+
+                {activeTab === 'steps' && (
+                  <>
                 {/* Steps Section */}
                 <div className="bg-white rounded-xl p-4 border-2 border-gray-100 shadow-sm">
                   <div className="flex items-center justify-between mb-3">
@@ -1530,7 +1712,11 @@ export function GoalsManagementView({
                     </div>
                   )}
                 </div>
+                  </>
+                )}
 
+                {activeTab === 'milestones' && (
+                  <>
                 {/* Milestones Section */}
                 <div className="bg-white rounded-xl p-4 border-2 border-gray-100 shadow-sm">
                   <div className="flex items-center justify-between mb-3">
@@ -1597,6 +1783,7 @@ export function GoalsManagementView({
                                   rows={2}
                                   placeholder="Popis (volitelné)"
                                 />
+                                
                                 <div className="flex items-center gap-2 mt-2">
                                   <button
                                     type="button"
@@ -1666,6 +1853,8 @@ export function GoalsManagementView({
                     </div>
                   )}
                 </div>
+                  </>
+                )}
               </div>
 
               <div className="p-6 border-t border-gray-200 flex items-center justify-between">
