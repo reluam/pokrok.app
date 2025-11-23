@@ -9,8 +9,8 @@ const inter = Inter({
 })
 
 export const metadata = {
-  title: 'Pokrok Game - Životní hra',
-  description: 'Herní aplikace pro dosažení cílů a získání jasnosti v životě.',
+  title: 'Pokrok - Životní plánovač',
+  description: 'Pokrok je aplikace pro plnění cílů - od malých po životní sny. Pokrok je navržen tak, aby se přizpůsobil Vašim měnícím se prioritám a měnil se tak spolu s Vámi.',
 }
 
 export default function RootLayout({

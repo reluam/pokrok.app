@@ -1,5 +1,6 @@
 import createMiddleware from 'next-intl/middleware'
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server'
 import { locales, type Locale } from './i18n/config'
 
 const isProtectedRoute = createRouteMatcher([
@@ -26,6 +27,18 @@ export default clerkMiddleware(async (auth, req) => {
     // For API routes, just return (don't run intl middleware)
     if (req.nextUrl.pathname.startsWith('/api/')) {
       return
+    }
+    
+    // Redirect sign-in and sign-up routes with locale prefix to versions without prefix
+    // This ensures all language versions redirect to pokrok.app/sign-in and pokrok.app/sign-up
+    const pathname = req.nextUrl.pathname
+    for (const locale of locales) {
+      if (pathname.startsWith(`/${locale}/sign-in`) || pathname.startsWith(`/${locale}/sign-up`)) {
+        const newPath = pathname.replace(`/${locale}`, '')
+        const url = req.nextUrl.clone()
+        url.pathname = newPath
+        return NextResponse.redirect(url)
+      }
     }
     
     // Try to get user's preferred locale from database and redirect if needed
