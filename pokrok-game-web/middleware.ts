@@ -29,9 +29,10 @@ export default clerkMiddleware(async (auth, req) => {
       return
     }
     
+    const pathname = req.nextUrl.pathname
+    
     // Redirect sign-in and sign-up routes with locale prefix to versions without prefix
     // This ensures all language versions redirect to pokrok.app/sign-in and pokrok.app/sign-up
-    const pathname = req.nextUrl.pathname
     for (const locale of locales) {
       if (pathname.startsWith(`/${locale}/sign-in`) || pathname.startsWith(`/${locale}/sign-up`)) {
         const newPath = pathname.replace(`/${locale}`, '')
@@ -39,6 +40,12 @@ export default clerkMiddleware(async (auth, req) => {
         url.pathname = newPath
         return NextResponse.redirect(url)
       }
+    }
+    
+    // For sign-in and sign-up routes without locale prefix, skip intl middleware
+    // to prevent it from adding locale prefix back (which would cause redirect loop)
+    if (pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up')) {
+      return NextResponse.next()
     }
     
     // Try to get user's preferred locale from database and redirect if needed
