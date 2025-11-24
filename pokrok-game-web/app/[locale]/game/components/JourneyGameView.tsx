@@ -8328,7 +8328,7 @@ export function JourneyGameView({
           switch (mainPanelSection) {
             case 'overview':
               return (
-                <div className="w-full h-full flex flex-col bg-orange-50">
+                <div className="w-full min-h-full flex flex-col bg-orange-50">
                   {/* Program Selector - Link Navigation */}
                   <div className="px-4 py-2 border-b border-gray-200 bg-white">
                     <div className="flex items-center justify-between">
@@ -8450,7 +8450,7 @@ export function JourneyGameView({
               )
             case 'goals':
               return (
-                <div className="h-full bg-orange-50">
+                <div className="min-h-full bg-orange-50">
                   <GoalsManagementView
                     goals={goals}
                     aspirations={aspirations}
@@ -8464,7 +8464,7 @@ export function JourneyGameView({
               )
             case 'steps':
               return (
-                <div className="h-full bg-orange-50">
+                <div className="min-h-full bg-orange-50">
                   <StepsManagementView
                     dailySteps={dailySteps}
                     goals={goals}
@@ -8476,7 +8476,7 @@ export function JourneyGameView({
               )
             case 'habits':
               return (
-                <div className="h-full bg-orange-50">
+                <div className="min-h-full bg-orange-50">
                   <HabitsManagementView
                     habits={habits}
                     aspirations={aspirations}
@@ -8489,7 +8489,7 @@ export function JourneyGameView({
               )
             case 'aspirace':
               return (
-                <div className="h-full bg-orange-50">
+                <div className="min-h-full bg-orange-50">
                   <AspiraceView
                     overviewAspirations={overviewAspirations}
                     overviewBalances={overviewBalances}
@@ -8878,7 +8878,7 @@ export function JourneyGameView({
             </div>
 
       {/* Main Content Area */}
-      <div className="relative flex flex-col flex-1 overflow-hidden min-h-0">
+      <div className="relative flex flex-col flex-1 overflow-y-auto min-h-0">
         {renderPageContent()}
       </div>
 
