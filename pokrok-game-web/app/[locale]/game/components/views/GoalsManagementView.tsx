@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString } from '../utils/dateHelpers'
-import { Edit, X, Plus, Target, Calendar } from 'lucide-react'
+import { Edit, X, Plus, Target, Calendar, ChevronDown, ChevronUp, Filter } from 'lucide-react'
 
 interface GoalsManagementViewProps {
   goals: any[]
@@ -32,6 +32,7 @@ export function GoalsManagementView({
   const [goalsStatusFilter, setGoalsStatusFilter] = useState<'all' | 'active' | 'completed' | 'considering'>('all')
   const [goalsAreaFilter, setGoalsAreaFilter] = useState<string | null>(null)
   const [goalsAspirationFilter, setGoalsAspirationFilter] = useState<string | null>(null)
+  const [filtersExpanded, setFiltersExpanded] = useState(false)
 
   // Counters for steps and milestones per goal
   const [goalCounts, setGoalCounts] = useState<Record<string, { steps: number; milestones: number }>>({})
@@ -700,9 +701,91 @@ export function GoalsManagementView({
 
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Filters Row */}
-      <div className="flex items-center justify-between gap-4 px-4 py-2 bg-white border-b border-gray-200">
-        <div className="flex items-center gap-3 flex-wrap">
+      {/* Filters Row - Mobile: collapsible, Desktop: always visible */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 px-4 py-3 bg-white border-b border-gray-200">
+        {/* Mobile: Collapsible filters */}
+        <div className="md:hidden flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-3">
+            <button
+              onClick={() => setFiltersExpanded(!filtersExpanded)}
+              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200"
+            >
+              <Filter className="w-4 h-4" />
+              <span>Filtry</span>
+              {filtersExpanded ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+            </button>
+            
+            {/* Add Goal Button - Mobile */}
+            <button
+              onClick={() => {
+                setEditingGoal({ id: null, title: '', description: '', target_date: '', areaId: '', aspirationId: '', status: 'active' })
+                setEditFormData({
+                  title: '',
+                  description: '',
+                  target_date: '',
+                  areaId: '',
+                  aspirationId: '',
+                  status: 'active',
+                  is_focused: false,
+                  steps: [],
+                  milestones: []
+                })
+              }}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium flex-1"
+            >
+              <Plus className="w-4 h-4" />
+              {t('goals.add')}
+            </button>
+          </div>
+          
+          {/* Collapsible filters content */}
+          {filtersExpanded && (
+            <div className="flex flex-col gap-2 pt-2 border-t border-gray-200">
+              {/* Status Filter */}
+              <select
+                value={goalsStatusFilter}
+                onChange={(e) => setGoalsStatusFilter(e.target.value as any)}
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+              >
+                <option value="all">{t('goals.filters.status.all')}</option>
+                <option value="active">{t('goals.filters.status.active')}</option>
+                <option value="completed">{t('goals.filters.status.completed')}</option>
+                <option value="considering">{t('goals.filters.status.considering')}</option>
+              </select>
+              
+              {/* Area Filter */}
+              <select
+                value={goalsAreaFilter || ''}
+                onChange={(e) => setGoalsAreaFilter(e.target.value || null)}
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+              >
+                <option value="">{t('goals.filters.area.all')}</option>
+                {areas.map((area: any) => (
+                  <option key={area.id} value={area.id}>{area.name}</option>
+                ))}
+              </select>
+              
+              {/* Aspiration Filter */}
+              <select
+                value={goalsAspirationFilter || ''}
+                onChange={(e) => setGoalsAspirationFilter(e.target.value || null)}
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+              >
+                <option value="">{t('goals.filters.aspiration.all')}</option>
+                {aspirations.map((aspiration: any) => (
+                  <option key={aspiration.id} value={aspiration.id}>{aspiration.title}</option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+        
+        {/* Desktop: Always visible filters */}
+        <div className="hidden md:flex md:items-center gap-3 flex-1">
           {/* Status Filter */}
           <select
             value={goalsStatusFilter}
@@ -740,7 +823,7 @@ export function GoalsManagementView({
           </select>
         </div>
         
-        {/* Add Goal Button */}
+        {/* Add Goal Button - Desktop */}
         <button
           onClick={() => {
             setEditingGoal({ id: null, title: '', description: '', target_date: '', areaId: '', aspirationId: '', status: 'active' })
@@ -756,7 +839,7 @@ export function GoalsManagementView({
               milestones: []
             })
           }}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
+          className="hidden md:flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
           {t('goals.add')}

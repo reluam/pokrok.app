@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { HelpCircle, Target, Footprints, CheckSquare, Plus, ArrowRight, ToggleLeft, ToggleRight } from 'lucide-react'
+import { HelpCircle, Target, Footprints, CheckSquare, Plus, ArrowRight, ToggleLeft, ToggleRight, Menu } from 'lucide-react'
 import { GoalsManagementView } from './GoalsManagementView'
 import { HabitsManagementView } from './HabitsManagementView'
 import { StepsManagementView } from './StepsManagementView'
@@ -206,6 +206,7 @@ export function HelpView({
   const t = useTranslations()
   const [selectedCategory, setSelectedCategory] = useState<HelpCategory>('overview')
   const [useRealData, setUseRealData] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   // Determine which data to use
   const hasRealData = realGoals.length > 0 || realHabits.length > 0 || realSteps.length > 0
@@ -605,8 +606,8 @@ export function HelpView({
 
   return (
     <div className="w-full h-full flex bg-white">
-      {/* Left sidebar - Categories */}
-      <div className="w-64 border-r border-gray-200 bg-gray-50 flex-shrink-0">
+      {/* Left sidebar - Categories - Hidden on mobile */}
+      <div className="hidden md:flex w-64 border-r border-gray-200 bg-gray-50 flex-shrink-0">
         <div className="p-4">
           <h2 className="text-lg font-bold text-gray-900 mb-4">Kategorie</h2>
           <nav className="space-y-1">
@@ -632,8 +633,59 @@ export function HelpView({
       </div>
 
       {/* Right content area */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-6xl mx-auto p-8">
+      <div className="flex-1 overflow-y-auto relative">
+        {/* Mobile hamburger menu */}
+        <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 p-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-gray-900">Kategorie</h2>
+            <div className="relative">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                title="Menu"
+              >
+                <Menu className="w-5 h-5 text-gray-700" />
+              </button>
+              
+              {/* Mobile menu dropdown */}
+              {mobileMenuOpen && (
+                <>
+                  {/* Backdrop */}
+                  <div 
+                    className="fixed inset-0 z-[100]" 
+                    onClick={() => setMobileMenuOpen(false)}
+                  />
+                  <div className="fixed right-4 top-16 bg-white border border-gray-200 rounded-lg shadow-lg z-[101] min-w-[200px]">
+                    <nav className="py-2">
+                      {categories.map((category) => {
+                        const Icon = category.icon
+                        return (
+                          <button
+                            key={category.id}
+                            onClick={() => {
+                              setSelectedCategory(category.id)
+                              setMobileMenuOpen(false)
+                            }}
+                            className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                              selectedCategory === category.id
+                                ? 'bg-orange-600 text-white'
+                                : 'text-gray-700 hover:bg-gray-100'
+                            }`}
+                          >
+                            <Icon className="w-5 h-5" />
+                            <span className="font-medium">{category.label}</span>
+                          </button>
+                        )
+                      })}
+                    </nav>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        <div className="max-w-6xl mx-auto p-4 md:p-8">
           {renderContent()}
         </div>
       </div>

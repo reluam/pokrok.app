@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations, useLocale } from 'next-intl'
-import { Edit, X, Plus, Calendar, Target, Check } from 'lucide-react'
+import { Edit, X, Plus, Calendar, Target, Check, Filter, ChevronDown, ChevronUp } from 'lucide-react'
 import { getLocalDateString } from '../utils/dateHelpers'
 
 interface StepsManagementViewProps {
@@ -29,6 +29,7 @@ export function StepsManagementView({
   const [stepsGoalFilter, setStepsGoalFilter] = useState<string | null>(null)
   const [stepsDateFilter, setStepsDateFilter] = useState<string | null>(null)
   const [loadingSteps, setLoadingSteps] = useState<Set<string>>(new Set())
+  const [filtersExpanded, setFiltersExpanded] = useState(false)
 
   // Quick edit modals for steps
   const [quickEditStepId, setQuickEditStepId] = useState<string | null>(null)
@@ -292,9 +293,92 @@ export function StepsManagementView({
 
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Filters Row */}
-      <div className="flex items-center justify-between gap-4 px-4 py-2 bg-white border-b border-gray-200">
-        <div className="flex items-center gap-3 flex-wrap">
+      {/* Filters Row - Mobile: collapsible, Desktop: always visible */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 px-4 py-3 bg-white border-b border-gray-200">
+        {/* Mobile: Collapsible filters */}
+        <div className="md:hidden flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-3">
+            <button
+              onClick={() => setFiltersExpanded(!filtersExpanded)}
+              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200"
+            >
+              <Filter className="w-4 h-4" />
+              <span>Filtry</span>
+              {filtersExpanded ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+            </button>
+            
+            {/* Add Step Button - Mobile */}
+            <button
+              onClick={() => {
+                setEditingStep({ id: null, title: '', description: '', date: '', goalId: '', completed: false })
+                setEditFormData({
+                  title: '',
+                  description: '',
+                  date: '',
+                  goalId: '',
+                  completed: false
+                })
+              }}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium flex-1"
+            >
+              <Plus className="w-4 h-4" />
+              {t('steps.add')}
+            </button>
+          </div>
+          
+          {/* Collapsible filters content */}
+          {filtersExpanded && (
+            <div className="flex flex-col gap-2 pt-2 border-t border-gray-200">
+              {/* Show Completed Checkbox */}
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showCompleted}
+                  onChange={(e) => setShowCompleted(e.target.checked)}
+                  className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                />
+                <span className="text-sm text-gray-700">{t('steps.filters.showCompleted')}</span>
+              </label>
+              
+              {/* Goal Filter */}
+              <select
+                value={stepsGoalFilter || ''}
+                onChange={(e) => setStepsGoalFilter(e.target.value || null)}
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+              >
+                <option value="">{t('steps.filters.goal.all')}</option>
+                {goals.map((goal: any) => (
+                  <option key={goal.id} value={goal.id}>{goal.title}</option>
+                ))}
+              </select>
+              
+              {/* Date Filter */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  value={stepsDateFilter || ''}
+                  onChange={(e) => setStepsDateFilter(e.target.value || null)}
+                  className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                />
+                {stepsDateFilter && (
+                  <button
+                    onClick={() => setStepsDateFilter(null)}
+                    className="px-2 py-1.5 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    {t('common.clear')}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Desktop: Always visible filters */}
+        <div className="hidden md:flex md:items-center gap-3 flex-1">
           {/* Show Completed Checkbox */}
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -319,24 +403,25 @@ export function StepsManagementView({
           </select>
           
           {/* Date Filter */}
-          <input
-            type="date"
-            value={stepsDateFilter || ''}
-            onChange={(e) => setStepsDateFilter(e.target.value || null)}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
-          />
-          
-          {stepsDateFilter && (
-            <button
-              onClick={() => setStepsDateFilter(null)}
-              className="px-2 py-1.5 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              {t('common.clear')}
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={stepsDateFilter || ''}
+              onChange={(e) => setStepsDateFilter(e.target.value || null)}
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+            />
+            {stepsDateFilter && (
+              <button
+                onClick={() => setStepsDateFilter(null)}
+                className="px-2 py-1.5 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                {t('common.clear')}
+              </button>
+            )}
+          </div>
         </div>
         
-        {/* Add Step Button */}
+        {/* Add Step Button - Desktop */}
         <button
           onClick={() => {
             setEditingStep({ id: null, title: '', description: '', date: '', goalId: '', completed: false })
@@ -348,7 +433,7 @@ export function StepsManagementView({
               completed: false
             })
           }}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
+          className="hidden md:flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
           {t('steps.add')}
@@ -364,9 +449,7 @@ export function StepsManagementView({
                 <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 first:pl-6 w-12"></th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Název</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Datum</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Cíl</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-12 last:pr-6"></th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40 last:pr-6">Datum</th>
                 </tr>
               </thead>
               <tbody>
@@ -415,7 +498,7 @@ export function StepsManagementView({
                           <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{step.description}</p>
                         )}
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-2 last:pr-6">
                         <span
                           onClick={(e) => {
                             e.stopPropagation()
@@ -444,44 +527,12 @@ export function StepsManagementView({
                           )}
                         </span>
                       </td>
-                      <td className="px-4 py-2">
-                        <span
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                            setQuickEditStepPosition({ top: rect.bottom + 4, left: rect.left })
-                            setQuickEditStepId(step.id)
-                            setQuickEditStepField('goal')
-                          }}
-                          className="cursor-pointer hover:opacity-80 transition-opacity"
-                        >
-                          {stepGoal ? (
-                            <span className="text-xs px-2.5 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-700 font-medium">
-                              {stepGoal.title}
-                            </span>
-                          ) : (
-                            <span className="text-xs text-gray-400">Bez cíle</span>
-                          )}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2 last:pr-6">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleOpenEditModal(step)
-                          }}
-                          className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-                          title={t('common.edit') || 'Upravit'}
-                        >
-                          <Edit className="w-4 h-4 text-gray-600" />
-                        </button>
-                      </td>
                     </tr>
                   )
                 })}
                 {filteredSteps.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={3} className="px-4 py-8 text-center text-gray-500">
                       <p className="text-lg">Žádné kroky nejsou nastavené</p>
                       <p className="text-sm">Klikněte na tlačítko výše pro přidání nového kroku</p>
                     </td>
