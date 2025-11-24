@@ -251,6 +251,7 @@ export function GoalsManagementView({
           areaId: '',
           aspirationId: '',
           status: 'active',
+          is_focused: false,
           steps: [],
           milestones: []
         })
@@ -750,6 +751,7 @@ export function GoalsManagementView({
               areaId: '',
               aspirationId: '',
               status: 'active',
+              is_focused: false,
               steps: [],
               milestones: []
             })
