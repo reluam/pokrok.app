@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { Plus } from 'lucide-react'
 import { AddAspirationModal } from '../components/AddAspirationModal'
 
 interface AspiraceViewProps {
@@ -270,33 +271,35 @@ export function AspiraceView({
   const insights = calculateInsights()
 
   return (
-    <div className="w-full flex flex-col p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">{t('aspirace.title')}</h2>
-            <p className="text-sm text-gray-500 mt-1">{t('aspirace.description')}</p>
-          </div>
-          <button
-            onClick={() => setShowAddAspirationModal(true)}
-            className="w-10 h-10 rounded-full bg-orange-500 text-white hover:bg-orange-600 transition-colors flex items-center justify-center text-lg font-bold"
-            title={t('aspirace.addAspirace')}
-          >
-            +
-          </button>
+    <div className="w-full h-full flex flex-col">
+      {/* Filters Row */}
+      <div className="flex items-center justify-between gap-4 px-4 py-2 bg-white border-b border-gray-200">
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Filters can be added here in the future if needed */}
         </div>
+        
+        {/* Add Aspiration Button */}
+        <button
+          onClick={() => setShowAddAspirationModal(true)}
+          className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center gap-2 text-sm font-medium"
+        >
+          <Plus className="w-4 h-4" />
+          {t('aspirace.addAspirace')}
+        </button>
       </div>
 
-      {/* Aspirations List */}
-      {overviewAspirations.length === 0 ? (
+      {/* Content Area */}
+      <div className="flex-1 overflow-y-auto p-6">
+
+        {/* Aspirations List */}
+        {overviewAspirations.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-xl border border-gray-200">
           <div className="text-4xl mb-4">✨</div>
           <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('aspirace.noAspirace')}</h3>
           <p className="text-sm text-gray-600 mb-4">{t('aspirace.noAspiraceDescription')}</p>
           <button
             onClick={() => setShowAddAspirationModal(true)}
-            className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+            className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
           >
             {t('aspirace.addAspirace')}
           </button>
@@ -442,28 +445,29 @@ export function AspiraceView({
             </div>
           )}
         </div>
-      )}
+        )}
 
-      {/* Add Aspiration Modal */}
-      {showAddAspirationModal && (
-        <AddAspirationModal
-          goals={goals}
-          habits={habits}
-          onClose={() => setShowAddAspirationModal(false)}
-          onAspirationAdded={handleAddAspiration}
-        />
-      )}
+        {/* Add Aspiration Modal */}
+        {showAddAspirationModal && (
+          <AddAspirationModal
+            goals={goals}
+            habits={habits}
+            onClose={() => setShowAddAspirationModal(false)}
+            onAspirationAdded={handleAddAspiration}
+          />
+        )}
 
-      {/* Edit Aspiration Modal */}
-      {editingAspiration && (
-        <AddAspirationModal
-          aspiration={editingAspiration}
-          goals={goals}
-          habits={habits}
-          onClose={() => setEditingAspiration(null)}
-          onAspirationAdded={handleUpdateAspiration}
-        />
-      )}
+        {/* Edit Aspiration Modal */}
+        {editingAspiration && (
+          <AddAspirationModal
+            aspiration={editingAspiration}
+            goals={goals}
+            habits={habits}
+            onClose={() => setEditingAspiration(null)}
+            onAspirationAdded={handleUpdateAspiration}
+          />
+        )}
+      </div>
     </div>
   )
 }

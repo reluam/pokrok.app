@@ -262,7 +262,7 @@ export function HabitsManagementView({
               aspirationId: null
             })
           }}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+          className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
           {t('habits.add')}
@@ -550,7 +550,7 @@ export function HabitsManagementView({
                           }}
                           className={`px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${
                             editingHabit.selectedDays.includes(key)
-                              ? 'bg-orange-500 text-white border-orange-500 shadow-md'
+                              ? 'bg-orange-600 text-white border-orange-500 shadow-md'
                               : 'bg-white text-gray-700 border-gray-300 hover:border-orange-400 hover:bg-orange-50'
                           }`}
                         >
@@ -653,7 +653,7 @@ export function HabitsManagementView({
                   </button>
                   <button
                     onClick={handleUpdateHabit}
-                    className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+                    className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
                   >
                     {t('common.save') || 'Uložit'}
                   </button>

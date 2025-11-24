@@ -754,7 +754,7 @@ export function GoalsManagementView({
               milestones: []
             })
           }}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+          className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
           {t('goals.add')}
@@ -1280,7 +1280,7 @@ export function GoalsManagementView({
                                   }}
                                   className={`h-7 rounded transition-all text-xs ${
                                     isSelected 
-                                      ? 'bg-orange-500 text-white font-bold' 
+                                      ? 'bg-orange-600 text-white font-bold' 
                                       : isToday
                                         ? 'bg-orange-100 text-orange-700 font-semibold'
                                         : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
@@ -1349,7 +1349,7 @@ export function GoalsManagementView({
                               console.error('Error updating goal date:', error)
                             }
                           }}
-                          className="flex-1 px-3 py-1.5 bg-orange-500 text-white text-xs rounded-lg hover:bg-orange-600 transition-colors"
+                          className="flex-1 px-3 py-1.5 bg-orange-600 text-white text-xs rounded-lg hover:bg-orange-700 transition-colors"
                         >
                           {t('details.step.confirm') || 'Uložit'}
                         </button>
@@ -1633,7 +1633,7 @@ export function GoalsManagementView({
                                   <button
                                     type="button"
                                     onClick={() => handleSaveStep(step.id)}
-                                    className="px-3 py-1.5 text-xs font-medium bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                                    className="px-3 py-1.5 text-xs font-medium bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                                   >
                                     {t('common.save')}
                                   </button>
@@ -1788,7 +1788,7 @@ export function GoalsManagementView({
                                   <button
                                     type="button"
                                     onClick={() => handleSaveMilestone(milestone.id)}
-                                    className="px-3 py-1.5 text-xs font-medium bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                                    className="px-3 py-1.5 text-xs font-medium bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                                   >
                                     {t('common.save')}
                                   </button>
@@ -1875,7 +1875,7 @@ export function GoalsManagementView({
                   </button>
                   <button
                     onClick={editingGoal?.id ? handleUpdateGoal : handleCreateGoal}
-                    className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+                    className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
                   >
                     {t('common.save') || 'Uložit'}
                   </button>

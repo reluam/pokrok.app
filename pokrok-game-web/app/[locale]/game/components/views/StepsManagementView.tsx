@@ -348,7 +348,7 @@ export function StepsManagementView({
               completed: false
             })
           }}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+          className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
           {t('steps.add')}
@@ -637,7 +637,7 @@ export function StepsManagementView({
                   </button>
                   <button
                     onClick={editingStep.id ? handleUpdateStep : handleCreateStep}
-                    className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+                    className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
                   >
                     {t('common.save')}
                   </button>
@@ -763,7 +763,7 @@ export function StepsManagementView({
                                   }}
                                   className={`h-7 rounded transition-all text-xs ${
                                     isSelected 
-                                      ? 'bg-orange-500 text-white font-bold' 
+                                      ? 'bg-orange-600 text-white font-bold' 
                                       : isToday
                                         ? 'bg-orange-100 text-orange-700 font-semibold'
                                         : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
@@ -830,7 +830,7 @@ export function StepsManagementView({
                               console.error('Error updating step date:', error)
                             }
                           }}
-                          className="flex-1 px-3 py-1.5 bg-orange-500 text-white text-xs rounded-lg hover:bg-orange-600 transition-colors"
+                          className="flex-1 px-3 py-1.5 bg-orange-600 text-white text-xs rounded-lg hover:bg-orange-700 transition-colors"
                         >
                           {t('common.save') || 'Uložit'}
                         </button>

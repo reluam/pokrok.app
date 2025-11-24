@@ -1619,7 +1619,7 @@ export function JourneyGameView({
                         handleSaveStep()
                         setShowTimeEditor(false)
                       }}
-                      className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                      className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                     >
                       {t('details.step.confirm')}
                     </button>
@@ -1649,7 +1649,7 @@ export function JourneyGameView({
                     />
                     <button
                       onClick={() => handleRescheduleStep(selectedDate)}
-                      className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                      className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                     >
                       {t('details.step.confirm')}
                     </button>
@@ -2238,7 +2238,7 @@ export function JourneyGameView({
                             alert('Chyba při aktualizaci návyku')
                           }
                       }}
-                      className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                      className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                     >
                         {t('details.habit.saveChanges')}
                     </button>
@@ -3810,7 +3810,7 @@ export function JourneyGameView({
                     <button
                       onClick={handleSaveStep}
                       disabled={!newStepTitle.trim() || isSavingStep}
-                      className="flex-1 px-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                      className="flex-1 px-3 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
                     >
                       {isSavingStep ? 'Ukládám...' : t('common.save')}
                     </button>
@@ -3874,7 +3874,7 @@ export function JourneyGameView({
                     <button
                       onClick={handleSaveMilestone}
                       disabled={!newMilestoneTitle.trim() || isSavingMilestone}
-                      className="flex-1 px-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                      className="flex-1 px-3 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
                     >
                       {isSavingMilestone ? 'Ukládám...' : t('common.save')}
                     </button>
@@ -4018,8 +4018,8 @@ export function JourneyGameView({
           ))
         }
         
-        // Update overview balance if we're on overview page
-        if (currentPage === 'management' && currentManagementProgram === 'aspirace' && updatedGoal.aspiration_id) {
+        // Update overview balance if we're on main page with aspirace section
+        if (currentPage === 'main' && mainPanelSection === 'aspirace' && updatedGoal.aspiration_id) {
           try {
             const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${updatedGoal.aspiration_id}`)
             if (balanceResponse.ok) {
@@ -4036,7 +4036,7 @@ export function JourneyGameView({
         
         // Also update balance for old aspiration if aspirationId changed
         const oldGoal = goals.find(g => g.id === goalId)
-        if (currentPage === 'management' && currentManagementProgram === 'aspirace' && oldGoal && oldGoal.aspiration_id && oldGoal.aspiration_id !== updatedGoal.aspiration_id) {
+        if (currentPage === 'main' && mainPanelSection === 'aspirace' && oldGoal && oldGoal.aspiration_id && oldGoal.aspiration_id !== updatedGoal.aspiration_id) {
           try {
             const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${oldGoal.aspiration_id}`)
             if (balanceResponse.ok) {
@@ -4108,8 +4108,8 @@ export function JourneyGameView({
           onGoalsUpdate([...goals, data.goal])
         }
         
-        // Update overview balance if we're on overview page and goal has aspiration
-        if (currentPage === 'management' && currentManagementProgram === 'aspirace' && data.goal && data.goal.aspiration_id) {
+        // Update overview balance if we're on main page with aspirace section and goal has aspiration
+        if (currentPage === 'main' && mainPanelSection === 'aspirace' && data.goal && data.goal.aspiration_id) {
           try {
             const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${data.goal.aspiration_id}`)
             if (balanceResponse.ok) {
@@ -4797,7 +4797,7 @@ export function JourneyGameView({
 
   // Load aspirations data when on aspirace page
   useEffect(() => {
-    if (currentPage === 'management' && currentManagementProgram === 'aspirace') {
+    if (currentPage === 'main' && mainPanelSection === 'aspirace') {
       const loadAspiraceData = async () => {
         setIsLoadingOverview(true)
         try {
@@ -5921,7 +5921,7 @@ export function JourneyGameView({
                                     }
                                   }
                                 }}
-                                className="px-3 py-1.5 text-xs font-medium bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                                className="px-3 py-1.5 text-xs font-medium bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                               >
                                 {t('common.save')}
                               </button>
@@ -6267,7 +6267,7 @@ export function JourneyGameView({
                                     }
                                   }
                                 }}
-                                className="px-3 py-1.5 text-xs font-medium bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                                className="px-3 py-1.5 text-xs font-medium bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                               >
                                 Uložit
                               </button>
@@ -7346,7 +7346,7 @@ export function JourneyGameView({
                                           )
                                           setNewGoal({ ...newGoal, steps: updatedSteps })
                                         }}
-                                        className="px-3 py-1.5 text-xs font-medium bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                                        className="px-3 py-1.5 text-xs font-medium bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                                       >
                                         {t('common.save')}
                                       </button>
@@ -7512,7 +7512,7 @@ export function JourneyGameView({
                                           )
                                           setNewGoal({ ...newGoal, milestones: updatedMilestones })
                                         }}
-                                        className="px-3 py-1.5 text-xs font-medium bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                                        className="px-3 py-1.5 text-xs font-medium bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                                       >
                                         Uložit
                                       </button>
@@ -7668,7 +7668,7 @@ export function JourneyGameView({
           {/* Add Button */}
           <button
             onClick={() => setShowCreateGoal(true)}
-            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2 text-sm font-medium"
+            className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center gap-2 text-sm font-medium"
           >
             <span className="text-lg">+</span>
             {t('goals.addGoal')}
@@ -8205,7 +8205,7 @@ export function JourneyGameView({
                                     }}
                                     className={`h-7 rounded transition-all text-xs ${
                                       isSelected 
-                                        ? 'bg-orange-500 text-white font-bold' 
+                                        ? 'bg-orange-600 text-white font-bold' 
                                         : isToday
                                           ? 'bg-orange-100 text-orange-700 font-semibold'
                                           : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
@@ -8807,8 +8807,8 @@ export function JourneyGameView({
       boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.04)'
     }}>
       {/* Header */}
-      <div className="relative overflow-hidden w-full bg-orange-500" style={{
-        boxShadow: '0 4px 12px rgba(251, 146, 60, 0.3)'
+      <div className="relative overflow-hidden w-full bg-orange-600" style={{
+        boxShadow: '0 4px 12px rgba(234, 88, 12, 0.3)'
       }}>
         <div className="relative z-10 py-3 px-6">
           {/* Single Row: Menu Icons and Statistics */}
@@ -8955,7 +8955,7 @@ export function JourneyGameView({
                               }}
                               className={`h-10 rounded-lg transition-all ${
                                 isSelected 
-                                  ? 'bg-orange-500 text-white font-bold' 
+                                  ? 'bg-orange-600 text-white font-bold' 
                                   : isToday
                                     ? 'bg-orange-100 text-orange-700 font-semibold'
                                     : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
@@ -9738,7 +9738,7 @@ export function JourneyGameView({
                 </button>
                 <button
                   onClick={handleSaveHabitModal}
-                  className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+                  className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
                 >
                   {t('common.save')}
                 </button>
