@@ -255,7 +255,7 @@ export function HabitsManagementView({
               <select
                 value={habitsFrequencyFilter}
                 onChange={(e) => setHabitsFrequencyFilter(e.target.value as any)}
-                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
               >
                 <option value="all">{t('habits.filters.frequency.all')}</option>
                 <option value="daily">{t('habits.filters.frequency.daily')}</option>
@@ -268,7 +268,7 @@ export function HabitsManagementView({
               <select
                 value={habitsAspirationFilter || ''}
                 onChange={(e) => setHabitsAspirationFilter(e.target.value || null)}
-                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
               >
                 <option value="">{t('habits.filters.aspiration.all')}</option>
                 {aspirations.map((aspiration: any) => (
@@ -296,7 +296,7 @@ export function HabitsManagementView({
           <select
             value={habitsFrequencyFilter}
             onChange={(e) => setHabitsFrequencyFilter(e.target.value as any)}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
           >
             <option value="all">{t('habits.filters.frequency.all')}</option>
             <option value="daily">{t('habits.filters.frequency.daily')}</option>
@@ -309,7 +309,7 @@ export function HabitsManagementView({
           <select
             value={habitsAspirationFilter || ''}
             onChange={(e) => setHabitsAspirationFilter(e.target.value || null)}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white min-w-[150px]"
+            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white min-w-[150px]"
           >
             <option value="">{t('habits.filters.aspiration.all')}</option>
             {aspirations.map((aspiration: any) => (
@@ -601,7 +601,7 @@ export function HabitsManagementView({
                     type="text"
                     value={editingHabit.name || ''}
                     onChange={(e) => setEditingHabit({...editingHabit, name: e.target.value})}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                     placeholder="Např. Ranní cvičení"
                   />
                 </div>
@@ -631,8 +631,8 @@ export function HabitsManagementView({
                           }}
                           className={`px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${
                             editingHabit.selectedDays.includes(key)
-                              ? 'bg-orange-600 text-white border-orange-500 shadow-md'
-                              : 'bg-white text-gray-700 border-gray-300 hover:border-orange-400 hover:bg-orange-50'
+                              ? 'bg-orange-600 text-white border-orange-600 shadow-md'
+                              : 'bg-white text-gray-700 border-gray-300 hover:border-orange-600 hover:bg-orange-50'
                           }`}
                         >
                           {label}
@@ -648,7 +648,7 @@ export function HabitsManagementView({
                     <select
                       value={editingHabit.frequency || 'daily'}
                       onChange={(e) => setEditingHabit({...editingHabit, frequency: e.target.value})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                     >
                       <option value="daily">Denně</option>
                       <option value="weekly">Týdně</option>
@@ -674,7 +674,7 @@ export function HabitsManagementView({
                         type="time"
                         value={editingHabit.reminderTime || '09:00'}
                         onChange={(e) => setEditingHabit({...editingHabit, reminderTime: e.target.value})}
-                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                       />
                     )}
                   </div>
@@ -686,7 +686,7 @@ export function HabitsManagementView({
                   <select
                     value={editingHabit.aspirationId || ''}
                     onChange={(e) => setEditingHabit({...editingHabit, aspirationId: e.target.value ? e.target.value : null})}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                   >
                     <option value="">Žádná aspirace</option>
                     {aspirations.map((aspiration: any) => (

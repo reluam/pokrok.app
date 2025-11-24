@@ -272,7 +272,7 @@ export function HelpView({
                 </p>
               </div>
 
-              <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded">
+              <div className="bg-orange-50 border-l-4 border-orange-600 p-4 rounded">
                 <h3 className="font-semibold text-orange-900 mb-2">Nápověda a nastavení</h3>
                 <p className="text-orange-800 text-sm">
                   V horním menu najdete tlačítko Nápověda (otazník) a Nastavení. Nápověda vám poskytne detailní informace 

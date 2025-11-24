@@ -749,7 +749,7 @@ export function GoalsManagementView({
               <select
                 value={goalsStatusFilter}
                 onChange={(e) => setGoalsStatusFilter(e.target.value as any)}
-                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
               >
                 <option value="all">{t('goals.filters.status.all')}</option>
                 <option value="active">{t('goals.filters.status.active')}</option>
@@ -761,7 +761,7 @@ export function GoalsManagementView({
               <select
                 value={goalsAreaFilter || ''}
                 onChange={(e) => setGoalsAreaFilter(e.target.value || null)}
-                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
               >
                 <option value="">{t('goals.filters.area.all')}</option>
                 {areas.map((area: any) => (
@@ -773,7 +773,7 @@ export function GoalsManagementView({
               <select
                 value={goalsAspirationFilter || ''}
                 onChange={(e) => setGoalsAspirationFilter(e.target.value || null)}
-                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
               >
                 <option value="">{t('goals.filters.aspiration.all')}</option>
                 {aspirations.map((aspiration: any) => (
@@ -790,7 +790,7 @@ export function GoalsManagementView({
           <select
             value={goalsStatusFilter}
             onChange={(e) => setGoalsStatusFilter(e.target.value as any)}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
           >
             <option value="all">{t('goals.filters.status.all')}</option>
             <option value="active">{t('goals.filters.status.active')}</option>
@@ -802,7 +802,7 @@ export function GoalsManagementView({
           <select
             value={goalsAreaFilter || ''}
             onChange={(e) => setGoalsAreaFilter(e.target.value || null)}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white min-w-[150px]"
+            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white min-w-[150px]"
           >
             <option value="">{t('goals.filters.area.all')}</option>
             {areas.map((area: any) => (
@@ -814,7 +814,7 @@ export function GoalsManagementView({
           <select
             value={goalsAspirationFilter || ''}
             onChange={(e) => setGoalsAspirationFilter(e.target.value || null)}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white min-w-[150px]"
+            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white min-w-[150px]"
           >
             <option value="">{t('goals.filters.aspiration.all')}</option>
             {aspirations.map((aspiration: any) => (
@@ -1492,7 +1492,7 @@ export function GoalsManagementView({
                     onClick={() => setActiveTab('general')}
                     className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
                       activeTab === 'general'
-                        ? 'border-orange-500 text-orange-600'
+                        ? 'border-orange-600 text-orange-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700'
                     }`}
                   >
@@ -1502,7 +1502,7 @@ export function GoalsManagementView({
                     onClick={() => setActiveTab('milestones')}
                     className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
                       activeTab === 'milestones'
-                        ? 'border-orange-500 text-orange-600'
+                        ? 'border-orange-600 text-orange-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700'
                     }`}
                   >
@@ -1512,7 +1512,7 @@ export function GoalsManagementView({
                     onClick={() => setActiveTab('steps')}
                     className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
                       activeTab === 'steps'
-                        ? 'border-orange-500 text-orange-600'
+                        ? 'border-orange-600 text-orange-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700'
                     }`}
                   >
@@ -1532,7 +1532,7 @@ export function GoalsManagementView({
                     type="text"
                     value={editFormData.title}
                     onChange={(e) => setEditFormData({...editFormData, title: e.target.value})}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                     placeholder={t('goals.goalTitlePlaceholder')}
                   />
                 </div>
@@ -1544,7 +1544,7 @@ export function GoalsManagementView({
                   <textarea
                     value={editFormData.description}
                     onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white resize-none"
+                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white resize-none"
                     rows={4}
                     placeholder={t('goals.goalDescriptionPlaceholder')}
                   />
@@ -1559,7 +1559,7 @@ export function GoalsManagementView({
                       type="date"
                       value={editFormData.target_date}
                       onChange={(e) => setEditFormData({...editFormData, target_date: e.target.value})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                     />
                   </div>
 
@@ -1570,7 +1570,7 @@ export function GoalsManagementView({
                     <select
                       value={editFormData.status}
                       onChange={(e) => setEditFormData({...editFormData, status: e.target.value})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                     >
                       <option value="active">{t('goals.status.active')}</option>
                       <option value="completed">{t('goals.status.completed')}</option>
@@ -1587,7 +1587,7 @@ export function GoalsManagementView({
                     <select
                       value={editFormData.areaId}
                       onChange={(e) => setEditFormData({...editFormData, areaId: e.target.value})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                     >
                       <option value="">{t('goals.noArea') || 'Bez oblasti'}</option>
                       {areas.map((area: any) => (
@@ -1603,7 +1603,7 @@ export function GoalsManagementView({
                     <select
                       value={editFormData.aspirationId}
                       onChange={(e) => setEditFormData({...editFormData, aspirationId: e.target.value})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                     >
                       <option value="">{t('goals.noAspiration') || 'Bez aspirace'}</option>
                       {aspirations.map((aspiration: any) => (
@@ -1663,7 +1663,7 @@ export function GoalsManagementView({
                           <div 
                             key={step.id} 
                             data-step-id={step.id}
-                            className="bg-gray-50 p-3 rounded-lg border border-gray-200 hover:border-orange-300 transition-colors"
+                            className="bg-gray-50 p-3 rounded-lg border border-gray-200 hover:border-orange-600 transition-colors"
                           >
                             {isEditing ? (
                               <>
@@ -1686,7 +1686,7 @@ export function GoalsManagementView({
                                     )
                                     setEditFormData({ ...editFormData, steps: updatedSteps })
                                   }}
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
                                   placeholder={t('steps.stepTitle')}
                                   autoFocus
                                 />
@@ -1699,7 +1699,7 @@ export function GoalsManagementView({
                                     )
                                     setEditFormData({ ...editFormData, steps: updatedSteps })
                                   }}
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
                                   placeholder={t('steps.dateOptional')}
                                 />
                                 <textarea
@@ -1710,7 +1710,7 @@ export function GoalsManagementView({
                                     )
                                     setEditFormData({ ...editFormData, steps: updatedSteps })
                                   }}
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white resize-none"
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white resize-none"
                                   rows={2}
                                   placeholder={t('steps.descriptionOptional')}
                                 />
@@ -1829,7 +1829,7 @@ export function GoalsManagementView({
                           <div 
                             key={milestone.id} 
                             data-milestone-id={milestone.id}
-                            className="bg-gray-50 p-3 rounded-lg border border-gray-200 hover:border-orange-300 transition-colors"
+                            className="bg-gray-50 p-3 rounded-lg border border-gray-200 hover:border-orange-600 transition-colors"
                           >
                             {isEditing ? (
                               <>
@@ -1852,7 +1852,7 @@ export function GoalsManagementView({
                                     )
                                     setEditFormData({ ...editFormData, milestones: updatedMilestones })
                                   }}
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
                                   placeholder={t('goals.milestoneTitle')}
                                   autoFocus
                                 />
@@ -1864,7 +1864,7 @@ export function GoalsManagementView({
                                     )
                                     setEditFormData({ ...editFormData, milestones: updatedMilestones })
                                   }}
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white resize-none"
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white resize-none"
                                   rows={2}
                                   placeholder="Popis (volitelné)"
                                 />

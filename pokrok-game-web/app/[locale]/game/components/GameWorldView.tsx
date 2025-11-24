@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { JourneyGameView } from './JourneyGameView'
 import { DailyPlanningView } from './DailyPlanningView'
 import { GoalsManagementView } from './GoalsManagementView'
-import { HabitsManagementView } from './HabitsManagementView'
 import { StatisticsView } from './StatisticsView'
 import { AchievementsView } from './AchievementsView'
 import { SettingsView } from './SettingsView'
@@ -113,7 +112,16 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
   }
 
   const handleNavigateToHabits = () => {
-    setCurrentView('habits')
+    // Navigate to main panel with habits section
+    setCurrentView('character')
+    // Set the section in localStorage so JourneyGameView will load it
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('journeyGame_mainPanelSection', 'habits')
+      // Dispatch custom event for same-window updates
+      window.dispatchEvent(new CustomEvent('localStorageChange', {
+        detail: { key: 'journeyGame_mainPanelSection', newValue: 'habits' }
+      }))
+    }
   }
 
   const handleNavigateToStatistics = () => {
@@ -182,15 +190,6 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
             player={player}
             goals={goals}
             onGoalsUpdate={onGoalsUpdate}
-            onBack={handleBackToCharacter}
-          />
-        )
-      case 'habits':
-        return (
-          <HabitsManagementView
-            player={player}
-            habits={habits}
-            onHabitsUpdate={onHabitsUpdate}
             onBack={handleBackToCharacter}
           />
         )

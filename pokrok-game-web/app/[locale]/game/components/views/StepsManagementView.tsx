@@ -348,7 +348,7 @@ export function StepsManagementView({
               <select
                 value={stepsGoalFilter || ''}
                 onChange={(e) => setStepsGoalFilter(e.target.value || null)}
-                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
               >
                 <option value="">{t('steps.filters.goal.all')}</option>
                 {goals.map((goal: any) => (
@@ -362,7 +362,7 @@ export function StepsManagementView({
                   type="date"
                   value={stepsDateFilter || ''}
                   onChange={(e) => setStepsDateFilter(e.target.value || null)}
-                  className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                  className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
                 />
                 {stepsDateFilter && (
                   <button
@@ -394,7 +394,7 @@ export function StepsManagementView({
           <select
             value={stepsGoalFilter || ''}
             onChange={(e) => setStepsGoalFilter(e.target.value || null)}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white min-w-[150px]"
+            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white min-w-[150px]"
           >
             <option value="">{t('steps.filters.goal.all')}</option>
             {goals.map((goal: any) => (
@@ -408,7 +408,7 @@ export function StepsManagementView({
               type="date"
               value={stepsDateFilter || ''}
               onChange={(e) => setStepsDateFilter(e.target.value || null)}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
             />
             {stepsDateFilter && (
               <button
@@ -596,7 +596,7 @@ export function StepsManagementView({
                     type="text"
                     value={editFormData.title}
                     onChange={(e) => setEditFormData({...editFormData, title: e.target.value})}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                     placeholder={t('steps.titlePlaceholder')}
                   />
                 </div>
@@ -608,7 +608,7 @@ export function StepsManagementView({
                   <textarea
                     value={editFormData.description}
                     onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white resize-none"
+                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white resize-none"
                     rows={4}
                     placeholder={t('steps.descriptionPlaceholder')}
                   />
@@ -623,7 +623,7 @@ export function StepsManagementView({
                       type="date"
                       value={editFormData.date}
                       onChange={(e) => setEditFormData({...editFormData, date: e.target.value})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                     />
                   </div>
 
@@ -634,7 +634,7 @@ export function StepsManagementView({
                     <select
                       value={editFormData.goalId}
                       onChange={(e) => setEditFormData({...editFormData, goalId: e.target.value})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                     >
                       <option value="">{t('steps.noGoal')}</option>
                       {goals.map((goal: any) => (

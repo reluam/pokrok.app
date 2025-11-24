@@ -633,7 +633,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
                       onClick={() => handleToggleBuiltInWorkflow('daily_review')}
                       className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
                         workflows.find(w => w.type === 'daily_review')?.enabled
-                          ? 'bg-orange-500 text-white hover:bg-orange-600'
+                          ? 'bg-orange-600 text-white hover:bg-orange-600'
                           : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                       }`}
                     >

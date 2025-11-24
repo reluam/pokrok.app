@@ -1,9 +1,9 @@
 'use client'
 
-import { useMemo, useEffect, useRef } from 'react'
+import { useMemo, useEffect, useRef, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
-import { Check, Target, ArrowRight } from 'lucide-react'
+import { Check, Target, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react'
 import { getIconEmoji } from '@/lib/icon-utils'
 
 interface TodayFocusSectionProps {
@@ -51,9 +51,17 @@ export function TodayFocusSection({
   const locale = useLocale()
   const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
   
+  // State for showing/hiding completed habits in day view
+  const [showCompletedHabits, setShowCompletedHabits] = useState(false)
+  
   const displayDate = new Date(selectedDayDate)
   displayDate.setHours(0, 0, 0, 0)
   const displayDateStr = getLocalDateString(displayDate)
+  
+  // Reset showCompletedHabits when date changes
+  useEffect(() => {
+    setShowCompletedHabits(false)
+  }, [displayDateStr])
   
   // Get week days for week view
   const weekDays = useMemo(() => {
@@ -428,11 +436,11 @@ export function TodayFocusSection({
             )}
           </div>
           
-          {/* Two Column Layout - Mobile: stacked, Desktop: side by side */}
-          <div className="flex flex-col md:flex-row gap-6">
+          {/* Two Column Layout - Mobile/Tablet: stacked, Large Desktop: side by side */}
+          <div className="flex flex-col lg:flex-row gap-6">
             {/* Left Column: Habits - Week view shows compact table on desktop, vertical day layout on mobile */}
             {isWeekView && weekStartDate && (
-              <div className="flex-shrink-0 md:border-r md:border-gray-200 md:pr-6 pb-6 md:pb-0 border-b md:border-b-0 w-full md:w-auto" style={{ minWidth: '200px' }}>
+              <div className="flex-shrink-0 lg:border-r lg:border-gray-200 lg:pr-6 pb-6 lg:pb-0 border-b lg:border-b-0 w-full lg:w-auto" style={{ minWidth: '200px' }}>
                 <h4 
                   onClick={() => onNavigateToHabits?.()}
                   className={`text-[10px] md:text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-2 ${onNavigateToHabits ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
@@ -441,8 +449,8 @@ export function TodayFocusSection({
                 </h4>
                 {weekHabits.length > 0 ? (
                   <>
-                    {/* Mobile: All habits in one box with dividers */}
-                    <div className="md:hidden border border-gray-200 rounded-lg p-2">
+                    {/* Mobile/Tablet: All habits in one box with dividers */}
+                    <div className="lg:hidden border border-gray-200 rounded-lg p-2">
                       {weekHabits.map((habit, index) => (
                         <div key={habit.id}>
                           <button
@@ -465,34 +473,32 @@ export function TodayFocusSection({
                                   <span className={`text-[8px] mb-0.5 ${isSelected ? 'text-orange-600 font-bold' : 'text-gray-400'}`}>
                                     {dayName}
                                   </span>
-                                  {isScheduled ? (
-                                    <button
-                                      onClick={() => {
-                                        if (handleHabitToggle && !loadingHabits.has(habit.id)) {
-                                          handleHabitToggle(habit.id, dateStr)
-                                        }
-                                      }}
-                                      disabled={loadingHabits.has(habit.id)}
-                                      className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
-                                        isCompleted
-                                          ? 'bg-orange-500 border-orange-600'
-                                          : 'bg-white border-gray-300 hover:border-orange-400'
-                                      } ${isSelected ? 'ring-1 ring-orange-300' : ''}`}
-                                    >
-                                      {loadingHabits.has(habit.id) ? (
-                                        <svg className="animate-spin h-2.5 w-2.5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                      ) : isCompleted ? (
-                                        <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
-                                      ) : null}
-                                    </button>
-                                  ) : (
-                                    <div className="w-5 h-5 flex items-center justify-center">
-                                      <span className="text-gray-200 text-[6px]">•</span>
-                                    </div>
-                                  )}
+                                  <button
+                                    onClick={() => {
+                                      if (handleHabitToggle && !loadingHabits.has(habit.id)) {
+                                        handleHabitToggle(habit.id, dateStr)
+                                      }
+                                    }}
+                                    disabled={loadingHabits.has(habit.id)}
+                                    className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
+                                      isScheduled
+                                        ? isCompleted
+                                          ? 'bg-orange-600 border-orange-600'
+                                          : 'bg-white border-gray-600 hover:border-gray-700'
+                                        : isCompleted
+                                          ? 'bg-orange-600 border-orange-600'
+                                          : 'bg-white border-gray-300 hover:border-gray-400'
+                                    } ${isSelected ? 'ring-1 ring-orange-300' : ''}`}
+                                  >
+                                    {loadingHabits.has(habit.id) ? (
+                                      <svg className="animate-spin h-2.5 w-2.5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                      </svg>
+                                    ) : isCompleted ? (
+                                      <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
+                                    ) : null}
+                                  </button>
                                 </div>
                               )
                             })}
@@ -505,7 +511,7 @@ export function TodayFocusSection({
                     </div>
                     
                     {/* Desktop: Horizontal table layout */}
-                    <div className="hidden md:block overflow-y-auto max-h-[500px]">
+                    <div className="hidden lg:block overflow-y-auto max-h-[500px]">
                       <table className="border-collapse text-left">
                         <thead>
                           <tr>
@@ -556,32 +562,32 @@ export function TodayFocusSection({
                                       isSelected ? 'bg-orange-50' : ''
                                     }`}
                                   >
-                                    {isScheduled ? (
-                                      <button
-                                        onClick={() => {
-                                          if (handleHabitToggle && !loadingHabits.has(habit.id)) {
-                                            handleHabitToggle(habit.id, dateStr)
-                                          }
-                                        }}
-                                        disabled={loadingHabits.has(habit.id)}
-                                        className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
-                                          isCompleted
-                                            ? 'bg-orange-500 border-orange-600'
-                                            : 'bg-white border-gray-300 hover:border-orange-400'
-                                        } ${isSelected ? 'ring-1 ring-orange-300' : ''}`}
-                                      >
-                                        {loadingHabits.has(habit.id) ? (
-                                          <svg className="animate-spin h-2 w-2 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                          </svg>
-                                        ) : isCompleted ? (
-                                          <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
-                                        ) : null}
-                                      </button>
-                                    ) : (
-                                      <span className="text-gray-200 text-[8px]">•</span>
-                                    )}
+                                    <button
+                                      onClick={() => {
+                                        if (handleHabitToggle && !loadingHabits.has(habit.id)) {
+                                          handleHabitToggle(habit.id, dateStr)
+                                        }
+                                      }}
+                                      disabled={loadingHabits.has(habit.id)}
+                                      className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
+                                        isScheduled
+                                          ? isCompleted
+                                            ? 'bg-orange-600 border-orange-600'
+                                            : 'bg-white border-gray-600 hover:border-gray-700'
+                                          : isCompleted
+                                            ? 'bg-orange-600 border-orange-600'
+                                            : 'bg-white border-gray-300 hover:border-gray-400'
+                                      } ${isSelected ? 'ring-1 ring-orange-300' : ''}`}
+                                    >
+                                      {loadingHabits.has(habit.id) ? (
+                                        <svg className="animate-spin h-2 w-2 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                      ) : isCompleted ? (
+                                        <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
+                                      ) : null}
+                                    </button>
                                   </td>
                                 )
                               })}
@@ -607,16 +613,54 @@ export function TodayFocusSection({
               </div>
             )}
             {!isWeekView && (
-            <div className="flex-shrink-0 md:border-r md:border-gray-200 md:pr-6 pb-6 md:pb-0 border-b md:border-b-0 w-full md:w-auto" style={{ width: `auto`, maxWidth: '100%' }}>
-              <h4 
-                onClick={() => onNavigateToHabits?.()}
-                className={`text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 ${onNavigateToHabits ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
-              >
-                Návyky
-              </h4>
+            <div className="flex-shrink-0 lg:border-r lg:border-gray-200 lg:pr-6 pb-6 lg:pb-0 border-b lg:border-b-0 w-full lg:w-auto" style={{ width: `auto`, maxWidth: '100%' }}>
+              <div className="flex items-center justify-between mb-3">
+                <h4 
+                  onClick={() => onNavigateToHabits?.()}
+                  className={`text-xs font-semibold text-gray-500 uppercase tracking-wide ${onNavigateToHabits ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
+                >
+                  Návyky
+                </h4>
+                {(() => {
+                  const completedHabitsCount = todaysHabits.filter(h => {
+                    const isCompleted = h.habit_completions && h.habit_completions[displayDateStr] === true
+                    return isCompleted
+                  }).length
+                  
+                  if (completedHabitsCount > 0) {
+                    return (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setShowCompletedHabits(!showCompletedHabits)
+                        }}
+                        className="flex items-center gap-1 text-xs text-gray-500 hover:text-orange-600 transition-colors"
+                        title={showCompletedHabits ? 'Skrýt hotové návyky' : 'Zobrazit hotové návyky'}
+                      >
+                        {showCompletedHabits ? (
+                          <>
+                            <span className="text-[10px]">Skrýt</span>
+                            <ChevronUp className="w-3 h-3" />
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-[10px]">Zobrazit ({completedHabitsCount})</span>
+                            <ChevronDown className="w-3 h-3" />
+                          </>
+                        )}
+                      </button>
+                    )
+                  }
+                  return null
+                })()}
+              </div>
               {todaysHabits.length > 0 ? (
                 <div className="space-y-2">
-                  {todaysHabits.map((habit) => {
+                  {todaysHabits.filter((habit) => {
+                    const isCompleted = habit.habit_completions && habit.habit_completions[displayDateStr] === true
+                    // Show all non-completed habits, and completed only if showCompletedHabits is true
+                    return !isCompleted || showCompletedHabits
+                  }).map((habit) => {
                     const isCompleted = habit.habit_completions && habit.habit_completions[displayDateStr] === true
                     const isNotScheduled = habit.always_show ? (() => {
                       if (habit.frequency === 'daily') return false
@@ -668,10 +712,10 @@ export function TodayFocusSection({
                         }}
                         className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg border-2 transition-all text-left ${
                           isCompleted 
-                            ? 'bg-orange-100 border-orange-400 hover:bg-orange-200' 
+                            ? 'bg-orange-200 border-orange-600 hover:bg-orange-300' 
                             : isNotScheduled 
                               ? 'bg-gray-50 border-gray-300 hover:bg-gray-100 opacity-60' 
-                              : 'bg-white border-orange-300 hover:border-orange-400 hover:bg-orange-50'
+                              : 'bg-white border-orange-600 hover:border-orange-600 hover:bg-orange-100'
                         } cursor-pointer`}
                         title="Klikněte pro úpravu návyku"
                       >
@@ -768,7 +812,7 @@ export function TodayFocusSection({
                       <div key={step.id}>
                         {showGoalInfo ? (
                           // Show with goal (like in "Cíle s nejbližšími kroky")
-                          <div className="border-l-4 border-orange-400 pl-4">
+                          <div className="border-l-4 border-orange-600 pl-4">
                             <div className="flex items-center gap-2 mb-2">
                               <span className="text-xl">{goalIcon}</span>
                               <h4 className="font-semibold text-gray-900 truncate text-sm">{stepGoal.title}</h4>
@@ -788,7 +832,7 @@ export function TodayFocusSection({
                                     : step.is_important
                                       ? 'border-yellow-300 bg-yellow-50/30 hover:bg-yellow-50/50 hover:border-yellow-400'
                                       : step.is_urgent
-                                        ? 'border-orange-300 bg-orange-50/30 hover:bg-orange-50/50 hover:border-orange-400'
+                                        ? 'border-orange-600 bg-orange-100/30 hover:bg-orange-100/50 hover:border-orange-600'
                                         : 'border-gray-200 bg-white hover:bg-gray-50'
                                 } ${step.completed ? 'opacity-60' : ''} ${isOverdue ? 'border-red-300 bg-red-50/30' : ''}`}
                               >
@@ -855,7 +899,7 @@ export function TodayFocusSection({
                             : step.is_important
                               ? 'border-yellow-300 bg-yellow-50/30 hover:bg-yellow-50/50 hover:border-yellow-400'
                               : step.is_urgent
-                                ? 'border-orange-300 bg-orange-50/30 hover:bg-orange-50/50 hover:border-orange-400'
+                                ? 'border-orange-600 bg-orange-100/30 hover:bg-orange-100/50 hover:border-orange-600'
                                 : 'border-gray-200 bg-white hover:bg-gray-50'
                         } ${step.completed ? 'opacity-60' : ''} ${isOverdue ? 'border-red-300 bg-red-50/30' : ''}`}
                       >
@@ -984,7 +1028,7 @@ export function TodayFocusSection({
               )}
             </div>
             
-            <div className="flex flex-col md:grid md:grid-cols-2 gap-3">
+            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-3">
               {(() => {
                 // Separate steps into overdue steps and future steps
                 const overdueStepsList: any[] = []

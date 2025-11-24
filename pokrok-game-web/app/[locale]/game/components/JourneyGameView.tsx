@@ -216,6 +216,34 @@ export function JourneyGameView({
     }
   }, [currentPage, currentProgram, currentManagementProgram, mainPanelSection, sidebarCollapsed])
 
+  // Listen for storage changes to update mainPanelSection from external navigation
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'journeyGame_mainPanelSection' && e.newValue) {
+        if (['overview', 'goals', 'steps', 'habits', 'aspirace'].includes(e.newValue)) {
+          setMainPanelSection(e.newValue as 'overview' | 'goals' | 'steps' | 'habits' | 'aspirace')
+          setCurrentPage('main')
+        }
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    // Also listen for custom storage event (for same-window updates)
+    window.addEventListener('localStorageChange', (e: any) => {
+      if (e.detail?.key === 'journeyGame_mainPanelSection' && e.detail?.newValue) {
+        if (['overview', 'goals', 'steps', 'habits', 'aspirace'].includes(e.detail.newValue)) {
+          setMainPanelSection(e.detail.newValue as 'overview' | 'goals' | 'steps' | 'habits' | 'aspirace')
+          setCurrentPage('main')
+        }
+      }
+    })
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('localStorageChange', handleStorageChange as any)
+    }
+  }, [])
+
   const [editingGoal, setEditingGoal] = useState<any>(null)
   const [editingStep, setEditingStep] = useState<any>(null)
   const [displayMode, setDisplayMode] = useState<'character' | 'progress' | 'motivation' | 'stats' | 'dialogue'>('character')
@@ -1416,7 +1444,7 @@ export function JourneyGameView({
                         setStepTitle(selectedItem?.title || '')
                       }
                     }}
-                    className="flex-1 text-2xl font-bold text-orange-900 border-b-2 border-orange-500 focus:outline-none bg-transparent"
+                    className="flex-1 text-2xl font-bold text-orange-900 border-b-2 border-orange-600 focus:outline-none bg-transparent"
                     autoFocus
                   />
                 ) : (
@@ -1441,7 +1469,7 @@ export function JourneyGameView({
                 onChange={(e) => setStepDescription(e.target.value)}
                 onBlur={handleSaveStep}
                 placeholder={t('details.step.descriptionPlaceholder')}
-                className="w-full px-4 py-3 text-orange-800 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white bg-opacity-50 resize-none"
+                className="w-full px-4 py-3 text-orange-800 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white bg-opacity-50 resize-none"
                 rows={3}
               />
 
@@ -1615,7 +1643,7 @@ export function JourneyGameView({
                       type="number"
                       value={stepEstimatedTime}
                       onChange={(e) => setStepEstimatedTime(parseInt(e.target.value) || 0)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
                       min="0"
                     />
                     <button
@@ -1649,7 +1677,7 @@ export function JourneyGameView({
                       type="date"
                       value={selectedDate || ''}
                       onChange={(e) => setSelectedDate(e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
                     />
                     <button
                       onClick={() => handleRescheduleStep(selectedDate)}
@@ -1981,13 +2009,13 @@ export function JourneyGameView({
                           // 3. Dnešní den - podtržený, ale stejný styl jako ostatní
                           dayState = 'today'
                           if (isCompleted) {
-                            className += 'bg-green-200 text-green-800 hover:bg-green-300 cursor-pointer border-b-2 border-orange-500'
+                            className += 'bg-green-200 text-green-800 hover:bg-green-300 cursor-pointer border-b-2 border-orange-600'
                           } else if (isMissed) {
-                            className += 'bg-red-200 text-red-800 hover:bg-red-300 cursor-pointer border-b-2 border-orange-500'
+                            className += 'bg-red-200 text-red-800 hover:bg-red-300 cursor-pointer border-b-2 border-orange-600'
                           } else if (isScheduled) {
-                            className += 'bg-gray-100 text-gray-500 cursor-pointer hover:bg-gray-200 border-b-2 border-orange-500'
+                            className += 'bg-gray-100 text-gray-500 cursor-pointer hover:bg-gray-200 border-b-2 border-orange-600'
                           } else {
-                            className += 'bg-gray-200 text-gray-600 hover:bg-gray-300 cursor-pointer border-b-2 border-orange-500'
+                            className += 'bg-gray-200 text-gray-600 hover:bg-gray-300 cursor-pointer border-b-2 border-orange-600'
                           }
                           onClick = () => {
                             handleHabitCalendarToggle(item.id, dateKey, isCompleted ? 'completed' : isMissed ? 'missed' : isScheduled ? 'planned' : 'not-scheduled', isScheduled)
@@ -2062,7 +2090,7 @@ export function JourneyGameView({
                     type="text"
                         value={editingHabitName || item.name}
                         onChange={(e) => setEditingHabitName(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
                       />
               </div>
 
@@ -2074,7 +2102,7 @@ export function JourneyGameView({
               <textarea
                         value={editingHabitDescription || item.description || ''}
                         onChange={(e) => setEditingHabitDescription(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 resize-none"
                 rows={3}
               />
               </div>
@@ -2087,7 +2115,7 @@ export function JourneyGameView({
                     <select
                         value={editingHabitFrequency || item.frequency || 'daily'}
                         onChange={(e) => setEditingHabitFrequency(e.target.value as 'daily' | 'weekly' | 'monthly' | 'custom')}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
                     >
                         <option value="daily">Denně</option>
                         <option value="weekly">Týdně</option>
@@ -2126,7 +2154,7 @@ export function JourneyGameView({
                       }}
                                 className={`px-3 py-1 rounded-lg font-medium transition-colors ${
                                   isSelected
-                                    ? 'bg-orange-500 text-white'
+                                    ? 'bg-orange-600 text-white'
                                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                 }`}
                     >
@@ -2160,7 +2188,7 @@ export function JourneyGameView({
                         type="number"
                         value={editingHabitXpReward || item.xp_reward || 0}
                         onChange={(e) => setEditingHabitXpReward(parseInt(e.target.value) || 0)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
                         min="0"
                       />
                     </div>
@@ -2174,7 +2202,7 @@ export function JourneyGameView({
                         type="text"
                         value={editingHabitCategory || item.category || ''}
                         onChange={(e) => setEditingHabitCategory(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
                         placeholder="Např. Zdraví, Vzdělání..."
                       />
                     </div>
@@ -2187,7 +2215,7 @@ export function JourneyGameView({
                     <select
                         value={editingHabitDifficulty || item.difficulty || 'medium'}
                         onChange={(e) => setEditingHabitDifficulty(e.target.value as 'easy' | 'medium' | 'hard')}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
                     >
                         <option value="easy">Snadná</option>
                         <option value="medium">Střední</option>
@@ -2204,7 +2232,7 @@ export function JourneyGameView({
                         type="time"
                         value={editingHabitReminderTime || (item.reminder_time || '')}
                         onChange={(e) => setEditingHabitReminderTime(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
                     />
                     </div>
                     
@@ -2408,7 +2436,7 @@ export function JourneyGameView({
                     ? 'bg-gray-400 text-white cursor-wait'
                     : selectedItem.completed 
                       ? 'bg-gray-500 text-white hover:bg-gray-600' 
-                      : 'bg-orange-500 text-white hover:bg-orange-600'
+                      : 'bg-orange-600 text-white hover:bg-orange-600'
                 }`}
               >
                 {loadingSteps.has(selectedItem.id) ? (
@@ -2461,7 +2489,7 @@ export function JourneyGameView({
                     ? 'bg-gray-400 text-white cursor-wait'
                     : selectedItem.completed_today 
                       ? 'bg-gray-500 text-white hover:bg-gray-600' 
-                      : 'bg-orange-500 text-white hover:bg-orange-600'
+                      : 'bg-orange-600 text-white hover:bg-orange-600'
                 }`}
               >
                 {loadingHabits.has(selectedItem.id) ? (
@@ -2888,7 +2916,7 @@ export function JourneyGameView({
           <div className="text-2xl font-bold text-orange-600">{Math.round(todayProgressPercentage)}%</div>
           <div className="flex-1 bg-orange-200 bg-opacity-50 rounded-full h-2">
             <div 
-              className="bg-orange-500 h-2 rounded-full transition-all duration-500"
+              className="bg-orange-600 h-2 rounded-full transition-all duration-500"
               style={{ width: `${Math.min(todayProgressPercentage, 100)}%` }}
             ></div>
           </div>
@@ -3093,7 +3121,7 @@ export function JourneyGameView({
               <div className="mb-4">
                 <div className="w-full bg-gray-200 rounded-full h-4 mb-2" style={{ backgroundColor: '#e5e7eb' }}>
                   <div 
-                    className="bg-orange-500 h-4 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
+                    className="bg-orange-600 h-4 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
                     style={{ width: `${progressPercentage}%` }}
                   >
                     {progressPercentage > 20 && (
@@ -3764,7 +3792,7 @@ export function JourneyGameView({
                     await handleUpdateGoal(goal.id, { target_date: newDate })
                     setShowDatePicker(false)
                   }}
-                  className="text-base px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  className="text-base px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
                   autoFocus
                 />
           </div>
@@ -3807,7 +3835,7 @@ export function JourneyGameView({
                       }
                     }}
                     placeholder={`${t('goals.stepNumber')} ${stepsCount + 1}`}
-                    className="w-full text-base px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full text-base px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
                     autoFocus
                   />
                   <div className="flex gap-2">
@@ -3871,7 +3899,7 @@ export function JourneyGameView({
                       }
                     }}
                     placeholder={t('goals.milestoneTitle')}
-                    className="w-full text-base px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full text-base px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
                     autoFocus
                   />
                   <div className="flex gap-2">
@@ -4838,7 +4866,7 @@ export function JourneyGameView({
       }
       loadAspiraceData()
     }
-  }, [currentPage])
+  }, [currentPage, mainPanelSection])
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -5484,7 +5512,7 @@ export function JourneyGameView({
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({...formData, title: e.target.value})}
-                className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white shadow-sm hover:shadow-md"
+                className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white shadow-sm hover:shadow-md"
                 placeholder={t('goals.goalTitlePlaceholder')}
             />
           </div>
@@ -5496,7 +5524,7 @@ export function JourneyGameView({
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-                className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white shadow-sm hover:shadow-md resize-none"
+                className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white shadow-sm hover:shadow-md resize-none"
                 rows={4}
                 placeholder={t('goals.goalDescriptionPlaceholder')}
             />
@@ -5554,7 +5582,7 @@ export function JourneyGameView({
                             setFormData({...formData, target_date: e.target.value})
                             setShowGoalDatePicker(false)
                           }}
-                          className="text-base px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                          className="text-base px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
                           autoFocus
                         />
                       </div>
@@ -5781,7 +5809,7 @@ export function JourneyGameView({
                                 )
                                 setFormData({ ...formData, steps: updatedSteps })
                               }}
-                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
                               placeholder={t('steps.stepTitle')}
                               autoFocus
                             />
@@ -5794,7 +5822,7 @@ export function JourneyGameView({
                                 )
                                 setFormData({ ...formData, steps: updatedSteps })
                               }}
-                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
                               placeholder={t('steps.dateOptional')}
                             />
                             <textarea
@@ -5805,7 +5833,7 @@ export function JourneyGameView({
                                 )
                                 setFormData({ ...formData, steps: updatedSteps })
                               }}
-                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white resize-none"
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white resize-none"
                               rows={2}
                               placeholder={t('steps.descriptionOptional')}
                             />
@@ -6148,7 +6176,7 @@ export function JourneyGameView({
                                 )
                                 setFormData({ ...formData, milestones: updatedMilestones })
                               }}
-                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
                               placeholder={t('goals.milestoneTitle')}
                               autoFocus
                             />
@@ -6160,7 +6188,7 @@ export function JourneyGameView({
                                 )
                                 setFormData({ ...formData, milestones: updatedMilestones })
                               }}
-                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white resize-none"
+                              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white resize-none"
                               rows={2}
                               placeholder="Popis (volitelné)"
                             />
@@ -6942,7 +6970,7 @@ export function JourneyGameView({
               <div className="flex gap-2">
                 <button
                   onClick={handleUpdateStep}
-                  className="px-3 py-1 bg-orange-500 text-white text-xs rounded hover:bg-orange-600"
+                  className="px-3 py-1 bg-orange-600 text-white text-xs rounded hover:bg-orange-600"
                 >
                   Uložit
                 </button>
@@ -7022,7 +7050,7 @@ export function JourneyGameView({
                       type="text"
                       value={newGoal.title}
                       onChange={(e) => setNewGoal({...newGoal, title: e.target.value})}
-                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white shadow-sm hover:shadow-md"
+                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white shadow-sm hover:shadow-md"
                         placeholder={t('goals.goalTitlePlaceholder')}
                     />
                   </div>
@@ -7034,7 +7062,7 @@ export function JourneyGameView({
                     <textarea
                       value={newGoal.description || ''}
                       onChange={(e) => setNewGoal({...newGoal, description: e.target.value})}
-                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white shadow-sm hover:shadow-md resize-none"
+                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white shadow-sm hover:shadow-md resize-none"
                         rows={4}
                         placeholder={t('goals.goalDescriptionPlaceholder')}
                     />
@@ -7092,7 +7120,7 @@ export function JourneyGameView({
                                     setNewGoal({...newGoal, target_date: e.target.value ? new Date(e.target.value).toISOString() : null as any})
                                     setShowGoalDatePicker(false)
                                   }}
-                                  className="text-base px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                  className="text-base px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
                                   autoFocus
                     />
                               </div>
@@ -7313,7 +7341,7 @@ export function JourneyGameView({
                                         )
                                         setNewGoal({ ...newGoal, steps: updatedSteps })
                                       }}
-                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
                                       placeholder={t('steps.stepTitle')}
                                       autoFocus
                                     />
@@ -7326,7 +7354,7 @@ export function JourneyGameView({
                                         )
                                         setNewGoal({ ...newGoal, steps: updatedSteps })
                                       }}
-                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
                                       placeholder={t('steps.dateOptional')}
                                     />
                                     <textarea
@@ -7337,7 +7365,7 @@ export function JourneyGameView({
                                         )
                                         setNewGoal({ ...newGoal, steps: updatedSteps })
                                       }}
-                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white resize-none"
+                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white resize-none"
                                       rows={2}
                                       placeholder={t('steps.descriptionOptional')}
                                     />
@@ -7491,7 +7519,7 @@ export function JourneyGameView({
                                         )
                                         setNewGoal({ ...newGoal, milestones: updatedMilestones })
                                       }}
-                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
                                       placeholder={t('goals.milestoneTitle')}
                                       autoFocus
                                     />
@@ -7503,7 +7531,7 @@ export function JourneyGameView({
                                         )
                                         setNewGoal({ ...newGoal, milestones: updatedMilestones })
                                       }}
-                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white resize-none"
+                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white resize-none"
                                       rows={2}
                                       placeholder="Popis (volitelné)"
                                     />
@@ -7636,7 +7664,7 @@ export function JourneyGameView({
             <select
               value={goalsStatusFilter}
               onChange={(e) => setGoalsStatusFilter(e.target.value as any)}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
             >
               <option value="all">{t('goals.filters.status.all')}</option>
               <option value="active">{t('goals.filters.status.active')}</option>
@@ -7648,7 +7676,7 @@ export function JourneyGameView({
             <select
               value={goalsAreaFilter || ''}
               onChange={(e) => setGoalsAreaFilter(e.target.value || null)}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white min-w-[150px]"
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white min-w-[150px]"
             >
               <option value="">{t('goals.filters.area.all')}</option>
               {areas.map((area: any) => (
@@ -7660,7 +7688,7 @@ export function JourneyGameView({
             <select
               value={goalsAspirationFilter || ''}
               onChange={(e) => setGoalsAspirationFilter(e.target.value || null)}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white min-w-[150px]"
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white min-w-[150px]"
             >
               <option value="">{t('goals.filters.aspiration.all')}</option>
               {aspirations.map((aspiration: any) => (
@@ -8278,7 +8306,7 @@ export function JourneyGameView({
                                 console.error('Error updating goal date:', error)
                               }
                             }}
-                            className="flex-1 px-3 py-1.5 bg-orange-500 text-white text-xs rounded-lg hover:bg-orange-600 transition-colors"
+                            className="flex-1 px-3 py-1.5 bg-orange-600 text-white text-xs rounded-lg hover:bg-orange-600 transition-colors"
                           >
                             {t('details.step.confirm') || 'Uložit'}
                           </button>
@@ -9282,7 +9310,7 @@ export function JourneyGameView({
                             }}
                             className={`p-4 rounded-lg text-left transition-all ${
                               isSelected 
-                                ? 'bg-orange-500 text-white' 
+                                ? 'bg-orange-600 text-white' 
                                 : isCurrentWeek
                                   ? 'bg-orange-100 text-orange-700 border-2 border-orange-300'
                                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
@@ -9346,7 +9374,7 @@ export function JourneyGameView({
                           }}
                           className={`p-4 rounded-lg font-semibold transition-all ${
                             isSelected 
-                              ? 'bg-orange-500 text-white' 
+                              ? 'bg-orange-600 text-white' 
                               : isCurrentMonth
                                 ? 'bg-orange-100 text-orange-700 border-2 border-orange-300'
                                 : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
@@ -9387,7 +9415,7 @@ export function JourneyGameView({
                             }}
                             className={`p-4 rounded-lg font-semibold transition-all ${
                               isSelected 
-                                ? 'bg-orange-500 text-white' 
+                                ? 'bg-orange-600 text-white' 
                                 : isCurrentYear
                                   ? 'bg-orange-100 text-orange-700 border-2 border-orange-300'
                                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
@@ -9468,7 +9496,7 @@ export function JourneyGameView({
                     type="text"
                     value={stepModalData.title}
                     onChange={(e) => setStepModalData({...stepModalData, title: e.target.value})}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                     placeholder={t('steps.titlePlaceholder')}
                     autoFocus
                   />
@@ -9481,7 +9509,7 @@ export function JourneyGameView({
                   <textarea
                     value={stepModalData.description}
                     onChange={(e) => setStepModalData({...stepModalData, description: e.target.value})}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white resize-none"
+                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white resize-none"
                     rows={4}
                     placeholder={t('steps.descriptionPlaceholder')}
                   />
@@ -9496,7 +9524,7 @@ export function JourneyGameView({
                       type="date"
                       value={stepModalData.date}
                       onChange={(e) => setStepModalData({...stepModalData, date: e.target.value})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                     />
                   </div>
 
@@ -9507,7 +9535,7 @@ export function JourneyGameView({
                     <select
                       value={stepModalData.goalId}
                       onChange={(e) => setStepModalData({...stepModalData, goalId: e.target.value})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                     >
                       <option value="">{t('steps.noGoal')}</option>
                       {goals.map((goal: any) => (
@@ -9526,7 +9554,7 @@ export function JourneyGameView({
                       type="date"
                       value={stepModalData.deadline}
                       onChange={(e) => setStepModalData({...stepModalData, deadline: e.target.value})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                     />
                   </div>
 
@@ -9538,7 +9566,7 @@ export function JourneyGameView({
                       type="number"
                       value={stepModalData.estimated_time}
                       onChange={(e) => setStepModalData({...stepModalData, estimated_time: parseInt(e.target.value) || 0})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                       min="0"
                     />
                   </div>
@@ -9593,7 +9621,7 @@ export function JourneyGameView({
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     !userId && !player?.user_id
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-orange-500 text-white hover:bg-orange-600'
+                      : 'bg-orange-600 text-white hover:bg-orange-600'
                   }`}
                 >
                   {t('common.save')}
@@ -9772,13 +9800,13 @@ export function JourneyGameView({
                           } else if (isToday) {
                             dayState = 'today'
                             if (isCompleted) {
-                              className += 'bg-green-200 text-green-800 hover:bg-green-300 cursor-pointer border-b-2 border-orange-500'
+                              className += 'bg-green-200 text-green-800 hover:bg-green-300 cursor-pointer border-b-2 border-orange-600'
                             } else if (isMissed) {
-                              className += 'bg-red-200 text-red-800 hover:bg-red-300 cursor-pointer border-b-2 border-orange-500'
+                              className += 'bg-red-200 text-red-800 hover:bg-red-300 cursor-pointer border-b-2 border-orange-600'
                             } else if (isScheduled) {
-                              className += 'bg-gray-100 text-gray-500 cursor-pointer hover:bg-gray-200 border-b-2 border-orange-500'
+                              className += 'bg-gray-100 text-gray-500 cursor-pointer hover:bg-gray-200 border-b-2 border-orange-600'
                             } else {
-                              className += 'bg-gray-200 text-gray-600 hover:bg-gray-300 cursor-pointer border-b-2 border-orange-500'
+                              className += 'bg-gray-200 text-gray-600 hover:bg-gray-300 cursor-pointer border-b-2 border-orange-600'
                             }
                             onClick = () => {
                               handleHabitCalendarToggle(habitModalData.id, dateKey, isCompleted ? 'completed' : isMissed ? 'missed' : isScheduled ? 'planned' : 'not-scheduled', isScheduled)
@@ -9847,7 +9875,7 @@ export function JourneyGameView({
                         type="text"
                         value={editingHabitName}
                         onChange={(e) => setEditingHabitName(e.target.value)}
-                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                         placeholder="Název návyku"
                       />
                     </div>
@@ -9859,7 +9887,7 @@ export function JourneyGameView({
                       <textarea
                         value={editingHabitDescription}
                         onChange={(e) => setEditingHabitDescription(e.target.value)}
-                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white resize-none"
+                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white resize-none"
                         rows={3}
                         placeholder="Popis návyku"
                       />
@@ -9872,7 +9900,7 @@ export function JourneyGameView({
                       <select
                         value={editingHabitFrequency}
                         onChange={(e) => setEditingHabitFrequency(e.target.value as 'daily' | 'weekly' | 'monthly' | 'custom')}
-                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white"
+                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                       >
                         <option value="daily">Denně</option>
                         <option value="weekly">Týdně</option>
@@ -9899,7 +9927,7 @@ export function JourneyGameView({
                               }}
                               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                                 editingHabitSelectedDays.includes(day)
-                                  ? 'bg-orange-500 text-white'
+                                  ? 'bg-orange-600 text-white'
                                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                               }`}
                             >
