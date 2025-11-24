@@ -5,6 +5,7 @@ import { useUser, useClerk } from '@clerk/nextjs'
 import { useTranslations, useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { locales, type Locale } from '@/i18n/config'
+import { User, Target, ListTodo, BarChart3, Workflow, Eye, AlertTriangle } from 'lucide-react'
 
 interface SettingsViewProps {
   player: any
@@ -12,7 +13,7 @@ interface SettingsViewProps {
   onBack?: () => void
 }
 
-type SettingsTab = 'user' | 'goals' | 'steps' | 'statistics' | 'workflows' | 'danger'
+type SettingsTab = 'user' | 'goals' | 'steps' | 'statistics' | 'workflows' | 'display' | 'danger'
 
 export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewProps) {
   const { user } = useUser()
@@ -20,7 +21,30 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
   const t = useTranslations()
   const locale = useLocale()
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<SettingsTab>('user')
+  
+  // Load active tab from localStorage on mount
+  const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedTab = localStorage.getItem('settingsView_activeTab')
+        if (savedTab && ['user', 'goals', 'steps', 'statistics', 'workflows', 'display', 'danger'].includes(savedTab)) {
+          return savedTab as SettingsTab
+        }
+      } catch (error) {
+        console.error('Error loading active tab:', error)
+      }
+    }
+    return 'user'
+  })
+
+  // Save active tab to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('settingsView_activeTab', activeTab)
+    } catch (error) {
+      console.error('Error saving settings state:', error)
+    }
+  }, [activeTab])
   const [preferredLocale, setPreferredLocale] = useState<Locale | null>(null)
   const [isSavingLocale, setIsSavingLocale] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -55,6 +79,12 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
   // Workflows state
   const [workflows, setWorkflows] = useState<any[]>([])
   const [loadingWorkflows, setLoadingWorkflows] = useState(false)
+  
+  // Display settings state
+  const [displaySettings, setDisplaySettings] = useState({
+    defaultView: 'day' as 'day' | 'week' | 'month' | 'year'
+  })
+  const [isSavingDisplay, setIsSavingDisplay] = useState(false)
 
   // Load workflows on component mount
   useEffect(() => {
@@ -93,6 +123,49 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
     }
     loadUserLocale()
   }, [])
+
+  // Load display settings
+  useEffect(() => {
+    const loadDisplaySettings = async () => {
+      if (!player?.user_id) return
+      try {
+        const response = await fetch('/api/cesta/user-settings')
+        if (response.ok) {
+          const data = await response.json()
+          if (data.settings?.default_view) {
+            setDisplaySettings({ defaultView: data.settings.default_view })
+          }
+        }
+      } catch (error) {
+        console.error('Error loading display settings:', error)
+      }
+    }
+    loadDisplaySettings()
+  }, [player?.user_id])
+
+  // Handler for saving display settings
+  const handleSaveDisplaySettings = async (newView: 'day' | 'week' | 'month' | 'year') => {
+    if (!player?.user_id) return
+    setIsSavingDisplay(true)
+    try {
+      const response = await fetch('/api/cesta/user-settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          default_view: newView
+        })
+      })
+      if (response.ok) {
+        // Success - settings saved
+      } else {
+        console.error('Failed to save display settings')
+      }
+    } catch (error) {
+      console.error('Error saving display settings:', error)
+    } finally {
+      setIsSavingDisplay(false)
+    }
+  }
 
   // Handler for changing language
   const handleLocaleChange = async (newLocale: Locale) => {
@@ -254,12 +327,13 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
   }
 
   const tabs = [
-    { id: 'user' as SettingsTab, label: t('settings.tabs.user'), icon: '👤' },
-    { id: 'goals' as SettingsTab, label: t('settings.tabs.goals'), icon: '🎯' },
-    { id: 'steps' as SettingsTab, label: t('settings.tabs.steps'), icon: '📋' },
-    { id: 'statistics' as SettingsTab, label: t('settings.tabs.statistics'), icon: '📊' },
-    { id: 'workflows' as SettingsTab, label: t('settings.tabs.workflows'), icon: '🔄' },
-    { id: 'danger' as SettingsTab, label: t('settings.tabs.danger'), icon: '⚠️' }
+    { id: 'user' as SettingsTab, label: t('settings.tabs.user'), icon: User },
+    { id: 'goals' as SettingsTab, label: t('settings.tabs.goals'), icon: Target },
+    { id: 'steps' as SettingsTab, label: t('settings.tabs.steps'), icon: ListTodo },
+    { id: 'statistics' as SettingsTab, label: t('settings.tabs.statistics'), icon: BarChart3 },
+    { id: 'workflows' as SettingsTab, label: t('settings.tabs.workflows'), icon: Workflow },
+    { id: 'display' as SettingsTab, label: 'Zobrazení', icon: Eye },
+    { id: 'danger' as SettingsTab, label: t('settings.tabs.danger'), icon: AlertTriangle }
   ]
 
   const renderTabContent = () => {
@@ -574,6 +648,42 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
           </div>
         )
 
+      case 'display':
+        return (
+          <div>
+            <h3 className="text-xl font-bold text-gray-900 mb-6">👁️ Zobrazení</h3>
+            <div>
+              <h4 className="text-lg font-bold text-gray-800 mb-4">📅 Výchozí zobrazení</h4>
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Zobrazení, které se zobrazí po načtení stránky
+                </label>
+                <select
+                  value={displaySettings.defaultView}
+                  onChange={(e) => {
+                    const newView = e.target.value as 'day' | 'week' | 'month' | 'year'
+                    setDisplaySettings({ defaultView: newView })
+                    handleSaveDisplaySettings(newView)
+                  }}
+                  disabled={isSavingDisplay}
+                  className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none disabled:opacity-50"
+                >
+                  <option value="day">Den</option>
+                  <option value="week">Týden</option>
+                  <option value="month">Měsíc</option>
+                  <option value="year">Rok</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-2">
+                  Toto zobrazení se automaticky zobrazí při načtení stránky
+                </p>
+                {isSavingDisplay && (
+                  <p className="text-sm text-gray-600 mt-2">Ukládání...</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+
       case 'danger':
         return (
           <div>
@@ -636,28 +746,38 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
   }
 
   return (
-    <div className="w-full h-full flex flex-col bg-gray-50">
-      {/* Program Selector */}
-      <div className="flex items-center justify-center gap-2 p-4 border-b border-gray-200 bg-white">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 rounded-lg font-medium transition-all ${
-              activeTab === tab.id
-                ? 'bg-orange-500 text-white shadow-md'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            <span className="mr-2">{tab.icon}</span>
-            {tab.label}
-          </button>
-        ))}
+    <div className="w-full h-full flex bg-white">
+      {/* Left sidebar - Navigation */}
+      <div className="w-64 border-r border-gray-200 bg-gray-50 flex-shrink-0">
+        <div className="p-4">
+          <h2 className="text-lg font-bold text-gray-900 mb-4">Nastavení</h2>
+          <nav className="space-y-1">
+            {tabs.map((tab) => {
+              const Icon = tab.icon
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-orange-600 text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <Icon className="w-5 h-5 flex-shrink-0" />
+                  <span className="font-medium">{tab.label}</span>
+                </button>
+              )
+            })}
+          </nav>
+        </div>
       </div>
 
-      {/* Tab Content */}
-      <div className="flex-1 overflow-y-auto p-6 bg-white">
-        {renderTabContent()}
+      {/* Right content area */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-4xl mx-auto p-8">
+          {renderTabContent()}
+        </div>
       </div>
     </div>
   )

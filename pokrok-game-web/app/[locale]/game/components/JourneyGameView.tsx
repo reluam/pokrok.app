@@ -8328,7 +8328,7 @@ export function JourneyGameView({
           switch (mainPanelSection) {
             case 'overview':
               return (
-                <div className="w-full h-full flex flex-col">
+                <div className="w-full h-full flex flex-col bg-orange-50">
                   {/* Program Selector - Link Navigation */}
                   <div className="px-4 py-2 border-b border-gray-200 bg-white">
                     <div className="flex items-center justify-between">
@@ -8450,56 +8450,64 @@ export function JourneyGameView({
               )
             case 'goals':
               return (
-                <GoalsManagementView
-                  goals={goals}
-                  aspirations={aspirations}
-                  areas={areas}
-                  onGoalsUpdate={onGoalsUpdate}
-                  setOverviewBalances={setOverviewBalances}
-                  userId={userId}
-                  player={player}
-                />
+                <div className="h-full bg-orange-50">
+                  <GoalsManagementView
+                    goals={goals}
+                    aspirations={aspirations}
+                    areas={areas}
+                    onGoalsUpdate={onGoalsUpdate}
+                    setOverviewBalances={setOverviewBalances}
+                    userId={userId}
+                    player={player}
+                  />
+                </div>
               )
             case 'steps':
               return (
-                <StepsManagementView
-                  dailySteps={dailySteps}
-                  goals={goals}
-                  onDailyStepsUpdate={onDailyStepsUpdate}
-                  userId={userId}
-                  player={player}
-                />
+                <div className="h-full bg-orange-50">
+                  <StepsManagementView
+                    dailySteps={dailySteps}
+                    goals={goals}
+                    onDailyStepsUpdate={onDailyStepsUpdate}
+                    userId={userId}
+                    player={player}
+                  />
+                </div>
               )
             case 'habits':
               return (
-                <HabitsManagementView
-                  habits={habits}
-                  aspirations={aspirations}
-                  onHabitsUpdate={onHabitsUpdate}
-                  handleHabitToggle={handleHabitToggle}
-                  loadingHabits={loadingHabits}
-                  setOverviewBalances={setOverviewBalances}
-                />
+                <div className="h-full bg-orange-50">
+                  <HabitsManagementView
+                    habits={habits}
+                    aspirations={aspirations}
+                    onHabitsUpdate={onHabitsUpdate}
+                    handleHabitToggle={handleHabitToggle}
+                    loadingHabits={loadingHabits}
+                    setOverviewBalances={setOverviewBalances}
+                  />
+                </div>
               )
             case 'aspirace':
               return (
-                <AspiraceView
-                  overviewAspirations={overviewAspirations}
-                  overviewBalances={overviewBalances}
-                  aspirations={aspirations}
-                  setAspirations={setAspirations}
-                  goals={goals}
-                  habits={habits}
-                  onGoalsUpdate={onGoalsUpdate}
-                  onHabitsUpdate={onHabitsUpdate}
-                  isLoadingOverview={isLoadingOverview}
-                  showAddAspirationModal={showAddAspirationModal}
-                  setShowAddAspirationModal={setShowAddAspirationModal}
-                  editingAspiration={editingAspiration}
-                  setEditingAspiration={setEditingAspiration}
-                  setOverviewAspirations={setOverviewAspirations}
-                  setOverviewBalances={setOverviewBalances}
-                />
+                <div className="h-full bg-orange-50">
+                  <AspiraceView
+                    overviewAspirations={overviewAspirations}
+                    overviewBalances={overviewBalances}
+                    aspirations={aspirations}
+                    setAspirations={setAspirations}
+                    goals={goals}
+                    habits={habits}
+                    onGoalsUpdate={onGoalsUpdate}
+                    onHabitsUpdate={onHabitsUpdate}
+                    isLoadingOverview={isLoadingOverview}
+                    showAddAspirationModal={showAddAspirationModal}
+                    setShowAddAspirationModal={setShowAddAspirationModal}
+                    editingAspiration={editingAspiration}
+                    setEditingAspiration={setEditingAspiration}
+                    setOverviewAspirations={setOverviewAspirations}
+                    setOverviewBalances={setOverviewBalances}
+                  />
+                </div>
               )
             default:
               return null
@@ -8507,10 +8515,10 @@ export function JourneyGameView({
         }
         
         return (
-          <div className="w-full h-full flex bg-white">
+          <div className="w-full h-full flex bg-white overflow-hidden">
             {/* Left sidebar - Navigation */}
-            <div className={`${sidebarCollapsed ? 'w-16' : 'w-64'} border-r border-gray-200 bg-gray-50 flex-shrink-0 transition-all duration-300 relative`}>
-              <div className="p-4">
+            <div className={`${sidebarCollapsed ? 'w-16' : 'w-64'} border-r border-gray-200 bg-gray-50 flex-shrink-0 transition-all duration-300 relative h-full flex flex-col`}>
+              <div className="p-4 flex-1 overflow-y-auto">
                 {!sidebarCollapsed && (
                   <h2 className="text-lg font-bold text-gray-900 mb-4">Navigace</h2>
                 )}
@@ -8541,7 +8549,7 @@ export function JourneyGameView({
               {/* Toggle button */}
               <button
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                className="absolute top-4 right-0 translate-x-1/2 w-6 h-6 bg-orange-600 text-white rounded-full flex items-center justify-center hover:bg-orange-700 transition-colors shadow-md z-10"
+                className="absolute top-4 -right-3 w-6 h-6 bg-orange-600 text-white rounded-full flex items-center justify-center hover:bg-orange-700 transition-colors shadow-md z-10"
                 title={sidebarCollapsed ? 'Rozbalit navigaci' : 'Sbalit navigaci'}
               >
                 {sidebarCollapsed ? (
@@ -8553,7 +8561,7 @@ export function JourneyGameView({
             </div>
 
             {/* Right content area */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto bg-orange-50 h-full">
               {renderMainContent()}
             </div>
           </div>
@@ -8792,7 +8800,7 @@ export function JourneyGameView({
                       }
                       
                       return (
-    <div className="bg-white min-h-screen w-full flex flex-col" style={{
+    <div className="bg-white h-screen w-full flex flex-col overflow-hidden" style={{
       fontFamily: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       fontSize: '14px',
       background: 'linear-gradient(135deg, #FFFAF5 0%, #fef3e7 50%, #fde4c4 100%)',
@@ -8870,7 +8878,7 @@ export function JourneyGameView({
             </div>
 
       {/* Main Content Area */}
-      <div className="relative flex flex-col flex-1 overflow-hidden">
+      <div className="relative flex flex-col flex-1 overflow-hidden min-h-0">
         {renderPageContent()}
       </div>
 
