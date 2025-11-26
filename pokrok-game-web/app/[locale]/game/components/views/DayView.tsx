@@ -12,8 +12,6 @@ interface DayViewProps {
   goals?: any[]
   habits: any[]
   dailySteps: any[]
-  aspirations: any[]
-  dayAspirationBalances: Record<string, any>
   selectedDayDate: Date
   setSelectedDayDate: (date: Date) => void
   setShowDatePickerModal: (show: boolean) => void
@@ -34,8 +32,6 @@ export function DayView({
   goals = [],
   habits,
   dailySteps,
-  aspirations,
-  dayAspirationBalances,
   selectedDayDate,
   setSelectedDayDate,
   setShowDatePickerModal,

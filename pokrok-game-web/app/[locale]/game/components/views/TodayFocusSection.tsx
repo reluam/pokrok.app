@@ -512,56 +512,56 @@ export function TodayFocusSection({
                     
                     {/* Desktop: Horizontal table layout */}
                     <div className="hidden lg:block overflow-y-auto max-h-[500px]">
-                      <table className="border-collapse text-left">
-                        <thead>
-                          <tr>
-                            <th className="text-left pb-1.5 pr-3 text-[9px] font-semibold text-gray-400"></th>
+                    <table className="border-collapse text-left">
+                      <thead>
+                        <tr>
+                          <th className="text-left pb-1.5 pr-3 text-[9px] font-semibold text-gray-400"></th>
+                          {weekDays.map((day) => {
+                            const dateStr = getLocalDateString(day)
+                            const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
+                            const dayName = dayNamesShort[day.getDay()]
+                            
+                            return (
+                              <th
+                                key={dateStr}
+                                className={`text-center pb-1.5 px-1 text-[9px] font-semibold ${
+                                  isSelected ? 'text-orange-700' : 'text-gray-400'
+                                }`}
+                              >
+                                <div className="flex flex-col items-center">
+                                  <span className="uppercase leading-tight">{dayName}</span>
+                                  <span className={`text-[10px] ${isSelected ? 'font-bold' : ''}`}>{day.getDate()}</span>
+                                </div>
+                              </th>
+                            )
+                          })}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {weekHabits.map((habit) => (
+                          <tr key={habit.id} className="group">
+                            <td className="pr-3 py-1.5">
+                              <button
+                                onClick={() => handleItemClick(habit, 'habit')}
+                                className="text-left text-[11px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate max-w-[180px] block"
+                                title={habit.name}
+                              >
+                                {habit.name}
+                              </button>
+                            </td>
                             {weekDays.map((day) => {
                               const dateStr = getLocalDateString(day)
+                              const isScheduled = isHabitScheduledForDay(habit, day)
+                              const isCompleted = isHabitCompletedForDay(habit, day)
                               const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
-                              const dayName = dayNamesShort[day.getDay()]
                               
                               return (
-                                <th
+                                <td
                                   key={dateStr}
-                                  className={`text-center pb-1.5 px-1 text-[9px] font-semibold ${
-                                    isSelected ? 'text-orange-700' : 'text-gray-400'
+                                  className={`text-center py-1.5 px-1 ${
+                                    isSelected ? 'bg-orange-50' : ''
                                   }`}
                                 >
-                                  <div className="flex flex-col items-center">
-                                    <span className="uppercase leading-tight">{dayName}</span>
-                                    <span className={`text-[10px] ${isSelected ? 'font-bold' : ''}`}>{day.getDate()}</span>
-                                  </div>
-                                </th>
-                              )
-                            })}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {weekHabits.map((habit) => (
-                            <tr key={habit.id} className="group">
-                              <td className="pr-3 py-1.5">
-                                <button
-                                  onClick={() => handleItemClick(habit, 'habit')}
-                                  className="text-left text-[11px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate max-w-[180px] block"
-                                  title={habit.name}
-                                >
-                                  {habit.name}
-                                </button>
-                              </td>
-                              {weekDays.map((day) => {
-                                const dateStr = getLocalDateString(day)
-                                const isScheduled = isHabitScheduledForDay(habit, day)
-                                const isCompleted = isHabitCompletedForDay(habit, day)
-                                const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
-                                
-                                return (
-                                  <td
-                                    key={dateStr}
-                                    className={`text-center py-1.5 px-1 ${
-                                      isSelected ? 'bg-orange-50' : ''
-                                    }`}
-                                  >
                                     <button
                                       onClick={() => {
                                         if (handleHabitToggle && !loadingHabits.has(habit.id)) {
@@ -588,14 +588,14 @@ export function TodayFocusSection({
                                         <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
                                       ) : null}
                                     </button>
-                                  </td>
-                                )
-                              })}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                                </td>
+                              )
+                            })}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                   </>
                 ) : (
                   <div className="text-center py-4">
@@ -615,12 +615,12 @@ export function TodayFocusSection({
             {!isWeekView && (
             <div className="flex-shrink-0 lg:border-r lg:border-gray-200 lg:pr-6 pb-6 lg:pb-0 border-b lg:border-b-0 w-full lg:w-auto" style={{ width: `auto`, maxWidth: '100%' }}>
               <div className="flex items-center justify-between mb-3">
-                <h4 
-                  onClick={() => onNavigateToHabits?.()}
+              <h4 
+                onClick={() => onNavigateToHabits?.()}
                   className={`text-xs font-semibold text-gray-500 uppercase tracking-wide ${onNavigateToHabits ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
-                >
-                  Návyky
-                </h4>
+              >
+                Návyky
+              </h4>
                 {(() => {
                   const completedHabitsCount = todaysHabits.filter(h => {
                     const isCompleted = h.habit_completions && h.habit_completions[displayDateStr] === true

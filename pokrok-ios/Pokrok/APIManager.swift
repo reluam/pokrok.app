@@ -1,5 +1,8 @@
 import Foundation
 import Clerk
+#if canImport(WidgetKit)
+import WidgetKit
+#endif
 
 class APIManager: ObservableObject {
     static let shared = APIManager()
@@ -1244,7 +1247,43 @@ class APIManager: ObservableObject {
             userDefaults.set(token, forKey: "fresh_auth_token")
             userDefaults.set(token, forKey: "auth_token")
             userDefaults.synchronize()
+            
+            // Reload widget timelines after token update
+            #if canImport(WidgetKit)
+            WidgetCenter.shared.reloadAllTimelines()
+            #endif
         }
+    }
+    
+    // MARK: - Widget Data Persistence
+    
+    /// Saves steps and habits to App Group UserDefaults for widget access
+    func saveWidgetData(steps: [DailyStep], habits: [Habit]) {
+        guard let userDefaults = UserDefaults(suiteName: "group.com.smysluplneziti.pokrok") else {
+            return
+        }
+        
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        
+        // Encode and save steps
+        if let stepsData = try? encoder.encode(steps) {
+            userDefaults.set(stepsData, forKey: "cached_widget_steps")
+        }
+        
+        // Encode and save habits
+        if let habitsData = try? encoder.encode(habits) {
+            userDefaults.set(habitsData, forKey: "cached_widget_habits")
+        }
+        
+        // Save timestamp
+        userDefaults.set(Date(), forKey: "cached_widget_data_timestamp")
+        userDefaults.synchronize()
+        
+        // Reload widget timelines to show new data
+        #if canImport(WidgetKit)
+        WidgetCenter.shared.reloadAllTimelines()
+        #endif
     }
     
     // MARK: - Daily Planning API

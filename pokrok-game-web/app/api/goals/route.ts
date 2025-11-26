@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { userId, title, description, targetDate, status, priority, areaId, aspirationId, goalType, progressPercentage, progressType } = body
+    const { userId, title, description, targetDate, status, priority, goalType, progressPercentage, progressType } = body
     
     if (!userId || !title) {
       return NextResponse.json({ error: 'User ID and title are required' }, { status: 400 })
@@ -60,8 +60,6 @@ export async function POST(request: NextRequest) {
       status: status || 'active',
       priority: priority || 'meaningful',
       category: 'medium-term' as const, // Keep category for compatibility
-      area_id: areaId || null,
-      aspiration_id: aspirationId || null,
       goal_type: goalType || 'outcome',
       progress_percentage: progressPercentage || 0,
       progress_type: progressType || 'percentage'
@@ -84,7 +82,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { goalId, title, description, target_date, status, areaId, aspirationId, progressPercentage } = body
+    const { goalId, title, description, target_date, status, progressPercentage } = body
     
     if (!goalId) {
       return NextResponse.json({ error: 'Goal ID is required' }, { status: 400 })
@@ -107,9 +105,7 @@ export async function PUT(request: NextRequest) {
       title,
       description,
       target_date: target_date ? new Date(target_date) : undefined,
-      status,
-      area_id: areaId,
-      aspiration_id: aspirationId
+      status
     }
 
     if (progressPercentage !== undefined) {

@@ -7,20 +7,16 @@ import { Check, ChevronDown, ChevronUp, Plus, X, Filter } from 'lucide-react'
 
 interface HabitsManagementViewProps {
   habits: any[]
-  aspirations: any[]
   onHabitsUpdate?: (habits: any[]) => void
   handleHabitToggle?: (habitId: string, date?: string) => Promise<void>
   loadingHabits: Set<string>
-  setOverviewBalances?: (setter: (prev: Record<string, any>) => Record<string, any>) => void
 }
 
 export function HabitsManagementView({
   habits = [],
-  aspirations = [],
   onHabitsUpdate,
   handleHabitToggle,
-  loadingHabits,
-  setOverviewBalances
+  loadingHabits
 }: HabitsManagementViewProps) {
   const t = useTranslations()
   const localeCode = useLocale()
@@ -30,13 +26,12 @@ export function HabitsManagementView({
   
   // Filters
   const [habitsFrequencyFilter, setHabitsFrequencyFilter] = useState<'all' | 'daily' | 'weekly' | 'monthly' | 'custom'>('all')
-  const [habitsAspirationFilter, setHabitsAspirationFilter] = useState<string | null>(null)
   const [habitsShowCompletedToday, setHabitsShowCompletedToday] = useState(true)
   const [filtersExpanded, setFiltersExpanded] = useState(false)
   
   // Quick edit modals
   const [quickEditHabitId, setQuickEditHabitId] = useState<string | null>(null)
-  const [quickEditHabitField, setQuickEditHabitField] = useState<'frequency' | 'aspiration' | 'days' | null>(null)
+  const [quickEditHabitField, setQuickEditHabitField] = useState<'frequency' | 'days' | null>(null)
   const [quickEditHabitPosition, setQuickEditHabitPosition] = useState<{ top: number; left: number } | null>(null)
 
   // Auto-open modal if flag is set
@@ -53,8 +48,7 @@ export function HabitsManagementView({
           selectedDays: [],
           alwaysShow: false,
           reminderEnabled: false,
-          reminderTime: '',
-          aspirationId: null
+          reminderTime: ''
         })
       }
     }
@@ -65,8 +59,7 @@ export function HabitsManagementView({
       ...habit,
       reminderEnabled: !!habit.reminder_time,
       selectedDays: habit.selected_days || [],
-      alwaysShow: habit.always_show || false,
-      aspirationId: habit.aspiration_id || habit.aspirationId || null
+      alwaysShow: habit.always_show || false
     })
   }
 
@@ -99,8 +92,7 @@ export function HabitsManagementView({
           isCustom: true,
           selectedDays: editingHabit.selectedDays,
           alwaysShow: editingHabit.alwaysShow,
-          xpReward: 1,
-          aspirationId: editingHabit.aspirationId
+          xpReward: 1
         } : {
           habitId: editingHabit.id,
           name: editingHabit.name,
@@ -109,8 +101,7 @@ export function HabitsManagementView({
           reminderTime: editingHabit.reminderEnabled ? editingHabit.reminderTime : null,
           selectedDays: editingHabit.selectedDays,
           alwaysShow: editingHabit.alwaysShow,
-          xpReward: 1,
-          aspirationId: editingHabit.aspirationId
+          xpReward: 1
         }),
       })
 
@@ -123,41 +114,6 @@ export function HabitsManagementView({
             onHabitsUpdate([...habits, habit])
           } else {
             onHabitsUpdate(habits.map(h => h.id === habit.id ? habit : h))
-          }
-        }
-        
-        // Update overview balance if habit has aspiration
-        if (habit.aspiration_id && setOverviewBalances) {
-          try {
-            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${habit.aspiration_id}`)
-            if (balanceResponse.ok) {
-              const balance = await balanceResponse.json()
-              setOverviewBalances((prev: Record<string, any>) => ({
-                ...prev,
-                [habit.aspiration_id]: balance
-              }))
-            }
-          } catch (error) {
-            console.error('Error updating aspiration balance:', error)
-          }
-        }
-        
-        // Also update balance for old aspiration if aspirationId changed (only for updates)
-        if (!isCreating) {
-          const oldHabit = habits.find(h => h.id === habit.id)
-          if (oldHabit && oldHabit.aspiration_id && oldHabit.aspiration_id !== habit.aspiration_id && setOverviewBalances) {
-            try {
-              const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${oldHabit.aspiration_id}`)
-              if (balanceResponse.ok) {
-                const balance = await balanceResponse.json()
-                setOverviewBalances((prev: Record<string, any>) => ({
-                  ...prev,
-                  [oldHabit.aspiration_id]: balance
-                }))
-              }
-            } catch (error) {
-              console.error('Error updating old aspiration balance:', error)
-            }
           }
         }
         
@@ -237,8 +193,7 @@ export function HabitsManagementView({
                   reminderEnabled: true,
                   reminderTime: '09:00',
                   selectedDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-                  alwaysShow: false,
-                  aspirationId: null
+                  alwaysShow: false
                 })
               }}
               className="flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium flex-1"
@@ -251,41 +206,29 @@ export function HabitsManagementView({
           {/* Collapsible filters content */}
           {filtersExpanded && (
             <div className="flex flex-col gap-2 pt-2 border-t border-gray-200">
-              {/* Frequency Filter */}
-              <select
-                value={habitsFrequencyFilter}
-                onChange={(e) => setHabitsFrequencyFilter(e.target.value as any)}
+          {/* Frequency Filter */}
+          <select
+            value={habitsFrequencyFilter}
+            onChange={(e) => setHabitsFrequencyFilter(e.target.value as any)}
                 className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
-              >
-                <option value="all">{t('habits.filters.frequency.all')}</option>
-                <option value="daily">{t('habits.filters.frequency.daily')}</option>
-                <option value="weekly">{t('habits.filters.frequency.weekly')}</option>
-                <option value="monthly">{t('habits.filters.frequency.monthly')}</option>
-                <option value="custom">{t('habits.filters.frequency.custom')}</option>
-              </select>
-              
-              {/* Aspiration Filter */}
-              <select
-                value={habitsAspirationFilter || ''}
-                onChange={(e) => setHabitsAspirationFilter(e.target.value || null)}
-                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
-              >
-                <option value="">{t('habits.filters.aspiration.all')}</option>
-                {aspirations.map((aspiration: any) => (
-                  <option key={aspiration.id} value={aspiration.id}>{aspiration.title}</option>
-                ))}
-              </select>
-              
-              {/* Completed Today Filter */}
-              <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={habitsShowCompletedToday}
-                  onChange={(e) => setHabitsShowCompletedToday(e.target.checked)}
-                  className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                />
-                <span>{t('habits.filters.showCompletedToday')}</span>
-              </label>
+          >
+            <option value="all">{t('habits.filters.frequency.all')}</option>
+            <option value="daily">{t('habits.filters.frequency.daily')}</option>
+            <option value="weekly">{t('habits.filters.frequency.weekly')}</option>
+            <option value="monthly">{t('habits.filters.frequency.monthly')}</option>
+            <option value="custom">{t('habits.filters.frequency.custom')}</option>
+          </select>
+          
+          {/* Completed Today Filter */}
+          <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={habitsShowCompletedToday}
+              onChange={(e) => setHabitsShowCompletedToday(e.target.checked)}
+              className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+            />
+            <span>{t('habits.filters.showCompletedToday')}</span>
+          </label>
             </div>
           )}
         </div>
@@ -303,18 +246,6 @@ export function HabitsManagementView({
             <option value="weekly">{t('habits.filters.frequency.weekly')}</option>
             <option value="monthly">{t('habits.filters.frequency.monthly')}</option>
             <option value="custom">{t('habits.filters.frequency.custom')}</option>
-          </select>
-          
-          {/* Aspiration Filter */}
-          <select
-            value={habitsAspirationFilter || ''}
-            onChange={(e) => setHabitsAspirationFilter(e.target.value || null)}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white min-w-[150px]"
-          >
-            <option value="">{t('habits.filters.aspiration.all')}</option>
-            {aspirations.map((aspiration: any) => (
-              <option key={aspiration.id} value={aspiration.id}>{aspiration.title}</option>
-            ))}
           </select>
           
           {/* Completed Today Filter */}
@@ -339,8 +270,7 @@ export function HabitsManagementView({
               reminderEnabled: true,
               reminderTime: '09:00',
               selectedDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-              alwaysShow: false,
-              aspirationId: null
+              alwaysShow: false
             })
           }}
           className="hidden md:flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
@@ -371,11 +301,6 @@ export function HabitsManagementView({
                     return false
                   }
                   
-                  // Filter by aspiration
-                  if (habitsAspirationFilter && (habit.aspiration_id || habit.aspirationId) !== habitsAspirationFilter) {
-                    return false
-                  }
-                  
                   // Filter by completed today (if unchecked, hide completed)
                   if (!habitsShowCompletedToday) {
                     const today = new Date().toISOString().split('T')[0]
@@ -392,7 +317,6 @@ export function HabitsManagementView({
                   const now = new Date()
                   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
                   const isCompletedToday = habit && habit.habit_completions && habit.habit_completions[today] === true
-                  const habitAspiration = habit.aspiration_id || habit.aspirationId ? aspirations.find((a: any) => a.id === (habit.aspiration_id || habit.aspirationId)) : null
                   
                   // Check if habit is active today
                   const todayDay = now.getDay() // 0 = Sunday, 1 = Monday, etc.
@@ -506,34 +430,6 @@ export function HabitsManagementView({
                           ) : (
                             <span className={`text-xs ${shouldGrayOut ? 'text-gray-300' : 'text-gray-400'}`}>-</span>
                           )}
-                        </td>
-                        <td className="px-4 py-2 last:pr-6">
-                          <div
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                              setQuickEditHabitPosition({ top: rect.bottom + 4, left: rect.left })
-                              setQuickEditHabitId(habit.id)
-                              setQuickEditHabitField('aspiration')
-                            }}
-                            className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
-                          >
-                            {habitAspiration ? (
-                              <>
-                                <div 
-                                  className="w-3 h-3 rounded-full"
-                                  style={{ backgroundColor: habitAspiration.color || '#9333EA', opacity: shouldGrayOut ? 0.5 : 1 }}
-                                />
-                                <span className={`text-xs truncate max-w-[150px] ${
-                                  shouldGrayOut ? 'text-gray-400' : 'text-gray-700'
-                                }`}>
-                                  {habitAspiration.title}
-                                </span>
-                              </>
-                            ) : (
-                              <span className={`text-xs ${shouldGrayOut ? 'text-gray-300' : 'text-gray-400'}`}>Bez aspirace</span>
-                            )}
-                          </div>
                         </td>
                         <td className="px-4 py-2 last:pr-6">
                           <button
@@ -678,23 +574,6 @@ export function HabitsManagementView({
                       />
                     )}
                   </div>
-                </div>
-
-                {/* Aspiration Selection */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800 mb-2">Aspirace (volitelné)</label>
-                  <select
-                    value={editingHabit.aspirationId || ''}
-                    onChange={(e) => setEditingHabit({...editingHabit, aspirationId: e.target.value ? e.target.value : null})}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                  >
-                    <option value="">Žádná aspirace</option>
-                    {aspirations.map((aspiration: any) => (
-                      <option key={aspiration.id} value={aspiration.id}>
-                        {aspiration.title}
-                      </option>
-                    ))}
-                  </select>
                 </div>
 
                 <div>
@@ -915,76 +794,6 @@ export function HabitsManagementView({
                       >
                         {t('habits.filters.frequency.custom')}
                       </button>
-                    </div>
-                  </>
-                )
-              }
-              
-              if (quickEditHabitField === 'aspiration') {
-                return (
-                  <>
-                    <div className="max-h-[300px] overflow-y-auto">
-                      <button
-                        onClick={async (e) => {
-                          e.stopPropagation()
-                          try {
-                            const response = await fetch(`/api/cesta/habits/${habit.id}`, {
-                              method: 'PATCH',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ aspiration_id: null })
-                            })
-                            if (response.ok) {
-                              const updatedHabit = await response.json()
-                              const updatedHabits = habits.map((h: any) => h.id === habit.id ? updatedHabit : h)
-                              onHabitsUpdate?.(updatedHabits)
-                              setQuickEditHabitId(null)
-                              setQuickEditHabitField(null)
-                              setQuickEditHabitPosition(null)
-                            }
-                          } catch (error) {
-                            console.error('Error updating habit aspiration:', error)
-                          }
-                        }}
-                        className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
-                          !habit.aspiration_id && !habit.aspirationId ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
-                        }`}
-                      >
-                        {t('goals.noAspiration') || 'Bez aspirace'}
-                      </button>
-                      {aspirations.map((aspiration: any) => (
-                        <button
-                          key={aspiration.id}
-                          onClick={async (e) => {
-                            e.stopPropagation()
-                            try {
-                              const response = await fetch(`/api/cesta/habits/${habit.id}`, {
-                                method: 'PATCH',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ aspiration_id: aspiration.id })
-                              })
-                              if (response.ok) {
-                                const updatedHabit = await response.json()
-                                const updatedHabits = habits.map((h: any) => h.id === habit.id ? updatedHabit : h)
-                                onHabitsUpdate?.(updatedHabits)
-                                setQuickEditHabitId(null)
-                                setQuickEditHabitField(null)
-                                setQuickEditHabitPosition(null)
-                              }
-                            } catch (error) {
-                              console.error('Error updating habit aspiration:', error)
-                            }
-                          }}
-                          className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors flex items-center gap-2 ${
-                            (habit.aspiration_id || habit.aspirationId) === aspiration.id ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
-                          }`}
-                        >
-                          <div 
-                            className="w-3 h-3 rounded-full flex-shrink-0"
-                            style={{ backgroundColor: aspiration.color || '#9333EA' }}
-                          ></div>
-                          <span className="truncate">{aspiration.title}</span>
-                        </button>
-                      ))}
                     </div>
                   </>
                 )

@@ -23,6 +23,7 @@ struct DailyPlanningView: View {
     
     // Stats
     @State private var stepStats = (completed: 0, total: 0)
+    @State private var habitStats = (completed: 0, total: 0)
     
     private let inspirations = [
         "🚶‍♂️ Jdi na procházku a načerpej energii z přírody",
@@ -101,6 +102,34 @@ struct DailyPlanningView: View {
             default:
                 return false
             }
+        }
+    }
+    
+    // Filter habits for progress calculation - only habits actually scheduled for this day
+    // Always_show habits are only counted if they are also scheduled for this day
+    private var habitsForProgress: [Habit] {
+        let weekday = Calendar.current.component(.weekday, from: today)
+        let csDayNames = ["", "neděle", "pondělí", "úterý", "středa", "čtvrtek", "pátek", "sobota"]
+        let enDayNames = ["", "sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+        
+        let todayCsName = csDayNames[weekday].lowercased()
+        let todayEnName = enDayNames[weekday].lowercased()
+        
+        return habits.filter { habit in
+            // Check if scheduled for selected day
+            switch habit.frequency {
+            case "daily":
+                return true
+            case "weekly", "custom":
+                if let selectedDays = habit.selectedDays, !selectedDays.isEmpty {
+                    let normalizedSelectedDays = selectedDays.map { $0.lowercased() }
+                    return normalizedSelectedDays.contains(todayCsName) || normalizedSelectedDays.contains(todayEnName)
+                }
+                return false
+            default:
+                return false
+            }
+            // Always_show habits are NOT counted unless they are also scheduled for this day
         }
     }
     
@@ -236,12 +265,12 @@ struct DailyPlanningView: View {
                 // Progress bar and percentage
                 VStack(alignment: .trailing, spacing: DesignSystem.Spacing.xs) {
                     ModernProgressBar(
-                        progress: stepStats.total > 0 ? Double(stepStats.completed) / Double(stepStats.total) : 0,
+                        progress: progressPercentageValue,
                         height: 8,
                         foregroundColor: DesignSystem.Colors.success
                     )
                     
-                    Text("\(completionPercentage)% (\(stepStats.completed)/\(stepStats.total))")
+                    Text("\(completionPercentage)% (\(completedTasks)/\(totalTasks))")
                         .font(DesignSystem.Typography.caption)
                         .foregroundColor(isToday ? DesignSystem.Colors.textSecondary : DesignSystem.Colors.textTertiary)
                 }
@@ -268,9 +297,22 @@ struct DailyPlanningView: View {
         }
     }
     
+    private var totalTasks: Int {
+        return stepStats.total + habitStats.total
+    }
+    
+    private var completedTasks: Int {
+        return stepStats.completed + habitStats.completed
+    }
+    
+    private var progressPercentageValue: Double {
+        guard totalTasks > 0 else { return 0 }
+        return min(Double(completedTasks) / Double(totalTasks), 1.0)
+    }
+    
     private var completionPercentage: Int {
-        guard stepStats.total > 0 else { return 0 }
-        return Int((Double(stepStats.completed) / Double(stepStats.total)) * 100)
+        guard totalTasks > 0 else { return 0 }
+        return Int(progressPercentageValue * 100)
     }
     
     // MARK: - Steps Section
@@ -432,6 +474,9 @@ struct DailyPlanningView: View {
                     self.habits = habits
                     self.isLoading = false
                     self.updateStepStats()
+                    
+                    // Save data to App Group for widget access
+                    apiManager.saveWidgetData(steps: allSteps, habits: habits)
                 }
             } catch {
                 await MainActor.run {
@@ -444,12 +489,30 @@ struct DailyPlanningView: View {
     }
     
     private func updateStepStats() {
-        // Count all today's steps (API already filters by date)
-        let plannedSteps = dailySteps
+        // Filter steps for selected day
+        let calendar = Calendar.current
+        let selectedStartOfDay = calendar.startOfDay(for: today)
         
+        let stepsForProgress = dailySteps.filter { step in
+            let stepStartOfDay = calendar.startOfDay(for: step.date)
+            return calendar.isDate(stepStartOfDay, inSameDayAs: selectedStartOfDay)
+        }
+        
+        // Count steps
         stepStats = (
-            completed: plannedSteps.filter { $0.completed }.count,
-            total: plannedSteps.count
+            completed: stepsForProgress.filter { $0.completed }.count,
+            total: stepsForProgress.count
+        )
+        
+        // Count habits for progress (only scheduled habits, not always_show unless scheduled)
+        let todayStr = formatDateString(today)
+        let habitsForProgressList = habitsForProgress
+        
+        habitStats = (
+            completed: habitsForProgressList.filter { habit in
+                habit.habitCompletions?[todayStr] == true
+            }.count,
+            total: habitsForProgressList.count
         )
     }
     
@@ -470,6 +533,9 @@ struct DailyPlanningView: View {
                     if let index = dailySteps.firstIndex(where: { $0.id == stepId }) {
                         dailySteps[index] = updatedStep
                         updateStepStats()
+                        
+                        // Save updated data to App Group for widget
+                        apiManager.saveWidgetData(steps: dailySteps, habits: habits)
                     }
                 }
             } catch {
@@ -499,6 +565,9 @@ struct DailyPlanningView: View {
                         habits[index] = updatedHabit
                     }
                     loadingHabits.remove(habit.id)
+                    
+                    // Save updated data to App Group for widget
+                    apiManager.saveWidgetData(steps: dailySteps, habits: habits)
                 }
             } catch {
                 await MainActor.run {
@@ -562,7 +631,19 @@ struct StepRow: View {
                         Text(step.title)
                             .font(DesignSystem.Typography.body)
                             .fontWeight(.semibold)
-                            .foregroundColor(step.completed ? DesignSystem.Colors.success.opacity(0.8) : DesignSystem.Colors.textPrimary)
+                            .foregroundColor(step.completed ? 
+                                            // Jemnější barva textu pro dokončené kroky - adaptivní
+                                            Color(UIColor { traitCollection in
+                                                switch traitCollection.userInterfaceStyle {
+                                                case .dark:
+                                                    // V dark mode: jemná světle zelená
+                                                    return UIColor(red: 134/255, green: 239/255, blue: 172/255, alpha: 1.0)
+                                                default:
+                                                    // V light mode: tmavší zelená
+                                                    return UIColor(red: 22/255, green: 163/255, blue: 74/255, alpha: 1.0)
+                                                }
+                                            }) : 
+                                            DesignSystem.Colors.textPrimary)
                             .strikethrough(step.completed)
                             .multilineTextAlignment(.leading)
                         
@@ -593,22 +674,59 @@ struct StepRow: View {
             .background(
                 RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
                     .fill(step.completed ? 
-                          Color(red: 240/255, green: 253/255, blue: 244/255) : // green-50 equivalent
-                          Color(red: 249/255, green: 250/255, blue: 251/255)) // gray-50 equivalent
+                          // Jemné matné pozadí pro dokončené kroky - adaptivní pro dark mode
+                          Color(UIColor { traitCollection in
+                              switch traitCollection.userInterfaceStyle {
+                              case .dark:
+                                  // V dark mode: velmi jemné tmavě zelené pozadí
+                                  return UIColor(red: 34/255, green: 50/255, blue: 40/255, alpha: 1.0)
+                              default:
+                                  // V light mode: velmi jemné světle zelené pozadí
+                                  return UIColor(red: 240/255, green: 253/255, blue: 244/255, alpha: 1.0)
+                              }
+                          }) :
+                          // Pro nedokončené kroky použijeme standardní surface
+                          DesignSystem.Colors.surface)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
                     .stroke(step.completed ? 
-                            Color(red: 187/255, green: 247/255, blue: 208/255) : // green-200 equivalent
-                            Color(red: 229/255, green: 231/255, blue: 235/255), // gray-200 equivalent
+                            // Jemný matný border pro dokončené kroky - adaptivní
+                            Color(UIColor { traitCollection in
+                                switch traitCollection.userInterfaceStyle {
+                                case .dark:
+                                    // V dark mode: velmi jemný tmavě zelený border
+                                    return UIColor(red: 34/255, green: 80/255, blue: 50/255, alpha: 1.0)
+                                default:
+                                    // V light mode: jemný světle zelený border
+                                    return UIColor(red: 187/255, green: 247/255, blue: 208/255, alpha: 1.0)
+                                }
+                            }) :
+                            // Pro nedokončené kroky: jemný šedý border
+                            Color(UIColor { traitCollection in
+                                switch traitCollection.userInterfaceStyle {
+                                case .dark:
+                                    return UIColor(red: 60/255, green: 60/255, blue: 65/255, alpha: 1.0)
+                                default:
+                                    return UIColor(red: 229/255, green: 231/255, blue: 235/255, alpha: 1.0)
+                                }
+                            }),
                             lineWidth: 1)
             )
             .shadow(color: step.completed ? 
-                    DesignSystem.Colors.success.opacity(0.2) : 
-                    Color.black.opacity(0.05),
-                    radius: step.completed ? 6 : 2,
+                    // Jemnější stíny pro dokončené kroky
+                    Color(UIColor { traitCollection in
+                        switch traitCollection.userInterfaceStyle {
+                        case .dark:
+                            return UIColor(red: 34/255, green: 197/255, blue: 94/255, alpha: 0.1)
+                        default:
+                            return UIColor(red: 34/255, green: 197/255, blue: 94/255, alpha: 0.15)
+                        }
+                    }) : 
+                    DesignSystem.Shadows.sm,
+                    radius: step.completed ? 4 : 2,
                     x: 0,
-                    y: step.completed ? 4 : 1)
+                    y: step.completed ? 2 : 1)
         }
         .buttonStyle(PlainButtonStyle())
     }

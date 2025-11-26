@@ -8,20 +8,14 @@ import { Edit, X, Plus, Target, Calendar, ChevronDown, ChevronUp, Filter } from 
 
 interface GoalsManagementViewProps {
   goals: any[]
-  aspirations: any[]
-  areas: any[]
   onGoalsUpdate?: (goals: any[]) => void
-  setOverviewBalances?: (setter: (prev: Record<string, any>) => Record<string, any>) => void
   userId?: string | null
   player?: any
 }
 
 export function GoalsManagementView({
   goals = [],
-  aspirations = [],
-  areas = [],
   onGoalsUpdate,
-  setOverviewBalances,
   userId,
   player
 }: GoalsManagementViewProps) {
@@ -30,28 +24,24 @@ export function GoalsManagementView({
   
   // Filters
   const [goalsStatusFilter, setGoalsStatusFilter] = useState<'all' | 'active' | 'completed' | 'considering'>('all')
-  const [goalsAreaFilter, setGoalsAreaFilter] = useState<string | null>(null)
-  const [goalsAspirationFilter, setGoalsAspirationFilter] = useState<string | null>(null)
   const [filtersExpanded, setFiltersExpanded] = useState(false)
 
-  // Counters for steps and milestones per goal
-  const [goalCounts, setGoalCounts] = useState<Record<string, { steps: number; milestones: number }>>({})
+  // Counters for steps per goal
+  const [goalCounts, setGoalCounts] = useState<Record<string, { steps: number }>>({})
 
   // Quick edit modals for goals
   const [quickEditGoalId, setQuickEditGoalId] = useState<string | null>(null)
-  const [quickEditGoalField, setQuickEditGoalField] = useState<'status' | 'area' | 'aspiration' | 'date' | null>(null)
+  const [quickEditGoalField, setQuickEditGoalField] = useState<'status' | 'date' | null>(null)
   const [quickEditGoalPosition, setQuickEditGoalPosition] = useState<{ top: number; left: number } | null>(null)
   const [selectedDateForGoal, setSelectedDateForGoal] = useState<Date>(new Date())
 
   // Edit modal
   const [editingGoal, setEditingGoal] = useState<any | null>(null)
-  const [activeTab, setActiveTab] = useState<'general' | 'milestones' | 'steps'>('general')
+  const [activeTab, setActiveTab] = useState<'general' | 'steps'>('general')
   const [editFormData, setEditFormData] = useState({
     title: '',
     description: '',
     target_date: '',
-    areaId: '',
-    aspirationId: '',
     status: 'active',
     is_focused: false,
     steps: [] as Array<{ 
@@ -59,19 +49,6 @@ export function GoalsManagementView({
       title: string; 
       description?: string; 
       date?: string; 
-      completed?: boolean; 
-      isEditing?: boolean;
-      target_value?: number | null;
-      current_value?: number;
-      update_value?: number | null;
-      update_frequency?: 'daily' | 'weekly' | 'monthly' | null;
-      update_day_of_week?: number | null;
-      update_day_of_month?: number | null;
-    }>,
-    milestones: [] as Array<{ 
-      id: string; 
-      title: string; 
-      description?: string; 
       completed?: boolean; 
       isEditing?: boolean;
       target_value?: number | null;
@@ -100,17 +77,14 @@ export function GoalsManagementView({
       const autoOpen = localStorage.getItem('autoOpenGoalModal')
       if (autoOpen === 'true') {
         localStorage.removeItem('autoOpenGoalModal')
-        setEditingGoal({ id: null, title: '', description: '', target_date: '', areaId: '', aspirationId: '', status: 'active' })
+        setEditingGoal({ id: null, title: '', description: '', target_date: '', status: 'active' })
         setEditFormData({
           title: '',
           description: '',
           target_date: '',
-          areaId: '',
-          aspirationId: '',
           status: 'active',
           is_focused: false,
-          steps: [],
-          milestones: []
+          steps: []
         })
       }
     }
@@ -123,18 +97,14 @@ export function GoalsManagementView({
         title: editingGoal.title || '',
         description: editingGoal.description || '',
         target_date: editingGoal.target_date ? new Date(editingGoal.target_date).toISOString().split('T')[0] : '',
-        areaId: editingGoal.area_id || editingGoal.areaId || '',
-        aspirationId: editingGoal.aspiration_id || editingGoal.aspirationId || '',
         status: editingGoal.status || 'active',
         is_focused: editingGoal.is_focused || false,
-        steps: [],
-        milestones: []
+        steps: []
       })
 
-      // Load steps and milestones
-      const loadStepsAndMilestones = async () => {
+      // Load steps
+      const loadSteps = async () => {
         if (editingGoal.id) {
-          // Load steps
           try {
             const stepsResponse = await fetch(`/api/daily-steps?goalId=${editingGoal.id}`)
             if (stepsResponse.ok) {
@@ -155,40 +125,17 @@ export function GoalsManagementView({
           } catch (error) {
             console.error('Error loading steps:', error)
           }
-
-          // Load milestones
-          try {
-            const milestonesResponse = await fetch(`/api/cesta/goal-milestones?goalId=${editingGoal.id}`)
-            if (milestonesResponse.ok) {
-              const data = await milestonesResponse.json()
-              const milestonesArray = data.milestones || []
-              setEditFormData(prev => ({
-                ...prev,
-                milestones: milestonesArray.map((milestone: any) => ({
-                  id: milestone.id,
-                  title: milestone.title,
-                  description: milestone.description || '',
-                  completed: milestone.completed || false,
-                  isEditing: false
-                }))
-              }))
-            }
-          } catch (error) {
-            console.error('Error loading milestones:', error)
-          }
         }
       }
 
-      loadStepsAndMilestones()
+      loadSteps()
     }
   }, [editingGoal])
 
   // Handlers
   const handleOpenEditModal = (goal: any) => {
     setEditingGoal({
-      ...goal,
-      areaId: goal.area_id || null,
-      aspirationId: goal.aspiration_id || goal.aspirationId || null
+      ...goal
     })
   }
 
@@ -215,8 +162,6 @@ export function GoalsManagementView({
           title: editFormData.title,
           description: editFormData.description,
           targetDate: editFormData.target_date || null,
-          areaId: editFormData.areaId || null,
-          aspirationId: editFormData.aspirationId || null,
           status: editFormData.status,
           isFocused: editFormData.is_focused
         }),
@@ -227,34 +172,15 @@ export function GoalsManagementView({
         const updatedGoals = [...goals, newGoal]
         onGoalsUpdate?.(updatedGoals)
         
-        // Update overview balance if goal has aspiration
-        if (newGoal.aspiration_id && setOverviewBalances) {
-          try {
-            const balanceResponse = await fetch(`/api/aspirations/balance?aspirationId=${newGoal.aspiration_id}`)
-            if (balanceResponse.ok) {
-              const balance = await balanceResponse.json()
-              setOverviewBalances((prev: Record<string, any>) => ({
-                ...prev,
-                [newGoal.aspiration_id]: balance
-              }))
-            }
-          } catch (error) {
-            console.error('Error updating aspiration balance:', error)
-          }
-        }
-        
         // Reset form and close modal
         setEditingGoal(null)
         setEditFormData({
           title: '',
           description: '',
           target_date: '',
-          areaId: '',
-          aspirationId: '',
           status: 'active',
           is_focused: false,
-          steps: [],
-          milestones: []
+          steps: []
         })
       } else {
         alert('Nepodařilo se vytvořit cíl')
@@ -284,8 +210,6 @@ export function GoalsManagementView({
           title: editFormData.title,
           description: editFormData.description,
           target_date: editFormData.target_date || null,
-          areaId: editFormData.areaId || null,
-          aspirationId: editFormData.aspirationId || null,
           status: editFormData.status,
           isFocused: editFormData.is_focused
         }),
@@ -559,120 +483,6 @@ export function GoalsManagementView({
     }
   }
 
-  // Milestone handlers
-  const handleAddMilestone = () => {
-    setEditFormData({
-      ...editFormData,
-      milestones: [...editFormData.milestones, { 
-        id: `temp-${crypto.randomUUID()}`, 
-        title: '', 
-        description: '', 
-        isEditing: true,
-        target_value: null,
-        current_value: 0,
-        update_value: null,
-        update_frequency: null,
-        update_day_of_week: null,
-        update_day_of_month: null
-      }]
-    })
-  }
-
-  const handleSaveMilestone = async (milestoneId: string) => {
-    const milestone = editFormData.milestones.find(m => m.id === milestoneId)
-    if (!milestone || !milestone.title.trim() || !editingGoal) return
-
-    try {
-      if (milestone.id.startsWith('temp-')) {
-        // New milestone - create
-        const response = await fetch('/api/cesta/goal-milestones', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            goalId: editingGoal.id,
-            title: milestone.title.trim(),
-            description: milestone.description || '',
-            order: editFormData.milestones.length
-          })
-        })
-        if (response.ok) {
-          const data = await response.json()
-          const savedMilestone = data.milestone || data
-          setEditFormData(prev => ({
-            ...prev,
-            milestones: prev.milestones.map(m => m.id === milestoneId ? { 
-              ...savedMilestone, 
-              isEditing: false,
-              target_value: savedMilestone.target_value || null,
-              current_value: savedMilestone.current_value || 0,
-              update_value: savedMilestone.update_value || null,
-              update_frequency: savedMilestone.update_frequency || null,
-              update_day_of_week: savedMilestone.update_day_of_week || null,
-              update_day_of_month: savedMilestone.update_day_of_month || null
-            } : m)
-          }))
-          // Update counts - reload goal counts if needed
-          // Note: goalCounts are updated automatically when goals are reloaded
-        }
-      } else {
-        // Existing milestone - update
-        const response = await fetch('/api/cesta/goal-milestones', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            milestoneId: milestone.id,
-            title: milestone.title.trim(),
-            description: milestone.description || '',
-            completed: milestone.completed || false,
-            order: editFormData.milestones.indexOf(milestone)
-          })
-        })
-        if (response.ok) {
-          setEditFormData(prev => ({
-            ...prev,
-            milestones: prev.milestones.map(m => m.id === milestoneId ? { ...m, isEditing: false } : m)
-          }))
-          // Update counts - reload goal counts if needed
-          // Note: goalCounts are updated automatically when goals are reloaded
-        }
-      }
-    } catch (error) {
-      console.error('Error saving milestone:', error)
-      alert('Chyba při ukládání milníku')
-    }
-  }
-
-  const handleDeleteMilestone = async (milestoneId: string) => {
-    const milestone = editFormData.milestones.find(m => m.id === milestoneId)
-    if (!milestone) return
-
-    // If it's a new milestone (not saved yet), just remove it
-    if (milestone.id.startsWith('temp-')) {
-      setEditFormData(prev => ({
-        ...prev,
-        milestones: prev.milestones.filter(m => m.id !== milestoneId)
-      }))
-      return
-    }
-
-    // Delete from API
-    try {
-      const response = await fetch(`/api/cesta/goal-milestones?milestoneId=${milestoneId}`, {
-        method: 'DELETE'
-      })
-      if (response.ok) {
-        setEditFormData(prev => ({
-          ...prev,
-          milestones: prev.milestones.filter(m => m.id !== milestoneId)
-        }))
-        // Update counts - reload goal counts if needed
-        // Note: goalCounts are updated automatically when goals are reloaded
-      }
-    } catch (error) {
-      console.error('Error deleting milestone:', error)
-      alert('Chyba při mazání milníku')
-    }
-  }
 
   // Sort goals
   const sortedGoals = useMemo(() => {
@@ -689,15 +499,9 @@ export function GoalsManagementView({
       if (goalsStatusFilter !== 'all' && goal.status !== goalsStatusFilter) {
         return false
       }
-      if (goalsAreaFilter && goal.area_id !== goalsAreaFilter) {
-        return false
-      }
-      if (goalsAspirationFilter && (goal.aspiration_id || goal.aspirationId) !== goalsAspirationFilter) {
-        return false
-      }
       return true
     })
-  }, [sortedGoals, goalsStatusFilter, goalsAreaFilter, goalsAspirationFilter])
+  }, [sortedGoals, goalsStatusFilter])
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -722,17 +526,14 @@ export function GoalsManagementView({
             {/* Add Goal Button - Mobile */}
             <button
               onClick={() => {
-                setEditingGoal({ id: null, title: '', description: '', target_date: '', areaId: '', aspirationId: '', status: 'active' })
+                setEditingGoal({ id: null, title: '', description: '', target_date: '', status: 'active' })
                 setEditFormData({
                   title: '',
                   description: '',
                   target_date: '',
-                  areaId: '',
-                  aspirationId: '',
                   status: 'active',
                   is_focused: false,
-                  steps: [],
-                  milestones: []
+                  steps: []
                 })
               }}
               className="flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium flex-1"
@@ -745,41 +546,17 @@ export function GoalsManagementView({
           {/* Collapsible filters content */}
           {filtersExpanded && (
             <div className="flex flex-col gap-2 pt-2 border-t border-gray-200">
-              {/* Status Filter */}
-              <select
-                value={goalsStatusFilter}
-                onChange={(e) => setGoalsStatusFilter(e.target.value as any)}
+          {/* Status Filter */}
+          <select
+            value={goalsStatusFilter}
+            onChange={(e) => setGoalsStatusFilter(e.target.value as any)}
                 className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
-              >
-                <option value="all">{t('goals.filters.status.all')}</option>
-                <option value="active">{t('goals.filters.status.active')}</option>
-                <option value="completed">{t('goals.filters.status.completed')}</option>
-                <option value="considering">{t('goals.filters.status.considering')}</option>
-              </select>
-              
-              {/* Area Filter */}
-              <select
-                value={goalsAreaFilter || ''}
-                onChange={(e) => setGoalsAreaFilter(e.target.value || null)}
-                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
-              >
-                <option value="">{t('goals.filters.area.all')}</option>
-                {areas.map((area: any) => (
-                  <option key={area.id} value={area.id}>{area.name}</option>
-                ))}
-              </select>
-              
-              {/* Aspiration Filter */}
-              <select
-                value={goalsAspirationFilter || ''}
-                onChange={(e) => setGoalsAspirationFilter(e.target.value || null)}
-                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
-              >
-                <option value="">{t('goals.filters.aspiration.all')}</option>
-                {aspirations.map((aspiration: any) => (
-                  <option key={aspiration.id} value={aspiration.id}>{aspiration.title}</option>
-                ))}
-              </select>
+          >
+            <option value="all">{t('goals.filters.status.all')}</option>
+            <option value="active">{t('goals.filters.status.active')}</option>
+            <option value="completed">{t('goals.filters.status.completed')}</option>
+            <option value="considering">{t('goals.filters.status.considering')}</option>
+          </select>
             </div>
           )}
         </div>
@@ -797,46 +574,20 @@ export function GoalsManagementView({
             <option value="completed">{t('goals.filters.status.completed')}</option>
             <option value="considering">{t('goals.filters.status.considering')}</option>
           </select>
-          
-          {/* Area Filter */}
-          <select
-            value={goalsAreaFilter || ''}
-            onChange={(e) => setGoalsAreaFilter(e.target.value || null)}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white min-w-[150px]"
-          >
-            <option value="">{t('goals.filters.area.all')}</option>
-            {areas.map((area: any) => (
-              <option key={area.id} value={area.id}>{area.name}</option>
-            ))}
-          </select>
-          
-          {/* Aspiration Filter */}
-          <select
-            value={goalsAspirationFilter || ''}
-            onChange={(e) => setGoalsAspirationFilter(e.target.value || null)}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white min-w-[150px]"
-          >
-            <option value="">{t('goals.filters.aspiration.all')}</option>
-            {aspirations.map((aspiration: any) => (
-              <option key={aspiration.id} value={aspiration.id}>{aspiration.title}</option>
-            ))}
-          </select>
+
         </div>
         
         {/* Add Goal Button - Desktop */}
         <button
           onClick={() => {
-            setEditingGoal({ id: null, title: '', description: '', target_date: '', areaId: '', aspirationId: '', status: 'active' })
+            setEditingGoal({ id: null, title: '', description: '', target_date: '', status: 'active' })
             setEditFormData({
               title: '',
               description: '',
               target_date: '',
-              areaId: '',
-              aspirationId: '',
               status: 'active',
               is_focused: false,
-              steps: [],
-              milestones: []
+              steps: []
             })
           }}
           className="hidden md:flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
@@ -856,17 +607,12 @@ export function GoalsManagementView({
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 first:pl-6">Název</th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">Status</th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Datum</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Oblast</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Aspirace</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">Kroky / Milníky</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">Kroky</th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-12 last:pr-6"></th>
                 </tr>
               </thead>
               <tbody>
                 {filteredGoals.map((goal: any) => {
-                  const goalArea = goal.area_id ? areas.find((a: any) => a.id === goal.area_id) : null
-                  const goalAspiration = goal.aspiration_id || goal.aspirationId ? aspirations.find((a: any) => a.id === (goal.aspiration_id || goal.aspirationId)) : null
-                  
                   return (
                     <tr
                       key={goal.id}
@@ -937,61 +683,10 @@ export function GoalsManagementView({
                         </span>
                       </td>
                       <td className="px-4 py-2">
-                        <span
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                            setQuickEditGoalPosition({ top: rect.bottom + 4, left: rect.left })
-                            setQuickEditGoalId(goal.id)
-                            setQuickEditGoalField('area')
-                          }}
-                          className="cursor-pointer hover:opacity-80 transition-opacity"
-                        >
-                          {goalArea ? (
-                            <span className="text-xs px-2.5 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-700 font-medium">
-                              {goalArea.name}
-                            </span>
-                          ) : (
-                            <span className="text-xs text-gray-400">Bez oblasti</span>
-                          )}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2 last:pr-6">
-                        <div
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                            setQuickEditGoalPosition({ top: rect.bottom + 4, left: rect.left })
-                            setQuickEditGoalId(goal.id)
-                            setQuickEditGoalField('aspiration')
-                          }}
-                          className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
-                        >
-                          {goalAspiration ? (
-                            <>
-                              <div 
-                                className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: goalAspiration.color || '#9333EA' }}
-                              />
-                              <span className="text-xs text-gray-700 truncate max-w-[150px]">
-                                {goalAspiration.title}
-                              </span>
-                            </>
-                          ) : (
-                            <span className="text-xs text-gray-400">Bez aspirace</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-2">
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-gray-600 flex items-center gap-1">
                             <Target className="w-3 h-3" />
                             {goalCounts[goal.id]?.steps || 0}
-                          </span>
-                          <span className="text-xs text-gray-400">/</span>
-                          <span className="text-xs text-gray-600 flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {goalCounts[goal.id]?.milestones || 0}
                           </span>
                         </div>
                       </td>
@@ -1170,143 +865,6 @@ export function GoalsManagementView({
                       >
                         {t('goals.status.considering')}
                       </button>
-                    </div>
-                  </>
-                )
-              }
-              
-              if (quickEditGoalField === 'area') {
-                return (
-                  <>
-                    <div className="max-h-[300px] overflow-y-auto">
-                      <button
-                        onClick={async (e) => {
-                          e.stopPropagation()
-                          try {
-                            const response = await fetch('/api/goals', {
-                              method: 'PUT',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ goalId: goal.id, areaId: null })
-                            })
-                            if (response.ok) {
-                              const updatedGoal = await response.json()
-                              const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
-                              onGoalsUpdate?.(updatedGoals)
-                              setQuickEditGoalId(null)
-                              setQuickEditGoalField(null)
-                              setQuickEditGoalPosition(null)
-                            }
-                          } catch (error) {
-                            console.error('Error updating goal area:', error)
-                          }
-                        }}
-                        className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
-                          !goal.area_id ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
-                        }`}
-                      >
-                        {t('goals.noArea') || 'Bez oblasti'}
-                      </button>
-                      {areas.map((area: any) => (
-                        <button
-                          key={area.id}
-                          onClick={async (e) => {
-                            e.stopPropagation()
-                            try {
-                              const response = await fetch('/api/goals', {
-                                method: 'PUT',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ goalId: goal.id, areaId: area.id })
-                              })
-                              if (response.ok) {
-                                const updatedGoal = await response.json()
-                                const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
-                                onGoalsUpdate?.(updatedGoals)
-                                setQuickEditGoalId(null)
-                                setQuickEditGoalField(null)
-                                setQuickEditGoalPosition(null)
-                              }
-                            } catch (error) {
-                              console.error('Error updating goal area:', error)
-                            }
-                          }}
-                          className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors flex items-center gap-2 ${
-                            goal.area_id === area.id ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
-                          }`}
-                        >
-                          {area.icon && <span className="text-sm">{area.icon}</span>}
-                          <span className="truncate">{area.name}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )
-              }
-              
-              if (quickEditGoalField === 'aspiration') {
-                return (
-                  <>
-                    <div className="max-h-[300px] overflow-y-auto">
-                      <button
-                        onClick={async (e) => {
-                          e.stopPropagation()
-                          try {
-                            const response = await fetch('/api/goals', {
-                              method: 'PUT',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ goalId: goal.id, aspirationId: null })
-                            })
-                            if (response.ok) {
-                              const updatedGoal = await response.json()
-                              const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
-                              onGoalsUpdate?.(updatedGoals)
-                              setQuickEditGoalId(null)
-                              setQuickEditGoalField(null)
-                              setQuickEditGoalPosition(null)
-                            }
-                          } catch (error) {
-                            console.error('Error updating goal aspiration:', error)
-                          }
-                        }}
-                        className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
-                          !goal.aspiration_id && !goal.aspirationId ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
-                        }`}
-                      >
-                        {t('goals.noAspiration') || 'Bez aspirace'}
-                      </button>
-                      {aspirations.map((aspiration: any) => (
-                        <button
-                          key={aspiration.id}
-                          onClick={async (e) => {
-                            e.stopPropagation()
-                            try {
-                              const response = await fetch('/api/goals', {
-                                method: 'PUT',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ goalId: goal.id, aspirationId: aspiration.id })
-                              })
-                              if (response.ok) {
-                                const updatedGoal = await response.json()
-                                const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
-                                onGoalsUpdate?.(updatedGoals)
-                                setQuickEditGoalId(null)
-                                setQuickEditGoalField(null)
-                                setQuickEditGoalPosition(null)
-                              }
-                            } catch (error) {
-                              console.error('Error updating goal aspiration:', error)
-                            }
-                          }}
-                          className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors flex items-center gap-2 ${
-                            (goal.aspiration_id || goal.aspirationId) === aspiration.id ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
-                          }`}
-                        >
-                          <div 
-                            className="w-3 h-3 rounded-full flex-shrink-0"
-                            style={{ backgroundColor: aspiration.color || '#9333EA' }}
-                          ></div>
-                          <span className="truncate">{aspiration.title}</span>
-                        </button>
-                      ))}
                     </div>
                   </>
                 )
@@ -1499,16 +1057,6 @@ export function GoalsManagementView({
                     Obecné informace
                   </button>
                   <button
-                    onClick={() => setActiveTab('milestones')}
-                    className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
-                      activeTab === 'milestones'
-                        ? 'border-orange-600 text-orange-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700'
-                    }`}
-                  >
-                    Milníky
-                  </button>
-                  <button
                     onClick={() => setActiveTab('steps')}
                     className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
                       activeTab === 'steps'
@@ -1575,40 +1123,6 @@ export function GoalsManagementView({
                       <option value="active">{t('goals.status.active')}</option>
                       <option value="completed">{t('goals.status.completed')}</option>
                       <option value="considering">{t('goals.status.considering')}</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">
-                      {t('goals.area')}
-                    </label>
-                    <select
-                      value={editFormData.areaId}
-                      onChange={(e) => setEditFormData({...editFormData, areaId: e.target.value})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                    >
-                      <option value="">{t('goals.noArea') || 'Bez oblasti'}</option>
-                      {areas.map((area: any) => (
-                        <option key={area.id} value={area.id}>{area.name}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">
-                      {t('goals.aspiration')}
-                    </label>
-                    <select
-                      value={editFormData.aspirationId}
-                      onChange={(e) => setEditFormData({...editFormData, aspirationId: e.target.value})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                    >
-                      <option value="">{t('goals.noAspiration') || 'Bez aspirace'}</option>
-                      {aspirations.map((aspiration: any) => (
-                        <option key={aspiration.id} value={aspiration.id}>{aspiration.title}</option>
-                      ))}
                     </select>
                   </div>
                 </div>
@@ -1800,146 +1314,6 @@ export function GoalsManagementView({
                   </>
                 )}
 
-                {activeTab === 'milestones' && (
-                  <>
-                {/* Milestones Section */}
-                <div className="bg-white rounded-xl p-4 border-2 border-gray-100 shadow-sm">
-                  <div className="flex items-center justify-between mb-3">
-                    <label className="block text-sm font-semibold text-gray-800">{t('goals.milestones')}</label>
-                    <button
-                      type="button"
-                      onClick={handleAddMilestone}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-colors"
-                    >
-                      <Plus className="w-4 h-4" />
-                      {t('goals.addMilestone')}
-                    </button>
-                  </div>
-                  {editFormData.milestones.length === 0 ? (
-                    <div className="text-center py-6 text-gray-400">
-                      <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-xs">{t('goals.noMilestones')}</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                      {editFormData.milestones.map((milestone, index) => {
-                        const isEditing = milestone.isEditing || (!milestone.title && milestone.id === editFormData.milestones[editFormData.milestones.length - 1]?.id)
-                        
-                        return (
-                          <div 
-                            key={milestone.id} 
-                            data-milestone-id={milestone.id}
-                            className="bg-gray-50 p-3 rounded-lg border border-gray-200 hover:border-orange-600 transition-colors"
-                          >
-                            {isEditing ? (
-                              <>
-                                <div className="flex items-start justify-between mb-2">
-                                  <span className="text-xs font-semibold text-gray-600 bg-white px-2 py-0.5 rounded">{t('goals.milestoneNumber')} {index + 1}</span>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDeleteMilestone(milestone.id)}
-                                    className="text-red-400 hover:text-red-600 hover:bg-red-50 rounded p-1 transition-colors"
-                                  >
-                                    <X className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                                <input
-                                  type="text"
-                                  value={milestone.title}
-                                  onChange={(e) => {
-                                    const updatedMilestones = editFormData.milestones.map(m =>
-                                      m.id === milestone.id ? { ...m, title: e.target.value } : m
-                                    )
-                                    setEditFormData({ ...editFormData, milestones: updatedMilestones })
-                                  }}
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
-                                  placeholder={t('goals.milestoneTitle')}
-                                  autoFocus
-                                />
-                                <textarea
-                                  value={milestone.description || ''}
-                                  onChange={(e) => {
-                                    const updatedMilestones = editFormData.milestones.map(m =>
-                                      m.id === milestone.id ? { ...m, description: e.target.value } : m
-                                    )
-                                    setEditFormData({ ...editFormData, milestones: updatedMilestones })
-                                  }}
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white resize-none"
-                                  rows={2}
-                                  placeholder="Popis (volitelné)"
-                                />
-                                
-                                <div className="flex items-center gap-2 mt-2">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleSaveMilestone(milestone.id)}
-                                    className="px-3 py-1.5 text-xs font-medium bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
-                                  >
-                                    {t('common.save')}
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDeleteMilestone(milestone.id)}
-                                    className="px-3 py-1.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                                  >
-                                    {t('common.cancel')}
-                                  </button>
-                                </div>
-                              </>
-                            ) : (
-                              <div 
-                                className="flex items-center justify-between cursor-pointer group"
-                                onClick={() => {
-                                  const updatedMilestones = editFormData.milestones.map(m =>
-                                    m.id === milestone.id ? { ...m, isEditing: true } : m
-                                  )
-                                  setEditFormData({ ...editFormData, milestones: updatedMilestones })
-                                }}
-                              >
-                                <div className="flex items-center gap-3 flex-1">
-                                  <Target className="w-4 h-4 text-orange-500" />
-                                  <div className="flex-1">
-                                    <div className="font-medium text-sm text-gray-900">{milestone.title || t('common.noTitle')}</div>
-                                    {milestone.description && (
-                                      <div className="text-xs text-gray-500 mt-0.5">{milestone.description}</div>
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      const updatedMilestones = editFormData.milestones.map(m =>
-                                        m.id === milestone.id ? { ...m, isEditing: true } : m
-                                      )
-                                      setEditFormData({ ...editFormData, milestones: updatedMilestones })
-                                    }}
-                                    className="text-gray-400 hover:text-orange-600 p-1"
-                                  >
-                                    <Edit className="w-4 h-4" />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      handleDeleteMilestone(milestone.id)
-                                    }}
-                                    className="text-gray-400 hover:text-red-600 p-1"
-                                  >
-                                    <X className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
-                </div>
-                  </>
-                )}
               </div>
 
               <div className="p-6 border-t border-gray-200 flex items-center justify-between">

@@ -46,7 +46,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { daily_steps_count, workflow, filters } = body
+    const { daily_steps_count, workflow, filters, default_view } = body
 
     // Update user settings
     const updatedSettings = await createOrUpdateUserSettings(
@@ -54,13 +54,18 @@ export async function PATCH(request: NextRequest) {
       daily_steps_count,
       workflow,
       undefined, // dailyResetHour - not used in iOS app
-      filters
+      filters,
+      default_view
     )
 
     return NextResponse.json({ settings: updatedSettings })
   } catch (error) {
     console.error('Error updating user settings:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: errorMessage 
+    }, { status: 500 })
   }
 }
 

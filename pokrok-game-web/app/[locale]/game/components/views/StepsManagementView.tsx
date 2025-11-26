@@ -333,35 +333,35 @@ export function StepsManagementView({
           {/* Collapsible filters content */}
           {filtersExpanded && (
             <div className="flex flex-col gap-2 pt-2 border-t border-gray-200">
-              {/* Show Completed Checkbox */}
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={showCompleted}
-                  onChange={(e) => setShowCompleted(e.target.checked)}
-                  className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
-                />
-                <span className="text-sm text-gray-700">{t('steps.filters.showCompleted')}</span>
-              </label>
-              
-              {/* Goal Filter */}
-              <select
-                value={stepsGoalFilter || ''}
-                onChange={(e) => setStepsGoalFilter(e.target.value || null)}
+          {/* Show Completed Checkbox */}
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showCompleted}
+              onChange={(e) => setShowCompleted(e.target.checked)}
+              className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+            />
+            <span className="text-sm text-gray-700">{t('steps.filters.showCompleted')}</span>
+          </label>
+          
+          {/* Goal Filter */}
+          <select
+            value={stepsGoalFilter || ''}
+            onChange={(e) => setStepsGoalFilter(e.target.value || null)}
                 className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
-              >
-                <option value="">{t('steps.filters.goal.all')}</option>
-                {goals.map((goal: any) => (
-                  <option key={goal.id} value={goal.id}>{goal.title}</option>
-                ))}
-              </select>
-              
-              {/* Date Filter */}
+          >
+            <option value="">{t('steps.filters.goal.all')}</option>
+            {goals.map((goal: any) => (
+              <option key={goal.id} value={goal.id}>{goal.title}</option>
+            ))}
+          </select>
+          
+          {/* Date Filter */}
               <div className="flex items-center gap-2">
-                <input
-                  type="date"
-                  value={stepsDateFilter || ''}
-                  onChange={(e) => setStepsDateFilter(e.target.value || null)}
+          <input
+            type="date"
+            value={stepsDateFilter || ''}
+            onChange={(e) => setStepsDateFilter(e.target.value || null)}
                   className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
                 />
                 {stepsDateFilter && (
@@ -410,14 +410,14 @@ export function StepsManagementView({
               onChange={(e) => setStepsDateFilter(e.target.value || null)}
               className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
             />
-            {stepsDateFilter && (
-              <button
-                onClick={() => setStepsDateFilter(null)}
-                className="px-2 py-1.5 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                {t('common.clear')}
-              </button>
-            )}
+          {stepsDateFilter && (
+            <button
+              onClick={() => setStepsDateFilter(null)}
+              className="px-2 py-1.5 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              {t('common.clear')}
+            </button>
+          )}
           </div>
         </div>
         

@@ -6,8 +6,6 @@ interface MainPanelDayProps {
   goals?: any[]
   habits: any[]
   dailySteps: any[]
-  aspirations: any[]
-  dayAspirationBalances: Record<string, any>
   selectedDayDate: Date
   setSelectedDayDate: (date: Date) => void
   setShowDatePickerModal: (show: boolean) => void
@@ -28,8 +26,6 @@ export function MainPanelDay({
   goals = [],
   habits,
   dailySteps,
-  aspirations,
-  dayAspirationBalances,
   selectedDayDate,
   setSelectedDayDate,
   setShowDatePickerModal,
@@ -50,8 +46,6 @@ export function MainPanelDay({
       goals={goals}
       habits={habits}
       dailySteps={dailySteps}
-      aspirations={aspirations}
-      dayAspirationBalances={dayAspirationBalances}
       selectedDayDate={selectedDayDate}
       setSelectedDayDate={setSelectedDayDate}
       setShowDatePickerModal={setShowDatePickerModal}
@@ -69,4 +63,3 @@ export function MainPanelDay({
     />
   )
 }
-

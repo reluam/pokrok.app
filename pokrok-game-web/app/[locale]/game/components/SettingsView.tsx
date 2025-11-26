@@ -507,7 +507,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
       case 'statistics':
         return (
           <div>
-            <div>
+                  <div>
               <h4 className="text-lg font-bold text-gray-800 mb-4">📈 {t('settings.statistics.display')}</h4>
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">

@@ -139,6 +139,8 @@ export interface Goal {
   icon?: string
   area_id?: string
   aspiration_id?: string
+  focus_status?: 'active_focus' | 'deferred' | null
+  focus_order?: number | null
   created_at: string | Date
   updated_at: string | Date
 }
@@ -191,18 +193,6 @@ export interface GoalMetric {
   updated_at: Date
 }
 
-export interface GoalMilestone {
-  id: string
-  user_id: string
-  goal_id: string
-  title: string
-  description?: string
-  completed: boolean
-  completed_at?: Date
-  order: number
-  created_at: Date
-  updated_at: Date
-}
 
 export interface Note {
   id: string
@@ -257,6 +247,12 @@ export interface Automation {
   frequency_time?: string
   scheduled_date?: Date
   is_active: boolean
+  target_value?: number | null
+  current_value?: number | null
+  update_value?: number | null
+  update_frequency?: 'daily' | 'weekly' | 'monthly' | null
+  update_day_of_week?: number | null // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  update_day_of_month?: number | null
   created_at: Date
   updated_at: Date
 }
@@ -328,6 +324,7 @@ export interface UserSettings {
   daily_steps_count: number
   workflow: 'daily_planning' | 'no_workflow'
   daily_reset_hour: number
+  default_view?: 'day' | 'week' | 'month' | 'year'
   filters?: {
     showToday: boolean
     showOverdue: boolean
@@ -500,6 +497,8 @@ export async function initializeCestaDatabase() {
         icon VARCHAR(50),
         area_id VARCHAR(255) REFERENCES areas(id) ON DELETE SET NULL,
         aspiration_id VARCHAR(255) REFERENCES aspirations(id) ON DELETE SET NULL,
+        focus_status VARCHAR(20) DEFAULT NULL CHECK (focus_status IN ('active_focus', 'deferred') OR focus_status IS NULL),
+        focus_order INTEGER DEFAULT NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
@@ -558,21 +557,6 @@ export async function initializeCestaDatabase() {
       )
     `
 
-    // Create goal_milestones table
-    await sql`
-      CREATE TABLE IF NOT EXISTS goal_milestones (
-        id VARCHAR(255) PRIMARY KEY,
-        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        goal_id VARCHAR(255) NOT NULL REFERENCES goals(id) ON DELETE CASCADE,
-        title VARCHAR(255) NOT NULL,
-        description TEXT,
-        completed BOOLEAN DEFAULT FALSE,
-        completed_at TIMESTAMP WITH TIME ZONE,
-        "order" INTEGER NOT NULL DEFAULT 0,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-      )
-    `
 
     // Create automations table
     await sql`
@@ -587,10 +571,60 @@ export async function initializeCestaDatabase() {
         frequency_time VARCHAR(100),
         scheduled_date TIMESTAMP WITH TIME ZONE,
         is_active BOOLEAN DEFAULT TRUE,
+        target_value DECIMAL(10,2),
+        current_value DECIMAL(10,2) DEFAULT 0,
+        update_value DECIMAL(10,2),
+        update_frequency VARCHAR(20) CHECK (update_frequency IN ('daily', 'weekly', 'monthly')),
+        update_day_of_week INTEGER CHECK (update_day_of_week >= 0 AND update_day_of_week <= 6),
+        update_day_of_month INTEGER CHECK (update_day_of_month >= 1 AND update_day_of_month <= 31),
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
     `
+    
+    // Add new columns if they don't exist (for existing databases)
+    try {
+      // Add type column if it doesn't exist (for older database schemas)
+      await sql`ALTER TABLE automations ADD COLUMN IF NOT EXISTS type VARCHAR(10) DEFAULT 'goal'`
+      await sql`UPDATE automations SET type = 'goal' WHERE type IS NULL OR type = 'milestone'`
+      // Try to set NOT NULL - will fail silently if constraint already exists
+      try {
+        await sql`ALTER TABLE automations ALTER COLUMN type SET NOT NULL`
+      } catch (e: any) {
+        // Ignore if constraint already exists
+      }
+      
+      await sql`ALTER TABLE automations ADD COLUMN IF NOT EXISTS target_value DECIMAL(10,2)`
+      await sql`ALTER TABLE automations ADD COLUMN IF NOT EXISTS current_value DECIMAL(10,2) DEFAULT 0`
+      await sql`ALTER TABLE automations ADD COLUMN IF NOT EXISTS update_value DECIMAL(10,2)`
+      await sql`ALTER TABLE automations ADD COLUMN IF NOT EXISTS update_frequency VARCHAR(20)`
+      await sql`ALTER TABLE automations ADD COLUMN IF NOT EXISTS update_day_of_week INTEGER`
+      await sql`ALTER TABLE automations ADD COLUMN IF NOT EXISTS update_day_of_month INTEGER`
+      // Update type constraint
+      await sql`ALTER TABLE automations DROP CONSTRAINT IF EXISTS automations_type_check`
+      await sql`ALTER TABLE automations ADD CONSTRAINT automations_type_check CHECK (type IN ('metric', 'step'))`
+    } catch (e) {
+      // Columns might already exist, ignore error
+      console.log('Note: Some automation columns may already exist:', e)
+    }
+
+    // Add focus fields to goals table if they don't exist (for existing databases)
+    try {
+      await sql`ALTER TABLE goals ADD COLUMN IF NOT EXISTS focus_status VARCHAR(20) DEFAULT NULL`
+      await sql`ALTER TABLE goals ADD COLUMN IF NOT EXISTS focus_order INTEGER DEFAULT NULL`
+      // Add check constraint if it doesn't exist
+      try {
+        await sql`ALTER TABLE goals ADD CONSTRAINT check_focus_status CHECK (focus_status IN ('active_focus', 'deferred') OR focus_status IS NULL)`
+      } catch (e: any) {
+        // Constraint might already exist, ignore
+        if (!e.message?.includes('already exists') && !e.message?.includes('duplicate')) {
+          console.log('Note: Focus status constraint may already exist:', e)
+        }
+      }
+    } catch (e) {
+      // Columns might already exist, ignore error
+      console.log('Note: Focus columns may already exist:', e)
+    }
 
     // Create events table
     await sql`
@@ -691,6 +725,28 @@ export async function initializeCestaDatabase() {
       if (filtersCheck.length === 0) {
         await sql`ALTER TABLE user_settings ADD COLUMN filters JSONB`
       }
+      
+      // Check if default_view column exists
+      try {
+        await sql`ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS default_view VARCHAR(10) DEFAULT 'day'`
+        // Add check constraint if it doesn't exist
+        await sql`
+          DO $$ 
+          BEGIN
+            IF NOT EXISTS (
+              SELECT 1 FROM pg_constraint 
+              WHERE conname = 'user_settings_default_view_check'
+            ) THEN
+              ALTER TABLE user_settings 
+              ADD CONSTRAINT user_settings_default_view_check 
+              CHECK (default_view IN ('day', 'week', 'month', 'year'));
+            END IF;
+          END $$;
+        `
+      } catch (error) {
+        // Column might already exist, ignore error
+        console.log('Note: default_view column migration:', error instanceof Error ? error.message : 'unknown error')
+      }
     } catch (error) {
       // Ignore errors if columns already exist or other migration issues
       console.error('Error adding user_settings columns:', error)
@@ -736,6 +792,8 @@ export async function initializeCestaDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_goals_user_id ON goals(user_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_goals_target_date ON goals(target_date)`
     await sql`CREATE INDEX IF NOT EXISTS idx_goals_status ON goals(status)`
+    await sql`CREATE INDEX IF NOT EXISTS idx_goals_focus_status ON goals(focus_status) WHERE focus_status IS NOT NULL`
+    await sql`CREATE INDEX IF NOT EXISTS idx_goals_focus_order ON goals(focus_order) WHERE focus_order IS NOT NULL`
     await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_user_id ON daily_steps(user_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_goal_id ON daily_steps(goal_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_date ON daily_steps(date)`
@@ -745,9 +803,6 @@ export async function initializeCestaDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_metrics_step_id ON metrics(step_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_goal_metrics_user_id ON goal_metrics(user_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_goal_metrics_goal_id ON goal_metrics(goal_id)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_goal_milestones_user_id ON goal_milestones(user_id)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_goal_milestones_goal_id ON goal_milestones(goal_id)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_goal_milestones_completed ON goal_milestones(completed)`
     await sql`CREATE INDEX IF NOT EXISTS idx_automations_user_id ON automations(user_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_automations_target_id ON automations(target_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_automations_active ON automations(is_active)`
@@ -969,474 +1024,7 @@ export function invalidateGoalsCache(userId: string): void {
   goalsCache.delete(userId)
 }
 
-// MARK: - Aspiration Functions
-
-export async function getAspirationsByUserId(userId: string): Promise<Aspiration[]> {
-  try {
-    const aspirations = await sql`
-      SELECT * FROM aspirations
-      WHERE user_id = ${userId}
-      ORDER BY created_at DESC
-    `
-    return aspirations as Aspiration[]
-  } catch (error) {
-    console.error('Error fetching aspirations:', error)
-    return []
-  }
-}
-
-export async function createAspiration(aspirationData: Partial<Aspiration>): Promise<Aspiration> {
-  const id = crypto.randomUUID()
-  
-  const aspiration = await sql`
-    INSERT INTO aspirations (
-      id, user_id, title, description, color, icon
-    ) VALUES (
-      ${id}, ${aspirationData.user_id}, ${aspirationData.title}, 
-      ${aspirationData.description || null}, 
-      ${aspirationData.color || '#3B82F6'}, 
-      ${aspirationData.icon || null}
-    ) RETURNING *
-  `
-  return aspiration[0] as Aspiration
-}
-
-export async function updateAspiration(aspirationId: string, updates: Partial<Aspiration>): Promise<Aspiration | null> {
-  try {
-    if (updates.title !== undefined) {
-      await sql`UPDATE aspirations SET title = ${updates.title}, updated_at = NOW() WHERE id = ${aspirationId}`
-    }
-    if (updates.description !== undefined) {
-      await sql`UPDATE aspirations SET description = ${updates.description}, updated_at = NOW() WHERE id = ${aspirationId}`
-    }
-    if (updates.color !== undefined) {
-      await sql`UPDATE aspirations SET color = ${updates.color}, updated_at = NOW() WHERE id = ${aspirationId}`
-    }
-    if (updates.icon !== undefined) {
-      await sql`UPDATE aspirations SET icon = ${updates.icon}, updated_at = NOW() WHERE id = ${aspirationId}`
-    }
-    
-    const result = await sql`SELECT * FROM aspirations WHERE id = ${aspirationId}`
-    return result[0] as Aspiration || null
-  } catch (error) {
-    console.error('Error updating aspiration:', error)
-    throw error
-  }
-}
-
-export async function deleteAspiration(aspirationId: string): Promise<boolean> {
-  try {
-    const result = await sql`
-      DELETE FROM aspirations 
-      WHERE id = ${aspirationId}
-      RETURNING id
-    `
-    return result.length > 0
-  } catch (error) {
-    console.error('Error deleting aspiration:', error)
-    throw error
-  }
-}
-
-export interface AspirationBalance {
-  aspiration_id: string
-  total_xp: number
-  recent_xp: number // Last 90 days
-  total_completed_steps: number
-  recent_completed_steps: number
-  total_completed_habits: number
-  recent_completed_habits: number
-  total_planned_steps: number
-  recent_planned_steps: number
-  total_planned_habits: number
-  recent_planned_habits: number
-  completion_rate_all_time: number // percentage
-  completion_rate_recent: number // percentage
-  trend: 'positive' | 'negative' | 'neutral' // week over week comparison (last week vs previous week)
-  change_percentage?: number // percentage change week over week
-}
-
-export async function getAspirationBalance(userId: string, aspirationId: string): Promise<AspirationBalance> {
-  try {
-    const now = new Date()
-    const ninetyDaysAgo = new Date(now)
-    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
-    
-    // Week over week comparison: last week (7 days) vs previous week (7-14 days ago)
-    const lastWeekStart = new Date(now)
-    lastWeekStart.setDate(lastWeekStart.getDate() - 7)
-    lastWeekStart.setHours(0, 0, 0, 0)
-    const previousWeekStart = new Date(now)
-    previousWeekStart.setDate(previousWeekStart.getDate() - 14)
-    previousWeekStart.setHours(0, 0, 0, 0)
-    const previousWeekEnd = new Date(now)
-    previousWeekEnd.setDate(previousWeekEnd.getDate() - 7)
-    previousWeekEnd.setHours(23, 59, 59, 999)
-    
-    // Get all goals for this aspiration
-    const goals = await sql`
-      SELECT id FROM goals
-      WHERE user_id = ${userId} AND aspiration_id = ${aspirationId}
-    `
-    const goalIds = goals.map((g: any) => g.id)
-    
-    // Get habits with their completions from habit_completions JSON field
-    const habits = await sql`
-      SELECT h.id, h.frequency, h.selected_days, h.created_at, h.xp_reward,
-             COALESCE(
-               json_object_agg(
-                 hc.completion_date, 
-                 hc.completed
-               ) FILTER (WHERE hc.completion_date IS NOT NULL),
-               '{}'::json
-             ) as habit_completions
-      FROM habits h
-      LEFT JOIN habit_completions hc ON h.id = hc.habit_id
-      WHERE h.user_id = ${userId} AND h.aspiration_id = ${aspirationId}
-      GROUP BY h.id, h.frequency, h.selected_days, h.created_at, h.xp_reward
-    `
-    const habitIds = habits.map((h: any) => h.id)
-    
-    // If no goals and no habits, return empty balance
-    if (goalIds.length === 0 && habitIds.length === 0) {
-      return {
-        aspiration_id: aspirationId,
-        total_xp: 0,
-        recent_xp: 0,
-        total_completed_steps: 0,
-        recent_completed_steps: 0,
-        total_completed_habits: 0,
-        recent_completed_habits: 0,
-        total_planned_steps: 0,
-        recent_planned_steps: 0,
-        total_planned_habits: 0,
-        recent_planned_habits: 0,
-        completion_rate_all_time: 0,
-        completion_rate_recent: 0,
-        trend: 'neutral'
-      }
-    }
-    
-    console.log('✅ Aspiration has goals or habits, proceeding with calculation')
-    
-    // Calculate step statistics
-    let stepStats: any = {
-      total_completed: 0,
-      total_planned: 0,
-      recent_completed: 0,
-      recent_planned: 0,
-      total_xp: 0,
-      recent_xp: 0,
-      lastWeek_completed: 0,
-      lastWeek_planned: 0,
-      previousWeek_completed: 0,
-      previousWeek_planned: 0
-    }
-    
-    if (goalIds.length > 0) {
-      try {
-        // Use = ANY with array literal - Neon doesn't support sql.array()
-        const stepQuery = await sql`
-          SELECT 
-            COUNT(*) FILTER (WHERE completed = true) as total_completed,
-            COUNT(*) as total_planned,
-            COUNT(*) FILTER (WHERE completed = true AND date >= ${ninetyDaysAgo}) as recent_completed,
-            COUNT(*) FILTER (WHERE date >= ${ninetyDaysAgo}) as recent_planned,
-            COUNT(*) FILTER (WHERE completed = true AND date >= ${lastWeekStart}) as lastWeek_completed,
-            COUNT(*) FILTER (WHERE date >= ${lastWeekStart}) as lastWeek_planned,
-            COUNT(*) FILTER (WHERE completed = true AND date >= ${previousWeekStart} AND date < ${previousWeekEnd}) as previousWeek_completed,
-            COUNT(*) FILTER (WHERE date >= ${previousWeekStart} AND date < ${previousWeekEnd}) as previousWeek_planned,
-            COALESCE(SUM(xp_reward) FILTER (WHERE completed = true), 0)::bigint as total_xp,
-            COALESCE(SUM(xp_reward) FILTER (WHERE completed = true AND date >= ${ninetyDaysAgo}), 0)::bigint as recent_xp
-          FROM daily_steps
-          WHERE goal_id = ANY(${goalIds})
-        `
-        stepStats = stepQuery[0] || stepStats
-      } catch (error: any) {
-        console.error('Error calculating step stats:', error)
-        // Don't throw, just use empty stats
-      }
-    }
-    
-    // Calculate habit statistics
-    let habitStats: any = {
-      total_completed: 0,
-      total_planned: 0,
-      recent_completed: 0,
-      recent_planned: 0,
-      total_xp: 0,
-      recent_xp: 0,
-      lastWeek_completed: 0,
-      lastWeek_planned: 0,
-      previousWeek_completed: 0,
-      previousWeek_planned: 0
-    }
-    
-    if (habitIds.length > 0) {
-      try {
-        // Calculate completions from habit_completions JSON field in habits table
-        let totalCompleted = 0
-        let recentCompleted = 0
-        let lastWeekCompleted = 0
-        let previousWeekCompleted = 0
-        let totalXp = 0
-        let recentXp = 0
-        
-        for (const habit of habits) {
-          const completions = habit.habit_completions || {}
-          const xpReward = habit.xp_reward || 0
-          
-          // Count all completions (where value is true)
-          const allCompletions = Object.entries(completions).filter(([date, completed]) => completed === true)
-          totalCompleted += allCompletions.length
-          totalXp += allCompletions.length * xpReward
-          
-          // Count recent completions (last 90 days)
-          const recentCompletions = allCompletions.filter(([date]) => {
-            const completionDate = new Date(date)
-            return completionDate >= ninetyDaysAgo
-          })
-          recentCompleted += recentCompletions.length
-          recentXp += recentCompletions.length * xpReward
-          
-          // Count last week completions (last 7 days)
-          const lastWeekCompletions = allCompletions.filter(([date]) => {
-            const completionDate = new Date(date)
-            return completionDate >= lastWeekStart
-          })
-          lastWeekCompleted += lastWeekCompletions.length
-          
-          // Count previous week completions (7-14 days ago)
-          const previousWeekCompletions = allCompletions.filter(([date]) => {
-            const completionDate = new Date(date)
-            return completionDate >= previousWeekStart && completionDate < previousWeekEnd
-          })
-          previousWeekCompleted += previousWeekCompletions.length
-        }
-        
-        habitStats.total_completed = totalCompleted
-        habitStats.recent_completed = recentCompleted
-        habitStats.lastWeek_completed = lastWeekCompleted
-        habitStats.previousWeek_completed = previousWeekCompleted
-        habitStats.total_xp = totalXp
-        habitStats.recent_xp = recentXp
-      } catch (error: any) {
-        console.error('Error calculating habit stats:', error)
-        // If there's an error, return empty stats
-        habitStats = {
-          total_completed: 0,
-          total_planned: 0,
-          recent_completed: 0,
-          recent_planned: 0,
-          total_xp: 0,
-          recent_xp: 0
-        }
-      }
-      
-        // For planned habits, we need to estimate based on frequency
-        // Calculate planned habits based on habit frequency and creation date
-        if (habitIds.length > 0) {
-          const habitCreationDates = habits.map((h: any) => new Date(h.created_at))
-          const oldestHabitDate = new Date(Math.min(...habitCreationDates.map((d: Date) => d.getTime())))
-          const daysSinceOldestHabit = Math.floor((now.getTime() - oldestHabitDate.getTime()) / (1000 * 60 * 60 * 24))
-          
-          // Calculate planned habits based on frequency
-          let totalPlannedHabits = 0
-          let recentPlannedHabits = 0
-          let lastWeekPlannedHabits = 0
-          let previousWeekPlannedHabits = 0
-          
-          for (const habit of habits) {
-            const habitCreatedAt = new Date(habit.created_at)
-            const daysSinceCreation = Math.floor((now.getTime() - habitCreatedAt.getTime()) / (1000 * 60 * 60 * 24))
-            const daysSinceNinetyDaysAgo = Math.max(0, Math.min(daysSinceCreation, 90))
-            const daysSinceLastWeek = Math.max(0, Math.min(daysSinceCreation, 7))
-            const daysSincePreviousWeek = Math.max(0, Math.min(Math.max(0, daysSinceCreation - 7), 7))
-            
-            let plannedCount = 0
-            let recentPlannedCount = 0
-            let lastWeekPlannedCount = 0
-            let previousWeekPlannedCount = 0
-            
-            switch (habit.frequency) {
-              case 'daily':
-                // For daily habits, count at least 1 if created today, otherwise count days
-                plannedCount = Math.max(1, daysSinceCreation)
-                recentPlannedCount = Math.max(1, daysSinceNinetyDaysAgo)
-                lastWeekPlannedCount = Math.max(1, daysSinceLastWeek)
-                previousWeekPlannedCount = Math.max(1, daysSincePreviousWeek)
-                break
-              case 'weekly':
-                // For weekly habits, count at least 1 if created within last 7 days, otherwise count weeks
-                plannedCount = Math.max(1, Math.floor(daysSinceCreation / 7))
-                recentPlannedCount = Math.max(1, Math.floor(daysSinceNinetyDaysAgo / 7))
-                lastWeekPlannedCount = Math.max(1, Math.floor(daysSinceLastWeek / 7))
-                previousWeekPlannedCount = Math.max(1, Math.floor(daysSincePreviousWeek / 7))
-                break
-              case 'monthly':
-                // For monthly habits, count at least 1 if created within last 30 days, otherwise count months
-                plannedCount = Math.max(1, Math.floor(daysSinceCreation / 30))
-                recentPlannedCount = Math.max(1, Math.floor(daysSinceNinetyDaysAgo / 30))
-                lastWeekPlannedCount = Math.max(1, Math.floor(daysSinceLastWeek / 30))
-                previousWeekPlannedCount = Math.max(1, Math.floor(daysSincePreviousWeek / 30))
-                break
-              case 'custom':
-                // For custom, count based on selected_days per week
-                const selectedDaysCount = habit.selected_days?.length || 0
-                // At least 1 if created today, otherwise calculate based on frequency
-                plannedCount = Math.max(1, Math.floor((daysSinceCreation / 7) * selectedDaysCount))
-                recentPlannedCount = Math.max(1, Math.floor((daysSinceNinetyDaysAgo / 7) * selectedDaysCount))
-                lastWeekPlannedCount = Math.max(1, Math.floor((daysSinceLastWeek / 7) * selectedDaysCount))
-                previousWeekPlannedCount = Math.max(1, Math.floor((daysSincePreviousWeek / 7) * selectedDaysCount))
-                break
-            }
-            
-            totalPlannedHabits += Math.max(0, plannedCount)
-            recentPlannedHabits += Math.max(0, recentPlannedCount)
-            lastWeekPlannedHabits += Math.max(0, lastWeekPlannedCount)
-            previousWeekPlannedHabits += Math.max(0, previousWeekPlannedCount)
-          }
-          
-          // Ensure at least the number of habits is counted (minimum 1 per habit)
-          totalPlannedHabits = Math.max(totalPlannedHabits, habitIds.length)
-          recentPlannedHabits = Math.max(recentPlannedHabits, habitIds.length)
-          lastWeekPlannedHabits = Math.max(lastWeekPlannedHabits, habitIds.length)
-          previousWeekPlannedHabits = Math.max(previousWeekPlannedHabits, habitIds.length)
-          
-          // Use the calculated planned habits, but ensure it's at least the number of completions
-          habitStats.total_planned = Math.max(
-            parseInt(String(habitStats.total_planned || 0)),
-            parseInt(String(habitStats.total_completed || 0)),
-            totalPlannedHabits
-          )
-          habitStats.recent_planned = Math.max(
-            parseInt(String(habitStats.recent_planned || 0)),
-            parseInt(String(habitStats.recent_completed || 0)),
-            recentPlannedHabits
-          )
-          habitStats.lastWeek_planned = Math.max(
-            parseInt(String(habitStats.lastWeek_planned || 0)),
-            parseInt(String(habitStats.lastWeek_completed || 0)),
-            lastWeekPlannedHabits
-          )
-          habitStats.previousWeek_planned = Math.max(
-            parseInt(String(habitStats.previousWeek_planned || 0)),
-            parseInt(String(habitStats.previousWeek_completed || 0)),
-            previousWeekPlannedHabits
-          )
-        } else {
-          // Fallback to old logic if no habits
-          habitStats.total_planned = Math.max(parseInt(String(habitStats.total_planned || 0)), parseInt(String(habitStats.total_completed || 0)))
-          habitStats.recent_planned = Math.max(parseInt(String(habitStats.recent_planned || 0)), parseInt(String(habitStats.recent_completed || 0)))
-          habitStats.lastWeek_planned = Math.max(parseInt(String(habitStats.lastWeek_planned || 0)), parseInt(String(habitStats.lastWeek_completed || 0)))
-          habitStats.previousWeek_planned = Math.max(parseInt(String(habitStats.previousWeek_planned || 0)), parseInt(String(habitStats.previousWeek_completed || 0)))
-        }
-    }
-    
-    const totalCompleted = parseInt(String(stepStats.total_completed || 0)) + parseInt(String(habitStats.total_completed || 0))
-    const totalPlanned = parseInt(String(stepStats.total_planned || 0)) + parseInt(String(habitStats.total_planned || 0))
-    const recentCompleted = parseInt(String(stepStats.recent_completed || 0)) + parseInt(String(habitStats.recent_completed || 0))
-    const recentPlanned = parseInt(String(stepStats.recent_planned || 0)) + parseInt(String(habitStats.recent_planned || 0))
-    
-    const completionRateAllTime = totalPlanned > 0 ? (totalCompleted / totalPlanned) * 100 : 0
-    const completionRateRecent = recentPlanned > 0 ? (recentCompleted / recentPlanned) * 100 : 0
-    
-    // Week over week comparison
-    const lastWeekCompleted = parseInt(String(stepStats.lastWeek_completed || 0)) + parseInt(String(habitStats.lastWeek_completed || 0))
-    const lastWeekPlanned = parseInt(String(stepStats.lastWeek_planned || 0)) + parseInt(String(habitStats.lastWeek_planned || 0))
-    const previousWeekCompleted = parseInt(String(stepStats.previousWeek_completed || 0)) + parseInt(String(habitStats.previousWeek_completed || 0))
-    const previousWeekPlanned = parseInt(String(stepStats.previousWeek_planned || 0)) + parseInt(String(habitStats.previousWeek_planned || 0))
-    
-    const lastWeekCompletionRate = lastWeekPlanned > 0 ? (lastWeekCompleted / lastWeekPlanned) * 100 : 0
-    const previousWeekCompletionRate = previousWeekPlanned > 0 ? (previousWeekCompleted / previousWeekPlanned) * 100 : 0
-    
-    console.log('📈 Completion rates:', {
-      completionRateAllTime,
-      completionRateRecent,
-      lastWeekCompletionRate,
-      previousWeekCompletionRate,
-      lastWeekCompleted,
-      lastWeekPlanned,
-      previousWeekCompleted,
-      previousWeekPlanned
-    })
-    
-    // Determine trend: week over week comparison
-    // Positive if last week completion rate is higher than previous week
-    let trend: 'positive' | 'negative' | 'neutral' = 'neutral'
-    if (lastWeekPlanned > 0 && previousWeekPlanned > 0) {
-      if (lastWeekCompletionRate > previousWeekCompletionRate + 5) {
-        trend = 'positive'
-      } else if (lastWeekCompletionRate < previousWeekCompletionRate - 5) {
-        trend = 'negative'
-      }
-    } else if (lastWeekPlanned > 0 && previousWeekPlanned === 0) {
-      // If we have data for last week but not previous week, consider it positive
-      trend = 'positive'
-    } else if (lastWeekPlanned === 0 && previousWeekPlanned > 0) {
-      // If we have data for previous week but not last week, consider it negative
-      trend = 'negative'
-    }
-    
-    console.log('📊 Trend (week over week):', trend, {
-      lastWeek: `${lastWeekCompleted}/${lastWeekPlanned} (${lastWeekCompletionRate.toFixed(1)}%)`,
-      previousWeek: `${previousWeekCompleted}/${previousWeekPlanned} (${previousWeekCompletionRate.toFixed(1)}%)`
-    })
-    
-    // Calculate percentage change week over week
-    const changePercentage = previousWeekCompletionRate > 0 
-      ? ((lastWeekCompletionRate - previousWeekCompletionRate) / previousWeekCompletionRate) * 100
-      : (lastWeekPlanned > 0 && previousWeekPlanned === 0) ? 100 : 0
-
-    const result = {
-      aspiration_id: aspirationId,
-      total_xp: parseInt(String(stepStats.total_xp || 0)) + parseInt(String(habitStats.total_xp || 0)),
-      recent_xp: parseInt(String(stepStats.recent_xp || 0)) + parseInt(String(habitStats.recent_xp || 0)),
-      total_completed_steps: parseInt(String(stepStats.total_completed || 0)),
-      recent_completed_steps: parseInt(String(stepStats.recent_completed || 0)),
-      total_completed_habits: parseInt(String(habitStats.total_completed || 0)),
-      recent_completed_habits: parseInt(String(habitStats.recent_completed || 0)),
-      total_planned_steps: parseInt(String(stepStats.total_planned || 0)),
-      recent_planned_steps: parseInt(String(stepStats.recent_planned || 0)),
-      total_planned_habits: parseInt(String(habitStats.total_planned || 0)),
-      recent_planned_habits: parseInt(String(habitStats.recent_planned || 0)),
-      completion_rate_all_time: completionRateAllTime,
-      completion_rate_recent: completionRateRecent,
-      trend,
-      change_percentage: changePercentage
-    }
-    
-    console.log('✅ Aspiration balance result:', result)
-    console.log('=== getAspirationBalance END ===')
-    return result
-  } catch (error: any) {
-    console.error('Error getting aspiration balance:', error)
-    console.error('Error details:', {
-      message: error?.message,
-      code: error?.code,
-      detail: error?.detail,
-      stack: error?.stack
-    })
-    // Return empty balance instead of throwing
-    return {
-      aspiration_id: aspirationId,
-      total_xp: 0,
-      recent_xp: 0,
-      total_completed_steps: 0,
-      recent_completed_steps: 0,
-      total_completed_habits: 0,
-      recent_completed_habits: 0,
-      total_planned_steps: 0,
-      recent_planned_steps: 0,
-      total_planned_habits: 0,
-      recent_planned_habits: 0,
-      completion_rate_all_time: 0,
-      completion_rate_recent: 0,
-      trend: 'neutral',
-      change_percentage: 0
-    }
-  }
-}
+// MARK: - Aspiration Functions (REMOVED)
 
 export async function getDailyStepsByUserId(
   userId: string, 
@@ -1897,17 +1485,6 @@ export async function updateGoal(goalId: string, userId: string, goalData: Parti
   try {
     console.log('DB: updateGoal called with:', { goalId, userId, goalData })
     
-    // If status is being set to 'completed', check if all milestones are completed
-    if (goalData.status === 'completed') {
-      const milestones = await getGoalMilestonesByGoalId(goalId)
-      if (milestones.length > 0) {
-        const incompleteMilestones = milestones.filter(m => !m.completed)
-        if (incompleteMilestones.length > 0) {
-          throw new Error(`Cíl nelze označit jako splněný, dokud nejsou dokončeny všechny milníky. Zbývá ${incompleteMilestones.length} nedokončených milníků.`)
-        }
-      }
-    }
-    
     // Ensure optional columns exist for forward compatibility
     try {
       await sql`ALTER TABLE goals ADD COLUMN IF NOT EXISTS area_id VARCHAR(255)`
@@ -2015,6 +1592,15 @@ export async function updateGoalById(goalId: string, updates: Partial<Goal>): Pr
   try {
     console.log('Updating goal with ID:', goalId, 'Updates:', updates)
     
+    // Ensure focus columns exist
+    try {
+      await sql`ALTER TABLE goals ADD COLUMN IF NOT EXISTS focus_status VARCHAR(20) DEFAULT NULL`
+      await sql`ALTER TABLE goals ADD COLUMN IF NOT EXISTS focus_order INTEGER DEFAULT NULL`
+    } catch (e) {
+      // Columns might already exist, ignore
+      console.log('Note: Focus columns may already exist')
+    }
+    
     // Build dynamic update query to only update provided fields
     const setParts: string[] = []
     const values: any[] = []
@@ -2028,20 +1614,48 @@ export async function updateGoalById(goalId: string, updates: Partial<Goal>): Pr
       values.push(updates.description)
     }
     if (updates.area_id !== undefined) {
+      if (updates.area_id === null) {
+        setParts.push('area_id = NULL')
+      } else {
       setParts.push(`area_id = $${values.length + 1}`)
       values.push(updates.area_id)
+      }
     }
     if (updates.aspiration_id !== undefined) {
+      if (updates.aspiration_id === null) {
+        setParts.push('aspiration_id = NULL')
+      } else {
       setParts.push(`aspiration_id = $${values.length + 1}`)
       values.push(updates.aspiration_id)
+      }
     }
     if (updates.target_date !== undefined) {
+      if (updates.target_date === null) {
+        setParts.push('target_date = NULL')
+      } else {
       setParts.push(`target_date = $${values.length + 1}`)
       values.push(updates.target_date)
+      }
     }
     if (updates.status !== undefined) {
       setParts.push(`status = $${values.length + 1}`)
       values.push(updates.status)
+    }
+    if (updates.focus_status !== undefined) {
+      if (updates.focus_status === null) {
+        setParts.push('focus_status = NULL')
+      } else {
+        setParts.push(`focus_status = $${values.length + 1}`)
+        values.push(updates.focus_status)
+      }
+    }
+    if (updates.focus_order !== undefined) {
+      if (updates.focus_order === null) {
+        setParts.push('focus_order = NULL')
+      } else {
+        setParts.push(`focus_order = $${values.length + 1}`)
+        values.push(updates.focus_order)
+      }
     }
     
     // Always update updated_at
@@ -2054,6 +1668,9 @@ export async function updateGoalById(goalId: string, updates: Partial<Goal>): Pr
     } else {
       const query = `UPDATE goals SET ${setParts.join(', ')} WHERE id = $${values.length + 1} RETURNING *`
       values.push(goalId)
+      
+      console.log('Executing query:', query)
+      console.log('With values:', values)
       
       const result = await sql.query(query, values)
       console.log('Update result:', result)
@@ -2683,110 +2300,6 @@ export async function deleteGoalMetric(metricId: string): Promise<void> {
   }
 }
 
-// Goal Milestones functions
-export async function getGoalMilestonesByGoalId(goalId: string): Promise<GoalMilestone[]> {
-  try {
-    const milestones = await sql`
-      SELECT * FROM goal_milestones 
-      WHERE goal_id = ${goalId}
-      ORDER BY "order" ASC, created_at ASC
-    `
-    return milestones as GoalMilestone[]
-  } catch (error) {
-    console.error('Error fetching goal milestones:', error)
-    return []
-  }
-}
-
-export async function getGoalMilestonesByGoalIds(goalIds: string[]): Promise<Record<string, GoalMilestone[]>> {
-  try {
-    if (goalIds.length === 0) {
-      return {}
-    }
-    
-    const milestones = await sql`
-      SELECT * FROM goal_milestones 
-      WHERE goal_id = ANY(${goalIds})
-      ORDER BY goal_id, "order" ASC, created_at ASC
-    `
-    
-    // Group milestones by goal_id
-    const grouped: Record<string, GoalMilestone[]> = {}
-    for (const milestone of milestones as GoalMilestone[]) {
-      if (!grouped[milestone.goal_id]) {
-        grouped[milestone.goal_id] = []
-      }
-      grouped[milestone.goal_id].push(milestone)
-    }
-    
-    return grouped
-  } catch (error) {
-    console.error('Error fetching goal milestones by goal IDs:', error)
-    return {}
-  }
-}
-
-export async function createGoalMilestone(milestoneData: Omit<GoalMilestone, 'id' | 'created_at' | 'updated_at'>): Promise<GoalMilestone> {
-  try {
-    const id = crypto.randomUUID()
-    const milestone = await sql`
-      INSERT INTO goal_milestones (
-        id, user_id, goal_id, title, description, completed, completed_at, "order"
-      ) VALUES (
-        ${id}, ${milestoneData.user_id}, ${milestoneData.goal_id}, ${milestoneData.title}, 
-        ${milestoneData.description || null}, ${milestoneData.completed || false}, 
-        ${milestoneData.completed_at || null}, ${milestoneData.order || 0}
-      ) RETURNING *
-    `
-    return milestone[0] as GoalMilestone
-  } catch (error) {
-    console.error('Error creating goal milestone:', error)
-    throw error
-  }
-}
-
-export async function updateGoalMilestone(milestoneId: string, updates: Partial<Omit<GoalMilestone, 'id' | 'user_id' | 'goal_id' | 'created_at'>>): Promise<GoalMilestone> {
-  try {
-    // If completed is being set, handle completed_at accordingly
-    let completedAtValue = null
-    if (updates.completed !== undefined) {
-      if (updates.completed) {
-        completedAtValue = new Date()
-      } else {
-        completedAtValue = null
-      }
-    }
-    
-    const milestone = await sql`
-      UPDATE goal_milestones 
-      SET 
-        title = COALESCE(${updates.title}, title),
-        description = COALESCE(${updates.description}, description),
-        completed = COALESCE(${updates.completed}, completed),
-        completed_at = ${completedAtValue !== null ? completedAtValue : sql`completed_at`},
-        "order" = COALESCE(${updates.order}, "order"),
-        updated_at = NOW()
-      WHERE id = ${milestoneId}
-      RETURNING *
-    `
-    return milestone[0] as GoalMilestone
-  } catch (error) {
-    console.error('Error updating goal milestone:', error)
-    throw error
-  }
-}
-
-export async function deleteGoalMilestone(milestoneId: string): Promise<void> {
-  try {
-    await sql`
-      DELETE FROM goal_milestones 
-      WHERE id = ${milestoneId}
-    `
-  } catch (error) {
-    console.error('Error deleting goal milestone:', error)
-    throw error
-  }
-}
 
 export async function updateGoalProgressFromGoalMetrics(goalId: string) {
   try {
@@ -3112,6 +2625,20 @@ export async function deleteEventInteraction(interactionId: string, userId: stri
   }
 }
 
+export async function getAutomations(userId: string): Promise<Automation[]> {
+  try {
+    const automations = await sql`
+      SELECT * FROM automations 
+      WHERE user_id = ${userId}
+      ORDER BY created_at DESC
+    `
+    return automations as Automation[]
+  } catch (error) {
+    console.error('Error fetching automations:', error)
+    return []
+  }
+}
+
 export async function getActiveAutomations(userId: string): Promise<Automation[]> {
   try {
     const automations = await sql`
@@ -3123,6 +2650,195 @@ export async function getActiveAutomations(userId: string): Promise<Automation[]
   } catch (error) {
     console.error('Error fetching active automations:', error)
     return []
+  }
+}
+
+export async function createAutomation(automationData: Omit<Automation, 'id' | 'created_at' | 'updated_at'>): Promise<Automation> {
+  try {
+    const id = crypto.randomUUID()
+    
+    // Check which optional columns exist
+    const columns = await sql`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'automations' 
+      AND column_name IN ('trigger_type', 'action_type')
+    `
+    const columnNames = columns.map((row: any) => row.column_name)
+    const hasTriggerType = columnNames.includes('trigger_type')
+    const hasActionType = columnNames.includes('action_type')
+    
+    // Get allowed trigger_type value from constraint
+    let triggerTypeValue = 'manual'
+    if (hasTriggerType) {
+      try {
+        const constraintCheck = await sql`
+          SELECT check_clause 
+          FROM information_schema.check_constraints 
+          WHERE constraint_name = 'automations_trigger_type_check'
+        `
+        if (constraintCheck.length > 0) {
+          const checkClause = constraintCheck[0].check_clause
+          // Extract first allowed value from constraint
+          const match = checkClause.match(/'([^']+)'/)
+          if (match) {
+            triggerTypeValue = match[1]
+          }
+        }
+      } catch (e: any) {
+        // If we can't determine, use 'manual' as default
+        triggerTypeValue = 'manual'
+      }
+    }
+    
+    // Get allowed action_type value from constraint
+    let actionTypeValue = 'create'
+    if (hasActionType) {
+      try {
+        const constraintCheck = await sql`
+          SELECT check_clause 
+          FROM information_schema.check_constraints 
+          WHERE constraint_name = 'automations_action_type_check'
+        `
+        if (constraintCheck.length > 0) {
+          const checkClause = constraintCheck[0].check_clause
+          // Extract first allowed value from constraint
+          const match = checkClause.match(/'([^']+)'/)
+          if (match) {
+            actionTypeValue = match[1]
+          }
+        }
+      } catch (e: any) {
+        // If we can't determine, use 'create' as default
+        actionTypeValue = 'create'
+      }
+    }
+    
+    if (hasTriggerType && hasActionType) {
+      // Both optional columns exist
+      const automation = await sql`
+        INSERT INTO automations (
+          id, user_id, name, description, type, target_id, frequency_type, frequency_time,
+          scheduled_date, is_active, target_value, current_value, update_value,
+          update_frequency, update_day_of_week, update_day_of_month, trigger_type, action_type
+        ) VALUES (
+          ${id}, ${automationData.user_id}, ${automationData.name}, 
+          ${automationData.description || null}, ${automationData.type}, 
+          ${automationData.target_id}, ${automationData.frequency_type},
+          ${automationData.frequency_time || null}, ${automationData.scheduled_date || null},
+          ${automationData.is_active !== undefined ? automationData.is_active : true},
+          ${automationData.target_value || null}, ${automationData.current_value || 0},
+          ${automationData.update_value || null}, ${automationData.update_frequency || null},
+          ${automationData.update_day_of_week || null}, ${automationData.update_day_of_month || null},
+          ${triggerTypeValue}, ${actionTypeValue}
+        ) RETURNING *
+      `
+      return automation[0] as Automation
+    } else if (hasTriggerType) {
+      // Only trigger_type exists
+      const automation = await sql`
+        INSERT INTO automations (
+          id, user_id, name, description, type, target_id, frequency_type, frequency_time,
+          scheduled_date, is_active, target_value, current_value, update_value,
+          update_frequency, update_day_of_week, update_day_of_month, trigger_type
+        ) VALUES (
+          ${id}, ${automationData.user_id}, ${automationData.name}, 
+          ${automationData.description || null}, ${automationData.type}, 
+          ${automationData.target_id}, ${automationData.frequency_type},
+          ${automationData.frequency_time || null}, ${automationData.scheduled_date || null},
+          ${automationData.is_active !== undefined ? automationData.is_active : true},
+          ${automationData.target_value || null}, ${automationData.current_value || 0},
+          ${automationData.update_value || null}, ${automationData.update_frequency || null},
+          ${automationData.update_day_of_week || null}, ${automationData.update_day_of_month || null},
+          ${triggerTypeValue}
+        ) RETURNING *
+      `
+      return automation[0] as Automation
+    } else if (hasActionType) {
+      // Only action_type exists
+      const automation = await sql`
+        INSERT INTO automations (
+          id, user_id, name, description, type, target_id, frequency_type, frequency_time,
+          scheduled_date, is_active, target_value, current_value, update_value,
+          update_frequency, update_day_of_week, update_day_of_month, action_type
+        ) VALUES (
+          ${id}, ${automationData.user_id}, ${automationData.name}, 
+          ${automationData.description || null}, ${automationData.type}, 
+          ${automationData.target_id}, ${automationData.frequency_type},
+          ${automationData.frequency_time || null}, ${automationData.scheduled_date || null},
+          ${automationData.is_active !== undefined ? automationData.is_active : true},
+          ${automationData.target_value || null}, ${automationData.current_value || 0},
+          ${automationData.update_value || null}, ${automationData.update_frequency || null},
+          ${automationData.update_day_of_week || null}, ${automationData.update_day_of_month || null},
+          ${actionTypeValue}
+        ) RETURNING *
+      `
+      return automation[0] as Automation
+    } else {
+      // Standard INSERT without trigger_type
+      const automation = await sql`
+        INSERT INTO automations (
+          id, user_id, name, description, type, target_id, frequency_type, frequency_time,
+          scheduled_date, is_active, target_value, current_value, update_value,
+          update_frequency, update_day_of_week, update_day_of_month
+        ) VALUES (
+          ${id}, ${automationData.user_id}, ${automationData.name}, 
+          ${automationData.description || null}, ${automationData.type}, 
+          ${automationData.target_id}, ${automationData.frequency_type},
+          ${automationData.frequency_time || null}, ${automationData.scheduled_date || null},
+          ${automationData.is_active !== undefined ? automationData.is_active : true},
+          ${automationData.target_value || null}, ${automationData.current_value || 0},
+          ${automationData.update_value || null}, ${automationData.update_frequency || null},
+          ${automationData.update_day_of_week || null}, ${automationData.update_day_of_month || null}
+        ) RETURNING *
+      `
+      return automation[0] as Automation
+    }
+  } catch (error) {
+    console.error('Error creating automation:', error)
+    throw error
+  }
+}
+
+export async function updateAutomation(automationId: string, updates: Partial<Omit<Automation, 'id' | 'user_id' | 'created_at'>>): Promise<Automation> {
+  try {
+    const automation = await sql`
+      UPDATE automations 
+      SET 
+        name = COALESCE(${updates.name}, name),
+        description = COALESCE(${updates.description}, description),
+        type = COALESCE(${updates.type}, type),
+        target_id = COALESCE(${updates.target_id}, target_id),
+        frequency_type = COALESCE(${updates.frequency_type}, frequency_type),
+        frequency_time = ${updates.frequency_time !== undefined ? updates.frequency_time : sql`frequency_time`},
+        scheduled_date = ${updates.scheduled_date !== undefined ? updates.scheduled_date : sql`scheduled_date`},
+        is_active = COALESCE(${updates.is_active}, is_active),
+        target_value = ${updates.target_value !== undefined ? updates.target_value : sql`target_value`},
+        current_value = ${updates.current_value !== undefined ? updates.current_value : sql`current_value`},
+        update_value = ${updates.update_value !== undefined ? updates.update_value : sql`update_value`},
+        update_frequency = ${updates.update_frequency !== undefined ? updates.update_frequency : sql`update_frequency`},
+        update_day_of_week = ${updates.update_day_of_week !== undefined ? updates.update_day_of_week : sql`update_day_of_week`},
+        update_day_of_month = ${updates.update_day_of_month !== undefined ? updates.update_day_of_month : sql`update_day_of_month`},
+        updated_at = NOW()
+      WHERE id = ${automationId}
+      RETURNING *
+    `
+    return automation[0] as Automation
+  } catch (error) {
+    console.error('Error updating automation:', error)
+    throw error
+  }
+}
+
+export async function deleteAutomation(automationId: string): Promise<void> {
+  try {
+    await sql`
+      DELETE FROM automations 
+      WHERE id = ${automationId}
+    `
+  } catch (error) {
+    console.error('Error deleting automation:', error)
+    throw error
   }
 }
 
@@ -3259,33 +2975,44 @@ export async function createOrUpdateUserSettings(
   dailyStepsCount?: number, 
   workflow?: 'daily_planning' | 'no_workflow',
   dailyResetHour?: number,
-  filters?: UserSettings['filters']
+  filters?: UserSettings['filters'],
+  defaultView?: 'day' | 'week' | 'month' | 'year'
 ): Promise<UserSettings> {
   try {
+    // Ensure default_view column exists (migration on-the-fly)
+    try {
+      await sql`ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS default_view VARCHAR(10) DEFAULT 'day'`
+    } catch (migrationError) {
+      // Column might already exist, continue
+      console.log('Note: default_view column check:', migrationError instanceof Error ? migrationError.message : 'unknown')
+    }
+    
     // Get existing settings to preserve values not being updated
     const existingSettings = await getUserSettings(userId)
     
-    const finalDailyStepsCount = dailyStepsCount ?? existingSettings?.daily_steps_count ?? 3
-    const finalWorkflow = workflow ?? existingSettings?.workflow ?? 'daily_planning'
-    const finalDailyResetHour = dailyResetHour ?? existingSettings?.daily_reset_hour ?? 0
-    const finalFilters = filters ?? existingSettings?.filters ?? {
+    const finalDailyStepsCount = dailyStepsCount !== undefined ? dailyStepsCount : (existingSettings?.daily_steps_count ?? 3)
+    const finalWorkflow = workflow !== undefined ? workflow : (existingSettings?.workflow ?? 'daily_planning')
+    const finalDailyResetHour = dailyResetHour !== undefined ? dailyResetHour : (existingSettings?.daily_reset_hour ?? 0)
+    const finalDefaultView = defaultView !== undefined ? defaultView : (existingSettings?.default_view ?? 'day')
+    const finalFilters = filters !== undefined ? filters : (existingSettings?.filters ?? {
       showToday: true,
       showOverdue: true,
       showFuture: false,
       showWithGoal: true,
       showWithoutGoal: true,
       sortBy: 'date' as const
-    }
+    })
     
     const settings = await sql`
-      INSERT INTO user_settings (id, user_id, daily_steps_count, workflow, daily_reset_hour, filters)
-      VALUES (${crypto.randomUUID()}, ${userId}, ${finalDailyStepsCount}, ${finalWorkflow}, ${finalDailyResetHour}, ${JSON.stringify(finalFilters)})
+      INSERT INTO user_settings (id, user_id, daily_steps_count, workflow, daily_reset_hour, filters, default_view)
+      VALUES (${crypto.randomUUID()}, ${userId}, ${finalDailyStepsCount}, ${finalWorkflow}, ${finalDailyResetHour}, ${JSON.stringify(finalFilters)}, ${finalDefaultView})
       ON CONFLICT (user_id) 
       DO UPDATE SET 
         daily_steps_count = ${finalDailyStepsCount},
         workflow = ${finalWorkflow},
         daily_reset_hour = ${finalDailyResetHour},
         filters = ${JSON.stringify(finalFilters)},
+        default_view = ${finalDefaultView},
         updated_at = NOW()
       RETURNING *
     `
@@ -3766,7 +3493,7 @@ export async function getHabitsByUserId(userId: string): Promise<Habit[]> {
       SELECT h.*, 
              COALESCE(
                json_object_agg(
-                 hc.completion_date, 
+                 TO_CHAR(hc.completion_date, 'YYYY-MM-DD'), 
                  hc.completed
                ) FILTER (WHERE hc.completion_date IS NOT NULL),
                '{}'::json

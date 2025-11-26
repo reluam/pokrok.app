@@ -7,7 +7,6 @@ interface YearViewProps {
   goals: any[]
   habits: any[]
   dailySteps: any[]
-  areas: any[]
   selectedYear: number
   setSelectedYear: (year: number) => void
   setShowDatePickerModal: (show: boolean) => void
@@ -21,7 +20,6 @@ export function YearView({
   goals,
   habits,
   dailySteps,
-  areas,
   selectedYear,
   setSelectedYear,
   setShowDatePickerModal,
@@ -122,20 +120,11 @@ export function YearView({
     }
   })
   
-  // Group goals by area
-  const goalsByArea = areas.map(area => {
-    const areaGoals = yearGoals.filter(goal => goal.area_id === area.id)
-    return { area, goals: areaGoals }
-  }).filter(item => item.goals.length > 0)
-  
-  // Add goals without area
-  const goalsWithoutArea = yearGoals.filter(goal => !goal.area_id || !areas.find(a => a.id === goal.area_id))
-  if (goalsWithoutArea.length > 0) {
-    goalsByArea.push({ 
-      area: { id: null, name: 'Ostatní', color: '#9CA3AF', icon: '📌' }, 
-      goals: goalsWithoutArea 
-    })
-  }
+  // Group all goals together (no area categorization)
+  const goalsByArea = yearGoals.length > 0 ? [{
+    area: { id: null, name: 'Všechny cíle', color: '#9CA3AF', icon: '🎯' },
+    goals: yearGoals
+  }] : []
   
   return (
     <div className="w-full h-full flex flex-col p-6 overflow-y-auto">
@@ -248,8 +237,7 @@ export function YearView({
                     <div className="p-3 space-y-2">
                       {goalsToShow.map((goal) => {
                         const goalProgress = goal.steps ? (goal.steps.filter((step: any) => step.completed).length / Math.max(goal.steps.length, 1)) * 100 : 0
-                        const goalArea = areas.find(a => a.id === goal.area_id)
-                        const areaIcon = goalArea?.icon || '🎯'
+                        const areaIcon = '🎯'
                         
                         return (
                           <div 

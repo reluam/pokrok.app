@@ -6,6 +6,7 @@ import { AspiraceView } from '../views/AspiraceView'
 import { HabitsManagementView } from '../views/HabitsManagementView'
 import { GoalsManagementView } from '../views/GoalsManagementView'
 import { StepsManagementView } from '../views/StepsManagementView'
+import { AutomationManagementView } from '../views/AutomationManagementView'
 
 interface ManagementPageProps {
   goals?: any[]
@@ -27,7 +28,6 @@ interface ManagementPageProps {
   onDailyStepsUpdate?: (steps: any[]) => void
   handleHabitToggle?: (habitId: string, date?: string) => Promise<void>
   loadingHabits?: Set<string>
-  areas?: any[]
   userId?: string | null
   player?: any
 }
@@ -52,12 +52,11 @@ export function ManagementPage({
   onDailyStepsUpdate,
   handleHabitToggle,
   loadingHabits = new Set(),
-  areas = [],
   userId = null,
   player = null
 }: ManagementPageProps) {
   const t = useTranslations()
-  const [currentManagementProgram, setCurrentManagementProgram] = useState<'aspirace' | 'goals' | 'habits' | 'steps'>('aspirace')
+  const [currentManagementProgram, setCurrentManagementProgram] = useState<'aspirace' | 'goals' | 'habits' | 'steps' | 'automations'>('aspirace')
 
   const renderAspiraceContent = () => {
     return (
@@ -86,7 +85,6 @@ export function ManagementPage({
       <GoalsManagementView
         goals={goals}
         aspirations={aspirations}
-        areas={areas}
         onGoalsUpdate={onGoalsUpdate}
         setOverviewBalances={setOverviewBalances}
         userId={userId}
@@ -120,50 +118,72 @@ export function ManagementPage({
     )
   }
 
+  const renderAutomationsContent = () => {
+    return (
+      <AutomationManagementView
+        goals={goals}
+        userId={userId}
+        player={player}
+      />
+    )
+  }
+
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Program Selector */}
-      <div className="flex items-center justify-center gap-2 p-4 border-b border-gray-200 bg-white">
-        <button
-          onClick={() => setCurrentManagementProgram('aspirace')}
-          className={`px-4 py-2 rounded-lg font-medium transition-all ${
-            currentManagementProgram === 'aspirace'
-              ? 'bg-orange-500 text-white shadow-md'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          }`}
-        >
-          {t('game.menu.aspirace')}
-        </button>
-        <button
-          onClick={() => setCurrentManagementProgram('goals')}
-          className={`px-4 py-2 rounded-lg font-medium transition-all ${
-            currentManagementProgram === 'goals'
-              ? 'bg-orange-500 text-white shadow-md'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          }`}
-        >
-          {t('game.menu.goals')}
-        </button>
-        <button
-          onClick={() => setCurrentManagementProgram('habits')}
-          className={`px-4 py-2 rounded-lg font-medium transition-all ${
-            currentManagementProgram === 'habits'
-              ? 'bg-orange-500 text-white shadow-md'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          }`}
-        >
-          {t('game.menu.habits')}
-        </button>
-        <button
-          onClick={() => setCurrentManagementProgram('steps')}
-          className={`px-4 py-2 rounded-lg font-medium transition-all ${
-            currentManagementProgram === 'steps'
-              ? 'bg-orange-500 text-white shadow-md'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          }`}
-        >
-          {t('game.menu.steps')}
-        </button>
+      {/* Program Selector - Link Navigation */}
+      <div className="px-4 py-2 border-b border-gray-200 bg-white">
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => setCurrentManagementProgram('aspirace')}
+            className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
+              currentManagementProgram === 'aspirace'
+                ? 'text-orange-600 border-orange-600'
+                : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
+            }`}
+          >
+            {t('game.menu.aspirace')}
+          </button>
+          <button
+            onClick={() => setCurrentManagementProgram('goals')}
+            className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
+              currentManagementProgram === 'goals'
+                ? 'text-orange-600 border-orange-600'
+                : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
+            }`}
+          >
+            {t('game.menu.goals')}
+          </button>
+          <button
+            onClick={() => setCurrentManagementProgram('habits')}
+            className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
+              currentManagementProgram === 'habits'
+                ? 'text-orange-600 border-orange-600'
+                : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
+            }`}
+          >
+            {t('game.menu.habits')}
+          </button>
+          <button
+            onClick={() => setCurrentManagementProgram('steps')}
+            className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
+              currentManagementProgram === 'steps'
+                ? 'text-orange-600 border-orange-600'
+                : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
+            }`}
+          >
+            {t('game.menu.steps')}
+          </button>
+          <button
+            onClick={() => setCurrentManagementProgram('automations')}
+            className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
+              currentManagementProgram === 'automations'
+                ? 'text-orange-600 border-orange-600'
+                : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
+            }`}
+          >
+            Automatizace
+          </button>
+        </div>
       </div>
       
       {/* Program Content */}
@@ -172,6 +192,7 @@ export function ManagementPage({
         {currentManagementProgram === 'goals' && renderGoalsContent()}
         {currentManagementProgram === 'habits' && renderHabitsContent()}
         {currentManagementProgram === 'steps' && renderStepsContent()}
+        {currentManagementProgram === 'automations' && renderAutomationsContent()}
       </div>
     </div>
   )

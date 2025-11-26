@@ -8,7 +8,7 @@ struct PokrokWidgetConfiguration {
     let appGroupIdentifier = "group.com.smysluplneziti.pokrok"
     
     // API Configuration
-    let baseURL = "https://www.pokrok.app/api/cesta"
+    let baseURL = "https://www.pokrok.app/api"
     
     // Widget update intervals
     let updateInterval: TimeInterval = 3600 // 1 hour
@@ -57,12 +57,6 @@ struct PokrokWidgetConfiguration {
     }
     
     func getSharedUserDefaults() -> UserDefaults? {
-        let userDefaults = UserDefaults(suiteName: appGroupIdentifier)
-        print("Widget Config: App Group UserDefaults accessible: \(userDefaults != nil ? "YES" : "NO")")
-        if let userDefaults = userDefaults {
-            let keys = userDefaults.dictionaryRepresentation().keys
-            print("Widget Config: Available keys: \(Array(keys))")
-        }
-        return userDefaults
+        return UserDefaults(suiteName: appGroupIdentifier)
     }
 }

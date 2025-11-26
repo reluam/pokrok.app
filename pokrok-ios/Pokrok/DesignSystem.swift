@@ -3,39 +3,118 @@ import SwiftUI
 // MARK: - Design System
 // Moderní designový systém podle Apple HIG a Liquid Glass principů
 
+// Helper pro vytváření adaptivních barev (light/dark mode)
+private func adaptiveColor(light: (CGFloat, CGFloat, CGFloat), dark: (CGFloat, CGFloat, CGFloat)) -> Color {
+    Color(UIColor { traitCollection in
+        switch traitCollection.userInterfaceStyle {
+        case .dark:
+            return UIColor(red: dark.0/255, green: dark.1/255, blue: dark.2/255, alpha: 1.0)
+        default:
+            return UIColor(red: light.0/255, green: light.1/255, blue: light.2/255, alpha: 1.0)
+        }
+    })
+}
+
 struct DesignSystem {
     
     // MARK: - Colors (konzistentní s webovou aplikací)
+    // Podporuje dark mode s matnými barvami v "papírovém" stylu
     struct Colors {
-        // Primary colors - teplá oranžová paleta
-        static let primary = Color(red: 232/255, green: 135/255, blue: 30/255)
-        static let primaryLight = Color(red: 249/255, green: 168/255, blue: 85/255)
-        static let primaryDark = Color(red: 209/255, green: 106/255, blue: 10/255)
+        // Primary colors - teplá oranžová paleta (zachována v obou režimech)
+        static let primary = adaptiveColor(
+            light: (232, 135, 30),
+            dark: (249, 168, 85) // Světlejší pro lepší kontrast
+        )
+        static let primaryLight = adaptiveColor(
+            light: (249, 168, 85),
+            dark: (255, 190, 120)
+        )
+        static let primaryDark = adaptiveColor(
+            light: (209, 106, 10),
+            dark: (232, 135, 30)
+        )
         
-        // Background colors
-        static let background = Color(red: 255/255, green: 250/255, blue: 245/255)
-        static let surface = Color.white
-        static let surfaceSecondary = Color(red: 249/255, green: 250/255, blue: 251/255)
+        // Background colors - matné, papírové barvy
+        static let background = adaptiveColor(
+            light: (255, 250, 245),
+            dark: (18, 18, 20) // Tmavě šedá, ne černá
+        )
+        static let surface = adaptiveColor(
+            light: (255, 255, 255),
+            dark: (28, 28, 30) // Tmavší šedá pro karty
+        )
+        static let surfaceSecondary = adaptiveColor(
+            light: (249, 250, 251),
+            dark: (38, 38, 42) // Ještě tmavší pro sekundární plochy
+        )
         
-        // Text colors
-        static let textPrimary = Color.black
-        static let textSecondary = Color(red: 107/255, green: 114/255, blue: 128/255)
-        static let textTertiary = Color(red: 156/255, green: 163/255, blue: 175/255)
+        // Text colors - matné, ne příliš kontrastní
+        static let textPrimary = adaptiveColor(
+            light: (0, 0, 0),
+            dark: (245, 245, 247) // Světle šedá, ne bílá
+        )
+        static let textSecondary = adaptiveColor(
+            light: (107, 114, 128),
+            dark: (174, 178, 186) // Středně šedá
+        )
+        static let textTertiary = adaptiveColor(
+            light: (156, 163, 175),
+            dark: (142, 147, 158) // Tmavší šedá
+        )
         
-        // Status colors
-        static let success = Color(red: 34/255, green: 197/255, blue: 94/255)
-        static let warning = Color(red: 245/255, green: 158/255, blue: 11/255)
-        static let error = Color(red: 239/255, green: 68/255, blue: 68/255)
-        static let info = Color(red: 59/255, green: 130/255, blue: 246/255)
+        // Status colors - zachovány, ale upraveny pro dark mode
+        static let success = adaptiveColor(
+            light: (34, 197, 94),
+            dark: (74, 222, 128) // Světlejší zelená
+        )
+        static let warning = adaptiveColor(
+            light: (245, 158, 11),
+            dark: (251, 191, 36) // Světlejší žlutá
+        )
+        static let error = adaptiveColor(
+            light: (239, 68, 68),
+            dark: (248, 113, 113) // Světlejší červená
+        )
+        static let info = adaptiveColor(
+            light: (59, 130, 246),
+            dark: (96, 165, 250) // Světlejší modrá
+        )
         
-        // Category colors
-        static let shortTerm = Color(red: 34/255, green: 197/255, blue: 94/255)
-        static let mediumTerm = Color(red: 59/255, green: 130/255, blue: 246/255)
-        static let longTerm = Color(red: 147/255, green: 51/255, blue: 234/255)
+        // Category colors - zachovány s úpravami pro dark mode
+        static let shortTerm = adaptiveColor(
+            light: (34, 197, 94),
+            dark: (74, 222, 128)
+        )
+        static let mediumTerm = adaptiveColor(
+            light: (59, 130, 246),
+            dark: (96, 165, 250)
+        )
+        static let longTerm = adaptiveColor(
+            light: (147, 51, 234),
+            dark: (167, 85, 247) // Světlejší fialová
+        )
         
-        // Glass effect colors
-        static let glassBackground = Color.white.opacity(0.8)
-        static let glassBorder = Color.white.opacity(0.2)
+        // Glass effect colors - adaptivní pro dark mode
+        static var glassBackground: Color {
+            Color(UIColor { traitCollection in
+                switch traitCollection.userInterfaceStyle {
+                case .dark:
+                    return UIColor(red: 38/255, green: 38/255, blue: 42/255, alpha: 0.8)
+                default:
+                    return UIColor.white.withAlphaComponent(0.8)
+                }
+            })
+        }
+        static var glassBorder: Color {
+            Color(UIColor { traitCollection in
+                switch traitCollection.userInterfaceStyle {
+                case .dark:
+                    return UIColor.white.withAlphaComponent(0.1)
+                default:
+                    return UIColor.white.withAlphaComponent(0.2)
+                }
+            })
+        }
     }
     
     // MARK: - Typography (konzistentní s webovou aplikací)
@@ -79,10 +158,38 @@ struct DesignSystem {
     }
     
     // MARK: - Shadows
+    // V dark mode jsou stíny jemnější a méně viditelné
     struct Shadows {
-        static let sm = Color.black.opacity(0.05)
-        static let md = Color.black.opacity(0.1)
-        static let lg = Color.black.opacity(0.15)
+        static var sm: Color {
+            Color(UIColor { traitCollection in
+                switch traitCollection.userInterfaceStyle {
+                case .dark:
+                    return UIColor.black.withAlphaComponent(0.2)
+                default:
+                    return UIColor.black.withAlphaComponent(0.05)
+                }
+            })
+        }
+        static var md: Color {
+            Color(UIColor { traitCollection in
+                switch traitCollection.userInterfaceStyle {
+                case .dark:
+                    return UIColor.black.withAlphaComponent(0.3)
+                default:
+                    return UIColor.black.withAlphaComponent(0.1)
+                }
+            })
+        }
+        static var lg: Color {
+            Color(UIColor { traitCollection in
+                switch traitCollection.userInterfaceStyle {
+                case .dark:
+                    return UIColor.black.withAlphaComponent(0.4)
+                default:
+                    return UIColor.black.withAlphaComponent(0.15)
+                }
+            })
+        }
     }
 }
 

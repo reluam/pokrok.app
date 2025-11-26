@@ -5,7 +5,7 @@ import WidgetKit
 // AppIntent pro výběr typu widgetu
 struct SelectWidgetTypeIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource = "Vyberte typ widgetu"
-    static var description = IntentDescription("Vyberte, jaký obsah chcete zobrazit ve widgetu")
+    static var description = IntentDescription("Pro střední widget: kroky nebo návyky. Pro malý widget: všechny typy.")
     
     @Parameter(title: "Typ widgetu", default: .todaySteps)
     var widgetType: WidgetTypeAppEnum
@@ -14,6 +14,7 @@ struct SelectWidgetTypeIntent: WidgetConfigurationIntent {
 // AppEnum pro typy widgetu
 enum WidgetTypeAppEnum: String, AppEnum, @unchecked Sendable {
     case todaySteps
+    case todayHabits
     case futureSteps
     case inspiration
     
@@ -26,6 +27,10 @@ enum WidgetTypeAppEnum: String, AppEnum, @unchecked Sendable {
             .todaySteps: DisplayRepresentation(
                 title: "Dnešní kroky",
                 subtitle: "Zobrazuje dnešní kroky a zpožděné úkoly"
+            ),
+            .todayHabits: DisplayRepresentation(
+                title: "Dnešní návyky",
+                subtitle: "Zobrazuje dnešní návyky a jejich stav"
             ),
             .futureSteps: DisplayRepresentation(
                 title: "Dnešní a budoucí",
@@ -45,6 +50,8 @@ extension WidgetTypeAppEnum {
         switch self {
         case .todaySteps:
             return .todaySteps
+        case .todayHabits:
+            return .todayHabits
         case .futureSteps:
             return .futureSteps
         case .inspiration:

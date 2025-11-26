@@ -7,7 +7,6 @@ import { GoalsManagementView } from './GoalsManagementView'
 import { StatisticsView } from './StatisticsView'
 import { AchievementsView } from './AchievementsView'
 import { SettingsView } from './SettingsView'
-import { OnboardingModal } from './OnboardingModal'
 
 interface GameWorldViewProps {
   player?: any
@@ -19,41 +18,13 @@ interface GameWorldViewProps {
   onPlayerUpdate?: (player: any) => void
 }
 
-type GameView = 'character' | 'daily-plan' | 'goals' | 'steps' | 'notes' | 'map' | 'habits' | 'statistics' | 'achievements' | 'settings'
+type GameView = 'character' | 'daily-plan' | 'goals' | 'notes' | 'map' | 'habits' | 'statistics' | 'achievements' | 'settings'
 
 export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, onHabitsUpdate, onPlayerUpdate }: GameWorldViewProps) {
   const [currentView, setCurrentView] = useState<GameView>('character')
   const [dailySteps, setDailySteps] = useState<any[]>([])
-  const [showOnboarding, setShowOnboarding] = useState(false)
-  const [userHasCompletedOnboarding, setUserHasCompletedOnboarding] = useState<boolean | null>(null)
-  
   // Default function if onPlayerUpdate is not provided
   const handlePlayerUpdate = onPlayerUpdate || (() => {})
-
-  // Check onboarding status
-  useEffect(() => {
-    const checkOnboardingStatus = async () => {
-      if (!userId) return
-      
-      try {
-        const response = await fetch('/api/game/init')
-        if (response.ok) {
-          const data = await response.json()
-          const hasCompleted = data.user?.has_completed_onboarding ?? false
-          setUserHasCompletedOnboarding(hasCompleted)
-          if (!hasCompleted) {
-            setShowOnboarding(true)
-          }
-        }
-      } catch (error) {
-        console.error('Error checking onboarding status:', error)
-        // Default to showing onboarding if we can't check
-        setShowOnboarding(true)
-      }
-    }
-
-    checkOnboardingStatus()
-  }, [userId])
 
   // Load daily steps - optimized: load only recent and upcoming steps (last 7 days + next 14 days)
   useEffect(() => {
@@ -100,7 +71,16 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
   }
 
   const handleNavigateToSteps = () => {
-    setCurrentView('steps')
+    // Navigate to main panel with steps section
+    setCurrentView('character')
+    // Set the section in localStorage so JourneyGameView will load it
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('journeyGame_mainPanelSection', 'steps')
+      // Dispatch custom event for same-window updates
+      window.dispatchEvent(new CustomEvent('localStorageChange', {
+        detail: { key: 'journeyGame_mainPanelSection', newValue: 'steps' }
+      }))
+    }
   }
 
   const handleNavigateToNotes = () => {
@@ -142,11 +122,6 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
 
   const handleDailyStepsUpdate = (steps: any[]) => {
     setDailySteps(steps)
-  }
-
-  const handleOnboardingComplete = () => {
-    setShowOnboarding(false)
-    setUserHasCompletedOnboarding(true)
   }
 
   const renderCurrentView = () => {
@@ -222,19 +197,16 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
             onBack={handleBackToCharacter}
           />
         )
-      case 'steps':
       case 'notes':
       case 'map':
         return (
           <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-50 to-pink-100 p-4 flex items-center justify-center">
             <div className="bg-white rounded-xl shadow-lg p-8 text-center">
               <h1 className="text-2xl font-bold text-gray-900 mb-4">
-                {currentView === 'steps' && '👣 KROKY'}
                 {currentView === 'notes' && '📝 POZNÁMKY'}
                 {currentView === 'map' && '🗺️ MAPA'}
               </h1>
               <p className="text-gray-600 mb-6">
-                {currentView === 'steps' && 'Tato sekce bude brzy dostupná'}
                 {currentView === 'notes' && 'Tato sekce bude brzy dostupná'}
                 {currentView === 'map' && 'Tato sekce bude brzy dostupná'}
               </p>
@@ -272,13 +244,6 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
   return (
     <>
       {renderCurrentView()}
-      <OnboardingModal
-        isOpen={showOnboarding}
-        onClose={handleOnboardingComplete}
-        onComplete={handleOnboardingComplete}
-        onNavigateToGoals={handleNavigateToGoals}
-        onNavigateToHabits={handleNavigateToHabits}
-      />
     </>
   )
 }

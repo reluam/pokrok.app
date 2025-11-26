@@ -28,6 +28,10 @@ struct PokrokApp: App {
                     // Stop timer when app goes to background
                     stopTokenRefreshTimer()
                 }
+                .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
+                    // App is about to terminate - ensure widget data is saved
+                    // This is a fallback, data should already be saved after each update
+                }
         }
     }
     

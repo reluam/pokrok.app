@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       console.log('Deleting completion record for:', { habitId, dbUserId, date })
       await sql`
         DELETE FROM habit_completions 
-        WHERE habit_id = ${habitId} AND user_id = ${dbUserId} AND completion_date = ${date}
+        WHERE habit_id = ${habitId} AND user_id = ${dbUserId} AND completion_date = CAST(${date} AS DATE)
       `
       console.log('Deletion completed')
     } else {
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       console.log('Inserting/updating completion record:', { dbUserId, habitId, date, completed })
       await sql`
         INSERT INTO habit_completions (user_id, habit_id, completion_date, completed, created_at)
-        VALUES (${dbUserId}, ${habitId}, ${date}, ${completed}, NOW())
+        VALUES (${dbUserId}, ${habitId}, CAST(${date} AS DATE), ${completed}, NOW())
         ON CONFLICT (user_id, habit_id, completion_date)
         DO UPDATE SET completed = ${completed}, updated_at = NOW()
       `
