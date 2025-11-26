@@ -449,152 +449,167 @@ export function TodayFocusSection({
                 </h4>
                 {weekHabits.length > 0 ? (
                   <>
-                    {/* Mobile/Tablet: All habits in one box with dividers */}
-                    <div className="lg:hidden border border-gray-200 rounded-lg p-2">
-                      {weekHabits.map((habit, index) => (
-                        <div key={habit.id}>
-                          <button
-                            onClick={() => handleItemClick(habit, 'habit')}
-                            className="text-left text-xs font-medium text-gray-700 hover:text-orange-600 transition-colors w-full mb-1.5"
-                            title={habit.name}
-                          >
-                            {habit.name}
-                          </button>
-                          <div className="flex items-center justify-between gap-1 mb-2">
-                            {weekDays.map((day) => {
-                              const dateStr = getLocalDateString(day)
-                              const isScheduled = isHabitScheduledForDay(habit, day)
-                              const isCompleted = isHabitCompletedForDay(habit, day)
-                              const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
-                              const dayName = dayNamesShort[day.getDay()]
-                              
-                              return (
-                                <div key={dateStr} className="flex flex-col items-center flex-1">
-                                  <span className={`text-[8px] mb-0.5 ${isSelected ? 'text-orange-600 font-bold' : 'text-gray-400'}`}>
-                                    {dayName}
-                                  </span>
+                    {/* Mobile/Tablet: Compact colored squares */}
+                    <div className="lg:hidden">
+                      {/* Header with day names */}
+                      <div className="flex items-center gap-1 mb-2 pl-[100px]">
+                        {weekDays.map((day) => {
+                          const dateStr = getLocalDateString(day)
+                          const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
+                          const dayName = dayNamesShort[day.getDay()]
+                          const isToday = day.toDateString() === new Date().toDateString()
+                          
+                          return (
+                            <div
+                              key={dateStr}
+                              className={`w-6 h-6 flex flex-col items-center justify-center text-[8px] rounded ${
+                                isSelected 
+                                  ? 'bg-orange-500 text-white font-bold' 
+                                  : isToday 
+                                    ? 'bg-orange-100 text-orange-700 font-semibold'
+                                    : 'text-gray-400'
+                              }`}
+                            >
+                              <span className="uppercase leading-none">{dayName}</span>
+                              <span className="text-[7px] leading-none">{day.getDate()}</span>
+                            </div>
+                          )
+                        })}
+                      </div>
+                      
+                      {/* Habits with colored squares */}
+                      <div className="space-y-1.5">
+                        {weekHabits.map((habit) => (
+                          <div key={habit.id} className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleItemClick(habit, 'habit')}
+                              className="w-[96px] text-left text-[10px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate flex-shrink-0"
+                              title={habit.name}
+                            >
+                              {habit.name}
+                            </button>
+                            <div className="flex gap-0.5">
+                              {weekDays.map((day) => {
+                                const dateStr = getLocalDateString(day)
+                                const isScheduled = isHabitScheduledForDay(habit, day)
+                                const isCompleted = isHabitCompletedForDay(habit, day)
+                                const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
+                                const isLoading = loadingHabits.has(habit.id)
+                                
+                                return (
                                   <button
+                                    key={dateStr}
                                     onClick={() => {
-                                      if (handleHabitToggle && !loadingHabits.has(habit.id)) {
+                                      if (isScheduled && handleHabitToggle && !isLoading) {
                                         handleHabitToggle(habit.id, dateStr)
                                       }
                                     }}
-                                    disabled={loadingHabits.has(habit.id)}
-                                    className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
-                                      isScheduled
-                                        ? isCompleted
-                                          ? 'bg-orange-600 border-orange-600'
-                                          : 'bg-white border-gray-600 hover:border-gray-700'
+                                    disabled={!isScheduled || isLoading}
+                                    className={`w-6 h-6 rounded flex items-center justify-center transition-all ${
+                                      !isScheduled 
+                                        ? 'bg-gray-100 cursor-default' 
                                         : isCompleted
-                                          ? 'bg-orange-600 border-orange-600'
-                                          : 'bg-white border-gray-300 hover:border-gray-400'
-                                    } ${isSelected ? 'ring-1 ring-orange-300' : ''}`}
+                                          ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                                          : 'bg-gray-200 hover:bg-orange-200 cursor-pointer'
+                                    } ${isSelected ? 'ring-2 ring-orange-400 ring-offset-1' : ''}`}
                                   >
-                                    {loadingHabits.has(habit.id) ? (
+                                    {isLoading ? (
                                       <svg className="animate-spin h-2.5 w-2.5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                       </svg>
                                     ) : isCompleted ? (
-                                      <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
+                                      <Check className="w-3 h-3 text-white" strokeWidth={3} />
                                     ) : null}
                                   </button>
-                                </div>
-                              )
-                            })}
+                                )
+                              })}
+                            </div>
                           </div>
-                          {index < weekHabits.length - 1 && (
-                            <div className="border-t border-gray-200 my-2"></div>
-                          )}
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                     
-                    {/* Desktop: Horizontal table layout */}
+                    {/* Desktop: Compact colored squares layout */}
                     <div className="hidden lg:block overflow-y-auto max-h-[500px]">
-                    <table className="border-collapse text-left">
-                      <thead>
-                        <tr>
-                          <th className="text-left pb-1.5 pr-3 text-[9px] font-semibold text-gray-400"></th>
-                          {weekDays.map((day) => {
-                            const dateStr = getLocalDateString(day)
-                            const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
-                            const dayName = dayNamesShort[day.getDay()]
-                            
-                            return (
-                              <th
-                                key={dateStr}
-                                className={`text-center pb-1.5 px-1 text-[9px] font-semibold ${
-                                  isSelected ? 'text-orange-700' : 'text-gray-400'
-                                }`}
-                              >
-                                <div className="flex flex-col items-center">
-                                  <span className="uppercase leading-tight">{dayName}</span>
-                                  <span className={`text-[10px] ${isSelected ? 'font-bold' : ''}`}>{day.getDate()}</span>
-                                </div>
-                              </th>
-                            )
-                          })}
-                        </tr>
-                      </thead>
-                      <tbody>
+                      {/* Header with day names */}
+                      <div className="flex items-center gap-1.5 mb-2 pl-[120px]">
+                        {weekDays.map((day) => {
+                          const dateStr = getLocalDateString(day)
+                          const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
+                          const dayName = dayNamesShort[day.getDay()]
+                          const isToday = day.toDateString() === new Date().toDateString()
+                          
+                          return (
+                            <div
+                              key={dateStr}
+                              className={`w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded-md ${
+                                isSelected 
+                                  ? 'bg-orange-500 text-white font-bold' 
+                                  : isToday 
+                                    ? 'bg-orange-100 text-orange-700 font-semibold'
+                                    : 'text-gray-400'
+                              }`}
+                            >
+                              <span className="uppercase leading-none">{dayName}</span>
+                              <span className="text-[8px] leading-none">{day.getDate()}</span>
+                            </div>
+                          )
+                        })}
+                      </div>
+                      
+                      {/* Habits with colored squares */}
+                      <div className="space-y-1.5">
                         {weekHabits.map((habit) => (
-                          <tr key={habit.id} className="group">
-                            <td className="pr-3 py-1.5">
-                              <button
-                                onClick={() => handleItemClick(habit, 'habit')}
-                                className="text-left text-[11px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate max-w-[180px] block"
-                                title={habit.name}
-                              >
-                                {habit.name}
-                              </button>
-                            </td>
-                            {weekDays.map((day) => {
-                              const dateStr = getLocalDateString(day)
-                              const isScheduled = isHabitScheduledForDay(habit, day)
-                              const isCompleted = isHabitCompletedForDay(habit, day)
-                              const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
-                              
-                              return (
-                                <td
-                                  key={dateStr}
-                                  className={`text-center py-1.5 px-1 ${
-                                    isSelected ? 'bg-orange-50' : ''
-                                  }`}
-                                >
-                                    <button
-                                      onClick={() => {
-                                        if (handleHabitToggle && !loadingHabits.has(habit.id)) {
-                                          handleHabitToggle(habit.id, dateStr)
-                                        }
-                                      }}
-                                      disabled={loadingHabits.has(habit.id)}
-                                      className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
-                                        isScheduled
-                                          ? isCompleted
-                                            ? 'bg-orange-600 border-orange-600'
-                                            : 'bg-white border-gray-600 hover:border-gray-700'
-                                          : isCompleted
-                                            ? 'bg-orange-600 border-orange-600'
-                                            : 'bg-white border-gray-300 hover:border-gray-400'
-                                      } ${isSelected ? 'ring-1 ring-orange-300' : ''}`}
-                                    >
-                                      {loadingHabits.has(habit.id) ? (
-                                        <svg className="animate-spin h-2 w-2 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                      ) : isCompleted ? (
-                                        <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
-                                      ) : null}
-                                    </button>
-                                </td>
-                              )
-                            })}
-                          </tr>
+                          <div key={habit.id} className="flex items-center gap-1.5">
+                            <button
+                              onClick={() => handleItemClick(habit, 'habit')}
+                              className="w-[112px] text-left text-[11px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate flex-shrink-0"
+                              title={habit.name}
+                            >
+                              {habit.name}
+                            </button>
+                            <div className="flex gap-1">
+                              {weekDays.map((day) => {
+                                const dateStr = getLocalDateString(day)
+                                const isScheduled = isHabitScheduledForDay(habit, day)
+                                const isCompleted = isHabitCompletedForDay(habit, day)
+                                const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
+                                const isLoading = loadingHabits.has(habit.id)
+                                
+                                return (
+                                  <button
+                                    key={dateStr}
+                                    onClick={() => {
+                                      if (isScheduled && handleHabitToggle && !isLoading) {
+                                        handleHabitToggle(habit.id, dateStr)
+                                      }
+                                    }}
+                                    disabled={!isScheduled || isLoading}
+                                    className={`w-7 h-7 rounded-md flex items-center justify-center transition-all ${
+                                      !isScheduled 
+                                        ? 'bg-gray-100 cursor-default' 
+                                        : isCompleted
+                                          ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                                          : 'bg-gray-200 hover:bg-orange-200 cursor-pointer'
+                                    } ${isSelected ? 'ring-2 ring-orange-400 ring-offset-1' : ''}`}
+                                    title={isScheduled ? (isCompleted ? 'Splněno' : 'Klikni pro splnění') : 'Nenaplánováno'}
+                                  >
+                                    {isLoading ? (
+                                      <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                      </svg>
+                                    ) : isCompleted ? (
+                                      <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                                    ) : null}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </div>
                         ))}
-                      </tbody>
-                    </table>
+                      </div>
                   </div>
                   </>
                 ) : (

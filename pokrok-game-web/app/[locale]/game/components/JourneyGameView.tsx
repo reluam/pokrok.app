@@ -14,11 +14,8 @@ import { DailyReviewWorkflow } from './DailyReviewWorkflow'
 import { CalendarProgram } from './CalendarProgram'
 import { getIconEmoji } from '@/lib/icon-utils'
 import { getLocalDateString, normalizeDate } from './utils/dateHelpers'
-import { MainPanelDay } from './pages/MainPanelDay'
 import { ManagementPage } from './pages/ManagementPage'
-import { WeekView } from './views/WeekView'
-import { MonthView } from './views/MonthView'
-import { YearView } from './views/YearView'
+import { UnifiedDayView } from './views/UnifiedDayView'
 import { FocusManagementView } from './views/FocusManagementView'
 import { HelpView } from './views/HelpView'
 import { GoalsManagementView } from './views/GoalsManagementView'
@@ -2544,100 +2541,43 @@ export function JourneyGameView({
       return renderItemDetail(selectedItem, selectedItemType)
     }
 
-    // Show detailed content based on current program (Day, Week, Month, Year)
-    switch (currentProgram) {
-      case 'day':
-        return renderDayContent()
-      case 'week':
-        return renderWeekContent()
-      case 'month':
-        return renderMonthContent()
-      case 'year':
-        return renderYearContent()
-      default:
-        return renderDayContent()
-    }
-  }
-
-
-  // Render Day Content - Calendar day view with selected day's habits (including always_show) and steps (overdue + selected day)
-  const renderDayContent = () => {
+    // Show unified day view
     return (
-      <MainPanelDay
+      <UnifiedDayView
+        player={player}
         goals={goals}
         habits={habits}
         dailySteps={dailySteps}
-        selectedDayDate={selectedDayDate}
-        setSelectedDayDate={setSelectedDayDate}
-        setShowDatePickerModal={setShowDatePickerModal}
         handleItemClick={handleItemClick}
         handleHabitToggle={handleHabitToggle}
         handleStepToggle={handleStepToggle}
-        setSelectedItem={setSelectedItem}
-        setSelectedItemType={setSelectedItemType}
-        onOpenStepModal={handleOpenStepModal}
         loadingHabits={loadingHabits}
         loadingSteps={loadingSteps}
-        player={player}
+        onOpenStepModal={handleOpenStepModal}
         onNavigateToHabits={onNavigateToHabits}
         onNavigateToSteps={onNavigateToSteps}
       />
     )
   }
 
-  // Render Week Content - Weekly calendar view with habits and steps under each day
-  const renderWeekContent = () => {
-    return (
-      <WeekView
-            player={player}
-            goals={goals}
-            habits={habits}
-            dailySteps={dailySteps}
-            onHabitsUpdate={onHabitsUpdate}
-            onDailyStepsUpdate={onDailyStepsUpdate}
-        setShowDatePickerModal={setShowDatePickerModal}
-            onNavigateToHabits={onNavigateToHabits}
-            onNavigateToSteps={onNavigateToSteps}
-          />
-    )
-  }
-
-  // Render Month Content - Monthly calendar view with compact tiles and detail view on click
-  const renderMonthContent = () => {
-    return (
-      <MonthView
-            player={player}
-            goals={goals}
-            habits={habits}
-            dailySteps={dailySteps}
-            onHabitsUpdate={onHabitsUpdate}
-            onDailyStepsUpdate={onDailyStepsUpdate}
-        setShowDatePickerModal={setShowDatePickerModal}
-          />
-    )
-  }
-
-  // Render Year Content - Year overview with goals and annual statistics
-  const renderYearContent = () => {
-    return (
-      <YearView
-        goals={goals}
-        habits={habits}
-        dailySteps={dailySteps}
-        selectedYear={selectedYear}
-        setSelectedYear={setSelectedYear}
-        setShowDatePickerModal={setShowDatePickerModal}
-        handleItemClick={handleItemClick}
-        expandedAreas={expandedAreas}
-        setExpandedAreas={setExpandedAreas}
-        player={player}
-      />
-    )
-  }
-
   const renderWorkflowContent = () => {
     if (!pendingWorkflow || pendingWorkflow.type !== 'daily_review') {
-      return renderDayContent()
+      return (
+        <UnifiedDayView
+          player={player}
+          goals={goals}
+          habits={habits}
+          dailySteps={dailySteps}
+          handleItemClick={handleItemClick}
+          handleHabitToggle={handleHabitToggle}
+          handleStepToggle={handleStepToggle}
+          loadingHabits={loadingHabits}
+          loadingSteps={loadingSteps}
+          onOpenStepModal={handleOpenStepModal}
+          onNavigateToHabits={onNavigateToHabits}
+          onNavigateToSteps={onNavigateToSteps}
+        />
+      )
     }
 
     return (
@@ -6650,119 +6590,23 @@ export function JourneyGameView({
                     </div>
                   </div>
                   
-                  {/* Program Selector - Link Navigation - Second row */}
-                  <div className="px-4 py-2 border-b border-gray-200 bg-white">
-                    <div className="flex items-center justify-between">
-                      <button
-                        onClick={() => setCurrentProgram('day')}
-                        className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
-                          currentProgram === 'day'
-                            ? 'text-orange-600 border-orange-600'
-                            : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
-                        }`}
-                      >
-                        {t('calendar.viewMode.day')}
-                      </button>
-                      <button
-                        onClick={() => setCurrentProgram('week')}
-                        className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
-                          currentProgram === 'week'
-                            ? 'text-orange-600 border-orange-600'
-                            : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
-                        }`}
-                      >
-                        {t('calendar.viewMode.week')}
-                      </button>
-                      <button
-                        onClick={() => setCurrentProgram('month')}
-                        className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
-                          currentProgram === 'month'
-                            ? 'text-orange-600 border-orange-600'
-                            : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
-                        }`}
-                      >
-                        {t('calendar.viewMode.month')}
-                      </button>
-                      <button
-                        onClick={() => setCurrentProgram('year')}
-                        className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
-                          currentProgram === 'year'
-                            ? 'text-orange-600 border-orange-600'
-                            : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
-                        }`}
-                      >
-                        {t('calendar.viewMode.year')}
-                      </button>
-                    </div>
-                  </div>
 
-                  {/* Program Content */}
+                  {/* Unified Day View */}
                   <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
-                    {currentProgram === 'day' && (
-                      <MainPanelDay
-                        goals={goals}
-                        habits={habits}
-                        dailySteps={dailySteps}
-                        selectedDayDate={selectedDayDate}
-                        setSelectedDayDate={setSelectedDayDate}
-                        setShowDatePickerModal={setShowDatePickerModal}
-                        handleItemClick={handleItemClick}
-                        handleHabitToggle={handleHabitToggle}
-                        handleStepToggle={handleStepToggle}
-                        setSelectedItem={setSelectedItem}
-                        setSelectedItemType={setSelectedItemType}
-                        onOpenStepModal={handleOpenStepModal}
-                        loadingHabits={loadingHabits}
-                        loadingSteps={loadingSteps}
-                        player={player}
-                        onNavigateToHabits={onNavigateToHabits}
-                        onNavigateToSteps={onNavigateToSteps}
-                      />
-                    )}
-                    {currentProgram === 'week' && (
-                      <WeekView
-                        player={player}
-                        goals={goals}
-                        habits={habits}
-                        dailySteps={dailySteps}
-                        onHabitsUpdate={onHabitsUpdate}
-                        onDailyStepsUpdate={onDailyStepsUpdate}
-                        setShowDatePickerModal={setShowDatePickerModal}
-                        handleItemClick={handleItemClick}
-                        handleHabitToggle={handleHabitToggle}
-                        handleStepToggle={handleStepToggle}
-                        loadingHabits={loadingHabits}
-                        loadingSteps={loadingSteps}
-                        onOpenStepModal={handleOpenStepModal}
-                        onNavigateToHabits={onNavigateToHabits}
-                        onNavigateToSteps={onNavigateToSteps}
-                      />
-                    )}
-                    {currentProgram === 'month' && (
-                      <MonthView
-                        player={player}
-                        goals={goals}
-                        habits={habits}
-                        dailySteps={dailySteps}
-                        onHabitsUpdate={onHabitsUpdate}
-                        onDailyStepsUpdate={onDailyStepsUpdate}
-                        setShowDatePickerModal={setShowDatePickerModal}
-                      />
-                    )}
-                    {currentProgram === 'year' && (
-                      <YearView
-                        goals={goals}
-                        habits={habits}
-                        dailySteps={dailySteps}
-                        selectedYear={selectedYear}
-                        setSelectedYear={setSelectedYear}
-                        setShowDatePickerModal={setShowDatePickerModal}
-                        handleItemClick={handleItemClick}
-                        expandedAreas={expandedAreas}
-                        setExpandedAreas={setExpandedAreas}
-                        player={player}
-                      />
-                    )}
+                    <UnifiedDayView
+                      player={player}
+                      goals={goals}
+                      habits={habits}
+                      dailySteps={dailySteps}
+                      handleItemClick={handleItemClick}
+                      handleHabitToggle={handleHabitToggle}
+                      handleStepToggle={handleStepToggle}
+                      loadingHabits={loadingHabits}
+                      loadingSteps={loadingSteps}
+                      onOpenStepModal={handleOpenStepModal}
+                      onNavigateToHabits={onNavigateToHabits}
+                      onNavigateToSteps={onNavigateToSteps}
+                    />
                   </div>
                 </div>
               )

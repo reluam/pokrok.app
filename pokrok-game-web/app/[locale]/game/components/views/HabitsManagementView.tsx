@@ -291,7 +291,7 @@ export function HabitsManagementView({
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Název</th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">Frekvence</th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Dny</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40 last:pr-6">Aspirace</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-16 last:pr-6"></th>
                 </tr>
               </thead>
               <tbody style={{ overflow: 'visible' }}>
