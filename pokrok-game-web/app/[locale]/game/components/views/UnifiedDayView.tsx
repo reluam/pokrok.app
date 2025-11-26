@@ -329,7 +329,7 @@ export function UnifiedDayView({
                     <button
                       key={dateStr}
                       onClick={() => handleDayClick(day)}
-                      className="flex flex-col items-center z-10 group"
+                      className="flex flex-col items-center group"
                     >
                       {/* Dot */}
                       <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${

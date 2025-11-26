@@ -154,18 +154,18 @@ export function TodayFocusSection({
           return isInWeek && belongsToActiveGoal
         }
         
-        // In day view, filter by date
+        // In day view, filter by exact date only
         const stepDate = normalizeDate(step.date)
         const stepDateObj = new Date(stepDate)
         stepDateObj.setHours(0, 0, 0, 0)
         
-        // Include steps from today or overdue
-        const isTodayOrOverdue = stepDateObj <= displayDate
+        // Only include steps for the selected day (not overdue, not future)
+        const isSelectedDay = stepDateObj.getTime() === displayDate.getTime()
         
         // Check if step belongs to an active focus goal
         const belongsToActiveGoal = step.goal_id && activeFocusGoalIds.has(step.goal_id)
         
-        return isTodayOrOverdue && belongsToActiveGoal
+        return isSelectedDay && belongsToActiveGoal
       })
       .sort((a, b) => {
         // Sort by goal focus_order first, then by date
@@ -453,15 +453,15 @@ export function TodayFocusSection({
                     <div className="lg:hidden">
                       {/* Header with day names */}
                       <div className="flex items-center gap-1 mb-2 pl-[100px]">
-                        {weekDays.map((day) => {
-                          const dateStr = getLocalDateString(day)
-                          const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
-                          const dayName = dayNamesShort[day.getDay()]
+                          {weekDays.map((day) => {
+                            const dateStr = getLocalDateString(day)
+                            const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
+                            const dayName = dayNamesShort[day.getDay()]
                           const isToday = day.toDateString() === new Date().toDateString()
-                          
-                          return (
+                            
+                            return (
                             <div
-                              key={dateStr}
+                                key={dateStr}
                               className={`w-6 h-6 flex flex-col items-center justify-center text-[8px] rounded ${
                                 isSelected 
                                   ? 'bg-orange-500 text-white font-bold' 
@@ -472,7 +472,7 @@ export function TodayFocusSection({
                             >
                               <span className="uppercase leading-none">{dayName}</span>
                               <span className="text-[7px] leading-none">{day.getDate()}</span>
-                            </div>
+                                </div>
                           )
                         })}
                       </div>
@@ -481,26 +481,29 @@ export function TodayFocusSection({
                       <div className="space-y-1.5">
                         {weekHabits.map((habit) => (
                           <div key={habit.id} className="flex items-center gap-1">
-                            <button
-                              onClick={() => handleItemClick(habit, 'habit')}
+                              <button
+                                onClick={() => handleItemClick(habit, 'habit')}
                               className="w-[96px] text-left text-[10px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate flex-shrink-0"
-                              title={habit.name}
-                            >
-                              {habit.name}
-                            </button>
+                                title={habit.name}
+                              >
+                                {habit.name}
+                              </button>
                             <div className="flex gap-0.5">
-                              {weekDays.map((day) => {
-                                const dateStr = getLocalDateString(day)
-                                const isScheduled = isHabitScheduledForDay(habit, day)
-                                const isCompleted = isHabitCompletedForDay(habit, day)
-                                const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
+                            {weekDays.map((day) => {
+                              const dateStr = getLocalDateString(day)
+                              const isScheduled = isHabitScheduledForDay(habit, day)
+                              const isCompleted = isHabitCompletedForDay(habit, day)
+                              const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
                                 const isLoading = loadingHabits.has(habit.id)
-                                
-                                return (
+                              const today = new Date()
+                              today.setHours(0, 0, 0, 0)
+                              const isFuture = day > today
+                              
+                              return (
                                   <button
-                                    key={dateStr}
+                                  key={dateStr}
                                     onClick={() => {
-                                      if (handleHabitToggle && !isLoading) {
+                                      if (handleHabitToggle && !isLoading && !isFuture) {
                                         handleHabitToggle(habit.id, dateStr)
                                       }
                                     }}
@@ -509,8 +512,8 @@ export function TodayFocusSection({
                                       isCompleted
                                         ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
                                         : !isScheduled 
-                                          ? 'bg-gray-100 hover:bg-orange-200 cursor-pointer' 
-                                          : 'bg-gray-200 hover:bg-orange-200 cursor-pointer'
+                                          ? `bg-gray-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}` 
+                                          : `bg-gray-200 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
                                     } ${isSelected ? 'ring-2 ring-orange-400 ring-offset-1' : ''}`}
                                   >
                                     {isLoading ? (
@@ -563,7 +566,7 @@ export function TodayFocusSection({
                       <div className="space-y-1">
                         {weekHabits.map((habit) => (
                           <div key={habit.id} className="flex items-center gap-1">
-                            <button
+                                    <button
                               onClick={() => handleItemClick(habit, 'habit')}
                               className="w-[100px] text-left text-[11px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate flex-shrink-0"
                               title={habit.name}
@@ -577,40 +580,43 @@ export function TodayFocusSection({
                                 const isCompleted = isHabitCompletedForDay(habit, day)
                                 const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
                                 const isLoading = loadingHabits.has(habit.id)
+                                const today = new Date()
+                                today.setHours(0, 0, 0, 0)
+                                const isFuture = day > today
                                 
                                 return (
                                   <button
                                     key={dateStr}
-                                    onClick={() => {
-                                      if (handleHabitToggle && !isLoading) {
-                                        handleHabitToggle(habit.id, dateStr)
-                                      }
-                                    }}
+                                      onClick={() => {
+                                      if (handleHabitToggle && !isLoading && !isFuture) {
+                                          handleHabitToggle(habit.id, dateStr)
+                                        }
+                                      }}
                                     disabled={isLoading}
                                     className={`w-7 h-7 rounded flex items-center justify-center transition-all ${
-                                      isCompleted
+                                        isCompleted
                                         ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
                                         : !isScheduled 
-                                          ? 'bg-gray-100 hover:bg-orange-200 cursor-pointer' 
-                                          : 'bg-gray-200 hover:bg-orange-200 cursor-pointer'
+                                          ? `bg-gray-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}` 
+                                          : `bg-gray-200 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
                                     } ${isSelected ? 'ring-2 ring-orange-400 ring-offset-1' : ''}`}
                                     title={isCompleted ? 'Splněno' : 'Klikni pro splnění'}
                                   >
                                     {isLoading ? (
                                       <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                      </svg>
-                                    ) : isCompleted ? (
+                                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                      ) : isCompleted ? (
                                       <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                                    ) : null}
-                                  </button>
-                                )
-                              })}
+                                      ) : null}
+                                    </button>
+                              )
+                            })}
                             </div>
                           </div>
                         ))}
-                      </div>
+                  </div>
                   </div>
                   </>
                 ) : (
@@ -649,18 +655,21 @@ export function TodayFocusSection({
                   
                   {/* Habits */}
                   <div className="space-y-1">
-                    {todaysHabits.map((habit) => {
-                      const isCompleted = habit.habit_completions && habit.habit_completions[displayDateStr] === true
+                  {todaysHabits.map((habit) => {
+                    const isCompleted = habit.habit_completions && habit.habit_completions[displayDateStr] === true
                       const isScheduled = (() => {
                         if (habit.frequency === 'daily') return true
                         if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
                         return false
                       })()
                       const isLoading = loadingHabits.has(habit.id)
-                      
-                      return (
+                      const today = new Date()
+                      today.setHours(0, 0, 0, 0)
+                      const isFuture = selectedDayDate > today
+                    
+                    return (
                         <div key={habit.id} className="flex items-center gap-1">
-                          <button
+                      <button
                             onClick={() => handleItemClick(habit, 'habit')}
                             className="w-[100px] text-left text-[11px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate flex-shrink-0"
                             title={habit.name}
@@ -669,32 +678,34 @@ export function TodayFocusSection({
                           </button>
                           <button
                             onClick={() => {
-                              if (handleHabitToggle && !isLoading) {
-                                handleHabitToggle(habit.id, displayDateStr)
-                              }
-                            }}
+                              if (handleHabitToggle && !isLoading && !isFuture) {
+                              handleHabitToggle(habit.id, displayDateStr)
+                            }
+                          }}
                             disabled={isLoading}
                             className={`w-7 h-7 rounded flex items-center justify-center transition-all flex-shrink-0 ${
                               isCompleted
                                 ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
-                                : !isScheduled 
-                                  ? 'bg-gray-100 hover:bg-orange-200 cursor-pointer' 
-                                  : 'bg-gray-200 hover:bg-orange-200 cursor-pointer'
+                                : isFuture
+                                  ? 'bg-gray-100 cursor-not-allowed'
+                                  : !isScheduled 
+                                    ? 'bg-gray-100 hover:bg-orange-200 cursor-pointer' 
+                                    : 'bg-gray-200 hover:bg-orange-200 cursor-pointer'
                             }`}
                             title={isCompleted ? 'Splněno' : 'Klikni pro splnění'}
                           >
                             {isLoading ? (
                               <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                            ) : isCompleted ? (
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          ) : isCompleted ? (
                               <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                             ) : null}
-                          </button>
+                      </button>
                         </div>
-                      )
-                    })}
+                    )
+                  })}
                   </div>
                 </div>
               ) : (
@@ -715,25 +726,40 @@ export function TodayFocusSection({
             
             {/* Right Column: Today's Steps (with goals if they have one) */}
             <div className={`flex-1 min-w-0 ${isWeekView ? '' : ''}`}>
+              <div className="flex items-center mb-3">
               <h4 
                 onClick={() => onNavigateToSteps?.()}
-                className={`text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 ${onNavigateToSteps ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
+                  className={`text-xs font-semibold text-gray-500 uppercase tracking-wide ${onNavigateToSteps ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
               >
                 {isWeekView ? 'Kroky v týdnu' : 'Dnešní kroky'}
               </h4>
+                <span className="text-xs text-gray-400 ml-2">
+                  {allTodaysSteps.filter(s => s.completed).length}/{allTodaysSteps.length}
+                </span>
+                <span className="flex-1"></span>
+                {/* Spacer to align with day column */}
+                <span className="w-20 flex-shrink-0"></span>
+                {/* Total time - aligned with time column */}
+                <span className="w-14 text-xs text-gray-500 text-center flex-shrink-0">
+                  {allTodaysSteps.filter(s => !s.completed).reduce((sum, s) => sum + (s.estimated_time || 0), 0) > 0 
+                    ? `${allTodaysSteps.filter(s => !s.completed).reduce((sum, s) => sum + (s.estimated_time || 0), 0)} min`
+                    : ''}
+                </span>
+              </div>
               {allTodaysSteps.length > 0 ? (
                 <div className="space-y-2">
                   {allTodaysSteps.map(step => {
                     const stepDate = normalizeDate(step.date)
                     const stepDateObj = new Date(stepDate)
                     stepDateObj.setHours(0, 0, 0, 0)
-                    const isOverdue = stepDateObj < displayDate
+                    const today = new Date()
+                    today.setHours(0, 0, 0, 0)
+                    const isOverdue = stepDateObj < today
                     
-                    // Format date for display in week view
-                    const stepDateFormatted = isWeekView ? stepDateObj.toLocaleDateString(localeCode, { 
-                      day: 'numeric', 
-                      month: 'short' 
-                    }) : null
+                    // Format date for display - show day name
+                    const stepDateFormatted = stepDateObj.toLocaleDateString(localeCode, { 
+                      weekday: 'long'
+                    })
                     
                     // Get goal for this step if it has one
                     const stepGoal = step.goal_id ? goals.find(g => g.id === step.goal_id) : null
@@ -751,75 +777,63 @@ export function TodayFocusSection({
                     const showGoalInfo = stepGoal && isStepInCurrentPeriod
                     
                     return (
-                      <div key={step.id}>
-                          <div
-                        onClick={() => handleItemClick(step, 'step')}
-                        className={`p-2.5 rounded-lg border transition-all duration-200 cursor-pointer ${
-                          step.is_important && step.is_urgent
-                            ? 'border-yellow-400 bg-yellow-50/50 hover:bg-yellow-50 hover:border-yellow-500'
+                      <div 
+                        key={step.id}
+                                onClick={() => handleItemClick(step, 'step')}
+                        className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ${
+                          step.is_important && !step.completed
+                            ? 'border-orange-400 bg-orange-50/30 hover:bg-orange-50'
+                                        : 'border-gray-200 bg-white hover:bg-gray-50'
+                        } ${step.completed ? 'opacity-50' : ''}`}
+                              >
+                        {/* Checkbox */}
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      if (!loadingSteps.has(step.id)) {
+                                        handleStepToggle(step.id, !step.completed)
+                                      }
+                                    }}
+                                    disabled={loadingSteps.has(step.id)}
+                          className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${
+                                      step.completed 
+                              ? 'bg-orange-500 border-orange-500' 
                             : step.is_important
-                              ? 'border-yellow-300 bg-yellow-50/30 hover:bg-yellow-50/50 hover:border-yellow-400'
-                              : step.is_urgent
-                                ? 'border-orange-600 bg-orange-100/30 hover:bg-orange-100/50 hover:border-orange-600'
-                                : 'border-gray-200 bg-white hover:bg-gray-50'
-                        } ${step.completed ? 'opacity-60' : ''} ${isOverdue ? 'border-red-300 bg-red-50/30' : ''}`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              if (!loadingSteps.has(step.id)) {
-                                handleStepToggle(step.id, !step.completed)
-                              }
-                            }}
-                            disabled={loadingSteps.has(step.id)}
-                            className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
+                                ? 'border-orange-400 hover:bg-orange-100'
+                                : 'border-gray-300 hover:border-orange-400'
+                          }`}
                           >
                             {loadingSteps.has(step.id) ? (
-                              <svg className="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                               </svg>
                             ) : step.completed ? (
-                              <Check className="w-4 h-4 text-orange-600" strokeWidth={3} />
-                            ) : (
-                              <Check className="w-4 h-4 text-gray-400" strokeWidth={2.5} fill="none" />
-                            )}
+                            <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                          ) : null}
                           </button>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1.5">
-                                  {stepGoal && (
-                                    <span className="text-sm flex-shrink-0" title={stepGoal.title}>{goalIcon}</span>
-                                  )}
-                                  <span className={`truncate font-medium text-sm ${
-                                    step.completed 
-                                      ? 'line-through text-gray-500' 
-                                      : isOverdue 
-                                        ? 'text-red-700 font-semibold' 
-                                        : 'text-gray-900'
-                                  }`}>
-                                    {step.title}
+                        
+                        {/* Title */}
+                        <span className={`flex-1 font-medium text-sm truncate ${
+                          step.completed ? 'line-through text-gray-400' : 'text-gray-900'
+                          }`}>
+                            {step.title}
+                          </span>
+                        
+                        {/* Meta info - fixed width columns */}
+                        <span className={`w-20 text-xs text-center capitalize flex-shrink-0 ${
+                          isOverdue && !step.completed 
+                            ? 'text-red-500' 
+                            : stepDate === getLocalDateString(new Date()) 
+                              ? 'text-orange-600' 
+                              : 'text-gray-500'
+                        }`}>
+                          {isOverdue && !step.completed && '❗'}
+                          {stepDate === getLocalDateString(new Date()) ? 'Dnes' : stepDateFormatted || '-'}
                                   </span>
-                                </div>
-                                {isWeekView && stepDateFormatted && (
-                                  <span className="text-[10px] text-gray-500 mt-0.5 block">
-                                    {stepDateFormatted}
-                                  </span>
-                                )}
-                              </div>
-                          <div className="flex items-center gap-1 flex-shrink-0">
-                            {step.is_important && (
-                              <span className="text-yellow-600 text-xs">⭐</span>
-                            )}
-                            {step.is_urgent && (
-                              <span className="text-orange-600 text-xs">⚡</span>
-                            )}
-                            {isOverdue && !step.completed && (
-                              <span className="text-red-600 text-xs">⚠️</span>
-                            )}
-                          </div>
-                        </div>
-                          </div>
+                        <span className="w-14 text-xs text-gray-500 text-center flex-shrink-0">
+                          {step.estimated_time ? `${step.estimated_time} min` : '-'}
+                        </span>
                       </div>
                     )
                   })}
