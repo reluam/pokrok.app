@@ -14,8 +14,28 @@ export function LanguageSwitcher() {
 
   const switchLocale = (newLocale: Locale) => {
     setIsOpen(false)
-    // Replace the locale in the pathname
-    const newPathname = pathname.replace(`/${locale}`, `/${newLocale}`)
+    
+    // Handle locale switching with 'as-needed' prefix strategy
+    // Current locale might or might not have prefix in URL
+    let newPathname: string
+    
+    // Check if current path has a locale prefix
+    const hasLocalePrefix = locales.some(l => pathname.startsWith(`/${l}/`) || pathname === `/${l}`)
+    
+    if (hasLocalePrefix) {
+      // Replace existing locale prefix (en is default, no prefix needed)
+      newPathname = pathname.replace(/^\/(cs|en)/, newLocale === 'en' ? '' : `/${newLocale}`)
+    } else {
+      // No locale prefix (default locale en), add new one if needed
+      newPathname = newLocale === 'en' ? pathname : `/${newLocale}${pathname}`
+    }
+    
+    // Ensure we have a valid path
+    // Ensure we have a valid path (en is default, no prefix needed)
+    if (!newPathname || newPathname === '') {
+      newPathname = newLocale === 'en' ? '/' : `/${newLocale}`
+    }
+    
     router.push(newPathname)
     router.refresh()
   }

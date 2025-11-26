@@ -1240,6 +1240,56 @@ export function JourneyGameView({
     }
   }
 
+  // Handle step date change from date picker in focus section
+  const handleStepDateChange = async (stepId: string, newDate: string) => {
+    try {
+      const response = await fetch('/api/daily-steps', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          stepId,
+          date: newDate
+        })
+      })
+
+      if (response.ok) {
+        // Refresh steps list
+        const updatedSteps = await fetch(`/api/daily-steps?userId=${player?.user_id}`)
+          .then(res => res.json())
+        onDailyStepsUpdate?.(updatedSteps)
+      } else {
+        console.error('Error updating step date')
+      }
+    } catch (error) {
+      console.error('Error updating step date:', error)
+    }
+  }
+  
+  // Handle step time change from time picker in focus section
+  const handleStepTimeChange = async (stepId: string, minutes: number) => {
+    try {
+      const response = await fetch('/api/daily-steps', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          stepId,
+          estimated_time: minutes
+        })
+      })
+
+      if (response.ok) {
+        // Refresh steps list
+        const updatedSteps = await fetch(`/api/daily-steps?userId=${player?.user_id}`)
+          .then(res => res.json())
+        onDailyStepsUpdate?.(updatedSteps)
+      } else {
+        console.error('Error updating step time')
+      }
+    } catch (error) {
+      console.error('Error updating step time:', error)
+    }
+  }
+
   const handleSaveGoal = async () => {
     if (!selectedItem || selectedItemType !== 'goal') return
 
@@ -2556,6 +2606,8 @@ export function JourneyGameView({
         onOpenStepModal={handleOpenStepModal}
         onNavigateToHabits={onNavigateToHabits}
         onNavigateToSteps={onNavigateToSteps}
+        onStepDateChange={handleStepDateChange}
+        onStepTimeChange={handleStepTimeChange}
       />
     )
   }
@@ -2576,6 +2628,8 @@ export function JourneyGameView({
           onOpenStepModal={handleOpenStepModal}
             onNavigateToHabits={onNavigateToHabits}
             onNavigateToSteps={onNavigateToSteps}
+            onStepDateChange={handleStepDateChange}
+            onStepTimeChange={handleStepTimeChange}
           />
     )
     }
@@ -6526,10 +6580,10 @@ export function JourneyGameView({
         
         // Sidebar navigation items
         const sidebarItems = [
-          { id: 'overview' as const, label: 'Přehled', icon: LayoutDashboard },
-          { id: 'goals' as const, label: 'Cíle', icon: Target },
-          { id: 'steps' as const, label: 'Kroky', icon: Footprints },
-          { id: 'habits' as const, label: 'Návyky', icon: CheckSquare },
+          { id: 'overview' as const, label: t('navigation.overview'), icon: LayoutDashboard },
+          { id: 'goals' as const, label: t('navigation.goals'), icon: Target },
+          { id: 'steps' as const, label: t('navigation.steps'), icon: Footprints },
+          { id: 'habits' as const, label: t('navigation.habits'), icon: CheckSquare },
         ]
         
         const renderMainContent = () => {
@@ -6541,7 +6595,7 @@ export function JourneyGameView({
                   <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
                     <div className="flex items-center justify-between">
                       <h2 className="text-lg font-bold text-gray-900">
-                        {sidebarItems.find(item => item.id === mainPanelSection)?.label || 'Přehled'}
+                        {sidebarItems.find(item => item.id === mainPanelSection)?.label || t('navigation.overview')}
                       </h2>
                       <div className="relative">
                       <button
@@ -6606,6 +6660,8 @@ export function JourneyGameView({
                         onOpenStepModal={handleOpenStepModal}
                         onNavigateToHabits={onNavigateToHabits}
                         onNavigateToSteps={onNavigateToSteps}
+                        onStepDateChange={handleStepDateChange}
+                        onStepTimeChange={handleStepTimeChange}
                       />
                   </div>
                 </div>
@@ -6655,7 +6711,7 @@ export function JourneyGameView({
             <div className={`hidden md:flex ${sidebarCollapsed ? 'w-14' : 'w-64'} border-r border-gray-200 bg-gray-50 flex-shrink-0 transition-all duration-300 relative h-full flex flex-col`}>
               <div className={`${sidebarCollapsed ? 'p-2 pt-12' : 'p-4'} flex-1 overflow-y-auto`}>
                 {!sidebarCollapsed && (
-                  <h2 className="text-lg font-bold text-gray-900 mb-4">Navigace</h2>
+                  <h2 className="text-lg font-bold text-gray-900 mb-4">{t('navigation.title')}</h2>
                 )}
                 <nav className={`${sidebarCollapsed ? 'space-y-2 flex flex-col items-center' : 'space-y-1'}`}>
                   {sidebarItems.map((item) => {
@@ -6702,7 +6758,7 @@ export function JourneyGameView({
                 <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-bold text-gray-900">
-                      {sidebarItems.find(item => item.id === mainPanelSection)?.label || 'Navigace'}
+                      {sidebarItems.find(item => item.id === mainPanelSection)?.label || t('navigation.title')}
                     </h2>
                     <div className="relative">
                       <button
@@ -6970,7 +7026,7 @@ export function JourneyGameView({
               <div className="md:hidden">
                 <span className="text-sm font-medium text-white">
                   {currentPage === 'main' && t('game.menu.mainPanel')}
-                  {currentPage === 'help' && 'Nápověda'}
+                  {currentPage === 'help' && t('help.title')}
                   {currentPage === 'settings' && t('game.menu.settings')}
                   {currentPage === 'statistics' && 'Statistiky'}
                   {currentPage === 'achievements' && 'Úspěchy'}
@@ -7004,10 +7060,10 @@ export function JourneyGameView({
               <button
                 onClick={() => setCurrentPage('help')}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'help' ? 'bg-white bg-opacity-25' : ''}`}
-                title="Nápověda"
+                title={t('help.title')}
               >
                 <HelpCircle className="w-5 h-5" />
-                <span className="text-sm font-medium">Nápověda</span>
+                <span className="text-sm font-medium">{t('help.title')}</span>
               </button>
               
               <button
@@ -7069,7 +7125,7 @@ export function JourneyGameView({
                           }`}
                         >
                           <HelpCircle className="w-5 h-5" />
-                          <span className="font-medium">Nápověda</span>
+                          <span className="font-medium">{t('help.title')}</span>
                         </button>
                         <button
                           onClick={() => {

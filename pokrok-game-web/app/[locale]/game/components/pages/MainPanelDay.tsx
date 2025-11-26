@@ -20,6 +20,7 @@ interface MainPanelDayProps {
   player?: any
   onNavigateToHabits?: () => void
   onNavigateToSteps?: () => void
+  onStepDateChange?: (stepId: string, newDate: string) => Promise<void>
 }
 
 export function MainPanelDay({
@@ -34,7 +35,8 @@ export function MainPanelDay({
   loadingSteps,
   player,
   onNavigateToHabits,
-  onNavigateToSteps
+  onNavigateToSteps,
+  onStepDateChange
 }: MainPanelDayProps) {
   return (
     <UnifiedDayView
@@ -50,6 +52,7 @@ export function MainPanelDay({
       player={player}
       onNavigateToHabits={onNavigateToHabits}
       onNavigateToSteps={onNavigateToSteps}
+      onStepDateChange={onStepDateChange}
     />
   )
 }

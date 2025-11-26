@@ -192,7 +192,7 @@ export function DayView({
                 className="px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors"
                 title="Přejít na dnes"
               >
-                Dnes
+                {t('focus.today')}
               </button>
             )}
           </div>

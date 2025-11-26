@@ -11,9 +11,9 @@ const isProtectedRoute = createRouteMatcher([
 // Create intl middleware once (outside of clerkMiddleware)
 const intlMiddleware = createMiddleware({
   locales,
-  defaultLocale: 'cs',
-  localePrefix: 'as-needed', // Default locale (cs) won't have prefix, others will
-  localeDetection: true, // Enable browser language detection for sign-in/sign-up
+  defaultLocale: 'en',
+  localePrefix: 'as-needed', // Default locale (en) won't have prefix, others will
+  localeDetection: false, // Disable auto-detection to prevent unwanted redirects
   alternateLinks: false
 })
 

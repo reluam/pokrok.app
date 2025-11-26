@@ -101,7 +101,7 @@ export function QuickOverviewWidget({
               />
             </div>
           </div>
-          <div className="text-[10px] text-gray-600 font-medium mt-1">Pokrok</div>
+          <div className="text-[10px] text-gray-600 font-medium mt-1">{t('progress.title')}</div>
         </div>
         
         {/* Streak */}
@@ -120,7 +120,7 @@ export function QuickOverviewWidget({
             <span>{completedTasks}</span>
             <span className="text-xs text-gray-500 font-normal">/{totalTasks}</span>
           </div>
-          <div className="text-[10px] text-gray-600 font-medium mt-1">Dokončeno</div>
+          <div className="text-[10px] text-gray-600 font-medium mt-1">{t('progress.completed')}</div>
         </div>
       </div>
     </div>

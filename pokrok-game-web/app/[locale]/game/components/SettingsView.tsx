@@ -184,7 +184,25 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
         setPreferredLocale(newLocale)
         // Redirect to the new locale - use window.location for immediate redirect
         const currentPath = window.location.pathname
-        const newPath = currentPath.replace(/^\/(cs|en)/, `/${newLocale}`)
+        
+        // Handle locale switching with 'as-needed' prefix strategy
+        // Extract path without locale prefix (e.g., /cs/game -> /game)
+        let pathWithoutLocale = currentPath
+        for (const loc of locales) {
+          if (currentPath.startsWith(`/${loc}/`)) {
+            pathWithoutLocale = currentPath.substring(loc.length + 1) // Remove /cs or /en, keep the rest including /
+            break
+          } else if (currentPath === `/${loc}`) {
+            pathWithoutLocale = '/'
+            break
+          }
+        }
+        
+        // Build new path - en is default (no prefix), cs needs prefix
+        const newPath = newLocale === 'en' 
+          ? pathWithoutLocale 
+          : `/${newLocale}${pathWithoutLocale}`
+        
         // Use window.location.href for immediate navigation with full page reload
         // This ensures the new locale is properly loaded
         window.location.href = newPath

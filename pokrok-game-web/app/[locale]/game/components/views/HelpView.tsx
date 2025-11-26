@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { HelpCircle, Target, Footprints, CheckSquare, Plus, ArrowRight, Menu, Rocket, Calendar, Eye, Sparkles, TrendingUp, Clock, Star, Zap, BookOpen, AlertTriangle, ChevronRight } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { HelpCircle, Target, Footprints, CheckSquare, Plus, ArrowRight, Menu, Rocket, Calendar, Eye, Sparkles, TrendingUp, Clock, Star, Zap, BookOpen, AlertTriangle } from 'lucide-react'
 
 interface HelpViewProps {
   onAddGoal?: () => void
@@ -38,21 +39,6 @@ function Tip({ text }: { text: string }) {
   )
 }
 
-// Annotation component for table explanations
-function Annotation({ children, label }: { children: React.ReactNode; label: string }) {
-  return (
-    <div className="relative group">
-      {children}
-      <div className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold cursor-help">
-        ?
-      </div>
-      <div className="absolute left-0 top-full mt-1 bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 whitespace-nowrap pointer-events-none">
-        {label}
-      </div>
-    </div>
-  )
-}
-
 export function HelpView({
   onAddGoal,
   onAddStep,
@@ -61,15 +47,20 @@ export function HelpView({
   onNavigateToHabits,
   onNavigateToSteps,
 }: HelpViewProps) {
+  const t = useTranslations('help')
   const [selectedCategory, setSelectedCategory] = useState<HelpCategory>('getting-started')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const categories = [
-    { id: 'getting-started' as HelpCategory, label: 'První kroky', icon: Rocket },
-    { id: 'overview' as HelpCategory, label: 'Jak používat', icon: HelpCircle },
-    { id: 'goals' as HelpCategory, label: 'Cíle', icon: Target },
-    { id: 'steps' as HelpCategory, label: 'Kroky', icon: Footprints },
-    { id: 'habits' as HelpCategory, label: 'Návyky', icon: CheckSquare },
+    { id: 'getting-started' as HelpCategory, label: t('categories.gettingStarted'), icon: Rocket },
+    { id: 'overview' as HelpCategory, label: t('categories.overview'), icon: HelpCircle },
+    { id: 'goals' as HelpCategory, label: t('categories.goals'), icon: Target },
+    { id: 'steps' as HelpCategory, label: t('categories.steps'), icon: Footprints },
+    { id: 'habits' as HelpCategory, label: t('categories.habits'), icon: CheckSquare },
+  ]
+
+  const days = [
+    t('days.mon'), t('days.tue'), t('days.wed'), t('days.thu'), t('days.fri'), t('days.sat'), t('days.sun')
   ]
 
   const renderContent = () => {
@@ -81,26 +72,24 @@ export function HelpView({
             <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white">
               <div className="flex items-center gap-3 mb-3">
                 <Rocket className="w-8 h-8" />
-                <h2 className="text-2xl font-bold">Vítejte v Pokroku!</h2>
+                <h2 className="text-2xl font-bold">{t('gettingStarted.welcome')}</h2>
               </div>
-              <p className="text-orange-100">
-                Získejte <strong className="text-white">nadhled</strong>, <strong className="text-white">jasnost</strong> a dosahujte <strong className="text-white">cílů</strong>.
-              </p>
+              <p className="text-orange-100" dangerouslySetInnerHTML={{ __html: t('gettingStarted.tagline') }} />
             </div>
 
             {/* 3 Benefits */}
             <div className="grid grid-cols-3 gap-3">
               <div className="bg-orange-50 rounded-xl p-3 text-center border border-orange-100">
                 <Eye className="w-6 h-6 text-orange-500 mx-auto mb-1" />
-                <p className="text-xs font-medium text-gray-700">Nadhled</p>
+                <p className="text-xs font-medium text-gray-700">{t('gettingStarted.benefits.overview')}</p>
               </div>
               <div className="bg-orange-50 rounded-xl p-3 text-center border border-orange-100">
                 <Sparkles className="w-6 h-6 text-orange-500 mx-auto mb-1" />
-                <p className="text-xs font-medium text-gray-700">Jasnost</p>
+                <p className="text-xs font-medium text-gray-700">{t('gettingStarted.benefits.clarity')}</p>
               </div>
               <div className="bg-orange-50 rounded-xl p-3 text-center border border-orange-100">
                 <Target className="w-6 h-6 text-orange-500 mx-auto mb-1" />
-                <p className="text-xs font-medium text-gray-700">Cíle</p>
+                <p className="text-xs font-medium text-gray-700">{t('gettingStarted.benefits.goals')}</p>
               </div>
             </div>
 
@@ -108,7 +97,7 @@ export function HelpView({
             <div className="space-y-4">
               <h3 className="font-bold text-gray-900 flex items-center gap-2">
                 <Footprints className="w-5 h-5 text-orange-500" />
-                3 kroky k úspěchu
+                {t('gettingStarted.stepsToSuccess')}
               </h3>
 
               {/* Step 1 */}
@@ -117,22 +106,22 @@ export function HelpView({
                   <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold">1</div>
                   <div>
                     <h4 className="font-semibold text-gray-900 flex items-center gap-1">
-                      <Target className="w-4 h-4 text-orange-500" /> Vytvořte cíl
+                      <Target className="w-4 h-4 text-orange-500" /> {t('gettingStarted.step1.title')}
                     </h4>
-                    <p className="text-xs text-gray-500">Co chcete dosáhnout?</p>
+                    <p className="text-xs text-gray-500">{t('gettingStarted.step1.subtitle')}</p>
                   </div>
                 </div>
                 <div className="bg-orange-50 rounded-lg p-3 mb-3">
                   <div className="flex items-center gap-2">
                     <Target className="w-4 h-4 text-orange-500" />
-                    <span className="text-sm font-medium text-gray-800">Naučit se React</span>
-                    <span className="text-xs bg-orange-200 text-orange-700 px-2 py-0.5 rounded-full ml-auto">Ve fokusu</span>
+                    <span className="text-sm font-medium text-gray-800">{t('gettingStarted.step1.example')}</span>
+                    <span className="text-xs bg-orange-200 text-orange-700 px-2 py-0.5 rounded-full ml-auto">{t('gettingStarted.step1.inFocus')}</span>
                   </div>
                 </div>
                 <div className="flex gap-2">
                   {onAddGoal && (
                     <button onClick={onAddGoal} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600">
-                      <Plus className="w-4 h-4" /> Vytvořit cíl
+                      <Plus className="w-4 h-4" /> {t('gettingStarted.step1.button')}
                     </button>
                   )}
                   {onNavigateToGoals && (
@@ -149,27 +138,27 @@ export function HelpView({
                   <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold">2</div>
                   <div>
                     <h4 className="font-semibold text-gray-900 flex items-center gap-1">
-                      <Footprints className="w-4 h-4 text-orange-500" /> Přidejte kroky
+                      <Footprints className="w-4 h-4 text-orange-500" /> {t('gettingStarted.step2.title')}
                     </h4>
-                    <p className="text-xs text-gray-500">Konkrétní akce k cíli</p>
+                    <p className="text-xs text-gray-500">{t('gettingStarted.step2.subtitle')}</p>
                   </div>
                 </div>
                 <div className="bg-orange-50 rounded-lg p-3 space-y-2 mb-3">
                   <div className="flex items-center gap-2 text-sm">
                     <CheckSquare className="w-4 h-4 text-orange-400" />
-                    <span className="text-gray-700">Nainstalovat Node.js</span>
-                    <span className="text-xs text-gray-400 ml-auto">Dnes</span>
+                    <span className="text-gray-700">{t('gettingStarted.step2.example1')}</span>
+                    <span className="text-xs text-gray-400 ml-auto">{t('gettingStarted.step2.today')}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <CheckSquare className="w-4 h-4 text-orange-400" />
-                    <span className="text-gray-700">Projít tutorial</span>
-                    <span className="text-xs text-gray-400 ml-auto">Zítra</span>
+                    <span className="text-gray-700">{t('gettingStarted.step2.example2')}</span>
+                    <span className="text-xs text-gray-400 ml-auto">{t('gettingStarted.step2.tomorrow')}</span>
                   </div>
                 </div>
                 <div className="flex gap-2">
                   {onAddStep && (
                     <button onClick={onAddStep} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600">
-                      <Plus className="w-4 h-4" /> Vytvořit krok
+                      <Plus className="w-4 h-4" /> {t('gettingStarted.step2.button')}
                     </button>
                   )}
                   {onNavigateToSteps && (
@@ -186,27 +175,27 @@ export function HelpView({
                   <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold">3</div>
                   <div>
                     <h4 className="font-semibold text-gray-900 flex items-center gap-1">
-                      <CheckSquare className="w-4 h-4 text-orange-500" /> Budujte návyky
+                      <CheckSquare className="w-4 h-4 text-orange-500" /> {t('gettingStarted.step3.title')}
                     </h4>
-                    <p className="text-xs text-gray-500">Opakující se aktivity</p>
+                    <p className="text-xs text-gray-500">{t('gettingStarted.step3.subtitle')}</p>
                   </div>
                 </div>
                 <div className="bg-orange-50 rounded-lg p-3 space-y-2 mb-3">
                   <div className="flex items-center gap-2 text-sm">
                     <Zap className="w-4 h-4 text-orange-500" />
-                    <span className="text-gray-700">Ranní cvičení</span>
-                    <span className="text-xs text-gray-400 ml-auto">Každý den</span>
+                    <span className="text-gray-700">{t('gettingStarted.step3.example1')}</span>
+                    <span className="text-xs text-gray-400 ml-auto">{t('gettingStarted.step3.everyDay')}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <BookOpen className="w-4 h-4 text-orange-500" />
-                    <span className="text-gray-700">Čtení</span>
-                    <span className="text-xs text-gray-400 ml-auto">Po-Pá</span>
+                    <span className="text-gray-700">{t('gettingStarted.step3.example2')}</span>
+                    <span className="text-xs text-gray-400 ml-auto">{t('gettingStarted.step3.monFri')}</span>
                   </div>
                 </div>
                 <div className="flex gap-2">
                   {onAddHabit && (
                     <button onClick={onAddHabit} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600">
-                      <Plus className="w-4 h-4" /> Vytvořit návyk
+                      <Plus className="w-4 h-4" /> {t('gettingStarted.step3.button')}
                     </button>
                   )}
                   {onNavigateToHabits && (
@@ -221,24 +210,24 @@ export function HelpView({
             {/* What's Next */}
             <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
               <h4 className="font-semibold text-gray-900 flex items-center gap-2 mb-2">
-                <TrendingUp className="w-5 h-5 text-orange-500" /> Co dál?
+                <TrendingUp className="w-5 h-5 text-orange-500" /> {t('gettingStarted.whatsNext')}
               </h4>
               <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-orange-400" />
-                  <span>Denní přehled</span>
+                  <span>{t('gettingStarted.nextItems.dailyOverview')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckSquare className="w-4 h-4 text-orange-400" />
-                  <span>Plňte kroky</span>
+                  <span>{t('gettingStarted.nextItems.completeSteps')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Star className="w-4 h-4 text-orange-400" />
-                  <span>Fokus na důležité</span>
+                  <span>{t('gettingStarted.nextItems.focusImportant')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-orange-400" />
-                  <span>Sledujte pokrok</span>
+                  <span>{t('gettingStarted.nextItems.trackProgress')}</span>
                 </div>
               </div>
             </div>
@@ -249,71 +238,71 @@ export function HelpView({
         return (
           <div className="space-y-6">
             <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white">
-              <h2 className="text-2xl font-bold mb-2">Jak aplikaci používat?</h2>
-              <p className="text-orange-100">Praktické příklady použití aplikace Pokrok.</p>
+              <h2 className="text-2xl font-bold mb-2">{t('howToUse.title')}</h2>
+              <p className="text-orange-100">{t('howToUse.subtitle')}</p>
             </div>
 
             {/* Use Cases */}
             <div className="space-y-4">
               {/* UC1 */}
               <div className="bg-white rounded-xl border border-orange-200 p-4">
-                <h4 className="font-semibold text-gray-900 mb-2">📋 Nový cíl</h4>
-                <p className="text-sm text-gray-600 mb-3">Chcete dosáhnout něčeho důležitého.</p>
+                <h4 className="font-semibold text-gray-900 mb-2">{t('howToUse.useCase1.title')}</h4>
+                <p className="text-sm text-gray-600 mb-3">{t('howToUse.useCase1.description')}</p>
                 <div className="space-y-1.5">
-                  <Step number={1} text="Definujte cíl (např. 'Naučit se React')" />
-                  <Step number={2} text="Rozdělte na konkrétní kroky" />
-                  <Step number={3} text="Označte jako 've fokusu'" />
-                  <Step number={4} text="Plňte kroky každý den" />
+                  <Step number={1} text={t('howToUse.useCase1.step1')} />
+                  <Step number={2} text={t('howToUse.useCase1.step2')} />
+                  <Step number={3} text={t('howToUse.useCase1.step3')} />
+                  <Step number={4} text={t('howToUse.useCase1.step4')} />
                 </div>
-                <p className="text-xs text-orange-600 mt-3 bg-orange-50 p-2 rounded">💡 Výsledek: Jasný plán a viditelný pokrok</p>
+                <p className="text-xs text-orange-600 mt-3 bg-orange-50 p-2 rounded">{t('howToUse.useCase1.result')}</p>
               </div>
 
               {/* UC2 */}
               <div className="bg-white rounded-xl border border-orange-200 p-4">
-                <h4 className="font-semibold text-gray-900 mb-2">🔄 Budování návyků</h4>
-                <p className="text-sm text-gray-600 mb-3">Pozitivní návyky pro dlouhodobý úspěch.</p>
+                <h4 className="font-semibold text-gray-900 mb-2">{t('howToUse.useCase2.title')}</h4>
+                <p className="text-sm text-gray-600 mb-3">{t('howToUse.useCase2.description')}</p>
                 <div className="space-y-1.5">
-                  <Step number={1} text="Vytvořte návyk (např. 'Cvičit 3x týdně')" />
-                  <Step number={2} text="Nastavte konkrétní dny" />
-                  <Step number={3} text="Označujte jako splněné" />
-                  <Step number={4} text="Sledujte konzistenci" />
+                  <Step number={1} text={t('howToUse.useCase2.step1')} />
+                  <Step number={2} text={t('howToUse.useCase2.step2')} />
+                  <Step number={3} text={t('howToUse.useCase2.step3')} />
+                  <Step number={4} text={t('howToUse.useCase2.step4')} />
                 </div>
-                <p className="text-xs text-orange-600 mt-3 bg-orange-50 p-2 rounded">💡 Výsledek: Malé akce = velké změny</p>
+                <p className="text-xs text-orange-600 mt-3 bg-orange-50 p-2 rounded">{t('howToUse.useCase2.result')}</p>
               </div>
 
               {/* UC3 */}
               <div className="bg-white rounded-xl border border-orange-200 p-4">
-                <h4 className="font-semibold text-gray-900 mb-2">🎯 Prioritizace</h4>
-                <p className="text-sm text-gray-600 mb-3">Máte mnoho úkolů, ale nevíte, na co se zaměřit.</p>
+                <h4 className="font-semibold text-gray-900 mb-2">{t('howToUse.useCase3.title')}</h4>
+                <p className="text-sm text-gray-600 mb-3">{t('howToUse.useCase3.description')}</p>
                 <div className="space-y-1.5">
-                  <Step number={1} text="Vytvořte všechny cíle" />
-                  <Step number={2} text="Označte 2-3 nejdůležitější 've fokusu'" />
-                  <Step number={3} text="Zaměřte se na fokus v denním přehledu" />
-                  <Step number={4} text="Pravidelně revidujte priority" />
+                  <Step number={1} text={t('howToUse.useCase3.step1')} />
+                  <Step number={2} text={t('howToUse.useCase3.step2')} />
+                  <Step number={3} text={t('howToUse.useCase3.step3')} />
+                  <Step number={4} text={t('howToUse.useCase3.step4')} />
                 </div>
-                <p className="text-xs text-orange-600 mt-3 bg-orange-50 p-2 rounded">💡 Výsledek: Jasnost - víte, co dělat dnes</p>
+                <p className="text-xs text-orange-600 mt-3 bg-orange-50 p-2 rounded">{t('howToUse.useCase3.result')}</p>
               </div>
             </div>
 
             {/* Quick Start */}
             <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
-              <h4 className="font-semibold text-gray-900 mb-3">🚀 Rychlý start</h4>
+              <h4 className="font-semibold text-gray-900 mb-3">{t('howToUse.quickStart.title')}</h4>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div className="bg-white rounded-lg p-3 border border-orange-100">
-                  <span className="font-medium text-orange-600">Den 1:</span>
-                  <p className="text-gray-600">Vytvořte 1-2 cíle</p>
+                  <span className="font-medium text-orange-600">{t('howToUse.quickStart.day1')}</span>
+                  <p className="text-gray-600">{t('howToUse.quickStart.day1Task')}</p>
                 </div>
                 <div className="bg-white rounded-lg p-3 border border-orange-100">
-                  <span className="font-medium text-orange-600">Den 2-3:</span>
-                  <p className="text-gray-600">Přidejte kroky</p>
+                  <span className="font-medium text-orange-600">{t('howToUse.quickStart.day23')}</span>
+                  <p className="text-gray-600">{t('howToUse.quickStart.day23Task')}</p>
                 </div>
                 <div className="bg-white rounded-lg p-3 border border-orange-100">
-                  <span className="font-medium text-orange-600">Den 4-5:</span>
-                  <p className="text-gray-600">Naplánujte dny</p>
+                  <span className="font-medium text-orange-600">{t('howToUse.quickStart.day45')}</span>
+                  <p className="text-gray-600">{t('howToUse.quickStart.day45Task')}</p>
                 </div>
                 <div className="bg-white rounded-lg p-3 border border-orange-100">
-                  <span className="font-medium text-orange-600">Týden 2+:</span>
-                  <p className="text-gray-600">Přidejte návyky</p>
+                  <span className="font-medium text-orange-600">{t('howToUse.quickStart.week2')}</span>
+                  <p className="text-gray-600">{t('howToUse.quickStart.week2Task')}</p>
                 </div>
               </div>
             </div>
@@ -326,32 +315,30 @@ export function HelpView({
             <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold flex items-center gap-2">
-                  <Target className="w-7 h-7" /> Cíle
+                  <Target className="w-7 h-7" /> {t('goalsHelp.title')}
                 </h2>
-                <p className="text-orange-100 text-sm mt-1">Dlouhodobé výsledky, které chcete dosáhnout.</p>
+                <p className="text-orange-100 text-sm mt-1">{t('goalsHelp.subtitle')}</p>
               </div>
                 {onAddGoal && (
                 <button onClick={onAddGoal} className="flex items-center gap-1 px-4 py-2 bg-white text-orange-600 font-medium rounded-lg hover:bg-orange-50">
-                  <Plus className="w-4 h-4" /> Přidat
+                  <Plus className="w-4 h-4" /> {t('goalsHelp.add')}
                   </button>
                 )}
             </div>
 
             {/* What are goals */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
-              <h4 className="font-semibold text-gray-900 mb-2">Co jsou cíle?</h4>
-              <p className="text-sm text-gray-600 mb-3">
-                Cíle jsou vaše dlouhodobé výsledky a sny. Mohou být krátkodobé (týden) i dlouhodobé (rok).
-              </p>
+              <h4 className="font-semibold text-gray-900 mb-2">{t('goalsHelp.whatAreGoals')}</h4>
+              <p className="text-sm text-gray-600 mb-3">{t('goalsHelp.whatAreGoalsDesc')}</p>
               <div className="flex flex-wrap gap-2">
                 <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full flex items-center gap-1">
-                  <Target className="w-3 h-3" /> Měřitelné
+                  <Target className="w-3 h-3" /> {t('goalsHelp.measurable')}
                 </span>
                 <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full flex items-center gap-1">
-                  <Calendar className="w-3 h-3" /> S termínem
+                  <Calendar className="w-3 h-3" /> {t('goalsHelp.withDeadline')}
                 </span>
                 <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full flex items-center gap-1">
-                  <Star className="w-3 h-3" /> Ve fokusu
+                  <Star className="w-3 h-3" /> {t('goalsHelp.inFocus')}
                 </span>
               </div>
             </div>
@@ -359,7 +346,7 @@ export function HelpView({
             {/* Example Goal Card */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
               <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <Eye className="w-4 h-4 text-orange-500" /> Ukázka cíle
+                <Eye className="w-4 h-4 text-orange-500" /> {t('goalsHelp.exampleTitle')}
               </h4>
               <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
                 <div className="flex items-start gap-3">
@@ -368,42 +355,42 @@ export function HelpView({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h5 className="font-semibold text-gray-900">Naučit se React</h5>
-                      <span className="text-xs bg-orange-200 text-orange-700 px-2 py-0.5 rounded-full">Ve fokusu</span>
-                      <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Aktivní</span>
+                      <h5 className="font-semibold text-gray-900">{t('goalsHelp.exampleName')}</h5>
+                      <span className="text-xs bg-orange-200 text-orange-700 px-2 py-0.5 rounded-full">{t('goalsHelp.inFocus')}</span>
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{t('goalsHelp.active')}</span>
               </div>
-                    <p className="text-sm text-gray-500 mt-1">Chci vytvořit vlastní webovou aplikaci</p>
+                    <p className="text-sm text-gray-500 mt-1">{t('goalsHelp.exampleDesc')}</p>
                     <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
                       <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" /> Do 15. března
+                        <Calendar className="w-3 h-3" /> {t('goalsHelp.exampleDeadline')}
                       </span>
                       <span className="flex items-center gap-1">
-                        <Footprints className="w-3 h-3" /> 3 kroky
+                        <Footprints className="w-3 h-3" /> {t('goalsHelp.exampleSteps')}
                       </span>
                 </div>
                   </div>
                 </div>
               </div>
               <div className="mt-3 text-xs text-gray-500 space-y-1">
-                <p><strong className="text-orange-600">Ve fokusu</strong> = Důležitý cíl, zobrazí se v denním přehledu</p>
-                <p><strong className="text-green-600">Aktivní</strong> = Právě na něm pracujete (lze změnit na Odložený)</p>
-                <p><strong className="text-gray-600">Termín</strong> = Volitelný, pomáhá s motivací</p>
+                <p><strong className="text-orange-600">{t('goalsHelp.inFocus')}</strong> = {t('goalsHelp.focusExplanation').split(' = ')[1]}</p>
+                <p><strong className="text-green-600">{t('goalsHelp.active')}</strong> = {t('goalsHelp.activeExplanation').split(' = ')[1]}</p>
+                <p><strong className="text-gray-600">{t('goalsHelp.tableDeadline')}</strong> = {t('goalsHelp.deadlineExplanation').split(' = ')[1]}</p>
               </div>
             </div>
 
             {/* Goals Table Example */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
               <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <Eye className="w-4 h-4 text-orange-500" /> Ukázka tabulky cílů
+                <Eye className="w-4 h-4 text-orange-500" /> {t('goalsHelp.tableTitle')}
               </h4>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-orange-100">
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Název</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Stav</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Termín</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Fokus</th>
+                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('goalsHelp.tableName')}</th>
+                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('goalsHelp.tableStatus')}</th>
+                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('goalsHelp.tableDeadline')}</th>
+                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('goalsHelp.tableFocus')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -411,11 +398,11 @@ export function HelpView({
                       <td className="py-2 px-2">
                         <div className="flex items-center gap-2">
                           <Target className="w-4 h-4 text-orange-500" />
-                          <span className="font-medium text-gray-800">Naučit se React</span>
+                          <span className="font-medium text-gray-800">{t('goalsHelp.tableExample1')}</span>
                         </div>
                       </td>
                       <td className="py-2 px-2">
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Aktivní</span>
+                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{t('goalsHelp.active')}</span>
                       </td>
                       <td className="py-2 px-2 text-gray-500">15.3.2025</td>
                       <td className="py-2 px-2">
@@ -426,11 +413,11 @@ export function HelpView({
                       <td className="py-2 px-2">
                         <div className="flex items-center gap-2">
                           <Target className="w-4 h-4 text-orange-500" />
-                          <span className="font-medium text-gray-800">Pravidelně cvičit</span>
+                          <span className="font-medium text-gray-800">{t('goalsHelp.tableExample2')}</span>
                         </div>
                       </td>
                       <td className="py-2 px-2">
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Aktivní</span>
+                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{t('goalsHelp.active')}</span>
                       </td>
                       <td className="py-2 px-2 text-gray-400">—</td>
                       <td className="py-2 px-2">
@@ -441,11 +428,11 @@ export function HelpView({
                       <td className="py-2 px-2">
                         <div className="flex items-center gap-2">
                           <Target className="w-4 h-4 text-gray-400" />
-                          <span className="font-medium text-gray-500">Přečíst 12 knih</span>
+                          <span className="font-medium text-gray-500">{t('goalsHelp.tableExample3')}</span>
                         </div>
                       </td>
                       <td className="py-2 px-2">
-                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">Odložený</span>
+                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{t('goalsHelp.postponed')}</span>
                       </td>
                       <td className="py-2 px-2 text-gray-400">31.12.2025</td>
                       <td className="py-2 px-2">
@@ -456,31 +443,31 @@ export function HelpView({
                 </table>
               </div>
               <div className="mt-3 text-xs text-gray-500 space-y-1">
-                <p>📌 <strong>Kliknutím na řádek</strong> otevřete detail cíle</p>
-                <p>⭐ <strong>Hvězdička</strong> = Ve fokusu (kliknutím přepnete)</p>
-                <p>🔄 <strong>Stav</strong> = Aktivní / Odložený / Dokončený</p>
+                <p>{t('goalsHelp.tableClickHint')}</p>
+                <p>{t('goalsHelp.tableStarHint')}</p>
+                <p>{t('goalsHelp.tableStatusHint')}</p>
                 </div>
               </div>
 
             {/* How to create */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
-              <h4 className="font-semibold text-gray-900 mb-3">Jak vytvořit cíl?</h4>
+              <h4 className="font-semibold text-gray-900 mb-3">{t('goalsHelp.howToCreate')}</h4>
               <div className="space-y-2">
-                <Step number={1} text="Přejděte do sekce Cíle" />
-                <Step number={2} text="Klikněte na 'Přidat cíl'" />
-                <Step number={3} text="Vyplňte název a popis" />
-                <Step number={4} text="Nastavte termín (volitelné)" />
-                <Step number={5} text="Zaškrtněte 'Ve fokusu' pro důležité cíle" />
+                <Step number={1} text={t('goalsHelp.howToStep1')} />
+                <Step number={2} text={t('goalsHelp.howToStep2')} />
+                <Step number={3} text={t('goalsHelp.howToStep3')} />
+                <Step number={4} text={t('goalsHelp.howToStep4')} />
+                <Step number={5} text={t('goalsHelp.howToStep5')} />
               </div>
               <div className="mt-4 flex gap-2">
                 {onAddGoal && (
                   <button onClick={onAddGoal} className="flex items-center gap-1 px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600">
-                    <Plus className="w-4 h-4" /> Vytvořit cíl
+                    <Plus className="w-4 h-4" /> {t('goalsHelp.createGoal')}
                   </button>
                 )}
                 {onNavigateToGoals && (
                   <button onClick={onNavigateToGoals} className="flex items-center gap-1 px-4 py-2 border border-orange-200 text-orange-600 text-sm rounded-lg hover:bg-orange-50">
-                    <ArrowRight className="w-4 h-4" /> Přejít do Cílů
+                    <ArrowRight className="w-4 h-4" /> {t('goalsHelp.goToGoals')}
                   </button>
                 )}
               </div>
@@ -489,13 +476,13 @@ export function HelpView({
             {/* Tips */}
             <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
               <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-orange-500" /> Tipy
+                <Sparkles className="w-4 h-4 text-orange-500" /> {t('goalsHelp.tips')}
               </h4>
               <ul className="space-y-1.5">
-                <Tip text="Označte 2-3 nejdůležitější cíle jako 've fokusu'" />
-                <Tip text="Velké cíle rozdělte na menší kroky" />
-                <Tip text="Kliknutím na řádek otevřete editaci" />
-                <Tip text="Přepínejte mezi 'Aktivní' a 'Odložené'" />
+                <Tip text={t('goalsHelp.tip1')} />
+                <Tip text={t('goalsHelp.tip2')} />
+                <Tip text={t('goalsHelp.tip3')} />
+                <Tip text={t('goalsHelp.tip4')} />
               </ul>
             </div>
           </div>
@@ -507,32 +494,30 @@ export function HelpView({
             <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold flex items-center gap-2">
-                  <Footprints className="w-7 h-7" /> Kroky
+                  <Footprints className="w-7 h-7" /> {t('stepsHelp.title')}
                 </h2>
-                <p className="text-orange-100 text-sm mt-1">Konkrétní akce vedoucí k vašim cílům.</p>
+                <p className="text-orange-100 text-sm mt-1">{t('stepsHelp.subtitle')}</p>
               </div>
                 {onAddStep && (
                 <button onClick={onAddStep} className="flex items-center gap-1 px-4 py-2 bg-white text-orange-600 font-medium rounded-lg hover:bg-orange-50">
-                  <Plus className="w-4 h-4" /> Přidat
+                  <Plus className="w-4 h-4" /> {t('stepsHelp.add')}
                   </button>
                 )}
             </div>
 
             {/* What are steps */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
-              <h4 className="font-semibold text-gray-900 mb-2">Co jsou kroky?</h4>
-              <p className="text-sm text-gray-600 mb-3">
-                Kroky jsou konkrétní úkoly naplánované na konkrétní dny. Můžete je přiřadit k cílům.
-              </p>
+              <h4 className="font-semibold text-gray-900 mb-2">{t('stepsHelp.whatAreSteps')}</h4>
+              <p className="text-sm text-gray-600 mb-3">{t('stepsHelp.whatAreStepsDesc')}</p>
               <div className="flex flex-wrap gap-2">
                 <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full flex items-center gap-1">
-                  <Calendar className="w-3 h-3" /> Naplánované
+                  <Calendar className="w-3 h-3" /> {t('stepsHelp.scheduled')}
                 </span>
                 <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full flex items-center gap-1">
-                  <Target className="w-3 h-3" /> K cíli
+                  <Target className="w-3 h-3" /> {t('stepsHelp.toGoal')}
                 </span>
                 <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full flex items-center gap-1">
-                  <Clock className="w-3 h-3" /> Odhad času
+                  <Clock className="w-3 h-3" /> {t('stepsHelp.timeEstimate')}
                 </span>
               </div>
             </div>
@@ -540,7 +525,7 @@ export function HelpView({
             {/* Example Step Card */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
               <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <Eye className="w-4 h-4 text-orange-500" /> Ukázka kroku
+                <Eye className="w-4 h-4 text-orange-500" /> {t('stepsHelp.exampleTitle')}
               </h4>
               <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
                 <div className="flex items-start gap-3">
@@ -549,47 +534,47 @@ export function HelpView({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h5 className="font-semibold text-gray-900">Nainstalovat Node.js a npm</h5>
+                      <h5 className="font-semibold text-gray-900">{t('stepsHelp.exampleName')}</h5>
                       <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <AlertTriangle className="w-3 h-3" /> Důležité
+                        <AlertTriangle className="w-3 h-3" /> {t('stepsHelp.important')}
                       </span>
               </div>
-                    <p className="text-sm text-gray-500 mt-1">Stáhnout a nainstalovat z oficiálních stránek</p>
+                    <p className="text-sm text-gray-500 mt-1">{t('stepsHelp.exampleDesc')}</p>
                     <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
                       <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" /> Dnes
+                        <Calendar className="w-3 h-3" /> {t('stepsHelp.today')}
                       </span>
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" /> 30 min
                       </span>
                       <span className="flex items-center gap-1">
-                        <Target className="w-3 h-3" /> Naučit se React
+                        <Target className="w-3 h-3" /> {t('goalsHelp.tableExample1')}
                       </span>
                 </div>
                   </div>
                 </div>
               </div>
               <div className="mt-3 text-xs text-gray-500 space-y-1">
-                <p><strong className="text-red-600">Důležité</strong> = Prioritní krok (lze kombinovat s Urgentní)</p>
-                <p><strong className="text-orange-600">Odhad času</strong> = Pomáhá s plánováním dne</p>
-                <p><strong className="text-gray-600">Cíl</strong> = Ke kterému cíli krok patří</p>
+                <p><strong className="text-red-600">{t('stepsHelp.important')}</strong> = {t('stepsHelp.importantExplanation').split(' = ')[1]}</p>
+                <p><strong className="text-orange-600">{t('stepsHelp.timeEstimate')}</strong> = {t('stepsHelp.timeExplanation').split(' = ')[1]}</p>
+                <p><strong className="text-gray-600">{t('stepsHelp.tableGoal')}</strong> = {t('stepsHelp.goalExplanation').split(' = ')[1]}</p>
                 </div>
               </div>
 
             {/* Steps Table Example */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
               <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <Eye className="w-4 h-4 text-orange-500" /> Ukázka tabulky kroků
+                <Eye className="w-4 h-4 text-orange-500" /> {t('stepsHelp.tableTitle')}
               </h4>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-orange-100">
                       <th className="text-left py-2 px-2 text-xs font-medium text-gray-500 w-8"></th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Název</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Datum</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Čas</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Cíl</th>
+                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('stepsHelp.tableName')}</th>
+                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('stepsHelp.tableDate')}</th>
+                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('stepsHelp.tableTime')}</th>
+                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('stepsHelp.tableGoal')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -601,11 +586,11 @@ export function HelpView({
                       </td>
                       <td className="py-2 px-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-gray-800">Nainstalovat Node.js</span>
+                          <span className="font-medium text-gray-800">{t('stepsHelp.tableExample1')}</span>
                           <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded">!</span>
                         </div>
                       </td>
-                      <td className="py-2 px-2 text-gray-500">Dnes</td>
+                      <td className="py-2 px-2 text-gray-500">{t('stepsHelp.today')}</td>
                       <td className="py-2 px-2 text-gray-500">30 min</td>
                       <td className="py-2 px-2 text-xs text-orange-600">React</td>
                     </tr>
@@ -616,10 +601,10 @@ export function HelpView({
                         </div>
                       </td>
                       <td className="py-2 px-2">
-                        <span className="font-medium text-gray-800">Projít React tutorial</span>
+                        <span className="font-medium text-gray-800">{t('stepsHelp.tableExample2')}</span>
                       </td>
-                      <td className="py-2 px-2 text-gray-500">Zítra</td>
-                      <td className="py-2 px-2 text-gray-500">2 hod</td>
+                      <td className="py-2 px-2 text-gray-500">{t('stepsHelp.tomorrow')}</td>
+                      <td className="py-2 px-2 text-gray-500">2 h</td>
                       <td className="py-2 px-2 text-xs text-orange-600">React</td>
                     </tr>
                     <tr className="hover:bg-orange-50 cursor-pointer opacity-60">
@@ -629,41 +614,41 @@ export function HelpView({
                         </div>
                       </td>
                       <td className="py-2 px-2">
-                        <span className="font-medium text-gray-500 line-through">Jít do posilovny</span>
+                        <span className="font-medium text-gray-500 line-through">{t('stepsHelp.tableExample3')}</span>
                       </td>
-                      <td className="py-2 px-2 text-gray-400">Včera</td>
-                      <td className="py-2 px-2 text-gray-400">1 hod</td>
-                      <td className="py-2 px-2 text-xs text-gray-400">Cvičení</td>
+                      <td className="py-2 px-2 text-gray-400">{t('stepsHelp.yesterday')}</td>
+                      <td className="py-2 px-2 text-gray-400">1 h</td>
+                      <td className="py-2 px-2 text-xs text-gray-400">Exercise</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
               <div className="mt-3 text-xs text-gray-500 space-y-1">
-                <p>☐ <strong>Checkbox</strong> = Kliknutím označíte jako splněný</p>
-                <p>❗ <strong>Vykřičník</strong> = Důležitý nebo urgentní krok</p>
-                <p>📌 <strong>Kliknutím na řádek</strong> otevřete detail</p>
+                <p>{t('stepsHelp.tableCheckboxHint')}</p>
+                <p>{t('stepsHelp.tableImportantHint')}</p>
+                <p>{t('stepsHelp.tableClickHint')}</p>
               </div>
               </div>
 
             {/* How to create */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
-              <h4 className="font-semibold text-gray-900 mb-3">Jak vytvořit krok?</h4>
+              <h4 className="font-semibold text-gray-900 mb-3">{t('stepsHelp.howToCreate')}</h4>
               <div className="space-y-2">
-                <Step number={1} text="Přejděte do sekce Kroky" />
-                <Step number={2} text="Klikněte na 'Přidat krok'" />
-                <Step number={3} text="Vyplňte název" />
-                <Step number={4} text="Vyberte datum" />
-                <Step number={5} text="Přiřaďte k cíli (volitelné)" />
+                <Step number={1} text={t('stepsHelp.howToStep1')} />
+                <Step number={2} text={t('stepsHelp.howToStep2')} />
+                <Step number={3} text={t('stepsHelp.howToStep3')} />
+                <Step number={4} text={t('stepsHelp.howToStep4')} />
+                <Step number={5} text={t('stepsHelp.howToStep5')} />
               </div>
               <div className="mt-4 flex gap-2">
                 {onAddStep && (
                   <button onClick={onAddStep} className="flex items-center gap-1 px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600">
-                    <Plus className="w-4 h-4" /> Vytvořit krok
+                    <Plus className="w-4 h-4" /> {t('stepsHelp.createStep')}
                   </button>
                 )}
                 {onNavigateToSteps && (
                   <button onClick={onNavigateToSteps} className="flex items-center gap-1 px-4 py-2 border border-orange-200 text-orange-600 text-sm rounded-lg hover:bg-orange-50">
-                    <ArrowRight className="w-4 h-4" /> Přejít do Kroků
+                    <ArrowRight className="w-4 h-4" /> {t('stepsHelp.goToSteps')}
                   </button>
                 )}
               </div>
@@ -672,13 +657,13 @@ export function HelpView({
             {/* Tips */}
             <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
               <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-orange-500" /> Tipy
+                <Sparkles className="w-4 h-4 text-orange-500" /> {t('stepsHelp.tips')}
               </h4>
               <ul className="space-y-1.5">
-                <Tip text="Rozdělte velké úkoly na menší kroky" />
-                <Tip text="Odhadněte čas pro lepší plánování" />
-                <Tip text="Používejte priority (důležité/urgentní)" />
-                <Tip text="Nedokončené kroky přesuňte na další den" />
+                <Tip text={t('stepsHelp.tip1')} />
+                <Tip text={t('stepsHelp.tip2')} />
+                <Tip text={t('stepsHelp.tip3')} />
+                <Tip text={t('stepsHelp.tip4')} />
               </ul>
             </div>
           </div>
@@ -690,32 +675,30 @@ export function HelpView({
             <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold flex items-center gap-2">
-                  <CheckSquare className="w-7 h-7" /> Návyky
+                  <CheckSquare className="w-7 h-7" /> {t('habitsHelp.title')}
                 </h2>
-                <p className="text-orange-100 text-sm mt-1">Opakující se aktivity pro dlouhodobý úspěch.</p>
+                <p className="text-orange-100 text-sm mt-1">{t('habitsHelp.subtitle')}</p>
               </div>
                 {onAddHabit && (
                 <button onClick={onAddHabit} className="flex items-center gap-1 px-4 py-2 bg-white text-orange-600 font-medium rounded-lg hover:bg-orange-50">
-                  <Plus className="w-4 h-4" /> Přidat
+                  <Plus className="w-4 h-4" /> {t('habitsHelp.add')}
                   </button>
                 )}
             </div>
 
             {/* What are habits */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
-              <h4 className="font-semibold text-gray-900 mb-2">Co jsou návyky?</h4>
-              <p className="text-sm text-gray-600 mb-3">
-                Návyky jsou opakující se aktivity. Malé každodenní akce vedou k velkým změnám.
-              </p>
+              <h4 className="font-semibold text-gray-900 mb-2">{t('habitsHelp.whatAreHabits')}</h4>
+              <p className="text-sm text-gray-600 mb-3">{t('habitsHelp.whatAreHabitsDesc')}</p>
               <div className="flex flex-wrap gap-2">
                 <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full flex items-center gap-1">
-                  <Calendar className="w-3 h-3" /> Denní
+                  <Calendar className="w-3 h-3" /> {t('habitsHelp.daily')}
                 </span>
                 <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full flex items-center gap-1">
-                  <Calendar className="w-3 h-3" /> Týdenní
+                  <Calendar className="w-3 h-3" /> {t('habitsHelp.weekly')}
                 </span>
                 <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full flex items-center gap-1">
-                  <Clock className="w-3 h-3" /> Připomínka
+                  <Clock className="w-3 h-3" /> {t('habitsHelp.reminder')}
                 </span>
               </div>
             </div>
@@ -723,7 +706,7 @@ export function HelpView({
             {/* Example Habit Card */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
               <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <Eye className="w-4 h-4 text-orange-500" /> Ukázka návyku
+                <Eye className="w-4 h-4 text-orange-500" /> {t('habitsHelp.exampleTitle')}
               </h4>
               <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
                 <div className="flex items-start gap-3">
@@ -732,17 +715,17 @@ export function HelpView({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h5 className="font-semibold text-gray-900">Ranní cvičení</h5>
-                      <span className="text-xs bg-orange-200 text-orange-700 px-2 py-0.5 rounded-full">Denní</span>
+                      <h5 className="font-semibold text-gray-900">{t('habitsHelp.exampleName')}</h5>
+                      <span className="text-xs bg-orange-200 text-orange-700 px-2 py-0.5 rounded-full">{t('habitsHelp.daily')}</span>
                     </div>
-                    <p className="text-sm text-gray-500 mt-1">Cvičit každé ráno 20 minut</p>
+                    <p className="text-sm text-gray-500 mt-1">{t('habitsHelp.exampleDesc')}</p>
                     <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" /> 07:00
                       </span>
               </div>
                     <div className="flex gap-1 mt-2">
-                      {['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map((day, i) => (
+                      {days.map((day, i) => (
                         <span key={day} className={`w-6 h-6 rounded text-[10px] flex items-center justify-center font-medium ${i < 5 ? 'bg-orange-200 text-orange-700' : 'bg-gray-100 text-gray-400'}`}>
                           {day}
                         </span>
@@ -752,25 +735,25 @@ export function HelpView({
                 </div>
               </div>
               <div className="mt-3 text-xs text-gray-500 space-y-1">
-                <p><strong className="text-orange-600">Denní</strong> = Opakuje se každý den (nebo vybrané dny)</p>
-                <p><strong className="text-orange-600">Připomínka</strong> = Volitelná notifikace v daný čas</p>
-                <p><strong className="text-gray-600">Dny</strong> = Které dny v týdnu se návyk zobrazí</p>
+                <p><strong className="text-orange-600">{t('habitsHelp.daily')}</strong> = {t('habitsHelp.dailyExplanation').split(' = ')[1]}</p>
+                <p><strong className="text-orange-600">{t('habitsHelp.reminder')}</strong> = {t('habitsHelp.reminderExplanation').split(' = ')[1]}</p>
+                <p><strong className="text-gray-600">{t('days.mon')}-{t('days.sun')}</strong> = {t('habitsHelp.daysExplanation').split(' = ')[1]}</p>
               </div>
             </div>
 
             {/* Habits Table Example */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
               <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <Eye className="w-4 h-4 text-orange-500" /> Ukázka tabulky návyků
+                <Eye className="w-4 h-4 text-orange-500" /> {t('habitsHelp.tableTitle')}
               </h4>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-orange-100">
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Název</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Frekvence</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Připomínka</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Tento týden</th>
+                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('habitsHelp.tableName')}</th>
+                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('habitsHelp.tableFrequency')}</th>
+                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('habitsHelp.tableReminder')}</th>
+                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('habitsHelp.tableThisWeek')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -778,11 +761,11 @@ export function HelpView({
                       <td className="py-2 px-2">
                         <div className="flex items-center gap-2">
                           <Zap className="w-4 h-4 text-orange-500" />
-                          <span className="font-medium text-gray-800">Ranní cvičení</span>
+                          <span className="font-medium text-gray-800">{t('habitsHelp.tableExample1')}</span>
                         </div>
                       </td>
                       <td className="py-2 px-2">
-                        <span className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">Denní</span>
+                        <span className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">{t('habitsHelp.daily')}</span>
                       </td>
                       <td className="py-2 px-2 text-gray-500">07:00</td>
                       <td className="py-2 px-2">
@@ -797,11 +780,11 @@ export function HelpView({
                       <td className="py-2 px-2">
                         <div className="flex items-center gap-2">
                           <BookOpen className="w-4 h-4 text-orange-500" />
-                          <span className="font-medium text-gray-800">Čtení před spaním</span>
+                          <span className="font-medium text-gray-800">{t('habitsHelp.tableExample2')}</span>
                         </div>
                       </td>
                       <td className="py-2 px-2">
-                        <span className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">Denní</span>
+                        <span className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">{t('habitsHelp.daily')}</span>
                       </td>
                       <td className="py-2 px-2 text-gray-500">21:00</td>
                       <td className="py-2 px-2">
@@ -816,11 +799,11 @@ export function HelpView({
                       <td className="py-2 px-2">
                         <div className="flex items-center gap-2">
                           <Sparkles className="w-4 h-4 text-orange-500" />
-                          <span className="font-medium text-gray-800">Meditace</span>
+                          <span className="font-medium text-gray-800">{t('habitsHelp.tableExample3')}</span>
                         </div>
                       </td>
                       <td className="py-2 px-2">
-                        <span className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">Po-Pá</span>
+                        <span className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">{t('habitsHelp.monFri')}</span>
                       </td>
                       <td className="py-2 px-2 text-gray-400">—</td>
                       <td className="py-2 px-2">
@@ -835,31 +818,31 @@ export function HelpView({
                 </table>
               </div>
               <div className="mt-3 text-xs text-gray-500 space-y-1">
-                <p>🟠 <strong>Oranžové čtverečky</strong> = Splněné dny</p>
-                <p>⬜ <strong>Šedé čtverečky</strong> = Nesplněné dny</p>
-                <p>📌 <strong>Kliknutím na řádek</strong> otevřete detail</p>
+                <p>{t('habitsHelp.tableOrangeHint')}</p>
+                <p>{t('habitsHelp.tableGrayHint')}</p>
+                <p>{t('habitsHelp.tableClickHint')}</p>
                 </div>
               </div>
 
             {/* How to create */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
-              <h4 className="font-semibold text-gray-900 mb-3">Jak vytvořit návyk?</h4>
+              <h4 className="font-semibold text-gray-900 mb-3">{t('habitsHelp.howToCreate')}</h4>
               <div className="space-y-2">
-                <Step number={1} text="Přejděte do sekce Návyky" />
-                <Step number={2} text="Klikněte na 'Přidat návyk'" />
-                <Step number={3} text="Vyplňte název" />
-                <Step number={4} text="Vyberte frekvenci a dny" />
-                <Step number={5} text="Nastavte připomínku (volitelné)" />
+                <Step number={1} text={t('habitsHelp.howToStep1')} />
+                <Step number={2} text={t('habitsHelp.howToStep2')} />
+                <Step number={3} text={t('habitsHelp.howToStep3')} />
+                <Step number={4} text={t('habitsHelp.howToStep4')} />
+                <Step number={5} text={t('habitsHelp.howToStep5')} />
               </div>
               <div className="mt-4 flex gap-2">
                 {onAddHabit && (
                   <button onClick={onAddHabit} className="flex items-center gap-1 px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600">
-                    <Plus className="w-4 h-4" /> Vytvořit návyk
+                    <Plus className="w-4 h-4" /> {t('habitsHelp.createHabit')}
                   </button>
                 )}
                 {onNavigateToHabits && (
                   <button onClick={onNavigateToHabits} className="flex items-center gap-1 px-4 py-2 border border-orange-200 text-orange-600 text-sm rounded-lg hover:bg-orange-50">
-                    <ArrowRight className="w-4 h-4" /> Přejít do Návyků
+                    <ArrowRight className="w-4 h-4" /> {t('habitsHelp.goToHabits')}
                   </button>
                 )}
               </div>
@@ -868,13 +851,13 @@ export function HelpView({
             {/* Tips */}
             <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
               <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-orange-500" /> Tipy
+                <Sparkles className="w-4 h-4 text-orange-500" /> {t('habitsHelp.tips')}
               </h4>
               <ul className="space-y-1.5">
-                <Tip text="Začněte s malými návyky, které snadno splníte" />
-                <Tip text="Lepší malý návyk každý den než velký jednou za týden" />
-                <Tip text="Používejte připomínky" />
-                <Tip text="Sledujte konzistenci v týdenním přehledu" />
+                <Tip text={t('habitsHelp.tip1')} />
+                <Tip text={t('habitsHelp.tip2')} />
+                <Tip text={t('habitsHelp.tip3')} />
+                <Tip text={t('habitsHelp.tip4')} />
               </ul>
             </div>
           </div>
@@ -892,7 +875,7 @@ export function HelpView({
         <div className="p-4">
           <h2 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
             <HelpCircle className="w-4 h-4 text-orange-500" />
-            Nápověda
+            {t('title')}
           </h2>
           <nav className="space-y-1">
             {categories.map((category) => {
@@ -923,7 +906,7 @@ export function HelpView({
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-gray-900 flex items-center gap-2">
               <HelpCircle className="w-4 h-4 text-orange-500" />
-              Nápověda
+              {t('title')}
             </h2>
             <div className="relative">
               <button

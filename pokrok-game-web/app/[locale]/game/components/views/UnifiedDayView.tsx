@@ -19,6 +19,8 @@ interface UnifiedDayViewProps {
   onOpenStepModal?: (date?: string) => void
   onNavigateToHabits?: () => void
   onNavigateToSteps?: () => void
+  onStepDateChange?: (stepId: string, newDate: string) => Promise<void>
+  onStepTimeChange?: (stepId: string, minutes: number) => Promise<void>
 }
 
 export function UnifiedDayView({
@@ -33,7 +35,9 @@ export function UnifiedDayView({
   loadingSteps = new Set(),
   onOpenStepModal,
   onNavigateToHabits,
-  onNavigateToSteps
+  onNavigateToSteps,
+  onStepDateChange,
+  onStepTimeChange
 }: UnifiedDayViewProps) {
   const t = useTranslations()
   const locale = useLocale()
@@ -101,8 +105,11 @@ export function UnifiedDayView({
   
   const weekEndDate = weekDays[6]
   
-  // Day names
-  const dayNamesShort = ['Ne', 'Po', 'Út', 'St', 'Čt', 'Pá', 'So']
+  // Day names - use translations
+  const dayNamesShort = [
+    t('daysShort.sun'), t('daysShort.mon'), t('daysShort.tue'), t('daysShort.wed'),
+    t('daysShort.thu'), t('daysShort.fri'), t('daysShort.sat')
+  ]
   
   // Calculate stats for a specific day
   const getDayStats = useCallback((date: Date) => {
@@ -294,7 +301,7 @@ export function UnifiedDayView({
             onClick={handleGoToCurrentWeek}
             className="px-3 py-1 text-xs font-medium text-orange-600 bg-orange-100 hover:bg-orange-200 rounded-full transition-colors"
           >
-            Dnes
+            {t('focus.today')}
           </button>
         )}
       </div>
@@ -403,7 +410,7 @@ export function UnifiedDayView({
                 />
               </div>
             </div>
-            <span className="text-[10px] text-gray-500">Pokrok</span>
+            <span className="text-[10px] text-gray-500">{t('progress.title')}</span>
           </div>
           
           {/* Completed */}
@@ -413,7 +420,7 @@ export function UnifiedDayView({
               <span className="text-xl font-bold text-gray-800">{displayStats.completedTasks}</span>
               <span className="text-xs text-gray-400">/{displayStats.totalTasks}</span>
             </div>
-            <span className="text-[10px] text-gray-500">Dokončeno</span>
+            <span className="text-[10px] text-gray-500">{t('progress.completed')}</span>
           </div>
         </div>
       )}
@@ -438,6 +445,8 @@ export function UnifiedDayView({
         weekSelectedDayDate={selectedDayDate}
         onNavigateToHabits={onNavigateToHabits}
         onNavigateToSteps={onNavigateToSteps}
+        onStepDateChange={onStepDateChange}
+        onStepTimeChange={onStepTimeChange}
       />
     </div>
   )

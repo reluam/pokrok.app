@@ -12,8 +12,8 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   // Ensure that a valid locale is used
   if (!locale || !locales.includes(locale as Locale)) {
-    console.warn(`[i18n] Invalid locale: ${locale}, defaulting to 'cs'`)
-    locale = 'cs' // Default to Czech
+    console.warn(`[i18n] Invalid locale: ${locale}, defaulting to 'en'`)
+    locale = 'en' // Default to English
   }
 
   // Use static imports instead of dynamic - this works reliably on Vercel
@@ -28,8 +28,8 @@ export default getRequestConfig(async ({ requestLocale }) => {
         messages = enMessages
         break
       default:
-        messages = csMessages // Fallback to Czech
-        locale = 'cs'
+        messages = enMessages // Fallback to English
+        locale = 'en'
     }
     
     // Validate that messages were loaded successfully
@@ -41,21 +41,21 @@ export default getRequestConfig(async ({ requestLocale }) => {
   } catch (error) {
     console.error(`[i18n] Failed to load messages for locale ${locale}:`, error)
     
-    // Fallback to Czech if other locale fails
-    if (locale !== 'cs') {
-      console.warn(`[i18n] Attempting to load Czech fallback messages`)
-      messages = csMessages
-      locale = 'cs'
+    // Fallback to English if other locale fails
+    if (locale !== 'en') {
+      console.warn(`[i18n] Attempting to load English fallback messages`)
+      messages = enMessages
+      locale = 'en'
       
       // Validate fallback messages
       if (!messages || typeof messages !== 'object' || Object.keys(messages).length === 0) {
-        console.error('[i18n] Czech fallback messages are also empty')
+        console.error('[i18n] English fallback messages are also empty')
         messages = {} // Last resort: empty messages
       } else {
-        console.log(`[i18n] Successfully loaded ${Object.keys(messages).length} Czech fallback message keys`)
+        console.log(`[i18n] Successfully loaded ${Object.keys(messages).length} English fallback message keys`)
       }
     } else {
-      console.error('[i18n] Failed to load Czech messages (default locale) - using empty messages')
+      console.error('[i18n] Failed to load English messages (default locale) - using empty messages')
       messages = {} // Last resort: empty messages
     }
   }

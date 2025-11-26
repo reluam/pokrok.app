@@ -25,6 +25,8 @@ interface TodayFocusSectionProps {
   weekSelectedDayDate?: Date | null // For week view - selected day for highlighting
   onNavigateToHabits?: () => void
   onNavigateToSteps?: () => void
+  onStepDateChange?: (stepId: string, newDate: string) => Promise<void>
+  onStepTimeChange?: (stepId: string, minutes: number) => Promise<void>
 }
 
 export function TodayFocusSection({
@@ -45,7 +47,9 @@ export function TodayFocusSection({
   weekStartDate,
   weekSelectedDayDate = null,
   onNavigateToHabits,
-  onNavigateToSteps
+  onNavigateToSteps,
+  onStepDateChange,
+  onStepTimeChange
 }: TodayFocusSectionProps) {
   const t = useTranslations()
   const locale = useLocale()
@@ -53,6 +57,63 @@ export function TodayFocusSection({
   
   // State for showing/hiding completed habits in day view
   const [showCompletedHabits, setShowCompletedHabits] = useState(false)
+  
+  // State for showing/hiding completed steps in week view
+  const [showCompletedSteps, setShowCompletedSteps] = useState(false)
+  
+  // State for date picker
+  const [datePickerStep, setDatePickerStep] = useState<any | null>(null)
+  const [datePickerPosition, setDatePickerPosition] = useState<{ top: number; left: number } | null>(null)
+  const [datePickerMonth, setDatePickerMonth] = useState<Date>(new Date())
+  
+  // State for time picker
+  const [timePickerStep, setTimePickerStep] = useState<any | null>(null)
+  const [timePickerPosition, setTimePickerPosition] = useState<{ top: number; left: number } | null>(null)
+  
+  // Open date picker for a step
+  const openDatePicker = (e: React.MouseEvent, step: any) => {
+    e.stopPropagation()
+    const rect = (e.target as HTMLElement).getBoundingClientRect()
+    // Position picker so it doesn't go off screen
+    const top = Math.min(rect.bottom + 5, window.innerHeight - 400)
+    const left = Math.min(rect.left, window.innerWidth - 320)
+    setDatePickerPosition({ top, left })
+    setDatePickerStep(step)
+    if (step.date) {
+      setDatePickerMonth(new Date(normalizeDate(step.date)))
+    } else {
+      setDatePickerMonth(new Date())
+    }
+  }
+  
+  // Handle date selection
+  const handleDateSelect = async (date: Date) => {
+    if (datePickerStep && onStepDateChange) {
+      const dateStr = getLocalDateString(date)
+      await onStepDateChange(datePickerStep.id, dateStr)
+    }
+    setDatePickerStep(null)
+    setDatePickerPosition(null)
+  }
+  
+  // Open time picker for a step
+  const openTimePicker = (e: React.MouseEvent, step: any) => {
+    e.stopPropagation()
+    const rect = (e.target as HTMLElement).getBoundingClientRect()
+    const top = Math.min(rect.bottom + 5, window.innerHeight - 200)
+    const left = Math.min(rect.left, window.innerWidth - 180)
+    setTimePickerPosition({ top, left })
+    setTimePickerStep(step)
+  }
+  
+  // Handle time selection
+  const handleTimeSelect = async (minutes: number) => {
+    if (timePickerStep && onStepTimeChange) {
+      await onStepTimeChange(timePickerStep.id, minutes)
+    }
+    setTimePickerStep(null)
+    setTimePickerPosition(null)
+  }
   
   const displayDate = new Date(selectedDayDate)
   displayDate.setHours(0, 0, 0, 0)
@@ -137,9 +198,9 @@ export function TodayFocusSection({
     
     return dailySteps
       .filter(step => {
-        if (!step.date || step.completed) return false
+        if (!step.date) return false
         
-        // In week view, show all steps from the current week
+        // In week view, show all steps from the current week (including completed)
         if (isWeekView && weekStart && weekEnd) {
           const stepDate = normalizeDate(step.date)
           const stepDateObj = new Date(stepDate)
@@ -193,9 +254,9 @@ export function TodayFocusSection({
     
     const stepsWithoutGoals = dailySteps
       .filter(step => {
-        if (!step.date || step.completed) return false
+        if (!step.date) return false
         
-        // In week view, show all steps from the current week
+        // In week view, show all steps from the current week (including completed)
         if (isWeekView && weekStart && weekEnd) {
           const stepDate = normalizeDate(step.date)
           const stepDateObj = new Date(stepDate)
@@ -210,7 +271,7 @@ export function TodayFocusSection({
           return isInWeek && hasNoGoal
         }
         
-        // In day view, filter by date
+        // In day view, filter by date (including completed)
         const stepDate = normalizeDate(step.date)
         const stepDateObj = new Date(stepDate)
         stepDateObj.setHours(0, 0, 0, 0)
@@ -228,6 +289,11 @@ export function TodayFocusSection({
     const allSteps = [...focusSteps, ...stepsWithoutGoals]
     
     return allSteps.sort((a, b) => {
+      // First: completed steps go to bottom
+      if (a.completed !== b.completed) {
+        return a.completed ? 1 : -1
+      }
+      
       // In week view: sort by date first, then by importance
       if (isWeekView) {
         const dateA = new Date(normalizeDate(a.date))
@@ -346,7 +412,7 @@ export function TodayFocusSection({
           <div className="flex items-center gap-2">
             <Target className="w-5 h-5 text-orange-600" />
             <h3 className="text-lg font-bold text-orange-800">
-              {isWeekView ? 'Týdenní fokus' : 'Dnešní fokus'}
+              {isWeekView ? t('focus.weeklyFocus') : t('focus.dailyFocus')}
             </h3>
           </div>
           {onOpenStepModal && (
@@ -358,18 +424,18 @@ export function TodayFocusSection({
                 onOpenStepModal(dateToUse)
               }}
               className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors border border-orange-200"
-              title="Přidat krok"
+              title={t('focus.addStep')}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
               </svg>
-              Přidat krok
+              {t('focus.addStep')}
             </button>
           )}
         </div>
         <div className="text-center py-8">
-          <p className="mb-2 text-gray-500">Žádné kroky na dnes.</p>
-          <p className="text-sm text-gray-400 mb-6">Všechny kroky jsou dokončené nebo nejsou naplánované.</p>
+          <p className="mb-2 text-gray-500">{t('focus.noSteps')}</p>
+          <p className="text-sm text-gray-400 mb-6">{t('focus.allStepsCompleted')}</p>
           
           {/* Action buttons */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
@@ -386,7 +452,7 @@ export function TodayFocusSection({
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
-                Přidat krok
+                {t('focus.addStep')}
               </button>
             )}
             {!onOpenStepModal && onNavigateToSteps && (
@@ -397,7 +463,7 @@ export function TodayFocusSection({
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
-                Přidat krok
+                {t('focus.addStep')}
               </button>
             )}
             {onNavigateToHabits && (
@@ -426,7 +492,7 @@ export function TodayFocusSection({
             <div className="flex items-center gap-2">
               <Target className="w-5 h-5 text-orange-600" />
               <h3 className="text-lg font-bold text-orange-800">
-                {isWeekView ? 'Týdenní fokus' : 'Dnešní fokus'}
+                {isWeekView ? t('focus.weeklyFocus') : t('focus.dailyFocus')}
               </h3>
             </div>
             {onOpenStepModal && (
@@ -439,12 +505,12 @@ export function TodayFocusSection({
                   onOpenStepModal(dateToUse)
                 }}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors border border-orange-200"
-                title="Přidat krok"
+                title={t('focus.addStep')}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
-                Přidat krok
+                {t('focus.addStep')}
               </button>
             )}
           </div>
@@ -458,7 +524,7 @@ export function TodayFocusSection({
                   onClick={() => onNavigateToHabits?.()}
                   className={`text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 ${onNavigateToHabits ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
                 >
-                  Návyky
+                  {t('navigation.habits')}
                 </h4>
                 {weekHabits.length > 0 ? (
                   <>
@@ -653,7 +719,7 @@ export function TodayFocusSection({
                 onClick={() => onNavigateToHabits?.()}
                 className={`text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 ${onNavigateToHabits ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
               >
-                Návyky
+                {t('navigation.habits')}
               </h4>
               {todaysHabits.length > 0 ? (
                 <div>
@@ -744,7 +810,7 @@ export function TodayFocusSection({
                 onClick={() => onNavigateToSteps?.()}
                   className={`text-xs font-semibold text-gray-500 uppercase tracking-wide ${onNavigateToSteps ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
               >
-                {isWeekView ? 'Kroky v týdnu' : 'Dnešní kroky'}
+                {isWeekView ? t('focus.stepsThisWeek') : t('focus.stepsToday')}
               </h4>
                 <span className="text-xs text-gray-400 ml-2">
                   {allTodaysSteps.filter(s => s.completed).length}/{allTodaysSteps.length}
@@ -761,7 +827,9 @@ export function TodayFocusSection({
               </div>
               {allTodaysSteps.length > 0 ? (
                 <div className="space-y-2">
-                  {allTodaysSteps.map(step => {
+                  {allTodaysSteps
+                    .filter(step => !step.completed)
+                    .map(step => {
                     const stepDate = normalizeDate(step.date)
                     const stepDateObj = new Date(stepDate)
                     stepDateObj.setHours(0, 0, 0, 0)
@@ -789,13 +857,18 @@ export function TodayFocusSection({
                     // Only show goal info if step has goal and is in current period
                     const showGoalInfo = stepGoal && isStepInCurrentPeriod
                     
+                    const isToday = stepDate === getLocalDateString(new Date())
+                    const isFuture = stepDateObj > today
+                    
                     return (
                       <div 
                         key={step.id}
                                 onClick={() => handleItemClick(step, 'step')}
                         className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ${
-                          step.is_important && !step.completed
-                            ? 'border-orange-400 bg-orange-50/30 hover:bg-orange-50'
+                          isOverdue && !step.completed
+                            ? 'border-red-300 bg-red-50/30 hover:bg-red-50'
+                            : isToday && !step.completed
+                              ? 'border-orange-400 bg-orange-50/30 hover:bg-orange-50'
                                         : 'border-gray-200 bg-white hover:bg-gray-50'
                         } ${step.completed ? 'opacity-50' : ''}`}
                               >
@@ -811,50 +884,130 @@ export function TodayFocusSection({
                           className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${
                                       step.completed 
                               ? 'bg-orange-500 border-orange-500' 
-                            : step.is_important
-                                ? 'border-orange-400 hover:bg-orange-100'
-                                : 'border-gray-300 hover:border-orange-400'
+                              : isOverdue
+                                ? 'border-red-400 hover:bg-red-100'
+                                : isToday
+                                  ? 'border-orange-400 hover:bg-orange-100'
+                                  : 'border-gray-300 hover:border-orange-400'
                           }`}
-                          >
-                            {loadingSteps.has(step.id) ? (
+                                  >
+                                    {loadingSteps.has(step.id) ? (
                             <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                            ) : step.completed ? (
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                      </svg>
+                                    ) : step.completed ? (
                             <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                           ) : null}
-                          </button>
+                                  </button>
                         
                         {/* Title */}
-                        <span className={`flex-1 font-medium text-sm truncate ${
-                          step.completed ? 'line-through text-gray-400' : 'text-gray-900'
-                          }`}>
-                            {step.title}
-                          </span>
+                        <span className={`flex-1 text-sm truncate ${
+                                      step.completed 
+                                        ? 'line-through text-gray-400' 
+                                        : isOverdue 
+                              ? 'text-red-600' 
+                              : stepDate === getLocalDateString(new Date())
+                                ? 'text-orange-600'
+                                : 'text-gray-500'
+                        } ${step.is_important && !step.completed ? 'font-bold' : 'font-medium'}`}>
+                                      {step.title}
+                                    </span>
                         
                         {/* Meta info - fixed width columns - hidden on mobile */}
-                        <span className={`hidden sm:block w-20 text-xs text-center capitalize flex-shrink-0 ${
+                          <button
+                            onClick={(e) => openDatePicker(e, step)}
+                          className={`hidden sm:block w-20 text-xs text-center capitalize flex-shrink-0 rounded px-1 py-0.5 transition-colors ${
                           isOverdue && !step.completed 
-                            ? 'text-red-500' 
-                            : stepDate === getLocalDateString(new Date()) 
-                              ? 'text-orange-600' 
-                              : 'text-gray-500'
+                            ? 'text-red-500 hover:bg-red-100' 
+                            : isToday
+                              ? 'text-orange-600 hover:bg-orange-100' 
+                              : 'text-gray-500 hover:bg-gray-100'
                         }`}>
                           {isOverdue && !step.completed && '❗'}
-                          {stepDate === getLocalDateString(new Date()) ? 'Dnes' : stepDateFormatted || '-'}
-                                  </span>
-                        <span className="hidden sm:block w-14 text-xs text-gray-500 text-center flex-shrink-0">
+                          {isToday ? t('focus.today') : stepDateFormatted || '-'}
+                          </button>
+                        <button 
+                          onClick={(e) => openTimePicker(e, step)}
+                          className={`hidden sm:block w-14 text-xs text-center flex-shrink-0 rounded px-1 py-0.5 transition-colors ${
+                            isOverdue && !step.completed 
+                              ? 'text-red-500 hover:bg-red-100' 
+                              : isToday
+                                ? 'text-orange-600 hover:bg-orange-100' 
+                                : 'text-gray-500 hover:bg-gray-100'
+                          }`}>
                           {step.estimated_time ? `${step.estimated_time} min` : '-'}
-                        </span>
+                        </button>
                       </div>
                     )
                   })}
+                  
+                  {/* Completed steps count - clickable to show/hide */}
+                  {allTodaysSteps.filter(s => s.completed).length > 0 && (
+                    <>
+                      <button
+                        onClick={() => setShowCompletedSteps(!showCompletedSteps)}
+                        className="w-full mt-3 pt-3 border-t border-gray-100 text-xs text-gray-400 text-center hover:text-orange-500 transition-colors flex items-center justify-center gap-1"
+                      >
+                        <span>✓ {allTodaysSteps.filter(s => s.completed).length} {allTodaysSteps.filter(s => s.completed).length === 1 ? 'splněný krok' : 'splněných kroků'}</span>
+                        <ChevronDown className={`w-3 h-3 transition-transform ${showCompletedSteps ? 'rotate-180' : ''}`} />
+                      </button>
+                      
+                      {/* Completed steps list */}
+                      {showCompletedSteps && (
+                        <div className="mt-2 space-y-2">
+                          {allTodaysSteps.filter(s => s.completed).map(step => {
+                            const stepDate = normalizeDate(step.date)
+                            const stepDateObj = new Date(stepDate)
+                            stepDateObj.setHours(0, 0, 0, 0)
+                            const stepDateFormatted = stepDateObj.toLocaleDateString(localeCode, { weekday: 'long' })
+                            
+                            return (
+                              <div 
+                                key={step.id}
+                                onClick={() => handleItemClick(step, 'step')}
+                                className="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 transition-all cursor-pointer opacity-50"
+                              >
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    if (!loadingSteps.has(step.id)) {
+                                      handleStepToggle(step.id, !step.completed)
+                                    }
+                                  }}
+                                  disabled={loadingSteps.has(step.id)}
+                                  className="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 bg-orange-500 border-orange-500"
+                                >
+                                  {loadingSteps.has(step.id) ? (
+                                    <svg className="animate-spin h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                  ) : (
+                                    <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                                  )}
+                                </button>
+                                <span className="flex-1 text-sm truncate line-through text-gray-400 font-medium">
+                                  {step.title}
+                                </span>
+                                <span className="hidden sm:block w-20 text-xs text-center capitalize flex-shrink-0 text-gray-400">
+                                  {stepDateFormatted}
+                                </span>
+                                <span className="hidden sm:block w-14 text-xs text-gray-400 text-center flex-shrink-0">
+                                  {step.estimated_time ? `${step.estimated_time} min` : '-'}
+                                </span>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-4">
                   <p className="text-xs text-gray-400 mb-2">
-                    {isWeekView ? 'Žádné kroky v týdnu' : 'Žádné dnešní kroky'}
+                    {isWeekView ? t('focus.noStepsThisWeek') : t('focus.noStepsToday')}
                   </p>
                   {onOpenStepModal && (
                     <button
@@ -866,7 +1019,7 @@ export function TodayFocusSection({
                       }}
                       className="text-xs text-orange-600 hover:text-orange-700 font-medium underline"
                     >
-                      Přidat krok
+                      {t('focus.addStep')}
                     </button>
                   )}
                   {!onOpenStepModal && onNavigateToSteps && (
@@ -874,7 +1027,7 @@ export function TodayFocusSection({
                       onClick={() => onNavigateToSteps()}
                       className="text-xs text-orange-600 hover:text-orange-700 font-medium underline"
                     >
-                      Přidat krok
+                      {t('focus.addStep')}
                     </button>
                   )}
                 </div>
@@ -908,12 +1061,12 @@ export function TodayFocusSection({
         <div className="w-full">
           <div className="bg-white rounded-xl p-6 border-2 border-gray-300 shadow-sm">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xs font-medium text-gray-500">Další kroky</h3>
+              <h3 className="text-xs font-medium text-gray-500">{t('focus.otherSteps')}</h3>
               {onOpenStepModal && (
                 <button
                   onClick={() => onOpenStepModal(displayDateStr)}
                   className="w-5 h-5 rounded-full bg-gray-300 text-white hover:bg-gray-400 transition-colors flex items-center justify-center text-xs font-bold"
-                  title="Přidat krok"
+                  title={t('focus.addStep')}
                 >
                   +
                 </button>
@@ -982,16 +1135,20 @@ export function TodayFocusSection({
                   } else {
                     isOverdue = stepDateObj < displayDate
                   }
+                  
+                  const stepDateFormatted = step.date ? new Date(normalizeDate(step.date)).toLocaleDateString('cs-CZ', { weekday: 'long' }) : null
                 
                   return (
                     <div
                       key={step.id}
                       onClick={() => handleItemClick(step, 'step')}
-                      className={`p-2 rounded-md border border-gray-200 bg-gray-50/80 hover:bg-gray-100/80 hover:border-gray-300 transition-all duration-200 cursor-pointer ${
-                        step.completed ? 'bg-gray-100/60 border-gray-200' : ''
-                      } ${isOverdue && !step.completed ? 'border-red-200 bg-red-50/15' : ''}`}
+                      className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ${
+                        isOverdue && !step.completed
+                          ? 'border-red-300 bg-red-50/30 hover:bg-red-50'
+                          : 'border-gray-200 bg-white hover:bg-gray-50'
+                      } ${step.completed ? 'opacity-50' : ''}`}
                     >
-                      <div className="flex items-center gap-2">
+                      {/* Checkbox */}
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
@@ -1000,24 +1157,47 @@ export function TodayFocusSection({
                             }
                           }}
                           disabled={loadingSteps.has(step.id)}
-                          className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
+                        className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${
+                          step.completed 
+                            ? 'bg-orange-500 border-orange-500' 
+                            : isOverdue
+                              ? 'border-red-400 hover:bg-red-100'
+                              : 'border-gray-300 hover:border-orange-400'
+                        }`}
                         >
                           {loadingSteps.has(step.id) ? (
-                            <svg className="animate-spin h-3.5 w-3.5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                           ) : step.completed ? (
-                            <Check className="w-3.5 h-3.5 text-gray-400" strokeWidth={3} />
-                          ) : (
-                            <Check className="w-3.5 h-3.5 text-gray-300" strokeWidth={2.5} fill="none" />
-                          )}
+                          <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                        ) : null}
                         </button>
-                        <span className={`truncate flex-1 font-medium text-xs ${step.completed ? 'line-through text-gray-400' : isOverdue ? 'text-red-500' : 'text-gray-500'}`}>
+                      
+                      {/* Title */}
+                      <span className={`flex-1 font-medium text-sm truncate ${
+                        step.completed ? 'line-through text-gray-400' : isOverdue ? 'text-red-600' : 'text-gray-900'
+                      }`}>
                           {step.title}
                         </span>
-                        {isOverdue && !step.completed && <span className="text-red-400 text-xs flex-shrink-0">⚠️</span>}
-                      </div>
+                      
+                      {/* Meta info - hidden on mobile */}
+                      <button 
+                        onClick={(e) => openDatePicker(e, step)}
+                        className={`hidden sm:block w-20 text-xs text-center capitalize flex-shrink-0 rounded px-1 py-0.5 transition-colors ${
+                          isOverdue && !step.completed ? 'text-red-500 hover:bg-red-100' : 'text-gray-500 hover:bg-gray-100'
+                        }`}>
+                        {isOverdue && !step.completed && '❗'}
+                        {stepDateFormatted || '-'}
+                      </button>
+                      <button 
+                        onClick={(e) => openTimePicker(e, step)}
+                        className={`hidden sm:block w-14 text-xs text-center flex-shrink-0 rounded px-1 py-0.5 transition-colors ${
+                          isOverdue && !step.completed ? 'text-red-500 hover:bg-red-100' : 'text-gray-500 hover:bg-gray-100'
+                        }`}>
+                        {step.estimated_time ? `${step.estimated_time} min` : '-'}
+                      </button>
                     </div>
                   )
                 }
@@ -1026,13 +1206,13 @@ export function TodayFocusSection({
                     <>
                       {/* Overdue steps column */}
                       <div className="flex flex-col">
-                        <h4 className="text-[10px] font-medium text-gray-400 mb-2 uppercase tracking-wide">Zpožděné kroky</h4>
+                        <h4 className="text-[10px] font-medium text-gray-400 mb-2 uppercase tracking-wide">{t('focus.overdueSteps')}</h4>
                         <div className="space-y-1.5">
                           {overdueStepsList.length > 0 ? (
                             overdueStepsList.map(renderStep)
                           ) : (
                             <div className="text-gray-400 text-xs text-center py-3">
-                              Žádné zpožděné kroky
+                              {t('focus.noOverdueSteps')}
                             </div>
                           )}
                         </div>
@@ -1040,13 +1220,13 @@ export function TodayFocusSection({
                       
                       {/* Future steps column */}
                       <div className="flex flex-col">
-                        <h4 className="text-[10px] font-medium text-gray-400 mb-2 uppercase tracking-wide">Budoucí kroky</h4>
+                        <h4 className="text-[10px] font-medium text-gray-400 mb-2 uppercase tracking-wide">{t('focus.futureSteps')}</h4>
                         <div className="space-y-1.5">
                           {futureStepsList.length > 0 ? (
                             futureStepsList.map(renderStep)
                           ) : (
                             <div className="text-gray-400 text-xs text-center py-3">
-                              Žádné budoucí kroky
+                              {t('focus.noFutureSteps')}
                             </div>
                           )}
                         </div>
@@ -1057,6 +1237,225 @@ export function TodayFocusSection({
             </div>
           </div>
         </div>
+      )}
+      
+      {/* Date Picker Modal */}
+      {datePickerStep && datePickerPosition && (
+        <>
+          <div 
+            className="fixed inset-0 z-40"
+            onClick={() => {
+              setDatePickerStep(null)
+              setDatePickerPosition(null)
+            }}
+          />
+          <div 
+            className="fixed z-50 bg-white border border-gray-200 rounded-xl shadow-xl p-4"
+            style={{
+              top: `${Math.min(datePickerPosition.top, window.innerHeight - 380)}px`,
+              left: `${Math.min(Math.max(datePickerPosition.left - 100, 10), window.innerWidth - 250)}px`,
+              width: '230px'
+            }}
+          >
+            <div className="text-sm font-bold text-gray-800 mb-3">Date</div>
+            
+            {/* Day names */}
+            <div className="grid grid-cols-7 gap-0.5 mb-1">
+              {['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(day => (
+                <div key={day} className="text-center text-xs text-gray-400 font-medium py-1">
+                  {day}
+    </div>
+              ))}
+            </div>
+            
+            {/* Calendar days */}
+            <div className="grid grid-cols-7 gap-0.5 mb-3">
+              {(() => {
+                const year = datePickerMonth.getFullYear()
+                const month = datePickerMonth.getMonth()
+                const firstDay = new Date(year, month, 1)
+                const lastDay = new Date(year, month + 1, 0)
+                const startDay = (firstDay.getDay() + 6) % 7 // Monday = 0
+                const days: (Date | null)[] = []
+                
+                // Empty cells before first day
+                for (let i = 0; i < startDay; i++) {
+                  days.push(null)
+                }
+                
+                // Days of month
+                for (let d = 1; d <= lastDay.getDate(); d++) {
+                  days.push(new Date(year, month, d))
+                }
+                
+                const today = new Date()
+                today.setHours(0, 0, 0, 0)
+                const stepCurrentDate = datePickerStep?.date ? new Date(normalizeDate(datePickerStep.date)) : null
+                if (stepCurrentDate) stepCurrentDate.setHours(0, 0, 0, 0)
+                
+                return days.map((day, i) => {
+                  if (!day) {
+                    return <div key={`empty-${i}`} className="w-7 h-7" />
+                  }
+                  
+                  const isToday = day.getTime() === today.getTime()
+                  const isSelected = stepCurrentDate && day.getTime() === stepCurrentDate.getTime()
+                  
+                  return (
+                    <button
+                      key={day.getTime()}
+                      onClick={() => handleDateSelect(day)}
+                      className={`w-7 h-7 rounded text-xs font-medium transition-colors ${
+                        isSelected
+                          ? 'bg-orange-500 text-white'
+                          : isToday
+                            ? 'bg-orange-100 text-orange-600 font-bold'
+                            : 'hover:bg-gray-100 text-gray-600'
+                      }`}
+                    >
+                      {day.getDate()}
+                    </button>
+                  )
+                })
+              })()}
+            </div>
+            
+            {/* Month navigation */}
+            <div className="flex items-center justify-between mb-3">
+              <button
+                onClick={() => {
+                  const newMonth = new Date(datePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() - 1)
+                  setDatePickerMonth(newMonth)
+                }}
+                className="p-1 hover:bg-gray-100 rounded text-gray-400"
+              >
+                <ChevronDown className="w-4 h-4 rotate-90" />
+              </button>
+              <span className="text-xs font-medium text-gray-600">
+                {datePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
+              </span>
+              <button
+                onClick={() => {
+                  const newMonth = new Date(datePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() + 1)
+                  setDatePickerMonth(newMonth)
+                }}
+                className="p-1 hover:bg-gray-100 rounded text-gray-400"
+              >
+                <ChevronDown className="w-4 h-4 -rotate-90" />
+              </button>
+            </div>
+            
+            {/* Actions */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  if (datePickerStep?.date) {
+                    const currentDate = new Date(normalizeDate(datePickerStep.date))
+                    handleDateSelect(currentDate)
+                  }
+                }}
+                className="flex-1 px-3 py-1.5 bg-orange-500 text-white text-xs font-medium rounded-lg hover:bg-orange-600 transition-colors"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => {
+                  setDatePickerStep(null)
+                  setDatePickerPosition(null)
+                }}
+                className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+      
+      {/* Time Picker Modal */}
+      {timePickerStep && timePickerPosition && (
+        <>
+          <div 
+            className="fixed inset-0 z-40"
+            onClick={() => {
+              setTimePickerStep(null)
+              setTimePickerPosition(null)
+            }}
+          />
+          <div 
+            className="fixed z-50 bg-white border border-gray-200 rounded-xl shadow-xl p-4"
+            style={{
+              top: `${timePickerPosition.top}px`,
+              left: `${timePickerPosition.left}px`,
+              width: '160px'
+            }}
+          >
+            <div className="text-sm font-bold text-gray-800 mb-3">Čas (min)</div>
+            
+            {/* Time options */}
+            <div className="grid grid-cols-3 gap-1 mb-3">
+              {[5, 10, 15, 20, 30, 45, 60, 90, 120].map(minutes => (
+                <button
+                  key={minutes}
+                  onClick={() => handleTimeSelect(minutes)}
+                  className={`py-1.5 rounded text-xs font-medium transition-colors ${
+                    timePickerStep?.estimated_time === minutes
+                      ? 'bg-orange-500 text-white'
+                      : 'hover:bg-orange-100 text-gray-600'
+                  }`}
+                >
+                  {minutes}
+                </button>
+              ))}
+            </div>
+            
+            {/* Custom input */}
+            <div className="flex gap-2 mb-3">
+              <input
+                type="number"
+                min="1"
+                max="480"
+                placeholder="Vlastní"
+                defaultValue={timePickerStep?.estimated_time || ''}
+                className="flex-1 px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-orange-400"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const value = parseInt((e.target as HTMLInputElement).value)
+                    if (value > 0) {
+                      handleTimeSelect(value)
+                    }
+                  }
+                }}
+                id="custom-time-input"
+              />
+              <button
+                onClick={() => {
+                  const input = document.getElementById('custom-time-input') as HTMLInputElement
+                  const value = parseInt(input?.value)
+                  if (value > 0) {
+                    handleTimeSelect(value)
+                  }
+                }}
+                className="px-2 py-1.5 bg-orange-500 text-white text-xs font-medium rounded-lg hover:bg-orange-600 transition-colors"
+              >
+                OK
+              </button>
+            </div>
+            
+            {/* Cancel button */}
+            <button
+              onClick={() => {
+                setTimePickerStep(null)
+                setTimePickerPosition(null)
+              }}
+              className="w-full px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </>
       )}
     </div>
   )
