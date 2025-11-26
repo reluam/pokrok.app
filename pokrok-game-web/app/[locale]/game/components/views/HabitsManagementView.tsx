@@ -398,9 +398,9 @@ export function HabitsManagementView({
                             }`}
                           >
                             {habit.frequency === 'custom' ? t('table.custom') :
-                              habit.frequency === 'daily' ? 'Denně' :
-                              habit.frequency === 'weekly' ? 'Týdně' :
-                                habit.frequency === 'monthly' ? 'Měsíčně' : 'Denně'}
+                              habit.frequency === 'daily' ? t('habits.filters.frequency.daily') :
+                              habit.frequency === 'weekly' ? t('habits.filters.frequency.weekly') :
+                                habit.frequency === 'monthly' ? t('habits.filters.frequency.monthly') : t('habits.filters.frequency.daily')}
                           </span>
                         </td>
                         <td className="px-4 py-2">
@@ -546,9 +546,9 @@ export function HabitsManagementView({
                       onChange={(e) => setEditingHabit({...editingHabit, frequency: e.target.value})}
                       className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                     >
-                      <option value="daily">Denně</option>
-                      <option value="weekly">Týdně</option>
-                      <option value="monthly">Měsíčně</option>
+                      <option value="daily">{t('habits.filters.frequency.daily')}</option>
+                      <option value="weekly">{t('habits.filters.frequency.weekly')}</option>
+                      <option value="monthly">{t('habits.filters.frequency.monthly')}</option>
                       <option value="custom">{t('table.custom')}</option>
                     </select>
                   </div>
