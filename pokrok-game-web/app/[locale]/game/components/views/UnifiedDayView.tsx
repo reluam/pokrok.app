@@ -332,6 +332,8 @@ export function UnifiedDayView({
                   const isPast = day < today
                   const isFuture = day > today
                   
+                  const isTodayComplete = isToday && stats.isComplete && stats.total > 0
+                  
                   return (
                     <button
                       key={dateStr}
@@ -340,33 +342,53 @@ export function UnifiedDayView({
                     >
                       {/* Dot */}
                       <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${
-                        stats.isComplete && isPast
-                          ? isSelected 
-                            ? 'bg-green-500 ring-4 ring-green-200'
-                            : 'bg-green-500'
-                          : isSelected
-                            ? 'bg-orange-500 ring-4 ring-orange-200'
-                            : isToday
-                              ? 'bg-orange-500'
-                              : isPast && stats.total > 0
-                                ? 'bg-gray-300'
-                                : 'bg-gray-200'
+                        isTodayComplete
+                          ? isSelected
+                            ? 'bg-green-500 ring-4 ring-gray-500'
+                            : 'bg-green-500 ring-2 ring-gray-500'
+                          : stats.isComplete && isPast
+                            ? isSelected 
+                              ? 'bg-green-500 ring-4 ring-green-200'
+                              : 'bg-green-500'
+                            : isSelected
+                              ? 'bg-orange-500 ring-4 ring-orange-200'
+                              : isToday
+                                ? 'bg-orange-500'
+                                : isPast && stats.total > 0
+                                  ? 'bg-gray-300'
+                                  : 'bg-gray-200'
                       }`}>
-                        {stats.isComplete && isPast && (
+                        {(stats.isComplete && (isPast || isTodayComplete)) && (
                           <Check className="w-3 h-3 text-white" strokeWidth={3} />
                         )}
                       </div>
                       
                       {/* Day name */}
                       <span className={`text-xs font-semibold mt-1 uppercase ${
-                        isSelected && stats.isComplete && isPast ? 'text-green-600' : isSelected ? 'text-orange-600' : isToday ? 'text-orange-500' : 'text-gray-500'
+                        isTodayComplete 
+                          ? 'text-green-600' 
+                          : isSelected && stats.isComplete && isPast 
+                            ? 'text-green-600' 
+                            : isSelected 
+                              ? 'text-orange-600' 
+                              : isToday 
+                                ? 'text-orange-500' 
+                                : 'text-gray-500'
                       }`}>
                         {dayNamesShort[day.getDay()]}
                       </span>
                       
                       {/* Day number */}
                       <span className={`text-lg font-bold ${
-                        isSelected && stats.isComplete && isPast ? 'text-green-600' : isSelected ? 'text-orange-600' : isToday ? 'text-orange-500' : 'text-gray-700'
+                        isTodayComplete 
+                          ? 'text-green-600' 
+                          : isSelected && stats.isComplete && isPast 
+                            ? 'text-green-600' 
+                            : isSelected 
+                              ? 'text-orange-600' 
+                              : isToday 
+                                ? 'text-orange-500' 
+                                : 'text-gray-700'
                       }`}>
                         {day.getDate()}
                       </span>
