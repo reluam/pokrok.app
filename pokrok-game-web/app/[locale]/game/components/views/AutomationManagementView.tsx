@@ -316,7 +316,7 @@ export function AutomationManagementView({
       </div>
 
       {/* Edit/Create Modal */}
-      {showModal && createPortal(
+      {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => {
           setEditingAutomation(null)
           setShowModal(false)
@@ -551,8 +551,6 @@ export function AutomationManagementView({
                           </div>
                         )}
                       </div>
-                    </>
-                  )}
 
                   {/* Goal-specific fields - placeholder for future */}
                   {formData.type === 'goal' && (
@@ -624,8 +622,7 @@ export function AutomationManagementView({
               </button>
             </div>
           </div>
-        </div>,
-        document.body
+        </div>
       )}
     </div>
   )

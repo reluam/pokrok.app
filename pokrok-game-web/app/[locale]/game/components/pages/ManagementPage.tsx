@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { AspiraceView } from '../views/AspiraceView'
 import { HabitsManagementView } from '../views/HabitsManagementView'
 import { GoalsManagementView } from '../views/GoalsManagementView'
 import { StepsManagementView } from '../views/StepsManagementView'
@@ -12,16 +11,6 @@ interface ManagementPageProps {
   goals?: any[]
   habits?: any[]
   dailySteps?: any[]
-  aspirations?: any[]
-  setAspirations?: (aspirations: any[]) => void
-  overviewAspirations?: any[]
-  overviewBalances?: Record<string, any>
-  isLoadingOverview?: boolean
-  showAddAspirationModal?: boolean
-  setShowAddAspirationModal?: (show: boolean) => void
-  editingAspiration?: any | null
-  setEditingAspiration?: (aspiration: any | null) => void
-  setOverviewAspirations?: (aspirations: any[]) => void
   setOverviewBalances?: (setter: (prev: Record<string, any>) => Record<string, any>) => void
   onGoalsUpdate?: (goals: any[]) => void
   onHabitsUpdate?: (habits: any[]) => void
@@ -36,16 +25,6 @@ export function ManagementPage({
   goals = [],
   habits = [],
   dailySteps = [],
-  aspirations = [],
-  setAspirations,
-  overviewAspirations = [],
-  overviewBalances = {},
-  isLoadingOverview = false,
-  showAddAspirationModal = false,
-  setShowAddAspirationModal,
-  editingAspiration = null,
-  setEditingAspiration,
-  setOverviewAspirations,
   setOverviewBalances,
   onGoalsUpdate,
   onHabitsUpdate,
@@ -56,37 +35,13 @@ export function ManagementPage({
   player = null
 }: ManagementPageProps) {
   const t = useTranslations()
-  const [currentManagementProgram, setCurrentManagementProgram] = useState<'aspirace' | 'goals' | 'habits' | 'steps' | 'automations'>('aspirace')
-
-  const renderAspiraceContent = () => {
-    return (
-      <AspiraceView
-        overviewAspirations={overviewAspirations}
-        overviewBalances={overviewBalances}
-        aspirations={aspirations}
-        setAspirations={setAspirations || (() => {})}
-        goals={goals}
-        habits={habits}
-        onGoalsUpdate={onGoalsUpdate}
-        onHabitsUpdate={onHabitsUpdate}
-        isLoadingOverview={isLoadingOverview}
-        showAddAspirationModal={showAddAspirationModal}
-        setShowAddAspirationModal={setShowAddAspirationModal || (() => {})}
-        editingAspiration={editingAspiration}
-        setEditingAspiration={setEditingAspiration || (() => {})}
-        setOverviewAspirations={setOverviewAspirations || (() => {})}
-        setOverviewBalances={setOverviewBalances || (() => {})}
-      />
-    )
-  }
+  const [currentManagementProgram, setCurrentManagementProgram] = useState<'goals' | 'habits' | 'steps' | 'automations'>('goals')
 
   const renderGoalsContent = () => {
     return (
       <GoalsManagementView
         goals={goals}
-        aspirations={aspirations}
         onGoalsUpdate={onGoalsUpdate}
-        setOverviewBalances={setOverviewBalances}
         userId={userId}
         player={player}
       />
@@ -97,11 +52,9 @@ export function ManagementPage({
     return (
       <HabitsManagementView
         habits={habits}
-        aspirations={aspirations}
         onHabitsUpdate={onHabitsUpdate}
         handleHabitToggle={handleHabitToggle}
         loadingHabits={loadingHabits}
-        setOverviewBalances={setOverviewBalances}
       />
     )
   }
@@ -133,16 +86,6 @@ export function ManagementPage({
       {/* Program Selector - Link Navigation */}
       <div className="px-4 py-2 border-b border-gray-200 bg-white">
         <div className="flex items-center justify-between">
-          <button
-            onClick={() => setCurrentManagementProgram('aspirace')}
-            className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
-              currentManagementProgram === 'aspirace'
-                ? 'text-orange-600 border-orange-600'
-                : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
-            }`}
-          >
-            {t('game.menu.aspirace')}
-          </button>
           <button
             onClick={() => setCurrentManagementProgram('goals')}
             className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
@@ -188,7 +131,6 @@ export function ManagementPage({
       
       {/* Program Content */}
       <div className="flex-1 overflow-y-auto">
-        {currentManagementProgram === 'aspirace' && renderAspiraceContent()}
         {currentManagementProgram === 'goals' && renderGoalsContent()}
         {currentManagementProgram === 'habits' && renderHabitsContent()}
         {currentManagementProgram === 'steps' && renderStepsContent()}
@@ -197,4 +139,3 @@ export function ManagementPage({
     </div>
   )
 }
-

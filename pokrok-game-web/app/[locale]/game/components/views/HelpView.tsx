@@ -878,7 +878,6 @@ export function HelpView({
                   <GoalsManagementView
                     goals={goals}
                     onGoalsUpdate={() => {}}
-                    setOverviewBalances={() => {}}
                     userId={null}
                     player={null}
                   />
@@ -1120,7 +1119,6 @@ export function HelpView({
                     onHabitsUpdate={() => {}}
                     handleHabitToggle={async () => {}}
                     loadingHabits={new Set()}
-                    setOverviewBalances={() => {}}
                   />
                 </div>
               </div>

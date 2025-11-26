@@ -725,9 +725,7 @@ export function JourneyGameView({
   const [stepIsImportant, setStepIsImportant] = useState<boolean>(false)
   const [stepIsUrgent, setStepIsUrgent] = useState<boolean>(false)
   const [stepGoalId, setStepGoalId] = useState<string | null>(null)
-  const [stepAspirationId, setStepAspirationId] = useState<string | null>(null)
   const [showStepGoalPicker, setShowStepGoalPicker] = useState(false)
-  const [showStepAspirationPicker, setShowStepAspirationPicker] = useState(false)
   const [stepDeadline, setStepDeadline] = useState<string>('')
 
   // Habit detail tabs
@@ -801,7 +799,6 @@ export function JourneyGameView({
       setStepIsImportant(selectedItem.is_important || false)
       setStepIsUrgent(selectedItem.is_urgent || false)
       setStepGoalId(selectedItem.goal_id || null)
-      setStepAspirationId(selectedItem.aspiration_id || null)
       setStepDeadline(selectedItem.deadline ? (typeof selectedItem.deadline === 'string' ? selectedItem.deadline.split('T')[0] : new Date(selectedItem.deadline).toISOString().split('T')[0]) : '')
     }
     
@@ -811,10 +808,8 @@ export function JourneyGameView({
       setEditingGoalTitle(false)
       setGoalDate(selectedItem.target_date || '')
       setShowGoalDatePicker(false)
-      setShowGoalAreaEditor(false)
       setShowGoalStatusEditor(false)
       setGoalStatus(selectedItem.status || 'active')
-      setGoalAreaId(selectedItem.area_id || '')
     }
     
     if (selectedItem && selectedItemType === 'habit') {
@@ -1128,7 +1123,6 @@ export function JourneyGameView({
             is_important: stepIsImportant,
             is_urgent: stepIsUrgent,
             goal_id: stepGoalId,
-            aspiration_id: stepAspirationId,
             deadline: stepDeadline || null
           })
         })
@@ -1412,7 +1406,6 @@ export function JourneyGameView({
                     onClick={() => {
                       setShowTimeEditor(false)
                       setShowDatePicker(false)
-                      setShowStepAspirationPicker(false)
                       setShowStepGoalPicker(!showStepGoalPicker)
                     }}
                     className={`text-sm px-4 py-2 rounded-full font-medium transition-colors ${
@@ -1440,7 +1433,6 @@ export function JourneyGameView({
                           key={goal.id}
                           onClick={() => {
                             setStepGoalId(goal.id)
-                            setStepAspirationId(null) // Clear aspiration when goal is selected
                             setShowStepGoalPicker(false)
                             handleSaveStep()
                           }}
@@ -1454,60 +1446,6 @@ export function JourneyGameView({
                     </div>
                   )}
                 </div>
-                
-                {/* Aspiration picker - only show if no goal is selected */}
-                {!stepGoalId && (
-                <div className="relative">
-                  <button
-                    onClick={() => {
-                      setShowTimeEditor(false)
-                      setShowDatePicker(false)
-                      setShowStepGoalPicker(false)
-                      setShowStepAspirationPicker(!showStepAspirationPicker)
-                    }}
-                    className={`text-sm px-4 py-2 rounded-full font-medium transition-colors ${
-                      stepAspirationId 
-                        ? 'bg-blue-200 bg-opacity-80 text-blue-800 hover:bg-blue-300' 
-                        : 'bg-gray-200 bg-opacity-80 text-gray-600 hover:bg-gray-300'
-                    }`}
-                  >
-                    ✨ {stepAspirationId ? aspirations.find(a => a.id === stepAspirationId)?.title || t('details.step.aspiration') : t('details.step.aspiration')}
-                  </button>
-                  {showStepAspirationPicker && (
-                    <div className="absolute top-full left-0 mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-2xl z-50 min-w-[200px] max-h-64 overflow-y-auto">
-                      <button
-                        onClick={() => {
-                          setStepAspirationId(null)
-                          setShowStepAspirationPicker(false)
-                          handleSaveStep()
-                        }}
-                        className="w-full text-left px-4 py-3 text-sm hover:bg-blue-50 border-b border-gray-100 font-medium transition-colors"
-                      >
-                        {t('details.step.noAspiration')}
-                      </button>
-                      {aspirations.map((aspiration) => (
-                        <button
-                          key={aspiration.id}
-                          onClick={() => {
-                            setStepAspirationId(aspiration.id)
-                            setShowStepAspirationPicker(false)
-                            handleSaveStep()
-                          }}
-                          className={`w-full text-left px-4 py-3 text-sm hover:bg-blue-50 transition-colors flex items-center gap-2 ${
-                            stepAspirationId === aspiration.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-700'
-                          }`}
-                        >
-                          <div 
-                            className="w-3 h-3 rounded-full flex-shrink-0"
-                            style={{ backgroundColor: aspiration.color || '#3B82F6' }}
-                          ></div>
-                          {aspiration.title}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                )}
                 
               </div>
 
@@ -2166,9 +2104,7 @@ export function JourneyGameView({
       case 'goal':
         // Create a goal object that matches GoalEditingForm's expected format
         const goalForEditing = {
-          ...item,
-          areaId: item.area_id || item.areaId || '',
-          aspirationId: item.aspiration_id || item.aspirationId || ''
+          ...item
         }
         
         const handleUpdateGoalForDetail = async (goalId: string, updates: any) => {
@@ -3450,7 +3386,7 @@ export function JourneyGameView({
                 <Footprints className="w-4 h-4" />
                 <span>{stepsCount}</span>
                   </div>
-                  
+
               {/* Date - clickable */}
               <div 
                 ref={dateRef}
@@ -3723,8 +3659,6 @@ export function JourneyGameView({
           title: newGoal.title,
           description: newGoal.description,
           targetDate: newGoal.target_date,
-          areaId: newGoal.areaId,
-          aspirationId: newGoal.aspirationId,
           status: newGoal.status,
           steps: newGoal.steps.map(step => ({
             title: step.title,
@@ -4348,8 +4282,6 @@ export function JourneyGameView({
       title: goal.title,
       description: goal.description || '',
       target_date: goal.target_date ? new Date(goal.target_date).toISOString().split('T')[0] : '',
-      areaId: goal.areaId || '',
-      aspirationId: goal.aspirationId || '',
       status: goal.status || 'active'
     })
     
@@ -4357,8 +4289,6 @@ export function JourneyGameView({
       title: goal.title,
       description: goal.description || '',
       target_date: goal.target_date ? new Date(goal.target_date).toISOString().split('T')[0] : '',
-      areaId: goal.areaId || '',
-      aspirationId: goal.aspirationId || '',
       status: goal.status || 'active',
       steps: [] as Array<{ id: string; title: string; description?: string; date?: string; completed?: boolean; isEditing?: boolean }>
     })
@@ -4371,23 +4301,14 @@ export function JourneyGameView({
         formData.title !== original.title ||
         formData.description !== original.description ||
         formData.target_date !== original.target_date ||
-        formData.areaId !== original.areaId ||
-        formData.aspirationId !== original.aspirationId ||
         formData.status !== original.status
       )
     }, [formData])
-    const [aspirations, setAspirations] = useState<any[]>([])
     const [showGoalDatePicker, setShowGoalDatePicker] = useState(false)
-    const [showAreaPicker, setShowAreaPicker] = useState(false)
-    const [showAspirationPicker, setShowAspirationPicker] = useState(false)
     const [showStatusPicker, setShowStatusPicker] = useState(false)
     const [datePickerButtonRef, setDatePickerButtonRef] = useState<HTMLButtonElement | null>(null)
-    const [areaPickerButtonRef, setAreaPickerButtonRef] = useState<HTMLButtonElement | null>(null)
-    const [aspirationPickerButtonRef, setAspirationPickerButtonRef] = useState<HTMLButtonElement | null>(null)
     const [statusPickerButtonRef, setStatusPickerButtonRef] = useState<HTMLButtonElement | null>(null)
     const [datePickerPosition, setDatePickerPosition] = useState<{ top: number; left: number } | null>(null)
-    const [areaPickerPosition, setAreaPickerPosition] = useState<{ top: number; left: number; maxHeight: number } | null>(null)
-    const [aspirationPickerPosition, setAspirationPickerPosition] = useState<{ top: number; left: number; maxHeight: number } | null>(null)
     const [statusPickerPosition, setStatusPickerPosition] = useState<{ top: number; left: number } | null>(null)
 
     // Calculate dropdown positions when they open
@@ -4404,34 +4325,6 @@ export function JourneyGameView({
     }, [showGoalDatePicker, datePickerButtonRef])
 
     useLayoutEffect(() => {
-      if (showAreaPicker && areaPickerButtonRef) {
-        const rect = areaPickerButtonRef.getBoundingClientRect()
-        const availableHeight = window.innerHeight - rect.bottom - 4
-        setAreaPickerPosition({
-          top: rect.bottom - 2,
-          left: rect.left,
-          maxHeight: availableHeight < 256 ? availableHeight : 256
-        })
-      } else {
-        setAreaPickerPosition(null)
-      }
-    }, [showAreaPicker, areaPickerButtonRef])
-
-    useLayoutEffect(() => {
-      if (showAspirationPicker && aspirationPickerButtonRef) {
-        const rect = aspirationPickerButtonRef.getBoundingClientRect()
-        const availableHeight = window.innerHeight - rect.bottom - 4
-        setAspirationPickerPosition({
-          top: rect.bottom - 2,
-          left: rect.left,
-          maxHeight: availableHeight < 256 ? availableHeight : 256
-        })
-      } else {
-        setAspirationPickerPosition(null)
-      }
-    }, [showAspirationPicker, aspirationPickerButtonRef])
-
-    useLayoutEffect(() => {
       if (showStatusPicker && statusPickerButtonRef) {
         const rect = statusPickerButtonRef.getBoundingClientRect()
         setStatusPickerPosition({
@@ -4443,9 +4336,9 @@ export function JourneyGameView({
       }
     }, [showStatusPicker, statusPickerButtonRef])
 
-    // Load steps and aspirations for this goal - only once per goal using global cache
+    // Load steps for this goal - only once per goal using global cache
     useEffect(() => {
-      const loadStepsAndAspirations = async () => {
+      const loadSteps = async () => {
         // Load steps for this goal - check cache first
         if (goal.id) {
           if (stepsCacheRef.current[goal.id]?.loaded) {
@@ -4508,29 +4401,9 @@ export function JourneyGameView({
             }
           }
         }
-
-        // Load aspirations - only once using global cache
-        if (aspirationsCacheRef.current.loaded) {
-          // Use cached data
-          setAspirations(aspirationsCacheRef.current.data)
-        } else {
-          // Load from API
-          try {
-            const aspirationsResponse = await fetch('/api/aspirations')
-            if (aspirationsResponse.ok) {
-              const aspirationsData = await aspirationsResponse.json()
-              const aspirationsArray = Array.isArray(aspirationsData) ? aspirationsData : []
-              setAspirations(aspirationsArray)
-              // Store in cache
-              aspirationsCacheRef.current = { data: aspirationsArray, loaded: true }
-            }
-          } catch (error) {
-            console.error('Error loading aspirations:', error)
-          }
-        }
       }
 
-      loadStepsAndAspirations()
+      loadSteps()
     }, [goal.id])
 
     // Watch for cache updates and sync formData.steps
@@ -4683,8 +4556,6 @@ export function JourneyGameView({
         title: formData.title,
         description: formData.description,
         target_date: formData.target_date ? new Date(formData.target_date).toISOString() : null,
-        areaId: formData.areaId || null,
-        aspirationId: formData.aspirationId || null,
         status: formData.status
       }
       await onUpdate(goal.id, updates)
@@ -4694,8 +4565,6 @@ export function JourneyGameView({
         title: formData.title,
         description: formData.description,
         target_date: formData.target_date,
-        areaId: formData.areaId,
-        aspirationId: formData.aspirationId,
         status: formData.status
       }
       
@@ -4838,7 +4707,6 @@ export function JourneyGameView({
                     onClick={(e) => {
                       e.stopPropagation()
                       setShowGoalDatePicker(!showGoalDatePicker)
-                      setShowAreaPicker(false)
                       setShowStatusPicker(false)
                     }}
                     className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
@@ -4884,88 +4752,6 @@ export function JourneyGameView({
                   )}
           </div>
           
-                {/* Aspiration Picker Icon */}
-                <div className="relative">
-                  <button
-                    ref={setAspirationPickerButtonRef}
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setShowAspirationPicker(!showAspirationPicker)
-                      setShowGoalDatePicker(false)
-                      setShowAreaPicker(false)
-                      setShowStatusPicker(false)
-                    }}
-                    className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
-                      formData.aspirationId 
-                        ? 'border-purple-300 bg-purple-50 text-purple-700' 
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-purple-300'
-                    }`}
-                    title={t('goals.aspiration')}
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span className="font-medium">
-                      {formData.aspirationId 
-                        ? aspirations.find((a: any) => a.id === formData.aspirationId)?.title || t('goals.aspiration')
-                        : t('goals.aspiration')}
-                    </span>
-                    <ChevronDown className={`w-3 h-3 transition-transform ${showAspirationPicker ? 'rotate-180' : ''}`} />
-                  </button>
-                  {showAspirationPicker && aspirationPickerPosition && (
-                    <>
-                      <div 
-                        className="fixed inset-0 z-40" 
-                        onClick={() => setShowAspirationPicker(false)}
-                      />
-                      <div 
-                        className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[200px] max-h-64 overflow-y-auto"
-                        style={{
-                          top: `${aspirationPickerPosition.top}px`,
-                          left: `${aspirationPickerPosition.left}px`,
-                          maxHeight: `${aspirationPickerPosition.maxHeight}px`
-                        }}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setFormData({...formData, aspirationId: ''})
-                            setShowAspirationPicker(false)
-                          }}
-                          className="w-full text-left px-4 py-3 text-sm hover:bg-purple-50 border-b border-gray-100 font-medium transition-colors"
-                        >
-                          {t('goals.noAspiration')}
-                        </button>
-                        {aspirations.map((aspiration: any) => (
-                          <button
-                            key={aspiration.id}
-                            type="button"
-                            onClick={() => {
-                              setFormData({...formData, aspirationId: aspiration.id})
-                              setShowAspirationPicker(false)
-                            }}
-                            className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors flex items-center gap-2 ${
-                              formData.aspirationId === aspiration.id ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
-                            }`}
-                          >
-                            <div 
-                              className="w-3 h-3 rounded-full flex-shrink-0"
-                              style={{ backgroundColor: aspiration.color || '#3B82F6' }}
-                            ></div>
-                            {aspiration.title}
-                          </button>
-                        ))}
-                        {aspirations.length === 0 && (
-                          <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                            {t('goals.noAspiration')}
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  )}
-          </div>
-          
                 {/* Status Picker Icon */}
                 <div className="relative">
                   <button
@@ -4975,7 +4761,6 @@ export function JourneyGameView({
                       e.stopPropagation()
                       setShowStatusPicker(!showStatusPicker)
                       setShowGoalDatePicker(false)
-                      setShowAreaPicker(false)
                     }}
                     className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
                       formData.status === 'active' 
@@ -5379,7 +5164,7 @@ export function JourneyGameView({
                 </div>
               )}
             </div>
-          </div>
+              </div>
         </div>
         
         <div className="flex gap-3 mt-6 pt-6 border-t-2 border-gray-200 flex-shrink-0">
@@ -5948,15 +5733,11 @@ export function JourneyGameView({
                       setNewGoal({
                         title: '',
                         description: '',
-                        areaId: null,
-                        aspirationId: null,
                         target_date: null,
                         status: 'active',
                         steps: []
                       })
                       setShowGoalDatePicker(false)
-                      setShowAreaPicker(false)
-                      setShowAspirationPicker(false)
                       setShowStatusPicker(false)
                     }}
                     className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 transition-colors"
@@ -6007,7 +5788,6 @@ export function JourneyGameView({
                             onClick={(e) => {
                               e.stopPropagation()
                               setShowGoalDatePicker(!showGoalDatePicker)
-                              setShowAreaPicker(false)
                               setShowStatusPicker(false)
                             }}
                             className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
@@ -6053,82 +5833,6 @@ export function JourneyGameView({
                           )}
                   </div>
                   
-                        {/* Aspiration Picker Icon */}
-                        <div className="relative">
-                          <button
-                            ref={setAspirationPickerButtonRef}
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setShowAspirationPicker(!showAspirationPicker)
-                              setShowGoalDatePicker(false)
-                              setShowAreaPicker(false)
-                              setShowStatusPicker(false)
-                            }}
-                            className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
-                              newGoal.aspirationId 
-                                ? 'border-purple-300 bg-purple-50 text-purple-700' 
-                                : 'border-gray-200 bg-white text-gray-700 hover:border-purple-300'
-                            }`}
-                            title={t('goals.aspiration')}
-                          >
-                            <span className="text-base">✨</span>
-                            <span className="font-medium">
-                              {newGoal.aspirationId 
-                                ? aspirations.find((a: any) => a.id === newGoal.aspirationId)?.title || t('goals.aspiration')
-                                : t('goals.aspiration')}
-                            </span>
-                            <ChevronDown className={`w-3 h-3 transition-transform ${showAspirationPicker ? 'rotate-180' : ''}`} />
-                          </button>
-                          {showAspirationPicker && aspirationPickerPosition && (
-                            <>
-                              <div 
-                                className="fixed inset-0 z-40" 
-                                onClick={() => setShowAspirationPicker(false)}
-                              />
-                              <div 
-                                className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[200px] max-h-64 overflow-y-auto"
-                                style={{
-                                  top: `${aspirationPickerPosition.top}px`,
-                                  left: `${aspirationPickerPosition.left}px`,
-                                  maxHeight: `${aspirationPickerPosition.maxHeight}px`
-                                }}
-                    >
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setNewGoal({...newGoal, aspirationId: null as any})
-                                    setShowAspirationPicker(false)
-                                  }}
-                                  className="w-full text-left px-4 py-3 text-sm hover:bg-purple-50 border-b border-gray-100 font-medium transition-colors"
-                                >
-                                  {t('goals.noAspiration')}
-                                </button>
-                                {aspirations.map((aspiration: any) => (
-                                  <button
-                                    key={aspiration.id}
-                                    type="button"
-                                    onClick={() => {
-                                      setNewGoal({...newGoal, aspirationId: aspiration.id})
-                                      setShowAspirationPicker(false)
-                                    }}
-                                    className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
-                                      newGoal.aspirationId === aspiration.id ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
-                                    }`}
-                                  >
-                            {aspiration.title}
-                                  </button>
-                                ))}
-                                {aspirations.length === 0 && (
-                                  <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                                    {t('goals.noAspiration')}
-                                  </div>
-                                )}
-                              </div>
-                            </>
-                          )}
-                  </div>
-                  
                         {/* Status Picker Icon */}
                         <div className="relative">
                           <button
@@ -6138,8 +5842,6 @@ export function JourneyGameView({
                               e.stopPropagation()
                               setShowStatusPicker(!showStatusPicker)
                               setShowGoalDatePicker(false)
-                              setShowAreaPicker(false)
-                              setShowAspirationPicker(false)
                             }}
                             className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
                               newGoal.status === 'active' 
@@ -6398,15 +6100,11 @@ export function JourneyGameView({
                         setNewGoal({
                           title: '',
                           description: '',
-                          areaId: null,
-                          aspirationId: null,
                           target_date: null,
                         status: 'active',
                         steps: []
                         })
                       setShowGoalDatePicker(false)
-                      setShowAreaPicker(false)
-                      setShowAspirationPicker(false)
                       setShowStatusPicker(false)
                       }}
                     className="px-6 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-200 transition-all"
@@ -6433,17 +6131,6 @@ export function JourneyGameView({
               <option value="considering">{t('goals.filters.status.considering')}</option>
             </select>
             
-            {/* Aspiration Filter */}
-            <select
-              value={goalsAspirationFilter || ''}
-              onChange={(e) => setGoalsAspirationFilter(e.target.value || null)}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white min-w-[150px]"
-            >
-              <option value="">{t('goals.filters.aspiration.all')}</option>
-              {aspirations.map((aspiration: any) => (
-                <option key={aspiration.id} value={aspiration.id}>{aspiration.title}</option>
-              ))}
-            </select>
           </div>
           
           {/* Add Button */}
@@ -6465,7 +6152,6 @@ export function JourneyGameView({
                     <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 first:pl-6">Název</th>
                     <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">Status</th>
                     <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Datum</th>
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Aspirace</th>
                     <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-12 last:pr-6"></th>
                   </tr>
                 </thead>
@@ -6476,15 +6162,9 @@ export function JourneyGameView({
                     return false
                   }
                   
-                  // Filter by aspiration
-                  if (goalsAspirationFilter && (goal.aspiration_id || goal.aspirationId) !== goalsAspirationFilter) {
-                    return false
-                  }
-                  
                   return true
                 }).map((goal, index) => {
                   const isEditing = editingGoal && editingGoal.id === goal.id
-                  const goalAspiration = goal.aspiration_id || goal.aspirationId ? aspirations.find((a: any) => a.id === (goal.aspiration_id || goal.aspirationId)) : null
                   
                     return (
                     <Fragment key={goal.id}>
@@ -6542,32 +6222,6 @@ export function JourneyGameView({
                               <span className="text-gray-400">Bez data</span>
                             )}
                           </span>
-                        </td>
-                        <td className="px-4 py-2 last:pr-6">
-                          <div
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                              setQuickEditGoalPosition({ top: rect.bottom + 4, left: rect.left })
-                              setQuickEditGoalId(goal.id)
-                              setQuickEditGoalField('aspiration')
-                            }}
-                            className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
-                          >
-                            {goalAspiration ? (
-                              <>
-                                <div 
-                                  className="w-3 h-3 rounded-full"
-                                  style={{ backgroundColor: goalAspiration.color || '#9333EA' }}
-                                />
-                                <span className="text-xs text-gray-700 truncate max-w-[150px]">
-                                  {goalAspiration.title}
-                                </span>
-                              </>
-                            ) : (
-                              <span className="text-xs text-gray-400">Bez aspirace</span>
-                            )}
-                          </div>
                         </td>
                         <td className="px-4 py-2 last:pr-6">
                           <button
@@ -6762,76 +6416,6 @@ export function JourneyGameView({
                         >
                           {t('goals.status.considering')}
               </button>
-            </div>
-                    </>
-                  )
-                }
-                
-                if (quickEditGoalField === 'aspiration') {
-                  return (
-                    <>
-                      <div className="max-h-[300px] overflow-y-auto">
-                        <button
-                          onClick={async (e) => {
-                            e.stopPropagation()
-                            try {
-                              const response = await fetch('/api/goals', {
-                                method: 'PUT',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ goalId: goal.id, aspirationId: null })
-                              })
-                              if (response.ok) {
-                                const updatedGoal = await response.json()
-                                const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
-                                onGoalsUpdate?.(updatedGoals)
-                                setQuickEditGoalId(null)
-                                setQuickEditGoalField(null)
-                                setQuickEditGoalPosition(null)
-                              }
-                            } catch (error) {
-                              console.error('Error updating goal aspiration:', error)
-                            }
-                          }}
-                          className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
-                            !goal.aspiration_id && !goal.aspirationId ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
-                          }`}
-                        >
-                          {t('goals.noAspiration') || 'Bez aspirace'}
-                        </button>
-                        {aspirations.map((aspiration: any) => (
-                          <button
-                            key={aspiration.id}
-                            onClick={async (e) => {
-                              e.stopPropagation()
-                              try {
-                                const response = await fetch('/api/goals', {
-                                  method: 'PUT',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ goalId: goal.id, aspirationId: aspiration.id })
-                                })
-                                if (response.ok) {
-                                  const updatedGoal = await response.json()
-                                  const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
-                                  onGoalsUpdate?.(updatedGoals)
-                                  setQuickEditGoalId(null)
-                                  setQuickEditGoalField(null)
-                                  setQuickEditGoalPosition(null)
-                                }
-                              } catch (error) {
-                                console.error('Error updating goal aspiration:', error)
-                              }
-                            }}
-                            className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors flex items-center gap-2 ${
-                              (goal.aspiration_id || goal.aspirationId) === aspiration.id ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
-                            }`}
-                          >
-                            <div 
-                              className="w-3 h-3 rounded-full flex-shrink-0"
-                              style={{ backgroundColor: aspiration.color || '#9333EA' }}
-                            ></div>
-                            <span className="truncate">{aspiration.title}</span>
-                          </button>
-                        ))}
                       </div>
                     </>
                   )
@@ -7324,7 +6908,7 @@ export function JourneyGameView({
                 </div>
               )}
               <div className="flex-1 overflow-y-auto">
-                {renderMainContent()}
+              {renderMainContent()}
               </div>
             </div>
           </div>
@@ -7478,64 +7062,6 @@ export function JourneyGameView({
                 </div>
               </div>
               
-              <div ref={goalsRef} style={{ width: '288px' }}>
-                <div className="bg-white bg-opacity-95 rounded-2xl p-6 border border-orange-200 shadow-xl backdrop-blur-sm">
-                  <h4 className="text-base font-bold text-orange-800 mb-4">VÝVOJ ASPIRACE</h4>
-                  <div className="space-y-4">
-                    {aspirations.slice(0, 4).map((aspiration) => {
-                      const balance = dayAspirationBalances[aspiration.id]
-                      const changePercentage = balance?.change_percentage || 0
-                      const trend = balance?.trend || 'neutral'
-                      const completionRate = balance?.completion_rate_recent || 0
-                      
-                      return (
-                        <div key={aspiration.id} className="bg-white border border-orange-200 rounded-xl p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                              <div 
-                                className="w-3 h-3 rounded-full flex-shrink-0" 
-                                style={{ backgroundColor: aspiration.color || '#3B82F6' }}
-                              />
-                              <h5 className="font-semibold text-gray-800 truncate">{aspiration.title}</h5>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {trend === 'positive' && (
-                              <ChevronUp className="w-4 h-4 text-green-600 flex-shrink-0" />
-                            )}
-                            {trend === 'negative' && (
-                              <ChevronDown className="w-4 h-4 text-red-600 flex-shrink-0" />
-                            )}
-                            {trend === 'neutral' && (
-                              <div className="w-4 h-4 flex-shrink-0" />
-                            )}
-                            {changePercentage !== 0 && (
-                              <span className={`text-sm font-medium ${
-                                trend === 'positive' ? 'text-green-600' : 
-                                trend === 'negative' ? 'text-red-600' : 
-                                'text-gray-600'
-                              }`}>
-                                {changePercentage > 0 ? '+' : ''}{changePercentage.toFixed(1)}%
-                              </span>
-                            )}
-                            {changePercentage === 0 && trend === 'neutral' && (
-                              <span className="text-sm text-gray-500">
-                                {completionRate.toFixed(1)}%
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })}
-                    {aspirations.length === 0 && (
-                      <div className="text-center text-gray-500 py-4">
-                        <p className="text-sm">Žádné aspirace</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
               <div ref={stepsRef} style={{ width: '288px' }}>
                 <div className="bg-white bg-opacity-95 rounded-2xl p-6 text-gray-800 backdrop-blur-sm border border-orange-200 shadow-xl">
                   <h3 className="text-base font-bold mb-4 text-orange-800">{t('sections.steps')}</h3>
@@ -7583,17 +7109,17 @@ export function JourneyGameView({
             <div className="flex items-center space-x-4">
               {/* Desktop: Full menu buttons */}
               <div className="hidden md:flex items-center space-x-4">
-                <button
-                  onClick={() => setCurrentPage('main')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'main' ? 'bg-white bg-opacity-25' : ''}`}
-                  title={t('game.menu.mainPanel')}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                    <polyline points="9,22 9,12 15,12 15,22"/>
-                  </svg>
-                  <span className="text-sm font-medium">{t('game.menu.mainPanel')}</span>
-                </button>
+              <button
+                onClick={() => setCurrentPage('main')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'main' ? 'bg-white bg-opacity-25' : ''}`}
+                title={t('game.menu.mainPanel')}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <polyline points="9,22 9,12 15,12 15,22"/>
+                </svg>
+                <span className="text-sm font-medium">{t('game.menu.mainPanel')}</span>
+              </button>
               </div>
               
               {/* Mobile: Section name only */}
@@ -7606,7 +7132,7 @@ export function JourneyGameView({
                   {currentPage === 'achievements' && 'Úspěchy'}
                 </span>
               </div>
-            </div>
+                            </div>
 
             {/* Right - Statistics and Menu Icons */}
             <div className="flex items-center gap-6">
@@ -7615,7 +7141,7 @@ export function JourneyGameView({
                 <div className="flex items-center gap-1.5">
                   <svg className="w-4 h-4 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                  </svg>
+                              </svg>
                   <span className="text-white font-semibold text-sm">{totalXp}</span>
                   <span className="text-white opacity-75 text-xs">XP</span>
                 </div>
@@ -7623,32 +7149,32 @@ export function JourneyGameView({
                 <div className="flex items-center gap-1.5">
                   <svg className="w-4 h-4 text-white opacity-90" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/>
-                  </svg>
+                              </svg>
                   <span className="text-white font-semibold text-sm">{loginStreak}</span>
                   <span className="text-white opacity-75 text-xs">Streak</span>
-                </div>
-              </div>
+                                                </div>
+                                              </div>
 
               {/* Menu Icons - Desktop: Full buttons, Mobile: Hamburger menu */}
               <div className="hidden md:flex items-center space-x-4 lg:border-l lg:border-white lg:border-opacity-30 lg:pl-6">
-                <button
-                  onClick={() => setCurrentPage('help')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'help' ? 'bg-white bg-opacity-25' : ''}`}
-                  title="Nápověda"
-                >
-                  <HelpCircle className="w-5 h-5" />
-                  <span className="text-sm font-medium">Nápověda</span>
-                </button>
-                
-                <button
-                  onClick={() => setCurrentPage('settings')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'settings' ? 'bg-white bg-opacity-25' : ''}`}
-                  title={t('game.menu.settings')}
-                >
-                  <Settings className="w-5 h-5" strokeWidth="2" />
-                  <span className="text-sm font-medium">{t('game.menu.settings')}</span>
-                </button>
-              </div>
+              <button
+                onClick={() => setCurrentPage('help')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'help' ? 'bg-white bg-opacity-25' : ''}`}
+                title="Nápověda"
+              >
+                <HelpCircle className="w-5 h-5" />
+                <span className="text-sm font-medium">Nápověda</span>
+              </button>
+              
+              <button
+                onClick={() => setCurrentPage('settings')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'settings' ? 'bg-white bg-opacity-25' : ''}`}
+                title={t('game.menu.settings')}
+              >
+                <Settings className="w-5 h-5" strokeWidth="2" />
+                <span className="text-sm font-medium">{t('game.menu.settings')}</span>
+              </button>
+                                          </div>
               
               {/* Mobile: Hamburger menu */}
               <div className="md:hidden relative">
@@ -7719,10 +7245,10 @@ export function JourneyGameView({
                     </div>
                   </>
                 )}
-              </div>
-            </div>
-          </div>
-        </div>
+                                          </div>
+                                        </div>
+                                            </div>
+                                          </div>
 
         {/* Bottom divider line - separates menu from page content */}
         <div className="h-px bg-orange-300 opacity-50 w-full"></div>

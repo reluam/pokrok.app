@@ -13,32 +13,6 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🚀 Starting goal creation with new structure...')
     
-    // Ensure goal_milestones table exists
-    try {
-      await sql`
-        CREATE TABLE IF NOT EXISTS goal_milestones (
-          id VARCHAR(255) PRIMARY KEY,
-          user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          goal_id VARCHAR(255) NOT NULL REFERENCES goals(id) ON DELETE CASCADE,
-          title VARCHAR(255) NOT NULL,
-          description TEXT,
-          completed BOOLEAN DEFAULT FALSE,
-          completed_at TIMESTAMP WITH TIME ZONE,
-          "order" INTEGER NOT NULL DEFAULT 0,
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        )
-      `
-      // Create indexes if they don't exist
-      await sql`CREATE INDEX IF NOT EXISTS idx_goal_milestones_user_id ON goal_milestones(user_id)`
-      await sql`CREATE INDEX IF NOT EXISTS idx_goal_milestones_goal_id ON goal_milestones(goal_id)`
-      await sql`CREATE INDEX IF NOT EXISTS idx_goal_milestones_completed ON goal_milestones(completed)`
-      console.log('✅ goal_milestones table ensured')
-    } catch (tableError) {
-      console.error('⚠️ Error ensuring goal_milestones table:', tableError)
-      // Continue anyway - table might already exist
-    }
-    
     const { userId } = await auth()
     if (!userId) {
       console.log('❌ No user ID')
@@ -50,7 +24,6 @@ export async function POST(request: NextRequest) {
       description,
       targetDate,
       icon,
-      aspirationId,
       metrics,
       steps,
     } = await request.json()
@@ -89,10 +62,10 @@ export async function POST(request: NextRequest) {
     const goal = await sql`
       INSERT INTO goals (
         id, user_id, title, description, target_date, status, priority, 
-        category, goal_type, progress_percentage, icon, aspiration_id
+        category, goal_type, progress_percentage, icon
       ) VALUES (
         ${goalId}, ${dbUser.id}, ${title}, ${description || null}, ${targetDateObj}, 'active',
-        'meaningful', 'medium-term', 'outcome', 0, ${icon || null}, ${aspirationId || null}
+        'meaningful', 'medium-term', 'outcome', 0, ${icon || null}
       ) RETURNING *
     `
 
@@ -131,41 +104,19 @@ export async function POST(request: NextRequest) {
           const step = await sql`
             INSERT INTO daily_steps (
               id, user_id, goal_id, title, description, completed, 
-              date, is_important, is_urgent, aspiration_id
+              date, is_important, is_urgent
             ) VALUES (
               ${stepId}, ${dbUser.id}, ${goalId}, ${stepData.title}, 
               ${stepData.description || null}, false, ${targetDateObj || new Date()}, 
-              false, false, ${aspirationId || null}
+              false, false
             ) RETURNING 
               id, user_id, goal_id, title, description, completed, 
               TO_CHAR(date, 'YYYY-MM-DD') as date,
-              is_important, is_urgent, aspiration_id, 
+              is_important, is_urgent, 
               estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
           `
           createdSteps.push(step[0])
           console.log('✅ Step created:', step[0].id)
-        }
-      }
-    }
-
-    // Create milestones
-    const createdMilestones = []
-    if (milestones && milestones.length > 0) {
-      console.log('🏆 Creating milestones...')
-      for (let index = 0; index < milestones.length; index++) {
-        const milestoneData = milestones[index]
-        if (milestoneData.title && milestoneData.title.trim()) {
-          const milestoneId = randomUUID()
-          const milestone = await sql`
-            INSERT INTO goal_milestones (
-              id, user_id, goal_id, title, description, completed, "order"
-            ) VALUES (
-              ${milestoneId}, ${dbUser.id}, ${goalId}, ${milestoneData.title}, 
-              ${milestoneData.description || null}, false, ${index}
-            ) RETURNING *
-          `
-          createdMilestones.push(milestone[0])
-          console.log('✅ Milestone created:', milestone[0].id)
         }
       }
     }
@@ -175,8 +126,7 @@ export async function POST(request: NextRequest) {
       success: true,
       goal: createdGoal, 
       metrics: createdMetrics,
-      steps: createdSteps,
-      milestones: createdMilestones
+      steps: createdSteps
     })
   } catch (error) {
     console.error('❌ Error creating goal:', error)
@@ -190,4 +140,3 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-
