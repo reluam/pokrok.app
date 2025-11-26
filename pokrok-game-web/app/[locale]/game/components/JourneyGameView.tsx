@@ -2562,22 +2562,22 @@ export function JourneyGameView({
 
   const renderWorkflowContent = () => {
     if (!pendingWorkflow || pendingWorkflow.type !== 'daily_review') {
-      return (
+    return (
         <UnifiedDayView
-          player={player}
-          goals={goals}
-          habits={habits}
-          dailySteps={dailySteps}
+            player={player}
+            goals={goals}
+            habits={habits}
+            dailySteps={dailySteps}
           handleItemClick={handleItemClick}
           handleHabitToggle={handleHabitToggle}
           handleStepToggle={handleStepToggle}
           loadingHabits={loadingHabits}
           loadingSteps={loadingSteps}
           onOpenStepModal={handleOpenStepModal}
-          onNavigateToHabits={onNavigateToHabits}
-          onNavigateToSteps={onNavigateToSteps}
-        />
-      )
+            onNavigateToHabits={onNavigateToHabits}
+            onNavigateToSteps={onNavigateToSteps}
+          />
+    )
     }
 
     return (
@@ -6544,13 +6544,13 @@ export function JourneyGameView({
                         {sidebarItems.find(item => item.id === mainPanelSection)?.label || 'Přehled'}
                       </h2>
                       <div className="relative">
-                        <button
+                      <button
                           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                           className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
                           title="Menu"
                         >
                           <Menu className="w-5 h-5 text-gray-700" />
-                        </button>
+                      </button>
                         
                         {/* Mobile menu dropdown */}
                         {mobileMenuOpen && (
@@ -6565,7 +6565,7 @@ export function JourneyGameView({
                                 {sidebarItems.map((item) => {
                                   const Icon = item.icon
                                   return (
-                                    <button
+                      <button
                                       key={item.id}
                                       onClick={() => {
                                         setMainPanelSection(item.id)
@@ -6579,7 +6579,7 @@ export function JourneyGameView({
                                     >
                                       <Icon className="w-5 h-5 flex-shrink-0" />
                                       <span className="font-medium">{item.label}</span>
-                                    </button>
+                      </button>
                                   )
                                 })}
                               </nav>
@@ -6589,24 +6589,24 @@ export function JourneyGameView({
                       </div>
                     </div>
                   </div>
-                  
+
 
                   {/* Unified Day View */}
                   <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
                     <UnifiedDayView
-                      player={player}
-                      goals={goals}
-                      habits={habits}
-                      dailySteps={dailySteps}
-                      handleItemClick={handleItemClick}
-                      handleHabitToggle={handleHabitToggle}
-                      handleStepToggle={handleStepToggle}
-                      loadingHabits={loadingHabits}
-                      loadingSteps={loadingSteps}
-                      onOpenStepModal={handleOpenStepModal}
-                      onNavigateToHabits={onNavigateToHabits}
-                      onNavigateToSteps={onNavigateToSteps}
-                    />
+                        player={player}
+                        goals={goals}
+                        habits={habits}
+                        dailySteps={dailySteps}
+                        handleItemClick={handleItemClick}
+                        handleHabitToggle={handleHabitToggle}
+                        handleStepToggle={handleStepToggle}
+                        loadingHabits={loadingHabits}
+                        loadingSteps={loadingSteps}
+                        onOpenStepModal={handleOpenStepModal}
+                        onNavigateToHabits={onNavigateToHabits}
+                        onNavigateToSteps={onNavigateToSteps}
+                      />
                   </div>
                 </div>
               )
@@ -6652,19 +6652,19 @@ export function JourneyGameView({
         return (
           <div className="w-full h-full flex bg-white overflow-hidden">
             {/* Left sidebar - Navigation - Hidden on mobile */}
-            <div className={`hidden md:flex ${sidebarCollapsed ? 'w-16' : 'w-64'} border-r border-gray-200 bg-gray-50 flex-shrink-0 transition-all duration-300 relative h-full flex flex-col`}>
-              <div className="p-4 flex-1 overflow-y-auto">
+            <div className={`hidden md:flex ${sidebarCollapsed ? 'w-14' : 'w-64'} border-r border-gray-200 bg-gray-50 flex-shrink-0 transition-all duration-300 relative h-full flex flex-col`}>
+              <div className={`${sidebarCollapsed ? 'p-2 pt-12' : 'p-4'} flex-1 overflow-y-auto`}>
                 {!sidebarCollapsed && (
                   <h2 className="text-lg font-bold text-gray-900 mb-4">Navigace</h2>
                 )}
-                <nav className="space-y-1">
+                <nav className={`${sidebarCollapsed ? 'space-y-2 flex flex-col items-center' : 'space-y-1'}`}>
                   {sidebarItems.map((item) => {
                     const Icon = item.icon
                     return (
                       <button
                         key={item.id}
                         onClick={() => setMainPanelSection(item.id)}
-                        className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-4'} py-3 rounded-lg transition-colors ${
+                        className={`flex items-center ${sidebarCollapsed ? 'justify-center w-10 h-10' : 'w-full gap-3 px-4 py-3'} rounded-lg transition-colors ${
                           mainPanelSection === item.id
                             ? 'bg-orange-600 text-white'
                             : 'text-gray-700 hover:bg-gray-100'
@@ -6681,10 +6681,10 @@ export function JourneyGameView({
                 </nav>
               </div>
               
-              {/* Toggle button */}
+              {/* Toggle button - centered at top when collapsed */}
               <button
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                className="absolute top-4 -right-3 w-6 h-6 bg-orange-600 text-white rounded-full flex items-center justify-center hover:bg-orange-700 transition-colors shadow-md z-10"
+                className={`absolute ${sidebarCollapsed ? 'top-3 left-1/2 -translate-x-1/2' : 'top-4 -right-3'} w-6 h-6 bg-orange-600 text-white rounded-full flex items-center justify-center hover:bg-orange-700 transition-colors shadow-md z-10`}
                 title={sidebarCollapsed ? 'Rozbalit navigaci' : 'Sbalit navigaci'}
               >
                 {sidebarCollapsed ? (
