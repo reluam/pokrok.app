@@ -532,8 +532,9 @@ export function TodayFocusSection({
                     
                     {/* Desktop: Compact colored squares layout */}
                     <div className="hidden lg:block overflow-y-auto max-h-[500px]">
-                      {/* Header with day names */}
-                      <div className="flex items-center gap-1 mb-2">
+                      {/* Header with day names - aligned with checkboxes */}
+                      <div className="flex items-center gap-1 mb-1">
+                        <div className="w-[100px] flex-shrink-0" /> {/* Spacer for habit name */}
                         {weekDays.map((day) => {
                           const dateStr = getLocalDateString(day)
                           const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
@@ -543,7 +544,7 @@ export function TodayFocusSection({
                           return (
                             <div
                               key={dateStr}
-                              className={`w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded-md ${
+                              className={`w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded ${
                                 isSelected 
                                   ? 'bg-orange-500 text-white font-bold' 
                                   : isToday 
@@ -558,13 +559,13 @@ export function TodayFocusSection({
                         })}
                       </div>
                       
-                      {/* Habits with colored squares - name above checkboxes */}
-                      <div className="space-y-2">
+                      {/* Habits with colored squares - name on left, checkboxes on right */}
+                      <div className="space-y-1">
                         {weekHabits.map((habit) => (
-                          <div key={habit.id} className="flex flex-col">
+                          <div key={habit.id} className="flex items-center gap-1">
                             <button
                               onClick={() => handleItemClick(habit, 'habit')}
-                              className="text-left text-[11px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate mb-1"
+                              className="w-[100px] text-left text-[11px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate flex-shrink-0"
                               title={habit.name}
                             >
                               {habit.name}
@@ -586,7 +587,7 @@ export function TodayFocusSection({
                                       }
                                     }}
                                     disabled={isLoading}
-                                    className={`w-7 h-7 rounded-md flex items-center justify-center transition-all ${
+                                    className={`w-7 h-7 rounded flex items-center justify-center transition-all ${
                                       isCompleted
                                         ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
                                         : !isScheduled 
