@@ -366,6 +366,31 @@
     "completed": "Completed",
     "streak": "Streak"
   },
+  "table": {
+    "name": "Name",
+    "status": "Status",
+    "date": "Date",
+    "steps": "Steps",
+    "frequency": "Frequency",
+    "days": "Days",
+    "daysOfWeek": "Days of week",
+    "custom": "Custom",
+    "daily": "Daily",
+    "habitName": "Habit name",
+    "goalName": "Goal name",
+    "stepName": "Step name",
+    "goalNameRequired": "Goal name is required",
+    "stepNameRequired": "Step name is required",
+    "habitNameRequired": "Habit name is required"
+  },
+  "modal": {
+    "generalInfo": "General information",
+    "addToFocus": "Add to focus",
+    "focusDescription": "Goals in focus will be highlighted and shown on the main panel",
+    "enableReminder": "Enable reminder",
+    "showAlways": "Show always",
+    "showAlwaysDescription": "Habit will be shown on the main panel regardless of frequency"
+  },
   "focus": {
     "weeklyFocus": "Weekly Focus",
     "dailyFocus": "Today's Focus",

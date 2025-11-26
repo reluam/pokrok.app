@@ -81,7 +81,7 @@ export function StepsManagementView({
 
   const handleUpdateStep = async () => {
     if (!editFormData.title.trim()) {
-      alert('Název kroku je povinný')
+      alert(t('table.stepNameRequired'))
       return
     }
 
@@ -190,7 +190,7 @@ export function StepsManagementView({
 
   const handleCreateStep = async () => {
     if (!editFormData.title.trim()) {
-      alert('Název kroku je povinný')
+      alert(t('table.stepNameRequired'))
       return
     }
 
@@ -448,8 +448,8 @@ export function StepsManagementView({
               <thead>
                 <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 first:pl-6 w-12"></th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Název</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40 last:pr-6">Datum</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">{t('table.name')}</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40 last:pr-6">{t('table.date')}</th>
                 </tr>
               </thead>
               <tbody>

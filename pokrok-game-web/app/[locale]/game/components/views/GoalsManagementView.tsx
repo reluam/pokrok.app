@@ -141,7 +141,7 @@ export function GoalsManagementView({
 
   const handleCreateGoal = async () => {
     if (!editFormData.title.trim()) {
-      alert('Název cíle je povinný')
+      alert(t('table.goalNameRequired'))
       return
     }
 
@@ -193,7 +193,7 @@ export function GoalsManagementView({
 
   const handleUpdateGoal = async () => {
     if (!editFormData.title.trim()) {
-      alert('Název cíle je povinný')
+      alert(t('table.goalNameRequired'))
       return
     }
 
@@ -270,7 +270,7 @@ export function GoalsManagementView({
     const step = editFormData.steps.find(s => s.id === stepId)
     if (!step || !step.title.trim() || !editingGoal) {
       if (!step?.title.trim()) {
-        alert('Název kroku je povinný')
+        alert(t('table.stepNameRequired'))
       }
       return
     }
@@ -604,10 +604,10 @@ export function GoalsManagementView({
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 first:pl-6">Název</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">Status</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Datum</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">Kroky</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 first:pl-6">{t('table.name')}</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">{t('table.status')}</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">{t('table.date')}</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">{t('table.steps')}</th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-12 last:pr-6"></th>
                 </tr>
               </thead>
@@ -1054,7 +1054,7 @@ export function GoalsManagementView({
                         : 'border-transparent text-gray-500 hover:text-gray-700'
                     }`}
                   >
-                    Obecné informace
+                    {t('modal.generalInfo')}
                   </button>
                   <button
                     onClick={() => setActiveTab('steps')}
@@ -1064,7 +1064,7 @@ export function GoalsManagementView({
                         : 'border-transparent text-gray-500 hover:text-gray-700'
                     }`}
                   >
-                    Kroky
+                    {t('table.steps')}
                   </button>
                 </div>
               </div>
@@ -1113,7 +1113,7 @@ export function GoalsManagementView({
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-2">
-                      Status
+                      {t('table.status')}
                     </label>
                     <select
                       value={editFormData.status}
@@ -1136,11 +1136,11 @@ export function GoalsManagementView({
                       className="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                     />
                     <span className="text-sm font-semibold text-gray-800">
-                      Přidat do fokusu
+                      {t('modal.addToFocus')}
                     </span>
                   </label>
                   <p className="text-xs text-gray-500 mt-1 ml-8">
-                    Cíle ve fokusu budou zvýrazněny a zobrazí se na hlavním panelu
+                    {t('modal.focusDescription')}
                   </p>
                 </div>
                   </>

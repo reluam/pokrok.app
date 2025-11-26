@@ -65,7 +65,7 @@ export function HabitsManagementView({
 
   const handleUpdateHabit = async () => {
     if (!editingHabit || !editingHabit.name.trim()) {
-      alert('Název návyku je povinný')
+      alert(t('table.habitNameRequired'))
       return
     }
 
@@ -288,9 +288,9 @@ export function HabitsManagementView({
               <thead>
                 <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-12 first:pl-6">#</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">Název</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">Frekvence</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">Dny</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">{t('table.name')}</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">{t('table.frequency')}</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">{t('table.days')}</th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-16 last:pr-6"></th>
                 </tr>
               </thead>
@@ -397,7 +397,7 @@ export function HabitsManagementView({
                               shouldGrayOut ? 'text-gray-400' : 'text-gray-700'
                             }`}
                           >
-                            {habit.frequency === 'custom' ? 'Vlastní' :
+                            {habit.frequency === 'custom' ? t('table.custom') :
                               habit.frequency === 'daily' ? 'Denně' :
                               habit.frequency === 'weekly' ? 'Týdně' :
                                 habit.frequency === 'monthly' ? 'Měsíčně' : 'Denně'}
@@ -408,13 +408,13 @@ export function HabitsManagementView({
                             <div className="flex gap-1 flex-wrap">
                               {habit.selected_days.map((day: string) => {
                                 const dayLabels: { [key: string]: string } = {
-                                  monday: 'Po',
-                                  tuesday: 'Út',
-                                  wednesday: 'St',
-                                  thursday: 'Čt',
-                                  friday: 'Pá',
-                                  saturday: 'So',
-                                  sunday: 'Ne'
+                                  monday: t('daysShort.mon'),
+                                  tuesday: t('daysShort.tue'),
+                                  wednesday: t('daysShort.wed'),
+                                  thursday: t('daysShort.thu'),
+                                  friday: t('daysShort.fri'),
+                                  saturday: t('daysShort.sat'),
+                                  sunday: t('daysShort.sun')
                                 }
                                 return (
                                   <span key={day} className={`text-xs px-1.5 py-0.5 rounded ${
@@ -491,7 +491,7 @@ export function HabitsManagementView({
               <div className="p-6 space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-800 mb-2">
-                    Název návyku <span className="text-orange-500">*</span>
+                    {t('table.habitName')} <span className="text-orange-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -505,16 +505,16 @@ export function HabitsManagementView({
                 {/* Days selection - only show for custom frequency */}
                 {editingHabit.frequency === 'custom' && (
                   <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">Dny v týdnu</label>
+                    <label className="block text-sm font-semibold text-gray-800 mb-2">{t('table.daysOfWeek')}</label>
                     <div className="grid grid-cols-7 gap-2 mb-3">
                       {[
-                        { key: 'monday', label: 'Po' },
-                        { key: 'tuesday', label: 'Út' },
-                        { key: 'wednesday', label: 'St' },
-                        { key: 'thursday', label: 'Čt' },
-                        { key: 'friday', label: 'Pá' },
-                        { key: 'saturday', label: 'So' },
-                        { key: 'sunday', label: 'Ne' }
+                        { key: 'monday', label: t('daysShort.mon') },
+                        { key: 'tuesday', label: t('daysShort.tue') },
+                        { key: 'wednesday', label: t('daysShort.wed') },
+                        { key: 'thursday', label: t('daysShort.thu') },
+                        { key: 'friday', label: t('daysShort.fri') },
+                        { key: 'saturday', label: t('daysShort.sat') },
+                        { key: 'sunday', label: t('daysShort.sun') }
                       ].map(({ key, label }) => (
                         <button
                           key={key}
@@ -540,7 +540,7 @@ export function HabitsManagementView({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">Frekvence</label>
+                    <label className="block text-sm font-semibold text-gray-800 mb-2">{t('table.frequency')}</label>
                     <select
                       value={editingHabit.frequency || 'daily'}
                       onChange={(e) => setEditingHabit({...editingHabit, frequency: e.target.value})}
@@ -549,7 +549,7 @@ export function HabitsManagementView({
                       <option value="daily">Denně</option>
                       <option value="weekly">Týdně</option>
                       <option value="monthly">Měsíčně</option>
-                      <option value="custom">Vlastní</option>
+                      <option value="custom">{t('table.custom')}</option>
                     </select>
                   </div>
                   <div>
@@ -562,7 +562,7 @@ export function HabitsManagementView({
                         className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                       />
                       <label htmlFor="editReminderEnabled" className="text-sm font-semibold text-gray-800">
-                        Zapnout připomenutí
+                        {t('modal.enableReminder')}
                       </label>
                     </div>
                     {editingHabit.reminderEnabled && (
@@ -586,11 +586,11 @@ export function HabitsManagementView({
                       className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                     />
                     <label htmlFor="editAlwaysShow" className="text-sm font-semibold text-gray-800">
-                      Zobrazit vždy
+                      {t('modal.showAlways')}
                     </label>
                   </div>
                   <p className="text-xs text-gray-500">
-                    Návyk se zobrazí v hlavním panelu nehledě na frekvenci
+                    {t('modal.showAlwaysDescription')}
                   </p>
                 </div>
               </div>

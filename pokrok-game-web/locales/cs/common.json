@@ -366,6 +366,31 @@
     "completed": "Dokončeno",
     "streak": "Streak"
   },
+  "table": {
+    "name": "Název",
+    "status": "Status",
+    "date": "Datum",
+    "steps": "Kroky",
+    "frequency": "Frekvence",
+    "days": "Dny",
+    "daysOfWeek": "Dny v týdnu",
+    "custom": "Vlastní",
+    "daily": "Denní",
+    "habitName": "Název návyku",
+    "goalName": "Název cíle",
+    "stepName": "Název kroku",
+    "goalNameRequired": "Název cíle je povinný",
+    "stepNameRequired": "Název kroku je povinný",
+    "habitNameRequired": "Název návyku je povinný"
+  },
+  "modal": {
+    "generalInfo": "Obecné informace",
+    "addToFocus": "Přidat do fokusu",
+    "focusDescription": "Cíle ve fokusu budou zvýrazněny a zobrazí se na hlavním panelu",
+    "enableReminder": "Zapnout připomenutí",
+    "showAlways": "Zobrazit vždy",
+    "showAlwaysDescription": "Návyk se zobrazí v hlavním panelu nehledě na frekvenci"
+  },
   "focus": {
     "weeklyFocus": "Týdenní fokus",
     "dailyFocus": "Dnešní fokus",
