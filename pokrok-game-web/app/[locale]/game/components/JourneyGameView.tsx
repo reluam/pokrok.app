@@ -6674,6 +6674,27 @@ export function JourneyGameView({
                     onGoalsUpdate={onGoalsUpdate}
                     userId={userId}
                     player={player}
+                    onOpenStepModal={(step, goalId) => {
+                      if (step) {
+                        handleOpenStepModal(undefined, step)
+                      } else {
+                        // New step with goal pre-selected
+                        const defaultDate = getLocalDateString(selectedDayDate)
+                        setStepModalData({
+                          id: null,
+                          title: '',
+                          description: '',
+                          date: defaultDate,
+                          goalId: goalId || '',
+                          completed: false,
+                          is_important: false,
+                          is_urgent: false,
+                          deadline: '',
+                          estimated_time: 0
+                        })
+                        setShowStepModal(true)
+                      }
+                    }}
                   />
                 </div>
               )
@@ -6686,6 +6707,13 @@ export function JourneyGameView({
                     onDailyStepsUpdate={onDailyStepsUpdate}
                     userId={userId}
                     player={player}
+                    onOpenStepModal={(step) => {
+                      if (step) {
+                        handleOpenStepModal(undefined, step)
+                      } else {
+                        handleOpenStepModal()
+                      }
+                    }}
                   />
                 </div>
               )
@@ -7598,18 +7626,6 @@ export function JourneyGameView({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-2">
-                      Deadline
-                    </label>
-                    <input
-                      type="date"
-                      value={stepModalData.deadline}
-                      onChange={(e) => setStepModalData({...stepModalData, deadline: e.target.value})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">
                       Odhadovaný čas (minuty)
                     </label>
                     <input
@@ -7619,10 +7635,9 @@ export function JourneyGameView({
                       className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                       min="0"
                     />
-                  </div>
                 </div>
 
-                <div className="flex gap-4">
+                  <div className="flex items-end pb-1">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -7630,17 +7645,9 @@ export function JourneyGameView({
                       onChange={(e) => setStepModalData({...stepModalData, is_important: e.target.checked})}
                       className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                     />
-                    <span className="text-sm text-gray-700">⭐ Důležitý</span>
+                      <span className="text-sm text-gray-700">⭐ Důležitý krok</span>
                   </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={stepModalData.is_urgent}
-                      onChange={(e) => setStepModalData({...stepModalData, is_urgent: e.target.checked})}
-                      className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                    />
-                    <span className="text-sm text-gray-700">⚡ Urgentní</span>
-                  </label>
+                  </div>
                 </div>
               </div>
 

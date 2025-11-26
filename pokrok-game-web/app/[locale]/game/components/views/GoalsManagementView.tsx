@@ -11,13 +11,15 @@ interface GoalsManagementViewProps {
   onGoalsUpdate?: (goals: any[]) => void
   userId?: string | null
   player?: any
+  onOpenStepModal?: (step?: any, goalId?: string) => void
 }
 
 export function GoalsManagementView({
   goals = [],
   onGoalsUpdate,
   userId,
-  player
+  player,
+  onOpenStepModal
 }: GoalsManagementViewProps) {
   const t = useTranslations()
   const localeCode = useLocale()
@@ -260,10 +262,22 @@ export function GoalsManagementView({
 
   // Step handlers
   const handleAddStep = () => {
-    setEditFormData({
-      ...editFormData,
-      steps: [...editFormData.steps, { id: `temp-${crypto.randomUUID()}`, title: '', description: '', date: '', isEditing: true }]
-    })
+    if (onOpenStepModal && editingGoal?.id) {
+      // Use main modal
+      onOpenStepModal(undefined, editingGoal.id)
+    } else {
+      // Fallback to inline
+      setEditFormData({
+        ...editFormData,
+        steps: [...editFormData.steps, { id: `temp-${crypto.randomUUID()}`, title: '', description: '', date: '', isEditing: true }]
+      })
+    }
+  }
+  
+  const handleEditStep = (step: any) => {
+    if (onOpenStepModal) {
+      onOpenStepModal(step)
+    }
   }
 
   const handleSaveStep = async (stepId: string) => {
@@ -1228,6 +1242,39 @@ export function GoalsManagementView({
                                   rows={2}
                                   placeholder={t('steps.descriptionOptional')}
                                 />
+                                <div className="grid grid-cols-2 gap-2 mb-2">
+                                  <div>
+                                    <label className="block text-xs text-gray-500 mb-1">Odhadovaný čas (min)</label>
+                                    <input
+                                      type="number"
+                                      value={step.estimated_time || 0}
+                                      onChange={(e) => {
+                                        const updatedSteps = editFormData.steps.map(s =>
+                                          s.id === step.id ? { ...s, estimated_time: parseInt(e.target.value) || 0 } : s
+                                        )
+                                        setEditFormData({ ...editFormData, steps: updatedSteps })
+                                      }}
+                                      className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
+                                      min="0"
+                                    />
+                                  </div>
+                                  <div className="flex items-end pb-1">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={step.is_important || false}
+                                        onChange={(e) => {
+                                          const updatedSteps = editFormData.steps.map(s =>
+                                            s.id === step.id ? { ...s, is_important: e.target.checked } : s
+                                          )
+                                          setEditFormData({ ...editFormData, steps: updatedSteps })
+                                        }}
+                                        className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                                      />
+                                      <span className="text-xs text-gray-700">⭐ Důležitý</span>
+                                    </label>
+                                  </div>
+                                </div>
                                 <div className="flex items-center gap-2 mt-2">
                                   <button
                                     type="button"
@@ -1249,10 +1296,14 @@ export function GoalsManagementView({
                               <div 
                                 className="flex items-center justify-between cursor-pointer group"
                                 onClick={() => {
-                                  const updatedSteps = editFormData.steps.map(s =>
-                                    s.id === step.id ? { ...s, isEditing: true } : s
-                                  )
-                                  setEditFormData({ ...editFormData, steps: updatedSteps })
+                                  if (onOpenStepModal && !step.id.startsWith('temp-')) {
+                                    handleEditStep(step)
+                                  } else {
+                                    const updatedSteps = editFormData.steps.map(s =>
+                                      s.id === step.id ? { ...s, isEditing: true } : s
+                                    )
+                                    setEditFormData({ ...editFormData, steps: updatedSteps })
+                                  }
                                 }}
                               >
                                 <div className="flex items-center gap-3 flex-1">
@@ -1283,10 +1334,14 @@ export function GoalsManagementView({
                                     type="button"
                                     onClick={(e) => {
                                       e.stopPropagation()
-                                      const updatedSteps = editFormData.steps.map(s =>
-                                        s.id === step.id ? { ...s, isEditing: true } : s
-                                      )
-                                      setEditFormData({ ...editFormData, steps: updatedSteps })
+                                      if (onOpenStepModal && !step.id.startsWith('temp-')) {
+                                        handleEditStep(step)
+                                      } else {
+                                        const updatedSteps = editFormData.steps.map(s =>
+                                          s.id === step.id ? { ...s, isEditing: true } : s
+                                        )
+                                        setEditFormData({ ...editFormData, steps: updatedSteps })
+                                      }
                                     }}
                                     className="text-gray-400 hover:text-orange-600 p-1"
                                   >

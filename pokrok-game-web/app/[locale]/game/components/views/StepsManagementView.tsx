@@ -12,6 +12,7 @@ interface StepsManagementViewProps {
   onDailyStepsUpdate?: (steps: any[]) => void
   userId?: string | null
   player?: any
+  onOpenStepModal?: (step?: any) => void
 }
 
 export function StepsManagementView({
@@ -19,7 +20,8 @@ export function StepsManagementView({
   goals = [],
   onDailyStepsUpdate,
   userId,
-  player
+  player,
+  onOpenStepModal
 }: StepsManagementViewProps) {
   const t = useTranslations()
   const localeCode = useLocale()
@@ -73,10 +75,14 @@ export function StepsManagementView({
 
   // Handlers
   const handleOpenEditModal = (step: any) => {
-    setEditingStep({
-      ...step,
-      goalId: step.goal_id || null
-    })
+    if (onOpenStepModal) {
+      onOpenStepModal(step)
+    } else {
+      setEditingStep({
+        ...step,
+        goalId: step.goal_id || null
+      })
+    }
   }
 
   const handleUpdateStep = async () => {
@@ -314,14 +320,18 @@ export function StepsManagementView({
             {/* Add Step Button - Mobile */}
             <button
               onClick={() => {
-                setEditingStep({ id: null, title: '', description: '', date: '', goalId: '', completed: false })
-                setEditFormData({
-                  title: '',
-                  description: '',
-                  date: '',
-                  goalId: '',
-                  completed: false
-                })
+                if (onOpenStepModal) {
+                  onOpenStepModal()
+                } else {
+                  setEditingStep({ id: null, title: '', description: '', date: '', goalId: '', completed: false })
+                  setEditFormData({
+                    title: '',
+                    description: '',
+                    date: '',
+                    goalId: '',
+                    completed: false
+                  })
+                }
               }}
               className="flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium flex-1"
             >
@@ -424,14 +434,18 @@ export function StepsManagementView({
         {/* Add Step Button - Desktop */}
         <button
           onClick={() => {
-            setEditingStep({ id: null, title: '', description: '', date: '', goalId: '', completed: false })
-            setEditFormData({
-              title: '',
-              description: '',
-              date: '',
-              goalId: '',
-              completed: false
-            })
+            if (onOpenStepModal) {
+              onOpenStepModal()
+            } else {
+              setEditingStep({ id: null, title: '', description: '', date: '', goalId: '', completed: false })
+              setEditFormData({
+                title: '',
+                description: '',
+                date: '',
+                goalId: '',
+                completed: false
+              })
+            }
           }}
           className="hidden md:flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
         >

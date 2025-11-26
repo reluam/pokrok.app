@@ -938,7 +938,7 @@ export function TodayFocusSection({
                           }`}>
                           {step.estimated_time ? `${step.estimated_time} min` : '-'}
                         </button>
-                      </div>
+                                  </div>
                     )
                   })}
                   
@@ -965,40 +965,40 @@ export function TodayFocusSection({
                             return (
                               <div 
                                 key={step.id}
-                                onClick={() => handleItemClick(step, 'step')}
+                        onClick={() => handleItemClick(step, 'step')}
                                 className="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 transition-all cursor-pointer opacity-50"
                               >
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    if (!loadingSteps.has(step.id)) {
-                                      handleStepToggle(step.id, !step.completed)
-                                    }
-                                  }}
-                                  disabled={loadingSteps.has(step.id)}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (!loadingSteps.has(step.id)) {
+                                handleStepToggle(step.id, !step.completed)
+                              }
+                            }}
+                            disabled={loadingSteps.has(step.id)}
                                   className="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 bg-orange-500 border-orange-500"
-                                >
-                                  {loadingSteps.has(step.id) ? (
+                          >
+                            {loadingSteps.has(step.id) ? (
                                     <svg className="animate-spin h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                  ) : (
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                            ) : (
                                     <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                                  )}
-                                </button>
+                            )}
+                          </button>
                                 <span className="flex-1 text-sm truncate line-through text-gray-400 font-medium">
-                                  {step.title}
-                                </span>
+                            {step.title}
+                          </span>
                                 <span className="hidden sm:block w-20 text-xs text-center capitalize flex-shrink-0 text-gray-400">
-                                  {stepDateFormatted}
-                                </span>
+                                    {stepDateFormatted}
+                                  </span>
                                 <span className="hidden sm:block w-14 text-xs text-gray-400 text-center flex-shrink-0">
                                   {step.estimated_time ? `${step.estimated_time} min` : '-'}
                                 </span>
-                              </div>
-                            )
-                          })}
+                      </div>
+                    )
+                  })}
                         </div>
                       )}
                     </>
@@ -1096,14 +1096,20 @@ export function TodayFocusSection({
                   }
                 })
                 
+                // Get actual today's date for overdue comparison
+                const actualToday = new Date()
+                actualToday.setHours(0, 0, 0, 0)
+                
                 allSteps.forEach(step => {
                   const stepDate = normalizeDate(step.date)
                   const stepDateObj = new Date(stepDate)
                   stepDateObj.setHours(0, 0, 0, 0)
                   
                   if (isWeekView && weekStart && weekEnd) {
-                    // In week view: overdue = before week start, future = after week end
-                    const isOverdue = stepDateObj.getTime() < weekStart.getTime()
+                    // In week view: 
+                    // - overdue = before TODAY (not before week start!) - only truly late steps
+                    // - future = after week end
+                    const isOverdue = stepDateObj.getTime() < actualToday.getTime()
                     const isFuture = stepDateObj.getTime() > weekEnd.getTime()
                     
                     if (isOverdue) {
@@ -1129,12 +1135,8 @@ export function TodayFocusSection({
                   const stepDateObj = new Date(stepDate)
                   stepDateObj.setHours(0, 0, 0, 0)
                   
-                  let isOverdue = false
-                  if (isWeekView && weekStart) {
-                    isOverdue = stepDateObj.getTime() < weekStart.getTime()
-                  } else {
-                    isOverdue = stepDateObj < displayDate
-                  }
+                  // Overdue = before actual today (not before displayed week/day)
+                  const isOverdue = stepDateObj.getTime() < actualToday.getTime()
                   
                   const stepDateFormatted = step.date ? new Date(normalizeDate(step.date)).toLocaleDateString('cs-CZ', { weekday: 'long' }) : null
                 
