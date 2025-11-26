@@ -330,11 +330,11 @@ export function HelpView({
                 </h2>
                 <p className="text-orange-100 text-sm mt-1">Dlouhodobé výsledky, které chcete dosáhnout.</p>
               </div>
-              {onAddGoal && (
+                {onAddGoal && (
                 <button onClick={onAddGoal} className="flex items-center gap-1 px-4 py-2 bg-white text-orange-600 font-medium rounded-lg hover:bg-orange-50">
                   <Plus className="w-4 h-4" /> Přidat
-                </button>
-              )}
+                  </button>
+                )}
             </div>
 
             {/* What are goals */}
@@ -364,14 +364,14 @@ export function HelpView({
               <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Target className="w-5 h-5 text-orange-600" />
+                  <Target className="w-5 h-5 text-orange-600" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h5 className="font-semibold text-gray-900">Naučit se React</h5>
                       <span className="text-xs bg-orange-200 text-orange-700 px-2 py-0.5 rounded-full">Ve fokusu</span>
                       <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Aktivní</span>
-                    </div>
+              </div>
                     <p className="text-sm text-gray-500 mt-1">Chci vytvořit vlastní webovou aplikaci</p>
                     <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
                       <span className="flex items-center gap-1">
@@ -380,7 +380,7 @@ export function HelpView({
                       <span className="flex items-center gap-1">
                         <Footprints className="w-3 h-3" /> 3 kroky
                       </span>
-                    </div>
+                </div>
                   </div>
                 </div>
               </div>
@@ -459,8 +459,8 @@ export function HelpView({
                 <p>📌 <strong>Kliknutím na řádek</strong> otevřete detail cíle</p>
                 <p>⭐ <strong>Hvězdička</strong> = Ve fokusu (kliknutím přepnete)</p>
                 <p>🔄 <strong>Stav</strong> = Aktivní / Odložený / Dokončený</p>
+                </div>
               </div>
-            </div>
 
             {/* How to create */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
@@ -484,7 +484,7 @@ export function HelpView({
                   </button>
                 )}
               </div>
-            </div>
+              </div>
 
             {/* Tips */}
             <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
@@ -511,11 +511,11 @@ export function HelpView({
                 </h2>
                 <p className="text-orange-100 text-sm mt-1">Konkrétní akce vedoucí k vašim cílům.</p>
               </div>
-              {onAddStep && (
+                {onAddStep && (
                 <button onClick={onAddStep} className="flex items-center gap-1 px-4 py-2 bg-white text-orange-600 font-medium rounded-lg hover:bg-orange-50">
                   <Plus className="w-4 h-4" /> Přidat
-                </button>
-              )}
+                  </button>
+                )}
             </div>
 
             {/* What are steps */}
@@ -553,7 +553,7 @@ export function HelpView({
                       <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full flex items-center gap-1">
                         <AlertTriangle className="w-3 h-3" /> Důležité
                       </span>
-                    </div>
+              </div>
                     <p className="text-sm text-gray-500 mt-1">Stáhnout a nainstalovat z oficiálních stránek</p>
                     <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
                       <span className="flex items-center gap-1">
@@ -565,7 +565,7 @@ export function HelpView({
                       <span className="flex items-center gap-1">
                         <Target className="w-3 h-3" /> Naučit se React
                       </span>
-                    </div>
+                </div>
                   </div>
                 </div>
               </div>
@@ -573,8 +573,8 @@ export function HelpView({
                 <p><strong className="text-red-600">Důležité</strong> = Prioritní krok (lze kombinovat s Urgentní)</p>
                 <p><strong className="text-orange-600">Odhad času</strong> = Pomáhá s plánováním dne</p>
                 <p><strong className="text-gray-600">Cíl</strong> = Ke kterému cíli krok patří</p>
+                </div>
               </div>
-            </div>
 
             {/* Steps Table Example */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
@@ -643,7 +643,7 @@ export function HelpView({
                 <p>❗ <strong>Vykřičník</strong> = Důležitý nebo urgentní krok</p>
                 <p>📌 <strong>Kliknutím na řádek</strong> otevřete detail</p>
               </div>
-            </div>
+              </div>
 
             {/* How to create */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
@@ -694,11 +694,11 @@ export function HelpView({
                 </h2>
                 <p className="text-orange-100 text-sm mt-1">Opakující se aktivity pro dlouhodobý úspěch.</p>
               </div>
-              {onAddHabit && (
+                {onAddHabit && (
                 <button onClick={onAddHabit} className="flex items-center gap-1 px-4 py-2 bg-white text-orange-600 font-medium rounded-lg hover:bg-orange-50">
                   <Plus className="w-4 h-4" /> Přidat
-                </button>
-              )}
+                  </button>
+                )}
             </div>
 
             {/* What are habits */}
@@ -740,14 +740,14 @@ export function HelpView({
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" /> 07:00
                       </span>
-                    </div>
+              </div>
                     <div className="flex gap-1 mt-2">
                       {['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map((day, i) => (
                         <span key={day} className={`w-6 h-6 rounded text-[10px] flex items-center justify-center font-medium ${i < 5 ? 'bg-orange-200 text-orange-700' : 'bg-gray-100 text-gray-400'}`}>
                           {day}
                         </span>
                       ))}
-                    </div>
+                </div>
                   </div>
                 </div>
               </div>
@@ -838,8 +838,8 @@ export function HelpView({
                 <p>🟠 <strong>Oranžové čtverečky</strong> = Splněné dny</p>
                 <p>⬜ <strong>Šedé čtverečky</strong> = Nesplněné dny</p>
                 <p>📌 <strong>Kliknutím na řádek</strong> otevřete detail</p>
+                </div>
               </div>
-            </div>
 
             {/* How to create */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
@@ -863,7 +863,7 @@ export function HelpView({
                   </button>
                 )}
               </div>
-            </div>
+              </div>
 
             {/* Tips */}
             <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">

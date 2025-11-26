@@ -371,32 +371,29 @@ export function UnifiedDayView({
       
       {/* Stats bar */}
       {displayStats && (
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-orange-100">
-          <div className="flex items-center justify-around">
-            {/* Progress */}
-            <div className="flex flex-col items-center">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-orange-500">{displayStats.progress}%</span>
-                <div className="w-32 h-2 bg-orange-100 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-orange-500 rounded-full transition-all"
-                    style={{ width: `${displayStats.progress}%` }}
-                  />
-                </div>
+        <div className="flex items-center justify-around py-1">
+          {/* Progress */}
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-bold text-orange-500">{displayStats.progress}%</span>
+              <div className="w-24 h-1.5 bg-orange-100 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-orange-500 rounded-full transition-all"
+                  style={{ width: `${displayStats.progress}%` }}
+                />
               </div>
-              <span className="text-xs text-gray-500 mt-1">Pokrok</span>
             </div>
-            
-            
-            {/* Completed */}
-            <div className="flex flex-col items-center">
-              <div className="flex items-center gap-1">
-                <CheckCircle2 className="w-5 h-5 text-orange-500" />
-                <span className="text-2xl font-bold text-gray-800">{displayStats.completedTasks}</span>
-                <span className="text-sm text-gray-400">/{displayStats.totalTasks}</span>
-              </div>
-              <span className="text-xs text-gray-500 mt-1">Dokončeno</span>
+            <span className="text-[10px] text-gray-500">Pokrok</span>
+          </div>
+          
+          {/* Completed */}
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-1">
+              <CheckCircle2 className="w-4 h-4 text-orange-500" />
+              <span className="text-xl font-bold text-gray-800">{displayStats.completedTasks}</span>
+              <span className="text-xs text-gray-400">/{displayStats.totalTasks}</span>
             </div>
+            <span className="text-[10px] text-gray-500">Dokončeno</span>
           </div>
         </div>
       )}

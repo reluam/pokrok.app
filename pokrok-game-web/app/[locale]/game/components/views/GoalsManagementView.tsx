@@ -102,7 +102,7 @@ export function GoalsManagementView({
         steps: []
       })
 
-      // Load steps
+          // Load steps
       const loadSteps = async () => {
         if (editingGoal.id) {
           try {
@@ -560,7 +560,7 @@ export function GoalsManagementView({
             </div>
           )}
         </div>
-        
+          
         {/* Desktop: Always visible filters */}
         <div className="hidden md:flex md:items-center gap-3 flex-1">
           {/* Status Filter */}
@@ -574,7 +574,7 @@ export function GoalsManagementView({
             <option value="completed">{t('goals.filters.status.completed')}</option>
             <option value="considering">{t('goals.filters.status.considering')}</option>
           </select>
-
+          
         </div>
         
         {/* Add Goal Button - Desktop */}

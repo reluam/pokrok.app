@@ -105,59 +105,59 @@ export function WeekHabitsTable({
       {/* Header with day names */}
       <div className="flex items-center gap-2 mb-3 pl-[140px]">
         {weekDays.map((day) => {
-          const dateStr = getLocalDateString(day)
-          const isSelected = selectedDayDate && getLocalDateString(selectedDayDate) === dateStr
-          const dayName = dayNamesShort[day.getDay()]
+                const dateStr = getLocalDateString(day)
+                const isSelected = selectedDayDate && getLocalDateString(selectedDayDate) === dateStr
+                const dayName = dayNamesShort[day.getDay()]
           const isTodayDate = isToday(day)
-          
-          return (
+                
+                return (
             <div
-              key={dateStr}
+                    key={dateStr}
               className={`w-8 h-8 flex flex-col items-center justify-center text-[10px] rounded-lg ${
                 isSelected 
                   ? 'bg-orange-500 text-white font-bold' 
                   : isTodayDate 
                     ? 'bg-orange-100 text-orange-700 font-semibold'
                     : 'text-gray-500'
-              }`}
-            >
+                    }`}
+                  >
               <span>{dayName}</span>
               <span className="text-[9px]">{day.getDate()}</span>
-            </div>
-          )
-        })}
+                    </div>
+                )
+              })}
       </div>
       
       {/* Habits list with completion squares */}
       <div className="space-y-2">
-        {weekHabits.map((habit) => (
+            {weekHabits.map((habit) => (
           <div key={habit.id} className="flex items-center gap-2">
             {/* Habit name */}
-            <button
-              onClick={() => onHabitClick?.(habit)}
+                  <button
+                    onClick={() => onHabitClick?.(habit)}
               className="w-[132px] text-left text-sm font-medium text-gray-700 hover:text-orange-600 transition-colors truncate flex-shrink-0"
-              title={habit.name}
-            >
-              {habit.name}
-            </button>
+                    title={habit.name}
+                  >
+                    {habit.name}
+                  </button>
             
             {/* Day completion squares */}
             <div className="flex gap-1">
-              {weekDays.map((day) => {
-                const dateStr = getLocalDateString(day)
-                const isScheduled = isHabitScheduledForDay(habit, day)
-                const isCompleted = isHabitCompletedForDay(habit, day)
-                const isSelected = selectedDayDate && getLocalDateString(selectedDayDate) === dateStr
+                {weekDays.map((day) => {
+                  const dateStr = getLocalDateString(day)
+                  const isScheduled = isHabitScheduledForDay(habit, day)
+                  const isCompleted = isHabitCompletedForDay(habit, day)
+                  const isSelected = selectedDayDate && getLocalDateString(selectedDayDate) === dateStr
                 const isLoading = loadingHabits.has(habit.id)
-                
-                return (
+                  
+                  return (
                   <button
-                    key={dateStr}
-                    onClick={() => {
+                      key={dateStr}
+                            onClick={() => {
                       if (isScheduled && onHabitToggle && !isLoading) {
-                        onHabitToggle(habit.id, dateStr)
-                      }
-                    }}
+                                onHabitToggle(habit.id, dateStr)
+                              }
+                            }}
                     disabled={!isScheduled || isLoading}
                     className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
                       !isScheduled 
@@ -170,18 +170,18 @@ export function WeekHabitsTable({
                   >
                     {isLoading ? (
                       <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                    ) : isCompleted ? (
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                            ) : isCompleted ? (
                       <Check className="w-4 h-4 text-white" strokeWidth={3} />
-                    ) : null}
-                  </button>
-                )
-              })}
+                            ) : null}
+                          </button>
+                  )
+                })}
             </div>
           </div>
-        ))}
+            ))}
       </div>
     </div>
   )

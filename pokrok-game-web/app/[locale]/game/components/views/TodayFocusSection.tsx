@@ -443,7 +443,7 @@ export function TodayFocusSection({
               <div className="flex-shrink-0 lg:border-r lg:border-gray-200 lg:pr-6 pb-6 lg:pb-0 border-b lg:border-b-0 w-full lg:w-auto" style={{ minWidth: '200px' }}>
                 <h4 
                   onClick={() => onNavigateToHabits?.()}
-                  className={`text-[10px] md:text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-2 ${onNavigateToHabits ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
+                  className={`text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 ${onNavigateToHabits ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
                 >
                   Návyky
                 </h4>
@@ -637,55 +637,65 @@ export function TodayFocusSection({
                 Návyky
               </h4>
               {todaysHabits.length > 0 ? (
-                <div className="space-y-1.5">
-                  {todaysHabits.map((habit) => {
-                    const isCompleted = habit.habit_completions && habit.habit_completions[displayDateStr] === true
-                    const isScheduled = (() => {
-                      if (habit.frequency === 'daily') return true
-                      if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
-                      return false
-                    })()
-                    const isLoading = loadingHabits.has(habit.id)
-                    
-                    return (
-                      <div key={habit.id} className="flex items-center gap-2">
-                        <button
-                          onClick={() => {
-                            if (handleHabitToggle && !isLoading) {
-                              handleHabitToggle(habit.id, displayDateStr)
-                            }
-                          }}
-                          disabled={isLoading}
-                          className={`w-6 h-6 rounded-md flex items-center justify-center transition-all flex-shrink-0 ${
-                            isCompleted
-                              ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
-                              : !isScheduled 
-                                ? 'bg-gray-100 hover:bg-orange-200 cursor-pointer' 
-                                : 'bg-gray-200 hover:bg-orange-200 cursor-pointer'
-                          }`}
-                          title={isCompleted ? 'Splněno' : 'Klikni pro splnění'}
-                        >
-                          {isLoading ? (
-                            <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                          ) : isCompleted ? (
-                            <Check className="w-3 h-3 text-white" strokeWidth={3} />
-                          ) : null}
-                        </button>
-                        <button
-                          onClick={() => handleItemClick(habit, 'habit')}
-                          className={`text-left text-[11px] font-medium hover:text-orange-600 transition-colors truncate ${
-                            isCompleted ? 'text-gray-400 line-through' : 'text-gray-700'
-                          }`}
-                          title={habit.name}
-                        >
-                          {habit.name}
-                        </button>
-                      </div>
-                    )
-                  })}
+                <div>
+                  {/* Header with day name */}
+                  <div className="flex items-center gap-1 mb-1">
+                    <div className="w-[100px] flex-shrink-0" />
+                    <div className="w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded bg-orange-100 text-orange-700 font-semibold">
+                      <span className="uppercase leading-none">{dayNamesShort[selectedDayDate.getDay()]}</span>
+                      <span className="text-[8px] leading-none">{selectedDayDate.getDate()}</span>
+                    </div>
+                  </div>
+                  
+                  {/* Habits */}
+                  <div className="space-y-1">
+                    {todaysHabits.map((habit) => {
+                      const isCompleted = habit.habit_completions && habit.habit_completions[displayDateStr] === true
+                      const isScheduled = (() => {
+                        if (habit.frequency === 'daily') return true
+                        if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
+                        return false
+                      })()
+                      const isLoading = loadingHabits.has(habit.id)
+                      
+                      return (
+                        <div key={habit.id} className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleItemClick(habit, 'habit')}
+                            className="w-[100px] text-left text-[11px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate flex-shrink-0"
+                            title={habit.name}
+                          >
+                            {habit.name}
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (handleHabitToggle && !isLoading) {
+                                handleHabitToggle(habit.id, displayDateStr)
+                              }
+                            }}
+                            disabled={isLoading}
+                            className={`w-7 h-7 rounded flex items-center justify-center transition-all flex-shrink-0 ${
+                              isCompleted
+                                ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                                : !isScheduled 
+                                  ? 'bg-gray-100 hover:bg-orange-200 cursor-pointer' 
+                                  : 'bg-gray-200 hover:bg-orange-200 cursor-pointer'
+                            }`}
+                            title={isCompleted ? 'Splněno' : 'Klikni pro splnění'}
+                          >
+                            {isLoading ? (
+                              <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                            ) : isCompleted ? (
+                              <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                            ) : null}
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-4">
