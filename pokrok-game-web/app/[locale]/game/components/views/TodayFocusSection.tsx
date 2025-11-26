@@ -228,7 +228,20 @@ export function TodayFocusSection({
     const allSteps = [...focusSteps, ...stepsWithoutGoals]
     
     return allSteps.sort((a, b) => {
-      // Sort by goal focus_order first (if has goal)
+      // In week view: sort by date first, then by importance
+      if (isWeekView) {
+        const dateA = new Date(normalizeDate(a.date))
+        const dateB = new Date(normalizeDate(b.date))
+        if (dateA.getTime() !== dateB.getTime()) {
+          return dateA.getTime() - dateB.getTime()
+        }
+        // Same date - sort by importance
+        const aPriority = (a.is_important ? 2 : 0) + (a.is_urgent ? 1 : 0)
+        const bPriority = (b.is_important ? 2 : 0) + (b.is_urgent ? 1 : 0)
+        return bPriority - aPriority
+      }
+      
+      // In day view: sort by goal focus_order first (if has goal)
       const goalA = goals.find(g => g.id === a.goal_id)
       const goalB = goals.find(g => g.id === b.goal_id)
       const orderA = goalA?.focus_order || 999
@@ -820,8 +833,8 @@ export function TodayFocusSection({
                             {step.title}
                           </span>
                         
-                        {/* Meta info - fixed width columns */}
-                        <span className={`w-20 text-xs text-center capitalize flex-shrink-0 ${
+                        {/* Meta info - fixed width columns - hidden on mobile */}
+                        <span className={`hidden sm:block w-20 text-xs text-center capitalize flex-shrink-0 ${
                           isOverdue && !step.completed 
                             ? 'text-red-500' 
                             : stepDate === getLocalDateString(new Date()) 
@@ -831,7 +844,7 @@ export function TodayFocusSection({
                           {isOverdue && !step.completed && '❗'}
                           {stepDate === getLocalDateString(new Date()) ? 'Dnes' : stepDateFormatted || '-'}
                                   </span>
-                        <span className="w-14 text-xs text-gray-500 text-center flex-shrink-0">
+                        <span className="hidden sm:block w-14 text-xs text-gray-500 text-center flex-shrink-0">
                           {step.estimated_time ? `${step.estimated_time} min` : '-'}
                         </span>
                       </div>
