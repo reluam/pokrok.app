@@ -59,6 +59,8 @@ export function GoalsManagementView({
       update_frequency?: 'daily' | 'weekly' | 'monthly' | null;
       update_day_of_week?: number | null;
       update_day_of_month?: number | null;
+      estimated_time?: number;
+      is_important?: boolean;
     }>
   })
 
