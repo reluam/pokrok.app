@@ -254,15 +254,27 @@ export function UnifiedDayView({
         year: 'numeric'
       })
     } else {
-      // Week range
-      const startStr = currentWeekStart.toLocaleDateString(localeCode, { day: 'numeric', month: 'short' })
-      const endStr = weekEndDate.toLocaleDateString(localeCode, { day: 'numeric', month: 'short', year: 'numeric' })
-      return `${startStr} - ${endStr}`
+      // Week range - "24. - 30. listopadu 2025"
+      const startDay = currentWeekStart.getDate()
+      const endDay = weekEndDate.getDate()
+      const month = weekEndDate.toLocaleDateString(localeCode, { month: 'long' })
+      const year = weekEndDate.getFullYear()
+      return `${startDay}. - ${endDay}. ${month} ${year}`
     }
   }, [selectedDayDate, currentWeekStart, weekEndDate, localeCode])
   
   // Display stats
   const displayStats = selectedDayDate ? dayStats : weekStats
+  
+  // Check if we're in current week
+  const currentWeekStartDate = getWeekStart(new Date())
+  const isCurrentWeek = getLocalDateString(currentWeekStart) === getLocalDateString(currentWeekStartDate)
+  
+  // Go to current week
+  const handleGoToCurrentWeek = useCallback(() => {
+    setCurrentWeekStart(currentWeekStartDate)
+    setSelectedDayDate(null)
+  }, [currentWeekStartDate])
   
   // Track displayed steps
   const [displayedStepIds, setDisplayedStepIds] = useState<Set<string>>(new Set())
@@ -273,10 +285,18 @@ export function UnifiedDayView({
   return (
     <div className="w-full h-full flex flex-col p-6 space-y-4 overflow-y-auto bg-orange-50/30">
       {/* Header with date/week */}
-      <div className="text-center">
+      <div className="flex items-center justify-center gap-2">
         <h1 className="text-2xl font-bold text-gray-800 capitalize">
           {headerText}
         </h1>
+        {!isCurrentWeek && (
+          <button
+            onClick={handleGoToCurrentWeek}
+            className="px-3 py-1 text-xs font-medium text-orange-600 bg-orange-100 hover:bg-orange-200 rounded-full transition-colors"
+          >
+            Dnes
+          </button>
+        )}
       </div>
       
       {/* Timeline */}
@@ -332,14 +352,14 @@ export function UnifiedDayView({
                       
                       {/* Day name */}
                       <span className={`text-xs font-semibold mt-1 uppercase ${
-                        isSelected ? 'text-orange-600' : isToday ? 'text-orange-500' : 'text-gray-500'
+                        isSelected && stats.isComplete && isPast ? 'text-green-600' : isSelected ? 'text-orange-600' : isToday ? 'text-orange-500' : 'text-gray-500'
                       }`}>
                         {dayNamesShort[day.getDay()]}
                       </span>
                       
                       {/* Day number */}
                       <span className={`text-lg font-bold ${
-                        isSelected ? 'text-orange-600' : isToday ? 'text-orange-500' : 'text-gray-700'
+                        isSelected && stats.isComplete && isPast ? 'text-green-600' : isSelected ? 'text-orange-600' : isToday ? 'text-orange-500' : 'text-gray-700'
                       }`}>
                         {day.getDate()}
                       </span>
