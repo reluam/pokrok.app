@@ -5,7 +5,7 @@ import { useUser, useClerk } from '@clerk/nextjs'
 import { useTranslations, useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { locales, type Locale } from '@/i18n/config'
-import { User, Target, ListTodo, BarChart3, Workflow, Eye, AlertTriangle, Menu } from 'lucide-react'
+import { User, Target, Footprints, BarChart3, Workflow, Eye, UserCircle, Menu } from 'lucide-react'
 
 interface SettingsViewProps {
   player: any
@@ -332,11 +332,11 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
   const tabs = [
     { id: 'user' as SettingsTab, label: t('settings.tabs.user'), icon: User },
     { id: 'goals' as SettingsTab, label: t('settings.tabs.goals'), icon: Target },
-    { id: 'steps' as SettingsTab, label: t('settings.tabs.steps'), icon: ListTodo },
+    { id: 'steps' as SettingsTab, label: t('settings.tabs.steps'), icon: Footprints },
     { id: 'statistics' as SettingsTab, label: t('settings.tabs.statistics'), icon: BarChart3 },
     { id: 'workflows' as SettingsTab, label: t('settings.tabs.workflows'), icon: Workflow },
     { id: 'display' as SettingsTab, label: 'Zobrazení', icon: Eye },
-    { id: 'danger' as SettingsTab, label: t('settings.tabs.danger'), icon: AlertTriangle }
+    { id: 'danger' as SettingsTab, label: t('settings.tabs.danger'), icon: UserCircle }
   ]
 
   const renderTabContent = () => {
@@ -475,19 +475,8 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
         return (
           <div>
             <div>
-              <h4 className="text-lg font-bold text-gray-800 mb-4">🎮 {t('settings.steps.gameSettings')}</h4>
+              <h4 className="text-lg font-bold text-gray-800 mb-4">👣 {t('settings.steps.gameSettings')}</h4>
                 <div className="space-y-4">
-                  <div>
-                  <label className="block text-sm font-bold text-gray-600 mb-2">{t('settings.steps.defaultXpReward')}</label>
-                    <input
-                      type="number"
-                      value={stepsSettings.defaultXpReward}
-                      onChange={(e) => setStepsSettings((prev: any) => ({ ...prev, defaultXpReward: parseInt(e.target.value) }))}
-                      className="w-full p-2 border border-gray-300 rounded-lg"
-                      min="1"
-                      max="10"
-                    />
-                  </div>
                   <div>
                   <label className="block text-sm font-bold text-gray-600 mb-2">{t('settings.steps.estimatedTimeDefault')}</label>
                     <input
@@ -649,34 +638,8 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
       case 'display':
         return (
           <div>
-            <div>
-              <h4 className="text-lg font-bold text-gray-800 mb-4">📅 Výchozí zobrazení</h4>
-              <div className="bg-white rounded-lg p-4 border border-gray-200">
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Zobrazení, které se zobrazí po načtení stránky
-                </label>
-                <select
-                  value={displaySettings.defaultView}
-                  onChange={(e) => {
-                    const newView = e.target.value as 'day' | 'week' | 'month' | 'year'
-                    setDisplaySettings({ defaultView: newView })
-                    handleSaveDisplaySettings(newView)
-                  }}
-                  disabled={isSavingDisplay}
-                  className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none disabled:opacity-50"
-                >
-                  <option value="day">Den</option>
-                  <option value="week">Týden</option>
-                  <option value="month">Měsíc</option>
-                  <option value="year">Rok</option>
-                </select>
-                <p className="text-xs text-gray-500 mt-2">
-                  Toto zobrazení se automaticky zobrazí při načtení stránky
-                </p>
-                {isSavingDisplay && (
-                  <p className="text-sm text-gray-600 mt-2">Ukládání...</p>
-                )}
-              </div>
+            <div className="text-center text-gray-500 py-8">
+              <p>Žádná nastavení zobrazení k dispozici</p>
             </div>
           </div>
         )
@@ -685,13 +648,6 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
         return (
           <div>
             <div>
-              <div className="mb-6">
-                <h4 className="text-lg font-bold text-red-800 mb-2">🚨 {t('settings.danger.warning')}</h4>
-                <p className="text-sm text-gray-700 mb-4">
-                  {t('settings.danger.warningText')}
-                </p>
-              </div>
-
               <div className="space-y-4">
                 <div className="bg-white rounded-lg p-4 border border-red-200">
                   <h5 className="font-bold text-red-700 mb-2">🚪 {t('settings.danger.logout.title')}</h5>

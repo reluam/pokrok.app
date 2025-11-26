@@ -215,7 +215,7 @@
       "statistics": "Statistiky",
       "player": "Postava",
       "workflows": "Workflows",
-      "danger": "Nebezpečná zóna"
+      "danger": "Účet"
     },
     "user": {
       "title": "INFORMACE O UŽIVATELI",
@@ -263,7 +263,7 @@
     },
     "steps": {
       "title": "NASTAVENÍ KROKŮ",
-      "gameSettings": "Herní nastavení",
+      "gameSettings": "Nastavení kroků",
       "defaultXpReward": "Výchozí XP odměna",
       "autoAddToDaily": "Automaticky přidávat nové kroky do denního plánu",
       "maxStepsPerGoal": "Maximální počet kroků na cíl",
@@ -317,7 +317,7 @@
       "deactivate": "Deaktivovat"
     },
     "danger": {
-      "title": "NEBEZPEČNÁ ZÓNA",
+      "title": "ÚČET",
       "warning": "Varování",
       "warningText": "Tyto akce nelze vrátit zpět. Buďte opatrní při jejich používání!",
       "logout": {

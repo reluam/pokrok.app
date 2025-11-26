@@ -215,7 +215,7 @@
       "statistics": "Statistics",
       "player": "Character",
       "workflows": "Workflows",
-      "danger": "Danger Zone"
+      "danger": "Account"
     },
     "user": {
       "title": "USER INFORMATION",
@@ -317,7 +317,7 @@
       "deactivate": "Deactivate"
     },
     "danger": {
-      "title": "DANGER ZONE",
+      "title": "ACCOUNT",
       "warning": "Warning",
       "warningText": "These actions cannot be undone. Be careful when using them!",
       "logout": {
