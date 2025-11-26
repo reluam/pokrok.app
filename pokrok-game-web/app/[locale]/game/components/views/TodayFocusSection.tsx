@@ -500,16 +500,16 @@ export function TodayFocusSection({
                                   <button
                                     key={dateStr}
                                     onClick={() => {
-                                      if (isScheduled && handleHabitToggle && !isLoading) {
+                                      if (handleHabitToggle && !isLoading) {
                                         handleHabitToggle(habit.id, dateStr)
                                       }
                                     }}
-                                    disabled={!isScheduled || isLoading}
+                                    disabled={isLoading}
                                     className={`w-6 h-6 rounded flex items-center justify-center transition-all ${
-                                      !isScheduled 
-                                        ? 'bg-gray-100 cursor-default' 
-                                        : isCompleted
-                                          ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                                      isCompleted
+                                        ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                                        : !isScheduled 
+                                          ? 'bg-gray-100 hover:bg-orange-200 cursor-pointer' 
                                           : 'bg-gray-200 hover:bg-orange-200 cursor-pointer'
                                     } ${isSelected ? 'ring-2 ring-orange-400 ring-offset-1' : ''}`}
                                   >
@@ -581,19 +581,19 @@ export function TodayFocusSection({
                                   <button
                                     key={dateStr}
                                     onClick={() => {
-                                      if (isScheduled && handleHabitToggle && !isLoading) {
+                                      if (handleHabitToggle && !isLoading) {
                                         handleHabitToggle(habit.id, dateStr)
                                       }
                                     }}
-                                    disabled={!isScheduled || isLoading}
+                                    disabled={isLoading}
                                     className={`w-7 h-7 rounded-md flex items-center justify-center transition-all ${
-                                      !isScheduled 
-                                        ? 'bg-gray-100 cursor-default' 
-                                        : isCompleted
-                                          ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                                      isCompleted
+                                        ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                                        : !isScheduled 
+                                          ? 'bg-gray-100 hover:bg-orange-200 cursor-pointer' 
                                           : 'bg-gray-200 hover:bg-orange-200 cursor-pointer'
                                     } ${isSelected ? 'ring-2 ring-orange-400 ring-offset-1' : ''}`}
-                                    title={isScheduled ? (isCompleted ? 'Splněno' : 'Klikni pro splnění') : 'Nenaplánováno'}
+                                    title={isCompleted ? 'Splněno' : 'Klikni pro splnění'}
                                   >
                                     {isLoading ? (
                                       <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
