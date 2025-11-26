@@ -752,87 +752,6 @@ export function TodayFocusSection({
                     
                     return (
                       <div key={step.id}>
-                        {showGoalInfo ? (
-                          // Show with goal (like in "Cíle s nejbližšími kroky")
-                          <div className="border-l-4 border-orange-600 pl-4">
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="text-xl">{goalIcon}</span>
-                              <h4 className="font-semibold text-gray-900 truncate text-sm">{stepGoal.title}</h4>
-                              {stepGoal.focus_order && (
-                                <span className="text-xs font-medium text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full flex-shrink-0">
-                                  #{stepGoal.focus_order}
-                                </span>
-                              )}
-                            </div>
-                            
-                            <div className="ml-7">
-                              <div
-                                onClick={() => handleItemClick(step, 'step')}
-                                className={`p-2.5 rounded-lg border transition-all duration-200 cursor-pointer ${
-                                  step.is_important && step.is_urgent
-                                    ? 'border-yellow-400 bg-yellow-50/50 hover:bg-yellow-50 hover:border-yellow-500'
-                                    : step.is_important
-                                      ? 'border-yellow-300 bg-yellow-50/30 hover:bg-yellow-50/50 hover:border-yellow-400'
-                                      : step.is_urgent
-                                        ? 'border-orange-600 bg-orange-100/30 hover:bg-orange-100/50 hover:border-orange-600'
-                                        : 'border-gray-200 bg-white hover:bg-gray-50'
-                                } ${step.completed ? 'opacity-60' : ''} ${isOverdue ? 'border-red-300 bg-red-50/30' : ''}`}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      if (!loadingSteps.has(step.id)) {
-                                        handleStepToggle(step.id, !step.completed)
-                                      }
-                                    }}
-                                    disabled={loadingSteps.has(step.id)}
-                                    className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0"
-                                  >
-                                    {loadingSteps.has(step.id) ? (
-                                      <svg className="animate-spin h-3.5 w-3.5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                      </svg>
-                                    ) : step.completed ? (
-                                      <Check className="w-3.5 h-3.5 text-orange-600" strokeWidth={3} />
-                                    ) : (
-                                      <Check className="w-3.5 h-3.5 text-gray-400" strokeWidth={2.5} fill="none" />
-                                    )}
-                                  </button>
-                                  <div className="flex-1 min-w-0">
-                                    <span className={`truncate block text-xs ${
-                                      step.completed 
-                                        ? 'line-through text-gray-400' 
-                                        : isOverdue 
-                                          ? 'text-red-600 font-medium' 
-                                          : 'text-gray-700'
-                                    }`}>
-                                      {step.title}
-                                    </span>
-                                    {isWeekView && stepDateFormatted && (
-                                      <span className="text-[9px] text-gray-500 mt-0.5 block">
-                                        {stepDateFormatted}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="flex items-center gap-1 flex-shrink-0">
-                                    {step.is_important && (
-                                      <span className="text-yellow-600 text-xs">⭐</span>
-                                    )}
-                                    {step.is_urgent && (
-                                      <span className="text-orange-600 text-xs">⚡</span>
-                                    )}
-                                    {isOverdue && !step.completed && (
-                                      <span className="text-red-500 text-xs">⚠️</span>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          // Show without goal (normal step)
                           <div
                         onClick={() => handleItemClick(step, 'step')}
                         className={`p-2.5 rounded-lg border transition-all duration-200 cursor-pointer ${
@@ -868,15 +787,20 @@ export function TodayFocusSection({
                             )}
                           </button>
                               <div className="flex-1 min-w-0">
-                                <span className={`truncate block font-medium text-sm ${
-                            step.completed 
-                              ? 'line-through text-gray-500' 
-                              : isOverdue 
-                                ? 'text-red-700 font-semibold' 
-                                : 'text-gray-900'
-                          }`}>
-                            {step.title}
-                          </span>
+                                <div className="flex items-center gap-1.5">
+                                  {stepGoal && (
+                                    <span className="text-sm flex-shrink-0" title={stepGoal.title}>{goalIcon}</span>
+                                  )}
+                                  <span className={`truncate font-medium text-sm ${
+                                    step.completed 
+                                      ? 'line-through text-gray-500' 
+                                      : isOverdue 
+                                        ? 'text-red-700 font-semibold' 
+                                        : 'text-gray-900'
+                                  }`}>
+                                    {step.title}
+                                  </span>
+                                </div>
                                 {isWeekView && stepDateFormatted && (
                                   <span className="text-[10px] text-gray-500 mt-0.5 block">
                                     {stepDateFormatted}
@@ -896,7 +820,6 @@ export function TodayFocusSection({
                           </div>
                         </div>
                           </div>
-                        )}
                       </div>
                     )
                   })}
