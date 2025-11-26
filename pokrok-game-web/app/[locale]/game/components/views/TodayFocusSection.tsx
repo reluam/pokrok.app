@@ -533,7 +533,7 @@ export function TodayFocusSection({
                     {/* Desktop: Compact colored squares layout */}
                     <div className="hidden lg:block overflow-y-auto max-h-[500px]">
                       {/* Header with day names */}
-                      <div className="flex items-center gap-1.5 mb-2 pl-[120px]">
+                      <div className="flex items-center gap-1 mb-2">
                         {weekDays.map((day) => {
                           const dateStr = getLocalDateString(day)
                           const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
@@ -558,13 +558,13 @@ export function TodayFocusSection({
                         })}
                       </div>
                       
-                      {/* Habits with colored squares */}
-                      <div className="space-y-1.5">
+                      {/* Habits with colored squares - name above checkboxes */}
+                      <div className="space-y-2">
                         {weekHabits.map((habit) => (
-                          <div key={habit.id} className="flex items-center gap-1.5">
+                          <div key={habit.id} className="flex flex-col">
                             <button
                               onClick={() => handleItemClick(habit, 'habit')}
-                              className="w-[112px] text-left text-[11px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate flex-shrink-0"
+                              className="text-left text-[11px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate mb-1"
                               title={habit.name}
                             >
                               {habit.name}
@@ -629,144 +629,60 @@ export function TodayFocusSection({
             )}
             {!isWeekView && (
             <div className="flex-shrink-0 lg:border-r lg:border-gray-200 lg:pr-6 pb-6 lg:pb-0 border-b lg:border-b-0 w-full lg:w-auto" style={{ width: `auto`, maxWidth: '100%' }}>
-              <div className="flex items-center justify-between mb-3">
               <h4 
                 onClick={() => onNavigateToHabits?.()}
-                  className={`text-xs font-semibold text-gray-500 uppercase tracking-wide ${onNavigateToHabits ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
+                className={`text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 ${onNavigateToHabits ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
               >
                 Návyky
               </h4>
-                {(() => {
-                  const completedHabitsCount = todaysHabits.filter(h => {
-                    const isCompleted = h.habit_completions && h.habit_completions[displayDateStr] === true
-                    return isCompleted
-                  }).length
-                  
-                  if (completedHabitsCount > 0) {
-                    return (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setShowCompletedHabits(!showCompletedHabits)
-                        }}
-                        className="flex items-center gap-1 text-xs text-gray-500 hover:text-orange-600 transition-colors"
-                        title={showCompletedHabits ? 'Skrýt hotové návyky' : 'Zobrazit hotové návyky'}
-                      >
-                        {showCompletedHabits ? (
-                          <>
-                            <span className="text-[10px]">Skrýt</span>
-                            <ChevronUp className="w-3 h-3" />
-                          </>
-                        ) : (
-                          <>
-                            <span className="text-[10px]">Zobrazit ({completedHabitsCount})</span>
-                            <ChevronDown className="w-3 h-3" />
-                          </>
-                        )}
-                      </button>
-                    )
-                  }
-                  return null
-                })()}
-              </div>
               {todaysHabits.length > 0 ? (
-                <div className="space-y-2">
-                  {todaysHabits.filter((habit) => {
+                <div className="space-y-1.5">
+                  {todaysHabits.map((habit) => {
                     const isCompleted = habit.habit_completions && habit.habit_completions[displayDateStr] === true
-                    // Show all non-completed habits, and completed only if showCompletedHabits is true
-                    return !isCompleted || showCompletedHabits
-                  }).map((habit) => {
-                    const isCompleted = habit.habit_completions && habit.habit_completions[displayDateStr] === true
-                    const isNotScheduled = habit.always_show ? (() => {
-                      if (habit.frequency === 'daily') return false
-                      if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return false
-                      return true
-                    })() : false
-                    
-                    // Calculate streak
-                    const habitCompletions = habit.habit_completions || {}
-                    const completionDates = Object.keys(habitCompletions).sort()
-                    let currentStreak = 0
-                    const userCreatedDateFull = new Date(player?.created_at || '2024-01-01')
-                    const userCreatedDate = new Date(userCreatedDateFull.getFullYear(), userCreatedDateFull.getMonth(), userCreatedDateFull.getDate())
-                    
-                    let lastCompletedDate = null
-                    for (const dateKey of completionDates) {
-                      const completion = habitCompletions[dateKey]
-                      if (completion === true) {
-                        const date = new Date(dateKey)
-                        if (!lastCompletedDate || date > lastCompletedDate) {
-                          lastCompletedDate = date
-                        }
-                      }
-                    }
-                    
-                    if (lastCompletedDate) {
-                      const lastCompletedDateOnly = new Date(lastCompletedDate!.getFullYear(), lastCompletedDate!.getMonth(), lastCompletedDate!.getDate())
-                      for (let d = new Date(lastCompletedDateOnly); d >= userCreatedDate; d.setDate(d.getDate() - 1)) {
-                        const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-                        const completion = habitCompletions[dateKey]
-                        
-                        if (completion === true) {
-                          currentStreak++
-                        } else if (completion === false) {
-                          break
-                        }
-                      }
-                    }
+                    const isScheduled = (() => {
+                      if (habit.frequency === 'daily') return true
+                      if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
+                      return false
+                    })()
+                    const isLoading = loadingHabits.has(habit.id)
                     
                     return (
-                      <button
-                        key={habit.id}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          // Open modal on button click (not on checkbox)
-                          if (!(e.target instanceof HTMLElement && (e.target.closest('.habit-checkbox') || e.target.closest('svg')))) {
-                            handleItemClick(habit, 'habit')
-                          }
-                        }}
-                        className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg border-2 transition-all text-left ${
-                          isCompleted 
-                            ? 'bg-orange-200 border-orange-600 hover:bg-orange-300' 
-                            : isNotScheduled 
-                              ? 'bg-gray-50 border-gray-300 hover:bg-gray-100 opacity-60' 
-                              : 'bg-white border-orange-600 hover:border-orange-600 hover:bg-orange-100'
-                        } cursor-pointer`}
-                        title="Klikněte pro úpravu návyku"
-                      >
-                        <div
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            if (handleHabitToggle && !loadingHabits.has(habit.id)) {
+                      <div key={habit.id} className="flex items-center gap-2">
+                        <button
+                          onClick={() => {
+                            if (handleHabitToggle && !isLoading) {
                               handleHabitToggle(habit.id, displayDateStr)
                             }
                           }}
-                          className="habit-checkbox flex-shrink-0 cursor-pointer"
+                          disabled={isLoading}
+                          className={`w-6 h-6 rounded-md flex items-center justify-center transition-all flex-shrink-0 ${
+                            isCompleted
+                              ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                              : !isScheduled 
+                                ? 'bg-gray-100 hover:bg-orange-200 cursor-pointer' 
+                                : 'bg-gray-200 hover:bg-orange-200 cursor-pointer'
+                          }`}
+                          title={isCompleted ? 'Splněno' : 'Klikni pro splnění'}
                         >
-                          {loadingHabits.has(habit.id) ? (
-                            <svg className="animate-spin h-3.5 w-3.5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          {isLoading ? (
+                            <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                           ) : isCompleted ? (
-                            <Check className="w-3.5 h-3.5 text-orange-600" strokeWidth={3} />
-                          ) : (
-                            <Check className="w-3.5 h-3.5 text-gray-400" strokeWidth={2.5} fill="none" />
-                          )}
-                        </div>
-                        <span className={`text-xs font-medium truncate flex-1 ${
-                          isCompleted 
-                            ? 'line-through text-orange-700' 
-                            : isNotScheduled 
-                              ? 'text-gray-500' 
-                              : 'text-gray-900'
-                        }`}>
+                            <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                          ) : null}
+                        </button>
+                        <button
+                          onClick={() => handleItemClick(habit, 'habit')}
+                          className={`text-left text-[11px] font-medium hover:text-orange-600 transition-colors truncate ${
+                            isCompleted ? 'text-gray-400 line-through' : 'text-gray-700'
+                          }`}
+                          title={habit.name}
+                        >
                           {habit.name}
-                        </span>
-                        {currentStreak > 0 && (
-                          <span className="text-orange-600 font-bold text-xs flex-shrink-0">🔥{currentStreak}</span>
-                        )}
-                      </button>
+                        </button>
+                      </div>
                     )
                   })}
                 </div>
