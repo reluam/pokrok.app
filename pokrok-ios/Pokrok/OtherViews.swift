@@ -274,23 +274,23 @@ struct StepsView: View {
                     .padding(.top, DesignSystem.Spacing.md)
                 }
                 .background(DesignSystem.Colors.background)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: {
+                            showAddStepModal = true
+                        }) {
+                            ModernIcon(
+                                systemName: "plus",
+                                size: 18,
+                                color: DesignSystem.Colors.primary
+                            )
+                        }
+                    }
+                }
             }
         }
         .navigationTitle("Kroky")
         .navigationBarTitleDisplayMode(.large)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    showAddStepModal = true
-                }) {
-                    ModernIcon(
-                        systemName: "plus",
-                        size: 18,
-                        color: DesignSystem.Colors.primary
-                    )
-                }
-            }
-        }
         .onAppear {
             loadSteps()
         }
@@ -453,6 +453,145 @@ struct StepsView: View {
                     showError = true
                 }
             }
+        }
+    }
+}
+
+// MARK: - Habits View
+struct HabitsView: View {
+    @StateObject private var apiManager = APIManager.shared
+    @State private var habits: [Habit] = []
+    @State private var isLoading = true
+    @State private var errorMessage = ""
+    @State private var showError = false
+    
+    var body: some View {
+        NavigationView {
+            if isLoading {
+                LoadingView(message: "Načítám návyky...")
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: DesignSystem.Spacing.lg) {
+                        // Header
+                        ModernCard {
+                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                                        Text("Moje návyky")
+                                            .font(DesignSystem.Typography.title2)
+                                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                                        
+                                        Text("\(habits.count) návyků celkem")
+                                            .font(DesignSystem.Typography.caption)
+                                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                                    }
+                                    
+                                    Spacer()
+                                }
+                            }
+                            .padding(DesignSystem.Spacing.md)
+                        }
+                        
+                        // Habits List
+                        if habits.isEmpty {
+                            EmptyStateView(
+                                icon: "repeat.circle",
+                                title: "Zatím nemáte žádné návyky",
+                                subtitle: "Návyky vám pomohou budovat pravidelné rutiny",
+                                actionTitle: nil
+                            ) {}
+                        } else {
+                            LazyVStack(spacing: DesignSystem.Spacing.sm) {
+                                ForEach(habits, id: \.id) { habit in
+                                    HabitCardView(habit: habit)
+                                }
+                            }
+                        }
+                        
+                        // Bottom padding for tab bar
+                        Spacer(minLength: 100)
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.md)
+                    .padding(.top, DesignSystem.Spacing.md)
+                }
+                .background(DesignSystem.Colors.background)
+            }
+        }
+        .navigationTitle("Návyky")
+        .navigationBarTitleDisplayMode(.large)
+        .onAppear {
+            loadHabits()
+        }
+        .alert("Chyba", isPresented: $showError) {
+            Button("OK") { }
+        } message: {
+            Text(errorMessage)
+        }
+    }
+    
+    private func loadHabits() {
+        Task {
+            do {
+                let fetchedHabits = try await apiManager.fetchHabits()
+                
+                await MainActor.run {
+                    self.habits = fetchedHabits
+                    self.isLoading = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = error.localizedDescription
+                    self.showError = true
+                    self.isLoading = false
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Habit Card View
+struct HabitCardView: View {
+    let habit: Habit
+    
+    var body: some View {
+        ModernCard {
+            HStack(spacing: DesignSystem.Spacing.md) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                    Text(habit.name)
+                        .font(DesignSystem.Typography.headline)
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                    
+                    HStack(spacing: DesignSystem.Spacing.sm) {
+                        Text(frequencyText)
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                        
+                        if habit.streak > 0 {
+                            Text("🔥 \(habit.streak)")
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.primary)
+                        }
+                    }
+                }
+                
+                Spacer()
+            }
+            .padding(DesignSystem.Spacing.md)
+        }
+    }
+    
+    private var frequencyText: String {
+        switch habit.frequency {
+        case "daily":
+            return "Denně"
+        case "weekly":
+            return "Týdně"
+        case "monthly":
+            return "Měsíčně"
+        case "custom":
+            return "Vlastní"
+        default:
+            return habit.frequency
         }
     }
 }

@@ -1442,92 +1442,117 @@ struct StepEditModal: View {
                     
                     // Right column - Checklist
                     VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Text("Checklist")
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundColor(Color(white: 0.3))
-                            Spacer()
-                            if !checklist.isEmpty {
-                                Text("\(checklistProgress.completed)/\(checklistProgress.total) splněno")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.gray)
+                        // Header with border
+                        VStack(alignment: .leading, spacing: 0) {
+                            HStack {
+                                HStack(spacing: 6) {
+                                    Text("Checklist")
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundColor(Color(white: 0.25))
+                                }
+                                Spacer()
+                                if !checklist.isEmpty {
+                                    Text("\(checklistProgress.completed)/\(checklistProgress.total) splněno")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                            .padding(.bottom, 12)
+                        }
+                        
+                        // Checklist items or empty state
+                        if checklist.isEmpty {
+                            VStack(spacing: 8) {
+                                Image(systemName: "checklist")
+                                    .font(.system(size: 32))
+                                    .foregroundColor(.gray.opacity(0.3))
+                                Text("Zatím žádné položky")
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.gray.opacity(0.6))
+                                Text("Přidejte pod-úkoly pro tento krok")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.gray.opacity(0.4))
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 24)
+                        } else {
+                            VStack(spacing: 6) {
+                                ForEach(checklist.indices, id: \.self) { index in
+                                    HStack(spacing: 12) {
+                                        // Checkbox
+                                        Button(action: {
+                                            checklist[index].completed.toggle()
+                                        }) {
+                                            RoundedRectangle(cornerRadius: 5)
+                                                .fill(checklist[index].completed ? primaryOrange : Color.white)
+                                                .frame(width: 20, height: 20)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 5)
+                                                        .stroke(checklist[index].completed ? primaryOrange : Color.gray.opacity(0.35), lineWidth: 2)
+                                                )
+                                                .overlay(
+                                                    checklist[index].completed ?
+                                                    Image(systemName: "checkmark")
+                                                        .font(.system(size: 10, weight: .bold))
+                                                        .foregroundColor(.white)
+                                                    : nil
+                                                )
+                                        }
+                                        .buttonStyle(.plain)
+                                        
+                                        // Editable title
+                                        TextField("Název položky...", text: $checklist[index].title)
+                                            .textFieldStyle(.plain)
+                                            .font(.system(size: 13))
+                                            .foregroundColor(checklist[index].completed ? .gray : Color(white: 0.25))
+                                        
+                                        Spacer()
+                                        
+                                        // Delete button
+                                        Button(action: {
+                                            checklist.remove(at: index)
+                                        }) {
+                                            Image(systemName: "xmark")
+                                                .font(.system(size: 10, weight: .medium))
+                                                .foregroundColor(.gray.opacity(0.4))
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 10)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill(checklist[index].completed ? primaryOrange.opacity(0.06) : Color.gray.opacity(0.04))
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(checklist[index].completed ? primaryOrange.opacity(0.25) : Color.gray.opacity(0.12), lineWidth: 1)
+                                    )
+                                }
                             }
                         }
                         
-                        VStack(spacing: 8) {
-                            ForEach(checklist.indices, id: \.self) { index in
-                                HStack(spacing: 10) {
-                                    Button(action: {
-                                        checklist[index].completed.toggle()
-                                    }) {
-                                        RoundedRectangle(cornerRadius: 4)
-                                            .fill(checklist[index].completed ? primaryOrange : Color.white)
-                                            .frame(width: 22, height: 22)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 4)
-                                                    .stroke(checklist[index].completed ? primaryOrange : Color.gray.opacity(0.3), lineWidth: 1.5)
-                                            )
-                                            .overlay(
-                                                checklist[index].completed ?
-                                                Image(systemName: "checkmark")
-                                                    .font(.system(size: 11, weight: .bold))
-                                                    .foregroundColor(.white)
-                                                : nil
-                                            )
-                                    }
-                                    .buttonStyle(.plain)
-                                    
-                                    Text(checklist[index].title)
-                                        .font(.system(size: 13))
-                                        .foregroundColor(checklist[index].completed ? .gray : Color(white: 0.3))
-                                        .strikethrough(checklist[index].completed, color: .gray)
-                                    
-                                    Spacer()
-                                    
-                                    Button(action: {
-                                        checklist.remove(at: index)
-                                    }) {
-                                        Image(systemName: "xmark")
-                                            .font(.system(size: 10, weight: .medium))
-                                            .foregroundColor(.gray.opacity(0.5))
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 10)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(checklist[index].completed ? primaryOrange.opacity(0.08) : Color.white)
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(checklist[index].completed ? primaryOrange.opacity(0.2) : Color.gray.opacity(0.15), lineWidth: 1)
-                                )
+                        // Add new item button
+                        Button(action: {
+                            let newItem = ChecklistItem(id: UUID().uuidString, title: "", completed: false)
+                            checklist.append(newItem)
+                        }) {
+                            HStack {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 12, weight: .semibold))
+                                Text("Přidat položku")
+                                    .font(.system(size: 13, weight: .medium))
                             }
-                            
-                            // Add new item button
-                            Button(action: {
-                                let newItem = ChecklistItem(id: UUID().uuidString, title: "New item", completed: false)
-                                checklist.append(newItem)
-                            }) {
-                                HStack {
-                                    Image(systemName: "plus")
-                                        .font(.system(size: 12, weight: .medium))
-                                    Text("Přidat položku")
-                                        .font(.system(size: 13, weight: .medium))
-                                }
-                                .foregroundColor(primaryOrange)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(primaryOrange.opacity(0.3), style: StrokeStyle(lineWidth: 1, dash: [5]))
-                                        .background(primaryOrange.opacity(0.03))
-                                )
-                                .cornerRadius(8)
-                            }
-                            .buttonStyle(.plain)
+                            .foregroundColor(primaryOrange)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(primaryOrange.opacity(0.35), style: StrokeStyle(lineWidth: 1.5, dash: [6]))
+                                    .background(primaryOrange.opacity(0.04).cornerRadius(10))
+                            )
                         }
+                        .buttonStyle(.plain)
                         
                         // Require all checkbox
                         if !checklist.isEmpty {
@@ -1537,10 +1562,17 @@ struct StepEditModal: View {
                                     .foregroundColor(.gray)
                             }
                             .toggleStyle(.checkbox)
-                            .padding(.top, 8)
+                            .padding(.top, 6)
                         }
                     }
                     .frame(maxWidth: .infinity)
+                    .padding(.leading, 16)
+                    .overlay(
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.12))
+                            .frame(width: 1)
+                        , alignment: .leading
+                    )
                 }
                 .padding(24)
             }
