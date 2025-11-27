@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		72B870592ED89408000D9BF8 /* Clerk in Frameworks */ = {isa = PBXBuildFile; productRef = 72B870582ED89408000D9BF8 /* Clerk */; };
+		72B870702ED902C9000D9BF8 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B8706F2ED902C9000D9BF8 /* HelpView.swift */; };
 		A1000001291D0A0000000001 /* PokrokApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002291D0A0000000001 /* PokrokApp.swift */; };
 		A1000003291D0A0000000001 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000004291D0A0000000001 /* ContentView.swift */; };
 		A1000005291D0A0000000001 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000006291D0A0000000001 /* Models.swift */; };
@@ -26,6 +27,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		72B8706F2ED902C9000D9BF8 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		A1000000291D0A0000000001 /* Pokrok.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pokrok.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000002291D0A0000000001 /* PokrokApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokrokApp.swift; sourceTree = "<group>"; };
 		A1000004291D0A0000000001 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -70,6 +72,7 @@
 		A1000050291D0A0000000001 /* Pokrok */ = {
 			isa = PBXGroup;
 			children = (
+				72B8706F2ED902C9000D9BF8 /* HelpView.swift */,
 				A1000002291D0A0000000001 /* PokrokApp.swift */,
 				A1000004291D0A0000000001 /* ContentView.swift */,
 				A1000006291D0A0000000001 /* Models.swift */,
@@ -186,6 +189,7 @@
 				A1000021291D0A0000000001 /* StatisticsView.swift in Sources */,
 				A1000023291D0A0000000001 /* SettingsView.swift in Sources */,
 				A1000031291D0A0000000001 /* WeekOverviewView.swift in Sources */,
+				72B870702ED902C9000D9BF8 /* HelpView.swift in Sources */,
 				A1000033291D0A0000000001 /* StepsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -23,6 +23,8 @@ struct MainAppView: View {
     @State private var habits: [Habit] = []
     @State private var steps: [Step] = []
     @State private var isLoading = true
+    @State private var showingHelp = false
+    @State private var showingSettings = false
     
     enum AppTab: String, CaseIterable {
         case overview = "Overview"
@@ -60,7 +62,10 @@ struct MainAppView: View {
             // Main content
             VStack(spacing: 0) {
                 // Orange header bar
-                AppHeaderBar()
+                AppHeaderBar(
+                    onHelpClick: { showingHelp = true },
+                    onSettingsClick: { showingSettings = true }
+                )
                 
                 ZStack {
                     LinearGradient(
@@ -89,6 +94,13 @@ struct MainAppView: View {
         }
         .task {
             await loadData()
+        }
+        .sheet(isPresented: $showingHelp) {
+            HelpView(goals: $goals, habits: $habits, steps: $steps)
+        }
+        .sheet(isPresented: $showingSettings) {
+            SettingsView()
+                .environmentObject(authManager)
         }
     }
     
@@ -130,6 +142,9 @@ struct MainAppView: View {
 struct AppHeaderBar: View {
     // #ea580c
     private let primaryOrange = Color(red: 0.918, green: 0.345, blue: 0.047)
+    
+    let onHelpClick: () -> Void
+    let onSettingsClick: () -> Void
     
     var body: some View {
         HStack {
@@ -175,7 +190,7 @@ struct AppHeaderBar: View {
                 .foregroundColor(.white)
                 
                 // Help
-                Button(action: {}) {
+                Button(action: onHelpClick) {
                     HStack(spacing: 5) {
                         Image(systemName: "questionmark.circle")
                             .font(.system(size: 14))
@@ -187,7 +202,7 @@ struct AppHeaderBar: View {
                 .buttonStyle(.plain)
                 
                 // Settings
-                Button(action: {}) {
+                Button(action: onSettingsClick) {
                     HStack(spacing: 5) {
                         Image(systemName: "gearshape")
                             .font(.system(size: 14))
