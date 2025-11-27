@@ -6,6 +6,7 @@ struct WeekOverviewView: View {
     @Binding var steps: [Step]
     @State private var currentWeekStart: Date = Date().startOfWeek
     @State private var selectedDay: Date? = nil
+    @State private var editingStep: Step? = nil
     
     private var weekDays: [Date] {
         (0..<7).map { currentWeekStart.addingTimeInterval(Double($0) * 86400) }
@@ -94,7 +95,8 @@ struct WeekOverviewView: View {
                         weekDays: weekDays,
                         selectedDay: selectedDay,
                         onHabitToggle: toggleHabit,
-                        onStepToggle: toggleStep
+                        onStepToggle: toggleStep,
+                        onStepEdit: { step in editingStep = step }
                     )
                 } else if let selected = selectedDay {
                     DailyFocusView(
@@ -102,13 +104,25 @@ struct WeekOverviewView: View {
                         steps: steps,
                         selectedDay: selected,
                         onHabitToggle: toggleHabit,
-                        onStepToggle: toggleStep
+                        onStepToggle: toggleStep,
+                        onStepEdit: { step in editingStep = step }
                     )
                 }
             }
             .padding(24)
         }
         .background(Color.orange.opacity(0.03))
+        .sheet(item: $editingStep) { step in
+            StepEditModal(step: step, goals: goals, onSave: { updatedStep in
+                // TODO: Implement save via API
+                if let index = steps.firstIndex(where: { $0.id == updatedStep.id }) {
+                    steps[index] = updatedStep
+                }
+                editingStep = nil
+            }, onCancel: {
+                editingStep = nil
+            })
+        }
     }
     
     private func getDayStats(for date: Date) -> DayStats {
@@ -153,12 +167,17 @@ struct WeekOverviewView: View {
         return formatter.string(from: date)
     }
     
-    private func toggleHabit(_ habit: Habit) {
-        // TODO: Implement habit toggle via API
+    private func toggleHabit(_ habit: Habit, date: Date) {
+        // TODO: Implement habit toggle via API for specific date
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let dateStr = formatter.string(from: date)
+        print("Toggle habit \(habit.name) for date \(dateStr)")
     }
     
     private func toggleStep(_ step: Step) {
         // TODO: Implement step toggle via API
+        print("Toggle step \(step.title)")
     }
 }
 
@@ -408,6 +427,7 @@ struct WeeklyFocusView: View {
     let selectedDay: Date?
     let onHabitToggle: (Habit, Date) -> Void
     let onStepToggle: (Step) -> Void
+    let onStepEdit: (Step) -> Void
     
     private let dayNamesShort = ["PO", "ÚT", "ST", "ČT", "PÁ", "SO", "NE"]
     private let dayNamesLong = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
@@ -539,7 +559,7 @@ struct WeeklyFocusView: View {
                             .foregroundColor(.gray)
                             .padding(.vertical, 20)
                     } else {
-                        StepsListView(steps: weekSteps, weekDays: weekDays, onToggle: onStepToggle)
+                        StepsListView(steps: weekSteps, weekDays: weekDays, onToggle: onStepToggle, onEdit: onStepEdit)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -564,8 +584,9 @@ struct DailyFocusView: View {
     let habits: [Habit]
     let steps: [Step]
     let selectedDay: Date
-    let onHabitToggle: (Habit) -> Void
+    let onHabitToggle: (Habit, Date) -> Void
     let onStepToggle: (Step) -> Void
+    let onStepEdit: (Step) -> Void
     
     // Filter habits for selected day
     private var dayHabits: [Habit] {
@@ -666,7 +687,7 @@ struct DailyFocusView: View {
                                 DayHabitRow(
                                     habit: habit,
                                     isCompleted: isHabitCompletedForDay(habit),
-                                    onToggle: { onHabitToggle(habit) }
+                                    onToggle: { onHabitToggle(habit, selectedDay) }
                                 )
                             }
                         }
@@ -697,7 +718,8 @@ struct DailyFocusView: View {
                     DayStepsListView(
                         steps: daySteps,
                         dayLabel: dayLabel,
-                        onToggle: onStepToggle
+                        onToggle: onStepToggle,
+                        onEdit: onStepEdit
                     )
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -773,6 +795,7 @@ struct DayStepsListView: View {
     let steps: [Step]
     let dayLabel: String
     let onToggle: (Step) -> Void
+    let onEdit: (Step) -> Void
     
     @State private var showCompleted = false
     
@@ -794,7 +817,7 @@ struct DayStepsListView: View {
             } else {
                 // Incomplete steps
                 ForEach(incompleteSteps) { step in
-                    DayStepRow(step: step, onToggle: { onToggle(step) })
+                    DayStepRow(step: step, onToggle: { onToggle(step) }, onEdit: { onEdit(step) })
                 }
                 
                 // Completed steps toggle
@@ -815,7 +838,7 @@ struct DayStepsListView: View {
                     
                     if showCompleted {
                         ForEach(completedSteps) { step in
-                            DayStepRow(step: step, onToggle: { onToggle(step) })
+                            DayStepRow(step: step, onToggle: { onToggle(step) }, onEdit: { onEdit(step) })
                         }
                     }
                 }
@@ -827,6 +850,7 @@ struct DayStepsListView: View {
 struct DayStepRow: View {
     let step: Step
     let onToggle: () -> Void
+    let onEdit: () -> Void
     @State private var isHovering = false
     
     private let primaryOrange = Color(red: 0.96, green: 0.55, blue: 0.16)
@@ -909,6 +933,9 @@ struct DayStepRow: View {
             withAnimation(.easeInOut(duration: 0.15)) {
                 isHovering = hovering
             }
+        }
+        .onTapGesture {
+            onEdit()
         }
     }
 }
@@ -1035,6 +1062,7 @@ struct StepsListView: View {
     let steps: [Step]
     let weekDays: [Date]
     let onToggle: (Step) -> Void
+    let onEdit: (Step) -> Void
     
     @State private var showCompleted = false
     
@@ -1050,7 +1078,7 @@ struct StepsListView: View {
         VStack(spacing: 6) {
             // Incomplete steps
             ForEach(incompleteSteps) { step in
-                StepRowView(step: step, weekDays: weekDays, onToggle: { onToggle(step) })
+                StepRowView(step: step, weekDays: weekDays, onToggle: { onToggle(step) }, onEdit: { onEdit(step) })
             }
             
             // Completed steps toggle
@@ -1072,7 +1100,7 @@ struct StepsListView: View {
                 
                 if showCompleted {
                     ForEach(completedSteps) { step in
-                        StepRowView(step: step, weekDays: weekDays, onToggle: { onToggle(step) })
+                        StepRowView(step: step, weekDays: weekDays, onToggle: { onToggle(step) }, onEdit: { onEdit(step) })
                             .opacity(0.7)
                     }
                 }
@@ -1085,6 +1113,7 @@ struct StepRowView: View {
     let step: Step
     let weekDays: [Date]
     let onToggle: () -> Void
+    let onEdit: () -> Void
     @State private var isHovering = false
     
     // Brand colors
@@ -1241,6 +1270,186 @@ struct StepRowView: View {
                 isHovering = hovering
             }
         }
+        .onTapGesture {
+            onEdit()
+        }
+    }
+}
+
+// MARK: - Step Edit Modal
+
+struct StepEditModal: View {
+    let step: Step
+    let goals: [Goal]
+    let onSave: (Step) -> Void
+    let onCancel: () -> Void
+    
+    @State private var title: String
+    @State private var description: String
+    @State private var selectedGoalId: String?
+    @State private var estimatedTime: Int
+    @State private var isImportant: Bool
+    @State private var isUrgent: Bool
+    @State private var date: Date
+    
+    private let primaryOrange = Color(red: 0.96, green: 0.55, blue: 0.16)
+    
+    init(step: Step, goals: [Goal], onSave: @escaping (Step) -> Void, onCancel: @escaping () -> Void) {
+        self.step = step
+        self.goals = goals
+        self.onSave = onSave
+        self.onCancel = onCancel
+        _title = State(initialValue: step.title)
+        _description = State(initialValue: step.description ?? "")
+        _selectedGoalId = State(initialValue: step.goalId)
+        _estimatedTime = State(initialValue: step.estimatedTime ?? 30)
+        _isImportant = State(initialValue: step.isImportant ?? false)
+        _isUrgent = State(initialValue: step.isUrgent ?? false)
+        _date = State(initialValue: step.date ?? Date())
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                Text("Edit Step")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(Color(white: 0.2))
+                Spacer()
+                Button(action: onCancel) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.gray)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(20)
+            .background(Color.gray.opacity(0.03))
+            
+            Divider()
+            
+            // Form
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    // Title
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Title")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.gray)
+                        TextField("Step title", text: $title)
+                            .textFieldStyle(.plain)
+                            .font(.system(size: 14))
+                            .padding(12)
+                            .background(Color.gray.opacity(0.05))
+                            .cornerRadius(8)
+                    }
+                    
+                    // Description
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Description")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.gray)
+                        TextEditor(text: $description)
+                            .font(.system(size: 14))
+                            .frame(height: 80)
+                            .padding(8)
+                            .background(Color.gray.opacity(0.05))
+                            .cornerRadius(8)
+                    }
+                    
+                    // Goal
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Goal")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.gray)
+                        Picker("", selection: $selectedGoalId) {
+                            Text("No goal").tag(nil as String?)
+                            ForEach(goals) { goal in
+                                Text(goal.title).tag(goal.id as String?)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                    }
+                    
+                    // Date & Time
+                    HStack(spacing: 20) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Date")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.gray)
+                            DatePicker("", selection: $date, displayedComponents: .date)
+                                .labelsHidden()
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Time (min)")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.gray)
+                            TextField("", value: $estimatedTime, format: .number)
+                                .textFieldStyle(.plain)
+                                .font(.system(size: 14))
+                                .padding(10)
+                                .frame(width: 80)
+                                .background(Color.gray.opacity(0.05))
+                                .cornerRadius(8)
+                        }
+                    }
+                    
+                    // Priority flags
+                    HStack(spacing: 20) {
+                        Toggle(isOn: $isImportant) {
+                            Text("Important")
+                                .font(.system(size: 13))
+                        }
+                        .toggleStyle(.checkbox)
+                        
+                        Toggle(isOn: $isUrgent) {
+                            Text("Urgent")
+                                .font(.system(size: 13))
+                        }
+                        .toggleStyle(.checkbox)
+                    }
+                }
+                .padding(20)
+            }
+            
+            Divider()
+            
+            // Actions
+            HStack {
+                Button("Cancel") {
+                    onCancel()
+                }
+                .buttonStyle(.plain)
+                .foregroundColor(.gray)
+                
+                Spacer()
+                
+                Button(action: {
+                    var updated = step
+                    updated.title = title
+                    updated.description = description.isEmpty ? nil : description
+                    updated.goalId = selectedGoalId
+                    updated.estimatedTime = estimatedTime
+                    updated.isImportant = isImportant
+                    updated.isUrgent = isUrgent
+                    updated.date = date
+                    onSave(updated)
+                }) {
+                    Text("Save")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                        .background(primaryOrange)
+                        .cornerRadius(8)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(20)
+        }
+        .frame(width: 450, height: 520)
+        .background(Color.white)
     }
 }
 
