@@ -74,6 +74,7 @@ struct Habit: Codable, Identifiable {
     var name: String
     var description: String?
     var frequency: String?
+    var selectedDays: [String]?
     var streak: Int?
     var maxStreak: Int?
     var lastCompleted: Date?
@@ -83,6 +84,7 @@ struct Habit: Codable, Identifiable {
     var color: String?
     var icon: String?
     var completedToday: Bool?
+    var habitCompletions: [String: Bool]?
     var createdAt: Date?
     var updatedAt: Date?
     
@@ -92,6 +94,7 @@ struct Habit: Codable, Identifiable {
         case name
         case description
         case frequency
+        case selectedDays = "selected_days"
         case streak
         case maxStreak = "max_streak"
         case lastCompleted = "last_completed"
@@ -101,6 +104,7 @@ struct Habit: Codable, Identifiable {
         case color
         case icon
         case completedToday = "completed_today"
+        case habitCompletions = "habit_completions"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }

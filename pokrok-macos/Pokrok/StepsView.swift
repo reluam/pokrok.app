@@ -2,8 +2,7 @@ import SwiftUI
 
 struct StepsView: View {
     let goals: [Goal]
-    @State private var steps: [Step] = []
-    @State private var isLoading = true
+    @Binding var steps: [Step]
     
     var body: some View {
         VStack(spacing: 0) {
@@ -29,11 +28,7 @@ struct StepsView: View {
             
             Divider()
             
-            if isLoading {
-                Spacer()
-                ProgressView()
-                Spacer()
-            } else if steps.isEmpty {
+            if steps.isEmpty {
                 Spacer()
                 VStack(spacing: 16) {
                     Image(systemName: "checkmark.circle")
@@ -58,22 +53,10 @@ struct StepsView: View {
                 }
             }
         }
-        .task {
-            await loadSteps()
-        }
     }
     
     private func goalTitle(for step: Step) -> String? {
         goals.first { $0.id == step.goalId }?.title
-    }
-    
-    private func loadSteps() async {
-        isLoading = true
-        defer { isLoading = false }
-        
-        // TODO: Load steps from API
-        // For now, use empty array
-        steps = []
     }
 }
 
@@ -150,6 +133,6 @@ struct StepCard: View {
 }
 
 #Preview {
-    StepsView(goals: [])
+    StepsView(goals: [], steps: .constant([]))
 }
 

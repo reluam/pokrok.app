@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@clerk/backend'
+import { neon } from '@neondatabase/serverless'
 import { getUserByClerkId, getPlayerByUserId, getGoalsByUserId, getHabitsByUserId, getDailyStepsByUserId } from '@/lib/cesta-db'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
 
-// Native app endpoint - verifies JWT token from Authorization header
+// Native app endpoint - verifies native token from Authorization header
 export async function GET(request: NextRequest) {
   try {
     // Get token from Authorization header
@@ -16,16 +16,35 @@ export async function GET(request: NextRequest) {
     
     const token = authHeader.substring(7) // Remove "Bearer "
     
-    // Verify the JWT token with Clerk
+    // Verify the native token from database
+    const sql = neon(process.env.DATABASE_URL!)
     let clerkUserId: string
+    
     try {
-      const verifiedToken = await verifyToken(token, {
-        secretKey: process.env.CLERK_SECRET_KEY!,
-      })
-      clerkUserId = verifiedToken.sub
+      const result = await sql`
+        SELECT clerk_user_id, expires_at 
+        FROM native_tokens 
+        WHERE token = ${token}
+      `
+      
+      if (result.length === 0) {
+        return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+      }
+      
+      const tokenData = result[0]
+      
+      // Check if token is expired
+      if (new Date(tokenData.expires_at) < new Date()) {
+        return NextResponse.json({ error: 'Token expired' }, { status: 401 })
+      }
+      
+      clerkUserId = tokenData.clerk_user_id
+      
+      // Update last_used_at
+      await sql`UPDATE native_tokens SET last_used_at = NOW() WHERE token = ${token}`
     } catch (error) {
       console.error('Token verification failed:', error)
-      return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 })
+      return NextResponse.json({ error: 'Token verification failed' }, { status: 401 })
     }
 
     // Get user from database

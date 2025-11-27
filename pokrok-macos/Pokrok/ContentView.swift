@@ -21,6 +21,7 @@ struct MainAppView: View {
     @State private var selectedTab: AppTab = .overview
     @State private var goals: [Goal] = []
     @State private var habits: [Habit] = []
+    @State private var steps: [Step] = []
     @State private var isLoading = true
     
     enum AppTab: String, CaseIterable {
@@ -70,11 +71,11 @@ struct MainAppView: View {
                 } else {
                     switch selectedTab {
                     case .overview:
-                        WeekOverviewView(goals: $goals, habits: $habits)
+                        WeekOverviewView(goals: $goals, habits: $habits, steps: $steps)
                     case .goals:
                         GoalsView(goals: $goals)
                     case .steps:
-                        StepsView(goals: goals)
+                        StepsView(goals: goals, steps: $steps)
                     case .habits:
                         HabitsView(habits: $habits)
                     }
@@ -95,6 +96,7 @@ struct MainAppView: View {
             await MainActor.run {
                 self.goals = gameData.goals
                 self.habits = gameData.habits
+                self.steps = gameData.steps ?? []
             }
         } catch {
             print("Error loading data: \(error)")

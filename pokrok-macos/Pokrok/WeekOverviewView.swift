@@ -3,7 +3,7 @@ import SwiftUI
 struct WeekOverviewView: View {
     @Binding var goals: [Goal]
     @Binding var habits: [Habit]
-    @State private var steps: [Step] = []
+    @Binding var steps: [Step]
     @State private var currentWeekStart: Date = Date().startOfWeek
     @State private var selectedDay: Date? = nil
     
@@ -83,21 +83,34 @@ struct WeekOverviewView: View {
     }
     
     private func getDayStats(for date: Date) -> DayStats {
+        let dayOfWeek = Calendar.current.component(.weekday, from: date)
+        let dayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+        let dayName = dayNames[dayOfWeek - 1]
         let dateStr = dateString(from: date)
         
-        // Count habits for this day
-        let dayHabits = habits.filter { $0.frequency == "daily" }
+        // Count habits for this day (daily or custom with this day selected)
+        let dayHabits = habits.filter { habit in
+            if habit.frequency == "daily" { return true }
+            if habit.frequency == "custom", let selectedDays = habit.selectedDays {
+                return selectedDays.contains(dayName)
+            }
+            return false
+        }
+        
+        // Check completions using habitCompletions dictionary
         let completedHabits = dayHabits.filter { habit in
-            // Check if habit was completed on this date
-            habit.completedToday == true && Calendar.current.isDate(date, inSameDayAs: today)
+            if let completions = habit.habitCompletions {
+                return completions[dateStr] == true
+            }
+            return false
         }.count
         
         // Count steps for this day
         let daySteps = steps.filter { step in
-            guard let stepDate = step.scheduledDate else { return false }
+            guard let stepDate = step.date else { return false }
             return Calendar.current.isDate(stepDate, inSameDayAs: date)
         }
-        let completedSteps = daySteps.filter { $0.isCompleted }.count
+        let completedSteps = daySteps.filter { $0.completed }.count
         
         let total = dayHabits.count + daySteps.count
         let completed = completedHabits + completedSteps
@@ -343,7 +356,47 @@ struct WeeklyFocusView: View {
     let onHabitToggle: (Habit) -> Void
     let onStepToggle: (Step) -> Void
     
-    private let dayNames = ["PO", "ÚT", "ST", "ČT", "PÁ", "SO", "NE"]
+    private let dayNamesShort = ["PO", "ÚT", "ST", "ČT", "PÁ", "SO", "NE"]
+    private let dayNamesLong = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+    
+    // Filter habits that should show this week
+    private var weekHabits: [Habit] {
+        habits.filter { habit in
+            if habit.frequency == "daily" { return true }
+            if habit.frequency == "custom", let selectedDays = habit.selectedDays {
+                // Check if any day of the week is in selectedDays
+                return weekDays.contains { day in
+                    let dayOfWeek = Calendar.current.component(.weekday, from: day)
+                    let dayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+                    let dayName = dayNames[dayOfWeek - 1]
+                    return selectedDays.contains(dayName)
+                }
+            }
+            return false
+        }
+    }
+    
+    // Filter steps for this week
+    private var weekSteps: [Step] {
+        guard let weekStart = weekDays.first, let weekEnd = weekDays.last else { return [] }
+        
+        return steps.filter { step in
+            guard let stepDate = step.date else { return false }
+            return stepDate >= weekStart && stepDate <= Calendar.current.date(byAdding: .day, value: 1, to: weekEnd)!
+        }.sorted { a, b in
+            // Completed steps go to bottom
+            if a.completed != b.completed {
+                return !a.completed
+            }
+            // Sort by date
+            guard let dateA = a.date, let dateB = b.date else { return false }
+            return dateA < dateB
+        }
+    }
+    
+    private var totalMinutes: Int {
+        weekSteps.reduce(0) { $0 + ($1.estimatedTime ?? 30) }
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -380,14 +433,14 @@ struct WeeklyFocusView: View {
                         .font(.caption.bold())
                         .foregroundColor(.secondary)
                     
-                    if habits.isEmpty {
+                    if weekHabits.isEmpty {
                         Text("No habits yet")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                             .padding()
                     } else {
                         HabitsTableView(
-                            habits: habits.filter { $0.frequency == "daily" },
+                            habits: weekHabits,
                             weekDays: weekDays,
                             onToggle: onHabitToggle
                         )
@@ -404,24 +457,24 @@ struct WeeklyFocusView: View {
                             .font(.caption.bold())
                             .foregroundColor(.secondary)
                         
-                        Text("\(steps.filter { $0.isCompleted }.count)/\(steps.count)")
+                        Text("\(weekSteps.filter { $0.completed }.count)/\(weekSteps.count)")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
                         Spacer()
                         
-                        Text("\(steps.count * 30) min")
+                        Text("\(totalMinutes) min")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                     
-                    if steps.isEmpty {
+                    if weekSteps.isEmpty {
                         Text("No steps scheduled")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                             .padding()
                     } else {
-                        StepsListView(steps: steps, onToggle: onStepToggle)
+                        StepsListView(steps: weekSteps, weekDays: weekDays, onToggle: onStepToggle)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -443,7 +496,30 @@ struct HabitsTableView: View {
     let weekDays: [Date]
     let onToggle: (Habit) -> Void
     
-    private let dayNames = ["PO", "ÚT", "ST", "ČT", "PÁ", "SO", "NE"]
+    private let dayNamesShort = ["PO", "ÚT", "ST", "ČT", "PÁ", "SO", "NE"]
+    
+    private func isHabitScheduledForDay(_ habit: Habit, day: Date) -> Bool {
+        let dayOfWeek = Calendar.current.component(.weekday, from: day)
+        let dayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+        let dayName = dayNames[dayOfWeek - 1]
+        
+        if habit.frequency == "daily" { return true }
+        if habit.frequency == "custom", let selectedDays = habit.selectedDays {
+            return selectedDays.contains(dayName)
+        }
+        return false
+    }
+    
+    private func isHabitCompletedForDay(_ habit: Habit, day: Date) -> Bool {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let dateStr = formatter.string(from: day)
+        
+        if let completions = habit.habitCompletions {
+            return completions[dateStr] == true
+        }
+        return false
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -455,9 +531,11 @@ struct HabitsTableView: View {
                 ForEach(0..<7, id: \.self) { i in
                     let day = weekDays[i]
                     let isToday = Calendar.current.isDateInToday(day)
+                    // Convert to Monday-based index
+                    let dayIndex = (Calendar.current.component(.weekday, from: day) + 5) % 7
                     
                     VStack(spacing: 2) {
-                        Text(dayNames[i])
+                        Text(dayNamesShort[dayIndex])
                             .font(.system(size: 10))
                         Text("\(Calendar.current.component(.day, from: day))")
                             .font(.caption.bold())
@@ -480,15 +558,20 @@ struct HabitsTableView: View {
                     
                     ForEach(0..<7, id: \.self) { i in
                         let day = weekDays[i]
-                        let isCompleted = false // TODO: Check actual completion
-                        let isPast = day < Date()
+                        let isScheduled = isHabitScheduledForDay(habit, day: day)
+                        let isCompleted = isHabitCompletedForDay(habit, day: day)
+                        let isPast = day < Calendar.current.startOfDay(for: Date())
                         let isToday = Calendar.current.isDateInToday(day)
                         
                         Button(action: {
                             onToggle(habit)
                         }) {
                             RoundedRectangle(cornerRadius: 6)
-                                .fill(isCompleted ? Color.orange : (isPast || isToday ? Color.gray.opacity(0.1) : Color.gray.opacity(0.05)))
+                                .fill(
+                                    isCompleted ? Color.orange :
+                                    !isScheduled ? Color.clear :
+                                    (isPast || isToday) ? Color.gray.opacity(0.1) : Color.gray.opacity(0.05)
+                                )
                                 .frame(width: 28, height: 28)
                                 .overlay(
                                     isCompleted ?
@@ -500,6 +583,7 @@ struct HabitsTableView: View {
                         }
                         .buttonStyle(.plain)
                         .frame(width: 36)
+                        .disabled(!isScheduled)
                     }
                 }
                 .padding(.vertical, 8)
@@ -512,30 +596,60 @@ struct HabitsTableView: View {
 
 struct StepsListView: View {
     let steps: [Step]
+    let weekDays: [Date]
     let onToggle: (Step) -> Void
     
     var body: some View {
-        VStack(spacing: 8) {
-            ForEach(steps) { step in
-                StepRowView(step: step, onToggle: { onToggle(step) })
+        ScrollView {
+            VStack(spacing: 8) {
+                ForEach(steps) { step in
+                    StepRowView(step: step, weekDays: weekDays, onToggle: { onToggle(step) })
+                }
             }
         }
+        .frame(maxHeight: 400)
     }
 }
 
 struct StepRowView: View {
     let step: Step
+    let weekDays: [Date]
     let onToggle: () -> Void
     @State private var isHovering = false
+    
+    private var dateLabel: String {
+        guard let stepDate = step.date else { return "" }
+        
+        let today = Calendar.current.startOfDay(for: Date())
+        let stepDay = Calendar.current.startOfDay(for: stepDate)
+        
+        if Calendar.current.isDateInToday(stepDate) {
+            return "Today"
+        } else if Calendar.current.isDateInYesterday(stepDate) {
+            return "Yesterday"
+        } else if Calendar.current.isDateInTomorrow(stepDate) {
+            return "Tomorrow"
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEEE"
+            formatter.locale = Locale(identifier: "cs_CZ")
+            return formatter.string(from: stepDate)
+        }
+    }
+    
+    private var timeLabel: String {
+        let minutes = step.estimatedTime ?? 30
+        return "\(minutes) min"
+    }
     
     var body: some View {
         HStack(spacing: 12) {
             Button(action: onToggle) {
                 Circle()
-                    .stroke(step.isCompleted ? Color.green : Color.orange, lineWidth: 2)
+                    .stroke(step.completed ? Color.green : Color.orange, lineWidth: 2)
                     .frame(width: 24, height: 24)
                     .overlay(
-                        step.isCompleted ?
+                        step.completed ?
                         Circle()
                             .fill(Color.green)
                             .frame(width: 24, height: 24)
@@ -551,16 +665,17 @@ struct StepRowView: View {
             
             Text(step.title)
                 .font(.subheadline)
-                .foregroundColor(step.isCompleted ? .secondary : Color.orange)
-                .strikethrough(step.isCompleted)
+                .foregroundColor(step.completed ? .secondary : Color.orange)
+                .strikethrough(step.completed)
+                .lineLimit(2)
             
             Spacer()
             
-            Text("Today")
+            Text(dateLabel)
                 .font(.caption)
                 .foregroundColor(.orange)
             
-            Text("30 min")
+            Text(timeLabel)
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
@@ -595,7 +710,8 @@ extension Date {
 #Preview {
     WeekOverviewView(
         goals: .constant([]),
-        habits: .constant([])
+        habits: .constant([]),
+        steps: .constant([])
     )
 }
 
