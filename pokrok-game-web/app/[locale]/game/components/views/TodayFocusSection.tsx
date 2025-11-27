@@ -915,7 +915,7 @@ export function TodayFocusSection({
                                       {step.checklist && step.checklist.length > 0 && (
                                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0 ${
                                           step.checklist.filter((c: any) => c.completed).length === step.checklist.length
-                                            ? 'bg-green-100 text-green-600'
+                                            ? 'bg-orange-100 text-orange-600'
                                             : 'bg-gray-100 text-gray-500'
                                         }`}>
                                           {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
@@ -999,7 +999,7 @@ export function TodayFocusSection({
                                 <span className="flex-1 text-sm truncate line-through text-gray-400 font-medium flex items-center gap-2">
                             {step.title}
                             {step.checklist && step.checklist.length > 0 && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-600 flex-shrink-0 no-underline">
+                              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-600 flex-shrink-0 no-underline">
                                 {step.checklist.length}/{step.checklist.length}
                               </span>
                             )}
@@ -1199,7 +1199,7 @@ export function TodayFocusSection({
                           {step.checklist && step.checklist.length > 0 && (
                             <span className={`text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0 ${
                               step.checklist.filter((c: any) => c.completed).length === step.checklist.length
-                                ? 'bg-green-100 text-green-600'
+                                ? 'bg-orange-100 text-orange-600'
                                 : 'bg-gray-100 text-gray-500'
                             }`}>
                               {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}

@@ -7690,20 +7690,45 @@ export function JourneyGameView({
                             key={item.id} 
                             className={`flex items-center gap-3 p-2.5 rounded-lg border transition-all ${
                               item.completed 
-                                ? 'bg-green-50 border-green-200' 
+                                ? 'bg-orange-50 border-orange-200' 
                                 : 'bg-gray-50 border-gray-200 hover:border-orange-300'
                             }`}
                           >
                             <button
                               type="button"
-                              onClick={() => {
+                              onClick={async () => {
                                 const updatedChecklist = [...stepModalData.checklist]
                                 updatedChecklist[index] = { ...item, completed: !item.completed }
                                 setStepModalData({...stepModalData, checklist: updatedChecklist})
+                                
+                                // Auto-save if step already exists
+                                if (stepModalData.id) {
+                                  try {
+                                    await fetch('/api/daily-steps', {
+                                      method: 'PUT',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({
+                                        stepId: stepModalData.id,
+                                        checklist: updatedChecklist
+                                      })
+                                    })
+                                    // Refresh steps
+                                    const currentUserId = userId || player?.user_id
+                                    if (currentUserId) {
+                                      const stepsResponse = await fetch(`/api/daily-steps?userId=${currentUserId}`)
+                                      if (stepsResponse.ok) {
+                                        const steps = await stepsResponse.json()
+                                        onDailyStepsUpdate?.(steps)
+                                      }
+                                    }
+                                  } catch (error) {
+                                    console.error('Error auto-saving checklist:', error)
+                                  }
+                                }
                               }}
                               className={`flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
                                 item.completed 
-                                  ? 'bg-green-500 border-green-500 text-white' 
+                                  ? 'bg-orange-500 border-orange-500 text-white' 
                                   : 'border-gray-300 hover:border-orange-500'
                               }`}
                             >
