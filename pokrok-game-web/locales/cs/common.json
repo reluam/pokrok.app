@@ -5,6 +5,7 @@
   },
   "common": {
     "save": "Uložit",
+    "saving": "Ukládám...",
     "cancel": "Zrušit",
     "delete": "Smazat",
     "edit": "Upravit",
@@ -703,7 +704,8 @@
     "noSteps": "Žádné kroky",
     "noStepsDescription": "Přidejte první krok pro začátek",
     "dateOptional": "Datum (volitelné)",
-    "descriptionOptional": "Popis (volitelné)"
+    "descriptionOptional": "Popis (volitelné)",
+    "checklistNotComplete": "Nejsou dokončeny všechny položky checklistu"
   },
   "help": {
     "title": "Nápověda",

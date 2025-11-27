@@ -263,6 +263,8 @@ export function JourneyGameView({
   })
   const [checklistSaving, setChecklistSaving] = useState(false)
   const checklistSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [stepModalSaving, setStepModalSaving] = useState(false)
+  const [habitModalSaving, setHabitModalSaving] = useState(false)
   const [showHabitModal, setShowHabitModal] = useState(false)
   const [habitModalData, setHabitModalData] = useState<any>(null)
   const [selectedDayDate, setSelectedDayDate] = useState<Date>(new Date()) // Currently displayed day in day view
@@ -895,6 +897,7 @@ export function JourneyGameView({
       return
     }
 
+    setHabitModalSaving(true)
     try {
       const response = await fetch('/api/habits', {
         method: 'PUT',
@@ -932,7 +935,9 @@ export function JourneyGameView({
           }
         }
         
-        // Don't close modal, just update the data
+        // Close modal after successful save
+        setShowHabitModal(false)
+        setHabitModalData(null)
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
         alert(`Chyba při aktualizaci návyku: ${errorData.error || 'Nepodařilo se uložit návyk'}`)
@@ -940,6 +945,8 @@ export function JourneyGameView({
     } catch (error) {
       console.error('Error saving habit:', error)
       alert('Chyba při aktualizaci návyku')
+    } finally {
+      setHabitModalSaving(false)
     }
   }
 
@@ -963,6 +970,7 @@ export function JourneyGameView({
       date: stepModalData.date 
     })
 
+    setStepModalSaving(true)
     try {
       const requestBody = stepModalData.id ? {
         stepId: stepModalData.id,
@@ -1041,6 +1049,8 @@ export function JourneyGameView({
     } catch (error) {
       console.error('Error saving step:', error)
       alert(`Chyba při ${stepModalData.id ? 'aktualizaci' : 'vytváření'} kroku: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
+    } finally {
+      setStepModalSaving(false)
     }
   }
 
@@ -1169,7 +1179,7 @@ export function JourneyGameView({
     if (completed && selectedItem.require_checklist_complete && selectedItem.checklist?.length > 0) {
       const allChecklistCompleted = selectedItem.checklist.every((item: any) => item.completed)
       if (!allChecklistCompleted) {
-        alert('Nejprve musíte dokončit všechny položky checklistu.')
+        alert(t('steps.checklistNotComplete'))
         return
       }
     }
@@ -1185,8 +1195,9 @@ export function JourneyGameView({
       })
 
       if (response.ok) {
-        // Optimistically update the selected item
-        setSelectedItem({ ...selectedItem, completed })
+        const updatedStep = await response.json()
+        // Update the selected item with full data from server (including checklist)
+        setSelectedItem({ ...selectedItem, ...updatedStep })
         
         // Also update the dailySteps list - fetch all steps, not just today's
         const updatedSteps = await fetch(`/api/daily-steps?userId=${player?.user_id}`)
@@ -7914,14 +7925,22 @@ export function JourneyGameView({
                 </button>
                 <button
                   onClick={handleSaveStepModal}
-                  disabled={!userId && !player?.user_id}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    !userId && !player?.user_id
+                  disabled={stepModalSaving || (!userId && !player?.user_id)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                    stepModalSaving || (!userId && !player?.user_id)
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'bg-orange-600 text-white hover:bg-orange-700'
                   }`}
                 >
-                  {t('common.save')}
+                  {stepModalSaving ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      {t('common.saving')}
+                    </>
+                  ) : t('common.save')}
                 </button>
               </div>
             </div>
@@ -8262,9 +8281,22 @@ export function JourneyGameView({
                 </button>
                 <button
                   onClick={handleSaveHabitModal}
-                  className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
+                  disabled={habitModalSaving}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                    habitModalSaving
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-orange-600 text-white hover:bg-orange-700'
+                  }`}
                 >
-                  {t('common.save')}
+                  {habitModalSaving ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      {t('common.saving')}
+                    </>
+                  ) : t('common.save')}
                 </button>
               </div>
             </div>

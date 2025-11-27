@@ -5,6 +5,7 @@
   },
   "common": {
     "save": "Save",
+    "saving": "Saving...",
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
@@ -703,7 +704,8 @@
     "noSteps": "No steps",
     "noStepsDescription": "Add your first step to get started",
     "dateOptional": "Date (optional)",
-    "descriptionOptional": "Description (optional)"
+    "descriptionOptional": "Description (optional)",
+    "checklistNotComplete": "Not all checklist items are completed"
   },
   "help": {
     "title": "Help",

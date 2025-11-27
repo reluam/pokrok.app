@@ -236,7 +236,9 @@ export async function PUT(request: NextRequest) {
           id, user_id, goal_id, title, description, completed, 
           TO_CHAR(date, 'YYYY-MM-DD') as date,
           is_important, is_urgent, aspiration_id, 
-          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
+          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+          COALESCE(checklist, '[]'::jsonb) as checklist,
+          COALESCE(require_checklist_complete, false) as require_checklist_complete
       `
       
       if (result.length === 0) {
