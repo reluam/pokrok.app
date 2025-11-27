@@ -547,13 +547,13 @@ export function TodayFocusSection({
                                   : isToday 
                                     ? 'bg-orange-100 text-orange-700 font-semibold'
                                     : 'text-gray-400'
-                              }`}
-                            >
+                                }`}
+                              >
                               <span className="uppercase leading-none">{dayName}</span>
                               <span className="text-[7px] leading-none">{day.getDate()}</span>
                                 </div>
-                          )
-                        })}
+                            )
+                          })}
                       </div>
                       
                       {/* Habits with colored squares */}
@@ -632,8 +632,8 @@ export function TodayFocusSection({
                                   : isToday 
                                     ? 'bg-orange-100 text-orange-700 font-semibold'
                                     : 'text-gray-400'
-                              }`}
-                            >
+                                  }`}
+                                >
                               <span className="uppercase leading-none">{dayName}</span>
                               <span className="text-[8px] leading-none">{day.getDate()}</span>
                             </div>
@@ -1001,7 +1001,7 @@ export function TodayFocusSection({
                             {step.checklist && step.checklist.length > 0 && (
                               <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-600 flex-shrink-0 no-underline">
                                 {step.checklist.length}/{step.checklist.length}
-                              </span>
+                          </span>
                             )}
                           </span>
                                 <span className="hidden sm:block w-20 text-xs text-center capitalize flex-shrink-0 text-gray-400">
@@ -1203,7 +1203,7 @@ export function TodayFocusSection({
                                 : 'bg-gray-100 text-gray-500'
                             }`}>
                               {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
-                            </span>
+                        </span>
                           )}
                         </span>
                       

@@ -258,8 +258,11 @@ export function JourneyGameView({
     is_urgent: false,
     deadline: '',
     estimated_time: 0,
-    checklist: [] as Array<{ id: string; title: string; completed: boolean }>
+    checklist: [] as Array<{ id: string; title: string; completed: boolean }>,
+    require_checklist_complete: false
   })
+  const [checklistSaving, setChecklistSaving] = useState(false)
+  const checklistSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const [showHabitModal, setShowHabitModal] = useState(false)
   const [habitModalData, setHabitModalData] = useState<any>(null)
   const [selectedDayDate, setSelectedDayDate] = useState<Date>(new Date()) // Currently displayed day in day view
@@ -840,7 +843,8 @@ export function JourneyGameView({
         is_urgent: step.is_urgent || false,
         deadline: step.deadline ? (typeof step.deadline === 'string' ? step.deadline.split('T')[0] : new Date(step.deadline).toISOString().split('T')[0]) : '',
         estimated_time: step.estimated_time || 0,
-        checklist: step.checklist || []
+        checklist: step.checklist || [],
+        require_checklist_complete: step.require_checklist_complete || false
       })
     } else {
       // Create new step
@@ -856,7 +860,8 @@ export function JourneyGameView({
         is_urgent: false,
         deadline: '',
         estimated_time: 0,
-        checklist: []
+        checklist: [],
+        require_checklist_complete: false
       })
     }
     setShowStepModal(true)
@@ -969,7 +974,8 @@ export function JourneyGameView({
         isImportant: stepModalData.is_important,
         isUrgent: stepModalData.is_urgent,
         estimatedTime: stepModalData.estimated_time,
-        checklist: stepModalData.checklist
+        checklist: stepModalData.checklist,
+        requireChecklistComplete: stepModalData.require_checklist_complete
       } : {
         userId: currentUserId,
         goalId: stepModalData.goalId || null,
@@ -979,7 +985,8 @@ export function JourneyGameView({
         isImportant: stepModalData.is_important,
         isUrgent: stepModalData.is_urgent,
         estimatedTime: stepModalData.estimated_time,
-        checklist: stepModalData.checklist
+        checklist: stepModalData.checklist,
+        requireChecklistComplete: stepModalData.require_checklist_complete
       }
 
       console.log('Sending request:', requestBody)
@@ -1017,7 +1024,8 @@ export function JourneyGameView({
           is_urgent: false,
           deadline: '',
           estimated_time: 0,
-          checklist: []
+          checklist: [],
+          require_checklist_complete: false
         })
       } else {
         const errorText = await response.text()
@@ -1156,6 +1164,15 @@ export function JourneyGameView({
 
   const handleToggleStepCompleted = async (completed: boolean) => {
     if (!selectedItem || selectedItemType !== 'step') return
+
+    // Check if require_checklist_complete is enabled and not all items are completed
+    if (completed && selectedItem.require_checklist_complete && selectedItem.checklist?.length > 0) {
+      const allChecklistCompleted = selectedItem.checklist.every((item: any) => item.completed)
+      if (!allChecklistCompleted) {
+        alert('Nejprve musíte dokončit všechny položky checklistu.')
+        return
+      }
+    }
 
     try {
       const response = await fetch('/api/daily-steps', {
@@ -2636,7 +2653,7 @@ export function JourneyGameView({
             onNavigateToSteps={onNavigateToSteps}
             onStepDateChange={handleStepDateChange}
             onStepTimeChange={handleStepTimeChange}
-          />
+      />
     )
     }
 
@@ -6635,8 +6652,8 @@ export function JourneyGameView({
                                         mainPanelSection === item.id
                                           ? 'bg-orange-600 text-white'
                                           : 'text-gray-700 hover:bg-gray-100'
-                                      }`}
-                                    >
+                        }`}
+                      >
                                       <Icon className="w-5 h-5 flex-shrink-0" />
                                       <span className="font-medium">{item.label}</span>
                       </button>
@@ -6697,7 +6714,8 @@ export function JourneyGameView({
                           is_urgent: false,
                           deadline: '',
                           estimated_time: 0,
-                          checklist: []
+                          checklist: [],
+                          require_checklist_complete: false
                         })
                         setShowStepModal(true)
                       }
@@ -7537,7 +7555,8 @@ export function JourneyGameView({
                 is_urgent: false,
                 deadline: '',
                 estimated_time: 0,
-                checklist: []
+                checklist: [],
+                require_checklist_complete: false
               })
             }}
           >
@@ -7564,7 +7583,8 @@ export function JourneyGameView({
                         is_urgent: false,
                         deadline: '',
                         estimated_time: 0,
-                        checklist: []
+                        checklist: [],
+                        require_checklist_complete: false
                       })
                     }}
                     className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 transition-colors"
@@ -7578,87 +7598,87 @@ export function JourneyGameView({
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Left Column - Step Details */}
                   <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-2">
-                        {t('steps.title')} <span className="text-orange-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={stepModalData.title}
-                        onChange={(e) => setStepModalData({...stepModalData, title: e.target.value})}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-2">
+                    {t('steps.title')} <span className="text-orange-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={stepModalData.title}
+                    onChange={(e) => setStepModalData({...stepModalData, title: e.target.value})}
                         className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                        placeholder={t('steps.titlePlaceholder')}
-                        autoFocus
-                      />
-                    </div>
+                    placeholder={t('steps.titlePlaceholder')}
+                    autoFocus
+                  />
+                </div>
 
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-2">
-                        {t('steps.description')}
-                      </label>
-                      <textarea
-                        value={stepModalData.description}
-                        onChange={(e) => setStepModalData({...stepModalData, description: e.target.value})}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-2">
+                    {t('steps.description')}
+                  </label>
+                  <textarea
+                    value={stepModalData.description}
+                    onChange={(e) => setStepModalData({...stepModalData, description: e.target.value})}
                         className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white resize-none"
                         rows={3}
-                        placeholder={t('steps.descriptionPlaceholder')}
-                      />
-                    </div>
+                    placeholder={t('steps.descriptionPlaceholder')}
+                  />
+                </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-2">
-                          {t('steps.date')}
-                        </label>
-                        <input
-                          type="date"
-                          value={stepModalData.date}
-                          onChange={(e) => setStepModalData({...stepModalData, date: e.target.value})}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-2">
+                      {t('steps.date')}
+                    </label>
+                    <input
+                      type="date"
+                      value={stepModalData.date}
+                      onChange={(e) => setStepModalData({...stepModalData, date: e.target.value})}
                           className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                        />
-                      </div>
+                    />
+                  </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-2">
-                          {t('steps.goal')}
-                        </label>
-                        <select
-                          value={stepModalData.goalId}
-                          onChange={(e) => setStepModalData({...stepModalData, goalId: e.target.value})}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-2">
+                      {t('steps.goal')}
+                    </label>
+                    <select
+                      value={stepModalData.goalId}
+                      onChange={(e) => setStepModalData({...stepModalData, goalId: e.target.value})}
                           className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                        >
-                          <option value="">{t('steps.noGoal')}</option>
-                          {goals.map((goal: any) => (
-                            <option key={goal.id} value={goal.id}>{goal.title}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
+                    >
+                      <option value="">{t('steps.noGoal')}</option>
+                      {goals.map((goal: any) => (
+                        <option key={goal.id} value={goal.id}>{goal.title}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-2">
                           Odhadovaný čas (min)
-                        </label>
-                        <input
-                          type="number"
-                          value={stepModalData.estimated_time}
-                          onChange={(e) => setStepModalData({...stepModalData, estimated_time: parseInt(e.target.value) || 0})}
+                    </label>
+                    <input
+                      type="number"
+                      value={stepModalData.estimated_time}
+                      onChange={(e) => setStepModalData({...stepModalData, estimated_time: parseInt(e.target.value) || 0})}
                           className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                          min="0"
-                        />
-                      </div>
+                      min="0"
+                    />
+                </div>
 
                       <div className="flex items-end pb-1">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={stepModalData.is_important}
-                            onChange={(e) => setStepModalData({...stepModalData, is_important: e.target.checked})}
-                            className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                          />
-                          <span className="text-sm text-gray-700">⭐ Důležitý</span>
-                        </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={stepModalData.is_important}
+                      onChange={(e) => setStepModalData({...stepModalData, is_important: e.target.checked})}
+                      className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                    />
+                    <span className="text-sm text-gray-700">⭐ Důležitý</span>
+                  </label>
                       </div>
                     </div>
                   </div>
@@ -7666,8 +7686,14 @@ export function JourneyGameView({
                   {/* Right Column - Checklist */}
                   <div className="lg:border-l lg:pl-6 border-gray-200">
                     <div className="flex items-center justify-between mb-3">
-                      <label className="block text-sm font-semibold text-gray-800">
+                      <label className="block text-sm font-semibold text-gray-800 flex items-center gap-2">
                         Checklist
+                        {checklistSaving && (
+                          <svg className="animate-spin h-4 w-4 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        )}
                       </label>
                       <span className="text-xs text-gray-500">
                         {stepModalData.checklist.filter(item => item.completed).length}/{stepModalData.checklist.length} splněno
@@ -7738,13 +7764,45 @@ export function JourneyGameView({
                                 </svg>
                               )}
                             </button>
-                            <input
+                    <input
                               type="text"
                               value={item.title}
                               onChange={(e) => {
                                 const updatedChecklist = [...stepModalData.checklist]
                                 updatedChecklist[index] = { ...item, title: e.target.value }
                                 setStepModalData({...stepModalData, checklist: updatedChecklist})
+                                
+                                // Debounced auto-save for text changes
+                                if (stepModalData.id) {
+                                  if (checklistSaveTimeoutRef.current) {
+                                    clearTimeout(checklistSaveTimeoutRef.current)
+                                  }
+                                  checklistSaveTimeoutRef.current = setTimeout(async () => {
+                                    setChecklistSaving(true)
+                                    try {
+                                      await fetch('/api/daily-steps', {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                          stepId: stepModalData.id,
+                                          checklist: updatedChecklist
+                                        })
+                                      })
+                                      const currentUserId = userId || player?.user_id
+                                      if (currentUserId) {
+                                        const stepsResponse = await fetch(`/api/daily-steps?userId=${currentUserId}`)
+                                        if (stepsResponse.ok) {
+                                          const steps = await stepsResponse.json()
+                                          onDailyStepsUpdate?.(steps)
+                                        }
+                                      }
+                                    } catch (error) {
+                                      console.error('Error auto-saving checklist:', error)
+                                    } finally {
+                                      setChecklistSaving(false)
+                                    }
+                                  }, 500)
+                                }
                               }}
                               className={`flex-1 bg-transparent text-sm border-none focus:ring-0 p-0 ${
                                 item.completed ? 'line-through text-gray-500' : 'text-gray-800'
@@ -7753,9 +7811,36 @@ export function JourneyGameView({
                             />
                             <button
                               type="button"
-                              onClick={() => {
+                              onClick={async () => {
                                 const updatedChecklist = stepModalData.checklist.filter((_, i) => i !== index)
                                 setStepModalData({...stepModalData, checklist: updatedChecklist})
+                                
+                                // Auto-save deletion if step already exists
+                                if (stepModalData.id) {
+                                  setChecklistSaving(true)
+                                  try {
+                                    await fetch('/api/daily-steps', {
+                                      method: 'PUT',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({
+                                        stepId: stepModalData.id,
+                                        checklist: updatedChecklist
+                                      })
+                                    })
+                                    const currentUserId = userId || player?.user_id
+                                    if (currentUserId) {
+                                      const stepsResponse = await fetch(`/api/daily-steps?userId=${currentUserId}`)
+                                      if (stepsResponse.ok) {
+                                        const steps = await stepsResponse.json()
+                                        onDailyStepsUpdate?.(steps)
+                                      }
+                                    }
+                                  } catch (error) {
+                                    console.error('Error auto-saving checklist:', error)
+                                  } finally {
+                                    setChecklistSaving(false)
+                                  }
+                                }
                               }}
                               className="flex-shrink-0 text-gray-400 hover:text-red-500 transition-colors"
                             >
@@ -7787,6 +7872,19 @@ export function JourneyGameView({
                       </svg>
                       Přidat položku
                     </button>
+                    
+                    {/* Require checklist complete option */}
+                    {stepModalData.checklist.length > 0 && (
+                      <label className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100 cursor-pointer">
+                    <input
+                      type="checkbox"
+                          checked={stepModalData.require_checklist_complete}
+                          onChange={(e) => setStepModalData({...stepModalData, require_checklist_complete: e.target.checked})}
+                      className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                    />
+                        <span className="text-xs text-gray-600">Vyžadovat splnění všech položek před dokončením kroku</span>
+                  </label>
+                    )}
                   </div>
                 </div>
               </div>
@@ -7806,7 +7904,8 @@ export function JourneyGameView({
                       is_urgent: false,
                       deadline: '',
                       estimated_time: 0,
-                      checklist: []
+                      checklist: [],
+                      require_checklist_complete: false
                     })
                   }}
                   className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"

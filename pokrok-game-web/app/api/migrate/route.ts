@@ -187,6 +187,10 @@ async function runMigrations() {
       await sql`ALTER TABLE daily_steps ADD COLUMN checklist JSONB DEFAULT '[]'::jsonb`
     }
     
+    if (!dailyStepsColumnNames.includes('require_checklist_complete')) {
+      await sql`ALTER TABLE daily_steps ADD COLUMN require_checklist_complete BOOLEAN DEFAULT FALSE`
+    }
+    
     return { success: true, message: 'Migration completed successfully' }
   } catch (error: any) {
     console.error('Migration error:', error)

@@ -269,10 +269,10 @@ export function GoalsManagementView({
       onOpenStepModal(undefined, editingGoal.id)
     } else {
       // Fallback to inline
-      setEditFormData({
-        ...editFormData,
-        steps: [...editFormData.steps, { id: `temp-${crypto.randomUUID()}`, title: '', description: '', date: '', isEditing: true }]
-      })
+    setEditFormData({
+      ...editFormData,
+      steps: [...editFormData.steps, { id: `temp-${crypto.randomUUID()}`, title: '', description: '', date: '', isEditing: true }]
+    })
     }
   }
   
@@ -1301,10 +1301,10 @@ export function GoalsManagementView({
                                   if (onOpenStepModal && !step.id.startsWith('temp-')) {
                                     handleEditStep(step)
                                   } else {
-                                    const updatedSteps = editFormData.steps.map(s =>
-                                      s.id === step.id ? { ...s, isEditing: true } : s
-                                    )
-                                    setEditFormData({ ...editFormData, steps: updatedSteps })
+                                  const updatedSteps = editFormData.steps.map(s =>
+                                    s.id === step.id ? { ...s, isEditing: true } : s
+                                  )
+                                  setEditFormData({ ...editFormData, steps: updatedSteps })
                                   }
                                 }}
                               >
@@ -1339,10 +1339,10 @@ export function GoalsManagementView({
                                       if (onOpenStepModal && !step.id.startsWith('temp-')) {
                                         handleEditStep(step)
                                       } else {
-                                        const updatedSteps = editFormData.steps.map(s =>
-                                          s.id === step.id ? { ...s, isEditing: true } : s
-                                        )
-                                        setEditFormData({ ...editFormData, steps: updatedSteps })
+                                      const updatedSteps = editFormData.steps.map(s =>
+                                        s.id === step.id ? { ...s, isEditing: true } : s
+                                      )
+                                      setEditFormData({ ...editFormData, steps: updatedSteps })
                                       }
                                     }}
                                     className="text-gray-400 hover:text-orange-600 p-1"

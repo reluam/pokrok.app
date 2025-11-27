@@ -171,6 +171,7 @@ export interface DailyStep {
   estimated_time?: number
   xp_reward?: number
   checklist?: ChecklistItem[]
+  require_checklist_complete?: boolean
 }
 
 export interface Metric {
@@ -1054,7 +1055,7 @@ export async function getDailyStepsByUserId(
           TO_CHAR(date, 'YYYY-MM-DD') as date,
           is_important, is_urgent, aspiration_id, 
           estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
-          checklist
+          checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete
         FROM daily_steps 
         WHERE user_id = ${userId}
         AND date >= ${startOfDay}
@@ -1073,7 +1074,7 @@ export async function getDailyStepsByUserId(
           TO_CHAR(date, 'YYYY-MM-DD') as date,
           is_important, is_urgent, aspiration_id, 
           estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
-          checklist
+          checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete
         FROM daily_steps 
         WHERE user_id = ${userId}
         AND date >= ${startDate}::date
@@ -1093,7 +1094,7 @@ export async function getDailyStepsByUserId(
           TO_CHAR(date, 'YYYY-MM-DD') as date,
           is_important, is_urgent, aspiration_id, 
           estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
-          checklist
+          checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete
         FROM daily_steps 
         WHERE user_id = ${userId}
         ORDER BY 

@@ -78,10 +78,10 @@ export function StepsManagementView({
     if (onOpenStepModal) {
       onOpenStepModal(step)
     } else {
-      setEditingStep({
-        ...step,
-        goalId: step.goal_id || null
-      })
+    setEditingStep({
+      ...step,
+      goalId: step.goal_id || null
+    })
     }
   }
 
@@ -437,14 +437,14 @@ export function StepsManagementView({
             if (onOpenStepModal) {
               onOpenStepModal()
             } else {
-              setEditingStep({ id: null, title: '', description: '', date: '', goalId: '', completed: false })
-              setEditFormData({
-                title: '',
-                description: '',
-                date: '',
-                goalId: '',
-                completed: false
-              })
+            setEditingStep({ id: null, title: '', description: '', date: '', goalId: '', completed: false })
+            setEditFormData({
+              title: '',
+              description: '',
+              date: '',
+              goalId: '',
+              completed: false
+            })
             }
           }}
           className="hidden md:flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
