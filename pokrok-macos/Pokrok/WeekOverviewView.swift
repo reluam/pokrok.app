@@ -1292,15 +1292,8 @@ struct StepEditModal: View {
     @State private var date: Date
     @State private var checklist: [ChecklistItem]
     @State private var requireAllChecklist: Bool
-    @State private var newChecklistItem: String = ""
     
     private let primaryOrange = Color(red: 0.96, green: 0.55, blue: 0.16)
-    private let successGreen = Color(red: 0.13, green: 0.77, blue: 0.37)
-    
-    private var checklistProgress: (completed: Int, total: Int) {
-        let completed = checklist.filter { $0.completed }.count
-        return (completed, checklist.count)
-    }
     
     init(step: Step, goals: [Goal], onSave: @escaping (Step) -> Void, onCancel: @escaping () -> Void) {
         self.step = step
@@ -1319,303 +1312,358 @@ struct StepEditModal: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header
-            HStack {
-                Text("Edit step")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(Color(white: 0.2))
-                Spacer()
-                Button(action: onCancel) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.gray)
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(24)
-            
+            modalHeader
             Divider()
-            
-            // Form - Two columns
-            ScrollView {
-                HStack(alignment: .top, spacing: 32) {
-                    // Left column
-                    VStack(alignment: .leading, spacing: 20) {
-                        // Title
-                        VStack(alignment: .leading, spacing: 6) {
-                            HStack(spacing: 2) {
-                                Text("Title")
-                                    .font(.system(size: 13, weight: .medium))
-                                    .foregroundColor(Color(white: 0.3))
-                                Text("*")
-                                    .foregroundColor(primaryOrange)
-                            }
-                            TextField("Step title", text: $title)
-                                .textFieldStyle(.plain)
-                                .font(.system(size: 14))
-                                .padding(12)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.blue.opacity(0.5), lineWidth: 2)
-                                        .background(Color.white)
-                                )
-                                .cornerRadius(8)
-                        }
-                        
-                        // Description
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Description")
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundColor(Color(white: 0.3))
-                            TextField("Step description (optional)", text: $description, axis: .vertical)
-                                .textFieldStyle(.plain)
-                                .font(.system(size: 14))
-                                .lineLimit(4...6)
-                                .padding(12)
-                                .background(Color.gray.opacity(0.05))
-                                .cornerRadius(8)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.gray.opacity(0.15), lineWidth: 1)
-                                )
-                        }
-                        
-                        // Date & Goal row
-                        HStack(spacing: 16) {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("Date")
-                                    .font(.system(size: 13, weight: .medium))
-                                    .foregroundColor(Color(white: 0.3))
-                                DatePicker("", selection: $date, displayedComponents: .date)
-                                    .labelsHidden()
-                                    .datePickerStyle(.field)
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("Goal")
-                                    .font(.system(size: 13, weight: .medium))
-                                    .foregroundColor(Color(white: 0.3))
-                                Picker("", selection: $selectedGoalId) {
-                                    Text("No goal").tag(nil as String?)
-                                    ForEach(goals) { goal in
-                                        Text(goal.title).tag(goal.id as String?)
-                                    }
-                                }
-                                .pickerStyle(.menu)
-                                .frame(minWidth: 140)
-                            }
-                        }
-                        
-                        // Time & Important row
-                        HStack(spacing: 16) {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("Odhadovaný čas (min)")
-                                    .font(.system(size: 13, weight: .medium))
-                                    .foregroundColor(Color(white: 0.3))
-                                TextField("", value: $estimatedTime, format: .number)
-                                    .textFieldStyle(.plain)
-                                    .font(.system(size: 14))
-                                    .padding(10)
-                                    .frame(width: 100)
-                                    .background(Color.gray.opacity(0.05))
-                                    .cornerRadius(8)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(Color.gray.opacity(0.15), lineWidth: 1)
-                                    )
-                            }
-                            
-                            Spacer()
-                            
-                            Toggle(isOn: $isImportant) {
-                                HStack(spacing: 4) {
-                                    Text("⭐")
-                                    Text("Důležitý")
-                                        .font(.system(size: 13))
-                                }
-                            }
-                            .toggleStyle(.checkbox)
-                            .padding(.top, 20)
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    
-                    // Right column - Checklist
-                    VStack(alignment: .leading, spacing: 12) {
-                        // Header with border
-                        VStack(alignment: .leading, spacing: 0) {
-                            HStack {
-                                HStack(spacing: 6) {
-                                    Text("Checklist")
-                                        .font(.system(size: 14, weight: .semibold))
-                                        .foregroundColor(Color(white: 0.25))
-                                }
-                                Spacer()
-                                if !checklist.isEmpty {
-                                    Text("\(checklistProgress.completed)/\(checklistProgress.total) splněno")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(.gray)
-                                }
-                            }
-                            .padding(.bottom, 12)
-                        }
-                        
-                        // Checklist items or empty state
-                        if checklist.isEmpty {
-                            VStack(spacing: 8) {
-                                Image(systemName: "checklist")
-                                    .font(.system(size: 32))
-                                    .foregroundColor(.gray.opacity(0.3))
-                                Text("Zatím žádné položky")
-                                    .font(.system(size: 13))
-                                    .foregroundColor(.gray.opacity(0.6))
-                                Text("Přidejte pod-úkoly pro tento krok")
-                                    .font(.system(size: 11))
-                                    .foregroundColor(.gray.opacity(0.4))
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 24)
-                        } else {
-                            VStack(spacing: 6) {
-                                ForEach(checklist.indices, id: \.self) { index in
-                                    HStack(spacing: 12) {
-                                        // Checkbox
-                                        Button(action: {
-                                            checklist[index].completed.toggle()
-                                        }) {
-                                            RoundedRectangle(cornerRadius: 5)
-                                                .fill(checklist[index].completed ? primaryOrange : Color.white)
-                                                .frame(width: 20, height: 20)
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 5)
-                                                        .stroke(checklist[index].completed ? primaryOrange : Color.gray.opacity(0.35), lineWidth: 2)
-                                                )
-                                                .overlay(
-                                                    checklist[index].completed ?
-                                                    Image(systemName: "checkmark")
-                                                        .font(.system(size: 10, weight: .bold))
-                                                        .foregroundColor(.white)
-                                                    : nil
-                                                )
-                                        }
-                                        .buttonStyle(.plain)
-                                        
-                                        // Editable title
-                                        TextField("Název položky...", text: $checklist[index].title)
-                                            .textFieldStyle(.plain)
-                                            .font(.system(size: 13))
-                                            .foregroundColor(checklist[index].completed ? .gray : Color(white: 0.25))
-                                        
-                                        Spacer()
-                                        
-                                        // Delete button
-                                        Button(action: {
-                                            checklist.remove(at: index)
-                                        }) {
-                                            Image(systemName: "xmark")
-                                                .font(.system(size: 10, weight: .medium))
-                                                .foregroundColor(.gray.opacity(0.4))
-                                        }
-                                        .buttonStyle(.plain)
-                                    }
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 10)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .fill(checklist[index].completed ? primaryOrange.opacity(0.06) : Color.gray.opacity(0.04))
-                                    )
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(checklist[index].completed ? primaryOrange.opacity(0.25) : Color.gray.opacity(0.12), lineWidth: 1)
-                                    )
-                                }
-                            }
-                        }
-                        
-                        // Add new item button
-                        Button(action: {
-                            let newItem = ChecklistItem(id: UUID().uuidString, title: "", completed: false)
-                            checklist.append(newItem)
-                        }) {
-                            HStack {
-                                Image(systemName: "plus")
-                                    .font(.system(size: 12, weight: .semibold))
-                                Text("Přidat položku")
-                                    .font(.system(size: 13, weight: .medium))
-                            }
-                            .foregroundColor(primaryOrange)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(primaryOrange.opacity(0.35), style: StrokeStyle(lineWidth: 1.5, dash: [6]))
-                                    .background(primaryOrange.opacity(0.04).cornerRadius(10))
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        
-                        // Require all checkbox
-                        if !checklist.isEmpty {
-                            Toggle(isOn: $requireAllChecklist) {
-                                Text("Vyžadovat splnění všech položek před dokončením kroku")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.gray)
-                            }
-                            .toggleStyle(.checkbox)
-                            .padding(.top, 6)
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.leading, 16)
-                    .overlay(
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.12))
-                            .frame(width: 1)
-                        , alignment: .leading
-                    )
-                }
-                .padding(24)
-            }
-            
+            modalContent
             Divider()
-            
-            // Actions
-            HStack {
-                Spacer()
-                
-                Button("Cancel") {
-                    onCancel()
-                }
-                .buttonStyle(.plain)
-                .foregroundColor(.gray)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
-                
-                Button(action: {
-                    var updated = step
-                    updated.title = title
-                    updated.description = description.isEmpty ? nil : description
-                    updated.goalId = selectedGoalId
-                    updated.estimatedTime = estimatedTime
-                    updated.isImportant = isImportant
-                    updated.date = date
-                    updated.checklist = checklist.isEmpty ? nil : checklist
-                    onSave(updated)
-                }) {
-                    Text("Save")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 10)
-                        .background(primaryOrange)
-                        .cornerRadius(8)
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(20)
+            modalFooter
         }
         .frame(width: 750, height: 620)
         .background(Color.white)
+    }
+    
+    private var modalHeader: some View {
+        HStack {
+            Text("Edit step")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(Color(white: 0.2))
+            Spacer()
+            Button(action: onCancel) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.gray)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(24)
+    }
+    
+    private var modalContent: some View {
+        ScrollView {
+            HStack(alignment: .top, spacing: 32) {
+                leftColumn
+                rightColumn
+            }
+            .padding(24)
+        }
+    }
+    
+    private var leftColumn: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            titleField
+            descriptionField
+            dateGoalRow
+            timeImportantRow
+        }
+        .frame(maxWidth: .infinity)
+    }
+    
+    private var titleField: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 2) {
+                Text("Title")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(Color(white: 0.3))
+                Text("*")
+                    .foregroundColor(primaryOrange)
+            }
+            TextField("Step title", text: $title)
+                .textFieldStyle(.plain)
+                .font(.system(size: 14))
+                .padding(12)
+                .background(Color.white)
+                .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                )
+        }
+    }
+    
+    private var descriptionField: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Description")
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(Color(white: 0.3))
+            TextField("Step description (optional)", text: $description, axis: .vertical)
+                .textFieldStyle(.plain)
+                .font(.system(size: 14))
+                .lineLimit(4...6)
+                .padding(12)
+                .background(Color.gray.opacity(0.05))
+                .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.gray.opacity(0.15), lineWidth: 1)
+                )
+        }
+    }
+    
+    private var dateGoalRow: some View {
+        HStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Date")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(Color(white: 0.3))
+                DatePicker("", selection: $date, displayedComponents: .date)
+                    .labelsHidden()
+                    .datePickerStyle(.field)
+            }
+            
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Goal")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(Color(white: 0.3))
+                Picker("", selection: $selectedGoalId) {
+                    Text("No goal").tag(nil as String?)
+                    ForEach(goals) { goal in
+                        Text(goal.title).tag(goal.id as String?)
+                    }
+                }
+                .pickerStyle(.menu)
+                .frame(minWidth: 140)
+            }
+        }
+    }
+    
+    private var timeImportantRow: some View {
+        HStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Odhadovaný čas (min)")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(Color(white: 0.3))
+                TextField("", value: $estimatedTime, format: .number)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 14))
+                    .padding(10)
+                    .frame(width: 100)
+                    .background(Color.gray.opacity(0.05))
+                    .cornerRadius(8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.gray.opacity(0.15), lineWidth: 1)
+                    )
+            }
+            
+            Spacer()
+            
+            Toggle(isOn: $isImportant) {
+                HStack(spacing: 4) {
+                    Text("⭐")
+                    Text("Důležitý")
+                        .font(.system(size: 13))
+                }
+            }
+            .toggleStyle(.checkbox)
+            .padding(.top, 20)
+        }
+    }
+    
+    private var rightColumn: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            checklistHeader
+            checklistContent
+            addItemButton
+            requireAllToggle
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.leading, 16)
+        .overlay(
+            Rectangle()
+                .fill(Color.gray.opacity(0.12))
+                .frame(width: 1)
+            , alignment: .leading
+        )
+    }
+    
+    private var checklistHeader: some View {
+        HStack {
+            Text("Checklist")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(Color(white: 0.25))
+            Spacer()
+            if !checklist.isEmpty {
+                let completed = checklist.filter { $0.completed }.count
+                Text("\(completed)/\(checklist.count) splněno")
+                    .font(.system(size: 12))
+                    .foregroundColor(.gray)
+            }
+        }
+        .padding(.bottom, 8)
+    }
+    
+    @ViewBuilder
+    private var checklistContent: some View {
+        if checklist.isEmpty {
+            emptyChecklistView
+        } else {
+            checklistItemsView
+        }
+    }
+    
+    private var emptyChecklistView: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "checklist")
+                .font(.system(size: 32))
+                .foregroundColor(.gray.opacity(0.3))
+            Text("Zatím žádné položky")
+                .font(.system(size: 13))
+                .foregroundColor(.gray.opacity(0.6))
+            Text("Přidejte pod-úkoly pro tento krok")
+                .font(.system(size: 11))
+                .foregroundColor(.gray.opacity(0.4))
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 24)
+    }
+    
+    private var checklistItemsView: some View {
+        VStack(spacing: 6) {
+            ForEach(checklist.indices, id: \.self) { index in
+                ChecklistItemRow(
+                    item: $checklist[index],
+                    onDelete: { checklist.remove(at: index) },
+                    primaryOrange: primaryOrange
+                )
+            }
+        }
+    }
+    
+    private var addItemButton: some View {
+        Button(action: {
+            let newItem = ChecklistItem(id: UUID().uuidString, title: "", completed: false)
+            checklist.append(newItem)
+        }) {
+            HStack {
+                Image(systemName: "plus")
+                    .font(.system(size: 12, weight: .semibold))
+                Text("Přidat položku")
+                    .font(.system(size: 13, weight: .medium))
+            }
+            .foregroundColor(primaryOrange)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(primaryOrange.opacity(0.04))
+            .cornerRadius(10)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(primaryOrange.opacity(0.35), style: StrokeStyle(lineWidth: 1.5, dash: [6]))
+            )
+        }
+        .buttonStyle(.plain)
+    }
+    
+    @ViewBuilder
+    private var requireAllToggle: some View {
+        if !checklist.isEmpty {
+            Toggle(isOn: $requireAllChecklist) {
+                Text("Vyžadovat splnění všech položek před dokončením kroku")
+                    .font(.system(size: 12))
+                    .foregroundColor(.gray)
+            }
+            .toggleStyle(.checkbox)
+            .padding(.top, 6)
+        }
+    }
+    
+    private var modalFooter: some View {
+        HStack {
+            Spacer()
+            
+            Button("Cancel") {
+                onCancel()
+            }
+            .buttonStyle(.plain)
+            .foregroundColor(.gray)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            
+            Button(action: saveStep) {
+                Text("Save")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 10)
+                    .background(primaryOrange)
+                    .cornerRadius(8)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(20)
+    }
+    
+    private func saveStep() {
+        var updated = step
+        updated.title = title
+        updated.description = description.isEmpty ? nil : description
+        updated.goalId = selectedGoalId
+        updated.estimatedTime = estimatedTime
+        updated.isImportant = isImportant
+        updated.date = date
+        updated.checklist = checklist.isEmpty ? nil : checklist
+        onSave(updated)
+    }
+}
+
+struct ChecklistItemRow: View {
+    @Binding var item: ChecklistItem
+    let onDelete: () -> Void
+    let primaryOrange: Color
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Button(action: { item.completed.toggle() }) {
+                checkboxView
+            }
+            .buttonStyle(.plain)
+            
+            TextField("Název položky...", text: $item.title)
+                .textFieldStyle(.plain)
+                .font(.system(size: 13))
+                .foregroundColor(item.completed ? .gray : Color(white: 0.25))
+            
+            Spacer()
+            
+            Button(action: onDelete) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(.gray.opacity(0.4))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(rowBackground)
+        .overlay(rowBorder)
+    }
+    
+    private var checkboxView: some View {
+        RoundedRectangle(cornerRadius: 5)
+            .fill(item.completed ? primaryOrange : Color.white)
+            .frame(width: 20, height: 20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 5)
+                    .stroke(item.completed ? primaryOrange : Color.gray.opacity(0.35), lineWidth: 2)
+            )
+            .overlay(
+                Group {
+                    if item.completed {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                }
+            )
+    }
+    
+    private var rowBackground: some View {
+        RoundedRectangle(cornerRadius: 10)
+            .fill(item.completed ? primaryOrange.opacity(0.06) : Color.gray.opacity(0.04))
+    }
+    
+    private var rowBorder: some View {
+        RoundedRectangle(cornerRadius: 10)
+            .stroke(item.completed ? primaryOrange.opacity(0.25) : Color.gray.opacity(0.12), lineWidth: 1)
     }
 }
 
