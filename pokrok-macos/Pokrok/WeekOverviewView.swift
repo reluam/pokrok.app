@@ -1289,10 +1289,18 @@ struct StepEditModal: View {
     @State private var selectedGoalId: String?
     @State private var estimatedTime: Int
     @State private var isImportant: Bool
-    @State private var isUrgent: Bool
     @State private var date: Date
+    @State private var checklist: [ChecklistItem]
+    @State private var requireAllChecklist: Bool
+    @State private var newChecklistItem: String = ""
     
     private let primaryOrange = Color(red: 0.96, green: 0.55, blue: 0.16)
+    private let successGreen = Color(red: 0.13, green: 0.77, blue: 0.37)
+    
+    private var checklistProgress: (completed: Int, total: Int) {
+        let completed = checklist.filter { $0.completed }.count
+        return (completed, checklist.count)
+    }
     
     init(step: Step, goals: [Goal], onSave: @escaping (Step) -> Void, onCancel: @escaping () -> Void) {
         self.step = step
@@ -1304,15 +1312,16 @@ struct StepEditModal: View {
         _selectedGoalId = State(initialValue: step.goalId)
         _estimatedTime = State(initialValue: step.estimatedTime ?? 30)
         _isImportant = State(initialValue: step.isImportant ?? false)
-        _isUrgent = State(initialValue: step.isUrgent ?? false)
         _date = State(initialValue: step.date ?? Date())
+        _checklist = State(initialValue: step.checklist ?? [])
+        _requireAllChecklist = State(initialValue: false)
     }
     
     var body: some View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Text("Edit Step")
+                Text("Edit step")
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(Color(white: 0.2))
                 Spacer()
@@ -1323,107 +1332,232 @@ struct StepEditModal: View {
                 }
                 .buttonStyle(.plain)
             }
-            .padding(20)
-            .background(Color.gray.opacity(0.03))
+            .padding(24)
             
             Divider()
             
-            // Form
+            // Form - Two columns
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    // Title
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Title")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.gray)
-                        TextField("Step title", text: $title)
-                            .textFieldStyle(.plain)
-                            .font(.system(size: 14))
-                            .padding(12)
-                            .background(Color.gray.opacity(0.05))
-                            .cornerRadius(8)
-                    }
-                    
-                    // Description
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Description")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.gray)
-                        TextEditor(text: $description)
-                            .font(.system(size: 14))
-                            .frame(height: 80)
-                            .padding(8)
-                            .background(Color.gray.opacity(0.05))
-                            .cornerRadius(8)
-                    }
-                    
-                    // Goal
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Goal")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.gray)
-                        Picker("", selection: $selectedGoalId) {
-                            Text("No goal").tag(nil as String?)
-                            ForEach(goals) { goal in
-                                Text(goal.title).tag(goal.id as String?)
+                HStack(alignment: .top, spacing: 32) {
+                    // Left column
+                    VStack(alignment: .leading, spacing: 20) {
+                        // Title
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack(spacing: 2) {
+                                Text("Title")
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundColor(Color(white: 0.3))
+                                Text("*")
+                                    .foregroundColor(primaryOrange)
                             }
-                        }
-                        .pickerStyle(.menu)
-                    }
-                    
-                    // Date & Time
-                    HStack(spacing: 20) {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Date")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.gray)
-                            DatePicker("", selection: $date, displayedComponents: .date)
-                                .labelsHidden()
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Time (min)")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.gray)
-                            TextField("", value: $estimatedTime, format: .number)
+                            TextField("Step title", text: $title)
                                 .textFieldStyle(.plain)
                                 .font(.system(size: 14))
-                                .padding(10)
-                                .frame(width: 80)
-                                .background(Color.gray.opacity(0.05))
+                                .padding(12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.blue.opacity(0.5), lineWidth: 2)
+                                        .background(Color.white)
+                                )
                                 .cornerRadius(8)
                         }
-                    }
-                    
-                    // Priority flags
-                    HStack(spacing: 20) {
-                        Toggle(isOn: $isImportant) {
-                            Text("Important")
-                                .font(.system(size: 13))
-                        }
-                        .toggleStyle(.checkbox)
                         
-                        Toggle(isOn: $isUrgent) {
-                            Text("Urgent")
-                                .font(.system(size: 13))
+                        // Description
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Description")
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(Color(white: 0.3))
+                            TextField("Step description (optional)", text: $description, axis: .vertical)
+                                .textFieldStyle(.plain)
+                                .font(.system(size: 14))
+                                .lineLimit(4...6)
+                                .padding(12)
+                                .background(Color.gray.opacity(0.05))
+                                .cornerRadius(8)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.gray.opacity(0.15), lineWidth: 1)
+                                )
                         }
-                        .toggleStyle(.checkbox)
+                        
+                        // Date & Goal row
+                        HStack(spacing: 16) {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("Date")
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundColor(Color(white: 0.3))
+                                DatePicker("", selection: $date, displayedComponents: .date)
+                                    .labelsHidden()
+                                    .datePickerStyle(.field)
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("Goal")
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundColor(Color(white: 0.3))
+                                Picker("", selection: $selectedGoalId) {
+                                    Text("No goal").tag(nil as String?)
+                                    ForEach(goals) { goal in
+                                        Text(goal.title).tag(goal.id as String?)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .frame(minWidth: 140)
+                            }
+                        }
+                        
+                        // Time & Important row
+                        HStack(spacing: 16) {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("Odhadovaný čas (min)")
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundColor(Color(white: 0.3))
+                                TextField("", value: $estimatedTime, format: .number)
+                                    .textFieldStyle(.plain)
+                                    .font(.system(size: 14))
+                                    .padding(10)
+                                    .frame(width: 100)
+                                    .background(Color.gray.opacity(0.05))
+                                    .cornerRadius(8)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.gray.opacity(0.15), lineWidth: 1)
+                                    )
+                            }
+                            
+                            Spacer()
+                            
+                            Toggle(isOn: $isImportant) {
+                                HStack(spacing: 4) {
+                                    Text("⭐")
+                                    Text("Důležitý")
+                                        .font(.system(size: 13))
+                                }
+                            }
+                            .toggleStyle(.checkbox)
+                            .padding(.top, 20)
+                        }
                     }
+                    .frame(maxWidth: .infinity)
+                    
+                    // Right column - Checklist
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Text("Checklist")
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(Color(white: 0.3))
+                            Spacer()
+                            if !checklist.isEmpty {
+                                Text("\(checklistProgress.completed)/\(checklistProgress.total) splněno")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        
+                        VStack(spacing: 8) {
+                            ForEach(checklist.indices, id: \.self) { index in
+                                HStack(spacing: 10) {
+                                    Button(action: {
+                                        checklist[index].completed.toggle()
+                                    }) {
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .fill(checklist[index].completed ? primaryOrange : Color.white)
+                                            .frame(width: 22, height: 22)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 4)
+                                                    .stroke(checklist[index].completed ? primaryOrange : Color.gray.opacity(0.3), lineWidth: 1.5)
+                                            )
+                                            .overlay(
+                                                checklist[index].completed ?
+                                                Image(systemName: "checkmark")
+                                                    .font(.system(size: 11, weight: .bold))
+                                                    .foregroundColor(.white)
+                                                : nil
+                                            )
+                                    }
+                                    .buttonStyle(.plain)
+                                    
+                                    Text(checklist[index].title)
+                                        .font(.system(size: 13))
+                                        .foregroundColor(checklist[index].completed ? .gray : Color(white: 0.3))
+                                        .strikethrough(checklist[index].completed, color: .gray)
+                                    
+                                    Spacer()
+                                    
+                                    Button(action: {
+                                        checklist.remove(at: index)
+                                    }) {
+                                        Image(systemName: "xmark")
+                                            .font(.system(size: 10, weight: .medium))
+                                            .foregroundColor(.gray.opacity(0.5))
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 10)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(checklist[index].completed ? primaryOrange.opacity(0.08) : Color.white)
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(checklist[index].completed ? primaryOrange.opacity(0.2) : Color.gray.opacity(0.15), lineWidth: 1)
+                                )
+                            }
+                            
+                            // Add new item button
+                            Button(action: {
+                                let newItem = ChecklistItem(id: UUID().uuidString, title: "New item", completed: false)
+                                checklist.append(newItem)
+                            }) {
+                                HStack {
+                                    Image(systemName: "plus")
+                                        .font(.system(size: 12, weight: .medium))
+                                    Text("Přidat položku")
+                                        .font(.system(size: 13, weight: .medium))
+                                }
+                                .foregroundColor(primaryOrange)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(primaryOrange.opacity(0.3), style: StrokeStyle(lineWidth: 1, dash: [5]))
+                                        .background(primaryOrange.opacity(0.03))
+                                )
+                                .cornerRadius(8)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        
+                        // Require all checkbox
+                        if !checklist.isEmpty {
+                            Toggle(isOn: $requireAllChecklist) {
+                                Text("Vyžadovat splnění všech položek před dokončením kroku")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.gray)
+                            }
+                            .toggleStyle(.checkbox)
+                            .padding(.top, 8)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
                 }
-                .padding(20)
+                .padding(24)
             }
             
             Divider()
             
             // Actions
             HStack {
+                Spacer()
+                
                 Button("Cancel") {
                     onCancel()
                 }
                 .buttonStyle(.plain)
                 .foregroundColor(.gray)
-                
-                Spacer()
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
                 
                 Button(action: {
                     var updated = step
@@ -1432,14 +1566,14 @@ struct StepEditModal: View {
                     updated.goalId = selectedGoalId
                     updated.estimatedTime = estimatedTime
                     updated.isImportant = isImportant
-                    updated.isUrgent = isUrgent
                     updated.date = date
+                    updated.checklist = checklist.isEmpty ? nil : checklist
                     onSave(updated)
                 }) {
                     Text("Save")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.white)
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, 24)
                         .padding(.vertical, 10)
                         .background(primaryOrange)
                         .cornerRadius(8)
@@ -1448,7 +1582,7 @@ struct StepEditModal: View {
             }
             .padding(20)
         }
-        .frame(width: 450, height: 520)
+        .frame(width: 700, height: 520)
         .background(Color.white)
     }
 }
