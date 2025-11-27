@@ -1,17 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyToken } from '@clerk/backend'
 import { getUserByClerkId, getPlayerByUserId, getGoalsByUserId, getHabitsByUserId } from '@/lib/cesta-db'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
 
-// Native app endpoint - accepts clerkUserId as query param
+// Native app endpoint - verifies JWT token from Authorization header
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const clerkUserId = searchParams.get('clerkUserId')
+    // Get token from Authorization header
+    const authHeader = request.headers.get('Authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Missing or invalid Authorization header' }, { status: 401 })
+    }
     
-    if (!clerkUserId) {
-      return NextResponse.json({ error: 'Missing clerkUserId parameter' }, { status: 400 })
+    const token = authHeader.substring(7) // Remove "Bearer "
+    
+    // Verify the JWT token with Clerk
+    let clerkUserId: string
+    try {
+      const verifiedToken = await verifyToken(token, {
+        secretKey: process.env.CLERK_SECRET_KEY!,
+      })
+      clerkUserId = verifiedToken.sub
+    } catch (error) {
+      console.error('Token verification failed:', error)
+      return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 })
     }
 
     // Get user from database
@@ -49,4 +63,3 @@ export async function GET(request: NextRequest) {
     }, { status: 500 })
   }
 }
-

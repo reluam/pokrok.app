@@ -29,18 +29,17 @@ class AuthManager: NSObject, ObservableObject {
     }
     
     private func checkExistingSession() {
-        if let userId = getFromKeychain(key: userIdKey) {
-            let token = getFromKeychain(key: tokenKey)
+        if let token = getFromKeychain(key: tokenKey) {
+            let userId = getFromKeychain(key: userIdKey)
             self.sessionToken = token
             self.userId = userId
             self.userEmail = getFromKeychain(key: userEmailKey)
             self.isAuthenticated = true
             
-            // Configure API manager
-            APIManager.shared.setUserId(userId)
+            // Configure API manager with JWT token
             APIManager.shared.setAuthToken(token)
             
-            // Optionally validate token
+            // Validate token is still valid
             Task {
                 await validateSession()
             }
@@ -104,29 +103,29 @@ class AuthManager: NSObject, ObservableObject {
         // Expected: pokrok://auth/callback?user_id=xxx&session_id=xxx
         let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)
         
-        if let clerkUserId = components?.queryItems?.first(where: { $0.name == "user_id" })?.value {
-            let sessionId = components?.queryItems?.first(where: { $0.name == "session_id" })?.value
+        // Get JWT token from callback
+        if let token = components?.queryItems?.first(where: { $0.name == "token" })?.value {
+            let clerkUserId = components?.queryItems?.first(where: { $0.name == "user_id" })?.value
             
-            // Save user ID and configure API manager
+            // Save token and configure API manager
+            self.sessionToken = token
             self.userId = clerkUserId
-            self.sessionToken = sessionId
             self.isAuthenticated = true
             
-            saveToKeychain(key: userIdKey, value: clerkUserId)
-            if let sessionId = sessionId {
-                saveToKeychain(key: tokenKey, value: sessionId)
+            saveToKeychain(key: tokenKey, value: token)
+            if let clerkUserId = clerkUserId {
+                saveToKeychain(key: userIdKey, value: clerkUserId)
             }
             
-            // Configure API manager with user ID
-            APIManager.shared.setUserId(clerkUserId)
-            APIManager.shared.setAuthToken(sessionId)
+            // Configure API manager with JWT token
+            APIManager.shared.setAuthToken(token)
             
             // Fetch additional user data
             Task {
                 await fetchSessionAfterAuth()
             }
         } else {
-            self.error = "Authentication failed - no user ID received"
+            self.error = "Authentication failed - no token received"
         }
     }
     

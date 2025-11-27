@@ -31,11 +31,11 @@ class APIManager: ObservableObject {
     // MARK: - Game Init
     
     func fetchGameData() async throws -> GameInitResponse {
-        guard let clerkUserId = userId else {
+        guard authToken != nil else {
             throw APIError.userNotFound
         }
         
-        let url = URL(string: "\(baseURL)/api/game/init-native?clerkUserId=\(clerkUserId)")!
+        let url = URL(string: "\(baseURL)/api/game/init-native")!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         addAuthHeaders(to: &request)
