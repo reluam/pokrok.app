@@ -7,26 +7,40 @@ class APIManager: ObservableObject {
     @Published var isLoading = false
     @Published var error: String?
     
-    private var baseURL: String {
-        // Use environment variable or default to localhost for development
-        ProcessInfo.processInfo.environment["API_BASE_URL"] ?? "http://localhost:3000"
-    }
+    private let baseURL = "https://pokrok.app"
     
     private var authToken: String?
+    private var userId: String?
+    
+    // URLSession with cookies support
+    private lazy var session: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.httpCookieStorage = HTTPCookieStorage.shared
+        config.httpCookieAcceptPolicy = .always
+        return URLSession(configuration: config)
+    }()
     
     func setAuthToken(_ token: String?) {
         self.authToken = token
     }
     
+    func setUserId(_ userId: String?) {
+        self.userId = userId
+    }
+    
     // MARK: - Game Init
     
     func fetchGameData() async throws -> GameInitResponse {
-        let url = URL(string: "\(baseURL)/api/game/init")!
+        guard let clerkUserId = userId else {
+            throw APIError.userNotFound
+        }
+        
+        let url = URL(string: "\(baseURL)/api/game/init-native?clerkUserId=\(clerkUserId)")!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         addAuthHeaders(to: &request)
         
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await session.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIError.invalidResponse

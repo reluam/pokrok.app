@@ -29,12 +29,16 @@ class AuthManager: NSObject, ObservableObject {
     }
     
     private func checkExistingSession() {
-        if let token = getFromKeychain(key: tokenKey),
-           let userId = getFromKeychain(key: userIdKey) {
+        if let userId = getFromKeychain(key: userIdKey) {
+            let token = getFromKeychain(key: tokenKey)
             self.sessionToken = token
             self.userId = userId
             self.userEmail = getFromKeychain(key: userEmailKey)
             self.isAuthenticated = true
+            
+            // Configure API manager
+            APIManager.shared.setUserId(userId)
+            APIManager.shared.setAuthToken(token)
             
             // Optionally validate token
             Task {
@@ -100,18 +104,22 @@ class AuthManager: NSObject, ObservableObject {
         // Expected: pokrok://auth/callback?user_id=xxx&session_id=xxx
         let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)
         
-        if let userId = components?.queryItems?.first(where: { $0.name == "user_id" })?.value {
+        if let clerkUserId = components?.queryItems?.first(where: { $0.name == "user_id" })?.value {
             let sessionId = components?.queryItems?.first(where: { $0.name == "session_id" })?.value
             
-            // Save user ID and fetch full data from API
-            self.userId = userId
+            // Save user ID and configure API manager
+            self.userId = clerkUserId
             self.sessionToken = sessionId
             self.isAuthenticated = true
             
-            saveToKeychain(key: userIdKey, value: userId)
+            saveToKeychain(key: userIdKey, value: clerkUserId)
             if let sessionId = sessionId {
                 saveToKeychain(key: tokenKey, value: sessionId)
             }
+            
+            // Configure API manager with user ID
+            APIManager.shared.setUserId(clerkUserId)
+            APIManager.shared.setAuthToken(sessionId)
             
             // Fetch additional user data
             Task {
