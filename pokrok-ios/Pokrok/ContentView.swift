@@ -47,37 +47,42 @@ struct ContentView: View {
                     .accentColor(.orange)
                     
                     // Floating half-circle plus button emerging from tab bar
-                    GeometryReader { geometry in
-                        VStack(spacing: 0) {
-                            Spacer()
-                            Button(action: {
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                    showAddMenu.toggle()
-                                }
-                            }) {
-                                ZStack {
-                                    // Half circle (top half only)
-                                    Circle()
-                                        .fill(DesignSystem.Colors.primary)
-                                        .frame(width: 70, height: 70)
-                                        .shadow(color: DesignSystem.Colors.primary.opacity(0.4), radius: 8, x: 0, y: -2)
-                                        .clipShape(
-                                            Rectangle()
-                                                .offset(y: -35) // Clip bottom half
-                                        )
-                                    
-                                    Image(systemName: showAddMenu ? "xmark" : "plus")
-                                        .font(.system(size: 24, weight: .semibold))
-                                        .foregroundColor(.white)
-                                        .rotationEffect(.degrees(showAddMenu ? 45 : 0))
-                                        .offset(y: -10)
-                                }
-                                .frame(width: 70, height: 35)
+                    VStack {
+                        Spacer()
+                        Button(action: {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                showAddMenu.toggle()
                             }
+                        }) {
+                            ZStack {
+                                // Invisible tap area above the button
+                                Rectangle()
+                                    .fill(Color.clear)
+                                    .frame(width: 90, height: 70)
+                                    .offset(y: -10)
+                                
+                                // 4/5 circle (clip bottom 1/5)
+                                Circle()
+                                    .fill(DesignSystem.Colors.primary)
+                                    .frame(width: 70, height: 70)
+                                    .shadow(color: DesignSystem.Colors.primary.opacity(0.4), radius: 8, x: 0, y: -2)
+                                    .clipShape(
+                                        Rectangle()
+                                            .offset(y: -14) // Clip bottom 1/5 (70 * 0.2 = 14)
+                                    )
+                                
+                                Image(systemName: showAddMenu ? "xmark" : "plus")
+                                    .font(.system(size: 24, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .rotationEffect(.degrees(showAddMenu ? 45 : 0))
+                                    .offset(y: -4)
+                            }
+                            .frame(width: 90, height: 56)
+                            .contentShape(Rectangle())
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding(.bottom, geometry.safeAreaInsets.bottom + 49)
                     }
+                    .ignoresSafeArea(.container, edges: .bottom)
+                    .padding(.bottom, 40)
                     
                     // Add Menu Overlay
                     if showAddMenu {

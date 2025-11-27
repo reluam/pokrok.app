@@ -155,6 +155,43 @@ export function TodayFocusSection({
     return end
   }, [weekStart])
   
+  // Helper function to check if a date is in the current week (Monday to Sunday)
+  const isDateInCurrentWeek = (date: Date): boolean => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    // Get Monday of current week
+    const dayOfWeek = today.getDay()
+    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek // If Sunday, go back 6 days, otherwise go to Monday
+    const monday = new Date(today)
+    monday.setDate(today.getDate() + diff)
+    monday.setHours(0, 0, 0, 0)
+    
+    // Get Sunday of current week
+    const sunday = new Date(monday)
+    sunday.setDate(monday.getDate() + 6)
+    sunday.setHours(0, 0, 0, 0)
+    
+    const checkDate = new Date(date)
+    checkDate.setHours(0, 0, 0, 0)
+    
+    return checkDate.getTime() >= monday.getTime() && checkDate.getTime() <= sunday.getTime()
+  }
+  
+  // Helper function to format date - show weekday only if in current week
+  const formatStepDate = (date: Date): string => {
+    const dateObj = new Date(date)
+    dateObj.setHours(0, 0, 0, 0)
+    
+    if (isDateInCurrentWeek(dateObj)) {
+      // Show weekday if in current week
+      return dateObj.toLocaleDateString(localeCode, { weekday: 'long' })
+    } else {
+      // Show normal date if outside current week
+      return dateObj.toLocaleDateString(localeCode, { day: 'numeric', month: 'numeric' })
+    }
+  }
+  
   const dayNamesShort = [
     t('calendar.daysShort.sunday'),
     t('calendar.daysShort.monday'),
@@ -837,10 +874,8 @@ export function TodayFocusSection({
                     today.setHours(0, 0, 0, 0)
                     const isOverdue = stepDateObj < today
                     
-                    // Format date for display - show day name
-                    const stepDateFormatted = stepDateObj.toLocaleDateString(localeCode, { 
-                      weekday: 'long'
-                    })
+                    // Format date for display - show day name only if in current week
+                    const stepDateFormatted = formatStepDate(stepDateObj)
                     
                     // Get goal for this step if it has one
                     const stepGoal = step.goal_id ? goals.find(g => g.id === step.goal_id) : null
@@ -969,7 +1004,7 @@ export function TodayFocusSection({
                             const stepDate = normalizeDate(step.date)
                             const stepDateObj = new Date(stepDate)
                             stepDateObj.setHours(0, 0, 0, 0)
-                            const stepDateFormatted = stepDateObj.toLocaleDateString(localeCode, { weekday: 'long' })
+                            const stepDateFormatted = formatStepDate(stepDateObj)
                             
                             return (
                               <div 
@@ -1152,7 +1187,7 @@ export function TodayFocusSection({
                   // Overdue = before actual today (not before displayed week/day)
                   const isOverdue = stepDateObj.getTime() < actualToday.getTime()
                   
-                  const stepDateFormatted = step.date ? new Date(normalizeDate(step.date)).toLocaleDateString('cs-CZ', { weekday: 'long' }) : null
+                  const stepDateFormatted = step.date ? formatStepDate(stepDateObj) : null
                 
                   return (
                     <div

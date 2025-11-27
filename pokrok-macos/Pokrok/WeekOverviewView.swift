@@ -7,6 +7,7 @@ struct WeekOverviewView: View {
     @State private var currentWeekStart: Date = Date().startOfWeek
     @State private var selectedDay: Date? = nil
     @State private var editingStep: Step? = nil
+    @State private var showingAddStep = false
     
     private var weekDays: [Date] {
         (0..<7).map { currentWeekStart.addingTimeInterval(Double($0) * 86400) }
@@ -89,15 +90,27 @@ struct WeekOverviewView: View {
                 
                 // Weekly Focus or Daily Focus based on selection
                 if isWeekView {
-                    WeeklyFocusView(
-                        habits: habits,
-                        steps: steps,
-                        weekDays: weekDays,
-                        selectedDay: selectedDay,
-                        onHabitToggle: toggleHabit,
-                        onStepToggle: toggleStep,
-                        onStepEdit: { step in editingStep = step }
-                    )
+                    VStack(spacing: 20) {
+                        WeeklyFocusView(
+                            habits: habits,
+                            steps: steps,
+                            weekDays: weekDays,
+                            selectedDay: selectedDay,
+                            onHabitToggle: toggleHabit,
+                            onStepToggle: toggleStep,
+                            onStepEdit: { step in editingStep = step }
+                        )
+                        
+                        // Other Steps (Overdue and Future)
+                        OtherStepsView(
+                            steps: steps,
+                            weekDays: weekDays,
+                            goals: goals,
+                            onStepToggle: toggleStep,
+                            onStepEdit: { step in editingStep = step },
+                            onAddStep: { showingAddStep = true }
+                        )
+                    }
                 } else if let selected = selectedDay {
                     DailyFocusView(
                         habits: habits,
@@ -113,14 +126,13 @@ struct WeekOverviewView: View {
         }
         .background(Color.orange.opacity(0.03))
         .sheet(item: $editingStep) { step in
-            StepEditModal(step: step, goals: goals, onSave: { updatedStep in
-                // TODO: Implement save via API
-                if let index = steps.firstIndex(where: { $0.id == updatedStep.id }) {
-                    steps[index] = updatedStep
-                }
+            StepEditModal(step: step, goals: goals, steps: $steps, onDismiss: {
                 editingStep = nil
-            }, onCancel: {
-                editingStep = nil
+            })
+        }
+        .sheet(isPresented: $showingAddStep) {
+            StepEditModal(step: nil, goals: goals, steps: $steps, onDismiss: {
+                showingAddStep = false
             })
         }
     }
@@ -176,8 +188,43 @@ struct WeekOverviewView: View {
     }
     
     private func toggleStep(_ step: Step) {
-        // TODO: Implement step toggle via API
-        print("Toggle step \(step.title)")
+        print("🔄 Toggling step: \(step.title), current state: \(step.completed)")
+        
+        // Optimistically update UI first
+        if let index = steps.firstIndex(where: { $0.id == step.id }) {
+            var optimisticStep = steps[index]
+            optimisticStep.completed = !optimisticStep.completed
+            optimisticStep.completedAt = optimisticStep.completed ? Date() : nil
+            steps[index] = optimisticStep
+            print("✅ Optimistically updated step to: \(optimisticStep.completed)")
+        }
+        
+        // Then sync with API - send only completion fields for toggle
+        Task {
+            do {
+                let newCompleted = !step.completed
+                let completedAt = newCompleted ? Date() : nil
+                
+                print("📤 Sending API request to toggle step (completion only)...")
+                let savedStep = try await APIManager.shared.toggleStepCompletion(stepId: step.id, completed: newCompleted, completedAt: completedAt)
+                
+                await MainActor.run {
+                    if let index = steps.firstIndex(where: { $0.id == step.id }) {
+                        steps[index] = savedStep
+                        print("✅ Step '\(step.title)' synced with API: \(savedStep.completed)")
+                    }
+                }
+            } catch {
+                print("❌ Error toggling step: \(error)")
+                // Revert optimistic update on error
+                await MainActor.run {
+                    if let index = steps.firstIndex(where: { $0.id == step.id }) {
+                        steps[index] = step
+                        print("🔄 Reverted step to original state")
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -272,7 +319,7 @@ struct DayButton: View {
     let action: () -> Void
     
     // Define brand colors
-    private let primaryOrange = Color(red: 0.96, green: 0.55, blue: 0.16) // #F58D29
+    private let primaryOrange = Color(red: 0.918, green: 0.345, blue: 0.047) // #ea580c
     private let successGreen = Color(red: 0.13, green: 0.77, blue: 0.37)  // #22C55E
     
     private var isToday: Bool {
@@ -360,7 +407,7 @@ struct DayButton: View {
 struct StatsBarView: View {
     let stats: WeekStats
     
-    private let primaryOrange = Color(red: 0.96, green: 0.55, blue: 0.16)
+    private let primaryOrange = Color(red: 0.918, green: 0.345, blue: 0.047)
     
     var body: some View {
         HStack(spacing: 50) {
@@ -471,7 +518,7 @@ struct WeeklyFocusView: View {
         weekSteps.reduce(0) { $0 + ($1.estimatedTime ?? 30) }
     }
     
-    private let primaryOrange = Color(red: 0.96, green: 0.55, blue: 0.16)
+    private let primaryOrange = Color(red: 0.918, green: 0.345, blue: 0.047)
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -588,6 +635,8 @@ struct DailyFocusView: View {
     let onStepToggle: (Step) -> Void
     let onStepEdit: (Step) -> Void
     
+    private let primaryOrange = Color(red: 0.918, green: 0.345, blue: 0.047) // #ea580c
+    
     // Filter habits for selected day
     private var dayHabits: [Habit] {
         let dayOfWeek = Calendar.current.component(.weekday, from: selectedDay)
@@ -646,7 +695,7 @@ struct DailyFocusView: View {
             // Header
             HStack {
                 Image(systemName: "target")
-                    .foregroundColor(.orange)
+                    .foregroundColor(primaryOrange)
                 Text("Daily Focus")
                     .font(.title3.bold())
                 
@@ -658,12 +707,12 @@ struct DailyFocusView: View {
                         Text("Add Step")
                     }
                     .font(.subheadline)
-                    .foregroundColor(.orange)
+                    .foregroundColor(primaryOrange)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
                     .background(
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.orange, lineWidth: 1)
+                            .stroke(primaryOrange, lineWidth: 1)
                     )
                 }
                 .buttonStyle(.plain)
@@ -740,11 +789,13 @@ struct DayHabitRow: View {
     let onToggle: () -> Void
     @State private var isHovering = false
     
+    private let primaryOrange = Color(red: 0.918, green: 0.345, blue: 0.047) // #ea580c
+    
     var body: some View {
         HStack(spacing: 12) {
             Button(action: onToggle) {
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(isCompleted ? Color.orange : Color.gray.opacity(0.1))
+                    .fill(isCompleted ? primaryOrange : Color.gray.opacity(0.1))
                     .frame(width: 28, height: 28)
                     .overlay(
                         isCompleted ?
@@ -852,8 +903,10 @@ struct DayStepRow: View {
     let onToggle: () -> Void
     let onEdit: () -> Void
     @State private var isHovering = false
+    @State private var isAnimating = false
+    @State private var previousCompleted: Bool = false
     
-    private let primaryOrange = Color(red: 0.96, green: 0.55, blue: 0.16)
+    private let primaryOrange = Color(red: 0.918, green: 0.345, blue: 0.047)
     private let successGreen = Color(red: 0.13, green: 0.77, blue: 0.37)
     private let overdueRed = Color(red: 0.94, green: 0.27, blue: 0.27)
     
@@ -887,36 +940,65 @@ struct DayStepRow: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            Button(action: onToggle) {
-                Circle()
-                    .stroke(step.completed ? successGreen : (isOverdue ? overdueRed.opacity(0.6) : primaryOrange.opacity(0.5)), lineWidth: 2)
-                    .frame(width: 22, height: 22)
-                    .overlay(
-                        step.completed ?
-                        Circle()
-                            .fill(successGreen)
-                            .frame(width: 22, height: 22)
-                            .overlay(
-                                Image(systemName: "checkmark")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundColor(.white)
-                            )
-                        : nil
-                    )
+            // Checkbox
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(step.completed ? successGreen : (isOverdue ? overdueRed.opacity(0.6) : primaryOrange.opacity(0.5)), lineWidth: 2)
+                .frame(width: 24, height: 24)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(step.completed ? successGreen : Color.clear)
+                )
+                .overlay(
+                    step.completed ?
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(.white)
+                        .scaleEffect(isAnimating ? 1.3 : 1.0)
+                        .opacity(isAnimating ? 0.9 : 1.0)
+                    : nil
+                )
+                .scaleEffect(isAnimating ? 1.2 : 1.0)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    onToggle()
+                }
+                .onAppear {
+                    previousCompleted = step.completed
+                }
+                .onChange(of: step.completed) { oldValue, newValue in
+                    // Animate when step becomes completed (was false, now true)
+                    if !previousCompleted && newValue {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.5)) {
+                            isAnimating = true
+                        }
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                isAnimating = false
+                            }
+                        }
+                    }
+                    previousCompleted = newValue
+                }
+            
+            // Title - clickable for edit
+            HStack {
+                Text(step.title)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(titleColor)
+                    .strikethrough(step.completed, color: Color.gray.opacity(0.4))
+                    .lineLimit(2)
+                
+                Spacer()
+                
+                Text("\(step.estimatedTime ?? 30) min")
+                    .font(.system(size: 11))
+                    .foregroundColor(Color.gray.opacity(0.5))
             }
-            .buttonStyle(.plain)
-            
-            Text(step.title)
-                .font(.system(size: 13, weight: .medium))
-                .foregroundColor(titleColor)
-                .strikethrough(step.completed, color: Color.gray.opacity(0.4))
-                .lineLimit(2)
-            
-            Spacer()
-            
-            Text("\(step.estimatedTime ?? 30) min")
-                .font(.system(size: 11))
-                .foregroundColor(Color.gray.opacity(0.5))
+            .contentShape(Rectangle())
+            .onTapGesture {
+                onEdit()
+            }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
@@ -934,9 +1016,6 @@ struct DayStepRow: View {
                 isHovering = hovering
             }
         }
-        .onTapGesture {
-            onEdit()
-        }
     }
 }
 
@@ -948,7 +1027,7 @@ struct HabitsTableView: View {
     let onToggle: (Habit, Date) -> Void  // Now passes the specific date
     
     private let dayNamesShort = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
-    private let primaryOrange = Color(red: 0.96, green: 0.55, blue: 0.16)
+    private let primaryOrange = Color(red: 0.918, green: 0.345, blue: 0.047)
     
     private func isHabitScheduledForDay(_ habit: Habit, day: Date) -> Bool {
         let dayOfWeek = Calendar.current.component(.weekday, from: day)
@@ -1014,7 +1093,6 @@ struct HabitsTableView: View {
                         let isScheduled = isHabitScheduledForDay(habit, day: day)
                         let isCompleted = isHabitCompletedForDay(habit, day: day)
                         let isFuture = day > Calendar.current.startOfDay(for: Date())
-                        let isToday = Calendar.current.isDateInToday(day)
                         
                         Button(action: {
                             if !isFuture {
@@ -1115,9 +1193,11 @@ struct StepRowView: View {
     let onToggle: () -> Void
     let onEdit: () -> Void
     @State private var isHovering = false
+    @State private var isAnimating = false
+    @State private var previousCompleted: Bool = false
     
     // Brand colors
-    private let primaryOrange = Color(red: 0.96, green: 0.55, blue: 0.16)
+    private let primaryOrange = Color(red: 0.918, green: 0.345, blue: 0.047)
     private let successGreen = Color(red: 0.13, green: 0.77, blue: 0.37)
     private let overdueRed = Color(red: 0.94, green: 0.27, blue: 0.27) // #EF4444
     
@@ -1202,27 +1282,48 @@ struct StepRowView: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            // Checkbox
-            Button(action: onToggle) {
-                Circle()
-                    .stroke(checkboxBorderColor, lineWidth: 2)
-                    .frame(width: 22, height: 22)
-                    .overlay(
-                        step.completed ?
-                        Circle()
-                            .fill(successGreen)
-                            .frame(width: 22, height: 22)
-                            .overlay(
-                                Image(systemName: "checkmark")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundColor(.white)
-                            )
-                        : nil
-                    )
-            }
-            .buttonStyle(.plain)
+            // Checkbox - square with checkmark
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(step.completed ? successGreen : checkboxBorderColor, lineWidth: 2)
+                .frame(width: 24, height: 24)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(step.completed ? successGreen : Color.clear)
+                )
+                .overlay(
+                    step.completed ?
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(.white)
+                        .scaleEffect(isAnimating ? 1.3 : 1.0)
+                        .opacity(isAnimating ? 0.9 : 1.0)
+                    : nil
+                )
+                .scaleEffect(isAnimating ? 1.2 : 1.0)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    onToggle()
+                }
+                .onAppear {
+                    previousCompleted = step.completed
+                }
+                .onChange(of: step.completed) { oldValue, newValue in
+                    // Animate when step becomes completed (was false, now true)
+                    if !previousCompleted && newValue {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.5)) {
+                            isAnimating = true
+                        }
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                isAnimating = false
+                            }
+                        }
+                    }
+                    previousCompleted = newValue
+                }
             
-            // Title and checklist progress
+            // Title and checklist progress - clickable for edit
             HStack(spacing: 6) {
                 Text(step.title)
                     .font(.system(size: 13, weight: step.isImportant == true ? .semibold : .medium))
@@ -1240,19 +1341,23 @@ struct StepRowView: View {
                         .background(Color.gray.opacity(0.08))
                         .cornerRadius(4)
                 }
+                
+                Spacer()
+                
+                // Date label
+                Text(dateLabel)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(dateLabelColor)
+                
+                // Time
+                Text(timeLabel)
+                    .font(.system(size: 11))
+                    .foregroundColor(Color.gray.opacity(0.5))
             }
-            
-            Spacer()
-            
-            // Date label
-            Text(dateLabel)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundColor(dateLabelColor)
-            
-            // Time
-            Text(timeLabel)
-                .font(.system(size: 11))
-                .foregroundColor(Color.gray.opacity(0.5))
+            .contentShape(Rectangle())
+            .onTapGesture {
+                onEdit()
+            }
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
@@ -1270,351 +1375,294 @@ struct StepRowView: View {
                 isHovering = hovering
             }
         }
-        .onTapGesture {
-            onEdit()
-        }
     }
 }
 
-// MARK: - Step Edit Modal
+// MARK: - Other Steps View
 
-struct StepEditModal: View {
-    let step: Step
+// MARK: - Other Steps View
+
+struct OtherStepsView: View {
+    let steps: [Step]
+    let weekDays: [Date]
     let goals: [Goal]
-    let onSave: (Step) -> Void
-    let onCancel: () -> Void
+    let onStepToggle: (Step) -> Void
+    let onStepEdit: (Step) -> Void
+    let onAddStep: () -> Void
     
-    @State private var title: String
-    @State private var description: String
-    @State private var selectedGoalId: String?
-    @State private var estimatedTime: Int
-    @State private var isImportant: Bool
-    @State private var date: Date
-    @State private var checklist: [ChecklistItem]
-    @State private var requireAllChecklist: Bool
+    private let primaryOrange = Color(red: 0.918, green: 0.345, blue: 0.047)
     
-    private let primaryOrange = Color(red: 0.96, green: 0.55, blue: 0.16)
+    private var weekStart: Date {
+        weekDays.first ?? Date()
+    }
     
-    init(step: Step, goals: [Goal], onSave: @escaping (Step) -> Void, onCancel: @escaping () -> Void) {
-        self.step = step
-        self.goals = goals
-        self.onSave = onSave
-        self.onCancel = onCancel
-        _title = State(initialValue: step.title)
-        _description = State(initialValue: step.description ?? "")
-        _selectedGoalId = State(initialValue: step.goalId)
-        _estimatedTime = State(initialValue: step.estimatedTime ?? 30)
-        _isImportant = State(initialValue: step.isImportant ?? false)
-        _date = State(initialValue: step.date ?? Date())
-        _checklist = State(initialValue: step.checklist ?? [])
-        _requireAllChecklist = State(initialValue: false)
+    private var weekEnd: Date {
+        weekDays.last ?? Date()
+    }
+    
+    private var today: Date {
+        Calendar.current.startOfDay(for: Date())
+    }
+    
+    private var otherSteps: [Step] {
+        // Get all steps that are not in the current week and not completed
+        steps.filter { step in
+            guard let stepDate = step.date, !step.completed else { return false }
+            
+            let calendar = Calendar.current
+            let stepDateStart = calendar.startOfDay(for: stepDate)
+            let weekStartStart = calendar.startOfDay(for: weekStart)
+            let weekEndStart = calendar.startOfDay(for: weekEnd)
+            
+            // Exclude steps from current week
+            return stepDateStart < weekStartStart || stepDateStart > weekEndStart
+        }
+    }
+    
+    private var overdueSteps: [Step] {
+        otherSteps.filter { step in
+            guard let stepDate = step.date else { return false }
+            let calendar = Calendar.current
+            let stepDateStart = calendar.startOfDay(for: stepDate)
+            return stepDateStart < today
+        }
+    }
+    
+    private var futureSteps: [Step] {
+        otherSteps.filter { step in
+            guard let stepDate = step.date else { return false }
+            let calendar = Calendar.current
+            let stepDateStart = calendar.startOfDay(for: stepDate)
+            let weekEndStart = calendar.startOfDay(for: weekEnd)
+            return stepDateStart > weekEndStart
+        }
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            modalHeader
-            Divider()
-            modalContent
-            Divider()
-            modalFooter
-        }
-        .frame(width: 750, height: 620)
-        .background(Color.white)
-    }
-    
-    private var modalHeader: some View {
-        HStack {
-            Text("Edit step")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(Color(white: 0.2))
-            Spacer()
-            Button(action: onCancel) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.gray)
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(24)
-    }
-    
-    private var modalContent: some View {
-        ScrollView {
-            HStack(alignment: .top, spacing: 32) {
-                leftColumn
-                rightColumn
-            }
-            .padding(24)
-        }
-    }
-    
-    private var leftColumn: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            titleField
-            descriptionField
-            dateGoalRow
-            timeImportantRow
-        }
-        .frame(maxWidth: .infinity)
-    }
-    
-    private var titleField: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 2) {
-                Text("Title")
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(Color(white: 0.3))
-                Text("*")
-                    .foregroundColor(primaryOrange)
-            }
-            TextField("Step title", text: $title)
-                .textFieldStyle(.plain)
-                .font(.system(size: 14))
-                .padding(12)
-                .background(Color.white)
-                .cornerRadius(8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                )
-        }
-    }
-    
-    private var descriptionField: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("Description")
-                .font(.system(size: 13, weight: .medium))
-                .foregroundColor(Color(white: 0.3))
-            TextField("Step description (optional)", text: $description, axis: .vertical)
-                .textFieldStyle(.plain)
-                .font(.system(size: 14))
-                .lineLimit(4...6)
-                .padding(12)
-                .background(Color.gray.opacity(0.05))
-                .cornerRadius(8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.gray.opacity(0.15), lineWidth: 1)
-                )
-        }
-    }
-    
-    private var dateGoalRow: some View {
-        HStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Date")
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(Color(white: 0.3))
-                DatePicker("", selection: $date, displayedComponents: .date)
-                    .labelsHidden()
-                    .datePickerStyle(.field)
+        VStack(alignment: .leading, spacing: 12) {
+            // Header
+            HStack {
+                Text("Další kroky")
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundColor(Color(white: 0.2))
+                
+                Spacer()
+                
+                Button(action: onAddStep) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(primaryOrange)
+                        .frame(width: 24, height: 24)
+                        .background(primaryOrange.opacity(0.1))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
             }
             
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Goal")
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(Color(white: 0.3))
-                Picker("", selection: $selectedGoalId) {
-                    Text("No goal").tag(nil as String?)
-                    ForEach(goals) { goal in
-                        Text(goal.title).tag(goal.id as String?)
+            // Two columns: Overdue and Future
+            HStack(alignment: .top, spacing: 16) {
+                // Overdue Steps
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("OVERDUE STEPS")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.gray.opacity(0.6))
+                        .tracking(0.5)
+                    
+                    if overdueSteps.isEmpty {
+                        Text("Žádné kroky po termínu")
+                            .font(.system(size: 12))
+                            .foregroundColor(.gray.opacity(0.5))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 20)
+                    } else {
+                        VStack(spacing: 6) {
+                            ForEach(overdueSteps) { step in
+                                OtherStepRow(
+                                    step: step,
+                                    isOverdue: true,
+                                    onToggle: { onStepToggle(step) },
+                                    onEdit: { onStepEdit(step) }
+                                )
+                            }
+                        }
                     }
                 }
-                .pickerStyle(.menu)
-                .frame(minWidth: 140)
-            }
-        }
-    }
-    
-    private var timeImportantRow: some View {
-        HStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Odhadovaný čas (min)")
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(Color(white: 0.3))
-                TextField("", value: $estimatedTime, format: .number)
-                    .textFieldStyle(.plain)
-                    .font(.system(size: 14))
-                    .padding(10)
-                    .frame(width: 100)
-                    .background(Color.gray.opacity(0.05))
-                    .cornerRadius(8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.gray.opacity(0.15), lineWidth: 1)
-                    )
-            }
-            
-            Spacer()
-            
-            Toggle(isOn: $isImportant) {
-                HStack(spacing: 4) {
-                    Text("⭐")
-                    Text("Důležitý")
-                        .font(.system(size: 13))
+                .frame(maxWidth: .infinity)
+                
+                // Future Steps
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("FUTURE STEPS")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.gray.opacity(0.6))
+                        .tracking(0.5)
+                    
+                    if futureSteps.isEmpty {
+                        Text("Žádné budoucí kroky")
+                            .font(.system(size: 12))
+                            .foregroundColor(.gray.opacity(0.5))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 20)
+                    } else {
+                        VStack(spacing: 6) {
+                            ForEach(futureSteps) { step in
+                                OtherStepRow(
+                                    step: step,
+                                    isOverdue: false,
+                                    onToggle: { onStepToggle(step) },
+                                    onEdit: { onStepEdit(step) }
+                                )
+                            }
+                        }
+                    }
                 }
+                .frame(maxWidth: .infinity)
             }
-            .toggleStyle(.checkbox)
-            .padding(.top, 20)
         }
-    }
-    
-    private var rightColumn: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            checklistHeader
-            checklistContent
-            addItemButton
-            requireAllToggle
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.leading, 16)
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white)
+                .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 2)
+        )
         .overlay(
-            Rectangle()
-                .fill(Color.gray.opacity(0.12))
-                .frame(width: 1)
-            , alignment: .leading
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.orange.opacity(0.1), lineWidth: 1)
         )
     }
+}
+
+// MARK: - Other Step Row
+
+struct OtherStepRow: View {
+    let step: Step
+    let isOverdue: Bool
+    let onToggle: () -> Void
+    let onEdit: () -> Void
     
-    private var checklistHeader: some View {
-        HStack {
-            Text("Checklist")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(Color(white: 0.25))
-            Spacer()
-            if !checklist.isEmpty {
-                let completed = checklist.filter { $0.completed }.count
-                Text("\(completed)/\(checklist.count) splněno")
-                    .font(.system(size: 12))
-                    .foregroundColor(.gray)
-            }
-        }
-        .padding(.bottom, 8)
+    @State private var isHovering = false
+    
+    private let primaryOrange = Color(red: 0.918, green: 0.345, blue: 0.047)
+    
+    private var dateString: String {
+        guard let date = step.date else { return "" }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE"
+        formatter.locale = Locale(identifier: "cs_CZ")
+        return formatter.string(from: date).capitalized
     }
     
-    @ViewBuilder
-    private var checklistContent: some View {
-        if checklist.isEmpty {
-            emptyChecklistView
+    private var timeString: String {
+        guard let time = step.estimatedTime, time > 0 else { return "" }
+        return "\(time) min"
+    }
+    
+    private var titleColor: Color {
+        if step.completed {
+            return Color.gray.opacity(0.5)
+        } else if isOverdue {
+            return Color.red.opacity(0.8)
         } else {
-            checklistItemsView
+            return Color(white: 0.2)
         }
     }
     
-    private var emptyChecklistView: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "checklist")
-                .font(.system(size: 32))
-                .foregroundColor(.gray.opacity(0.3))
-            Text("Zatím žádné položky")
-                .font(.system(size: 13))
-                .foregroundColor(.gray.opacity(0.6))
-            Text("Přidejte pod-úkoly pro tento krok")
-                .font(.system(size: 11))
-                .foregroundColor(.gray.opacity(0.4))
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 24)
+    private var dateTimeColor: Color {
+        isOverdue ? Color.red.opacity(0.7) : Color.gray.opacity(0.6)
     }
     
-    private var checklistItemsView: some View {
-        VStack(spacing: 6) {
-            ForEach(checklist.indices, id: \.self) { index in
-                ChecklistItemRow(
-                    item: $checklist[index],
-                    onDelete: { checklist.remove(at: index) },
-                    primaryOrange: primaryOrange
+    private var backgroundColor: Color {
+        isOverdue && !step.completed ? Color.red.opacity(0.05) : Color.gray.opacity(0.03)
+    }
+    
+    private var borderColor: Color {
+        isOverdue && !step.completed ? Color.red.opacity(0.3) : Color.gray.opacity(0.15)
+    }
+    
+    private var checkboxFill: Color {
+        step.completed ? primaryOrange : Color.white
+    }
+    
+    private var checkboxStroke: Color {
+        isOverdue ? Color.red.opacity(0.4) : Color.gray.opacity(0.3)
+    }
+    
+    var body: some View {
+        HStack(spacing: 10) {
+            // Checkbox
+            checkboxView
+            
+            // Title
+            Text(step.title)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(titleColor)
+                .strikethrough(step.completed)
+                .lineLimit(1)
+            
+            Spacer()
+            
+            // Date and time
+            dateTimeView
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(backgroundColor)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(borderColor, lineWidth: 1)
+        )
+        .contentShape(Rectangle())
+        .onTapGesture {
+            onEdit()
+        }
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.15)) {
+                isHovering = hovering
+            }
+        }
+    }
+    
+    private var checkboxView: some View {
+        Button(action: onToggle) {
+            RoundedRectangle(cornerRadius: 5)
+                .fill(checkboxFill)
+                .frame(width: 20, height: 20)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 5)
+                        .stroke(checkboxStroke, lineWidth: 2)
                 )
-            }
-        }
-    }
-    
-    private var addItemButton: some View {
-        Button(action: {
-            let newItem = ChecklistItem(id: UUID().uuidString, title: "", completed: false)
-            checklist.append(newItem)
-        }) {
-            HStack {
-                Image(systemName: "plus")
-                    .font(.system(size: 12, weight: .semibold))
-                Text("Přidat položku")
-                    .font(.system(size: 13, weight: .medium))
-            }
-            .foregroundColor(primaryOrange)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(primaryOrange.opacity(0.04))
-            .cornerRadius(10)
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(primaryOrange.opacity(0.35), style: StrokeStyle(lineWidth: 1.5, dash: [6]))
-            )
+                .overlay(
+                    Group {
+                        if step.completed {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                    }
+                )
         }
         .buttonStyle(.plain)
     }
     
-    @ViewBuilder
-    private var requireAllToggle: some View {
-        if !checklist.isEmpty {
-            Toggle(isOn: $requireAllChecklist) {
-                Text("Vyžadovat splnění všech položek před dokončením kroku")
-                    .font(.system(size: 12))
-                    .foregroundColor(.gray)
+    private var dateTimeView: some View {
+        HStack(spacing: 8) {
+            if isOverdue && !step.completed {
+                Text("❗")
+                    .font(.system(size: 10))
             }
-            .toggleStyle(.checkbox)
-            .padding(.top, 6)
-        }
-    }
-    
-    private var modalFooter: some View {
-        HStack {
-            Spacer()
             
-            Button("Cancel") {
-                onCancel()
+            if !dateString.isEmpty {
+                Text(dateString)
+                    .font(.system(size: 11))
+                    .foregroundColor(dateTimeColor)
             }
-            .buttonStyle(.plain)
-            .foregroundColor(.gray)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
             
-            Button(action: saveStep) {
-                Text("Save")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 10)
-                    .background(primaryOrange)
-                    .cornerRadius(8)
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(20)
-    }
-    
-    private func saveStep() {
-        var updated = step
-        updated.title = title
-        updated.description = description.isEmpty ? nil : description
-        updated.goalId = selectedGoalId
-        updated.estimatedTime = estimatedTime
-        updated.isImportant = isImportant
-        updated.date = date
-        updated.checklist = checklist.isEmpty ? nil : checklist
-        
-        // Call API to save
-        Task {
-            do {
-                let savedStep = try await APIManager.shared.updateStep(updated)
-                await MainActor.run {
-                    onSave(savedStep)
-                }
-            } catch {
-                print("❌ Error saving step: \(error)")
-                // Still call onSave with local changes
-                await MainActor.run {
-                    onSave(updated)
-                }
+            if !timeString.isEmpty {
+                Text(timeString)
+                    .font(.system(size: 11))
+                    .foregroundColor(dateTimeColor)
             }
         }
     }

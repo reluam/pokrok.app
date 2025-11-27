@@ -366,8 +366,8 @@ struct HabitDetailSheet: View {
                         GridItem(.flexible()),
                         GridItem(.flexible())
                     ], spacing: 16) {
-                        StatCard(title: "Aktuální streak", value: "\(habit.streak)", icon: "flame.fill", color: .orange)
-                        StatCard(title: "Nejlepší streak", value: "\(habit.maxStreak)", icon: "trophy.fill", color: .yellow)
+                        StatCard(title: "Aktuální streak", value: "\(habit.streak ?? 0)", icon: "flame.fill", color: .orange)
+                        StatCard(title: "Nejlepší streak", value: "\(habit.maxStreak ?? 0)", icon: "trophy.fill", color: .yellow)
                         StatCard(title: "Frekvence", value: (habit.frequency ?? "daily").capitalized, icon: "repeat", color: .blue)
                     }
                     

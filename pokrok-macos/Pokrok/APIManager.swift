@@ -255,17 +255,68 @@ class APIManager: ObservableObject {
         return try decoder.decode(Step.self, from: data)
     }
     
-    func toggleStepCompletion(_ stepId: String, completed: Bool) async throws {
-        let url = URL(string: "\(baseURL)/api/steps/\(stepId)")!
+    func toggleStepCompletion(stepId: String, completed: Bool, completedAt: Date?) async throws -> Step {
+        let url = URL(string: "\(baseURL)/api/daily-steps")!
         var request = URLRequest(url: url)
-        request.httpMethod = "PATCH"
+        request.httpMethod = "PUT"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         addAuthHeaders(to: &request)
         
-        let body = ["isCompleted": completed]
+        var body: [String: Any] = [
+            "stepId": stepId,
+            "completed": completed
+        ]
+        
+        if let completedAt = completedAt {
+            let iso8601Formatter = ISO8601DateFormatter()
+            body["completedAt"] = iso8601Formatter.string(from: completedAt)
+        }
+        
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
-        let (_, _) = try await URLSession.shared.data(for: request)
+        print("📤 Toggling step completion: \(stepId) to \(completed)")
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            if let errorStr = String(data: data, encoding: .utf8) {
+                print("❌ Toggle step error: \(errorStr)")
+            }
+            throw APIError.serverError(httpResponse.statusCode)
+        }
+        
+        print("✅ Step completion toggled successfully")
+        
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let dateString = try container.decode(String.self)
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            if let date = dateFormatter.date(from: dateString) {
+                return date
+            }
+            
+            let iso8601Formatter = ISO8601DateFormatter()
+            iso8601Formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            if let date = iso8601Formatter.date(from: dateString) {
+                return date
+            }
+            
+            iso8601Formatter.formatOptions = [.withInternetDateTime]
+            if let date = iso8601Formatter.date(from: dateString) {
+                return date
+            }
+            
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Cannot decode date")
+        }
+        
+        return try decoder.decode(Step.self, from: data)
     }
     
     func updateStep(_ step: Step) async throws -> Step {
@@ -282,10 +333,16 @@ class APIManager: ObservableObject {
             "stepId": step.id,
             "title": step.title,
             "description": step.description ?? "",
+            "completed": step.completed,
             "isImportant": step.isImportant ?? false,
             "isUrgent": step.isUrgent ?? false,
             "estimatedTime": step.estimatedTime ?? 30
         ]
+        
+        if let completedAt = step.completedAt {
+            let iso8601Formatter = ISO8601DateFormatter()
+            body["completedAt"] = iso8601Formatter.string(from: completedAt)
+        }
         
         if let date = step.date {
             body["date"] = dateFormatter.string(from: date)

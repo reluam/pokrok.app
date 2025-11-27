@@ -268,11 +268,11 @@ struct StepsView: View {
         .onAppear {
             loadSteps()
         }
-        .sheet(isPresented: $showAddStepModal) {
-            AddStepModal(onStepAdded: {
-                loadSteps()
-            })
-        }
+            .sheet(isPresented: $showAddStepModal) {
+                AddStepModal(onStepAdded: {
+                    loadSteps()
+                })
+            }
         .alert("Chyba", isPresented: $showError) {
             Button("OK") { }
         } message: {
