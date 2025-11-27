@@ -1051,7 +1051,7 @@ export function GoalsManagementView({
             onClick={() => setEditingGoal(null)}
           >
             <div 
-              className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6 border-b border-gray-200">
@@ -1066,283 +1066,178 @@ export function GoalsManagementView({
                     <X className="w-5 h-5" />
                   </button>
                 </div>
-                
-                {/* Tabs */}
-                <div className="flex gap-2 mt-4 border-b border-gray-200">
-                  <button
-                    onClick={() => setActiveTab('general')}
-                    className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
-                      activeTab === 'general'
-                        ? 'border-orange-600 text-orange-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700'
-                    }`}
-                  >
-                    {t('modal.generalInfo')}
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('steps')}
-                    className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
-                      activeTab === 'steps'
-                        ? 'border-orange-600 text-orange-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700'
-                    }`}
-                  >
-                    {t('table.steps')}
-                  </button>
-                </div>
               </div>
 
-              <div className="p-6 space-y-4">
-                {activeTab === 'general' && (
-                  <>
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Left column - General Info */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">{t('modal.generalInfo')}</h3>
+                    
                     <div>
                       <label className="block text-sm font-semibold text-gray-800 mb-2">
                         {t('goals.goalTitle')} <span className="text-orange-500">*</span>
                       </label>
-                  <input
-                    type="text"
-                    value={editFormData.title}
-                    onChange={(e) => setEditFormData({...editFormData, title: e.target.value})}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                    placeholder={t('goals.goalTitlePlaceholder')}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800 mb-2">
-                    {t('goals.goalDescription')}
-                  </label>
-                  <textarea
-                    value={editFormData.description}
-                    onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white resize-none"
-                    rows={4}
-                    placeholder={t('goals.goalDescriptionPlaceholder')}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">
-                      {t('common.endDate')}
-                    </label>
-                    <input
-                      type="date"
-                      value={editFormData.target_date}
-                      onChange={(e) => setEditFormData({...editFormData, target_date: e.target.value})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">
-                      {t('table.status')}
-                    </label>
-                    <select
-                      value={editFormData.status}
-                      onChange={(e) => setEditFormData({...editFormData, status: e.target.value})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                    >
-                      <option value="active">{t('goals.status.active')}</option>
-                      <option value="completed">{t('goals.status.completed')}</option>
-                      <option value="considering">{t('goals.status.considering')}</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="pt-2">
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={editFormData.is_focused}
-                      onChange={(e) => setEditFormData({...editFormData, is_focused: e.target.checked})}
-                      className="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                    />
-                    <span className="text-sm font-semibold text-gray-800">
-                      {t('modal.addToFocus')}
-                    </span>
-                  </label>
-                  <p className="text-xs text-gray-500 mt-1 ml-8">
-                    {t('modal.focusDescription')}
-                  </p>
-                </div>
-                  </>
-                )}
-
-                {activeTab === 'steps' && (
-                  <>
-                {/* Steps Section */}
-                <div className="bg-white rounded-xl p-4 border-2 border-gray-100 shadow-sm">
-                  <div className="flex items-center justify-between mb-3">
-                    <label className="block text-sm font-semibold text-gray-800">{t('goals.steps')}</label>
-                    <button
-                      type="button"
-                      onClick={handleAddStep}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-colors"
-                    >
-                      <Plus className="w-4 h-4" />
-                      {t('goals.addStep')}
-                    </button>
-                  </div>
-                  {editFormData.steps.length === 0 ? (
-                    <div className="text-center py-6 text-gray-400">
-                      <svg className="w-8 h-8 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
-                      <p className="text-xs">{t('steps.noSteps')}</p>
+                      <input
+                        type="text"
+                        value={editFormData.title}
+                        onChange={(e) => setEditFormData({...editFormData, title: e.target.value})}
+                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
+                        placeholder={t('goals.goalTitlePlaceholder')}
+                      />
                     </div>
-                  ) : (
-                    <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                      {editFormData.steps.map((step, index) => {
-                        const isEditing = step.isEditing || (!step.title && step.id === editFormData.steps[editFormData.steps.length - 1]?.id)
-                        
-                        return (
-                          <div 
-                            key={step.id} 
-                            data-step-id={step.id}
-                            className="bg-gray-50 p-3 rounded-lg border border-gray-200 hover:border-orange-600 transition-colors"
-                          >
-                            {isEditing ? (
-                              <>
-                                <div className="flex items-start justify-between mb-2">
-                                  <span className="text-xs font-semibold text-gray-600 bg-white px-2 py-0.5 rounded">{t('goals.stepNumber')} {index + 1}</span>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDeleteStep(step.id)}
-                                    className="text-red-400 hover:text-red-600 hover:bg-red-50 rounded p-1 transition-colors"
-                                  >
-                                    <X className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                                <input
-                                  type="text"
-                                  value={step.title}
-                                  onChange={(e) => {
-                                    const updatedSteps = editFormData.steps.map(s =>
-                                      s.id === step.id ? { ...s, title: e.target.value } : s
-                                    )
-                                    setEditFormData({ ...editFormData, steps: updatedSteps })
-                                  }}
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
-                                  placeholder={t('steps.stepTitle')}
-                                  autoFocus
-                                />
-                                <input
-                                  type="date"
-                                  value={step.date || ''}
-                                  onChange={(e) => {
-                                    const updatedSteps = editFormData.steps.map(s =>
-                                      s.id === step.id ? { ...s, date: e.target.value } : s
-                                    )
-                                    setEditFormData({ ...editFormData, steps: updatedSteps })
-                                  }}
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
-                                  placeholder={t('steps.dateOptional')}
-                                />
-                                <textarea
-                                  value={step.description || ''}
-                                  onChange={(e) => {
-                                    const updatedSteps = editFormData.steps.map(s =>
-                                      s.id === step.id ? { ...s, description: e.target.value } : s
-                                    )
-                                    setEditFormData({ ...editFormData, steps: updatedSteps })
-                                  }}
-                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white resize-none"
-                                  rows={2}
-                                  placeholder={t('steps.descriptionOptional')}
-                                />
-                                <div className="grid grid-cols-2 gap-2 mb-2">
-                                  <div>
-                                    <label className="block text-xs text-gray-500 mb-1">Odhadovaný čas (min)</label>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-2">
+                        {t('goals.goalDescription')}
+                      </label>
+                      <textarea
+                        value={editFormData.description}
+                        onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
+                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white resize-none"
+                        rows={3}
+                        placeholder={t('goals.goalDescriptionPlaceholder')}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-800 mb-2">
+                          {t('common.endDate')}
+                        </label>
+                        <input
+                          type="date"
+                          value={editFormData.target_date}
+                          onChange={(e) => setEditFormData({...editFormData, target_date: e.target.value})}
+                          className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-800 mb-2">
+                          {t('table.status')}
+                        </label>
+                        <select
+                          value={editFormData.status}
+                          onChange={(e) => setEditFormData({...editFormData, status: e.target.value})}
+                          className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
+                        >
+                          <option value="active">{t('goals.status.active')}</option>
+                          <option value="completed">{t('goals.status.completed')}</option>
+                          <option value="considering">{t('goals.status.considering')}</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="pt-2">
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={editFormData.is_focused}
+                          onChange={(e) => setEditFormData({...editFormData, is_focused: e.target.checked})}
+                          className="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                        />
+                        <span className="text-sm font-semibold text-gray-800">
+                          {t('modal.addToFocus')}
+                        </span>
+                      </label>
+                      <p className="text-xs text-gray-500 mt-1 ml-8">
+                        {t('modal.focusDescription')}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Right column - Steps */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">{t('table.steps')}</h3>
+                      <button
+                        type="button"
+                        onClick={handleAddStep}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                        {t('goals.addStep')}
+                      </button>
+                    </div>
+                    
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 min-h-[300px]">
+                      {editFormData.steps.length === 0 ? (
+                        <div className="text-center py-12 text-gray-400">
+                          <svg className="w-10 h-10 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                          <p className="text-sm">{t('steps.noSteps')}</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
+                          {editFormData.steps.map((step, index) => {
+                            const isEditing = step.isEditing || (!step.title && step.id === editFormData.steps[editFormData.steps.length - 1]?.id)
+                            
+                            return (
+                              <div 
+                                key={step.id} 
+                                data-step-id={step.id}
+                                className="bg-white p-3 rounded-lg border border-gray-200 hover:border-orange-600 transition-colors"
+                              >
+                                {isEditing ? (
+                                  <>
+                                    <div className="flex items-start justify-between mb-2">
+                                      <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-2 py-0.5 rounded">{t('goals.stepNumber')} {index + 1}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDeleteStep(step.id)}
+                                        className="text-red-400 hover:text-red-600 hover:bg-red-50 rounded p-1 transition-colors"
+                                      >
+                                        <X className="w-3.5 h-3.5" />
+                                      </button>
+                                    </div>
                                     <input
-                                      type="number"
-                                      value={step.estimated_time || 0}
+                                      type="text"
+                                      value={step.title}
                                       onChange={(e) => {
                                         const updatedSteps = editFormData.steps.map(s =>
-                                          s.id === step.id ? { ...s, estimated_time: parseInt(e.target.value) || 0 } : s
+                                          s.id === step.id ? { ...s, title: e.target.value } : s
                                         )
                                         setEditFormData({ ...editFormData, steps: updatedSteps })
                                       }}
-                                      className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
-                                      min="0"
+                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
+                                      placeholder={t('steps.stepTitle')}
+                                      autoFocus
                                     />
-                                  </div>
-                                  <div className="flex items-end pb-1">
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                      <input
-                                        type="checkbox"
-                                        checked={step.is_important || false}
-                                        onChange={(e) => {
-                                          const updatedSteps = editFormData.steps.map(s =>
-                                            s.id === step.id ? { ...s, is_important: e.target.checked } : s
-                                          )
-                                          setEditFormData({ ...editFormData, steps: updatedSteps })
-                                        }}
-                                        className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                                      />
-                                      <span className="text-xs text-gray-700">⭐ Důležitý</span>
-                                    </label>
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-2 mt-2">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleSaveStep(step.id)}
-                                    className="px-3 py-1.5 text-xs font-medium bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
-                                  >
-                                    {t('common.save')}
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDeleteStep(step.id)}
-                                    className="px-3 py-1.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                                  >
-                                    {t('common.cancel')}
-                                  </button>
-                                </div>
-                              </>
-                            ) : (
-                              <div 
-                                className="flex items-center justify-between cursor-pointer group"
-                                onClick={() => {
-                                  if (onOpenStepModal && !step.id.startsWith('temp-')) {
-                                    handleEditStep(step)
-                                  } else {
-                                  const updatedSteps = editFormData.steps.map(s =>
-                                    s.id === step.id ? { ...s, isEditing: true } : s
-                                  )
-                                  setEditFormData({ ...editFormData, steps: updatedSteps })
-                                  }
-                                }}
-                              >
-                                <div className="flex items-center gap-3 flex-1">
-                                  <span className="text-xs font-semibold text-gray-500 w-12">#{index + 1}</span>
-                                  <div className="flex-1">
-                                    <div className="font-medium text-sm text-gray-900">{step.title || t('common.noTitle')}</div>
-                                    {step.date && (
-                                      <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
-                                        <Calendar className="w-3 h-3" />
-                                        {(() => {
-                                          try {
-                                            const dateStr = step.date.includes('T') ? step.date.split('T')[0] : step.date
-                                            const dateParts = dateStr.split('-')
-                                            if (dateParts.length === 3) {
-                                              return new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2])).toLocaleDateString(localeCode, { day: '2-digit', month: '2-digit' })
-                                            }
-                                            return dateStr
-                                          } catch {
-                                            return step.date
-                                          }
-                                        })()}
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
+                                    <input
+                                      type="date"
+                                      value={step.date || ''}
+                                      onChange={(e) => {
+                                        const updatedSteps = editFormData.steps.map(s =>
+                                          s.id === step.id ? { ...s, date: e.target.value } : s
+                                        )
+                                        setEditFormData({ ...editFormData, steps: updatedSteps })
+                                      }}
+                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
+                                      placeholder={t('steps.dateOptional')}
+                                    />
+                                    <div className="flex items-center gap-2 mt-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleSaveStep(step.id)}
+                                        className="px-3 py-1.5 text-xs font-medium bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                                      >
+                                        {t('common.save')}
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDeleteStep(step.id)}
+                                        className="px-3 py-1.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                                      >
+                                        {t('common.cancel')}
+                                      </button>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div 
+                                    className="flex items-center justify-between cursor-pointer group"
+                                    onClick={() => {
                                       if (onOpenStepModal && !step.id.startsWith('temp-')) {
                                         handleEditStep(step)
                                       } else {
@@ -1352,32 +1247,69 @@ export function GoalsManagementView({
                                       setEditFormData({ ...editFormData, steps: updatedSteps })
                                       }
                                     }}
-                                    className="text-gray-400 hover:text-orange-600 p-1"
                                   >
-                                    <Edit className="w-4 h-4" />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      handleDeleteStep(step.id)
-                                    }}
-                                    className="text-gray-400 hover:text-red-600 p-1"
-                                  >
-                                    <X className="w-4 h-4" />
-                                  </button>
-                                </div>
+                                    <div className="flex items-center gap-3 flex-1">
+                                      <span className="text-xs font-semibold text-gray-500 w-8">#{index + 1}</span>
+                                      <div className="flex-1">
+                                        <div className="font-medium text-sm text-gray-900">{step.title || t('common.noTitle')}</div>
+                                        {step.date && (
+                                          <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
+                                            <Calendar className="w-3 h-3" />
+                                            {(() => {
+                                              try {
+                                                const dateStr = step.date.includes('T') ? step.date.split('T')[0] : step.date
+                                                const dateParts = dateStr.split('-')
+                                                if (dateParts.length === 3) {
+                                                  return new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2])).toLocaleDateString(localeCode, { day: '2-digit', month: '2-digit' })
+                                                }
+                                                return dateStr
+                                              } catch {
+                                                return step.date
+                                              }
+                                            })()}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          if (onOpenStepModal && !step.id.startsWith('temp-')) {
+                                            handleEditStep(step)
+                                          } else {
+                                          const updatedSteps = editFormData.steps.map(s =>
+                                            s.id === step.id ? { ...s, isEditing: true } : s
+                                          )
+                                          setEditFormData({ ...editFormData, steps: updatedSteps })
+                                          }
+                                        }}
+                                        className="text-gray-400 hover:text-orange-600 p-1"
+                                      >
+                                        <Edit className="w-4 h-4" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleDeleteStep(step.id)
+                                        }}
+                                        className="text-gray-400 hover:text-red-600 p-1"
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
-                            )}
-                          </div>
-                        )
-                      })}
+                            )
+                          })}
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
-                  </>
-                )}
-
               </div>
 
               <div className="p-6 border-t border-gray-200 flex items-center justify-between">

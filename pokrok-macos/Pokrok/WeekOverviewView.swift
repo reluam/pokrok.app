@@ -1582,7 +1582,7 @@ struct StepEditModal: View {
             }
             .padding(20)
         }
-        .frame(width: 700, height: 520)
+        .frame(width: 750, height: 620)
         .background(Color.white)
     }
 }

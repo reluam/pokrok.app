@@ -3,49 +3,209 @@ import Clerk
 
 struct ContentView: View {
     @Environment(\.clerk) private var clerk
+    @State private var showAddMenu = false
+    @State private var showAddGoalModal = false
+    @State private var showAddStepModal = false
+    @State private var showAddHabitModal = false
     
     var body: some View {
         Group {
             if clerk.user != nil {
                 // Main app content for authenticated users
-                TabView {
-                    DashboardView()
-                        .tabItem {
-                            Image(systemName: "house.fill")
-                            Text("Domů")
-                        }
+                ZStack {
+                    TabView {
+                        DashboardView()
+                            .tabItem {
+                                Image(systemName: "house.fill")
+                                Text("Domů")
+                            }
+                        
+                        GoalsView()
+                            .tabItem {
+                                Image(systemName: "flag.fill")
+                                Text("Cíle")
+                            }
+                        
+                        // Empty placeholder for center button
+                        Color.clear
+                            .tabItem {
+                                Image(systemName: "plus")
+                                Text("")
+                            }
+                        
+                        StepsView()
+                            .tabItem {
+                                Image(systemName: "checkmark.circle.fill")
+                                Text("Kroky")
+                            }
+                        
+                        SettingsView()
+                            .tabItem {
+                                Image(systemName: "gear")
+                                Text("Nastavení")
+                            }
+                    }
+                    .accentColor(.orange)
                     
-                    AspirationsOverviewView()
-                        .tabItem {
-                            Image(systemName: "chart.bar.fill")
-                            Text("Přehled")
+                    // Center Plus Button
+                    VStack {
+                        Spacer()
+                        
+                        Button(action: {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                showAddMenu.toggle()
+                            }
+                        }) {
+                            ZStack {
+                                Circle()
+                                    .fill(DesignSystem.Colors.primary)
+                                    .frame(width: 56, height: 56)
+                                    .shadow(color: DesignSystem.Colors.primary.opacity(0.4), radius: 8, x: 0, y: 4)
+                                
+                                Image(systemName: showAddMenu ? "xmark" : "plus")
+                                    .font(.system(size: 24, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .rotationEffect(.degrees(showAddMenu ? 45 : 0))
+                            }
                         }
+                        .offset(y: -30)
+                    }
                     
-                    StepsView()
-                        .tabItem {
-                            Image(systemName: "checkmark.circle.fill")
-                            Text("Kroky")
+                    // Add Menu Overlay
+                    if showAddMenu {
+                        Color.black.opacity(0.4)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    showAddMenu = false
+                                }
+                            }
+                        
+                        VStack(spacing: 16) {
+                            Spacer()
+                            
+                            // Menu Options
+                            VStack(spacing: 12) {
+                                AddMenuButton(
+                                    icon: "flag.fill",
+                                    title: "Cíl",
+                                    color: DesignSystem.Colors.longTerm
+                                ) {
+                                    showAddMenu = false
+                                    showAddGoalModal = true
+                                }
+                                
+                                AddMenuButton(
+                                    icon: "checkmark.circle.fill",
+                                    title: "Krok",
+                                    color: DesignSystem.Colors.primary
+                                ) {
+                                    showAddMenu = false
+                                    showAddStepModal = true
+                                }
+                                
+                                AddMenuButton(
+                                    icon: "repeat.circle.fill",
+                                    title: "Návyk",
+                                    color: DesignSystem.Colors.mediumTerm
+                                ) {
+                                    showAddMenu = false
+                                    showAddHabitModal = true
+                                }
+                            }
+                            .padding(.horizontal, 40)
+                            .padding(.bottom, 100)
                         }
-                    
-                    NotesView()
-                        .tabItem {
-                            Image(systemName: "note.text")
-                            Text("Poznámky")
-                        }
-                    
-                    SettingsView()
-                        .tabItem {
-                            Image(systemName: "gear")
-                            Text("Nastavení")
-                        }
+                        .transition(.opacity.combined(with: .scale(scale: 0.8)))
+                    }
                 }
-                .accentColor(.orange)
+                .sheet(isPresented: $showAddGoalModal) {
+                    AddGoalModal(onGoalAdded: {})
+                }
+                .sheet(isPresented: $showAddStepModal) {
+                    AddStepModal(onStepAdded: {})
+                }
+                .sheet(isPresented: $showAddHabitModal) {
+                    AddHabitModal(onHabitAdded: {})
+                }
             } else {
                 // Authentication screen for unauthenticated users
                 AuthView()
             }
         }
         .onAppear {
+        }
+    }
+}
+
+// MARK: - Add Menu Button Component
+struct AddMenuButton: View {
+    let icon: String
+    let title: String
+    let color: Color
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.2))
+                        .frame(width: 48, height: 48)
+                    
+                    Image(systemName: icon)
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(color)
+                }
+                
+                Text(title)
+                    .font(DesignSystem.Typography.headline)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(DesignSystem.Colors.textTertiary)
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                    .fill(DesignSystem.Colors.surface)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Add Habit Modal (placeholder)
+struct AddHabitModal: View {
+    @Environment(\.dismiss) private var dismiss
+    let onHabitAdded: () -> Void
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 20) {
+                Text("Vytvoření návyku")
+                    .font(DesignSystem.Typography.title2)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                
+                Text("Tato funkce bude brzy k dispozici")
+                    .font(DesignSystem.Typography.body)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                
+                Spacer()
+            }
+            .padding()
+            .navigationTitle("Nový návyk")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Zrušit") {
+                        dismiss()
+                    }
+                }
+            }
         }
     }
 }

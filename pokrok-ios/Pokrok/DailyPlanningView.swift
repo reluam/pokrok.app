@@ -185,19 +185,6 @@ struct DailyPlanningView: View {
         .navigationTitle("Přehled")
         .navigationBarTitleDisplayMode(.large)
         .toolbarBackground(.hidden, for: .navigationBar)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    showAddStepModal = true
-                }) {
-                    ModernIcon(
-                        systemName: "plus",
-                        size: 18,
-                        color: DesignSystem.Colors.primary
-                    )
-                }
-            }
-        }
         .onAppear {
             loadData()
             setRandomInspiration()

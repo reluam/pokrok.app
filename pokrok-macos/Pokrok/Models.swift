@@ -177,6 +177,32 @@ struct ChecklistItem: Codable, Identifiable {
     let id: String
     var title: String
     var completed: Bool
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case title
+        case completed
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        title = try container.decode(String.self, forKey: .title)
+        // Try both "completed" and handle potential type mismatches
+        if let boolValue = try? container.decode(Bool.self, forKey: .completed) {
+            completed = boolValue
+        } else if let intValue = try? container.decode(Int.self, forKey: .completed) {
+            completed = intValue != 0
+        } else {
+            completed = false
+        }
+    }
+    
+    init(id: String, title: String, completed: Bool) {
+        self.id = id
+        self.title = title
+        self.completed = completed
+    }
 }
 
 struct Step: Codable, Identifiable {
