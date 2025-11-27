@@ -13,11 +13,11 @@ struct StatisticsView: View {
     }
     
     private var completedGoals: Int {
-        goals.filter { $0.status == .completed }.count
+        goals.filter { $0.status == "completed" }.count
     }
     
     private var totalStreak: Int {
-        habits.map { $0.streak }.reduce(0, +)
+        habits.compactMap { $0.streak }.reduce(0, +)
     }
     
     private var averageStreak: Double {
@@ -74,7 +74,7 @@ struct StatisticsView: View {
                     
                     OverviewCard(
                         title: "Nejdelší streak",
-                        value: "\(habits.map { $0.maxStreak }.max() ?? 0)",
+                        value: "\(habits.compactMap { $0.maxStreak }.max() ?? 0)",
                         subtitle: "dní v řadě",
                         icon: "flame.fill",
                         color: .orange
@@ -126,9 +126,9 @@ struct StatisticsView: View {
                             .font(.headline)
                         
                         VStack(spacing: 12) {
-                            GoalProgressRow(label: "Aktivní", count: goals.filter { $0.status == .active }.count, total: goals.count, color: .blue)
+                            GoalProgressRow(label: "Aktivní", count: goals.filter { $0.status == "active" }.count, total: goals.count, color: .blue)
                             GoalProgressRow(label: "Dokončené", count: completedGoals, total: goals.count, color: .green)
-                            GoalProgressRow(label: "Pozastavené", count: goals.filter { $0.status == .paused }.count, total: goals.count, color: .gray)
+                            GoalProgressRow(label: "Pozastavené", count: goals.filter { $0.status == "paused" }.count, total: goals.count, color: .gray)
                         }
                     }
                     .padding()
@@ -150,7 +150,7 @@ struct StatisticsView: View {
                         GridItem(.flexible()),
                         GridItem(.flexible())
                     ], spacing: 12) {
-                        ForEach(habits.sorted { $0.streak > $1.streak }) { habit in
+                        ForEach(habits.sorted { ($0.streak ?? 0) > ($1.streak ?? 0) }) { habit in
                             HabitStreakCard(habit: habit)
                         }
                     }
@@ -267,10 +267,10 @@ struct HabitStreakCard: View {
                     .lineLimit(1)
                 
                 HStack(spacing: 4) {
-                    Text("\(habit.streak)")
+                    Text("\(habit.streak ?? 0)")
                         .font(.headline.bold())
                         .foregroundColor(.orange)
-                    Text("/ \(habit.maxStreak) max")
+                    Text("/ \(habit.maxStreak ?? 0) max")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }

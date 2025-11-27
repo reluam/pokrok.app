@@ -59,7 +59,8 @@ export async function GET(request: NextRequest) {
           id, user_id, goal_id, title, description, completed, 
           TO_CHAR(date, 'YYYY-MM-DD') as date,
           is_important, is_urgent, aspiration_id, 
-          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
+          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+          COALESCE(checklist, '[]'::jsonb) as checklist
         FROM daily_steps
         WHERE goal_id = ${goalId}
         ORDER BY created_at DESC
@@ -116,7 +117,8 @@ export async function POST(request: NextRequest) {
       isUrgent, 
       aspirationId,
       estimatedTime,
-      xpReward
+      xpReward,
+      checklist
     } = body
     
     if (!userId || !title) {
@@ -179,7 +181,8 @@ export async function POST(request: NextRequest) {
       is_urgent: isUrgent || false,
       aspiration_id: aspirationId || undefined,
       estimated_time: estimatedTime || 30,
-      xp_reward: xpReward || 1
+      xp_reward: xpReward || 1,
+      checklist: checklist || []
     }
 
     const step = await createDailyStep(stepData)
@@ -202,7 +205,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json()
-    const { stepId, completed, completedAt, title, description, goalId, goal_id, aspirationId, aspiration_id, isImportant, isUrgent, estimatedTime, xpReward, date } = body
+    const { stepId, completed, completedAt, title, description, goalId, goal_id, aspirationId, aspiration_id, isImportant, isUrgent, estimatedTime, xpReward, date, checklist } = body
     
     if (!stepId) {
       return NextResponse.json({ error: 'Step ID is required' }, { status: 400 })
@@ -334,6 +337,7 @@ export async function PUT(request: NextRequest) {
       if (estimatedTime !== undefined) updates.estimated_time = estimatedTime
       if (xpReward !== undefined) updates.xp_reward = xpReward
       if (date !== undefined) updates.date = dateValue
+      if (checklist !== undefined) updates.checklist = checklist
 
       if (Object.keys(updates).length === 0) {
         return NextResponse.json({ error: 'No fields to update' }, { status: 400 })

@@ -38,21 +38,31 @@ struct PlayerAppearance: Codable {
 
 struct Goal: Codable, Identifiable {
     let id: String
+    var userId: String?
     var title: String
     var description: String?
-    var deadline: Date?
-    var category: String
-    var priority: Priority
-    var status: GoalStatus
-    var createdAt: Date
-    var completedAt: Date?
+    var targetDate: Date?
+    var status: String
+    var priority: String?
+    var category: String?
+    var color: String?
+    var icon: String?
+    var createdAt: Date?
+    var updatedAt: Date?
     
-    enum Priority: String, Codable {
-        case low, medium, high
-    }
-    
-    enum GoalStatus: String, Codable {
-        case active, completed, paused
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case title
+        case description
+        case targetDate = "target_date"
+        case status
+        case priority
+        case category
+        case color
+        case icon
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
     }
 }
 
@@ -60,23 +70,39 @@ struct Goal: Codable, Identifiable {
 
 struct Habit: Codable, Identifiable {
     let id: String
+    var userId: String?
     var name: String
-    var description: String
-    var frequency: Frequency
-    var streak: Int
-    var maxStreak: Int
+    var description: String?
+    var frequency: String?
+    var streak: Int?
+    var maxStreak: Int?
     var lastCompleted: Date?
-    var category: String
-    var difficulty: Difficulty
-    var isCustom: Bool
-    var createdAt: Date
+    var category: String?
+    var difficulty: String?
+    var isCustom: Bool?
+    var color: String?
+    var icon: String?
+    var completedToday: Bool?
+    var createdAt: Date?
+    var updatedAt: Date?
     
-    enum Frequency: String, Codable {
-        case daily, weekly, monthly
-    }
-    
-    enum Difficulty: String, Codable {
-        case easy, medium, hard
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case name
+        case description
+        case frequency
+        case streak
+        case maxStreak = "max_streak"
+        case lastCompleted = "last_completed"
+        case category
+        case difficulty
+        case isCustom = "is_custom"
+        case color
+        case icon
+        case completedToday = "completed_today"
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
     }
 }
 
@@ -91,20 +117,40 @@ struct DailyStats: Codable {
     var habitsCompleted: Int
 }
 
+// MARK: - Enums
+
+enum Priority: String, Codable {
+    case low
+    case medium
+    case high
+}
+
+enum Frequency: String, Codable {
+    case daily
+    case weekly
+    case custom
+}
+
+enum Difficulty: String, Codable {
+    case easy
+    case medium
+    case hard
+}
+
 // MARK: - Game Task
 
 struct GameTask: Codable, Identifiable {
     let id: String
     var title: String
-    var description: String
-    var category: String
-    var priority: Goal.Priority
-    var energyCost: Int
-    var timeRequired: Int // in minutes
-    var experienceReward: Int
+    var description: String?
+    var category: String?
+    var priority: Priority?
+    var energyCost: Int?
+    var timeRequired: Int? // in minutes
+    var experienceReward: Int?
     var completed: Bool
     var completedAt: Date?
-    var createdAt: Date
+    var createdAt: Date?
 }
 
 // MARK: - Achievement
@@ -123,16 +169,55 @@ struct Achievement: Codable, Identifiable {
 
 // MARK: - Step (for goals)
 
+struct ChecklistItem: Codable, Identifiable {
+    let id: String
+    var title: String
+    var completed: Bool
+}
+
 struct Step: Codable, Identifiable {
     let id: String
-    var goalId: String
+    var userId: String?
+    var goalId: String?
     var title: String
     var description: String?
-    var isCompleted: Bool
-    var order: Int
-    var dueDate: Date?
-    var scheduledDate: Date?
-    var createdAt: Date
+    var completed: Bool
+    var completedAt: Date?
+    var date: Date?
+    var isImportant: Bool?
+    var isUrgent: Bool?
+    var createdAt: Date?
+    var aspirationId: String?
+    var deadline: Date?
+    var metricId: String?
+    var areaId: String?
+    var estimatedTime: Int?
+    var xpReward: Int?
+    var checklist: [ChecklistItem]?
+    
+    var isCompleted: Bool { completed }
+    var scheduledDate: Date? { date }
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case goalId = "goal_id"
+        case title
+        case description
+        case completed
+        case completedAt = "completed_at"
+        case date
+        case isImportant = "is_important"
+        case isUrgent = "is_urgent"
+        case createdAt = "created_at"
+        case aspirationId = "aspiration_id"
+        case deadline
+        case metricId = "metric_id"
+        case areaId = "area_id"
+        case estimatedTime = "estimated_time"
+        case xpReward = "xp_reward"
+        case checklist
+    }
 }
 
 // MARK: - Habit Completion
@@ -151,14 +236,25 @@ struct GameInitResponse: Codable {
     let player: Player?
     let goals: [Goal]
     let habits: [Habit]
+    let steps: [Step]?
 }
 
 struct UserData: Codable {
     let id: String
-    let clerkId: String
+    let clerkUserId: String
     let email: String
-    let firstName: String?
-    let lastName: String?
+    let name: String?
+    let hasCompletedOnboarding: Bool?
+    let preferredLocale: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case clerkUserId = "clerk_user_id"
+        case email
+        case name
+        case hasCompletedOnboarding = "has_completed_onboarding"
+        case preferredLocale = "preferred_locale"
+    }
 }
 
 // MARK: - User Settings

@@ -8,7 +8,7 @@ struct DayPlanView: View {
     @State private var plannedTasks: [PlannedTask] = []
     
     private var todayHabits: [Habit] {
-        habits.filter { $0.frequency == .daily }
+        habits.filter { $0.frequency == "daily" }
     }
     
     var body: some View {
@@ -99,7 +99,7 @@ struct DayPlanView: View {
                         
                         // Afternoon section
                         TimeSection(title: "Odpoledne", icon: "sun.max.fill", color: .yellow) {
-                            ForEach(goals.filter { $0.status == .active }.prefix(2)) { goal in
+                            ForEach(goals.filter { $0.status == "active" }.prefix(2)) { goal in
                                 TimelineGoalItem(goal: goal)
                             }
                         }
@@ -204,11 +204,11 @@ struct TimelineHabitItem: View {
                         .strikethrough(isCompleted)
                     
                     HStack(spacing: 8) {
-                        Label("\(habit.streak) dní", systemImage: "flame.fill")
+                        Label("\(habit.streak ?? 0) dní", systemImage: "flame.fill")
                             .font(.caption)
                             .foregroundColor(.orange)
                         
-                        Text(habit.category)
+                        Text(habit.category ?? "")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -259,11 +259,11 @@ struct TimelineGoalItem: View {
                         .font(.subheadline.bold())
                     
                     HStack(spacing: 8) {
-                        Text(goal.category)
+                        Text(goal.category ?? "")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
-                        if let deadline = goal.deadline {
+                        if let deadline = goal.targetDate {
                             Label(deadline.formatted(date: .abbreviated, time: .omitted), systemImage: "calendar")
                                 .font(.caption)
                                 .foregroundColor(.orange)
@@ -273,7 +273,7 @@ struct TimelineGoalItem: View {
                 
                 Spacer()
                 
-                Text(goal.priority.rawValue.capitalized)
+                Text((goal.priority ?? "medium").capitalized)
                     .font(.caption2)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -297,9 +297,10 @@ struct TimelineGoalItem: View {
     
     private var priorityColor: Color {
         switch goal.priority {
-        case .high: return .red
-        case .medium: return .orange
-        case .low: return .green
+        case "high": return .red
+        case "medium": return .orange
+        case "low": return .green
+        default: return .orange
         }
     }
 }

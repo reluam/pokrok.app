@@ -21,6 +21,8 @@
 		A1000021291D0A0000000001 /* StatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000022291D0A0000000001 /* StatisticsView.swift */; };
 		A1000023291D0A0000000001 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000024291D0A0000000001 /* SettingsView.swift */; };
 		A1000025291D0A0000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1000026291D0A0000000001 /* Assets.xcassets */; };
+		A1000031291D0A0000000001 /* WeekOverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000032291D0A0000000001 /* WeekOverviewView.swift */; };
+		A1000033291D0A0000000001 /* StepsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000034291D0A0000000001 /* StepsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +43,8 @@
 		A1000028291D0A0000000001 /* Pokrok.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pokrok.entitlements; sourceTree = "<group>"; };
 		A1000029291D0A0000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1000030291D0A0000000002 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		A1000032291D0A0000000001 /* WeekOverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekOverviewView.swift; sourceTree = "<group>"; };
+		A1000034291D0A0000000001 /* StepsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +82,8 @@
 				A1000020291D0A0000000001 /* DayPlanView.swift */,
 				A1000022291D0A0000000001 /* StatisticsView.swift */,
 				A1000024291D0A0000000001 /* SettingsView.swift */,
+				A1000032291D0A0000000001 /* WeekOverviewView.swift */,
+				A1000034291D0A0000000001 /* StepsView.swift */,
 				A1000026291D0A0000000001 /* Assets.xcassets */,
 				A1000028291D0A0000000001 /* Pokrok.entitlements */,
 				A1000029291D0A0000000001 /* Info.plist */,
@@ -179,6 +185,8 @@
 				A1000019291D0A0000000001 /* DayPlanView.swift in Sources */,
 				A1000021291D0A0000000001 /* StatisticsView.swift in Sources */,
 				A1000023291D0A0000000001 /* SettingsView.swift in Sources */,
+				A1000031291D0A0000000001 /* WeekOverviewView.swift in Sources */,
+				A1000033291D0A0000000001 /* StepsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

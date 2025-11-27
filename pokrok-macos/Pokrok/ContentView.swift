@@ -18,25 +18,23 @@ struct ContentView: View {
 struct MainAppView: View {
     @EnvironmentObject var authManager: AuthManager
     
-    @State private var selectedTab: AppTab = .dashboard
+    @State private var selectedTab: AppTab = .overview
     @State private var goals: [Goal] = []
     @State private var habits: [Habit] = []
     @State private var isLoading = true
     
     enum AppTab: String, CaseIterable {
-        case dashboard = "Dashboard"
-        case goals = "Cíle"
-        case habits = "Návyky"
-        case planning = "Plánování"
-        case statistics = "Statistiky"
+        case overview = "Overview"
+        case goals = "Goals"
+        case steps = "Steps"
+        case habits = "Habits"
         
         var icon: String {
             switch self {
-            case .dashboard: return "house.fill"
+            case .overview: return "square.grid.2x2.fill"
             case .goals: return "target"
-            case .habits: return "repeat.circle.fill"
-            case .planning: return "calendar"
-            case .statistics: return "chart.bar.fill"
+            case .steps: return "checkmark.circle.fill"
+            case .habits: return "checkmark.square.fill"
             }
         }
     }
@@ -71,16 +69,14 @@ struct MainAppView: View {
                     LoadingView()
                 } else {
                     switch selectedTab {
-                    case .dashboard:
-                        DashboardView(goals: $goals, habits: $habits)
+                    case .overview:
+                        WeekOverviewView(goals: $goals, habits: $habits)
                     case .goals:
                         GoalsView(goals: $goals)
+                    case .steps:
+                        StepsView(goals: goals)
                     case .habits:
                         HabitsView(habits: $habits)
-                    case .planning:
-                        DayPlanView(goals: goals, habits: habits)
-                    case .statistics:
-                        StatisticsView(goals: goals, habits: habits)
                     }
                 }
             }
@@ -112,15 +108,15 @@ struct MainAppView: View {
     
     // Demo data for development
     static let demoGoals: [Goal] = [
-        Goal(id: "1", title: "Naučit se Swift", description: "Zvládnout základy SwiftUI", deadline: Date().addingTimeInterval(86400 * 30), category: "Vzdělání", priority: .high, status: .active, createdAt: Date(), completedAt: nil),
-        Goal(id: "2", title: "Cvičit pravidelně", description: "3x týdně", deadline: nil, category: "Zdraví", priority: .medium, status: .active, createdAt: Date(), completedAt: nil),
-        Goal(id: "3", title: "Přečíst 12 knih", description: "1 kniha měsíčně", deadline: Date().addingTimeInterval(86400 * 365), category: "Osobní rozvoj", priority: .low, status: .active, createdAt: Date(), completedAt: nil)
+        Goal(id: "1", userId: nil, title: "Naučit se Swift", description: "Zvládnout základy SwiftUI", targetDate: Date().addingTimeInterval(86400 * 30), status: "active", priority: "high", category: "Vzdělání", color: nil, icon: nil, createdAt: Date(), updatedAt: nil),
+        Goal(id: "2", userId: nil, title: "Cvičit pravidelně", description: "3x týdně", targetDate: nil, status: "active", priority: "medium", category: "Zdraví", color: nil, icon: nil, createdAt: Date(), updatedAt: nil),
+        Goal(id: "3", userId: nil, title: "Přečíst 12 knih", description: "1 kniha měsíčně", targetDate: Date().addingTimeInterval(86400 * 365), status: "active", priority: "low", category: "Osobní rozvoj", color: nil, icon: nil, createdAt: Date(), updatedAt: nil)
     ]
     
     static let demoHabits: [Habit] = [
-        Habit(id: "1", name: "Ranní meditace", description: "10 minut každé ráno", frequency: .daily, streak: 5, maxStreak: 14, lastCompleted: Date(), category: "Mindfulness", difficulty: .easy, isCustom: false, createdAt: Date()),
-        Habit(id: "2", name: "Čtení", description: "30 minut denně", frequency: .daily, streak: 3, maxStreak: 21, lastCompleted: Date(), category: "Vzdělání", difficulty: .medium, isCustom: true, createdAt: Date()),
-        Habit(id: "3", name: "Cvičení", description: "Alespoň 30 minut", frequency: .daily, streak: 2, maxStreak: 7, lastCompleted: Date(), category: "Zdraví", difficulty: .hard, isCustom: false, createdAt: Date())
+        Habit(id: "1", userId: nil, name: "Ranní meditace", description: "10 minut každé ráno", frequency: "daily", streak: 5, maxStreak: 14, lastCompleted: Date(), category: "Mindfulness", difficulty: "easy", isCustom: false, color: nil, icon: nil, completedToday: false, createdAt: Date(), updatedAt: nil),
+        Habit(id: "2", userId: nil, name: "Čtení", description: "30 minut denně", frequency: "daily", streak: 3, maxStreak: 21, lastCompleted: Date(), category: "Vzdělání", difficulty: "medium", isCustom: true, color: nil, icon: nil, completedToday: false, createdAt: Date(), updatedAt: nil),
+        Habit(id: "3", userId: nil, name: "Cvičení", description: "Alespoň 30 minut", frequency: "daily", streak: 2, maxStreak: 7, lastCompleted: Date(), category: "Zdraví", difficulty: "hard", isCustom: false, color: nil, icon: nil, completedToday: false, createdAt: Date(), updatedAt: nil)
     ]
 }
 

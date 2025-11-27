@@ -7,7 +7,7 @@ class APIManager: ObservableObject {
     @Published var isLoading = false
     @Published var error: String?
     
-    private let baseURL = "https://pokrok.app"
+    private let baseURL = "https://www.pokrok.app"
     
     private var authToken: String?
     private var userId: String?
@@ -54,6 +54,11 @@ class APIManager: ObservableObject {
             throw APIError.serverError(httpResponse.statusCode)
         }
         
+        // Debug: print response
+        if let jsonString = String(data: data, encoding: .utf8) {
+            print("📦 API Response: \(jsonString.prefix(500))...")
+        }
+        
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         return try decoder.decode(GameInitResponse.self, from: data)
@@ -83,9 +88,9 @@ class APIManager: ObservableObject {
             "userId": userId,
             "title": goal.title,
             "description": goal.description ?? "",
-            "category": goal.category,
-            "priority": goal.priority.rawValue,
-            "status": goal.status.rawValue
+            "category": goal.category ?? "",
+            "priority": goal.priority ?? "medium",
+            "status": goal.status
         ]
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
@@ -148,11 +153,11 @@ class APIManager: ObservableObject {
         let body: [String: Any] = [
             "userId": userId,
             "name": habit.name,
-            "description": habit.description,
-            "frequency": habit.frequency.rawValue,
-            "category": habit.category,
-            "difficulty": habit.difficulty.rawValue,
-            "isCustom": habit.isCustom
+            "description": habit.description ?? "",
+            "frequency": habit.frequency ?? "daily",
+            "category": habit.category ?? "",
+            "difficulty": habit.difficulty ?? "medium",
+            "isCustom": habit.isCustom ?? false
         ]
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
@@ -236,6 +241,9 @@ class APIManager: ObservableObject {
     private func addAuthHeaders(to request: inout URLRequest) {
         if let token = authToken {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            print("🔐 Adding auth token: \(token.prefix(50))...")
+        } else {
+            print("⚠️ No auth token available")
         }
     }
 }

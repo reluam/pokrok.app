@@ -145,6 +145,12 @@ export interface Goal {
   updated_at: string | Date
 }
 
+export interface ChecklistItem {
+  id: string
+  title: string
+  completed: boolean
+}
+
 export interface DailyStep {
   id: string
   user_id: string
@@ -164,6 +170,7 @@ export interface DailyStep {
   isCompleting?: boolean // Loading state for completion
   estimated_time?: number
   xp_reward?: number
+  checklist?: ChecklistItem[]
 }
 
 export interface Metric {
@@ -1046,7 +1053,8 @@ export async function getDailyStepsByUserId(
           id, user_id, goal_id, title, description, completed, 
           TO_CHAR(date, 'YYYY-MM-DD') as date,
           is_important, is_urgent, aspiration_id, 
-          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
+          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+          checklist
         FROM daily_steps 
         WHERE user_id = ${userId}
         AND date >= ${startOfDay}
@@ -1064,7 +1072,8 @@ export async function getDailyStepsByUserId(
           id, user_id, goal_id, title, description, completed, 
           TO_CHAR(date, 'YYYY-MM-DD') as date,
           is_important, is_urgent, aspiration_id, 
-          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
+          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+          checklist
         FROM daily_steps 
         WHERE user_id = ${userId}
         AND date >= ${startDate}::date
@@ -1083,7 +1092,8 @@ export async function getDailyStepsByUserId(
           id, user_id, goal_id, title, description, completed, 
           TO_CHAR(date, 'YYYY-MM-DD') as date,
           is_important, is_urgent, aspiration_id, 
-          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
+          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+          checklist
         FROM daily_steps 
         WHERE user_id = ${userId}
         ORDER BY 
@@ -1178,23 +1188,27 @@ export async function createDailyStep(stepData: Omit<Partial<DailyStep>, 'date'>
   }
   
   // Use TO_CHAR to return date as YYYY-MM-DD string
+  const checklistJson = stepData.checklist ? JSON.stringify(stepData.checklist) : '[]'
+  
   const step = await sql`
     INSERT INTO daily_steps (
       id, user_id, goal_id, title, description, completed, date, 
       is_important, is_urgent, aspiration_id, 
-      estimated_time, xp_reward, deadline
+      estimated_time, xp_reward, deadline, checklist
     ) VALUES (
       ${id}, ${stepData.user_id}, ${stepData.goal_id}, ${stepData.title}, 
       ${stepData.description || null}, ${stepData.completed || false}, 
       ${dateValue}, ${stepData.is_important || false}, 
       ${stepData.is_urgent || false}, ${stepData.aspiration_id || null}, 
       ${stepData.estimated_time || 30},
-      ${stepData.xp_reward || 1}, ${stepData.deadline || null}
+      ${stepData.xp_reward || 1}, ${stepData.deadline || null},
+      ${checklistJson}::jsonb
     ) RETURNING 
       id, user_id, goal_id, title, description, completed, 
       TO_CHAR(date, 'YYYY-MM-DD') as date,
       is_important, is_urgent, aspiration_id, 
-      estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
+      estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+      checklist
   `
   return step[0] as DailyStep
 }
@@ -1400,6 +1414,7 @@ export async function updateDailyStepFields(
     estimated_time?: number
     xp_reward?: number
     date?: string | null
+    checklist?: ChecklistItem[]
   }
 ): Promise<DailyStep | null> {
   try {
@@ -1431,6 +1446,10 @@ export async function updateDailyStepFields(
     if (updates.date !== undefined) {
       await sql`UPDATE daily_steps SET date = ${updates.date}, updated_at = NOW() WHERE id = ${stepId}`
     }
+    if (updates.checklist !== undefined) {
+      const checklistJson = JSON.stringify(updates.checklist)
+      await sql`UPDATE daily_steps SET checklist = ${checklistJson}::jsonb, updated_at = NOW() WHERE id = ${stepId}`
+    }
 
     // Get the updated step with formatted date
     const result = await sql`
@@ -1438,7 +1457,8 @@ export async function updateDailyStepFields(
         id, user_id, goal_id, title, description, completed, 
         TO_CHAR(date, 'YYYY-MM-DD') as date,
         is_important, is_urgent, aspiration_id, 
-        estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
+        estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+        checklist
       FROM daily_steps 
       WHERE id = ${stepId}
     `

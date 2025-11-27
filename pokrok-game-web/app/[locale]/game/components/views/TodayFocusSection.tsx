@@ -902,7 +902,7 @@ export function TodayFocusSection({
                                   </button>
                         
                         {/* Title */}
-                        <span className={`flex-1 text-sm truncate ${
+                        <span className={`flex-1 text-sm truncate flex items-center gap-2 ${
                                       step.completed 
                                         ? 'line-through text-gray-400' 
                                         : isOverdue 
@@ -912,6 +912,15 @@ export function TodayFocusSection({
                                 : 'text-gray-500'
                         } ${step.is_important && !step.completed ? 'font-bold' : 'font-medium'}`}>
                                       {step.title}
+                                      {step.checklist && step.checklist.length > 0 && (
+                                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0 ${
+                                          step.checklist.filter((c: any) => c.completed).length === step.checklist.length
+                                            ? 'bg-green-100 text-green-600'
+                                            : 'bg-gray-100 text-gray-500'
+                                        }`}>
+                                          {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
+                                      </span>
+                                    )}
                                     </span>
                         
                         {/* Meta info - fixed width columns - hidden on mobile */}
@@ -987,8 +996,13 @@ export function TodayFocusSection({
                                     <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                             )}
                           </button>
-                                <span className="flex-1 text-sm truncate line-through text-gray-400 font-medium">
+                                <span className="flex-1 text-sm truncate line-through text-gray-400 font-medium flex items-center gap-2">
                             {step.title}
+                            {step.checklist && step.checklist.length > 0 && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-600 flex-shrink-0 no-underline">
+                                {step.checklist.length}/{step.checklist.length}
+                              </span>
+                            )}
                           </span>
                                 <span className="hidden sm:block w-20 text-xs text-center capitalize flex-shrink-0 text-gray-400">
                                     {stepDateFormatted}
@@ -1178,10 +1192,19 @@ export function TodayFocusSection({
                         </button>
                       
                       {/* Title */}
-                      <span className={`flex-1 font-medium text-sm truncate ${
+                      <span className={`flex-1 font-medium text-sm truncate flex items-center gap-2 ${
                         step.completed ? 'line-through text-gray-400' : isOverdue ? 'text-red-600' : 'text-gray-900'
                       }`}>
                           {step.title}
+                          {step.checklist && step.checklist.length > 0 && (
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0 ${
+                              step.checklist.filter((c: any) => c.completed).length === step.checklist.length
+                                ? 'bg-green-100 text-green-600'
+                                : 'bg-gray-100 text-gray-500'
+                            }`}>
+                              {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
+                            </span>
+                          )}
                         </span>
                       
                       {/* Meta info - hidden on mobile */}

@@ -6,7 +6,7 @@ struct HabitsView: View {
     
     @State private var showingAddHabit = false
     @State private var selectedHabit: Habit?
-    @State private var filterFrequency: Habit.Frequency? = nil
+    @State private var filterFrequency: String? = nil
     
     private var filteredHabits: [Habit] {
         if let frequency = filterFrequency {
@@ -22,7 +22,7 @@ struct HabitsView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Návyky")
                         .font(.largeTitle.bold())
-                    Text("\(habits.count) celkem • Nejdelší streak: \(habits.map { $0.maxStreak }.max() ?? 0) dní")
+                    Text("\(habits.count) celkem • Nejdelší streak: \(habits.compactMap { $0.maxStreak }.max() ?? 0) dní")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -31,10 +31,10 @@ struct HabitsView: View {
                 
                 // Filter
                 Picker("Frekvence", selection: $filterFrequency) {
-                    Text("Všechny").tag(nil as Habit.Frequency?)
-                    Text("Denní").tag(Habit.Frequency.daily as Habit.Frequency?)
-                    Text("Týdenní").tag(Habit.Frequency.weekly as Habit.Frequency?)
-                    Text("Měsíční").tag(Habit.Frequency.monthly as Habit.Frequency?)
+                    Text("Všechny").tag(nil as String?)
+                    Text("Denní").tag("daily" as String?)
+                    Text("Týdenní").tag("weekly" as String?)
+                    Text("Měsíční").tag("monthly" as String?)
                 }
                 .pickerStyle(.segmented)
                 .frame(width: 280)
@@ -79,8 +79,8 @@ struct HabitsView: View {
         if let index = habits.firstIndex(where: { $0.id == habit.id }) {
             var updatedHabit = habit
             updatedHabit.lastCompleted = Date()
-            updatedHabit.streak += 1
-            if updatedHabit.streak > updatedHabit.maxStreak {
+            updatedHabit.streak = (updatedHabit.streak ?? 0) + 1
+            if (updatedHabit.streak ?? 0) > (updatedHabit.maxStreak ?? 0) {
                 updatedHabit.maxStreak = updatedHabit.streak
             }
             habits[index] = updatedHabit
@@ -114,7 +114,7 @@ struct HabitCardLarge: View {
                         .font(.headline)
                         .lineLimit(1)
                     
-                    Text(habit.category)
+                    Text(habit.category ?? "")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -125,7 +125,7 @@ struct HabitCardLarge: View {
             }
             
             // Description
-            Text(habit.description)
+            Text(habit.description ?? "")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .lineLimit(2)
@@ -138,7 +138,7 @@ struct HabitCardLarge: View {
                     HStack(spacing: 4) {
                         Image(systemName: "flame.fill")
                             .foregroundColor(.orange)
-                        Text("\(habit.streak)")
+                        Text("\(habit.streak ?? 0)")
                             .font(.title3.bold())
                     }
                     Text("Aktuální streak")
@@ -149,7 +149,7 @@ struct HabitCardLarge: View {
                 Spacer()
                 
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text("\(habit.maxStreak)")
+                    Text("\(habit.maxStreak ?? 0)")
                         .font(.title3.bold())
                         .foregroundColor(.blue)
                     Text("Nejlepší")
@@ -199,7 +199,7 @@ struct HabitCardLarge: View {
     }
     
     private var difficultyBadge: some View {
-        Text(habit.difficulty.rawValue.capitalized)
+        Text((habit.difficulty ?? "medium").capitalized)
             .font(.caption2)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
@@ -210,9 +210,9 @@ struct HabitCardLarge: View {
     
     private var difficultyColor: Color {
         switch habit.difficulty {
-        case .easy: return .green
-        case .medium: return .orange
-        case .hard: return .red
+        case "easy": return .green
+        case "hard": return .red
+        default: return .orange
         }
     }
     
@@ -232,8 +232,8 @@ struct AddHabitSheet: View {
     @State private var name = ""
     @State private var description = ""
     @State private var category = "Zdraví"
-    @State private var frequency: Habit.Frequency = .daily
-    @State private var difficulty: Habit.Difficulty = .medium
+    @State private var frequency: Frequency = .daily
+    @State private var difficulty: Difficulty = .medium
     
     let categories = ["Zdraví", "Mindfulness", "Vzdělání", "Produktivita", "Fitness", "Vztahy"]
     
@@ -269,16 +269,16 @@ struct AddHabitSheet: View {
                     }
                     
                     Picker("Frekvence", selection: $frequency) {
-                        Text("Denně").tag(Habit.Frequency.daily)
-                        Text("Týdně").tag(Habit.Frequency.weekly)
-                        Text("Měsíčně").tag(Habit.Frequency.monthly)
+                        Text("Denně").tag(Frequency.daily)
+                        Text("Týdně").tag(Frequency.weekly)
+                        Text("Vlastní").tag(Frequency.custom)
                     }
                     .pickerStyle(.segmented)
                     
                     Picker("Obtížnost", selection: $difficulty) {
-                        Text("Lehká").tag(Habit.Difficulty.easy)
-                        Text("Střední").tag(Habit.Difficulty.medium)
-                        Text("Těžká").tag(Habit.Difficulty.hard)
+                        Text("Lehká").tag(Difficulty.easy)
+                        Text("Střední").tag(Difficulty.medium)
+                        Text("Těžká").tag(Difficulty.hard)
                     }
                     .pickerStyle(.segmented)
                 }
@@ -308,12 +308,12 @@ struct AddHabitSheet: View {
             id: UUID().uuidString,
             name: name,
             description: description,
-            frequency: frequency,
+            frequency: frequency.rawValue,
             streak: 0,
             maxStreak: 0,
             lastCompleted: nil,
             category: category,
-            difficulty: difficulty,
+            difficulty: difficulty.rawValue,
             isCustom: true,
             createdAt: Date()
         )
@@ -343,7 +343,7 @@ struct HabitDetailSheet: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(habit.name)
                         .font(.title2.bold())
-                    Text(habit.category)
+                    Text(habit.category ?? "")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -357,7 +357,7 @@ struct HabitDetailSheet: View {
             
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    Text(habit.description)
+                    Text(habit.description ?? "")
                         .foregroundColor(.secondary)
                     
                     // Stats grid
@@ -368,7 +368,7 @@ struct HabitDetailSheet: View {
                     ], spacing: 16) {
                         StatCard(title: "Aktuální streak", value: "\(habit.streak)", icon: "flame.fill", color: .orange)
                         StatCard(title: "Nejlepší streak", value: "\(habit.maxStreak)", icon: "trophy.fill", color: .yellow)
-                        StatCard(title: "Frekvence", value: habit.frequency.rawValue.capitalized, icon: "repeat", color: .blue)
+                        StatCard(title: "Frekvence", value: (habit.frequency ?? "daily").capitalized, icon: "repeat", color: .blue)
                     }
                     
                     Divider()

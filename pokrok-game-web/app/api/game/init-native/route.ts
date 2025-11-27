@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@clerk/backend'
-import { getUserByClerkId, getPlayerByUserId, getGoalsByUserId, getHabitsByUserId } from '@/lib/cesta-db'
+import { getUserByClerkId, getPlayerByUserId, getGoalsByUserId, getHabitsByUserId, getDailyStepsByUserId } from '@/lib/cesta-db'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -35,10 +35,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Load all game data in parallel
-    const [player, goals, habits] = await Promise.all([
+    const [player, goals, habits, steps] = await Promise.all([
       getPlayerByUserId(dbUser.id).catch(() => null),
       getGoalsByUserId(dbUser.id).catch(() => []),
-      getHabitsByUserId(dbUser.id).catch(() => [])
+      getHabitsByUserId(dbUser.id).catch(() => []),
+      getDailyStepsByUserId(dbUser.id).catch(() => [])
     ])
 
     // Add completed_today for habits compatibility
@@ -52,7 +53,8 @@ export async function GET(request: NextRequest) {
       user: dbUser,
       player,
       goals,
-      habits: habitsWithToday
+      habits: habitsWithToday,
+      steps
     })
   } catch (error) {
     console.error('Error initializing game data:', error)

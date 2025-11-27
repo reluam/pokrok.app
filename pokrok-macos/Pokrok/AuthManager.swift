@@ -16,8 +16,8 @@ class AuthManager: NSObject, ObservableObject {
     private let userEmailKey = "userEmail"
     
     // Clerk configuration
-    // Use your web app URL for sign-in, not Clerk's API domain
-    private let webAppURL = "https://pokrok.app"
+    // Use your web app URL for sign-in
+    private let webAppURL = "https://www.pokrok.app"
     private let callbackURLScheme = "pokrok"
     
     private var webAuthSession: ASWebAuthenticationSession?
@@ -107,6 +107,9 @@ class AuthManager: NSObject, ObservableObject {
         if let token = components?.queryItems?.first(where: { $0.name == "token" })?.value {
             let clerkUserId = components?.queryItems?.first(where: { $0.name == "user_id" })?.value
             
+            print("✅ Received auth callback with token: \(token.prefix(50))...")
+            print("✅ User ID: \(clerkUserId ?? "none")")
+            
             // Save token and configure API manager
             self.sessionToken = token
             self.userId = clerkUserId
@@ -125,6 +128,8 @@ class AuthManager: NSObject, ObservableObject {
                 await fetchSessionAfterAuth()
             }
         } else {
+            print("❌ Auth callback missing token. URL: \(callbackURL)")
+            print("❌ Query items: \(components?.queryItems ?? [])")
             self.error = "Authentication failed - no token received"
         }
     }

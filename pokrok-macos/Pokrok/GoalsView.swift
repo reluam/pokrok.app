@@ -6,7 +6,7 @@ struct GoalsView: View {
     
     @State private var showingAddGoal = false
     @State private var selectedGoal: Goal?
-    @State private var filterStatus: Goal.GoalStatus? = .active
+    @State private var filterStatus: String? = "active"
     
     private var filteredGoals: [Goal] {
         if let status = filterStatus {
@@ -22,7 +22,7 @@ struct GoalsView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Cíle")
                         .font(.largeTitle.bold())
-                    Text("\(goals.count) celkem • \(goals.filter { $0.status == .active }.count) aktivních")
+                    Text("\(goals.count) celkem • \(goals.filter { $0.status == "active" }.count) aktivních")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -31,10 +31,10 @@ struct GoalsView: View {
                 
                 // Filter
                 Picker("Stav", selection: $filterStatus) {
-                    Text("Všechny").tag(nil as Goal.GoalStatus?)
-                    Text("Aktivní").tag(Goal.GoalStatus.active as Goal.GoalStatus?)
-                    Text("Dokončené").tag(Goal.GoalStatus.completed as Goal.GoalStatus?)
-                    Text("Pozastavené").tag(Goal.GoalStatus.paused as Goal.GoalStatus?)
+                    Text("Všechny").tag(nil as String?)
+                    Text("Aktivní").tag("active" as String?)
+                    Text("Dokončené").tag("completed" as String?)
+                    Text("Pozastavené").tag("paused" as String?)
                 }
                 .pickerStyle(.segmented)
                 .frame(width: 300)
@@ -71,13 +71,10 @@ struct GoalsView: View {
         }
     }
     
-    private func updateGoalStatus(_ goal: Goal, to status: Goal.GoalStatus) {
+    private func updateGoalStatus(_ goal: Goal, to status: String) {
         if let index = goals.firstIndex(where: { $0.id == goal.id }) {
             var updatedGoal = goal
             updatedGoal.status = status
-            if status == .completed {
-                updatedGoal.completedAt = Date()
-            }
             goals[index] = updatedGoal
             
             // Sync with API
@@ -91,7 +88,7 @@ struct GoalsView: View {
 struct GoalRowView: View {
     let goal: Goal
     let onSelect: () -> Void
-    let onStatusChange: (Goal.GoalStatus) -> Void
+    let onStatusChange: (String) -> Void
     
     @State private var isHovering = false
     
@@ -99,10 +96,10 @@ struct GoalRowView: View {
         HStack(spacing: 16) {
             // Status indicator
             Button(action: {
-                if goal.status == .active {
-                    onStatusChange(.completed)
-                } else if goal.status == .completed {
-                    onStatusChange(.active)
+                if goal.status == "active" {
+                    onStatusChange("completed")
+                } else if goal.status == "completed" {
+                    onStatusChange("active")
                 }
             }) {
                 ZStack {
@@ -110,7 +107,7 @@ struct GoalRowView: View {
                         .stroke(statusColor, lineWidth: 2)
                         .frame(width: 28, height: 28)
                     
-                    if goal.status == .completed {
+                    if goal.status == "completed" {
                         Circle()
                             .fill(Color.green)
                             .frame(width: 28, height: 28)
@@ -133,8 +130,8 @@ struct GoalRowView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(goal.title)
                     .font(.headline)
-                    .strikethrough(goal.status == .completed)
-                    .foregroundColor(goal.status == .completed ? .secondary : .primary)
+                    .strikethrough(goal.status == "completed")
+                    .foregroundColor(goal.status == "completed" ? .secondary : .primary)
                 
                 if let description = goal.description, !description.isEmpty {
                     Text(description)
@@ -144,11 +141,11 @@ struct GoalRowView: View {
                 }
                 
                 HStack(spacing: 12) {
-                    Label(goal.category, systemImage: "folder")
+                    Label(goal.category ?? "", systemImage: "folder")
                         .font(.caption)
                         .foregroundColor(.secondary)
                     
-                    if let deadline = goal.deadline {
+                    if let deadline = goal.targetDate {
                         Label(deadline.formatted(date: .abbreviated, time: .omitted), systemImage: "calendar")
                             .font(.caption)
                             .foregroundColor(isOverdue(deadline) ? .red : .secondary)
@@ -159,7 +156,7 @@ struct GoalRowView: View {
             Spacer()
             
             // Priority badge
-            Text(goal.priority.rawValue.capitalized)
+            Text((goal.priority ?? "medium").capitalized)
                 .font(.caption)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)
@@ -192,22 +189,24 @@ struct GoalRowView: View {
     
     private var statusColor: Color {
         switch goal.status {
-        case .active: return .blue
-        case .completed: return .green
-        case .paused: return .gray
+        case "active": return .blue
+        case "completed": return .green
+        case "paused": return .gray
+        default: return .blue
         }
     }
     
     private var priorityColor: Color {
         switch goal.priority {
-        case .high: return .red
-        case .medium: return .orange
-        case .low: return .green
+        case "high", "critical": return .red
+        case "medium", "meaningful": return .orange
+        case "low", "nice_to_have": return .green
+        default: return .orange
         }
     }
     
     private func isOverdue(_ date: Date) -> Bool {
-        date < Date() && goal.status != .completed
+        date < Date() && goal.status != "completed"
     }
 }
 
@@ -220,7 +219,7 @@ struct AddGoalSheet: View {
     @State private var title = ""
     @State private var description = ""
     @State private var category = "Osobní"
-    @State private var priority: Goal.Priority = .medium
+    @State private var priority: Priority = .medium
     @State private var hasDeadline = false
     @State private var deadline = Date().addingTimeInterval(86400 * 7)
     
@@ -258,9 +257,9 @@ struct AddGoalSheet: View {
                     }
                     
                     Picker("Priorita", selection: $priority) {
-                        Text("Nízká").tag(Goal.Priority.low)
-                        Text("Střední").tag(Goal.Priority.medium)
-                        Text("Vysoká").tag(Goal.Priority.high)
+                        Text("Nízká").tag(Priority.low)
+                        Text("Střední").tag(Priority.medium)
+                        Text("Vysoká").tag(Priority.high)
                     }
                     .pickerStyle(.segmented)
                 }
@@ -296,14 +295,17 @@ struct AddGoalSheet: View {
     private func createGoal() {
         let newGoal = Goal(
             id: UUID().uuidString,
+            userId: authManager.userId,
             title: title,
             description: description.isEmpty ? nil : description,
-            deadline: hasDeadline ? deadline : nil,
+            targetDate: hasDeadline ? deadline : nil,
+            status: "active",
+            priority: priority.rawValue,
             category: category,
-            priority: priority,
-            status: .active,
+            color: nil,
+            icon: nil,
             createdAt: Date(),
-            completedAt: nil
+            updatedAt: nil
         )
         
         goals.append(newGoal)
@@ -331,7 +333,7 @@ struct GoalDetailSheet: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(goal.title)
                         .font(.title2.bold())
-                    Text(goal.category)
+                    Text(goal.category ?? "")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -359,7 +361,7 @@ struct GoalDetailSheet: View {
                             Text("Priorita")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
-                            Text(goal.priority.rawValue.capitalized)
+                            Text((goal.priority ?? "medium").capitalized)
                                 .font(.headline)
                         }
                         
@@ -367,11 +369,11 @@ struct GoalDetailSheet: View {
                             Text("Stav")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
-                            Text(goal.status.rawValue.capitalized)
+                            Text(goal.status.capitalized)
                                 .font(.headline)
                         }
                         
-                        if let deadline = goal.deadline {
+                        if let deadline = goal.targetDate {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Termín")
                                     .font(.caption)

@@ -175,6 +175,18 @@ async function runMigrations() {
       await sql`ALTER TABLE automations ADD CONSTRAINT automations_frequency_type_check CHECK (frequency_type IN ('one-time', 'recurring'))`
     }
     
+    // Add checklist column to daily_steps table
+    const dailyStepsColumns = await sql`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'daily_steps'
+    `
+    const dailyStepsColumnNames = dailyStepsColumns.map((row: any) => row.column_name)
+    
+    if (!dailyStepsColumnNames.includes('checklist')) {
+      await sql`ALTER TABLE daily_steps ADD COLUMN checklist JSONB DEFAULT '[]'::jsonb`
+    }
+    
     return { success: true, message: 'Migration completed successfully' }
   } catch (error: any) {
     console.error('Migration error:', error)

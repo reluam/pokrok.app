@@ -5,11 +5,11 @@ struct DashboardView: View {
     @Binding var habits: [Habit]
     
     private var activeGoals: [Goal] {
-        goals.filter { $0.status == .active }
+        goals.filter { $0.status == "active" }
     }
     
     private var todayHabits: [Habit] {
-        habits.filter { $0.frequency == .daily }
+        habits.filter { $0.frequency == "daily" }
     }
     
     private var completedHabitsToday: Int {
@@ -41,7 +41,7 @@ struct DashboardView: View {
                     HStack(spacing: 20) {
                         StatBadge(
                             title: "Streak",
-                            value: "\(habits.map { $0.streak }.max() ?? 0)",
+                            value: "\(habits.compactMap { $0.streak }.max() ?? 0)",
                             icon: "flame.fill",
                             color: .orange
                         )
@@ -209,7 +209,7 @@ struct HabitCard: View {
                     Image(systemName: "flame.fill")
                         .font(.caption2)
                         .foregroundColor(.orange)
-                    Text("\(habit.streak) dní")
+                    Text("\(habit.streak ?? 0) dní")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -233,7 +233,7 @@ struct HabitCard: View {
     }
     
     private var difficultyBadge: some View {
-        Text(habit.difficulty.rawValue.capitalized)
+        Text((habit.difficulty ?? "medium").capitalized)
             .font(.caption2)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
@@ -244,9 +244,9 @@ struct HabitCard: View {
     
     private var difficultyColor: Color {
         switch habit.difficulty {
-        case .easy: return .green
-        case .medium: return .orange
-        case .hard: return .red
+        case "easy": return .green
+        case "hard": return .red
+        default: return .orange
         }
     }
 }
@@ -277,7 +277,7 @@ struct GoalCard: View {
             Spacer()
             
             // Category badge
-            Text(goal.category)
+            Text(goal.category ?? "")
                 .font(.caption)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)
@@ -286,7 +286,7 @@ struct GoalCard: View {
                 .cornerRadius(6)
             
             // Deadline if exists
-            if let deadline = goal.deadline {
+            if let deadline = goal.targetDate {
                 VStack(alignment: .trailing, spacing: 2) {
                     Text("Termín")
                         .font(.caption2)
@@ -312,9 +312,10 @@ struct GoalCard: View {
     
     private var priorityColor: Color {
         switch goal.priority {
-        case .high: return .red
-        case .medium: return .orange
-        case .low: return .green
+        case "high": return .red
+        case "medium": return .orange
+        case "low": return .green
+        default: return .orange
         }
     }
 }
