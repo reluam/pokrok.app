@@ -1601,7 +1601,22 @@ struct StepEditModal: View {
         updated.isImportant = isImportant
         updated.date = date
         updated.checklist = checklist.isEmpty ? nil : checklist
-        onSave(updated)
+        
+        // Call API to save
+        Task {
+            do {
+                let savedStep = try await APIManager.shared.updateStep(updated)
+                await MainActor.run {
+                    onSave(savedStep)
+                }
+            } catch {
+                print("❌ Error saving step: \(error)")
+                // Still call onSave with local changes
+                await MainActor.run {
+                    onSave(updated)
+                }
+            }
+        }
     }
 }
 

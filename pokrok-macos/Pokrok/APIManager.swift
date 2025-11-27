@@ -57,6 +57,13 @@ class APIManager: ObservableObject {
         // Debug: print response
         if let jsonString = String(data: data, encoding: .utf8) {
             print("📦 API Response: \(jsonString.prefix(500))...")
+            // Debug checklist specifically
+            if jsonString.contains("checklist") {
+                if let stepsRange = jsonString.range(of: "\"steps\"") {
+                    let stepsSubstring = jsonString[stepsRange.lowerBound...]
+                    print("📋 Steps with checklist: \(stepsSubstring.prefix(1000))...")
+                }
+            }
         }
         
         let decoder = JSONDecoder()
@@ -259,6 +266,92 @@ class APIManager: ObservableObject {
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
         let (_, _) = try await URLSession.shared.data(for: request)
+    }
+    
+    func updateStep(_ step: Step) async throws -> Step {
+        let url = URL(string: "\(baseURL)/api/daily-steps")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        addAuthHeaders(to: &request)
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        
+        var body: [String: Any] = [
+            "stepId": step.id,
+            "title": step.title,
+            "description": step.description ?? "",
+            "isImportant": step.isImportant ?? false,
+            "isUrgent": step.isUrgent ?? false,
+            "estimatedTime": step.estimatedTime ?? 30
+        ]
+        
+        if let date = step.date {
+            body["date"] = dateFormatter.string(from: date)
+        }
+        
+        if let goalId = step.goalId {
+            body["goalId"] = goalId
+        }
+        
+        if let checklist = step.checklist {
+            let checklistData = checklist.map { item in
+                ["id": item.id, "title": item.title, "completed": item.completed] as [String: Any]
+            }
+            body["checklist"] = checklistData
+            print("📤 Checklist data being sent: \(checklistData)")
+        }
+        
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        
+        if let bodyString = String(data: request.httpBody!, encoding: .utf8) {
+            print("📤 Full request body: \(bodyString)")
+        }
+        
+        print("📤 Updating step: \(step.id) with checklist: \(step.checklist?.count ?? 0) items")
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            if let errorStr = String(data: data, encoding: .utf8) {
+                print("❌ Update step error: \(errorStr)")
+            }
+            throw APIError.serverError(httpResponse.statusCode)
+        }
+        
+        print("✅ Step updated successfully")
+        
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let dateString = try container.decode(String.self)
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            if let date = dateFormatter.date(from: dateString) {
+                return date
+            }
+            
+            let iso8601Formatter = ISO8601DateFormatter()
+            iso8601Formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            if let date = iso8601Formatter.date(from: dateString) {
+                return date
+            }
+            
+            iso8601Formatter.formatOptions = [.withInternetDateTime]
+            if let date = iso8601Formatter.date(from: dateString) {
+                return date
+            }
+            
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Cannot decode date")
+        }
+        
+        return try decoder.decode(Step.self, from: data)
     }
     
     // MARK: - Helpers

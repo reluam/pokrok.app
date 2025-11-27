@@ -46,19 +46,6 @@ struct GoalsView: View {
         }
         .navigationTitle("Cíle")
         .navigationBarTitleDisplayMode(.large)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    showAddGoalModal = true
-                }) {
-                    ModernIcon(
-                        systemName: "plus",
-                        size: 18,
-                        color: DesignSystem.Colors.primary
-                    )
-                }
-            }
-        }
         .onAppear {
             loadGoals()
         }
@@ -274,19 +261,6 @@ struct StepsView: View {
                     .padding(.top, DesignSystem.Spacing.md)
                 }
                 .background(DesignSystem.Colors.background)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: {
-                            showAddStepModal = true
-                        }) {
-                            ModernIcon(
-                                systemName: "plus",
-                                size: 18,
-                                color: DesignSystem.Colors.primary
-                            )
-                        }
-                    }
-                }
             }
         }
         .navigationTitle("Kroky")
@@ -294,11 +268,11 @@ struct StepsView: View {
         .onAppear {
             loadSteps()
         }
-            .sheet(isPresented: $showAddStepModal) {
-                AddStepModal(onStepAdded: {
-                    loadSteps()
-                })
-            }
+        .sheet(isPresented: $showAddStepModal) {
+            AddStepModal(onStepAdded: {
+                loadSteps()
+            })
+        }
         .alert("Chyba", isPresented: $showError) {
             Button("OK") { }
         } message: {

@@ -191,10 +191,13 @@ struct ChecklistItem: Codable, Identifiable {
         // Try both "completed" and handle potential type mismatches
         if let boolValue = try? container.decode(Bool.self, forKey: .completed) {
             completed = boolValue
+            print("📋 ChecklistItem '\(title)' completed (bool): \(boolValue)")
         } else if let intValue = try? container.decode(Int.self, forKey: .completed) {
             completed = intValue != 0
+            print("📋 ChecklistItem '\(title)' completed (int): \(intValue)")
         } else {
             completed = false
+            print("📋 ChecklistItem '\(title)' completed: defaulting to false")
         }
     }
     

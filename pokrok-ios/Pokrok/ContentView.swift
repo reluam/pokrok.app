@@ -12,7 +12,7 @@ struct ContentView: View {
         Group {
             if clerk.user != nil {
                 // Main app content for authenticated users
-                ZStack {
+                ZStack(alignment: .bottom) {
                     TabView {
                         DashboardView()
                             .tabItem {
@@ -46,28 +46,37 @@ struct ContentView: View {
                     }
                     .accentColor(.orange)
                     
-                    // Floating Plus Button - half in tab bar, half above
-                    VStack {
-                        Spacer()
-                        
-                        Button(action: {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                showAddMenu.toggle()
-                            }
-                        }) {
-                            ZStack {
-                                Circle()
-                                    .fill(DesignSystem.Colors.primary)
-                                    .frame(width: 56, height: 56)
-                                    .shadow(color: DesignSystem.Colors.primary.opacity(0.4), radius: 8, x: 0, y: 4)
-                                
-                                Image(systemName: showAddMenu ? "xmark" : "plus")
-                                    .font(.system(size: 24, weight: .semibold))
-                                    .foregroundColor(.white)
-                                    .rotationEffect(.degrees(showAddMenu ? 45 : 0))
+                    // Floating half-circle plus button emerging from tab bar
+                    GeometryReader { geometry in
+                        VStack(spacing: 0) {
+                            Spacer()
+                            Button(action: {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    showAddMenu.toggle()
+                                }
+                            }) {
+                                ZStack {
+                                    // Half circle (top half only)
+                                    Circle()
+                                        .fill(DesignSystem.Colors.primary)
+                                        .frame(width: 70, height: 70)
+                                        .shadow(color: DesignSystem.Colors.primary.opacity(0.4), radius: 8, x: 0, y: -2)
+                                        .clipShape(
+                                            Rectangle()
+                                                .offset(y: -35) // Clip bottom half
+                                        )
+                                    
+                                    Image(systemName: showAddMenu ? "xmark" : "plus")
+                                        .font(.system(size: 24, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .rotationEffect(.degrees(showAddMenu ? 45 : 0))
+                                        .offset(y: -10)
+                                }
+                                .frame(width: 70, height: 35)
                             }
                         }
-                        .padding(.bottom, 22)
+                        .frame(maxWidth: .infinity)
+                        .padding(.bottom, geometry.safeAreaInsets.bottom + 49)
                     }
                     
                     // Add Menu Overlay
@@ -113,9 +122,9 @@ struct ContentView: View {
                                 }
                             }
                             .padding(.horizontal, 40)
-                            .padding(.bottom, 140)
+                            .padding(.bottom, 120)
                         }
-                        .transition(.opacity.combined(with: .scale(scale: 0.8)))
+                        .transition(.opacity.combined(with: .move(edge: .bottom)))
                     }
                 }
                 .sheet(isPresented: $showAddGoalModal) {

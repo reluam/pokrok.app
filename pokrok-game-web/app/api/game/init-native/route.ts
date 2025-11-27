@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { neon } from '@neondatabase/serverless'
 import { getUserByClerkId, getPlayerByUserId, getGoalsByUserId, getHabitsByUserId, getDailyStepsByUserId } from '@/lib/cesta-db'
 
-// Force dynamic rendering
+// Force dynamic rendering - no caching
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
+export const fetchCache = 'force-no-store'
 
 // Native app endpoint - verifies native token from Authorization header
 export async function GET(request: NextRequest) {
