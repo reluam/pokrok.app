@@ -85,7 +85,8 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
   
   // Display settings state
   const [displaySettings, setDisplaySettings] = useState({
-    defaultView: 'day' as 'day' | 'week' | 'month' | 'year'
+    defaultView: 'day' as 'day' | 'week' | 'month' | 'year',
+    dateFormat: 'DD.MM.YYYY' as 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY'
   })
   const [isSavingDisplay, setIsSavingDisplay] = useState(false)
 
@@ -135,9 +136,10 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
         const response = await fetch('/api/cesta/user-settings')
         if (response.ok) {
           const data = await response.json()
-          if (data.settings?.default_view) {
-            setDisplaySettings({ defaultView: data.settings.default_view })
-          }
+          setDisplaySettings({
+            defaultView: data.settings?.default_view || 'day',
+            dateFormat: data.settings?.date_format || 'DD.MM.YYYY'
+          })
         }
       } catch (error) {
         console.error('Error loading display settings:', error)
@@ -147,7 +149,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
   }, [player?.user_id])
 
   // Handler for saving display settings
-  const handleSaveDisplaySettings = async (newView: 'day' | 'week' | 'month' | 'year') => {
+  const handleSaveDisplaySettings = async (newView?: 'day' | 'week' | 'month' | 'year', newDateFormat?: 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY') => {
     if (!player?.user_id) return
     setIsSavingDisplay(true)
     try {
@@ -155,11 +157,17 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          default_view: newView
+          ...(newView && { default_view: newView }),
+          ...(newDateFormat && { date_format: newDateFormat })
         })
       })
       if (response.ok) {
-        // Success - settings saved
+        if (newView) {
+          setDisplaySettings(prev => ({ ...prev, defaultView: newView }))
+        }
+        if (newDateFormat) {
+          setDisplaySettings(prev => ({ ...prev, dateFormat: newDateFormat }))
+        }
       } else {
         console.error('Failed to save display settings')
       }
@@ -656,8 +664,29 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
       case 'display':
         return (
           <div>
-            <div className="text-center text-gray-500 py-8">
-              <p>Žádná nastavení zobrazení k dispozici</p>
+            <div className="space-y-6">
+              <div>
+                <h4 className="text-lg font-bold text-gray-800 mb-4">📅 Formát data</h4>
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Formát zobrazení data
+                  </label>
+                  <select
+                    value={displaySettings.dateFormat}
+                    onChange={(e) => handleSaveDisplaySettings(undefined, e.target.value as 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY')}
+                    disabled={isSavingDisplay}
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:outline-none disabled:opacity-50"
+                  >
+                    <option value="DD.MM.YYYY">DD.MM.YYYY (např. 15.01.2025)</option>
+                    <option value="MM/DD/YYYY">MM/DD/YYYY (např. 01/15/2025)</option>
+                    <option value="YYYY-MM-DD">YYYY-MM-DD (např. 2025-01-15)</option>
+                    <option value="DD MMM YYYY">DD MMM YYYY (např. 15 led 2025)</option>
+                  </select>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Tento formát se použije pro zobrazení dat mimo aktuální týden
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         )

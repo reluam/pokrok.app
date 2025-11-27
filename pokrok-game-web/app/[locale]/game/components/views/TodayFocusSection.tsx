@@ -61,6 +61,28 @@ export function TodayFocusSection({
   // State for showing/hiding completed steps in week view
   const [showCompletedSteps, setShowCompletedSteps] = useState(false)
   
+  // State for date format setting
+  const [dateFormat, setDateFormat] = useState<'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY'>('DD.MM.YYYY')
+  
+  // Load date format setting
+  useEffect(() => {
+    const loadDateFormat = async () => {
+      if (!player?.user_id) return
+      try {
+        const response = await fetch('/api/cesta/user-settings')
+        if (response.ok) {
+          const data = await response.json()
+          if (data.settings?.date_format) {
+            setDateFormat(data.settings.date_format)
+          }
+        }
+      } catch (error) {
+        console.error('Error loading date format:', error)
+      }
+    }
+    loadDateFormat()
+  }, [player?.user_id])
+  
   // State for date picker
   const [datePickerStep, setDatePickerStep] = useState<any | null>(null)
   const [datePickerPosition, setDatePickerPosition] = useState<{ top: number; left: number } | null>(null)
@@ -187,8 +209,26 @@ export function TodayFocusSection({
       // Show weekday if in current week
       return dateObj.toLocaleDateString(localeCode, { weekday: 'long' })
     } else {
-      // Show normal date if outside current week
-      return dateObj.toLocaleDateString(localeCode, { day: 'numeric', month: 'numeric' })
+      // Show formatted date with year if outside current week
+      const day = dateObj.getDate()
+      const month = dateObj.getMonth() + 1
+      const year = dateObj.getFullYear()
+      
+      switch (dateFormat) {
+        case 'DD.MM.YYYY':
+          return `${day.toString().padStart(2, '0')}.${month.toString().padStart(2, '0')}.${year}`
+        case 'MM/DD/YYYY':
+          return `${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}/${year}`
+        case 'YYYY-MM-DD':
+          return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
+        case 'DD MMM YYYY':
+          const monthNames = localeCode === 'cs-CZ' 
+            ? ['led', 'úno', 'bře', 'dub', 'kvě', 'čer', 'čvc', 'srp', 'zář', 'říj', 'lis', 'pro']
+            : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+          return `${day} ${monthNames[month - 1]} ${year}`
+        default:
+          return `${day.toString().padStart(2, '0')}.${month.toString().padStart(2, '0')}.${year}`
+      }
     }
   }
   

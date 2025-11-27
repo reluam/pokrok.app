@@ -191,6 +191,18 @@ async function runMigrations() {
       await sql`ALTER TABLE daily_steps ADD COLUMN require_checklist_complete BOOLEAN DEFAULT FALSE`
     }
     
+    // Add date_format column to user_settings table
+    const userSettingsColumns = await sql`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'user_settings'
+    `
+    const userSettingsColumnNames = userSettingsColumns.map((row: any) => row.column_name)
+    
+    if (!userSettingsColumnNames.includes('date_format')) {
+      await sql`ALTER TABLE user_settings ADD COLUMN date_format VARCHAR(20) DEFAULT 'DD.MM.YYYY'`
+    }
+    
     return { success: true, message: 'Migration completed successfully' }
   } catch (error: any) {
     console.error('Migration error:', error)

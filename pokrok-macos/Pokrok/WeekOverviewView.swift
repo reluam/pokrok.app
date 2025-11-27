@@ -1480,6 +1480,8 @@ struct OtherStepsView: View {
                                 OtherStepRow(
                                     step: step,
                                     isOverdue: true,
+                                    weekStart: weekStart,
+                                    weekEnd: weekEnd,
                                     onToggle: { onStepToggle(step) },
                                     onEdit: { onStepEdit(step) }
                                 )
@@ -1508,6 +1510,8 @@ struct OtherStepsView: View {
                                 OtherStepRow(
                                     step: step,
                                     isOverdue: false,
+                                    weekStart: weekStart,
+                                    weekEnd: weekEnd,
                                     onToggle: { onStepToggle(step) },
                                     onEdit: { onStepEdit(step) }
                                 )
@@ -1536,6 +1540,8 @@ struct OtherStepsView: View {
 struct OtherStepRow: View {
     let step: Step
     let isOverdue: Bool
+    let weekStart: Date
+    let weekEnd: Date
     let onToggle: () -> Void
     let onEdit: () -> Void
     
@@ -1543,12 +1549,29 @@ struct OtherStepRow: View {
     
     private let primaryOrange = Color(red: 0.918, green: 0.345, blue: 0.047)
     
+    private var isInCurrentWeek: Bool {
+        guard let stepDate = step.date else { return false }
+        let calendar = Calendar.current
+        let stepDateStart = calendar.startOfDay(for: stepDate)
+        let weekStartStart = calendar.startOfDay(for: weekStart)
+        let weekEndStart = calendar.startOfDay(for: weekEnd)
+        return stepDateStart >= weekStartStart && stepDateStart <= weekEndStart
+    }
+    
     private var dateString: String {
         guard let date = step.date else { return "" }
         let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE"
         formatter.locale = Locale(identifier: "cs_CZ")
-        return formatter.string(from: date).capitalized
+        
+        if isInCurrentWeek {
+            // Pro kroky v aktuálním týdnu zobraz jen den v týdnu
+            formatter.dateFormat = "EEEE"
+            return formatter.string(from: date).capitalized
+        } else {
+            // Pro kroky mimo aktuální týden zobraz celé datum včetně roku
+            formatter.dateFormat = "d. MMMM yyyy"
+            return formatter.string(from: date)
+        }
     }
     
     private var timeString: String {

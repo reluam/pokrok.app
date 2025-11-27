@@ -333,6 +333,7 @@ export interface UserSettings {
   workflow: 'daily_planning' | 'no_workflow'
   daily_reset_hour: number
   default_view?: 'day' | 'week' | 'month' | 'year'
+  date_format?: 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY'
   filters?: {
     showToday: boolean
     showOverdue: boolean
@@ -2997,7 +2998,8 @@ export async function createOrUpdateUserSettings(
   workflow?: 'daily_planning' | 'no_workflow',
   dailyResetHour?: number,
   filters?: UserSettings['filters'],
-  defaultView?: 'day' | 'week' | 'month' | 'year'
+  defaultView?: 'day' | 'week' | 'month' | 'year',
+  dateFormat?: 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY'
 ): Promise<UserSettings> {
   try {
     // Ensure default_view column exists (migration on-the-fly)
@@ -3008,6 +3010,14 @@ export async function createOrUpdateUserSettings(
       console.log('Note: default_view column check:', migrationError instanceof Error ? migrationError.message : 'unknown')
     }
     
+    // Ensure date_format column exists (migration on-the-fly)
+    try {
+      await sql`ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS date_format VARCHAR(20) DEFAULT 'DD.MM.YYYY'`
+    } catch (migrationError) {
+      // Column might already exist, continue
+      console.log('Note: date_format column check:', migrationError instanceof Error ? migrationError.message : 'unknown')
+    }
+    
     // Get existing settings to preserve values not being updated
     const existingSettings = await getUserSettings(userId)
     
@@ -3015,6 +3025,7 @@ export async function createOrUpdateUserSettings(
     const finalWorkflow = workflow !== undefined ? workflow : (existingSettings?.workflow ?? 'daily_planning')
     const finalDailyResetHour = dailyResetHour !== undefined ? dailyResetHour : (existingSettings?.daily_reset_hour ?? 0)
     const finalDefaultView = defaultView !== undefined ? defaultView : (existingSettings?.default_view ?? 'day')
+    const finalDateFormat = dateFormat !== undefined ? dateFormat : (existingSettings?.date_format ?? 'DD.MM.YYYY')
     const finalFilters = filters !== undefined ? filters : (existingSettings?.filters ?? {
       showToday: true,
       showOverdue: true,
@@ -3025,8 +3036,8 @@ export async function createOrUpdateUserSettings(
     })
     
     const settings = await sql`
-      INSERT INTO user_settings (id, user_id, daily_steps_count, workflow, daily_reset_hour, filters, default_view)
-      VALUES (${crypto.randomUUID()}, ${userId}, ${finalDailyStepsCount}, ${finalWorkflow}, ${finalDailyResetHour}, ${JSON.stringify(finalFilters)}, ${finalDefaultView})
+      INSERT INTO user_settings (id, user_id, daily_steps_count, workflow, daily_reset_hour, filters, default_view, date_format)
+      VALUES (${crypto.randomUUID()}, ${userId}, ${finalDailyStepsCount}, ${finalWorkflow}, ${finalDailyResetHour}, ${JSON.stringify(finalFilters)}, ${finalDefaultView}, ${finalDateFormat})
       ON CONFLICT (user_id) 
       DO UPDATE SET 
         daily_steps_count = ${finalDailyStepsCount},
@@ -3034,6 +3045,7 @@ export async function createOrUpdateUserSettings(
         daily_reset_hour = ${finalDailyResetHour},
         filters = ${JSON.stringify(finalFilters)},
         default_view = ${finalDefaultView},
+        date_format = ${finalDateFormat},
         updated_at = NOW()
       RETURNING *
     `
