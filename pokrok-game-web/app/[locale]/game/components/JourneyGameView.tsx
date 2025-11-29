@@ -8959,7 +8959,7 @@ export function JourneyGameView({
                                 {/* Goals, Habits, Steps in mobile menu */}
                                 {topMenuItems.map((item) => {
                                   const Icon = item.icon
-                                  const isActive = mainPanelSection === item.id
+                                  const isActive = mainPanelSection === (item.id as string)
                                   return (
                       <button
                                       key={item.id}
