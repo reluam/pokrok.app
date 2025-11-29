@@ -8159,7 +8159,7 @@ export function JourneyGameView({
                           </span>
                           {editingGoalDetailTitle ? (
                             <input
-                              ref={goalTitleRef}
+                              ref={goalTitleRef as React.RefObject<HTMLInputElement>}
                               type="text"
                               value={goalDetailTitleValue}
                               onChange={(e) => setGoalDetailTitleValue(e.target.value)}
@@ -8177,7 +8177,7 @@ export function JourneyGameView({
                             />
                           ) : (
                             <h1 
-                              ref={goalTitleRef}
+                              ref={goalTitleRef as React.RefObject<HTMLHeadingElement>}
                               onClick={() => setEditingGoalDetailTitle(true)}
                               className="text-2xl font-bold text-gray-900 cursor-pointer hover:text-orange-600 transition-colors"
                             >
