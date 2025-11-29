@@ -16,6 +16,7 @@ interface UnifiedDayViewProps {
   handleStepToggle?: (stepId: string, completed: boolean) => Promise<void>
   loadingHabits?: Set<string>
   loadingSteps?: Set<string>
+  animatingSteps?: Set<string>
   onOpenStepModal?: (date?: string) => void
   onNavigateToHabits?: () => void
   onNavigateToSteps?: () => void
@@ -33,6 +34,7 @@ export function UnifiedDayView({
   handleStepToggle,
   loadingHabits = new Set(),
   loadingSteps = new Set(),
+  animatingSteps = new Set(),
   onOpenStepModal,
   onNavigateToHabits,
   onNavigateToSteps,
@@ -513,6 +515,7 @@ export function UnifiedDayView({
         handleHabitToggle={handleHabitToggle}
         handleItemClick={handleItemClick}
         loadingSteps={loadingSteps}
+        animatingSteps={animatingSteps}
         loadingHabits={loadingHabits}
         player={player}
         todaySteps={[]}
