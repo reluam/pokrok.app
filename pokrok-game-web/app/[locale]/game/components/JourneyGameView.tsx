@@ -8959,6 +8959,7 @@ export function JourneyGameView({
                                 {/* Goals, Habits, Steps in mobile menu */}
                                 {topMenuItems.map((item) => {
                                   const Icon = item.icon
+                                  const isActive = mainPanelSection === item.id
                                   return (
                       <button
                                       key={item.id}
@@ -8968,7 +8969,7 @@ export function JourneyGameView({
                                         setMobileMenuOpen(false)
                                       }}
                                       className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                                        mainPanelSection === item.id
+                                        isActive
                                           ? 'bg-orange-600 text-white'
                                           : 'text-gray-700 hover:bg-gray-100'
                         }`}
