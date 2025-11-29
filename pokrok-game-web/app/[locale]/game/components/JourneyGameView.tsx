@@ -390,7 +390,7 @@ export function JourneyGameView({
   const [showDeleteGoalModal, setShowDeleteGoalModal] = useState(false)
   const [deleteGoalWithSteps, setDeleteGoalWithSteps] = useState(false)
   const [isDeletingGoal, setIsDeletingGoal] = useState(false)
-  const goalTitleRef = useRef<HTMLHeadingElement>(null)
+  const goalTitleRef = useRef<HTMLInputElement | HTMLHeadingElement>(null)
   const goalDescriptionRef = useRef<HTMLParagraphElement>(null)
   const goalDateRef = useRef<HTMLSpanElement>(null)
   const goalStatusRef = useRef<HTMLButtonElement>(null)
