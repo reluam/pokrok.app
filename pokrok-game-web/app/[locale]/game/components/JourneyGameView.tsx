@@ -1022,7 +1022,6 @@ export function JourneyGameView({
     if (selectedItem && selectedItemType === 'goal') {
       setGoalTitle(selectedItem.title || '')
       setGoalDescription(selectedItem.description || '')
-      setEditingGoalTitle(false)
       setGoalDate(selectedItem.target_date || '')
       setShowGoalDatePicker(false)
       setShowGoalStatusEditor(false)
@@ -1599,7 +1598,6 @@ export function JourneyGameView({
         if (onGoalsUpdate) {
           onGoalsUpdate(goals.map(g => g.id === updatedGoal.id ? updatedGoal : g))
         }
-        setEditingGoalTitle(false)
       }
     } catch (error) {
       console.error('Error updating goal:', error)
