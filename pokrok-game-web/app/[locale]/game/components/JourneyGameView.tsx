@@ -907,6 +907,7 @@ export function JourneyGameView({
   const [stepDeadline, setStepDeadline] = useState<string>('')
 
   // Habit detail tabs
+  const [habitDetailTab, setHabitDetailTab] = useState<'calendar' | 'settings'>('calendar')
   const [editingHabitName, setEditingHabitName] = useState<string>('')
   const [editingHabitDescription, setEditingHabitDescription] = useState<string>('')
   const [editingHabitFrequency, setEditingHabitFrequency] = useState<'daily' | 'weekly' | 'monthly' | 'custom'>('daily')
