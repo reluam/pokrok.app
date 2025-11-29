@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { Check, ChevronLeft, ChevronRight, Flame, CheckCircle2, Target } from 'lucide-react'
+import { Check, X, ChevronLeft, ChevronRight, Flame, CheckCircle2, Target } from 'lucide-react'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { TodayFocusSection } from './TodayFocusSection'
 
@@ -332,7 +332,61 @@ export function UnifiedDayView({
                   const isPast = day < today
                   const isFuture = day > today
                   
-                  const isTodayComplete = isToday && stats.isComplete && stats.total > 0
+                  // Calculate completion percentage (only for past days)
+                  // Use exact percentage for pie chart, rounded for display
+                  const completionPercentageExact = stats.total > 0 && isPast
+                    ? (stats.completed / stats.total) * 100 
+                    : 0
+                  const completionPercentage = Math.round(completionPercentageExact)
+                  
+                  // Determine color based on day type and completion percentage
+                  let dotColor = 'bg-gray-200' // Default for future
+                  let textColor = 'text-gray-500' // Default - black/gray until selected
+                  let dayNumberColor = 'text-gray-900' // Default - black until selected
+                  let fractionColor = 'text-gray-400' // Default - gray until selected
+                  
+                  if (isToday) {
+                    // Today - always orange dot, but text only colored when selected
+                    dotColor = isSelected ? 'bg-orange-500 ring-4 ring-orange-200' : 'bg-orange-500'
+                    textColor = isSelected ? 'text-orange-600' : 'text-gray-500'
+                    dayNumberColor = isSelected ? 'text-orange-600' : 'text-gray-900'
+                    fractionColor = isSelected ? 'text-orange-600' : 'text-gray-400'
+                  } else if (isFuture) {
+                    // Future days - always gray
+                    dotColor = 'bg-gray-200'
+                    textColor = 'text-gray-500'
+                    dayNumberColor = 'text-gray-700'
+                    fractionColor = 'text-gray-400'
+                  } else if (isPast) {
+                    // Past days - color based on completion percentage
+                    if (stats.total > 0) {
+                      if (completionPercentage === 100) {
+                        // 100% - primary full with checkmark
+                        dotColor = isSelected ? 'bg-orange-600 ring-4 ring-orange-200' : 'bg-orange-600'
+                        textColor = isSelected ? 'text-orange-600' : 'text-gray-500'
+                        dayNumberColor = isSelected ? 'text-orange-600' : 'text-gray-900'
+                        fractionColor = isSelected ? 'text-orange-600' : 'text-gray-400'
+                      } else if (completionPercentage === 0) {
+                        // 0% - white background with X mark in primary color
+                        dotColor = isSelected ? 'bg-white ring-4 ring-orange-200' : 'bg-white'
+                        textColor = isSelected ? 'text-orange-600' : 'text-gray-500'
+                        dayNumberColor = isSelected ? 'text-orange-600' : 'text-gray-900'
+                        fractionColor = isSelected ? 'text-orange-600' : 'text-gray-400'
+                      } else {
+                        // 1-99% - pie chart (will be rendered separately)
+                        dotColor = 'bg-transparent' // Transparent background for pie chart
+                        textColor = isSelected ? 'text-orange-600' : 'text-gray-500'
+                        dayNumberColor = isSelected ? 'text-orange-600' : 'text-gray-900'
+                        fractionColor = isSelected ? 'text-orange-600' : 'text-gray-400'
+                      }
+                    } else {
+                      // Past with no tasks - gray
+                      dotColor = 'bg-gray-300'
+                      textColor = 'text-gray-500'
+                      dayNumberColor = 'text-gray-900'
+                      fractionColor = 'text-gray-400'
+                    }
+                  }
                   
                   return (
                     <button
@@ -341,64 +395,66 @@ export function UnifiedDayView({
                       className="flex flex-col items-center group"
                     >
                       {/* Dot */}
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${
-                        isTodayComplete
-                          ? isSelected
-                            ? 'bg-green-500 ring-4 ring-gray-500'
-                            : 'bg-green-500 ring-2 ring-gray-500'
-                          : stats.isComplete && isPast
-                            ? isSelected 
-                              ? 'bg-green-500 ring-4 ring-green-200'
-                              : 'bg-green-500'
-                            : isSelected
-                              ? 'bg-orange-500 ring-4 ring-orange-200'
-                              : isToday
-                                ? 'bg-orange-500'
-                                : isPast && stats.total > 0
-                                  ? 'bg-gray-300'
-                                  : 'bg-gray-200'
-                      }`}>
-                        {(stats.isComplete && (isPast || isTodayComplete)) && (
-                          <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all relative z-10 ${dotColor === 'bg-transparent' ? 'bg-white' : dotColor}`}>
+                        {isPast && stats.total > 0 && (
+                          <>
+                            {completionPercentage === 100 && (
+                              <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                            )}
+                            {completionPercentage === 0 && (
+                              <X className="w-6 h-6 text-orange-600" strokeWidth={2.5} />
+                            )}
+                            {completionPercentage > 0 && completionPercentage < 100 && (() => {
+                              const radius = 10
+                              const circumference = 2 * Math.PI * radius
+                              // Use exact percentage for accurate pie chart
+                              const completedLength = circumference * (completionPercentageExact / 100)
+                              const remainingLength = circumference - completedLength
+                              
+                              return (
+                                // Pie chart using SVG - only completed portion on white background
+                                <svg className="w-6 h-6 absolute inset-0" viewBox="0 0 24 24">
+                                  {/* Gray circle border - same thickness and color as timeline */}
+                                  <circle
+                                    cx="12"
+                                    cy="12"
+                                    r={radius}
+                                    fill="none"
+                                    stroke="#e5e7eb"
+                                    strokeWidth="2"
+                                  />
+                                  {/* Completed portion (pie slice) - primary color only */}
+                                  <circle
+                                    cx="12"
+                                    cy="12"
+                                    r={radius}
+                                    fill="none"
+                                    stroke="#ea580c"
+                                    strokeWidth="4"
+                                    strokeDasharray={`${completedLength} ${remainingLength}`}
+                                    strokeDashoffset={0}
+                                    transform="rotate(-90 12 12)"
+                                    strokeLinecap="round"
+                                  />
+                                </svg>
+                              )
+                            })()}
+                          </>
                         )}
                       </div>
                       
                       {/* Day name */}
-                      <span className={`text-xs font-semibold mt-1 uppercase ${
-                        isTodayComplete 
-                          ? 'text-green-600' 
-                          : isSelected && stats.isComplete && isPast 
-                            ? 'text-green-600' 
-                            : isSelected 
-                              ? 'text-orange-600' 
-                              : isToday 
-                                ? 'text-orange-500' 
-                                : 'text-gray-500'
-                      }`}>
+                      <span className={`text-xs font-semibold mt-1 uppercase ${textColor}`}>
                         {dayNamesShort[day.getDay()]}
                       </span>
                       
                       {/* Day number */}
-                      <span className={`text-lg font-bold ${
-                        isTodayComplete 
-                          ? 'text-green-600' 
-                          : isSelected && stats.isComplete && isPast 
-                            ? 'text-green-600' 
-                            : isSelected 
-                              ? 'text-orange-600' 
-                              : isToday 
-                                ? 'text-orange-500' 
-                                : 'text-gray-700'
-                      }`}>
+                      <span className={`text-lg font-bold ${dayNumberColor}`}>
                         {day.getDate()}
                       </span>
                       
                       {/* Tasks count */}
-                      <span className={`text-[10px] ${
-                        stats.completed === stats.total && stats.total > 0 
-                          ? 'text-green-600' 
-                          : 'text-gray-400'
-                      }`}>
+                      <span className={`text-[10px] ${fractionColor}`}>
                         {stats.completed}/{stats.total}
                       </span>
                     </button>

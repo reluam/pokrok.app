@@ -9,10 +9,10 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStr
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { SettingsPage } from './SettingsPage'
-import { Footprints, Calendar, Target, CheckCircle, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Edit, Trash2, Plus, Clock, Star, Zap, Check, Settings, HelpCircle, LayoutDashboard, Sparkles, CheckSquare, Menu } from 'lucide-react'
+import { Footprints, Calendar, Target, CheckCircle, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Edit, Trash2, Plus, Clock, Star, Zap, Check, Settings, HelpCircle, LayoutDashboard, Sparkles, CheckSquare, Menu, Moon, Search, Flame, Trophy } from 'lucide-react'
 import { DailyReviewWorkflow } from './DailyReviewWorkflow'
 import { CalendarProgram } from './CalendarProgram'
-import { getIconEmoji } from '@/lib/icon-utils'
+import { getIconEmoji, getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
 import { getLocalDateString, normalizeDate } from './utils/dateHelpers'
 import { ManagementPage } from './pages/ManagementPage'
 import { UnifiedDayView } from './views/UnifiedDayView'
@@ -21,6 +21,7 @@ import { HelpView } from './views/HelpView'
 import { GoalsManagementView } from './views/GoalsManagementView'
 import { HabitsManagementView } from './views/HabitsManagementView'
 import { StepsManagementView } from './views/StepsManagementView'
+import { TodayFocusSection } from './views/TodayFocusSection'
 
 interface JourneyGameViewProps {
   player?: any
@@ -61,6 +62,12 @@ export function JourneyGameView({
   const locale = useLocale()
   const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
   
+  // Top menu items (Goals, Habits, Steps) - defined at top level for use in header
+  const topMenuItems = [
+    { id: 'goals' as const, label: t('navigation.goals'), icon: Target },
+    { id: 'habits' as const, label: t('navigation.habits'), icon: CheckSquare },
+    { id: 'steps' as const, label: t('navigation.steps'), icon: Footprints },
+  ]
   
   const { user } = useUser()
   const [userId, setUserId] = useState<string | null>(userIdProp || null)
@@ -75,9 +82,11 @@ export function JourneyGameView({
   }, [userIdProp])
   
   // Load userId from API as fallback if not provided as prop
+  const isLoadingUserRef = useRef(false)
   useEffect(() => {
-    if (userId || !user?.id) return
+    if (userId || !user?.id || isLoadingUserRef.current) return
     
+    isLoadingUserRef.current = true
     const loadUserId = async () => {
       try {
         console.log('Loading userId for Clerk ID:', user.id)
@@ -90,9 +99,11 @@ export function JourneyGameView({
           console.error('Failed to load user, status:', response.status)
           const errorText = await response.text()
           console.error('Error response:', errorText)
+          isLoadingUserRef.current = false // Reset on error to allow retry
         }
       } catch (error) {
         console.error('Error loading userId:', error)
+        isLoadingUserRef.current = false // Reset on error to allow retry
       }
     }
     
@@ -113,13 +124,13 @@ export function JourneyGameView({
     return 'main'
   })
   
-  // Navigation within main panel
-  const [mainPanelSection, setMainPanelSection] = useState<'overview' | 'goals' | 'steps' | 'habits'>(() => {
+  // Navigation within main panel - now supports goal IDs (e.g., 'goal-{id}')
+  const [mainPanelSection, setMainPanelSection] = useState<string>(() => {
     if (typeof window !== 'undefined') {
       try {
         const savedSection = localStorage.getItem('journeyGame_mainPanelSection')
-        if (savedSection && ['overview', 'goals', 'steps', 'habits'].includes(savedSection)) {
-          return savedSection as 'overview' | 'goals' | 'steps' | 'habits'
+        if (savedSection) {
+          return savedSection
         }
       } catch (error) {
         console.error('Error loading mainPanelSection:', error)
@@ -127,6 +138,9 @@ export function JourneyGameView({
     }
     return 'overview'
   })
+  
+  // Selected goal ID (extracted from mainPanelSection if it's a goal)
+  const selectedGoalId = mainPanelSection.startsWith('goal-') ? mainPanelSection.replace('goal-', '') : null
   
   // Sidebar collapsed state
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
@@ -215,10 +229,8 @@ export function JourneyGameView({
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'journeyGame_mainPanelSection' && e.newValue) {
-        if (['overview', 'goals', 'steps', 'habits'].includes(e.newValue)) {
-          setMainPanelSection(e.newValue as 'overview' | 'goals' | 'steps' | 'habits')
-          setCurrentPage('main')
-        }
+        setMainPanelSection(e.newValue)
+        setCurrentPage('main')
       }
     }
 
@@ -226,10 +238,8 @@ export function JourneyGameView({
     // Also listen for custom storage event (for same-window updates)
     window.addEventListener('localStorageChange', (e: any) => {
       if (e.detail?.key === 'journeyGame_mainPanelSection' && e.detail?.newValue) {
-        if (['overview', 'goals', 'steps', 'habits'].includes(e.detail.newValue)) {
-          setMainPanelSection(e.detail.newValue as 'overview' | 'goals' | 'steps' | 'habits')
-          setCurrentPage('main')
-        }
+        setMainPanelSection(e.detail.newValue)
+        setCurrentPage('main')
       }
     })
 
@@ -244,6 +254,7 @@ export function JourneyGameView({
   const [displayMode, setDisplayMode] = useState<'character' | 'progress' | 'motivation' | 'stats' | 'dialogue'>('character')
   const [selectedItem, setSelectedItem] = useState<any>(null)
   const [selectedItemType, setSelectedItemType] = useState<'step' | 'habit' | 'goal' | 'stat' | null>(null)
+  const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null) // Selected habit for settings display
   
   // Step modal state (same as in StepsManagementView)
   const [showStepModal, setShowStepModal] = useState(false)
@@ -348,14 +359,42 @@ export function JourneyGameView({
     description: '',
     target_date: null,
     status: 'active',
+    icon: 'Target',
     steps: [] as Array<{ id: string; title: string; description?: string; date?: string; isEditing?: boolean }>,
   })
   const [showGoalDatePicker, setShowGoalDatePicker] = useState(false)
   const [showStatusPicker, setShowStatusPicker] = useState(false)
+  const [showIconPicker, setShowIconPicker] = useState(false)
+  const [iconPickerPosition, setIconPickerPosition] = useState<{ top: number; left: number } | null>(null)
+  const [iconPickerSearchQuery, setIconPickerSearchQuery] = useState('')
   const [datePickerButtonRef, setDatePickerButtonRef] = useState<HTMLButtonElement | null>(null)
   const [statusPickerButtonRef, setStatusPickerButtonRef] = useState<HTMLButtonElement | null>(null)
+  const [iconPickerButtonRef, setIconPickerButtonRef] = useState<HTMLButtonElement | null>(null)
   const [datePickerPosition, setDatePickerPosition] = useState<{ top: number; left: number } | null>(null)
   const [statusPickerPosition, setStatusPickerPosition] = useState<{ top: number; left: number } | null>(null)
+  // Goal detail page inline editing state
+  const [editingGoalDetailTitle, setEditingGoalDetailTitle] = useState(false)
+  const [editingGoalDetailDescription, setEditingGoalDetailDescription] = useState(false)
+  const [goalDetailTitleValue, setGoalDetailTitleValue] = useState('')
+  const [goalDetailDescriptionValue, setGoalDetailDescriptionValue] = useState('')
+  const [showGoalDetailDatePicker, setShowGoalDetailDatePicker] = useState(false)
+  const [goalDetailDatePickerPosition, setGoalDetailDatePickerPosition] = useState<{ top: number; left: number } | null>(null)
+  const [goalDetailDatePickerMonth, setGoalDetailDatePickerMonth] = useState<Date>(new Date())
+  const [selectedGoalDate, setSelectedGoalDate] = useState<Date | null>(null)
+  const [showGoalDetailStatusPicker, setShowGoalDetailStatusPicker] = useState(false)
+  const [goalDetailStatusPickerPosition, setGoalDetailStatusPickerPosition] = useState<{ top: number; left: number } | null>(null)
+  const [expandedSidebarSections, setExpandedSidebarSections] = useState<Set<'paused' | 'completed'>>(new Set())
+  const [showGoalDetailIconPicker, setShowGoalDetailIconPicker] = useState(false)
+  const [goalDetailIconPickerPosition, setGoalDetailIconPickerPosition] = useState<{ top: number; left: number } | null>(null)
+  const [iconSearchQuery, setIconSearchQuery] = useState('')
+  const [showDeleteGoalModal, setShowDeleteGoalModal] = useState(false)
+  const [deleteGoalWithSteps, setDeleteGoalWithSteps] = useState(false)
+  const [isDeletingGoal, setIsDeletingGoal] = useState(false)
+  const goalTitleRef = useRef<HTMLHeadingElement>(null)
+  const goalDescriptionRef = useRef<HTMLParagraphElement>(null)
+  const goalDateRef = useRef<HTMLSpanElement>(null)
+  const goalStatusRef = useRef<HTMLButtonElement>(null)
+  const goalIconRef = useRef<HTMLSpanElement>(null)
   const [showCreateStep, setShowCreateStep] = useState(false)
   const [newStep, setNewStep] = useState({
     title: '',
@@ -374,7 +413,7 @@ export function JourneyGameView({
   const [stepsGoalFilter, setStepsGoalFilter] = useState<string | null>(null)
   
   // Goals filters
-  const [goalsStatusFilter, setGoalsStatusFilter] = useState<'all' | 'active' | 'completed' | 'considering'>('all')
+  const [goalsStatusFilter, setGoalsStatusFilter] = useState<'all' | 'active' | 'completed' | 'paused'>('all')
   
   // Track which step's goal picker is open
   const [openGoalPickerForStep, setOpenGoalPickerForStep] = useState<string | null>(null)
@@ -563,49 +602,185 @@ export function JourneyGameView({
   }
 
   const handleStepToggle = async (stepId: string, completed: boolean) => {
-    // Add to loading set
-    setLoadingSteps(prev => new Set(prev).add(stepId))
+    // Check if we're on goal detail page or in Focus section
+    const isGoalDetailPage = selectedGoalId !== null
+    const isFocusSection = mainPanelSection === 'overview'
+    const step = dailySteps.find(s => s.id === stepId)
+    const wasCompleted = step?.completed || false
+    const isAnimating = animatingSteps.has(stepId)
     
-    try {
-      const response = await fetch('/api/daily-steps', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          stepId: stepId,
-          completed: completed,
-          completedAt: completed ? new Date().toISOString() : null
-        }),
-      })
-
-      if (response.ok) {
-        const updatedStep = await response.json()
-        // Update the step in dailySteps array
-        const updatedSteps = dailySteps.map(step => 
-          step.id === updatedStep.id ? updatedStep : step
-        )
+    // If toggling a step (completing or uncompleting) on goal detail page or in Focus section, start animation first
+    if ((completed !== wasCompleted) && !isAnimating && (isGoalDetailPage || isFocusSection)) {
+      // Add to animating set
+      setAnimatingSteps(prev => new Set(prev).add(stepId))
+      
+      // Optimistically update the step locally for immediate visual feedback
+      if (step) {
+        const optimisticStep = { ...step, completed: completed }
+        const updatedSteps = dailySteps.map(s => s.id === stepId ? optimisticStep : s)
         if (onDailyStepsUpdate) {
           onDailyStepsUpdate(updatedSteps)
         }
-        // Update selected item if it's the same step
-        if (selectedItem && selectedItem.id === stepId) {
-          setSelectedItem(updatedStep)
+        // Update cache for the goal to force re-render (only if on goal detail page)
+        if (step.goal_id && isGoalDetailPage) {
+          // Update cache directly
+          if (stepsCacheRef.current[step.goal_id]) {
+            stepsCacheRef.current[step.goal_id].data = stepsCacheRef.current[step.goal_id].data.map(
+              (s: any) => s.id === stepId ? optimisticStep : s
+            )
+          }
+          // Invalidate cache version to trigger re-render
+          setStepsCacheVersion(prev => ({
+            ...prev,
+            [step.goal_id]: (prev[step.goal_id] || 0) + 1
+          }))
         }
-      } else {
-        console.error('Failed to update step')
-        alert('Nepodařilo se aktualizovat krok')
       }
-    } catch (error) {
-      console.error('Error updating step:', error)
-      alert('Chyba při aktualizaci kroku')
-    } finally {
-      // Remove from loading set
-      setLoadingSteps(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(stepId)
-        return newSet
-      })
+      
+      // Wait for animation (0.3s) before making API call
+      setTimeout(async () => {
+        // Remove from animating set
+        setAnimatingSteps(prev => {
+          const newSet = new Set(prev)
+          newSet.delete(stepId)
+          return newSet
+        })
+        
+        // Add to loading set
+        setLoadingSteps(prev => new Set(prev).add(stepId))
+        
+        try {
+          const response = await fetch('/api/daily-steps', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              stepId: stepId,
+              completed: completed,
+              completedAt: completed ? new Date().toISOString() : null
+            }),
+          })
+
+          if (response.ok) {
+            const updatedStep = await response.json()
+            // Update the step in dailySteps array
+            const updatedSteps = dailySteps.map(step => 
+              step.id === updatedStep.id ? updatedStep : step
+            )
+            if (onDailyStepsUpdate) {
+              onDailyStepsUpdate(updatedSteps)
+            }
+            // Update selected item if it's the same step
+            if (selectedItem && selectedItem.id === stepId) {
+              setSelectedItem(updatedStep)
+            }
+            // Update cache for the goal to force re-render
+            if (updatedStep.goal_id) {
+              // Update cache directly
+              if (stepsCacheRef.current[updatedStep.goal_id]) {
+                stepsCacheRef.current[updatedStep.goal_id].data = stepsCacheRef.current[updatedStep.goal_id].data.map(
+                  (s: any) => s.id === updatedStep.id ? updatedStep : s
+                )
+              }
+              // Invalidate cache version to trigger re-render
+              setStepsCacheVersion(prev => ({
+                ...prev,
+                [updatedStep.goal_id]: (prev[updatedStep.goal_id] || 0) + 1
+              }))
+            }
+          } else {
+            console.error('Failed to update step')
+            // Revert optimistic update on error
+            if (step) {
+              const revertedStep = { ...step, completed: false }
+              const updatedSteps = dailySteps.map(s => s.id === stepId ? revertedStep : s)
+              if (onDailyStepsUpdate) {
+                onDailyStepsUpdate(updatedSteps)
+              }
+            }
+            alert('Nepodařilo se aktualizovat krok')
+          }
+          } catch (error) {
+            console.error('Error updating step:', error)
+            // Revert optimistic update on error
+            if (step) {
+              const revertedStep = { ...step, completed: !completed }
+              const updatedSteps = dailySteps.map(s => s.id === stepId ? revertedStep : s)
+              if (onDailyStepsUpdate) {
+                onDailyStepsUpdate(updatedSteps)
+              }
+            }
+            alert('Chyba při aktualizaci kroku')
+          } finally {
+          // Remove from loading set
+          setLoadingSteps(prev => {
+            const newSet = new Set(prev)
+            newSet.delete(stepId)
+            return newSet
+          })
+        }
+      }, 300) // 0.3s animation delay
+    } else {
+      // For uncompleting or non-goal-detail toggles, do immediate update
+      // Add to loading set
+      setLoadingSteps(prev => new Set(prev).add(stepId))
+      
+      try {
+        const response = await fetch('/api/daily-steps', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            stepId: stepId,
+            completed: completed,
+            completedAt: completed ? new Date().toISOString() : null
+          }),
+        })
+
+          if (response.ok) {
+            const updatedStep = await response.json()
+            // Update the step in dailySteps array
+            const updatedSteps = dailySteps.map(step => 
+              step.id === updatedStep.id ? updatedStep : step
+            )
+            if (onDailyStepsUpdate) {
+              onDailyStepsUpdate(updatedSteps)
+            }
+            // Update selected item if it's the same step
+            if (selectedItem && selectedItem.id === stepId) {
+              setSelectedItem(updatedStep)
+            }
+            // Update cache for the goal to force re-render (only if on goal detail page)
+            if (updatedStep.goal_id && isGoalDetailPage) {
+              // Update cache directly
+              if (stepsCacheRef.current[updatedStep.goal_id]) {
+                stepsCacheRef.current[updatedStep.goal_id].data = stepsCacheRef.current[updatedStep.goal_id].data.map(
+                  (s: any) => s.id === updatedStep.id ? updatedStep : s
+                )
+              }
+              // Invalidate cache version to trigger re-render
+              setStepsCacheVersion(prev => ({
+                ...prev,
+                [updatedStep.goal_id]: (prev[updatedStep.goal_id] || 0) + 1
+              }))
+            }
+          } else {
+            console.error('Failed to update step')
+            alert('Nepodařilo se aktualizovat krok')
+          }
+      } catch (error) {
+        console.error('Error updating step:', error)
+        alert('Chyba při aktualizaci kroku')
+      } finally {
+        // Remove from loading set
+        setLoadingSteps(prev => {
+          const newSet = new Set(prev)
+          newSet.delete(stepId)
+          return newSet
+        })
+      }
     }
   }
 
@@ -732,7 +907,6 @@ export function JourneyGameView({
   const [stepDeadline, setStepDeadline] = useState<string>('')
 
   // Habit detail tabs
-  const [habitDetailTab, setHabitDetailTab] = useState<'calendar' | 'settings'>('calendar')
   const [editingHabitName, setEditingHabitName] = useState<string>('')
   const [editingHabitDescription, setEditingHabitDescription] = useState<string>('')
   const [editingHabitFrequency, setEditingHabitFrequency] = useState<'daily' | 'weekly' | 'monthly' | 'custom'>('daily')
@@ -744,7 +918,6 @@ export function JourneyGameView({
   const [editingHabitReminderTime, setEditingHabitReminderTime] = useState<string>('')
 
   // Goal editing states
-  const [editingGoalTitle, setEditingGoalTitle] = useState(false)
   const [goalTitle, setGoalTitle] = useState('')
   const [goalDescription, setGoalDescription] = useState('')
   const [goalDate, setGoalDate] = useState('')
@@ -756,7 +929,48 @@ export function JourneyGameView({
   
   // Loading states for toggles
   const [loadingSteps, setLoadingSteps] = useState<Set<string>>(new Set())
+  const [animatingSteps, setAnimatingSteps] = useState<Set<string>>(new Set()) // Steps currently animating completion
   const [loadingHabits, setLoadingHabits] = useState<Set<string>>(new Set())
+  
+  // State for habit detail page timeline (per habit ID)
+  const [habitTimelineOffsets, setHabitTimelineOffsets] = useState<Record<string, number>>({})
+  const [habitVisibleDaysMap, setHabitVisibleDaysMap] = useState<Record<string, number>>({})
+  
+  // Hooks for habits page timeline (must be at top level)
+  const habitsPageTimelineContainerRef = useRef<HTMLDivElement>(null)
+  const [habitsPageVisibleDays, setHabitsPageVisibleDays] = useState(20)
+  const [habitsPageTimelineOffset, setHabitsPageTimelineOffset] = useState(0)
+  
+  // Calculate visible days for habits page timeline
+  useEffect(() => {
+    const calculateVisibleDays = () => {
+      if (habitsPageTimelineContainerRef.current) {
+        const containerWidth = habitsPageTimelineContainerRef.current.offsetWidth
+        // Each day is 32px wide + 4px gap (gap-1) = 36px total per day
+        // Subtract space for habit name column (190px) + gap (8px) = 198px
+        const availableWidth = containerWidth - 198
+        const daysThatFit = Math.floor(availableWidth / 36)
+        const newVisibleDays = Math.max(7, daysThatFit)
+        setHabitsPageVisibleDays(newVisibleDays)
+      }
+    }
+    
+    // Only calculate if we're on habits page
+    if (mainPanelSection === 'habits') {
+      // Use requestAnimationFrame to ensure DOM is rendered
+      const timeoutId = setTimeout(() => {
+        calculateVisibleDays()
+      }, 0)
+      
+      // Also calculate on resize
+      window.addEventListener('resize', calculateVisibleDays)
+      
+      return () => {
+        clearTimeout(timeoutId)
+        window.removeEventListener('resize', calculateVisibleDays)
+      }
+    }
+  }, [mainPanelSection])
 
   useEffect(() => {
     if (selectedItem && selectedItemType === 'step') {
@@ -825,7 +1039,6 @@ export function JourneyGameView({
       setEditingHabitCategory(selectedItem.category || '')
       setEditingHabitDifficulty(selectedItem.difficulty || 'medium')
       setEditingHabitReminderTime(selectedItem.reminder_time || '')
-      setHabitDetailTab('calendar')
     }
   }, [selectedItem, selectedItemType])
 
@@ -872,21 +1085,20 @@ export function JourneyGameView({
   // Handle habit modal
   const handleOpenHabitModal = (habit: any) => {
     setHabitModalData(habit)
-    setEditingHabitName(habit.name || '')
-    setEditingHabitDescription(habit.description || '')
-    setEditingHabitFrequency(habit.frequency || 'daily')
-    setEditingHabitSelectedDays(habit.selected_days || [])
-    setEditingHabitAlwaysShow(habit.always_show || false)
-    setEditingHabitXpReward(habit.xp_reward || 0)
-    setEditingHabitCategory(habit.category || '')
-    setEditingHabitDifficulty(habit.difficulty || 'medium')
-    setEditingHabitReminderTime(habit.reminder_time || '')
-    setHabitDetailTab('calendar')
+    setEditingHabitName(habit?.name || '')
+    setEditingHabitDescription(habit?.description || '')
+    setEditingHabitFrequency(habit?.frequency || 'daily')
+    setEditingHabitSelectedDays(habit?.selected_days || [])
+    setEditingHabitAlwaysShow(habit?.always_show || false)
+    setEditingHabitXpReward(habit?.xp_reward || 0)
+    setEditingHabitCategory(habit?.category || '')
+    setEditingHabitDifficulty(habit?.difficulty || 'medium')
+    setEditingHabitReminderTime(habit?.reminder_time || '')
     setShowHabitModal(true)
   }
 
   const handleSaveHabitModal = async () => {
-    if (!habitModalData || !editingHabitName.trim()) {
+    if (!editingHabitName.trim()) {
       alert('Název návyku je povinný')
       return
     }
@@ -899,13 +1111,14 @@ export function JourneyGameView({
 
     setHabitModalSaving(true)
     try {
+      const isNewHabit = !habitModalData?.id
       const response = await fetch('/api/habits', {
-        method: 'PUT',
+        method: isNewHabit ? 'POST' : 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          habitId: habitModalData.id,
+          ...(isNewHabit ? {} : { habitId: habitModalData.id }),
           name: editingHabitName,
           description: editingHabitDescription,
           frequency: editingHabitFrequency,
@@ -923,15 +1136,15 @@ export function JourneyGameView({
         
         // Update habits in parent component
         if (onHabitsUpdate) {
-          const updatedHabits = habits.map(habit => 
-            habit.id === updatedHabit.id ? updatedHabit : habit
-          )
-          onHabitsUpdate(updatedHabits)
-          
-          // Update habitModalData with fresh data from server
-          const freshHabit = updatedHabits.find(h => h.id === updatedHabit.id)
-          if (freshHabit) {
-            setHabitModalData(freshHabit)
+          if (isNewHabit) {
+            // Add new habit to the list
+            onHabitsUpdate([...habits, updatedHabit])
+          } else {
+            // Update existing habit
+            const updatedHabits = habits.map(habit => 
+              habit.id === updatedHabit.id ? updatedHabit : habit
+            )
+            onHabitsUpdate(updatedHabits)
           }
         }
         
@@ -940,13 +1153,51 @@ export function JourneyGameView({
         setHabitModalData(null)
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
-        alert(`Chyba při aktualizaci návyku: ${errorData.error || 'Nepodařilo se uložit návyk'}`)
+        alert(`Chyba při ${isNewHabit ? 'vytváření' : 'aktualizaci'} návyku: ${errorData.error || 'Nepodařilo se uložit návyk'}`)
       }
     } catch (error) {
       console.error('Error saving habit:', error)
-      alert('Chyba při aktualizaci návyku')
+      alert(`Chyba při ${habitModalData?.id ? 'aktualizaci' : 'vytváření'} návyku`)
     } finally {
       setHabitModalSaving(false)
+    }
+  }
+
+  const handleDeleteHabit = async () => {
+    if (!habitModalData?.id) return
+
+    const confirmMessage = t('habits.deleteConfirm', { name: habitModalData.name }) || `Opravdu chcete smazat návyk "${habitModalData.name}"? Tato akce je nevratná.`
+    if (!confirm(confirmMessage)) {
+      return
+    }
+
+    try {
+      const response = await fetch('/api/habits', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          habitId: habitModalData.id
+        }),
+      })
+
+      if (response.ok) {
+        // Remove habit from parent component
+        if (onHabitsUpdate) {
+          onHabitsUpdate(habits.filter(habit => habit.id !== habitModalData.id))
+        }
+        
+        // Close modal after successful deletion
+        setShowHabitModal(false)
+        setHabitModalData(null)
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
+        alert(t('habits.deleteError') || `Nepodařilo se smazat návyk: ${errorData.error || 'Neznámá chyba'}`)
+      }
+    } catch (error) {
+      console.error('Error deleting habit:', error)
+      alert(t('habits.deleteError') || 'Chyba při mazání návyku')
     }
   }
 
@@ -2187,74 +2438,7 @@ export function JourneyGameView({
         const goalForEditing = {
           ...item
         }
-        
-        const handleUpdateGoalForDetail = async (goalId: string, updates: any) => {
-          if (!updates.title || !updates.title.trim()) {
-            alert(t('details.goal.titleRequired'))
-            return
-          }
 
-          try {
-            console.log('Updating goal from detail view:', goalId, updates)
-            
-            const response = await fetch('/api/goals', {
-              method: 'PUT',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                goalId,
-                ...updates
-              }),
-            })
-
-            if (response.ok) {
-              const updatedGoal = await response.json()
-              // Update goals in parent component
-              if (onGoalsUpdate) {
-                const updatedGoals = goals.map(g => g.id === goalId ? updatedGoal : g)
-                onGoalsUpdate(updatedGoals)
-              }
-              // Update selectedItem to reflect changes
-              setSelectedItem(updatedGoal)
-            } else {
-              console.error('Failed to update goal')
-              alert('Nepodařilo se aktualizovat cíl')
-            }
-          } catch (error) {
-            console.error('Error updating goal:', error)
-            alert('Chyba při aktualizaci cíle')
-          }
-        }
-
-        const handleDeleteGoalForDetail = async (goalId: string) => {
-          if (!confirm(t('details.goal.deleteConfirm'))) {
-            return
-          }
-
-          try {
-            const response = await fetch('/api/goals', {
-              method: 'DELETE',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ goalId }),
-            })
-
-            if (response.ok) {
-              // Update goals in parent component
-              if (onGoalsUpdate) {
-                onGoalsUpdate(goals.filter(goal => goal.id !== goalId))
-              }
-              // Close detail view
-              handleCloseDetail()
-            } else {
-              console.error('Failed to delete goal')
-              alert(t('details.goal.deleteError'))
-            }
-          } catch (error) {
-            console.error('Error deleting goal:', error)
-            alert('Chyba při mazání cíle')
-          }
-        }
 
         return (
           <div className="w-full h-full flex flex-col">
@@ -2637,6 +2821,7 @@ export function JourneyGameView({
         handleStepToggle={handleStepToggle}
         loadingHabits={loadingHabits}
         loadingSteps={loadingSteps}
+        animatingSteps={animatingSteps}
         onOpenStepModal={handleOpenStepModal}
         onNavigateToHabits={onNavigateToHabits}
         onNavigateToSteps={onNavigateToSteps}
@@ -3624,6 +3809,81 @@ export function JourneyGameView({
     }
   }
 
+  // Handle goal delete for detail page
+  const handleDeleteGoalForDetail = async (goalId: string, deleteSteps: boolean) => {
+    setIsDeletingGoal(true)
+    try {
+      const response = await fetch('/api/goals', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ goalId, deleteSteps }),
+      })
+
+      if (response.ok) {
+        // Update goals in parent component
+        if (onGoalsUpdate) {
+          onGoalsUpdate(goals.filter(goal => goal.id !== goalId))
+        }
+        // Close modal
+        setShowDeleteGoalModal(false)
+        setDeleteGoalWithSteps(false)
+        // Redirect to goals page
+        setMainPanelSection('goals')
+      } else {
+        console.error('Failed to delete goal')
+        alert(t('details.goal.deleteError') || 'Nepodařilo se smazat cíl')
+      }
+    } catch (error) {
+      console.error('Error deleting goal:', error)
+      alert('Chyba při mazání cíle')
+    } finally {
+      setIsDeletingGoal(false)
+    }
+  }
+
+  // Handle goal update for detail page (inline editing)
+  const handleUpdateGoalForDetail = async (goalId: string, updates: any) => {
+    // Only validate title if it's being updated
+    if (updates.title !== undefined && (!updates.title || !updates.title.trim())) {
+      alert(t('goals.goalTitleRequired'))
+      return
+    }
+
+    try {
+      console.log('Updating goal from detail view:', goalId, updates)
+      
+      const response = await fetch('/api/goals', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          goalId,
+          ...updates
+        }),
+      })
+
+      if (response.ok) {
+        const updatedGoal = await response.json()
+        // Update goals in parent component
+        if (onGoalsUpdate) {
+          const updatedGoals = goals.map(g => g.id === goalId ? updatedGoal : g)
+          onGoalsUpdate(updatedGoals)
+        }
+        // Update selectedItem to reflect changes if it's the same goal
+        if (selectedItem && selectedItem.id === goalId) {
+          setSelectedItem(updatedGoal)
+        }
+      } else {
+        console.error('Failed to update goal')
+        alert('Nepodařilo se aktualizovat cíl')
+      }
+    } catch (error) {
+      console.error('Error updating goal:', error)
+      alert('Chyba při aktualizaci cíle')
+    }
+  }
+
   const handleUpdateGoal = async (goalId: string, updates: any) => {
     if (!updates.title || !updates.title.trim()) {
       alert('Název cíle je povinný')
@@ -3666,11 +3926,6 @@ export function JourneyGameView({
   }
 
   const handleCreateGoal = async () => {
-    if (!newGoal.title.trim()) {
-      alert('Název cíle je povinný')
-      return
-    }
-
     // Get userId from state
     if (!userId) {
       alert('Chyba: Uživatel není nalezen')
@@ -3678,22 +3933,20 @@ export function JourneyGameView({
     }
 
     try {
+      // Create goal with placeholder values
       const response = await fetch('/api/cesta/goals-with-steps', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          title: newGoal.title,
-          description: newGoal.description,
-          targetDate: newGoal.target_date,
-          status: newGoal.status,
-          steps: newGoal.steps.map(step => ({
-            title: step.title,
-            description: step.description,
-            date: step.date ? new Date(step.date).toISOString() : undefined
-          })),
-          metrics: [] // Empty metrics for now
+          title: t('goals.newGoalTitle') || 'Nový cíl',
+          description: '',
+          targetDate: null,
+          status: 'active',
+          icon: 'Target',
+          steps: [],
+          metrics: []
         }),
       })
 
@@ -3705,15 +3958,10 @@ export function JourneyGameView({
           onGoalsUpdate([...goals, data.goal])
         }
         
-        // Reset form
-        setNewGoal({
-          title: '',
-          description: '',
-          target_date: null,
-          status: 'active',
-          steps: []
-        })
-        setShowCreateGoal(false)
+        // Redirect to goal detail page immediately
+        if (data.goal && data.goal.id) {
+          setMainPanelSection(`goal-${data.goal.id}`)
+            }
       } else {
         const errorData = await response.json().catch(() => ({}))
         console.error('Failed to create goal:', errorData)
@@ -4267,6 +4515,50 @@ export function JourneyGameView({
     preloadSteps()
   }, [goals])
 
+  // Load steps for goal detail page when it's opened
+  useEffect(() => {
+    if (mainPanelSection.startsWith('goal-')) {
+      const goalId = mainPanelSection.replace('goal-', '')
+      const goal = goals.find(g => g.id === goalId)
+      
+      if (goal && goalId && !stepsCacheRef.current[goalId]?.loaded) {
+        // Load steps for this goal
+        const loadSteps = async () => {
+          try {
+            const stepsResponse = await fetch(`/api/daily-steps?goalId=${goalId}`)
+            if (stepsResponse.ok) {
+              const stepsData = await stepsResponse.json()
+              const stepsArray = Array.isArray(stepsData) ? stepsData : []
+              stepsCacheRef.current[goalId] = { data: stepsArray, loaded: true }
+              // Trigger reactivity
+              setStepsCacheVersion((prev: Record<string, number>) => ({ ...prev, [goalId]: (prev[goalId] || 0) + 1 }))
+        }
+      } catch (error) {
+            console.error(`Error loading steps for goal ${goalId}:`, error)
+          }
+        }
+        
+        loadSteps()
+      }
+            }
+  }, [mainPanelSection, goals])
+
+  // Update goal detail page state when goal changes
+  useEffect(() => {
+    if (mainPanelSection.startsWith('goal-')) {
+      const goalId = mainPanelSection.replace('goal-', '')
+      const goal = goals.find(g => g.id === goalId)
+      
+      if (goal) {
+        setGoalDetailTitleValue(goal.title)
+        setGoalDetailDescriptionValue(goal.description || '')
+        setEditingGoalDetailTitle(false)
+        setEditingGoalDetailDescription(false)
+        setShowGoalDetailDatePicker(false)
+          }
+    }
+  }, [mainPanelSection, goals])
+
 
 
   const sensors = useSensors(
@@ -4799,10 +5091,16 @@ export function JourneyGameView({
                     }`}
                     title="Status"
                   >
+                    {formData.status === 'active' ? (
+                      <Target className="w-4 h-4" />
+                    ) : formData.status === 'completed' ? (
                     <CheckCircle className="w-4 h-4" />
+                    ) : (
+                      <Moon className="w-4 h-4" />
+                    )}
                     <span className="font-medium">
                       {formData.status === 'active' ? t('goals.status.active') : 
-                       formData.status === 'completed' ? t('goals.status.completed') : t('goals.status.considering')}
+                       formData.status === 'completed' ? t('goals.status.completed') : t('goals.status.paused')}
                     </span>
                     <ChevronDown className={`w-3 h-3 transition-transform ${showStatusPicker ? 'rotate-180' : ''}`} />
                   </button>
@@ -4819,7 +5117,7 @@ export function JourneyGameView({
                           left: `${statusPickerPosition.left}px`
                         }}
                       >
-                        {['active', 'completed', 'considering'].map((status) => (
+                        {['active', 'paused', 'completed'].map((status) => (
                           <button
                             key={status}
                             type="button"
@@ -4837,8 +5135,24 @@ export function JourneyGameView({
                                 : 'text-gray-700'
                             }`}
                           >
-                            {status === 'active' ? `✓ ${t('goals.status.active')}` : 
-                             status === 'completed' ? `✓ ${t('goals.status.completed')}` : `✓ ${t('goals.status.considering')}`}
+                            <div className="flex items-center gap-2">
+                              {status === 'active' ? (
+                                <>
+                                  <Target className="w-4 h-4" />
+                                  <span>{t('goals.status.active')}</span>
+                                </>
+                              ) : status === 'completed' ? (
+                                <>
+                                  <CheckCircle className="w-4 h-4" />
+                                  <span>{t('goals.status.completed')}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Moon className="w-4 h-4" />
+                                  <span>{t('goals.status.paused')}</span>
+                                </>
+                              )}
+                            </div>
                           </button>
                         ))}
                       </div>
@@ -5233,7 +5547,7 @@ export function JourneyGameView({
     switch (status) {
       case 'active': return 'text-green-600 bg-green-100';
       case 'completed': return 'text-blue-600 bg-blue-100';
-      case 'considering': return 'text-yellow-600 bg-yellow-100';
+      case 'paused': return 'text-yellow-600 bg-yellow-100';
       default: return 'text-gray-600 bg-gray-100';
     }
   }
@@ -5763,6 +6077,7 @@ export function JourneyGameView({
                         description: '',
                         target_date: null,
                         status: 'active',
+                        icon: 'Target',
                         steps: []
                       })
                       setShowGoalDatePicker(false)
@@ -5815,8 +6130,15 @@ export function JourneyGameView({
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation()
+                              if (datePickerButtonRef) {
+                                const rect = datePickerButtonRef.getBoundingClientRect()
+                                setDatePickerPosition({ top: rect.bottom + 5, left: rect.left })
+                                setShowGoalDatePicker(true)
+                              } else {
                               setShowGoalDatePicker(!showGoalDatePicker)
+                              }
                               setShowStatusPicker(false)
+                              setShowIconPicker(false)
                             }}
                             className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
                               newGoal.target_date 
@@ -5861,6 +6183,116 @@ export function JourneyGameView({
                           )}
                   </div>
                   
+                        {/* Icon Picker */}
+                        <div className="relative">
+                          <button
+                            ref={setIconPickerButtonRef}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              const rect = e.currentTarget.getBoundingClientRect()
+                              setIconPickerPosition({ top: rect.bottom + 5, left: rect.left })
+                              setShowIconPicker(true)
+                              setShowGoalDatePicker(false)
+                              setShowStatusPicker(false)
+                              setIconPickerSearchQuery('')
+                            }}
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl transition-all shadow-sm hover:shadow-md hover:border-orange-300"
+                            title="Ikona"
+                          >
+                            {(() => {
+                              const IconComponent = getIconComponent(newGoal.icon)
+                              return <IconComponent className="w-4 h-4 text-gray-700" />
+                            })()}
+                            <ChevronDown className={`w-3 h-3 transition-transform ${showIconPicker ? 'rotate-180' : ''}`} />
+                          </button>
+                          {showIconPicker && iconPickerPosition && (
+                            <>
+                              <div 
+                                className="fixed inset-0 z-40" 
+                                onClick={() => setShowIconPicker(false)}
+                              />
+                              <div 
+                                className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl"
+                                style={{
+                                  top: `${iconPickerPosition.top}px`,
+                                  left: `${iconPickerPosition.left}px`,
+                                  width: '320px',
+                                  maxHeight: '400px',
+                                  display: 'flex',
+                                  flexDirection: 'column'
+                                }}
+                              >
+                                {/* Search bar */}
+                                <div className="p-3 border-b border-gray-200">
+                                  <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                    <input
+                                      type="text"
+                                      value={iconPickerSearchQuery}
+                                      onChange={(e) => setIconPickerSearchQuery(e.target.value)}
+                                      placeholder={t('common.search') || 'Hledat...'}
+                                      className="w-full pl-9 pr-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                      autoFocus
+                                    />
+                                  </div>
+                                </div>
+                                
+                                {/* Icons grid */}
+                                <div className="p-3 overflow-y-auto flex-1">
+                                  <div className="grid grid-cols-6 gap-2">
+                                    {AVAILABLE_ICONS
+                                      .filter(icon => {
+                                        const query = iconPickerSearchQuery.toLowerCase().trim()
+                                        if (!query) return true
+                                        return icon.label.toLowerCase().includes(query) ||
+                                               icon.name.toLowerCase().includes(query)
+                                      })
+                                      .map((icon) => {
+                                        const IconComponent = getIconComponent(icon.name)
+                                        const isSelected = newGoal.icon === icon.name
+                                        if (!IconComponent) {
+                                          console.warn(`Icon component not found for: ${icon.name}`)
+                                          return null
+                                        }
+                                        return (
+                                <button
+                                            key={icon.name}
+                                  type="button"
+                                  onClick={() => {
+                                              setNewGoal({...newGoal, icon: icon.name})
+                                              setShowIconPicker(false)
+                                              setIconPickerSearchQuery('')
+                                  }}
+                                            className={`p-2 rounded-lg transition-all hover:bg-gray-100 ${
+                                              isSelected 
+                                                ? 'bg-orange-50 border-2 border-orange-500' 
+                                                : 'border-2 border-transparent hover:border-gray-300'
+                                            }`}
+                                            title={icon.label}
+                                          >
+                                            <IconComponent className={`w-5 h-5 mx-auto ${isSelected ? 'text-orange-600' : 'text-gray-700'}`} />
+                                  </button>
+                                        )
+                                      })
+                                      .filter(Boolean)}
+                                  </div>
+                                  {AVAILABLE_ICONS.filter(icon => {
+                                    const query = iconPickerSearchQuery.toLowerCase().trim()
+                                    if (!query) return false
+                                    return icon.label.toLowerCase().includes(query) ||
+                                           icon.name.toLowerCase().includes(query)
+                                  }).length === 0 && iconPickerSearchQuery.trim() && (
+                                    <div className="text-center py-8 text-gray-500 text-sm">
+                                      {t('common.noResults') || 'Žádné výsledky'}
+                                  </div>
+                                )}
+                                </div>
+                              </div>
+                            </>
+                          )}
+                  </div>
+                  
                         {/* Status Picker Icon */}
                         <div className="relative">
                           <button
@@ -5870,6 +6302,7 @@ export function JourneyGameView({
                               e.stopPropagation()
                               setShowStatusPicker(!showStatusPicker)
                               setShowGoalDatePicker(false)
+                              setShowIconPicker(false)
                             }}
                             className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
                               newGoal.status === 'active' 
@@ -5880,10 +6313,16 @@ export function JourneyGameView({
                             }`}
                             title="Status"
                           >
+                            {newGoal.status === 'active' ? (
+                              <Target className="w-4 h-4" />
+                            ) : newGoal.status === 'completed' ? (
                             <CheckCircle className="w-4 h-4" />
+                            ) : (
+                              <Moon className="w-4 h-4" />
+                            )}
                             <span className="font-medium">
                               {newGoal.status === 'active' ? t('goals.status.active') : 
-                               newGoal.status === 'completed' ? t('goals.status.completed') : t('goals.status.considering')}
+                               newGoal.status === 'completed' ? t('goals.status.completed') : t('goals.status.paused')}
                             </span>
                             <ChevronDown className={`w-3 h-3 transition-transform ${showStatusPicker ? 'rotate-180' : ''}`} />
                           </button>
@@ -5900,7 +6339,7 @@ export function JourneyGameView({
                                   left: `${statusPickerPosition.left}px`
                                 }}
                               >
-                                {['active', 'completed', 'considering'].map((status) => (
+                                {['active', 'paused', 'completed'].map((status) => (
                                   <button
                                     key={status}
                                     type="button"
@@ -5918,8 +6357,24 @@ export function JourneyGameView({
                                         : 'text-gray-700'
                                     }`}
                                   >
-                                    {status === 'active' ? `✓ ${t('goals.status.active')}` : 
-                                     status === 'completed' ? `✓ ${t('goals.status.completed')}` : `✓ ${t('goals.status.considering')}`}
+                                    <div className="flex items-center gap-2">
+                                      {status === 'active' ? (
+                                        <>
+                                          <Target className="w-4 h-4" />
+                                          <span>{t('goals.status.active')}</span>
+                                        </>
+                                      ) : status === 'completed' ? (
+                                        <>
+                                          <CheckCircle className="w-4 h-4" />
+                                          <span>{t('goals.status.completed')}</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Moon className="w-4 h-4" />
+                                          <span>{t('goals.status.paused')}</span>
+                                        </>
+                                      )}
+                                    </div>
                                   </button>
                                 ))}
                               </div>
@@ -6130,10 +6585,12 @@ export function JourneyGameView({
                           description: '',
                           target_date: null,
                         status: 'active',
+                        icon: 'Target',
                         steps: []
                         })
                       setShowGoalDatePicker(false)
                       setShowStatusPicker(false)
+                      setShowIconPicker(false)
                       }}
                     className="px-6 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-200 transition-all"
                       title="Zrušit"
@@ -6156,7 +6613,7 @@ export function JourneyGameView({
               <option value="all">{t('goals.filters.status.all')}</option>
               <option value="active">{t('goals.filters.status.active')}</option>
               <option value="completed">{t('goals.filters.status.completed')}</option>
-              <option value="considering">{t('goals.filters.status.considering')}</option>
+              <option value="paused">{t('goals.filters.status.paused')}</option>
             </select>
             
           </div>
@@ -6230,7 +6687,7 @@ export function JourneyGameView({
                           >
                             {goal.status === 'active' ? t('goals.status.active') :
                              goal.status === 'completed' ? t('goals.status.completed') :
-                             t('goals.status.considering')}
+                             t('goals.status.paused')}
                           </span>
                         </td>
                         <td className="px-4 py-2">
@@ -6424,7 +6881,7 @@ export function JourneyGameView({
                               const response = await fetch('/api/goals', {
                                 method: 'PUT',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ goalId: goal.id, status: 'considering' })
+                                body: JSON.stringify({ goalId: goal.id, status: 'paused' })
                               })
                               if (response.ok) {
                                 const updatedGoal = await response.json()
@@ -6439,10 +6896,10 @@ export function JourneyGameView({
                             }
                           }}
                           className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
-                            goal.status === 'considering' ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
+                            goal.status === 'paused' ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
                           }`}
                         >
-                          {t('goals.status.considering')}
+                          {t('goals.status.paused')}
               </button>
                       </div>
                     </>
@@ -6604,6 +7061,887 @@ export function JourneyGameView({
 
   // renderHabitsContent removed - now in HabitsManagementView
 
+  // Refs and state for habit detail page timeline (must be at top level)
+  const habitDetailTimelineContainerRef = useRef<HTMLDivElement>(null)
+  const [habitDetailVisibleDays, setHabitDetailVisibleDays] = useState<Record<string, number>>({})
+  
+  // Calculate visible days for habit detail timeline
+  useEffect(() => {
+    const calculateVisibleDays = (habitId: string) => {
+      if (habitDetailTimelineContainerRef.current) {
+        const containerWidth = habitDetailTimelineContainerRef.current.offsetWidth
+        const daysThatFit = Math.floor(containerWidth / 36)
+        setHabitDetailVisibleDays(prev => ({
+          ...prev,
+          [habitId]: Math.max(7, daysThatFit)
+        }))
+      }
+    }
+    
+    // Only calculate if we're on a habit detail page
+    if (mainPanelSection.startsWith('habit-')) {
+      const habitId = mainPanelSection.replace('habit-', '')
+      calculateVisibleDays(habitId)
+      window.addEventListener('resize', () => calculateVisibleDays(habitId))
+      return () => window.removeEventListener('resize', () => calculateVisibleDays(habitId))
+    }
+  }, [mainPanelSection])
+  
+  // Render habit detail page with timeline, statistics, and settings
+  const renderHabitDetailPage = (habit: any) => {
+    const habitId = habit.id
+    // Use locale from top-level (already defined)
+    const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
+    const timelineOffset = habitTimelineOffsets[habitId] || 0
+    const visibleDays = habitDetailVisibleDays[habitId] || 20
+    
+    const setTimelineOffset = (value: number | ((prev: number) => number)) => {
+      setHabitTimelineOffsets(prev => {
+        const current = prev[habitId] || 0
+        const newValue = typeof value === 'function' ? value(current) : value
+        return { ...prev, [habitId]: newValue }
+      })
+    }
+    
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    // Calculate date range for timeline
+    // timelineOffset determines how many days back from today the END date is
+    // Negative offset = going back in time (left arrow)
+    // Positive offset = going forward in time (right arrow)
+    // When offset is 0, the rightmost date is today
+    const endDate = new Date(today)
+    endDate.setDate(endDate.getDate() - timelineOffset)
+    const startDate = new Date(endDate)
+    startDate.setDate(startDate.getDate() - visibleDays + 1)
+    
+    // Generate array of dates for timeline
+    const timelineDates: Date[] = []
+    for (let i = 0; i < visibleDays; i++) {
+      const date = new Date(startDate)
+      date.setDate(date.getDate() + i)
+      timelineDates.push(date)
+    }
+    
+    // Helper functions for habit scheduling and completion
+    const isHabitScheduledForDay = (day: Date): boolean => {
+      const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+      const dayName = dayNames[day.getDay()]
+      
+      if (habit.always_show) return true
+      if (habit.frequency === 'daily') return true
+      if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
+      return false
+    }
+    
+    const isHabitCompletedForDay = (day: Date): boolean => {
+      const dateStr = getLocalDateString(day)
+      return habit.habit_completions && habit.habit_completions[dateStr] === true
+    }
+    
+    // Calculate statistics (without useMemo since this is inside a render function)
+    const calculateStats = () => {
+      let totalPlanned = 0
+      let totalCompleted = 0
+      let completedOutsidePlan = 0
+      let currentStreak = 0
+      let maxStreak = habit.max_streak || 0
+      
+      // Calculate from habit_completions
+      if (habit.habit_completions) {
+        const completionDates = Object.keys(habit.habit_completions)
+          .filter(date => habit.habit_completions[date] === true)
+          .map(date => new Date(date))
+          .sort((a, b) => a.getTime() - b.getTime())
+        
+        // Count total planned and completed
+        const allDates: Date[] = []
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        
+        // Go back 365 days to calculate stats
+        for (let i = 365; i >= 0; i--) {
+          const date = new Date(today)
+          date.setDate(date.getDate() - i)
+          allDates.push(date)
+        }
+        
+        allDates.forEach(date => {
+          const isScheduled = isHabitScheduledForDay(date)
+          const isCompleted = isHabitCompletedForDay(date)
+          const dateStr = getLocalDateString(date)
+          
+          if (isScheduled) {
+            totalPlanned++
+            if (isCompleted) {
+              totalCompleted++
+            }
+          } else if (isCompleted) {
+            completedOutsidePlan++
+          }
+        })
+        
+        // Calculate current streak (backwards from today)
+        let streakDate = new Date(today)
+        while (true) {
+          const isScheduled = isHabitScheduledForDay(streakDate)
+          const isCompleted = isHabitCompletedForDay(streakDate)
+          
+          if (isScheduled && isCompleted) {
+            currentStreak++
+            streakDate.setDate(streakDate.getDate() - 1)
+          } else if (isScheduled && !isCompleted) {
+            break // Streak broken
+          } else {
+            streakDate.setDate(streakDate.getDate() - 1)
+            if (streakDate < new Date('2020-01-01')) break // Safety check
+          }
+        }
+      }
+      
+      return {
+        totalPlanned,
+        totalCompleted,
+        completedOutsidePlan,
+        currentStreak: habit.streak || currentStreak,
+        maxStreak
+      }
+    }
+    
+    const stats = calculateStats()
+    
+    const handleTimelineShift = (direction: 'left' | 'right') => {
+      if (direction === 'left') {
+        // Left arrow = go back in time (increase offset, which moves start date earlier)
+        setTimelineOffset(prev => prev + visibleDays)
+      } else {
+        // Right arrow = go forward in time (decrease offset, which moves start date later)
+        // Don't go past today (offset can't be negative)
+        setTimelineOffset(prev => Math.max(0, prev - visibleDays))
+      }
+    }
+    
+    const handleHabitBoxClick = async (date: Date) => {
+      const dateStr = getLocalDateString(date)
+      const isScheduled = isHabitScheduledForDay(date)
+      const isCompleted = isHabitCompletedForDay(date)
+      
+      let currentState: 'completed' | 'missed' | 'planned' | 'not-scheduled' | 'today' = 'not-scheduled'
+      if (isCompleted) {
+        currentState = 'completed'
+      } else if (isScheduled) {
+        currentState = 'planned'
+      }
+      
+      if (dateStr === getLocalDateString(today)) {
+        currentState = 'today'
+      }
+      
+      await handleHabitCalendarToggle(habit.id, dateStr, currentState, isScheduled)
+    }
+    
+    return (
+      <div className="w-full min-h-full flex flex-col bg-orange-50">
+        {/* Mobile header */}
+        <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-gray-900 truncate">{habit.name}</h2>
+            <button
+              onClick={() => setMainPanelSection('overview')}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              title={t('navigation.backToOverview')}
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-700" />
+            </button>
+          </div>
+        </div>
+        
+        {/* Habit detail content */}
+        <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
+          <div className="p-6">
+            {/* Habit header */}
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">{habit.name}</h1>
+              {habit.description && (
+                <p className="text-gray-600 text-lg">{habit.description}</p>
+              )}
+            </div>
+            
+            {/* Timeline section */}
+            <div className="mb-8 bg-white rounded-xl border-2 border-gray-200 p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">{t('habits.timeline') || 'Timeline'}</h2>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleTimelineShift('left')}
+                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                    title={t('common.previous') || 'Předchozí'}
+                  >
+                    <ChevronLeft className="w-5 h-5 text-gray-700" />
+                  </button>
+                  <button
+                    onClick={() => handleTimelineShift('right')}
+                    disabled={timelineOffset === 0}
+                    className={`p-2 rounded-lg transition-colors ${
+                      timelineOffset === 0 
+                        ? 'opacity-50 cursor-not-allowed' 
+                        : 'hover:bg-gray-100'
+                    }`}
+                    title={t('common.next') || 'Další'}
+                  >
+                    <ChevronRight className="w-5 h-5 text-gray-700" />
+                  </button>
+                </div>
+              </div>
+              
+              {/* Timeline with month, dates, and boxes */}
+              <div ref={habitDetailTimelineContainerRef} className="w-full">
+                {/* Month row - positioned around middle of month */}
+                <div className="flex mb-2 relative" style={{ height: '24px' }}>
+                  {(() => {
+                    // Find the middle date of the visible range
+                    const middleIndex = Math.floor(timelineDates.length / 2)
+                    let targetDate = timelineDates[middleIndex]
+                    
+                    // Get the month of the middle date
+                    const targetMonth = targetDate.getMonth()
+                    const targetYear = targetDate.getFullYear()
+                    
+                    // Find the middle of the month (15th day)
+                    const monthMiddle = new Date(targetYear, targetMonth, 15)
+                    monthMiddle.setHours(0, 0, 0, 0)
+                    
+                    // Find the closest date to month middle in our visible range
+                    let closestIndex = 0
+                    let closestDistance = Math.abs(timelineDates[0].getTime() - monthMiddle.getTime())
+                    
+                    timelineDates.forEach((date, index) => {
+                      const distance = Math.abs(date.getTime() - monthMiddle.getTime())
+                      if (distance < closestDistance) {
+                        closestDistance = distance
+                        closestIndex = index
+                      }
+                    })
+                    
+                    // If the closest date is too close to the edges (first or last 2 days), adjust it
+                    const edgeThreshold = 2
+                    let adjustedIndex = closestIndex
+                    if (closestIndex < edgeThreshold) {
+                      // Too close to start, move it a bit right
+                      adjustedIndex = Math.min(edgeThreshold, timelineDates.length - 1)
+                    } else if (closestIndex > timelineDates.length - 1 - edgeThreshold) {
+                      // Too close to end, move it a bit left
+                      adjustedIndex = Math.max(timelineDates.length - 1 - edgeThreshold, 0)
+                    }
+                    
+                    // Calculate position: each day is 36px (32px box + 4px gap)
+                    // Position the month label at the center of the target day
+                    const position = adjustedIndex * 36 + 16 // 16px = half of 32px box
+                    
+                    const monthNames = localeCode === 'cs-CZ' 
+                      ? ['Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen', 'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec']
+                      : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+                    
+                    const monthName = monthNames[targetMonth]
+                    
+                    return (
+                      <div 
+                        className="text-sm font-medium text-gray-700 absolute"
+                        style={{ 
+                          left: `${position}px`,
+                          transform: 'translateX(-50%)'
+                        }}
+                      >
+                        {monthName}
+                      </div>
+                    )
+                  })()}
+                </div>
+                
+                {/* Dates row */}
+                <div className="flex gap-1 mb-2 relative">
+                  {timelineDates.map((date, index) => {
+                    const dateStr = getLocalDateString(date)
+                    const isToday = dateStr === getLocalDateString(today)
+                    
+                    // Check if this is the first day of a month (month boundary)
+                    const isMonthStart = index > 0 && date.getMonth() !== timelineDates[index - 1].getMonth()
+                    
+                    // Format date: day abbreviation + day number (e.g., "SA 29")
+                    const dayNamesShort = [
+                      t('calendar.daysShort.sunday'),
+                      t('calendar.daysShort.monday'),
+                      t('calendar.daysShort.tuesday'),
+                      t('calendar.daysShort.wednesday'),
+                      t('calendar.daysShort.thursday'),
+                      t('calendar.daysShort.friday'),
+                      t('calendar.daysShort.saturday')
+                    ]
+                    
+                    const day = date.getDate()
+                    const dayOfWeek = date.getDay()
+                    const dayAbbr = dayNamesShort[dayOfWeek].substring(0, 2).toUpperCase()
+                    
+                    return (
+                      <div key={dateStr} className="relative">
+                        {/* Month divider - vertical line before first day of month */}
+                        {isMonthStart && (
+                          <div 
+                            className="absolute left-0 top-0 bottom-0 w-px bg-gray-300 -ml-0.5 z-10"
+                            style={{ height: '100%' }}
+                          />
+                        )}
+                        <div
+                          className={`flex flex-col items-center w-[32px] flex-shrink-0 ${isToday ? 'bg-orange-100 rounded px-1 py-0.5' : ''}`}
+                        >
+                          <div className={`text-[10px] text-center leading-tight ${isToday ? 'font-semibold text-orange-700' : 'text-gray-600'}`}>
+                            <div>{dayAbbr}</div>
+                            <div>{day}</div>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+                
+                {/* Boxes row */}
+                <div className="flex gap-1 relative">
+                  {timelineDates.map((date, index) => {
+                    const dateStr = getLocalDateString(date)
+                    const isScheduled = isHabitScheduledForDay(date)
+                    const isCompleted = isHabitCompletedForDay(date)
+                    const isToday = dateStr === getLocalDateString(today)
+                    const isFuture = date > today
+                    const isLoading = loadingHabits.has(habit.id)
+                    
+                    // Check if this is the first day of a month (month boundary)
+                    const isMonthStart = index > 0 && date.getMonth() !== timelineDates[index - 1].getMonth()
+                    
+                    return (
+                      <div key={dateStr} className="relative">
+                        {/* Month divider - vertical line before first day of month */}
+                        {isMonthStart && (
+                          <div 
+                            className="absolute left-0 top-0 bottom-0 w-px bg-gray-300 -ml-0.5 z-10"
+                            style={{ height: '100%' }}
+                          />
+                        )}
+                        <button
+                          onClick={() => !isFuture && !isLoading && handleHabitBoxClick(date)}
+                          disabled={isFuture || isLoading}
+                          className={`w-8 h-8 rounded flex items-center justify-center transition-all flex-shrink-0 ${
+                            isCompleted
+                              ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                              : isScheduled
+                                ? `bg-gray-200 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
+                                : `bg-gray-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
+                          }`}
+                          title={dateStr}
+                        >
+                          {isLoading ? (
+                            <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          ) : isCompleted ? (
+                            <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                          ) : null}
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+            
+            {/* Statistics section */}
+            <div className="mb-8 bg-white rounded-xl border-2 border-gray-200 p-6 shadow-sm">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('habits.statistics') || 'Statistiky'}</h2>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div>
+                  <div className="text-sm text-gray-500 mb-1">{t('habits.stats.totalPlanned') || 'Naplánováno'}</div>
+                  <div className="text-2xl font-bold text-gray-900">{stats.totalPlanned}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 mb-1">{t('habits.stats.totalCompleted') || 'Splněno'}</div>
+                  <div className="text-2xl font-bold text-green-600">{stats.totalCompleted}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 mb-1">{t('habits.stats.completedOutside') || 'Mimo plán'}</div>
+                  <div className="text-2xl font-bold text-blue-600">{stats.completedOutsidePlan}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 mb-1">{t('habits.stats.currentStreak') || 'Aktuální streak'}</div>
+                  <div className="text-2xl font-bold text-orange-600">{stats.currentStreak}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 mb-1">{t('habits.stats.maxStreak') || 'Nejdelší streak'}</div>
+                  <div className="text-2xl font-bold text-purple-600">{stats.maxStreak}</div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Settings section */}
+            <div className="bg-white rounded-xl border-2 border-gray-200 p-6 shadow-sm">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('habits.settings') || 'Nastavení'}</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t('habits.frequencyLabel') || 'Frekvence'}
+                  </label>
+                  <div className="text-gray-900">
+                    {habit.frequency === 'daily' ? t('habits.frequency.daily') || 'Denně' :
+                     habit.frequency === 'weekly' ? t('habits.frequency.weekly') || 'Týdně' :
+                     habit.frequency === 'custom' ? t('habits.frequency.custom') || 'Vlastní' :
+                     habit.frequency}
+                  </div>
+                </div>
+                {habit.frequency === 'custom' && habit.selected_days && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {t('habits.selectedDays') || 'Vybrané dny'}
+                    </label>
+                    <div className="text-gray-900">
+                      {habit.selected_days.join(', ')}
+                    </div>
+                  </div>
+                )}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t('habits.category') || 'Kategorie'}
+                  </label>
+                  <div className="text-gray-900">
+                    {habit.category || t('habits.noCategory') || 'Bez kategorie'}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t('habits.difficultyLabel') || 'Obtížnost'}
+                  </label>
+                  <div className="text-gray-900">
+                    {habit.difficulty === 'easy' ? t('habits.difficulty.easy') || 'Snadná' :
+                     habit.difficulty === 'medium' ? t('habits.difficulty.medium') || 'Střední' :
+                     habit.difficulty === 'hard' ? t('habits.difficulty.hard') || 'Těžká' :
+                     habit.difficulty || t('habits.noDifficulty') || 'Bez obtížnosti'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Render habits page with statistics, timeline, and settings
+  const renderHabitsPage = () => {
+    const selectedHabit = selectedHabitId ? habits.find(h => h.id === selectedHabitId) : null
+    
+    // Calculate statistics for all habits or selected habit
+    const calculateAllHabitsStats = () => {
+      const habitsToCalculate = selectedHabit ? [selectedHabit] : habits
+      
+      let totalPlanned = 0
+      let totalCompleted = 0
+      let completedOutsidePlan = 0
+      let currentStreak = 0
+      let maxStreak = 0
+      
+      habitsToCalculate.forEach(habit => {
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        
+        const isHabitScheduledForDay = (day: Date): boolean => {
+          const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+          const dayName = dayNames[day.getDay()]
+          
+          if (habit.always_show) return true
+          if (habit.frequency === 'daily') return true
+          if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
+          return false
+        }
+        
+        const isHabitCompletedForDay = (day: Date): boolean => {
+          const dateStr = getLocalDateString(day)
+          return habit.habit_completions && habit.habit_completions[dateStr] === true
+        }
+        
+        // Go back 365 days to calculate stats
+        for (let i = 365; i >= 0; i--) {
+          const date = new Date(today)
+          date.setDate(date.getDate() - i)
+          const isScheduled = isHabitScheduledForDay(date)
+          const isCompleted = isHabitCompletedForDay(date)
+          
+          if (isScheduled) {
+            totalPlanned++
+            if (isCompleted) {
+              totalCompleted++
+            }
+          } else if (isCompleted) {
+            completedOutsidePlan++
+          }
+        }
+        
+        // Calculate current streak
+        let streakDate = new Date(today)
+        let habitStreak = 0
+        while (true) {
+          const isScheduled = isHabitScheduledForDay(streakDate)
+          const isCompleted = isHabitCompletedForDay(streakDate)
+          
+          if (isScheduled && isCompleted) {
+            habitStreak++
+            streakDate.setDate(streakDate.getDate() - 1)
+          } else if (isScheduled && !isCompleted) {
+            break
+          } else {
+            streakDate.setDate(streakDate.getDate() - 1)
+            if (streakDate < new Date('2020-01-01')) break
+          }
+        }
+        
+        currentStreak = Math.max(currentStreak, habitStreak)
+        maxStreak = Math.max(maxStreak, habit.max_streak || 0)
+      })
+      
+      return {
+        totalPlanned,
+        totalCompleted,
+        completedOutsidePlan,
+        currentStreak,
+        maxStreak
+      }
+    }
+    
+    const stats = calculateAllHabitsStats()
+    
+    // Timeline setup - use top-level hooks
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    const endDate = new Date(today)
+    endDate.setDate(endDate.getDate() - habitsPageTimelineOffset)
+    const startDate = new Date(endDate)
+    startDate.setDate(startDate.getDate() - habitsPageVisibleDays + 1)
+    
+    const timelineDates: Date[] = []
+    for (let i = 0; i < habitsPageVisibleDays; i++) {
+      const date = new Date(startDate)
+      date.setDate(date.getDate() + i)
+      timelineDates.push(date)
+    }
+    
+    const handleTimelineShift = (direction: 'left' | 'right') => {
+      if (direction === 'left') {
+        setHabitsPageTimelineOffset(prev => prev + habitsPageVisibleDays)
+      } else {
+        setHabitsPageTimelineOffset(prev => Math.max(0, prev - habitsPageVisibleDays))
+      }
+    }
+    
+    const handleHabitBoxClick = async (habit: any, date: Date) => {
+      const dateStr = getLocalDateString(date)
+      const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+      const dayName = dayNames[date.getDay()]
+      
+      const isScheduled = habit.always_show || 
+                        habit.frequency === 'daily' || 
+                        (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName))
+      const isCompleted = habit.habit_completions && habit.habit_completions[dateStr] === true
+      
+      let currentState: 'completed' | 'missed' | 'planned' | 'not-scheduled' | 'today' = 'not-scheduled'
+      if (isCompleted) {
+        currentState = 'completed'
+      } else if (isScheduled) {
+        currentState = 'planned'
+      }
+      
+      if (dateStr === getLocalDateString(today)) {
+        currentState = 'today'
+      }
+      
+      await handleHabitCalendarToggle(habit.id, dateStr, currentState, isScheduled)
+    }
+    
+    // Use locale from top-level (already defined)
+    const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
+    
+    return (
+      <div className="w-full min-h-full flex flex-col bg-orange-50 p-6">
+        {/* Header with title and Add Habit button */}
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-2xl font-bold text-gray-900">{t('navigation.habits') || 'Návyky'}</h1>
+          <button
+            onClick={() => handleOpenHabitModal(null)}
+            className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            {t('habits.add') || 'Přidat návyk'}
+          </button>
+        </div>
+        
+        {/* Statistics section - without white box */}
+        <div className="mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-gray-100 rounded-lg">
+                <Calendar className="w-6 h-6 text-gray-600" />
+              </div>
+              <div>
+                <div className="text-sm text-gray-500 mb-1">{t('habits.stats.totalPlanned') || 'Naplánováno'}</div>
+                <div className="text-2xl font-bold text-gray-900">{stats.totalPlanned}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-green-100 rounded-lg">
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              </div>
+              <div>
+                <div className="text-sm text-gray-500 mb-1">{t('habits.stats.totalCompleted') || 'Splněno'}</div>
+                <div className="text-2xl font-bold text-green-600">{stats.totalCompleted}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <Zap className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <div className="text-sm text-gray-500 mb-1">{t('habits.stats.completedOutside') || 'Mimo plán'}</div>
+                <div className="text-2xl font-bold text-blue-600">{stats.completedOutsidePlan}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-orange-100 rounded-lg">
+                <Flame className="w-6 h-6 text-orange-600" />
+              </div>
+              <div>
+                <div className="text-sm text-gray-500 mb-1">{t('habits.stats.currentStreak') || 'Aktuální streak'}</div>
+                <div className="text-2xl font-bold text-orange-600">{stats.currentStreak}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-purple-100 rounded-lg">
+                <Trophy className="w-6 h-6 text-purple-600" />
+              </div>
+              <div>
+                <div className="text-sm text-gray-500 mb-1">{t('habits.stats.maxStreak') || 'Nejdelší streak'}</div>
+                <div className="text-2xl font-bold text-purple-600">{stats.maxStreak}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Timeline section */}
+        <div className="mb-8 bg-white rounded-xl border-2 border-gray-200 p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">{t('habits.timeline') || 'Timeline'}</h2>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleTimelineShift('left')}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                title={t('common.previous') || 'Předchozí'}
+              >
+                <ChevronLeft className="w-5 h-5 text-gray-700" />
+              </button>
+              <button
+                onClick={() => handleTimelineShift('right')}
+                disabled={habitsPageTimelineOffset === 0}
+                className={`p-2 rounded-lg transition-colors ${
+                  habitsPageTimelineOffset === 0 
+                    ? 'opacity-50 cursor-not-allowed' 
+                    : 'hover:bg-gray-100'
+                }`}
+                title={t('common.next') || 'Další'}
+              >
+                <ChevronRight className="w-5 h-5 text-gray-700" />
+              </button>
+            </div>
+          </div>
+          
+          {/* Timeline with month, dates, and boxes for all habits */}
+          <div ref={habitsPageTimelineContainerRef} className="w-full">
+            {/* Month row - positioned around middle of month */}
+            <div className="flex mb-2 relative" style={{ height: '24px' }}>
+              {(() => {
+                const middleIndex = Math.floor(timelineDates.length / 2)
+                let targetDate = timelineDates[middleIndex]
+                const targetMonth = targetDate.getMonth()
+                const targetYear = targetDate.getFullYear()
+                const monthMiddle = new Date(targetYear, targetMonth, 15)
+                monthMiddle.setHours(0, 0, 0, 0)
+                
+                let closestIndex = 0
+                let closestDistance = Math.abs(timelineDates[0].getTime() - monthMiddle.getTime())
+                
+                timelineDates.forEach((date, index) => {
+                  const distance = Math.abs(date.getTime() - monthMiddle.getTime())
+                  if (distance < closestDistance) {
+                    closestDistance = distance
+                    closestIndex = index
+                  }
+                })
+                
+                const edgeThreshold = 2
+                let adjustedIndex = closestIndex
+                if (closestIndex < edgeThreshold) {
+                  adjustedIndex = Math.min(edgeThreshold, timelineDates.length - 1)
+                } else if (closestIndex > timelineDates.length - 1 - edgeThreshold) {
+                  adjustedIndex = Math.max(timelineDates.length - 1 - edgeThreshold, 0)
+                }
+                
+                // Position month label accounting for habit name column (150px) + settings icon (32px) + gap (8px) = 190px
+                const position = 190 + adjustedIndex * 36 + 16
+                
+                const monthNames = localeCode === 'cs-CZ' 
+                  ? ['Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen', 'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec']
+                  : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+                
+                const monthName = monthNames[targetMonth]
+                
+                return (
+                  <div 
+                    className="text-sm font-medium text-gray-700 absolute"
+                    style={{ 
+                      left: `${position}px`,
+                      transform: 'translateX(-50%)'
+                    }}
+                  >
+                    {monthName}
+                  </div>
+                )
+              })()}
+            </div>
+            
+            {/* Dates row - aligned with boxes (after habit name column + settings icon) */}
+            <div className="flex gap-2 mb-2 relative">
+              {/* Spacer for habit name column (150px) + settings icon (32px) + gap (8px) = 190px */}
+              <div className="w-[190px] flex-shrink-0"></div>
+              
+              {/* Dates aligned with boxes */}
+              <div className="flex gap-1">
+                {timelineDates.map((date, index) => {
+                  const dateStr = getLocalDateString(date)
+                  const isToday = dateStr === getLocalDateString(today)
+                  const isMonthStart = index > 0 && date.getMonth() !== timelineDates[index - 1].getMonth()
+                  
+                  const dayNamesShort = [
+                    t('calendar.daysShort.sunday'),
+                    t('calendar.daysShort.monday'),
+                    t('calendar.daysShort.tuesday'),
+                    t('calendar.daysShort.wednesday'),
+                    t('calendar.daysShort.thursday'),
+                    t('calendar.daysShort.friday'),
+                    t('calendar.daysShort.saturday')
+                  ]
+                  
+                  const day = date.getDate()
+                  const dayOfWeek = date.getDay()
+                  const dayAbbr = dayNamesShort[dayOfWeek].substring(0, 2).toUpperCase()
+                  
+                  return (
+                    <div key={dateStr} className="relative w-[32px] flex-shrink-0">
+                      {isMonthStart && (
+                        <div 
+                          className="absolute left-0 top-0 bottom-0 w-px bg-gray-300 -ml-0.5 z-10"
+                          style={{ height: '100%' }}
+                        />
+                      )}
+                      <div
+                        className={`flex flex-col items-center w-full ${isToday ? 'bg-orange-100 rounded px-1 py-0.5' : ''}`}
+                      >
+                        <div className={`text-[10px] text-center leading-tight ${isToday ? 'font-semibold text-orange-700' : 'text-gray-600'}`}>
+                          <div>{dayAbbr}</div>
+                          <div>{day}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+            
+            {/* Habits with boxes */}
+            <div className="space-y-2">
+              {habits.map((habit) => {
+                const isSelected = selectedHabitId === habit.id
+                return (
+                  <div key={habit.id} className="flex items-center gap-2">
+                    {/* Habit name and settings icon container - fixed width to match dates spacer */}
+                    <div className="w-[190px] flex items-center gap-2 flex-shrink-0">
+                      <div className="text-left text-sm font-medium text-gray-700 truncate flex-1 min-w-0" title={habit.name}>
+                        {habit.name}
+                      </div>
+                      {/* Settings icon button */}
+                      <button
+                        onClick={() => handleOpenHabitModal(habit)}
+                        className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
+                        title={t('habits.settings') || 'Nastavení'}
+                      >
+                        <Settings className="w-4 h-4 text-gray-600" />
+                      </button>
+                    </div>
+                    
+                    {/* Boxes row */}
+                    <div className="flex gap-1 relative">
+                      {timelineDates.map((date, index) => {
+                        const dateStr = getLocalDateString(date)
+                        const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+                        const dayName = dayNames[date.getDay()]
+                        
+                        const isScheduled = habit.always_show || 
+                                          habit.frequency === 'daily' || 
+                                          (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName))
+                        const isCompleted = habit.habit_completions && habit.habit_completions[dateStr] === true
+                        const isToday = dateStr === getLocalDateString(today)
+                        const isFuture = date > today
+                        const isLoading = loadingHabits.has(habit.id)
+                        const isMonthStart = index > 0 && date.getMonth() !== timelineDates[index - 1].getMonth()
+                        
+                        return (
+                          <div key={dateStr} className="relative w-[32px] flex-shrink-0">
+                            {isMonthStart && (
+                              <div 
+                                className="absolute left-0 top-0 bottom-0 w-px bg-gray-300 -ml-0.5 z-10"
+                                style={{ height: '100%' }}
+                              />
+                            )}
+                            <button
+                              onClick={() => !isFuture && !isLoading && handleHabitBoxClick(habit, date)}
+                              disabled={isFuture || isLoading}
+                              className={`w-8 h-8 rounded flex items-center justify-center transition-all ${
+                                isCompleted
+                                  ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                                  : isScheduled
+                                    ? `bg-gray-200 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
+                                    : `bg-gray-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
+                              }`}
+                              title={dateStr}
+                            >
+                              {isLoading ? (
+                                <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                              ) : isCompleted ? (
+                                <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                              ) : null}
+                            </button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   const renderPageContent = () => {
     switch (currentPage) {
       case 'main':
@@ -6612,15 +7950,969 @@ export function JourneyGameView({
           return renderItemDetail(selectedItem, selectedItemType)
         }
         
-        // Sidebar navigation items
+        // Sidebar navigation items - only Focus now
         const sidebarItems = [
-          { id: 'overview' as const, label: t('navigation.overview'), icon: LayoutDashboard },
-          { id: 'goals' as const, label: t('navigation.goals'), icon: Target },
-          { id: 'steps' as const, label: t('navigation.steps'), icon: Footprints },
-          { id: 'habits' as const, label: t('navigation.habits'), icon: CheckSquare },
+          { id: 'overview' as const, label: t('navigation.focus'), icon: LayoutDashboard },
         ]
         
+        // Goals for sidebar (sorted by priority/date)
+        const sortedGoalsForSidebar = [...goals].sort((a, b) => {
+          // Sort by status: active first, then paused, then completed
+          const statusOrder = { 'active': 0, 'paused': 1, 'completed': 2 }
+          const aStatus = statusOrder[a.status as keyof typeof statusOrder] ?? 1
+          const bStatus = statusOrder[b.status as keyof typeof statusOrder] ?? 1
+          if (aStatus !== bStatus) return aStatus - bStatus
+          // Then by created_at
+          return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
+        })
+        
         const renderMainContent = () => {
+          // Check if it's a habit detail page
+          if (mainPanelSection.startsWith('habit-')) {
+            const habitId = mainPanelSection.replace('habit-', '')
+            const habit = habits.find(h => h.id === habitId)
+            
+            if (!habit) {
+              return (
+                <div className="w-full min-h-full flex items-center justify-center bg-orange-50">
+                  <div className="text-center">
+                    <p className="text-gray-500">{t('navigation.habitNotFound')}</p>
+                    <button
+                      onClick={() => setMainPanelSection('overview')}
+                      className="mt-4 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+                    >
+                      {t('navigation.backToOverview')}
+                    </button>
+                  </div>
+                </div>
+              )
+            }
+            
+            return renderHabitDetailPage(habit)
+          }
+          
+          // Check if it's a goal detail page
+          if (mainPanelSection.startsWith('goal-')) {
+            const goalId = mainPanelSection.replace('goal-', '')
+            const goal = goals.find(g => g.id === goalId)
+            
+            if (!goal) {
+              return (
+                <div className="w-full min-h-full flex items-center justify-center bg-orange-50">
+                  <div className="text-center">
+                    <p className="text-gray-500">{t('navigation.goalNotFound')}</p>
+                    <button
+                      onClick={() => setMainPanelSection('overview')}
+                      className="mt-4 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+                    >
+                      {t('navigation.backToOverview')}
+                    </button>
+                  </div>
+                </div>
+              )
+            }
+            
+            // Goal detail page - similar to overview but focused on this goal
+            // Get steps from cache first, then fallback to dailySteps prop
+            // Use cache version to trigger re-render when cache updates
+            const cacheVersion = stepsCacheVersion[goalId] || 0
+            const cachedSteps = stepsCacheRef.current[goalId]?.data || []
+            const propSteps = dailySteps.filter(step => step.goal_id === goalId)
+            // Combine both sources, preferring cache, and deduplicate by id
+            const allGoalSteps = [...cachedSteps, ...propSteps]
+            const uniqueStepsMap = new Map()
+            allGoalSteps.forEach(step => {
+              if (!uniqueStepsMap.has(step.id)) {
+                uniqueStepsMap.set(step.id, step)
+              }
+            })
+            // Use cache version in dependency to force re-render when cache updates
+            const goalSteps = Array.from(uniqueStepsMap.values())
+            
+            // Format date helper with month in genitive case
+            const formatDateBeautiful = (date: string | Date): string => {
+              if (!date) return '-'
+              const dateObj = typeof date === 'string' ? new Date(date) : date
+              const day = dateObj.getDate()
+              const month = dateObj.getMonth()
+              const year = dateObj.getFullYear()
+              
+              if (localeCode === 'cs-CZ') {
+                const monthNamesGenitive = [
+                  'ledna', 'února', 'března', 'dubna', 'května', 'června',
+                  'července', 'srpna', 'září', 'října', 'listopadu', 'prosince'
+                ]
+                return `${day}. ${monthNamesGenitive[month]} ${year}`
+              } else {
+                const monthNames = [
+                  'January', 'February', 'March', 'April', 'May', 'June',
+                  'July', 'August', 'September', 'October', 'November', 'December'
+                ]
+                return `${monthNames[month]} ${day}, ${year}`
+              }
+            }
+            
+            // Calculate step statistics
+            const totalSteps = goalSteps.length
+            const completedSteps = goalSteps.filter(s => s.completed).length
+            const remainingSteps = totalSteps - completedSteps
+            
+            // Handle title save
+            const handleTitleSave = async () => {
+              if (!goalDetailTitleValue.trim()) {
+                alert(t('goals.goalTitleRequired'))
+                setGoalDetailTitleValue(goal.title)
+                setEditingGoalDetailTitle(false)
+                return
+              }
+              
+              if (goalDetailTitleValue !== goal.title) {
+                await handleUpdateGoalForDetail(goalId, { title: goalDetailTitleValue })
+              }
+              setEditingGoalDetailTitle(false)
+            }
+            
+            // Handle description save
+            const handleDescriptionSave = async () => {
+              if (goalDetailDescriptionValue !== (goal.description || '')) {
+                await handleUpdateGoalForDetail(goalId, { description: goalDetailDescriptionValue || null })
+              }
+              setEditingGoalDetailDescription(false)
+            }
+            
+            // Handle date click
+            const handleGoalDateClick = (e: React.MouseEvent) => {
+              e.stopPropagation()
+              e.preventDefault()
+              if (goalDateRef.current) {
+                const rect = goalDateRef.current.getBoundingClientRect()
+                // Initialize month to current goal date or today
+                const initialDate = goal.target_date ? new Date(goal.target_date) : new Date()
+                setGoalDetailDatePickerMonth(initialDate)
+                setSelectedGoalDate(goal.target_date ? new Date(goal.target_date) : null)
+                setGoalDetailDatePickerPosition({ 
+                  top: Math.min(rect.bottom + 5, window.innerHeight - 380),
+                  left: Math.min(Math.max(rect.left - 100, 10), window.innerWidth - 250)
+                })
+                setShowGoalDetailDatePicker(true)
+              }
+            }
+            
+            // Handle date selection from calendar
+            const handleGoalDateSelect = (date: Date) => {
+              setSelectedGoalDate(date)
+            }
+            
+            // Handle date save
+            const handleGoalDateSave = async () => {
+              // If selectedGoalDate is null, we're clearing the date
+              const newDate = selectedGoalDate ? selectedGoalDate.toISOString() : null
+              await handleUpdateGoalForDetail(goalId, { target_date: newDate })
+              setShowGoalDetailDatePicker(false)
+            }
+            
+              return (
+                <div className="w-full min-h-full flex flex-col bg-orange-50">
+                {/* Mobile header */}
+                <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
+                    <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {(() => {
+                        const IconComponent = getIconComponent(goal.icon)
+                        return <IconComponent className="w-5 h-5 text-gray-700" />
+                      })()}
+                      <h2 className="text-lg font-bold text-gray-900 truncate">{goal.title}</h2>
+                    </div>
+                      <button
+                      onClick={() => setMainPanelSection('overview')}
+                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      title={t('navigation.backToOverview')}
+                    >
+                      <ChevronLeft className="w-5 h-5 text-gray-700" />
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Goal detail content */}
+                <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
+                  <div className="p-6">
+                    {/* Goal header */}
+                    <div className="mb-6">
+                      <div className="flex items-center justify-between mb-2 flex-wrap gap-3">
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <span 
+                            ref={goalIconRef}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (goalIconRef.current) {
+                                const rect = goalIconRef.current.getBoundingClientRect()
+                                setGoalDetailIconPickerPosition({ top: rect.bottom + 5, left: rect.left })
+                                setShowGoalDetailIconPicker(true)
+                                setIconSearchQuery('')
+                              }
+                            }}
+                            className="text-3xl cursor-pointer hover:opacity-70 transition-opacity flex items-center"
+                          >
+                            {goal.icon ? (() => {
+                              const IconComponent = getIconComponent(goal.icon)
+                              return <IconComponent className="w-8 h-8 text-gray-700" />
+                            })() : <Target className="w-8 h-8 text-gray-700" />}
+                          </span>
+                          {editingGoalDetailTitle ? (
+                            <input
+                              ref={goalTitleRef}
+                              type="text"
+                              value={goalDetailTitleValue}
+                              onChange={(e) => setGoalDetailTitleValue(e.target.value)}
+                              onBlur={handleTitleSave}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  handleTitleSave()
+                                } else if (e.key === 'Escape') {
+                                  setGoalDetailTitleValue(goal.title)
+                                  setEditingGoalDetailTitle(false)
+                                }
+                              }}
+                              className="text-2xl font-bold text-gray-900 bg-transparent border-2 border-orange-500 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                              autoFocus
+                            />
+                          ) : (
+                            <h1 
+                              ref={goalTitleRef}
+                              onClick={() => setEditingGoalDetailTitle(true)}
+                              className="text-2xl font-bold text-gray-900 cursor-pointer hover:text-orange-600 transition-colors"
+                            >
+                              {goal.title}
+                            </h1>
+                          )}
+                          <span 
+                            ref={goalDateRef}
+                            onClick={handleGoalDateClick}
+                            className="text-lg font-medium cursor-pointer hover:text-orange-600 transition-colors"
+                          >
+                            {goal.status === 'completed' && goal.updated_at
+                              ? (
+                                <span className="text-gray-500">
+                                  {formatDateBeautiful(goal.updated_at)}
+                                </span>
+                              )
+                              : goal.target_date
+                              ? (
+                                <span className="text-gray-500">
+                                  {formatDateBeautiful(goal.target_date)}
+                                </span>
+                              )
+                              : (
+                                <span className="text-gray-400 italic">
+                                  {t('goals.addDate') || 'Přidat datum'}
+                                </span>
+                              )}
+                          </span>
+                        </div>
+                        {/* Status picker and Delete button - aligned to the right */}
+                        <div className="flex items-center gap-2 ml-auto">
+                          <button
+                            ref={goalStatusRef}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (goalStatusRef.current) {
+                                const rect = goalStatusRef.current.getBoundingClientRect()
+                                setGoalDetailStatusPickerPosition({ top: rect.bottom + 5, left: rect.left })
+                                setShowGoalDetailStatusPicker(true)
+                              }
+                            }}
+                            className={`flex items-center gap-2 px-3 py-1.5 text-sm border-2 rounded-lg transition-all ${
+                              goal.status === 'active' 
+                                ? 'border-orange-300 bg-orange-50 text-orange-700' 
+                                : goal.status === 'completed'
+                                ? 'border-green-300 bg-green-50 text-green-700'
+                                : 'border-gray-300 bg-gray-50 text-gray-700'
+                            }`}
+                          >
+                            {goal.status === 'active' ? (
+                              <Target className="w-4 h-4" />
+                            ) : goal.status === 'completed' ? (
+                              <CheckCircle className="w-4 h-4" />
+                            ) : (
+                              <Moon className="w-4 h-4" />
+                            )}
+                            <span className="font-medium">
+                              {goal.status === 'active' ? t('goals.status.active') : 
+                               goal.status === 'completed' ? t('goals.status.completed') : t('goals.status.paused')}
+                            </span>
+                            <ChevronDown className={`w-3 h-3 transition-transform ${showGoalDetailStatusPicker ? 'rotate-180' : ''}`} />
+                          </button>
+                          {/* Delete button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setShowDeleteGoalModal(true)
+                            }}
+                            className="flex items-center gap-2 px-3 py-1.5 text-sm border-2 border-red-300 bg-red-50 text-red-700 rounded-lg transition-all hover:bg-red-100"
+                            title={t('goals.delete')}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      {editingGoalDetailDescription ? (
+                        <textarea
+                          ref={goalDescriptionRef}
+                          value={goalDetailDescriptionValue}
+                          onChange={(e) => setGoalDetailDescriptionValue(e.target.value)}
+                          onBlur={handleDescriptionSave}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Escape') {
+                              setGoalDetailDescriptionValue(goal.description || '')
+                              setEditingGoalDetailDescription(false)
+                            }
+                          }}
+                          className="w-full text-gray-600 mb-6 text-lg bg-transparent border-2 border-orange-500 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
+                          rows={3}
+                          autoFocus
+                        />
+                      ) : (
+                        goal.description && (
+                          <p 
+                            ref={goalDescriptionRef}
+                            onClick={() => setEditingGoalDetailDescription(true)}
+                            className="text-gray-600 mb-6 text-lg cursor-pointer hover:text-orange-600 transition-colors"
+                          >
+                            {goal.description}
+                          </p>
+                        )
+                      )}
+                      {!goal.description && !editingGoalDetailDescription && (
+                        <p 
+                          onClick={() => setEditingGoalDetailDescription(true)}
+                          className="text-gray-400 mb-6 text-lg cursor-pointer hover:text-orange-600 transition-colors italic"
+                        >
+                          {t('goals.addDescription')}
+                        </p>
+                      )}
+                      
+                      {/* Goal information - modern inline style */}
+                      <div className="mb-8 space-y-6">
+                        {/* Progress bar - calculated from steps */}
+                        <div>
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-lg font-medium text-gray-700">{t('details.goal.progress')}</span>
+                            <span className="text-2xl font-bold text-orange-600">
+                              {totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-3">
+                            <div 
+                              className="bg-orange-600 h-3 rounded-full transition-all duration-300"
+                              style={{ width: `${totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0}%` }}
+                            />
+                          </div>
+                        </div>
+                        
+                        {/* Steps statistics - inline with larger numbers */}
+                        <div className="flex flex-wrap items-center gap-6">
+                          <div className="flex items-baseline gap-3">
+                            <span className="text-lg text-gray-500 font-medium">{t('details.goal.totalSteps')}:</span>
+                            <span className="text-2xl font-bold text-gray-900">{totalSteps}</span>
+                          </div>
+                          <div className="flex items-baseline gap-3">
+                            <span className="text-lg text-gray-500 font-medium">{t('details.goal.completedSteps')}:</span>
+                            <span className="text-2xl font-bold text-green-600">
+                              {completedSteps}
+                            </span>
+                          </div>
+                          <div className="flex items-baseline gap-3">
+                            <span className="text-lg text-gray-500 font-medium">{t('details.goal.remainingSteps')}:</span>
+                            <span className="text-2xl font-bold text-orange-600">
+                              {remainingSteps}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Steps Overview - Card-based layout */}
+                    {(() => {
+                      const today = new Date()
+                      today.setHours(0, 0, 0, 0)
+                      
+                      // Helper to format date
+                      const formatStepDate = (date: Date): string => {
+                        const day = date.getDate()
+                        const month = date.getMonth() + 1
+                        const year = date.getFullYear()
+                        return `${day.toString().padStart(2, '0')}.${month.toString().padStart(2, '0')}.${year}`
+                      }
+                      
+                      // Categorize steps into Remaining and Done
+                      // Steps that are animating should stay in Remaining until animation completes
+                      const remainingSteps = goalSteps.filter(s => !s.completed || animatingSteps.has(s.id))
+                      const doneSteps = goalSteps.filter(s => s.completed && !animatingSteps.has(s.id))
+                      
+                      const totalSteps = goalSteps.length
+                      const remainingCount = remainingSteps.length
+                      const doneCount = doneSteps.length
+                      const remainingPercentage = totalSteps > 0 ? Math.round((remainingCount / totalSteps) * 100) : 0
+                      const donePercentage = totalSteps > 0 ? Math.round((doneCount / totalSteps) * 100) : 0
+                      
+                      // Render step card
+                      const renderStepCard = (step: any) => {
+                        const stepDate = step.date ? new Date(normalizeDate(step.date)) : null
+                        if (stepDate) stepDate.setHours(0, 0, 0, 0)
+                        const isOverdue = stepDate && stepDate.getTime() < today.getTime() && !step.completed
+                        const isToday = stepDate && stepDate.toDateString() === today.toDateString()
+                        const stepDateFormatted = stepDate ? formatStepDate(stepDate) : null
+                        const isAnimating = animatingSteps.has(step.id)
+                        
+                        return (
+                          <div
+                            key={step.id}
+                            onClick={() => handleItemClick(step, 'step')}
+                            className={`flex items-start gap-3 p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer ${
+                              isAnimating
+                                ? step.completed
+                                  ? 'border-green-400 bg-green-100 animate-pulse scale-110'
+                                  : 'border-orange-400 bg-orange-100 animate-pulse scale-110'
+                                : step.completed
+                                  ? 'border-green-200 bg-green-50/30 opacity-75'
+                                  : isOverdue
+                                    ? 'border-red-300 bg-red-50 hover:bg-red-100'
+                                    : isToday
+                                      ? 'border-orange-300 bg-orange-50 hover:bg-orange-100'
+                                      : 'border-gray-200 bg-white hover:bg-gray-50'
+                            }`}
+                          >
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                if (!loadingSteps.has(step.id) && !isAnimating) {
+                                  handleStepToggle(step.id, !step.completed)
+                                }
+                              }}
+                              disabled={loadingSteps.has(step.id) || isAnimating}
+                              className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 mt-0.5 ${
+                                isAnimating
+                                  ? step.completed
+                                    ? 'bg-green-500 border-green-500 scale-110'
+                                    : 'bg-orange-500 border-orange-500 scale-110'
+                                  : step.completed 
+                                    ? 'bg-green-500 border-green-500' 
+                                    : isOverdue
+                                      ? 'border-red-400 hover:bg-red-100'
+                                      : isToday
+                                        ? 'border-orange-400 hover:bg-orange-100'
+                                        : 'border-gray-300 hover:border-orange-400'
+                              }`}
+                            >
+                              {loadingSteps.has(step.id) ? (
+                                <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                              ) : (step.completed || isAnimating) ? (
+                                <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                              ) : null}
+                            </button>
+                            
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className={`font-medium text-sm ${
+                                  step.completed 
+                                    ? 'line-through text-gray-400' 
+                                    : isOverdue 
+                                      ? 'text-red-600 font-semibold' 
+                                      : isToday
+                                        ? 'text-orange-600 font-semibold'
+                                        : 'text-gray-900'
+                                }`}>
+                                  {step.title}
+                                </span>
+                                {step.checklist && step.checklist.length > 0 && (
+                                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0 ${
+                                    step.checklist.filter((c: any) => c.completed).length === step.checklist.length
+                                      ? 'bg-orange-100 text-orange-600'
+                                      : 'bg-gray-100 text-gray-500'
+                                  }`}>
+                                    {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
+                                  </span>
+                                )}
+                              </div>
+                              {step.description && (
+                                <p className="text-xs text-gray-600 mb-2 line-clamp-2">{step.description}</p>
+                              )}
+                              <div className="flex items-center gap-3 text-xs text-gray-500">
+                                {stepDateFormatted && (
+                                  <span className={isOverdue && !step.completed ? 'text-red-600 font-medium' : ''}>
+                                    {isOverdue && !step.completed && '❗ '}
+                                    {stepDateFormatted}
+                                  </span>
+                                )}
+                                {step.estimated_time && (
+                                  <span>⏱ {step.estimated_time} min</span>
+                                )}
+                                {!stepDateFormatted && (
+                                  <span className="text-gray-400">{t('common.noDate')}</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      }
+                      
+                      return (
+                        <div className="bg-white rounded-xl shadow-sm p-6">
+                          <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-bold text-gray-900">{t('sections.steps')}</h2>
+                            <button
+                              onClick={() => {
+                                const defaultDate = getLocalDateString(selectedDayDate)
+                                setStepModalData({
+                                  id: null,
+                                  title: '',
+                                  description: '',
+                                  date: defaultDate,
+                                  goalId: goalId,
+                                  completed: false,
+                                  is_important: false,
+                                  is_urgent: false,
+                                  deadline: '',
+                                  estimated_time: 0,
+                                  checklist: [],
+                                  require_checklist_complete: false
+                                })
+                                setShowStepModal(true)
+                              }}
+                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-orange-600 hover:bg-orange-700 text-white transition-colors"
+                              title={t('focus.addStep')}
+                            >
+                              <Plus className="w-5 h-5" strokeWidth={2.5} />
+                            </button>
+                          </div>
+                          
+                          {/* Two Column Layout */}
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            {/* Remaining Column */}
+                            <div className="flex flex-col">
+                              <div className="mb-4 pb-3 border-b border-gray-200">
+                                <h3 className="text-lg font-bold text-orange-600 mb-1">
+                                  {t('details.goal.remainingSteps')}
+                                </h3>
+                                <div className="flex items-center gap-2 text-sm text-gray-600">
+                                  <span className="font-semibold">{remainingCount}</span>
+                                  <span>z {totalSteps}</span>
+                                  <span className="text-orange-600 font-semibold">({remainingPercentage}%)</span>
+                                </div>
+                              </div>
+                              <div className="space-y-3 flex-1 overflow-y-auto max-h-[600px] pr-2">
+                                {remainingSteps.length > 0 ? (
+                                  remainingSteps.map(renderStepCard)
+                                ) : (
+                                  <div className="text-center py-8 text-gray-400">
+                                    <p className="text-sm">{t('focus.noSteps')}</p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            
+                            {/* Done Column */}
+                            <div className="flex flex-col">
+                              <div className="mb-4 pb-3 border-b border-gray-200">
+                                <h3 className="text-lg font-bold text-green-600 mb-1">
+                                  {t('details.goal.done')}
+                                </h3>
+                                <div className="flex items-center gap-2 text-sm text-gray-600">
+                                  <span className="font-semibold">{doneCount}</span>
+                                  <span>z {totalSteps}</span>
+                                  <span className="text-green-600 font-semibold">({donePercentage}%)</span>
+                                </div>
+                              </div>
+                              <div className="space-y-3 flex-1 overflow-y-auto max-h-[600px] pr-2">
+                                {doneSteps.length > 0 ? (
+                                  doneSteps.map(renderStepCard)
+                                ) : (
+                                  <div className="text-center py-8 text-gray-400">
+                                    <p className="text-sm">Žádné dokončené kroky</p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })()}
+                  </div>
+                </div>
+                
+                {/* Date picker modal for goal date */}
+                {showGoalDetailDatePicker && goalDetailDatePickerPosition && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setShowGoalDetailDatePicker(false)}
+                    />
+                    <div 
+                      className="fixed z-50 bg-white border border-gray-200 rounded-xl shadow-xl p-4 date-picker"
+                      style={{ 
+                        top: `${goalDetailDatePickerPosition.top}px`,
+                        left: `${goalDetailDatePickerPosition.left}px`,
+                        width: '230px'
+                      }}
+                    >
+                      <div className="text-sm font-bold text-gray-800 mb-3">{t('common.newDate')}</div>
+                      
+                      {/* Day names */}
+                      <div className="grid grid-cols-7 gap-0.5 mb-1">
+                        {localeCode === 'cs-CZ' 
+                          ? ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(day => (
+                              <div key={day} className="text-center text-xs text-gray-400 font-medium py-1">
+                                {day}
+                              </div>
+                            ))
+                          : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(day => (
+                              <div key={day} className="text-center text-xs text-gray-400 font-medium py-1">
+                                {day}
+                              </div>
+                            ))
+                        }
+                      </div>
+                      
+                      {/* Calendar days */}
+                      <div className="grid grid-cols-7 gap-0.5 mb-3">
+                        {(() => {
+                          const year = goalDetailDatePickerMonth.getFullYear()
+                          const month = goalDetailDatePickerMonth.getMonth()
+                          const firstDay = new Date(year, month, 1)
+                          const lastDay = new Date(year, month + 1, 0)
+                          const startDay = (firstDay.getDay() + 6) % 7 // Monday = 0
+                          const days: (Date | null)[] = []
+                          
+                          // Empty cells before first day
+                          for (let i = 0; i < startDay; i++) {
+                            days.push(null)
+                          }
+                          
+                          // Days of month
+                          for (let d = 1; d <= lastDay.getDate(); d++) {
+                            days.push(new Date(year, month, d))
+                          }
+                          
+                          const today = new Date()
+                          today.setHours(0, 0, 0, 0)
+                          const selectedDateNormalized = selectedGoalDate ? (() => {
+                            const d = new Date(selectedGoalDate)
+                            d.setHours(0, 0, 0, 0)
+                            return d
+                          })() : null
+                          
+                          return days.map((day, i) => {
+                            if (!day) {
+                              return <div key={`empty-${i}`} className="w-7 h-7" />
+                            }
+                            
+                            const dayNormalized = new Date(day)
+                            dayNormalized.setHours(0, 0, 0, 0)
+                            const isToday = dayNormalized.getTime() === today.getTime()
+                            const isSelected = selectedDateNormalized && dayNormalized.getTime() === selectedDateNormalized.getTime()
+                            
+                            return (
+                              <button
+                                key={day.getTime()}
+                                onClick={() => handleGoalDateSelect(day)}
+                                className={`w-7 h-7 rounded text-xs font-medium transition-colors ${
+                                  isSelected
+                                    ? 'bg-orange-600 text-white'
+                                    : isToday
+                                      ? 'bg-orange-100 text-orange-600 font-bold'
+                                      : 'hover:bg-gray-100 text-gray-600'
+                                }`}
+                              >
+                                {day.getDate()}
+                              </button>
+                            )
+                          })
+                        })()}
+                      </div>
+                      
+                      {/* Month navigation */}
+                      <div className="flex items-center justify-between mb-3">
+                        <button
+                          onClick={() => {
+                            const newMonth = new Date(goalDetailDatePickerMonth)
+                            newMonth.setMonth(newMonth.getMonth() - 1)
+                            setGoalDetailDatePickerMonth(newMonth)
+                          }}
+                          className="p-1 hover:bg-gray-100 rounded text-gray-400"
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                        </button>
+                        <span className="text-xs font-medium text-gray-600">
+                          {goalDetailDatePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
+                        </span>
+                        <button
+                          onClick={() => {
+                            const newMonth = new Date(goalDetailDatePickerMonth)
+                            newMonth.setMonth(newMonth.getMonth() + 1)
+                            setGoalDetailDatePickerMonth(newMonth)
+                          }}
+                          className="p-1 hover:bg-gray-100 rounded text-gray-400"
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                      
+                      {/* Actions */}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleGoalDateSave}
+                          className="flex-1 px-3 py-1.5 bg-orange-600 text-white text-xs font-medium rounded-lg hover:bg-orange-700 transition-colors"
+                        >
+                          {t('common.save')}
+                        </button>
+                        {goal.target_date && (
+                          <button
+                            onClick={async () => {
+                              await handleUpdateGoalForDetail(goalId, { target_date: null })
+                              setShowGoalDetailDatePicker(false)
+                            }}
+                            className="px-3 py-1.5 bg-red-100 text-red-700 text-xs font-medium rounded-lg hover:bg-red-200 transition-colors"
+                          >
+                            {t('common.delete')}
+                          </button>
+                        )}
+                        <button
+                          onClick={() => {
+                            setShowGoalDetailDatePicker(false)
+                            setSelectedGoalDate(goal.target_date ? new Date(goal.target_date) : null)
+                          }}
+                          className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                        >
+                          {t('common.cancel')}
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+                
+                {/* Status picker modal for goal status */}
+                {showGoalDetailStatusPicker && goalDetailStatusPickerPosition && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setShowGoalDetailStatusPicker(false)}
+                    />
+                    <div 
+                      className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[160px]"
+                      style={{
+                        top: `${goalDetailStatusPickerPosition.top}px`,
+                        left: `${goalDetailStatusPickerPosition.left}px`
+                      }}
+                    >
+                      {['active', 'paused', 'completed'].map((status) => (
+                        <button
+                          key={status}
+                          type="button"
+                          onClick={async () => {
+                            await handleUpdateGoalForDetail(goalId, { status: status as any })
+                            setShowGoalDetailStatusPicker(false)
+                          }}
+                          className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors font-medium flex items-center gap-2 ${
+                            goal.status === status 
+                              ? status === 'active' 
+                                ? 'bg-orange-50 text-orange-700 font-semibold' 
+                                : status === 'completed'
+                                ? 'bg-green-50 text-green-700 font-semibold'
+                                : 'bg-gray-50 text-gray-700 font-semibold'
+                              : 'text-gray-700'
+                          }`}
+                        >
+                          {status === 'active' ? (
+                            <>
+                              <Target className="w-4 h-4" />
+                              <span>{t('goals.status.active')}</span>
+                            </>
+                          ) : status === 'completed' ? (
+                            <>
+                              <CheckCircle className="w-4 h-4" />
+                              <span>{t('goals.status.completed')}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Moon className="w-4 h-4" />
+                              <span>{t('goals.status.paused')}</span>
+                            </>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+                
+                {/* Delete goal confirmation modal */}
+                {showDeleteGoalModal && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40 bg-black/20" 
+                      onClick={() => {
+                        setShowDeleteGoalModal(false)
+                        setDeleteGoalWithSteps(false)
+                      }}
+                    />
+                    <div 
+                      className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-6"
+                      style={{
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '400px',
+                        maxWidth: '90vw'
+                      }}
+                    >
+                      <h3 className="text-lg font-bold text-gray-900 mb-4">
+                        {t('goals.deleteConfirm') || 'Opravdu chcete smazat tento cíl?'}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-4">
+                        {t('goals.deleteConfirmDescription') || 'Tato akce je nevratná.'}
+                      </p>
+                      
+                      {/* Checkbox for deleting steps */}
+                      <label className="flex items-center gap-2 mb-6 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={deleteGoalWithSteps}
+                          onChange={(e) => setDeleteGoalWithSteps(e.target.checked)}
+                          className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                        />
+                        <span className="text-sm text-gray-700">
+                          {t('goals.deleteWithSteps') || 'Odstranit i související kroky'}
+                        </span>
+                      </label>
+                      
+                      {/* Actions */}
+                      <div className="flex gap-3 justify-end">
+                        <button
+                          onClick={() => {
+                            setShowDeleteGoalModal(false)
+                            setDeleteGoalWithSteps(false)
+                          }}
+                          disabled={isDeletingGoal}
+                          className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {t('common.cancel')}
+                        </button>
+                        <button
+                          onClick={async () => {
+                            await handleDeleteGoalForDetail(goalId, deleteGoalWithSteps)
+                          }}
+                          disabled={isDeletingGoal}
+                          className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                          {isDeletingGoal ? (
+                            <>
+                              <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              {t('common.saving') || 'Mažu...'}
+                            </>
+                          ) : (
+                            t('goals.delete') || 'Smazat'
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+                
+                {/* Icon picker modal for goal icon */}
+                {showGoalDetailIconPicker && goalDetailIconPickerPosition && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setShowGoalDetailIconPicker(false)}
+                    />
+                    <div 
+                      className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl"
+                      style={{
+                        top: `${goalDetailIconPickerPosition.top}px`,
+                        left: `${goalDetailIconPickerPosition.left}px`,
+                        width: '320px',
+                        maxHeight: '400px',
+                        display: 'flex',
+                        flexDirection: 'column'
+                      }}
+                    >
+                      {/* Search bar */}
+                      <div className="p-3 border-b border-gray-200">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <input
+                            type="text"
+                            value={iconSearchQuery}
+                            onChange={(e) => setIconSearchQuery(e.target.value)}
+                            placeholder={t('common.search') || 'Hledat...'}
+                            className="w-full pl-9 pr-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                            autoFocus
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Icons grid */}
+                      <div className="p-3 overflow-y-auto flex-1">
+                        <div className="grid grid-cols-6 gap-2">
+                          {AVAILABLE_ICONS
+                            .filter(icon => {
+                              const query = iconSearchQuery.toLowerCase().trim()
+                              if (!query) return true
+                              return icon.label.toLowerCase().includes(query) ||
+                                     icon.name.toLowerCase().includes(query)
+                            })
+                            .map((icon) => {
+                              const IconComponent = getIconComponent(icon.name)
+                              const isSelected = goal.icon === icon.name
+                              if (!IconComponent) {
+                                console.warn(`Icon component not found for: ${icon.name}`)
+                                return null
+                              }
+                              return (
+                                <button
+                                  key={icon.name}
+                                  type="button"
+                                  onClick={async () => {
+                                    await handleUpdateGoalForDetail(goalId, { icon: icon.name })
+                                    setShowGoalDetailIconPicker(false)
+                                    setIconSearchQuery('')
+                                  }}
+                                  className={`p-2 rounded-lg transition-all hover:bg-gray-100 ${
+                                    isSelected 
+                                      ? 'bg-orange-50 border-2 border-orange-500' 
+                                      : 'border-2 border-transparent hover:border-gray-300'
+                                  }`}
+                                  title={icon.label}
+                                >
+                                  <IconComponent className={`w-5 h-5 mx-auto ${isSelected ? 'text-orange-600' : 'text-gray-700'}`} />
+                                </button>
+                              )
+                            })
+                            .filter(Boolean)}
+                        </div>
+                        {AVAILABLE_ICONS.filter(icon => {
+                          const query = iconSearchQuery.toLowerCase().trim()
+                          if (!query) return false
+                          return icon.label.toLowerCase().includes(query) ||
+                                 icon.name.toLowerCase().includes(query)
+                        }).length === 0 && iconSearchQuery.trim() && (
+                          <div className="text-center py-8 text-gray-500 text-sm">
+                            {t('common.noResults') || 'Žádné výsledky'}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )
+          }
+          
           switch (mainPanelSection) {
             case 'overview':
               return (
@@ -6629,7 +8921,7 @@ export function JourneyGameView({
                   <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
                     <div className="flex items-center justify-between">
                       <h2 className="text-lg font-bold text-gray-900">
-                        {sidebarItems.find(item => item.id === mainPanelSection)?.label || t('navigation.overview')}
+                        {sidebarItems.find(item => item.id === mainPanelSection)?.label || t('navigation.focus')}
                       </h2>
                       <div className="relative">
                       <button
@@ -6650,12 +8942,29 @@ export function JourneyGameView({
                             />
                             <div className="fixed right-4 top-16 bg-white border border-gray-200 rounded-lg shadow-lg z-[101] min-w-[200px]">
                               <nav className="py-2">
-                                {sidebarItems.map((item) => {
+                                <button
+                                  onClick={() => {
+                                    setMainPanelSection('overview')
+                                    setMobileMenuOpen(false)
+                                  }}
+                                  className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                                    mainPanelSection === 'overview'
+                                      ? 'bg-orange-600 text-white'
+                                      : 'text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                                  <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
+                                  <span className="font-medium">{t('navigation.focus')}</span>
+                      </button>
+                                
+                                {/* Goals, Habits, Steps in mobile menu */}
+                                {topMenuItems.map((item) => {
                                   const Icon = item.icon
                                   return (
                       <button
                                       key={item.id}
                                       onClick={() => {
+                                        setCurrentPage('main')
                                         setMainPanelSection(item.id)
                                         setMobileMenuOpen(false)
                                       }}
@@ -6670,6 +8979,128 @@ export function JourneyGameView({
                       </button>
                                   )
                                 })}
+                                {(() => {
+                                  const activeGoals = sortedGoalsForSidebar.filter(g => g.status === 'active')
+                                  const pausedGoals = sortedGoalsForSidebar.filter(g => g.status === 'paused')
+                                  const completedGoals = sortedGoalsForSidebar.filter(g => g.status === 'completed')
+                                  const isPausedExpanded = expandedSidebarSections.has('paused')
+                                  const isCompletedExpanded = expandedSidebarSections.has('completed')
+                                  
+                                  return (
+                                    <>
+                                      {/* Active goals */}
+                                      {activeGoals.map((goal) => {
+                                        const goalSectionId = `goal-${goal.id}`
+                                        const IconComponent = getIconComponent(goal.icon)
+                                        return (
+                      <button
+                                            key={goal.id}
+                                            onClick={() => {
+                                              setMainPanelSection(goalSectionId)
+                                              setMobileMenuOpen(false)
+                                            }}
+                                            className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                                              mainPanelSection === goalSectionId
+                                                ? 'bg-orange-600 text-white'
+                                                : 'text-gray-700 hover:bg-gray-100'
+                                            }`}
+                                          >
+                                            <IconComponent className={`w-5 h-5 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} />
+                                            <span className="font-medium">{goal.title}</span>
+                      </button>
+                                        )
+                                      })}
+                                      
+                                      {/* Paused goals - collapsible */}
+                                      {pausedGoals.length > 0 && (
+                                        <>
+                      <button
+                                            onClick={() => {
+                                              const newSet = new Set(expandedSidebarSections)
+                                              if (isPausedExpanded) {
+                                                newSet.delete('paused')
+                                              } else {
+                                                newSet.add('paused')
+                                              }
+                                              setExpandedSidebarSections(newSet)
+                                            }}
+                                            className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 transition-colors"
+                                          >
+                                            <span className="font-medium">
+                                              {t('goals.status.paused')} {pausedGoals.length}
+                                            </span>
+                                            <ChevronDown className={`w-4 h-4 transition-transform ${isPausedExpanded ? 'rotate-180' : ''}`} />
+                                          </button>
+                                          {isPausedExpanded && pausedGoals.map((goal) => {
+                                            const goalSectionId = `goal-${goal.id}`
+                                            const IconComponent = getIconComponent(goal.icon)
+                                            return (
+                                              <button
+                                                key={goal.id}
+                                                onClick={() => {
+                                                  setMainPanelSection(goalSectionId)
+                                                  setMobileMenuOpen(false)
+                                                }}
+                                                className={`w-full flex items-center gap-3 px-4 py-3 pl-8 transition-colors text-left ${
+                                                  mainPanelSection === goalSectionId
+                                                    ? 'bg-orange-600 text-white'
+                                                    : 'text-gray-700 hover:bg-gray-100'
+                                                }`}
+                                              >
+                                                <IconComponent className={`w-5 h-5 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} />
+                                                <span className="font-medium">{goal.title}</span>
+                      </button>
+                                            )
+                                          })}
+                                        </>
+                                      )}
+                                      
+                                      {/* Completed goals - collapsible */}
+                                      {completedGoals.length > 0 && (
+                                        <>
+                                          <button
+                                            onClick={() => {
+                                              const newSet = new Set(expandedSidebarSections)
+                                              if (isCompletedExpanded) {
+                                                newSet.delete('completed')
+                                              } else {
+                                                newSet.add('completed')
+                                              }
+                                              setExpandedSidebarSections(newSet)
+                                            }}
+                                            className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 transition-colors"
+                                          >
+                                            <span className="font-medium">
+                                              {t('goals.status.completed')} {completedGoals.length}
+                                            </span>
+                                            <ChevronDown className={`w-4 h-4 transition-transform ${isCompletedExpanded ? 'rotate-180' : ''}`} />
+                                          </button>
+                                          {isCompletedExpanded && completedGoals.map((goal) => {
+                                            const goalSectionId = `goal-${goal.id}`
+                                            const IconComponent = getIconComponent(goal.icon)
+                                            return (
+                                              <button
+                                                key={goal.id}
+                                                onClick={() => {
+                                                  setMainPanelSection(goalSectionId)
+                                                  setMobileMenuOpen(false)
+                                                }}
+                                                className={`w-full flex items-center gap-3 px-4 py-3 pl-8 transition-colors text-left ${
+                                                  mainPanelSection === goalSectionId
+                                                    ? 'bg-orange-600 text-white'
+                                                    : 'text-gray-700 hover:bg-gray-100'
+                                                }`}
+                                              >
+                                                <IconComponent className={`w-5 h-5 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} />
+                                                <span className="font-medium">{goal.title}</span>
+                                              </button>
+                                            )
+                                          })}
+                                        </>
+                                      )}
+                                    </>
+                                  )
+                                })()}
                               </nav>
                             </div>
                           </>
@@ -6731,6 +9162,36 @@ export function JourneyGameView({
                         setShowStepModal(true)
                       }
                     }}
+                    onGoalClick={(goalId) => {
+                      setMainPanelSection(`goal-${goalId}`)
+                    }}
+                    onCreateGoal={handleCreateGoal}
+                    onGoalDateClick={(goalId, e) => {
+                      const goal = goals.find(g => g.id === goalId)
+                      if (!goal) return
+                      
+                      const rect = (e.target as HTMLElement).getBoundingClientRect()
+                      const initialDate = goal.target_date ? new Date(goal.target_date) : new Date()
+                      setSelectedDateForGoal(initialDate)
+                      setQuickEditGoalId(goalId)
+                      setQuickEditGoalField('date')
+                      setQuickEditGoalPosition({ 
+                        top: Math.min(rect.bottom + 5, window.innerHeight - 380),
+                        left: Math.min(Math.max(rect.left - 100, 10), window.innerWidth - 250)
+                      })
+                    }}
+                    onGoalStatusClick={(goalId, e) => {
+                      const goal = goals.find(g => g.id === goalId)
+                      if (!goal) return
+                      
+                      const rect = (e.target as HTMLElement).getBoundingClientRect()
+                      setQuickEditGoalId(goalId)
+                      setQuickEditGoalField('status')
+                      setQuickEditGoalPosition({ 
+                        top: rect.bottom + 5, 
+                        left: rect.left 
+                      })
+                    }}
                   />
                 </div>
               )
@@ -6754,16 +9215,7 @@ export function JourneyGameView({
                 </div>
               )
             case 'habits':
-              return (
-                <div className="min-h-full bg-orange-50">
-                  <HabitsManagementView
-                    habits={habits}
-                    onHabitsUpdate={onHabitsUpdate}
-                    handleHabitToggle={handleHabitToggle}
-                    loadingHabits={loadingHabits}
-                  />
-                </div>
-              )
+              return renderHabitsPage()
             default:
               return null
           }
@@ -6778,7 +9230,8 @@ export function JourneyGameView({
                   <h2 className="text-lg font-bold text-gray-900 mb-4">{t('navigation.title')}</h2>
                 )}
                 <nav className={`${sidebarCollapsed ? 'space-y-2 flex flex-col items-center' : 'space-y-1'}`}>
-                  {sidebarItems.map((item) => {
+                  {/* Focus button */}
+                  {sidebarItems.filter(item => item.id === 'overview').map((item) => {
                     const Icon = item.icon
                     return (
                       <button
@@ -6798,6 +9251,72 @@ export function JourneyGameView({
                       </button>
                     )
                   })}
+                  
+                  {/* Goals list - directly under Focus (only active goals) */}
+                  {!sidebarCollapsed && (() => {
+                    // Only show active goals in navigation
+                    const activeGoals = sortedGoalsForSidebar.filter(g => g.status === 'active')
+                    
+                    if (activeGoals.length === 0) return null
+                    
+                    return (
+                      <div className="space-y-1 mt-2">
+                        {activeGoals.map((goal) => {
+                          const goalSectionId = `goal-${goal.id}`
+                          const isSelected = mainPanelSection === goalSectionId
+                          const IconComponent = getIconComponent(goal.icon)
+                          return (
+                            <button
+                              key={goal.id}
+                              onClick={() => setMainPanelSection(goalSectionId)}
+                              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-left ${
+                                isSelected
+                                  ? 'bg-orange-600 text-white'
+                                  : 'text-gray-700 hover:bg-gray-100'
+                              }`}
+                              title={goal.title}
+                            >
+                              <IconComponent className={`w-5 h-5 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-700'}`} />
+                              <span className={`font-medium truncate flex-1 ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                {goal.title}
+                              </span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )
+                  })()}
+                  
+                  {/* Collapsed goals - show as icons (only active goals) */}
+                  {sidebarCollapsed && (() => {
+                    const activeGoals = sortedGoalsForSidebar.filter(g => g.status === 'active')
+                    if (activeGoals.length === 0) return null
+                    
+                    return (
+                      <div className="space-y-2 mt-2">
+                          {activeGoals.slice(0, 5).map((goal) => {
+                            const goalSectionId = `goal-${goal.id}`
+                            const isSelected = mainPanelSection === goalSectionId
+                            const IconComponent = getIconComponent(goal.icon)
+                            return (
+                              <button
+                                key={goal.id}
+                                onClick={() => setMainPanelSection(goalSectionId)}
+                                className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors ${
+                                  isSelected
+                                    ? 'bg-orange-600 text-white'
+                                    : 'text-gray-700 hover:bg-gray-100'
+                                }`}
+                                title={goal.title}
+                              >
+                                <IconComponent className={`w-5 h-5 ${isSelected ? 'text-white' : 'text-gray-700'}`} />
+                              </button>
+                            )
+                          })}
+                      </div>
+                    )
+                  })()}
+                  
                 </nav>
               </div>
               
@@ -6818,11 +9337,13 @@ export function JourneyGameView({
             {/* Right content area */}
             <div className="flex-1 overflow-y-auto bg-orange-50 h-full flex flex-col">
               {/* Mobile hamburger menu for all sections except overview */}
-              {mainPanelSection !== 'overview' && (
+              {mainPanelSection !== 'overview' && !mainPanelSection.startsWith('goal-') && (
                 <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-bold text-gray-900">
-                      {sidebarItems.find(item => item.id === mainPanelSection)?.label || t('navigation.title')}
+                      {topMenuItems.find(item => item.id === mainPanelSection)?.label || 
+                       sidebarItems.find(item => item.id === mainPanelSection)?.label ||
+                       t('navigation.title')}
                     </h2>
                     <div className="relative">
                       <button
@@ -6843,23 +9364,38 @@ export function JourneyGameView({
                           />
                           <div className="fixed right-4 top-16 bg-white border border-gray-200 rounded-lg shadow-lg z-[101] min-w-[200px]">
                             <nav className="py-2">
-                              {sidebarItems.map((item) => {
-                                const Icon = item.icon
+                              <button
+                                onClick={() => {
+                                  setMainPanelSection('overview')
+                                  setMobileMenuOpen(false)
+                                }}
+                                className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                                  mainPanelSection === 'overview'
+                                    ? 'bg-orange-600 text-white'
+                                    : 'text-gray-700 hover:bg-gray-100'
+                                }`}
+                              >
+                                <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
+                                <span className="font-medium">{t('navigation.focus')}</span>
+                              </button>
+                              {sortedGoalsForSidebar.map((goal) => {
+                                const goalSectionId = `goal-${goal.id}`
+                                const IconComponent = getIconComponent(goal.icon)
                                 return (
                                   <button
-                                    key={item.id}
+                                    key={goal.id}
                                     onClick={() => {
-                                      setMainPanelSection(item.id)
+                                      setMainPanelSection(goalSectionId)
                                       setMobileMenuOpen(false)
                                     }}
                                     className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                                      mainPanelSection === item.id
+                                      mainPanelSection === goalSectionId
                                         ? 'bg-orange-600 text-white'
                                         : 'text-gray-700 hover:bg-gray-100'
                                     }`}
                                   >
-                                    <Icon className="w-5 h-5 flex-shrink-0" />
-                                    <span className="font-medium">{item.label}</span>
+                                    <IconComponent className={`w-5 h-5 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} />
+                                    <span className="font-medium">{goal.title}</span>
                                   </button>
                                 )
                               })}
@@ -6868,6 +9404,35 @@ export function JourneyGameView({
                         </>
                       )}
                     </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Mobile header for goal detail pages */}
+              {mainPanelSection.startsWith('goal-') && (
+                <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      {(() => {
+                        const goalId = mainPanelSection.replace('goal-', '')
+                        const goal = goals.find(g => g.id === goalId)
+                        if (!goal) return null
+                        const IconComponent = getIconComponent(goal.icon)
+                        return (
+                          <>
+                            <IconComponent className="w-5 h-5 flex-shrink-0 text-gray-700" />
+                            <h2 className="text-lg font-bold text-gray-900 truncate">{goal.title}</h2>
+                          </>
+                        )
+                      })()}
+                    </div>
+                    <button
+                      onClick={() => setMainPanelSection('overview')}
+                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors ml-2 flex-shrink-0"
+                      title={t('navigation.backToOverview')}
+                    >
+                      <ChevronLeft className="w-5 h-5 text-gray-700" />
+                    </button>
                   </div>
                 </div>
               )}
@@ -6932,13 +9497,10 @@ export function JourneyGameView({
       case 'help':
         return (
           <HelpView
-            onAddGoal={() => {
+            onAddGoal={async () => {
               setCurrentPage('main')
-              setMainPanelSection('goals')
-              // Store flag to auto-open modal
-              if (typeof window !== 'undefined') {
-                localStorage.setItem('autoOpenGoalModal', 'true')
-              }
+              // Create goal and redirect to its detail page
+              await handleCreateGoal()
             }}
             onAddStep={() => {
               setCurrentPage('main')
@@ -6951,10 +9513,10 @@ export function JourneyGameView({
             onAddHabit={() => {
               setCurrentPage('main')
               setMainPanelSection('habits')
-              // Store flag to auto-open modal
-              if (typeof window !== 'undefined') {
-                localStorage.setItem('autoOpenHabitModal', 'true')
-              }
+              // Open habit modal for creating new habit
+              setTimeout(() => {
+                handleOpenHabitModal(null)
+              }, 300)
             }}
             onNavigateToGoals={() => {
               setCurrentPage('main')
@@ -7121,6 +9683,26 @@ export function JourneyGameView({
 
               {/* Menu Icons - Desktop: Full buttons, Mobile: Hamburger menu */}
               <div className="hidden md:flex items-center space-x-4 lg:border-l lg:border-white lg:border-opacity-30 lg:pl-6">
+              {/* Goals, Habits, Steps buttons */}
+              {topMenuItems.map((item) => {
+                const Icon = item.icon
+                const isActive = currentPage === 'main' && mainPanelSection === item.id
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setCurrentPage('main')
+                      setMainPanelSection(item.id)
+                    }}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${isActive ? 'bg-white bg-opacity-25' : ''}`}
+                    title={item.label}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </button>
+                )
+              })}
+              
               <button
                 onClick={() => setCurrentPage('help')}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200 text-white ${currentPage === 'help' ? 'bg-white bg-opacity-25' : ''}`}
@@ -7160,23 +9742,30 @@ export function JourneyGameView({
                     />
                     <div className="fixed right-6 top-16 bg-white border border-gray-200 rounded-lg shadow-lg z-[101] min-w-[200px]">
                       <nav className="py-2">
-                        <button
-                          onClick={() => {
-                            setCurrentPage('main')
-                            setMobileTopMenuOpen(false)
-                          }}
-                          className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                            currentPage === 'main'
-                              ? 'bg-orange-600 text-white'
-                              : 'text-gray-700 hover:bg-gray-100'
-                          }`}
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                            <polyline points="9,22 9,12 15,12 15,22"/>
-                          </svg>
-                          <span className="font-medium">{t('game.menu.mainPanel')}</span>
-                        </button>
+                        {/* Goals, Habits, Steps buttons */}
+                        {topMenuItems.map((item) => {
+                          const Icon = item.icon
+                          const isActive = currentPage === 'main' && mainPanelSection === item.id
+                          return (
+                            <button
+                              key={item.id}
+                              onClick={() => {
+                                setCurrentPage('main')
+                                setMainPanelSection(item.id)
+                                setMobileTopMenuOpen(false)
+                              }}
+                              className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                                isActive
+                                  ? 'bg-orange-600 text-white'
+                                  : 'text-gray-700 hover:bg-gray-100'
+                              }`}
+                            >
+                              <Icon className="w-5 h-5" />
+                              <span className="font-medium">{item.label}</span>
+                            </button>
+                          )
+                        })}
+                        
                         <button
                           onClick={() => {
                             setCurrentPage('help')
@@ -7950,7 +10539,7 @@ export function JourneyGameView({
       )}
 
       {/* Habit Modal */}
-      {showHabitModal && habitModalData && typeof window !== 'undefined' && createPortal(
+      {showHabitModal && typeof window !== 'undefined' && createPortal(
         <>
           <div 
             className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
@@ -7966,7 +10555,7 @@ export function JourneyGameView({
               <div className="p-6 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900">
-                    {habitModalData.name}
+                    {habitModalData?.name || (t('habits.add') || 'Přidat návyk')}
                   </h2>
                   <button
                     onClick={() => {
@@ -7980,209 +10569,9 @@ export function JourneyGameView({
                 </div>
               </div>
 
-              {/* Tabs */}
-              <div className="px-6 pt-4 border-b border-gray-200">
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setHabitDetailTab('calendar')}
-                    className={`px-4 py-2 font-medium transition-colors ${
-                      habitDetailTab === 'calendar'
-                        ? 'text-orange-600 border-b-2 border-orange-600 -mb-[2px]'
-                        : 'text-gray-600 hover:text-orange-600'
-                    }`}
-                  >
-                    📅 Kalendář
-                  </button>
-                  <button
-                    onClick={() => setHabitDetailTab('settings')}
-                    className={`px-4 py-2 font-medium transition-colors ${
-                      habitDetailTab === 'settings'
-                        ? 'text-orange-600 border-b-2 border-orange-600 -mb-[2px]'
-                        : 'text-gray-600 hover:text-orange-600'
-                    }`}
-                  >
-                    ⚙️ Nastavení
-                  </button>
-                </div>
-              </div>
-
               <div className="p-6">
-                {/* Calendar Tab */}
-                {habitDetailTab === 'calendar' && (
-                  <div className="space-y-4">
-                    {/* Month Navigation */}
-                    <div className="flex items-center justify-between mb-4">
-                      <button
-                        onClick={() => {
-                          const newDate = new Date(currentMonth)
-                          newDate.setMonth(newDate.getMonth() - 1)
-                          setCurrentMonth(newDate)
-                        }}
-                        className="px-3 py-1 rounded-lg bg-orange-200 text-orange-800 hover:bg-orange-300 transition-all duration-200"
-                      >
-                        ←
-                      </button>
-                      <h5 className="text-lg font-semibold text-gray-900">
-                        {currentMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
-                      </h5>
-                      <button
-                        onClick={() => {
-                          const newDate = new Date(currentMonth)
-                          newDate.setMonth(newDate.getMonth() + 1)
-                          setCurrentMonth(newDate)
-                        }}
-                        className="px-3 py-1 rounded-lg bg-orange-200 text-orange-800 hover:bg-orange-300 transition-all duration-200"
-                      >
-                        →
-                      </button>
-                    </div>
-                    
-                    {/* Calendar Grid */}
-                    <div className="grid grid-cols-7 gap-1 mb-3">
-                      {['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(day => (
-                        <div key={day} className="text-center text-xs font-medium text-gray-700 py-1">
-                          {day}
-                        </div>
-                      ))}
-                      {/* Generate calendar days for current month */}
-                      {(() => {
-                        const year = currentMonth.getFullYear()
-                        const month = currentMonth.getMonth()
-                        const firstDay = new Date(year, month, 1)
-                        const lastDay = new Date(year, month + 1, 0)
-                        const daysInMonth = lastDay.getDate()
-                        const startDay = (firstDay.getDay() + 6) % 7 // Convert Sunday=0 to Monday=0
-                        
-                        const days = []
-                        
-                        // Empty cells for days before month starts
-                        for (let i = 0; i < startDay; i++) {
-                          days.push(
-                            <div key={`empty-${i}`} className="text-center text-xs py-1"></div>
-                          )
-                        }
-                        
-                        // Days of the month
-                        for (let day = 1; day <= daysInMonth; day++) {
-                          const date = new Date(year, month, day)
-                          const today = new Date()
-                          const isToday = date.toDateString() === today.toDateString()
-                          const isFuture = date > today
-                          const isPast = date < today
-                          
-                          // Get actual data from habit_completions
-                          const habitCompletions = habitModalData.habit_completions || {}
-                          const dateKey = getLocalDateString(date)
-                          const isCompleted = habitCompletions[dateKey] === true
-                          const isMissed = habitCompletions[dateKey] === false
-                          
-                          // Check if this day is scheduled for this habit
-                          const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-                          const dayName = dayNames[date.getDay()]
-                          const isScheduled = habitModalData.selected_days && habitModalData.selected_days.includes(dayName)
-                          
-                          // Check if this date is after user account creation
-                          const userCreatedDateFull = new Date(player?.created_at || '2024-01-01')
-                          const userCreatedDate = new Date(userCreatedDateFull.getFullYear(), userCreatedDateFull.getMonth(), userCreatedDateFull.getDate())
-                          const isAfterUserCreation = date >= userCreatedDate
-                          
-                          // Determine day state
-                          // For past days (before today), only show "completed" or "missed"
-                          // If scheduled but not completed in the past, automatically show as "missed"
-                          let dayState = 'not-planned'
-                          let className = 'text-center text-xs py-1 rounded transition-all duration-200 '
-                          let onClick = () => {}
-                          
-                          if (isCompleted) {
-                            dayState = 'completed'
-                            className += 'bg-green-200 text-green-800 hover:bg-green-300 cursor-pointer'
-                            onClick = () => {
-                              handleHabitCalendarToggle(habitModalData.id, dateKey, 'completed', isScheduled)
-                            }
-                          } else if (isMissed) {
-                            dayState = 'missed'
-                            className += 'bg-red-200 text-red-800 hover:bg-red-300 cursor-pointer'
-                            onClick = () => {
-                              handleHabitCalendarToggle(habitModalData.id, dateKey, 'missed', isScheduled)
-                            }
-                          } else if (isPast && isAfterUserCreation) {
-                            // Past days: if scheduled but not completed, show as "missed"
-                            // If not scheduled and not completed, also show as "missed" (user can mark as completed)
-                            dayState = 'missed'
-                            className += 'bg-red-200 text-red-800 hover:bg-red-300 cursor-pointer'
-                            onClick = () => {
-                              handleHabitCalendarToggle(habitModalData.id, dateKey, 'missed', isScheduled)
-                            }
-                          } else if (isToday) {
-                            dayState = 'today'
-                            if (isCompleted) {
-                              className += 'bg-green-200 text-green-800 hover:bg-green-300 cursor-pointer border-b-2 border-orange-600'
-                            } else if (isMissed) {
-                              className += 'bg-red-200 text-red-800 hover:bg-red-300 cursor-pointer border-b-2 border-orange-600'
-                            } else if (isScheduled) {
-                              className += 'bg-gray-100 text-gray-500 cursor-pointer hover:bg-gray-200 border-b-2 border-orange-600'
-                            } else {
-                              className += 'bg-gray-200 text-gray-600 hover:bg-gray-300 cursor-pointer border-b-2 border-orange-600'
-                            }
-                            onClick = () => {
-                              handleHabitCalendarToggle(habitModalData.id, dateKey, isCompleted ? 'completed' : isMissed ? 'missed' : isScheduled ? 'planned' : 'not-scheduled', isScheduled)
-                            }
-                          } else if (isScheduled && isAfterUserCreation && isFuture) {
-                            dayState = 'planned-future'
-                            className += 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          } else if (isAfterUserCreation && isFuture) {
-                            dayState = 'not-scheduled-future'
-                            className += 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                          } else {
-                            dayState = 'inactive'
-                            className += 'bg-gray-50 text-gray-300 cursor-not-allowed'
-                          }
-                          
-                          days.push(
-                            <div
-                              key={day}
-                              className={className}
-                              onClick={onClick}
-                              title={
-                                isFuture ? 'Budoucí den' :
-                                dayState === 'completed' || dayState === 'missed' || dayState === 'not-scheduled' || dayState === 'planned' ? `Den ${day}.${month + 1}. - klikněte pro změnu` :
-                                'Den před vytvořením účtu'
-                              }
-                            >
-                              {day}
-                            </div>
-                          )
-                        }
-                        
-                        return days
-                      })()}
-                    </div>
-                    
-                    {/* Legend */}
-                    <div className="flex gap-2 justify-center text-xs flex-wrap">
-                      <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 bg-green-200 rounded"></div>
-                        <span className="text-gray-700">Splněno</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 bg-red-200 rounded"></div>
-                        <span className="text-gray-700">Vynecháno</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 bg-gray-100 rounded"></div>
-                        <span className="text-gray-700">Naplánováno</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 bg-gray-200 rounded"></div>
-                        <span className="text-gray-700">Nenaplánováno</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Settings Tab */}
-                {habitDetailTab === 'settings' && (
-                  <div className="space-y-4">
+                {/* Settings */}
+                <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-800 mb-2">
                         Název <span className="text-orange-500">*</span>
@@ -8265,39 +10654,53 @@ export function JourneyGameView({
                         Vždy zobrazovat (i když není naplánováno)
                       </label>
                     </div>
-                  </div>
-                )}
+                </div>
               </div>
 
-              <div className="p-6 border-t border-gray-200 flex items-center justify-end gap-3">
-                <button
-                  onClick={() => {
-                    setShowHabitModal(false)
-                    setHabitModalData(null)
-                  }}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
-                >
-                  {t('common.cancel')}
-                </button>
-                <button
-                  onClick={handleSaveHabitModal}
-                  disabled={habitModalSaving}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                    habitModalSaving
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-orange-600 text-white hover:bg-orange-700'
-                  }`}
-                >
-                  {habitModalSaving ? (
-                    <>
-                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      {t('common.saving')}
-                    </>
-                  ) : t('common.save')}
-                </button>
+              <div className="p-6 border-t border-gray-200 flex items-center justify-between">
+                {/* Delete button - only show for existing habits */}
+                {habitModalData?.id && (
+                  <button
+                    onClick={handleDeleteHabit}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    {t('common.delete') || 'Smazat'}
+                  </button>
+                )}
+                {!habitModalData?.id && <div></div>}
+                
+                {/* Action buttons */}
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      setShowHabitModal(false)
+                      setHabitModalData(null)
+                    }}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                  >
+                    {t('common.cancel')}
+                  </button>
+                  <button
+                    onClick={handleSaveHabitModal}
+                    disabled={habitModalSaving}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                      habitModalSaving
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-orange-600 text-white hover:bg-orange-700'
+                    }`}
+                  >
+                    {habitModalSaving ? (
+                      <>
+                        <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        {t('common.saving')}
+                      </>
+                    ) : t('common.save')}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

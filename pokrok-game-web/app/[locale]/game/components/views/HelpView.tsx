@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { HelpCircle, Target, Footprints, CheckSquare, Plus, ArrowRight, Menu, Rocket, Calendar, Eye, Sparkles, TrendingUp, Clock, Star, Zap, BookOpen, AlertTriangle } from 'lucide-react'
+import { HelpCircle, Target, Footprints, CheckSquare, Plus, ArrowRight, Menu, Rocket, Calendar, Eye, Sparkles, TrendingUp, Clock, Star, Zap, BookOpen, AlertTriangle, Settings } from 'lucide-react'
 
 interface HelpViewProps {
   onAddGoal?: () => void
@@ -53,7 +53,7 @@ export function HelpView({
 
   const categories = [
     { id: 'getting-started' as HelpCategory, label: t('categories.gettingStarted'), icon: Rocket },
-    { id: 'overview' as HelpCategory, label: t('categories.overview'), icon: HelpCircle },
+    { id: 'overview' as HelpCategory, label: t('categories.focus'), icon: HelpCircle },
     { id: 'goals' as HelpCategory, label: t('categories.goals'), icon: Target },
     { id: 'steps' as HelpCategory, label: t('categories.steps'), icon: Footprints },
     { id: 'habits' as HelpCategory, label: t('categories.habits'), icon: CheckSquare },
@@ -74,23 +74,11 @@ export function HelpView({
                 <Rocket className="w-8 h-8" />
                 <h2 className="text-2xl font-bold">{t('gettingStarted.welcome')}</h2>
               </div>
-              <p className="text-orange-100" dangerouslySetInnerHTML={{ __html: t('gettingStarted.tagline') }} />
-            </div>
-
-            {/* 3 Benefits */}
-            <div className="grid grid-cols-3 gap-3">
-              <div className="bg-orange-50 rounded-xl p-3 text-center border border-orange-100">
-                <Eye className="w-6 h-6 text-orange-500 mx-auto mb-1" />
-                <p className="text-xs font-medium text-gray-700">{t('gettingStarted.benefits.overview')}</p>
-              </div>
-              <div className="bg-orange-50 rounded-xl p-3 text-center border border-orange-100">
-                <Sparkles className="w-6 h-6 text-orange-500 mx-auto mb-1" />
-                <p className="text-xs font-medium text-gray-700">{t('gettingStarted.benefits.clarity')}</p>
-              </div>
-              <div className="bg-orange-50 rounded-xl p-3 text-center border border-orange-100">
-                <Target className="w-6 h-6 text-orange-500 mx-auto mb-1" />
-                <p className="text-xs font-medium text-gray-700">{t('gettingStarted.benefits.goals')}</p>
-              </div>
+              <p className="text-orange-100">
+                {t.rich('gettingStarted.tagline', {
+                  strong: (chunks) => <strong>{chunks}</strong>
+                })}
+              </p>
             </div>
 
             {/* 3 Steps */}
@@ -356,7 +344,6 @@ export function HelpView({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h5 className="font-semibold text-gray-900">{t('goalsHelp.exampleName')}</h5>
-                      <span className="text-xs bg-orange-200 text-orange-700 px-2 py-0.5 rounded-full">{t('goalsHelp.inFocus')}</span>
                       <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{t('goalsHelp.active')}</span>
               </div>
                     <p className="text-sm text-gray-500 mt-1">{t('goalsHelp.exampleDesc')}</p>
@@ -372,82 +359,111 @@ export function HelpView({
                 </div>
               </div>
               <div className="mt-3 text-xs text-gray-500 space-y-1">
-                <p><strong className="text-orange-600">{t('goalsHelp.inFocus')}</strong> = {t('goalsHelp.focusExplanation').split(' = ')[1]}</p>
                 <p><strong className="text-green-600">{t('goalsHelp.active')}</strong> = {t('goalsHelp.activeExplanation').split(' = ')[1]}</p>
                 <p><strong className="text-gray-600">{t('goalsHelp.tableDeadline')}</strong> = {t('goalsHelp.deadlineExplanation').split(' = ')[1]}</p>
               </div>
             </div>
 
-            {/* Goals Table Example */}
+            {/* Goals Cards Example */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
               <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <Eye className="w-4 h-4 text-orange-500" /> {t('goalsHelp.tableTitle')}
+                <Eye className="w-4 h-4 text-orange-500" /> {t('goalsHelp.cardsTitle')}
               </h4>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-orange-100">
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('goalsHelp.tableName')}</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('goalsHelp.tableStatus')}</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('goalsHelp.tableDeadline')}</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('goalsHelp.tableFocus')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b border-orange-50 hover:bg-orange-50 cursor-pointer">
-                      <td className="py-2 px-2">
-                        <div className="flex items-center gap-2">
-                          <Target className="w-4 h-4 text-orange-500" />
-                          <span className="font-medium text-gray-800">{t('goalsHelp.tableExample1')}</span>
+              <div className="space-y-3">
+                {/* Filter checkboxes example */}
+                <div className="flex gap-3 pb-2 border-b border-gray-100">
+                  <label className="flex items-center gap-1.5 text-sm cursor-pointer">
+                    <input type="checkbox" checked className="w-4 h-4 text-orange-600 border-gray-300 rounded" readOnly />
+                    <span className="text-gray-700">{t('goalsHelp.active')}</span>
+                  </label>
+                  <label className="flex items-center gap-1.5 text-sm cursor-pointer">
+                    <input type="checkbox" className="w-4 h-4 text-orange-600 border-gray-300 rounded" readOnly />
+                    <span className="text-gray-500">{t('goalsHelp.postponed')}</span>
+                  </label>
+                  <label className="flex items-center gap-1.5 text-sm cursor-pointer">
+                    <input type="checkbox" className="w-4 h-4 text-orange-600 border-gray-300 rounded" readOnly />
+                    <span className="text-gray-500">{t('goalsHelp.completed')}</span>
+                  </label>
+                </div>
+                
+                {/* Goal cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {/* Active goal card */}
+                  <div className="bg-white border border-orange-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Target className="w-5 h-5 text-orange-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <h5 className="font-semibold text-gray-900">{t('goalsHelp.tableExample1')}</h5>
+                          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{t('goalsHelp.active')}</span>
                         </div>
-                      </td>
-                      <td className="py-2 px-2">
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{t('goalsHelp.active')}</span>
-                      </td>
-                      <td className="py-2 px-2 text-gray-500">15.3.2025</td>
-                      <td className="py-2 px-2">
-                        <Star className="w-4 h-4 text-orange-500 fill-orange-500" />
-                      </td>
-                    </tr>
-                    <tr className="border-b border-orange-50 hover:bg-orange-50 cursor-pointer">
-                      <td className="py-2 px-2">
-                        <div className="flex items-center gap-2">
-                          <Target className="w-4 h-4 text-orange-500" />
-                          <span className="font-medium text-gray-800">{t('goalsHelp.tableExample2')}</span>
+                        <p className="text-xs text-gray-500 mb-2">Chci vytvořit vlastní webovou aplikaci</p>
+                        <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+                          <span>15.3.2025</span>
+                          <span>3 kroky</span>
                         </div>
-                      </td>
-                      <td className="py-2 px-2">
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{t('goalsHelp.active')}</span>
-                      </td>
-                      <td className="py-2 px-2 text-gray-400">—</td>
-                      <td className="py-2 px-2">
-                        <Star className="w-4 h-4 text-gray-300" />
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-orange-50 cursor-pointer opacity-60">
-                      <td className="py-2 px-2">
-                        <div className="flex items-center gap-2">
-                          <Target className="w-4 h-4 text-gray-400" />
-                          <span className="font-medium text-gray-500">{t('goalsHelp.tableExample3')}</span>
+                        <div className="w-full bg-gray-200 rounded-full h-1.5">
+                          <div className="bg-orange-600 h-1.5 rounded-full" style={{ width: '33%' }}></div>
                         </div>
-                      </td>
-                      <td className="py-2 px-2">
-                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{t('goalsHelp.postponed')}</span>
-                      </td>
-                      <td className="py-2 px-2 text-gray-400">31.12.2025</td>
-                      <td className="py-2 px-2">
-                        <Star className="w-4 h-4 text-gray-300" />
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div className="mt-3 text-xs text-gray-500 space-y-1">
-                <p>{t('goalsHelp.tableClickHint')}</p>
-                <p>{t('goalsHelp.tableStarHint')}</p>
-                <p>{t('goalsHelp.tableStatusHint')}</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Active goal card 2 */}
+                  <div className="bg-white border border-orange-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Target className="w-5 h-5 text-orange-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <h5 className="font-semibold text-gray-900">{t('goalsHelp.tableExample2')}</h5>
+                          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{t('goalsHelp.active')}</span>
+                        </div>
+                        <p className="text-xs text-gray-500 mb-2">Pravidelné cvičení pro zdraví</p>
+                        <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+                          <span>—</span>
+                          <span>5 kroků</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-1.5">
+                          <div className="bg-orange-600 h-1.5 rounded-full" style={{ width: '60%' }}></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Paused goal card */}
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 opacity-60 cursor-pointer">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Target className="w-5 h-5 text-gray-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <h5 className="font-semibold text-gray-500">{t('goalsHelp.tableExample3')}</h5>
+                          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{t('goalsHelp.postponed')}</span>
+                        </div>
+                        <p className="text-xs text-gray-400 mb-2">Přečíst 12 knih tento rok</p>
+                        <div className="flex items-center justify-between text-xs text-gray-300 mb-2">
+                          <span>31.12.2025</span>
+                          <span>0 kroků</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-1.5">
+                          <div className="bg-gray-400 h-1.5 rounded-full" style={{ width: '0%' }}></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
+              <div className="mt-3 text-xs text-gray-500 space-y-1">
+                <p>{t('goalsHelp.cardsClickHint')}</p>
+                <p>{t('goalsHelp.cardsFiltersHint')}</p>
+                <p>{t('goalsHelp.cardsStatusHint')}</p>
+              </div>
+            </div>
 
             {/* How to create */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
@@ -741,88 +757,97 @@ export function HelpView({
               </div>
             </div>
 
-            {/* Habits Table Example */}
+            {/* Habits Timeline Example */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">
               <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <Eye className="w-4 h-4 text-orange-500" /> {t('habitsHelp.tableTitle')}
+                <Eye className="w-4 h-4 text-orange-500" /> {t('habitsHelp.timelineTitle')}
               </h4>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-orange-100">
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('habitsHelp.tableName')}</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('habitsHelp.tableFrequency')}</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('habitsHelp.tableReminder')}</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('habitsHelp.tableThisWeek')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b border-orange-50 hover:bg-orange-50 cursor-pointer">
-                      <td className="py-2 px-2">
-                        <div className="flex items-center gap-2">
-                          <Zap className="w-4 h-4 text-orange-500" />
-                          <span className="font-medium text-gray-800">{t('habitsHelp.tableExample1')}</span>
-                        </div>
-                      </td>
-                      <td className="py-2 px-2">
-                        <span className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">{t('habitsHelp.daily')}</span>
-                      </td>
-                      <td className="py-2 px-2 text-gray-500">07:00</td>
-                      <td className="py-2 px-2">
-                        <div className="flex gap-0.5">
-                          {[true, true, true, false, false, false, false].map((done, i) => (
-                            <div key={i} className={`w-4 h-4 rounded ${done ? 'bg-orange-500' : 'bg-gray-200'}`} />
-                          ))}
-                        </div>
-                      </td>
-                    </tr>
-                    <tr className="border-b border-orange-50 hover:bg-orange-50 cursor-pointer">
-                      <td className="py-2 px-2">
-                        <div className="flex items-center gap-2">
-                          <BookOpen className="w-4 h-4 text-orange-500" />
-                          <span className="font-medium text-gray-800">{t('habitsHelp.tableExample2')}</span>
-                        </div>
-                      </td>
-                      <td className="py-2 px-2">
-                        <span className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">{t('habitsHelp.daily')}</span>
-                      </td>
-                      <td className="py-2 px-2 text-gray-500">21:00</td>
-                      <td className="py-2 px-2">
-                        <div className="flex gap-0.5">
-                          {[true, false, true, false, false, false, false].map((done, i) => (
-                            <div key={i} className={`w-4 h-4 rounded ${done ? 'bg-orange-500' : 'bg-gray-200'}`} />
-                          ))}
-                        </div>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-orange-50 cursor-pointer">
-                      <td className="py-2 px-2">
-                        <div className="flex items-center gap-2">
-                          <Sparkles className="w-4 h-4 text-orange-500" />
-                          <span className="font-medium text-gray-800">{t('habitsHelp.tableExample3')}</span>
-                        </div>
-                      </td>
-                      <td className="py-2 px-2">
-                        <span className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">{t('habitsHelp.monFri')}</span>
-                      </td>
-                      <td className="py-2 px-2 text-gray-400">—</td>
-                      <td className="py-2 px-2">
-                        <div className="flex gap-0.5">
-                          {[true, true, false, false, false, false, false].map((done, i) => (
-                            <div key={i} className={`w-4 h-4 rounded ${i < 5 ? (done ? 'bg-orange-500' : 'bg-gray-200') : 'bg-gray-100'}`} />
-                          ))}
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div className="mt-3 text-xs text-gray-500 space-y-1">
-                <p>{t('habitsHelp.tableOrangeHint')}</p>
-                <p>{t('habitsHelp.tableGrayHint')}</p>
-                <p>{t('habitsHelp.tableClickHint')}</p>
+              
+              {/* Statistics example */}
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-orange-500" />
+                  <div>
+                    <div className="text-xs text-gray-500">Plánováno</div>
+                    <div className="text-sm font-semibold text-gray-900">21</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckSquare className="w-4 h-4 text-green-500" />
+                  <div>
+                    <div className="text-xs text-gray-500">Splněno</div>
+                    <div className="text-sm font-semibold text-gray-900">15</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-blue-500" />
+                  <div>
+                    <div className="text-xs text-gray-500">Mimo plán</div>
+                    <div className="text-sm font-semibold text-gray-900">2</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-purple-500" />
+                  <div>
+                    <div className="text-xs text-gray-500">Streak</div>
+                    <div className="text-sm font-semibold text-gray-900">5</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Star className="w-4 h-4 text-yellow-500" />
+                  <div>
+                    <div className="text-xs text-gray-500">Max streak</div>
+                    <div className="text-sm font-semibold text-gray-900">12</div>
+                  </div>
                 </div>
               </div>
+              
+              {/* Timeline example */}
+              <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                <div className="space-y-3">
+                  {/* Habit 1 */}
+                  <div className="flex items-start gap-2">
+                    <div className="w-[150px] flex items-center gap-2 flex-shrink-0">
+                      <span className="text-sm font-medium text-gray-800">{t('habitsHelp.tableExample1')}</span>
+                      <button className="p-1 hover:bg-gray-200 rounded" title={t('habitsHelp.settingsIcon')}>
+                        <Settings className="w-4 h-4 text-gray-500" />
+                      </button>
+                    </div>
+                    <div className="flex gap-1 flex-1">
+                      {[true, true, true, false, false, false, false].map((done, i) => (
+                        <div key={i} className={`w-8 h-8 rounded flex items-center justify-center ${done ? 'bg-orange-500' : 'bg-gray-200'}`}>
+                          {done && <CheckSquare className="w-4 h-4 text-white" />}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Habit 2 */}
+                  <div className="flex items-start gap-2">
+                    <div className="w-[150px] flex items-center gap-2 flex-shrink-0">
+                      <span className="text-sm font-medium text-gray-800">{t('habitsHelp.tableExample2')}</span>
+                      <button className="p-1 hover:bg-gray-200 rounded" title={t('habitsHelp.settingsIcon')}>
+                        <Settings className="w-4 h-4 text-gray-500" />
+                      </button>
+                    </div>
+                    <div className="flex gap-1 flex-1">
+                      {[true, false, true, false, false, false, false].map((done, i) => (
+                        <div key={i} className={`w-8 h-8 rounded flex items-center justify-center ${done ? 'bg-orange-500' : 'bg-gray-200'}`}>
+                          {done && <CheckSquare className="w-4 h-4 text-white" />}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-3 text-xs text-gray-500 space-y-1">
+                <p>{t('habitsHelp.timelineOrangeHint')}</p>
+                <p>{t('habitsHelp.timelineGrayHint')}</p>
+                <p>{t('habitsHelp.timelineSettingsHint')}</p>
+                <p>{t('habitsHelp.timelineClickHint')}</p>
+              </div>
+            </div>
 
             {/* How to create */}
             <div className="bg-white rounded-xl border border-orange-200 p-4">

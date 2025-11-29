@@ -203,6 +203,23 @@ async function runMigrations() {
       await sql`ALTER TABLE user_settings ADD COLUMN date_format VARCHAR(20) DEFAULT 'DD.MM.YYYY'`
     }
     
+    // Update goals status constraint to include 'paused'
+    try {
+      // Drop existing constraint if it exists
+      await sql`ALTER TABLE goals DROP CONSTRAINT IF EXISTS goals_status_check`
+      // Add new constraint with 'paused' included
+      await sql`ALTER TABLE goals ADD CONSTRAINT goals_status_check CHECK (status IN ('active', 'completed', 'paused', 'cancelled'))`
+    } catch (e: any) {
+      console.log('Note: Could not update goals status constraint:', e?.message)
+      // Try alternative constraint name
+      try {
+        await sql`ALTER TABLE goals DROP CONSTRAINT IF EXISTS goals_status_check1`
+        await sql`ALTER TABLE goals ADD CONSTRAINT goals_status_check CHECK (status IN ('active', 'completed', 'paused', 'cancelled'))`
+      } catch (e2: any) {
+        console.log('Note: Could not update goals status constraint with alternative name:', e2?.message)
+      }
+    }
+    
     return { success: true, message: 'Migration completed successfully' }
   } catch (error: any) {
     console.error('Migration error:', error)

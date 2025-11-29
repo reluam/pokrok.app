@@ -3,8 +3,8 @@
 import { useMemo, useEffect, useRef, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
-import { Check, Target, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react'
-import { getIconEmoji } from '@/lib/icon-utils'
+import { Check, Target, ArrowRight, ChevronDown, ChevronUp, Plus } from 'lucide-react'
+import { getIconEmoji, getIconComponent } from '@/lib/icon-utils'
 
 interface TodayFocusSectionProps {
   goals: any[]
@@ -15,6 +15,7 @@ interface TodayFocusSectionProps {
   handleHabitToggle?: (habitId: string, date?: string) => Promise<void>
   handleItemClick: (item: any, type: 'step' | 'habit' | 'goal' | 'stat') => void
   loadingSteps: Set<string>
+  animatingSteps?: Set<string>
   loadingHabits?: Set<string>
   player?: any
   todaySteps?: any[]
@@ -38,6 +39,7 @@ export function TodayFocusSection({
   handleHabitToggle,
   handleItemClick,
   loadingSteps,
+  animatingSteps = new Set(),
   loadingHabits = new Set(),
   player,
   todaySteps = [],
@@ -262,10 +264,11 @@ export function TodayFocusSection({
     })
   }, [habits, dayName, isWeekView])
   
-  // Get active focus goals
+  // Get active focus goals - use status instead of focus_status
+  // Active status = in focus, paused/completed = out of focus
   const activeFocusGoals = useMemo(() => {
     return goals
-      .filter(g => g.focus_status === 'active_focus')
+      .filter(g => g.status === 'active')
       .sort((a, b) => (a.focus_order || 999) - (b.focus_order || 999))
   }, [goals])
   
@@ -919,7 +922,7 @@ export function TodayFocusSection({
                     
                     // Get goal for this step if it has one
                     const stepGoal = step.goal_id ? goals.find(g => g.id === step.goal_id) : null
-                    const goalIcon = stepGoal ? getIconEmoji(stepGoal.icon) || '🎯' : null
+                    const GoalIconComponent = stepGoal ? getIconComponent(stepGoal.icon) : null
                     
                     // Check if step date is in current day/week
                     let isStepInCurrentPeriod = false
@@ -940,12 +943,16 @@ export function TodayFocusSection({
                         key={step.id}
                                 onClick={() => handleItemClick(step, 'step')}
                         className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ${
-                          isOverdue && !step.completed
-                            ? 'border-red-300 bg-red-50/30 hover:bg-red-50'
-                            : isToday && !step.completed
-                              ? 'border-orange-400 bg-orange-50/30 hover:bg-orange-50'
-                                        : 'border-gray-200 bg-white hover:bg-gray-50'
-                        } ${step.completed ? 'opacity-50' : ''}`}
+                          animatingSteps.has(step.id)
+                            ? step.completed
+                              ? 'border-green-400 bg-green-100 animate-pulse scale-110'
+                              : 'border-orange-400 bg-orange-100 animate-pulse scale-110'
+                            : isOverdue && !step.completed
+                              ? 'border-red-300 bg-red-50/30 hover:bg-red-50'
+                              : isToday && !step.completed
+                                ? 'border-orange-400 bg-orange-50/30 hover:bg-orange-50'
+                                : 'border-gray-200 bg-white hover:bg-gray-50'
+                        } ${step.completed && !animatingSteps.has(step.id) ? 'opacity-50' : ''}`}
                               >
                         {/* Checkbox */}
                                   <button
@@ -957,13 +964,17 @@ export function TodayFocusSection({
                                     }}
                                     disabled={loadingSteps.has(step.id)}
                           className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${
-                                      step.completed 
-                              ? 'bg-orange-500 border-orange-500' 
-                              : isOverdue
-                                ? 'border-red-400 hover:bg-red-100'
-                                : isToday
-                                  ? 'border-orange-400 hover:bg-orange-100'
-                                  : 'border-gray-300 hover:border-orange-400'
+                                      animatingSteps.has(step.id)
+                                        ? step.completed
+                                          ? 'bg-green-500 border-green-500'
+                                          : 'bg-orange-500 border-orange-500'
+                                        : step.completed 
+                                          ? 'bg-orange-500 border-orange-500' 
+                                          : isOverdue
+                                            ? 'border-red-400 hover:bg-red-100'
+                                            : isToday
+                                              ? 'border-orange-400 hover:bg-orange-100'
+                                              : 'border-gray-300 hover:border-orange-400'
                           }`}
                                   >
                                     {loadingSteps.has(step.id) ? (
@@ -971,7 +982,7 @@ export function TodayFocusSection({
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                       </svg>
-                                    ) : step.completed ? (
+                                    ) : animatingSteps.has(step.id) || step.completed ? (
                             <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                           ) : null}
                                   </button>
@@ -1050,7 +1061,13 @@ export function TodayFocusSection({
                               <div 
                                 key={step.id}
                         onClick={() => handleItemClick(step, 'step')}
-                                className="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 transition-all cursor-pointer opacity-50"
+                                className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ${
+                                  animatingSteps.has(step.id)
+                                    ? step.completed
+                                      ? 'border-green-400 bg-green-100 animate-pulse scale-110'
+                                      : 'border-orange-400 bg-orange-100 animate-pulse scale-110'
+                                    : 'border-gray-200 bg-white hover:bg-gray-50 opacity-50'
+                                }`}
                               >
                           <button
                             onClick={(e) => {
@@ -1060,16 +1077,22 @@ export function TodayFocusSection({
                               }
                             }}
                             disabled={loadingSteps.has(step.id)}
-                                  className="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 bg-orange-500 border-orange-500"
+                                  className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${
+                                    animatingSteps.has(step.id)
+                                      ? step.completed
+                                        ? 'bg-green-500 border-green-500'
+                                        : 'bg-orange-500 border-orange-500'
+                                      : 'bg-orange-500 border-orange-500'
+                                  }`}
                           >
                             {loadingSteps.has(step.id) ? (
                                     <svg className="animate-spin h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                               </svg>
-                            ) : (
+                            ) : animatingSteps.has(step.id) || step.completed ? (
                                     <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                            )}
+                            ) : null}
                           </button>
                                 <span className="flex-1 text-sm truncate line-through text-gray-400 font-medium flex items-center gap-2">
                             {step.title}
@@ -1088,39 +1111,12 @@ export function TodayFocusSection({
                       </div>
                     )
                   })}
-                        </div>
+                </div>
                       )}
                     </>
                   )}
                 </div>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-xs text-gray-400 mb-2">
-                    {isWeekView ? t('focus.noStepsThisWeek') : t('focus.noStepsToday')}
-                  </p>
-                  {onOpenStepModal && (
-                    <button
-                      onClick={() => {
-                        const dateToUse = isWeekView && weekSelectedDayDate 
-                          ? getLocalDateString(weekSelectedDayDate)
-                          : displayDateStr
-                        onOpenStepModal(dateToUse)
-                      }}
-                      className="text-xs text-orange-600 hover:text-orange-700 font-medium underline"
-                    >
-                      {t('focus.addStep')}
-                    </button>
-                  )}
-                  {!onOpenStepModal && onNavigateToSteps && (
-                    <button
-                      onClick={() => onNavigateToSteps()}
-                      className="text-xs text-orange-600 hover:text-orange-700 font-medium underline"
-                    >
-                      {t('focus.addStep')}
-                    </button>
-                  )}
-                </div>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
@@ -1234,10 +1230,14 @@ export function TodayFocusSection({
                       key={step.id}
                       onClick={() => handleItemClick(step, 'step')}
                       className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ${
-                        isOverdue && !step.completed
-                          ? 'border-red-300 bg-red-50/30 hover:bg-red-50'
-                          : 'border-gray-200 bg-white hover:bg-gray-50'
-                      } ${step.completed ? 'opacity-50' : ''}`}
+                        animatingSteps.has(step.id)
+                          ? step.completed
+                            ? 'border-green-400 bg-green-100 animate-pulse scale-110'
+                            : 'border-orange-400 bg-orange-100 animate-pulse scale-110'
+                          : isOverdue && !step.completed
+                            ? 'border-red-300 bg-red-50/30 hover:bg-red-50'
+                            : 'border-gray-200 bg-white hover:bg-gray-50'
+                      } ${step.completed && !animatingSteps.has(step.id) ? 'opacity-50' : ''}`}
                     >
                       {/* Checkbox */}
                         <button
@@ -1249,19 +1249,23 @@ export function TodayFocusSection({
                           }}
                           disabled={loadingSteps.has(step.id)}
                         className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${
-                          step.completed 
-                            ? 'bg-orange-500 border-orange-500' 
-                            : isOverdue
-                              ? 'border-red-400 hover:bg-red-100'
-                              : 'border-gray-300 hover:border-orange-400'
+                          animatingSteps.has(step.id)
+                            ? step.completed
+                              ? 'bg-green-500 border-green-500'
+                              : 'bg-orange-500 border-orange-500'
+                            : step.completed 
+                              ? 'bg-orange-500 border-orange-500' 
+                              : isOverdue
+                                ? 'border-red-400 hover:bg-red-100'
+                                : 'border-gray-300 hover:border-orange-400'
                         }`}
                         >
                           {loadingSteps.has(step.id) ? (
                           <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                          ) : step.completed ? (
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        ) : animatingSteps.has(step.id) || step.completed ? (
                           <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                         ) : null}
                         </button>

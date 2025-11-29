@@ -6,7 +6,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, Plus, X, Target, Pause } from 'lucide-react'
-import { getIconEmoji } from '@/lib/icon-utils'
+import { getIconEmoji, getIconComponent } from '@/lib/icon-utils'
 
 interface FocusManagementViewProps {
   goals: any[]
@@ -46,7 +46,7 @@ function SortableGoalItem({
   }
 
   const progressPercentage = goal.progress_percentage || 0
-  const icon = getIconEmoji(goal.icon) || '🎯'
+  const IconComponent = getIconComponent(goal.icon)
 
   // Active goals - orange colors
   if (isActive) {
@@ -71,7 +71,7 @@ function SortableGoalItem({
           {/* Goal icon and info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-2xl">{icon}</span>
+              <IconComponent className="w-6 h-6 text-gray-700" />
               <h3 className="font-semibold text-gray-900 truncate">{goal.title}</h3>
               <span className="text-xs font-medium text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">
                 #{goal.focus_order}
@@ -141,7 +141,7 @@ function SortableGoalItem({
         {/* Goal icon and info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-2xl">{icon}</span>
+            <IconComponent className="w-6 h-6 text-gray-700" />
             <h3 className="font-semibold text-gray-700 truncate">{goal.title}</h3>
           </div>
           
@@ -219,7 +219,7 @@ export function FocusManagementView({
   const [showAddGoalModal, setShowAddGoalModal] = useState(false)
   const [newGoalTitle, setNewGoalTitle] = useState('')
   const [newGoalDescription, setNewGoalDescription] = useState('')
-  const [newGoalFocusStatus, setNewGoalFocusStatus] = useState<'active_focus' | 'deferred'>('active_focus')
+  const [newGoalFocusStatus, setNewGoalFocusStatus] = useState<'active' | 'paused'>('active')
   const [activeId, setActiveId] = useState<string | null>(null)
 
   const sensors = useSensors(
@@ -229,15 +229,15 @@ export function FocusManagementView({
     })
   )
 
-  // Filter goals by focus status
+  // Filter goals by status - active = in focus, paused/completed = out of focus
   const activeFocusGoals = useMemo(() => {
     return goals
-      .filter(g => g.focus_status === 'active_focus')
+      .filter(g => g.status === 'active')
       .sort((a, b) => (a.focus_order || 999) - (b.focus_order || 999))
   }, [goals])
 
   const deferredGoals = useMemo(() => {
-    return goals.filter(g => g.focus_status === 'deferred')
+    return goals.filter(g => g.status === 'paused' || g.status === 'completed')
   }, [goals])
 
   // Handle drag end - can move within column or between columns
@@ -257,8 +257,8 @@ export function FocusManagementView({
     
     // Check if dropped on a column drop zone
     if (overId === 'active-column' || overId === 'deferred-column') {
-      const targetStatus = overId === 'active-column' ? 'active_focus' : 'deferred'
-      if (goal.focus_status !== targetStatus) {
+      const targetStatus = overId === 'active-column' ? 'active' : 'paused'
+      if (goal.status !== targetStatus) {
         await handleChangeStatus(goalId, targetStatus)
       }
       return
@@ -268,16 +268,16 @@ export function FocusManagementView({
     const targetGoal = goals.find(g => g.id === overId)
     if (!targetGoal) return
 
-    const targetStatus = targetGoal.focus_status === 'active_focus' ? 'active_focus' : 'deferred'
+    const targetStatus = targetGoal.status === 'active' ? 'active' : 'paused'
 
     // If status changed, update status
-    if (goal.focus_status !== targetStatus) {
+    if (goal.status !== targetStatus) {
       await handleChangeStatus(goalId, targetStatus)
       return
     }
 
-    // If same column and same status, reorder (only for active_focus)
-    if (goal.focus_status === 'active_focus' && targetStatus === 'active_focus') {
+    // If same column and same status, reorder (only for active)
+    if (goal.status === 'active' && targetStatus === 'active') {
       const oldIndex = activeFocusGoals.findIndex(g => g.id === goalId)
       const newIndex = activeFocusGoals.findIndex(g => g.id === overId)
       
@@ -294,17 +294,17 @@ export function FocusManagementView({
   }
 
   // Change goal focus status
-  const handleChangeStatus = async (goalId: string, status: 'active_focus' | 'deferred') => {
+  const handleChangeStatus = async (goalId: string, status: 'active' | 'paused') => {
     setIsLoading(true)
     setError(null)
 
     try {
-      const response = await fetch('/api/goals/focus', {
-        method: 'POST',
+      const response = await fetch('/api/goals', {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           goalId,
-          focusStatus: status
+          status: status
         })
       })
 
@@ -433,12 +433,12 @@ export function FocusManagementView({
 
       // Set focus status
       if (newGoalFocusStatus) {
-        const focusResponse = await fetch('/api/goals/focus', {
-          method: 'POST',
+        const focusResponse = await fetch('/api/goals', {
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             goalId: newGoal.id,
-            focusStatus: newGoalFocusStatus
+            status: newGoalFocusStatus
           })
         })
 
@@ -462,7 +462,7 @@ export function FocusManagementView({
       // Reset form
       setNewGoalTitle('')
       setNewGoalDescription('')
-      setNewGoalFocusStatus('active_focus')
+      setNewGoalFocusStatus('active')
       setShowAddGoalModal(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create goal')
@@ -529,8 +529,8 @@ export function FocusManagementView({
                       goal={goal}
                       isActive={true}
                       onRemoveFromFocus={() => handleRemoveFromFocus(goal.id)}
-                      onDefer={() => handleChangeStatus(goal.id, 'deferred')}
-                      onActivate={() => handleChangeStatus(goal.id, 'active_focus')}
+                      onDefer={() => handleChangeStatus(goal.id, 'paused')}
+                      onActivate={() => handleChangeStatus(goal.id, 'active')}
                     />
                   ))}
                 </SortableContext>
@@ -565,8 +565,8 @@ export function FocusManagementView({
                       goal={goal}
                       isActive={false}
                       onRemoveFromFocus={() => handleRemoveFromFocus(goal.id)}
-                      onDefer={() => handleChangeStatus(goal.id, 'deferred')}
-                      onActivate={() => handleChangeStatus(goal.id, 'active_focus')}
+                      onDefer={() => handleChangeStatus(goal.id, 'paused')}
+                      onActivate={() => handleChangeStatus(goal.id, 'active')}
                     />
                   ))}
                 </SortableContext>
@@ -585,7 +585,10 @@ export function FocusManagementView({
           {activeGoal ? (
             <div className="bg-white rounded-xl border-2 border-orange-300 p-4 shadow-lg opacity-90">
               <div className="flex items-center gap-2">
-                <span className="text-2xl">{getIconEmoji(activeGoal.icon) || '🎯'}</span>
+                {(() => {
+                  const IconComponent = getIconComponent(activeGoal.icon)
+                  return <IconComponent className="w-6 h-6 text-gray-700" />
+                })()}
                 <h3 className="font-semibold text-gray-900">{activeGoal.title}</h3>
               </div>
             </div>
@@ -641,11 +644,11 @@ export function FocusManagementView({
                 </label>
                 <select
                   value={newGoalFocusStatus}
-                  onChange={(e) => setNewGoalFocusStatus(e.target.value as 'active_focus' | 'deferred')}
+                  onChange={(e) => setNewGoalFocusStatus(e.target.value as 'active' | 'paused')}
                   className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:outline-none"
                 >
-                  <option value="active_focus">Aktivní fokus</option>
-                  <option value="deferred">Odložené</option>
+                  <option value="active">Aktivní</option>
+                  <option value="paused">Odložené</option>
                 </select>
               </div>
             </div>
@@ -656,7 +659,7 @@ export function FocusManagementView({
                   setShowAddGoalModal(false)
                   setNewGoalTitle('')
                   setNewGoalDescription('')
-                  setNewGoalFocusStatus('active_focus')
+                  setNewGoalFocusStatus('active')
                 }}
                 className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
               >

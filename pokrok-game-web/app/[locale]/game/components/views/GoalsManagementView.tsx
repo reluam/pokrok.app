@@ -4,7 +4,8 @@ import { useState, useMemo, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString } from '../utils/dateHelpers'
-import { Edit, X, Plus, Target, Calendar, ChevronDown, ChevronUp, Filter } from 'lucide-react'
+import { Plus, Target, Calendar, CheckCircle, Moon, ArrowRight } from 'lucide-react'
+import { getIconComponent } from '@/lib/icon-utils'
 
 interface GoalsManagementViewProps {
   goals: any[]
@@ -12,6 +13,10 @@ interface GoalsManagementViewProps {
   userId?: string | null
   player?: any
   onOpenStepModal?: (step?: any, goalId?: string) => void
+  onGoalClick?: (goalId: string) => void
+  onCreateGoal?: () => void
+  onGoalDateClick?: (goalId: string, e: React.MouseEvent) => void
+  onGoalStatusClick?: (goalId: string, e: React.MouseEvent) => void
 }
 
 export function GoalsManagementView({
@@ -19,1342 +24,401 @@ export function GoalsManagementView({
   onGoalsUpdate,
   userId,
   player,
-  onOpenStepModal
+  onOpenStepModal,
+  onGoalClick,
+  onCreateGoal,
+  onGoalDateClick,
+  onGoalStatusClick
 }: GoalsManagementViewProps) {
   const t = useTranslations()
   const localeCode = useLocale()
   
-  // Filters
-  const [goalsStatusFilter, setGoalsStatusFilter] = useState<'all' | 'active' | 'completed' | 'considering'>('all')
-  const [filtersExpanded, setFiltersExpanded] = useState(false)
+  // Status filters - defaultně pouze 'active' zaškrtnutý
+  const [statusFilters, setStatusFilters] = useState<Set<string>>(new Set(['active']))
 
-  // Counters for steps per goal
-  const [goalCounts, setGoalCounts] = useState<Record<string, { steps: number }>>({})
+  // Goal steps cache
+  const [goalStepsCache, setGoalStepsCache] = useState<Record<string, any[]>>({})
+  const [loadingSteps, setLoadingSteps] = useState<Set<string>>(new Set())
 
-  // Quick edit modals for goals
-  const [quickEditGoalId, setQuickEditGoalId] = useState<string | null>(null)
-  const [quickEditGoalField, setQuickEditGoalField] = useState<'status' | 'date' | null>(null)
-  const [quickEditGoalPosition, setQuickEditGoalPosition] = useState<{ top: number; left: number } | null>(null)
-  const [selectedDateForGoal, setSelectedDateForGoal] = useState<Date>(new Date())
-
-  // Edit modal
-  const [editingGoal, setEditingGoal] = useState<any | null>(null)
-  const [activeTab, setActiveTab] = useState<'general' | 'steps'>('general')
-  const [goalModalSaving, setGoalModalSaving] = useState(false)
-  const [editFormData, setEditFormData] = useState({
-    title: '',
-    description: '',
-    target_date: '',
-    status: 'active',
-    is_focused: false,
-    steps: [] as Array<{ 
-      id: string; 
-      title: string; 
-      description?: string; 
-      date?: string; 
-      completed?: boolean; 
-      isEditing?: boolean;
-      target_value?: number | null;
-      current_value?: number;
-      update_value?: number | null;
-      update_frequency?: 'daily' | 'weekly' | 'monthly' | null;
-      update_day_of_week?: number | null;
-      update_day_of_month?: number | null;
-      estimated_time?: number;
-      is_important?: boolean;
-    }>
-  })
-
-  // Initialize date value when date modal opens
+  // Load steps for all goals
   useEffect(() => {
-    if (quickEditGoalField === 'date' && quickEditGoalId) {
-      const goal = goals.find((g: any) => g.id === quickEditGoalId)
-      if (goal) {
-        const initialDate = goal.target_date ? new Date(goal.target_date) : new Date()
-        setSelectedDateForGoal(initialDate)
-      }
-    }
-  }, [quickEditGoalField, quickEditGoalId, goals])
-
-  // Auto-open modal if flag is set
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const autoOpen = localStorage.getItem('autoOpenGoalModal')
-      if (autoOpen === 'true') {
-        localStorage.removeItem('autoOpenGoalModal')
-        setEditingGoal({ id: null, title: '', description: '', target_date: '', status: 'active' })
-        setEditFormData({
-          title: '',
-          description: '',
-          target_date: '',
-          status: 'active',
-          is_focused: false,
-          steps: []
-        })
-      }
-    }
-  }, [])
-
-  // Initialize edit form when editing goal
-  useEffect(() => {
-    if (editingGoal) {
-      setEditFormData({
-        title: editingGoal.title || '',
-        description: editingGoal.description || '',
-        target_date: editingGoal.target_date ? new Date(editingGoal.target_date).toISOString().split('T')[0] : '',
-        status: editingGoal.status || 'active',
-        is_focused: editingGoal.is_focused || false,
-        steps: []
-      })
-
-          // Load steps
-      const loadSteps = async () => {
-        if (editingGoal.id) {
-          try {
-            const stepsResponse = await fetch(`/api/daily-steps?goalId=${editingGoal.id}`)
-            if (stepsResponse.ok) {
-              const steps = await stepsResponse.json()
-              const stepsArray = Array.isArray(steps) ? steps : []
-              setEditFormData(prev => ({
-                ...prev,
-                steps: stepsArray.map((step: any) => ({
-                  id: step.id,
-                  title: step.title,
-                  description: step.description || '',
-                  date: step.date ? (step.date.includes('T') ? step.date.split('T')[0] : step.date) : '',
-                  completed: step.completed || false,
-                  isEditing: false
-                }))
-              }))
-            }
-          } catch (error) {
-            console.error('Error loading steps:', error)
-          }
-        }
-      }
-
-      loadSteps()
-    }
-  }, [editingGoal])
-
-  // Handlers
-  const handleOpenEditModal = (goal: any) => {
-    setEditingGoal({
-      ...goal
-    })
-  }
-
-  const handleCreateGoal = async () => {
-    if (!editFormData.title.trim()) {
-      alert(t('table.goalNameRequired'))
-      return
-    }
-
-    const currentUserId = userId || player?.user_id
-    if (!currentUserId) {
-      alert('Chyba: Uživatel není nalezen')
-      return
-    }
-
-    setGoalModalSaving(true)
-    try {
-      const response = await fetch('/api/goals', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: currentUserId,
-          title: editFormData.title,
-          description: editFormData.description,
-          targetDate: editFormData.target_date || null,
-          status: editFormData.status,
-          isFocused: editFormData.is_focused
-        }),
-      })
-
-      if (response.ok) {
-        const newGoal = await response.json()
-        const updatedGoals = [...goals, newGoal]
-        onGoalsUpdate?.(updatedGoals)
-        
-        // Reset form and close modal
-        setEditingGoal(null)
-        setEditFormData({
-          title: '',
-          description: '',
-          target_date: '',
-          status: 'active',
-          is_focused: false,
-          steps: []
-        })
-      } else {
-        alert('Nepodařilo se vytvořit cíl')
-      }
-    } catch (error) {
-      console.error('Error creating goal:', error)
-      alert('Chyba při vytváření cíle')
-    } finally {
-      setGoalModalSaving(false)
-    }
-  }
-
-  const handleUpdateGoal = async () => {
-    if (!editFormData.title.trim()) {
-      alert(t('table.goalNameRequired'))
-      return
-    }
-
-    if (!editingGoal) return
-
-    setGoalModalSaving(true)
-    try {
-      const response = await fetch('/api/goals', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          goalId: editingGoal.id,
-          title: editFormData.title,
-          description: editFormData.description,
-          target_date: editFormData.target_date || null,
-          status: editFormData.status,
-          isFocused: editFormData.is_focused
-        }),
-      })
-
-      if (response.ok) {
-        const updatedGoal = await response.json()
-        const updatedGoals = goals.map((g: any) => g.id === updatedGoal.id ? updatedGoal : g)
-        onGoalsUpdate?.(updatedGoals)
-        setEditingGoal(null)
-      } else {
-        alert('Nepodařilo se aktualizovat cíl')
-      }
-    } catch (error) {
-      console.error('Error updating goal:', error)
-      alert('Chyba při aktualizaci cíle')
-    } finally {
-      setGoalModalSaving(false)
-    }
-  }
-
-  const handleDeleteGoal = async () => {
-    if (!editingGoal) return
-
-    if (!confirm('Opravdu chcete smazat tento cíl? Tato akce je nevratná.')) {
-      return
-    }
-
-    try {
-      const response = await fetch('/api/goals', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ goalId: editingGoal.id }),
-      })
-
-      if (response.ok) {
-        const updatedGoals = goals.filter((g: any) => g.id !== editingGoal.id)
-        onGoalsUpdate?.(updatedGoals)
-        setEditingGoal(null)
-      } else {
-        alert('Nepodařilo se smazat cíl')
-      }
-    } catch (error) {
-      console.error('Error deleting goal:', error)
-      alert('Chyba při mazání cíle')
-    }
-  }
-
-  // Step handlers
-  const handleAddStep = () => {
-    if (onOpenStepModal && editingGoal?.id) {
-      // Use main modal
-      onOpenStepModal(undefined, editingGoal.id)
-    } else {
-      // Fallback to inline
-    setEditFormData({
-      ...editFormData,
-      steps: [...editFormData.steps, { id: `temp-${crypto.randomUUID()}`, title: '', description: '', date: '', isEditing: true }]
-    })
-    }
-  }
-  
-  const handleEditStep = (step: any) => {
-    if (onOpenStepModal) {
-      onOpenStepModal(step)
-    }
-  }
-
-  const handleSaveStep = async (stepId: string) => {
-    const step = editFormData.steps.find(s => s.id === stepId)
-    if (!step || !step.title.trim() || !editingGoal) {
-      if (!step?.title.trim()) {
-        alert(t('table.stepNameRequired'))
-      }
-      return
-    }
-
-    const currentUserId = userId || player?.user_id
-    if (!currentUserId) {
-      alert('Chyba: Uživatel není nalezen')
-      return
-    }
-
-    try {
-      if (step.id.startsWith('temp-')) {
-        // New step - create
-        const response = await fetch('/api/daily-steps', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: currentUserId,
-            goalId: editingGoal.id,
-            title: step.title.trim(),
-            description: step.description || '',
-            date: step.date || null
-          })
-        })
-        
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
-          alert(`Chyba při ukládání kroku: ${errorData.error || 'Nepodařilo se uložit krok'}`)
-          return
-        }
-
-        const savedStep = await response.json()
-        
-        // Reload all steps to ensure consistency
-        try {
-          const stepsResponse = await fetch(`/api/daily-steps?goalId=${editingGoal.id}`)
-          if (stepsResponse.ok) {
-            const steps = await stepsResponse.json()
-            const stepsArray = Array.isArray(steps) ? steps : []
-            setEditFormData(prev => ({
-              ...prev,
-              steps: stepsArray.map((s: any) => ({
-                id: s.id,
-                title: s.title,
-                description: s.description || '',
-                date: s.date ? (s.date.includes('T') ? s.date.split('T')[0] : s.date) : '',
-                completed: s.completed || false,
-                isEditing: false
-              }))
-            }))
-            // Update counts - reload goal counts if needed
-            // Note: goalCounts are updated automatically when goals are reloaded
-          }
-        } catch (reloadError) {
-          console.error('Error reloading steps:', reloadError)
-          // Fallback: update just the saved step
-          setEditFormData(prev => ({
-            ...prev,
-            steps: prev.steps.map(s => 
-              s.id === stepId 
-                ? { 
-                    ...savedStep, 
-                    isEditing: false, 
-                    date: savedStep.date ? (savedStep.date.includes('T') ? savedStep.date.split('T')[0] : savedStep.date) : '' 
-                  } 
-                : s
-            )
-          }))
-          // Update counts even on error - reload goal counts if needed
-          // Note: goalCounts are updated automatically when goals are reloaded
-        }
-      } else {
-        // Existing step - update
-        const response = await fetch('/api/daily-steps', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            stepId: step.id,
-            title: step.title.trim(),
-            description: step.description || '',
-            date: step.date || null,
-            completed: step.completed || false
-          })
-        })
-        
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
-          alert(`Chyba při aktualizaci kroku: ${errorData.error || 'Nepodařilo se aktualizovat krok'}`)
-          return
-        }
-
-        const updatedStep = await response.json()
-        
-        // Reload all steps to ensure consistency
-        try {
-          const stepsResponse = await fetch(`/api/daily-steps?goalId=${editingGoal.id}`)
-          if (stepsResponse.ok) {
-            const steps = await stepsResponse.json()
-            const stepsArray = Array.isArray(steps) ? steps : []
-            setEditFormData(prev => ({
-              ...prev,
-              steps: stepsArray.map((s: any) => ({
-                id: s.id,
-                title: s.title,
-                description: s.description || '',
-                date: s.date ? (s.date.includes('T') ? s.date.split('T')[0] : s.date) : '',
-                completed: s.completed || false,
-                isEditing: false
-              }))
-            }))
-            // Update counts - reload goal counts if needed
-            // Note: goalCounts are updated automatically when goals are reloaded
-          }
-        } catch (reloadError) {
-          console.error('Error reloading steps:', reloadError)
-          // Fallback: update just the updated step
-          setEditFormData(prev => ({
-            ...prev,
-            steps: prev.steps.map(s => 
-              s.id === stepId 
-                ? { 
-                    ...updatedStep, 
-                    isEditing: false,
-                    date: updatedStep.date ? (updatedStep.date.includes('T') ? updatedStep.date.split('T')[0] : updatedStep.date) : ''
-                  } 
-                : s
-            )
-          }))
-          // Update counts even on error - reload goal counts if needed
-          // Note: goalCounts are updated automatically when goals are reloaded
-        }
-      }
-    } catch (error) {
-      console.error('Error saving step:', error)
-      alert('Chyba při ukládání kroku: ' + (error instanceof Error ? error.message : 'Neznámá chyba'))
-    }
-  }
-
-  const handleDeleteStep = async (stepId: string) => {
-    const step = editFormData.steps.find(s => s.id === stepId)
-    if (!step) return
-
-    // If it's a new step (not saved yet), just remove it
-    if (step.id.startsWith('temp-')) {
-      setEditFormData(prev => ({
-        ...prev,
-        steps: prev.steps.filter(s => s.id !== stepId)
-      }))
-      return
-    }
-
-    // Confirm deletion
-    if (!confirm('Opravdu chcete smazat tento krok?')) {
-      return
-    }
-
-    // Delete from API
-    try {
-      const response = await fetch(`/api/daily-steps?stepId=${stepId}`, {
-        method: 'DELETE'
-      })
+    const loadAllSteps = async () => {
+      const loadingSet = new Set<string>()
+      goals.forEach(goal => loadingSet.add(goal.id))
+      setLoadingSteps(loadingSet)
       
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
-        alert(`Chyba při mazání kroku: ${errorData.error || 'Nepodařilo se smazat krok'}`)
-        return
-      }
-
-      // Reload all steps to ensure consistency
-      if (editingGoal?.id) {
-        try {
-          const stepsResponse = await fetch(`/api/daily-steps?goalId=${editingGoal.id}`)
-          if (stepsResponse.ok) {
-            const steps = await stepsResponse.json()
-            const stepsArray = Array.isArray(steps) ? steps : []
-            setEditFormData(prev => ({
-              ...prev,
-              steps: stepsArray.map((s: any) => ({
-                id: s.id,
-                title: s.title,
-                description: s.description || '',
-                date: s.date ? (s.date.includes('T') ? s.date.split('T')[0] : s.date) : '',
-                completed: s.completed || false,
-                isEditing: false
-              }))
-            }))
-            // Update counts - reload goal counts if needed
-            // Note: goalCounts are updated automatically when goals are reloaded
+      try {
+        // Load all steps in parallel
+        const stepPromises = goals.map(async (goal) => {
+    try {
+            const response = await fetch(`/api/daily-steps?goalId=${goal.id}`)
+      if (response.ok) {
+              const steps = await response.json()
+              return { goalId: goal.id, steps: Array.isArray(steps) ? steps : [] }
+            }
+            return { goalId: goal.id, steps: [] }
+          } catch (error) {
+            console.error(`Error loading steps for goal ${goal.id}:`, error)
+            return { goalId: goal.id, steps: [] }
           }
-        } catch (reloadError) {
-          console.error('Error reloading steps:', reloadError)
-          // Fallback: just remove from local state
-          setEditFormData(prev => ({
-            ...prev,
-            steps: prev.steps.filter(s => s.id !== stepId)
-          }))
-          // Update counts even on error - reload goal counts if needed
-          // Note: goalCounts are updated automatically when goals are reloaded
-        }
-      } else {
-        // Fallback: just remove from local state
-        setEditFormData(prev => ({
-          ...prev,
-          steps: prev.steps.filter(s => s.id !== stepId)
-        }))
-      }
+        })
+        
+        const results = await Promise.all(stepPromises)
+        const stepsMap: Record<string, any[]> = {}
+        results.forEach(({ goalId, steps }) => {
+          stepsMap[goalId] = steps
+        })
+        
+        setGoalStepsCache(stepsMap)
+        setLoadingSteps(new Set())
     } catch (error) {
-      console.error('Error deleting step:', error)
-      alert('Chyba při mazání kroku: ' + (error instanceof Error ? error.message : 'Neznámá chyba'))
+        console.error('Error loading steps:', error)
+        setLoadingSteps(new Set())
+      }
     }
-  }
-
-
-  // Sort goals
-  const sortedGoals = useMemo(() => {
-    return [...goals].sort((a, b) => {
-      if (a.status === 'completed' && b.status !== 'completed') return 1
-      if (a.status !== 'completed' && b.status === 'completed') return -1
-      return 0
-    })
+    
+    if (goals.length > 0) {
+      loadAllSteps()
+      } else {
+      setGoalStepsCache({})
+      setLoadingSteps(new Set())
+    }
   }, [goals])
 
-  // Filter goals
-  const filteredGoals = useMemo(() => {
-    return sortedGoals.filter((goal: any) => {
-      if (goalsStatusFilter !== 'all' && goal.status !== goalsStatusFilter) {
-        return false
-      }
-      return true
+  // Calculate progress for a goal
+  const calculateProgress = (goalId: string) => {
+    const steps = goalStepsCache[goalId] || []
+    const totalSteps = steps.length
+    const completedSteps = steps.filter(s => s.completed).length
+    const progress = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0
+    return { progress, completedSteps, totalSteps }
+  }
+
+  // Filter and sort goals
+  const filteredAndSortedGoals = useMemo(() => {
+    // First filter by status
+    const filtered = goals.filter(goal => statusFilters.has(goal.status))
+        
+    // Then sort
+    return filtered.sort((a, b) => {
+      const dateA = a.target_date ? new Date(a.target_date).getTime() : (a.created_at ? new Date(a.created_at).getTime() : 0)
+      const dateB = b.target_date ? new Date(b.target_date).getTime() : (b.created_at ? new Date(b.created_at).getTime() : 0)
+      
+      // Active goals first, then by date
+      if (a.status === 'active' && b.status !== 'active') return -1
+      if (a.status !== 'active' && b.status === 'active') return 1
+      
+      // Then by date (earliest first)
+      if (dateA !== dateB) {
+        return dateA - dateB
+    }
+
+      // Finally by title
+      return (a.title || '').localeCompare(b.title || '')
     })
-  }, [sortedGoals, goalsStatusFilter])
+  }, [goals, statusFilters])
+  
+  // Handle status filter toggle
+  const handleStatusFilterToggle = (status: string) => {
+    setStatusFilters(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(status)) {
+        newSet.delete(status)
+      } else {
+        newSet.add(status)
+      }
+      return newSet
+    })
+  }
+
+  // Format date for display
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return null
+    try {
+      const date = new Date(dateString)
+      return date.toLocaleDateString(localeCode === 'cs' ? 'cs-CZ' : 'en-US', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+          })
+    } catch {
+      return null
+    }
+  }
+
+  // Handle goal click - navigate to goal detail
+  const handleGoalClick = (goalId: string) => {
+    if (onGoalClick) {
+      onGoalClick(goalId)
+    }
+  }
+
+  // Handle create goal
+  const handleCreateGoal = () => {
+    if (onCreateGoal) {
+      onCreateGoal()
+    }
+  }
 
   return (
-    <div className="w-full h-full flex flex-col">
-      {/* Filters Row - Mobile: collapsible, Desktop: always visible */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 px-4 py-3 bg-white border-b border-gray-200">
-        {/* Mobile: Collapsible filters */}
-        <div className="md:hidden flex flex-col gap-3">
-          <div className="flex items-center justify-between gap-3">
-            <button
-              onClick={() => setFiltersExpanded(!filtersExpanded)}
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200"
-            >
-              <Filter className="w-4 h-4" />
-              <span>Filtry</span>
-              {filtersExpanded ? (
-                <ChevronUp className="w-4 h-4" />
-              ) : (
-                <ChevronDown className="w-4 h-4" />
-              )}
-            </button>
-            
-            {/* Add Goal Button - Mobile */}
-            <button
-              onClick={() => {
-                setEditingGoal({ id: null, title: '', description: '', target_date: '', status: 'active' })
-                setEditFormData({
-                  title: '',
-                  description: '',
-                  target_date: '',
-                  status: 'active',
-                  is_focused: false,
-                  steps: []
-                })
-              }}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium flex-1"
-            >
-              <Plus className="w-4 h-4" />
-              {t('goals.add')}
-            </button>
-          </div>
-          
-          {/* Collapsible filters content */}
-          {filtersExpanded && (
-            <div className="flex flex-col gap-2 pt-2 border-t border-gray-200">
-          {/* Status Filter */}
-          <select
-            value={goalsStatusFilter}
-            onChange={(e) => setGoalsStatusFilter(e.target.value as any)}
-                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
-          >
-            <option value="all">{t('goals.filters.status.all')}</option>
-            <option value="active">{t('goals.filters.status.active')}</option>
-            <option value="completed">{t('goals.filters.status.completed')}</option>
-            <option value="considering">{t('goals.filters.status.considering')}</option>
-          </select>
-            </div>
-          )}
+    <div className="w-full h-full flex flex-col bg-orange-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{t('navigation.goals')}</h1>
+            <p className="text-sm text-gray-600 mt-1">
+              {filteredAndSortedGoals.length} {filteredAndSortedGoals.length === 1 ? (localeCode === 'cs' ? 'cíl' : 'goal') : (localeCode === 'cs' ? 'cílů' : 'goals')}
+            </p>
         </div>
-          
-        {/* Desktop: Always visible filters */}
-        <div className="hidden md:flex md:items-center gap-3 flex-1">
-          {/* Status Filter */}
-          <select
-            value={goalsStatusFilter}
-            onChange={(e) => setGoalsStatusFilter(e.target.value as any)}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
-          >
-            <option value="all">{t('goals.filters.status.all')}</option>
-            <option value="active">{t('goals.filters.status.active')}</option>
-            <option value="completed">{t('goals.filters.status.completed')}</option>
-            <option value="considering">{t('goals.filters.status.considering')}</option>
-          </select>
-          
-        </div>
-        
-        {/* Add Goal Button - Desktop */}
         <button
-          onClick={() => {
-            setEditingGoal({ id: null, title: '', description: '', target_date: '', status: 'active' })
-            setEditFormData({
-              title: '',
-              description: '',
-              target_date: '',
-              status: 'active',
-              is_focused: false,
-              steps: []
-            })
-          }}
-          className="hidden md:flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
+            onClick={handleCreateGoal}
+            className="flex items-center gap-2 px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium shadow-sm"
         >
-          <Plus className="w-4 h-4" />
+            <Plus className="w-5 h-5" />
           {t('goals.add')}
         </button>
       </div>
       
-      {/* Goals Table */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="w-full overflow-x-auto">
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden m-4">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 first:pl-6">{t('table.name')}</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">{t('table.status')}</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40">{t('table.date')}</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-32">{t('table.steps')}</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-12 last:pr-6"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredGoals.map((goal: any) => {
-                  return (
-                    <tr
-                      key={goal.id}
-                      onClick={() => handleOpenEditModal(goal)}
-                      className={`border-b border-gray-100 hover:bg-orange-50/30 transition-all duration-200 last:border-b-0 cursor-pointer ${
-                        goal.status === 'completed' ? 'bg-orange-50/30 hover:bg-orange-50/50' : 'bg-white'
-                      }`}
-                    >
-                      <td className="px-4 py-2 first:pl-6">
-                        <span className={`font-semibold text-sm ${goal.status === 'completed' ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
-                          {goal.title}
+        {/* Status Filters */}
+        <div className="flex items-center gap-4 mt-4">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={statusFilters.has('active')}
+              onChange={() => handleStatusFilterToggle('active')}
+              className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+            />
+            <span className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+              <Target className="w-4 h-4 text-green-600" />
+              {t('goals.status.active')}
                         </span>
-                      </td>
-                      <td className="px-4 py-2">
-                        {goal.status === 'completed' ? (
-                          <span className="text-xs px-2.5 py-1.5 rounded-lg font-medium bg-blue-100 text-blue-700">
-                            {t('goals.status.completed')}
-                          </span>
-                        ) : (
-                          <button
-                            onClick={async (e) => {
-                              e.stopPropagation()
-                              const newStatus = goal.status === 'active' ? 'considering' : 'active'
-                              try {
-                                const response = await fetch('/api/goals', {
-                                  method: 'PUT',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ goalId: goal.id, status: newStatus })
-                                })
-                                if (response.ok) {
-                                  const updatedGoal = await response.json()
-                                  const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
-                                  onGoalsUpdate?.(updatedGoals)
-                                }
-                              } catch (error) {
-                                console.error('Error updating goal status:', error)
-                              }
-                            }}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 ${
-                              goal.status === 'active' ? 'bg-orange-600' : 'bg-gray-300'
-                            }`}
-                            title={goal.status === 'active' ? 'Aktivní - klikněte pro odložení' : 'Odložené - klikněte pro aktivaci'}
-                          >
-                            <span
-                              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                goal.status === 'active' ? 'translate-x-6' : 'translate-x-1'
-                              }`}
-                            />
-                          </button>
-                        )}
-                      </td>
-                      <td className="px-4 py-2">
-                        <span
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                            setQuickEditGoalPosition({ top: rect.bottom + 4, left: rect.left })
-                            setQuickEditGoalId(goal.id)
-                            setQuickEditGoalField('date')
-                          }}
-                          className="text-xs text-gray-700 cursor-pointer hover:text-orange-600 transition-colors"
-                        >
-                          {goal.target_date ? (
-                            new Date(goal.target_date).toLocaleDateString(localeCode)
-                          ) : (
-                            <span className="text-gray-400">Bez data</span>
-                          )}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-gray-600 flex items-center gap-1">
-                            <Target className="w-3 h-3" />
-                            {goalCounts[goal.id]?.steps || 0}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2 last:pr-6">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleOpenEditModal(goal)
-                          }}
-                          className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-                          title={t('common.edit') || 'Upravit'}
-                        >
-                          <Edit className="w-4 h-4 text-gray-600" />
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                })}
-                {filteredGoals.length === 0 && (
-                  <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
-                      <p className="text-lg">Žádné cíle nejsou nastavené</p>
-                      <p className="text-sm">Klikněte na tlačítko výše pro přidání nového cíle</p>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+          </label>
+          
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={statusFilters.has('paused')}
+              onChange={() => handleStatusFilterToggle('paused')}
+              className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+            />
+            <span className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+              <Moon className="w-4 h-4 text-yellow-600" />
+              {t('goals.status.paused')}
+                              </span>
+          </label>
+          
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={statusFilters.has('completed')}
+              onChange={() => handleStatusFilterToggle('completed')}
+              className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+            />
+            <span className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+              <CheckCircle className="w-4 h-4 text-blue-600" />
+                        {t('goals.status.completed')}
+            </span>
+          </label>
+                    </div>
       </div>
 
-      {/* Quick Edit Modals for Goals */}
-      {quickEditGoalId && quickEditGoalPosition && typeof window !== 'undefined' && createPortal(
-        <>
-          <div 
-            className="fixed inset-0 z-40" 
-            onClick={(e) => {
-              e.stopPropagation()
-              setQuickEditGoalId(null)
-              setQuickEditGoalField(null)
-              setQuickEditGoalPosition(null)
-            }}
-          />
-          <div 
-            className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-4 min-w-[250px] max-w-[90vw]"
-            style={(() => {
-              if (typeof window === 'undefined') {
-                return {
-                  top: `${quickEditGoalPosition.top}px`,
-                  left: `${quickEditGoalPosition.left}px`
-                }
-              }
-              
-              // Calculate adjusted position to keep modal on screen
-              const modalWidth = 250 // min-w-[250px]
-              const modalHeight = 200 // estimated height
-              const padding = 10 // padding from screen edges
-              
-              let adjustedTop = quickEditGoalPosition.top
-              let adjustedLeft = quickEditGoalPosition.left
-              
-              // Adjust horizontal position
-              if (adjustedLeft + modalWidth > window.innerWidth - padding) {
-                adjustedLeft = window.innerWidth - modalWidth - padding
-              }
-              if (adjustedLeft < padding) {
-                adjustedLeft = padding
-              }
-              
-              // Adjust vertical position
-              if (adjustedTop + modalHeight > window.innerHeight - padding) {
-                adjustedTop = quickEditGoalPosition.top - modalHeight - 40 // Position above the element
-                // If still off screen, position at top
-                if (adjustedTop < padding) {
-                  adjustedTop = padding
-                }
-              }
-              if (adjustedTop < padding) {
-                adjustedTop = padding
-              }
-              
-              return {
-                top: `${adjustedTop}px`,
-                left: `${adjustedLeft}px`
-              }
-            })()}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {(() => {
-              const goal = filteredGoals.find((g: any) => g.id === quickEditGoalId)
-              if (!goal) return null
-              
-              if (quickEditGoalField === 'status') {
-                return (
-                  <>
-                    <div className="max-h-[300px] overflow-y-auto">
+      {/* Goals Grid */}
+      <div className="flex-1 overflow-y-auto px-6 py-6">
+        {filteredAndSortedGoals.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center py-16">
+            <Target className="w-16 h-16 text-gray-300 mb-4" />
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">Žádné cíle</h3>
+            <p className="text-gray-500 mb-6">Začněte přidáním svého prvního cíle</p>
                       <button
-                        onClick={async (e) => {
-                          e.stopPropagation()
-                          try {
-                            const response = await fetch('/api/goals', {
-                              method: 'PUT',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ goalId: goal.id, status: 'active' })
-                            })
-                            if (response.ok) {
-                              const updatedGoal = await response.json()
-                              const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
-                              onGoalsUpdate?.(updatedGoals)
-                              setQuickEditGoalId(null)
-                              setQuickEditGoalField(null)
-                              setQuickEditGoalPosition(null)
-                            }
-                          } catch (error) {
-                            console.error('Error updating goal status:', error)
-                          }
-                        }}
-                        className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
-                          goal.status === 'active' ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
-                        }`}
-                      >
-                        {t('goals.status.active')}
-                      </button>
-                      <button
-                        onClick={async (e) => {
-                          e.stopPropagation()
-                          try {
-                            const response = await fetch('/api/goals', {
-                              method: 'PUT',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ goalId: goal.id, status: 'completed' })
-                            })
-                            if (response.ok) {
-                              const updatedGoal = await response.json()
-                              const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
-                              onGoalsUpdate?.(updatedGoals)
-                              setQuickEditGoalId(null)
-                              setQuickEditGoalField(null)
-                              setQuickEditGoalPosition(null)
-                            }
-                          } catch (error) {
-                            console.error('Error updating goal status:', error)
-                          }
-                        }}
-                        className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
-                          goal.status === 'completed' ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
-                        }`}
-                      >
-                        {t('goals.status.completed')}
-                      </button>
-                      <button
-                        onClick={async (e) => {
-                          e.stopPropagation()
-                          try {
-                            const response = await fetch('/api/goals', {
-                              method: 'PUT',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ goalId: goal.id, status: 'considering' })
-                            })
-                            if (response.ok) {
-                              const updatedGoal = await response.json()
-                              const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
-                              onGoalsUpdate?.(updatedGoals)
-                              setQuickEditGoalId(null)
-                              setQuickEditGoalField(null)
-                              setQuickEditGoalPosition(null)
-                            }
-                          } catch (error) {
-                            console.error('Error updating goal status:', error)
-                          }
-                        }}
-                        className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
-                          goal.status === 'considering' ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
-                        }`}
-                      >
-                        {t('goals.status.considering')}
+              onClick={handleCreateGoal}
+              className="flex items-center gap-2 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium"
+            >
+              <Plus className="w-5 h-5" />
+              {t('goals.add')}
                       </button>
                     </div>
-                  </>
-                )
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredAndSortedGoals.map((goal) => {
+              const { progress, completedSteps, totalSteps } = calculateProgress(goal.id)
+              const IconComponent = getIconComponent(goal.icon)
+              const statusConfig = {
+                active: { label: t('goals.status.active'), color: 'bg-green-100 text-green-700', icon: Target },
+                paused: { label: t('goals.status.paused'), color: 'bg-yellow-100 text-yellow-700', icon: Moon },
+                completed: { label: t('goals.status.completed'), color: 'bg-blue-100 text-blue-700', icon: CheckCircle }
               }
-              
-              if (quickEditGoalField === 'date') {
-                return (
-                  <>
-                    <h3 className="text-sm font-semibold text-gray-800 mb-2">
-                      {t('details.step.newDate') || 'Vyberte datum'}
-                    </h3>
-                    <div className="space-y-2">
-                      <div className="grid grid-cols-7 gap-1 mb-1">
-                        {['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(day => (
-                          <div key={day} className="text-center text-xs font-semibold text-gray-600 py-1">
-                            {day}
-                          </div>
-                        ))}
-                      </div>
-                      {(() => {
-                        const today = new Date()
-                        const currentMonth = selectedDateForGoal.getMonth()
-                        const currentYear = selectedDateForGoal.getFullYear()
-                        const firstDay = new Date(currentYear, currentMonth, 1)
-                        const lastDay = new Date(currentYear, currentMonth + 1, 0)
-                        const daysInMonth = lastDay.getDate()
-                        const startingDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1
-                        const todayStr = getLocalDateString()
-                        
-                        const days = []
-                        for (let i = 0; i < startingDayOfWeek; i++) {
-                          days.push(null)
-                        }
-                        for (let day = 1; day <= daysInMonth; day++) {
-                          const date = new Date(currentYear, currentMonth, day)
-                          days.push(date)
-                        }
+              const status = statusConfig[goal.status as keyof typeof statusConfig] || statusConfig.active
 
-                        return (
-                          <div className="grid grid-cols-7 gap-1">
-                            {days.map((date, index) => {
-                              if (!date) {
-                                return <div key={`empty-${index}`} className="h-7"></div>
-                              }
-                              
-                              const dateStr = getLocalDateString(date)
-                              const isSelected = dateStr === getLocalDateString(selectedDateForGoal)
-                              const isToday = dateStr === todayStr
-                              
-                              return (
+              // Determine styling based on status
+              const isPaused = goal.status === 'paused'
+              const isCompleted = goal.status === 'completed'
+              
+                return (
+                <div
+                  key={goal.id}
+                  onClick={() => handleGoalClick(goal.id)}
+                  className={`rounded-xl shadow-sm border transition-all duration-200 cursor-pointer overflow-hidden group ${
+                    isPaused
+                      ? 'bg-gray-50 border-gray-300 opacity-60 hover:opacity-80'
+                      : isCompleted
+                      ? 'bg-green-50 border-green-200 hover:shadow-md'
+                      : 'bg-white border-gray-200 hover:shadow-md'
+                        }`}
+                      >
+                  {/* Goal Header */}
+                  <div className={`p-5 border-b ${
+                    isPaused
+                      ? 'border-gray-200'
+                      : isCompleted
+                      ? 'border-green-200'
+                      : 'border-gray-100'
+                  }`}>
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="flex-shrink-0">
+                          <IconComponent className={`w-6 h-6 ${
+                            isPaused
+                              ? 'text-gray-400'
+                              : isCompleted
+                              ? 'text-green-600'
+                              : 'text-orange-600'
+                          }`} />
+                    </div>
+                        <h3 className={`text-lg font-semibold truncate transition-colors ${
+                          isPaused
+                            ? 'text-gray-500'
+                            : isCompleted
+                            ? 'text-green-800 group-hover:text-green-900'
+                            : 'text-gray-900 group-hover:text-orange-600'
+                        }`}>
+                          {goal.title}
+                    </h3>
+                          </div>
+                      </div>
+                    
+                    {goal.description && (
+                      <p className={`text-sm line-clamp-2 mb-3 ${
+                        isPaused
+                          ? 'text-gray-400'
+                          : isCompleted
+                          ? 'text-green-700'
+                          : 'text-gray-600'
+                      }`}>
+                        {goal.description}
+                      </p>
+                    )}
+
+                    {/* Status Badge */}
+                    <div className="flex items-center gap-2">
                                 <button
-                                  key={dateStr}
                                   onClick={(e) => {
                                     e.stopPropagation()
-                                    setSelectedDateForGoal(date)
+                          if (onGoalStatusClick) {
+                            onGoalStatusClick(goal.id, e)
+                          }
                                   }}
-                                  className={`h-7 rounded transition-all text-xs ${
-                                    isSelected 
-                                      ? 'bg-orange-600 text-white font-bold' 
-                                      : isToday
-                                        ? 'bg-orange-100 text-orange-700 font-semibold'
-                                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                                  }`}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium ${status.color} hover:opacity-80 transition-opacity cursor-pointer`}
                                 >
-                                  {date.getDate()}
+                        <status.icon className="w-3.5 h-3.5" />
+                        {status.label}
                                 </button>
-                              )
-                            })}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                          if (onGoalDateClick) {
+                            onGoalDateClick(goal.id, e)
+                          }
+                          }}
+                        className={`text-xs flex items-center gap-1 hover:opacity-80 transition-opacity cursor-pointer ${
+                          isPaused
+                            ? 'text-gray-400'
+                            : isCompleted
+                            ? 'text-green-700'
+                            : goal.target_date
+                            ? 'text-gray-500'
+                            : 'text-gray-400 italic'
+                        }`}
+                      >
+                        <Calendar className="w-3.5 h-3.5" />
+                        {goal.target_date ? formatDate(goal.target_date) : (t('goals.addDate') || 'Přidat datum')}
+                        </button>
+                      </div>
+                    </div>
+
+                  {/* Progress Section */}
+                  <div className="p-5">
+                    <div className="mb-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className={`text-sm font-medium ${
+                          isPaused
+                            ? 'text-gray-400'
+                            : isCompleted
+                            ? 'text-green-700'
+                            : 'text-gray-700'
+                        }`}>
+                          Pokrok
+                        </span>
+                        <span className={`text-sm font-semibold ${
+                          isPaused
+                            ? 'text-gray-500'
+                            : isCompleted
+                            ? 'text-green-800'
+                            : 'text-gray-900'
+                        }`}>
+                          {Math.round(progress)}%
+                        </span>
+          </div>
+                      <div className={`w-full rounded-full h-2.5 overflow-hidden ${
+                        isPaused
+                          ? 'bg-gray-300'
+                          : isCompleted
+                          ? 'bg-green-200'
+                          : 'bg-gray-200'
+                      }`}>
+                        <div
+                          className={`h-full transition-all duration-300 rounded-full ${
+                            isPaused
+                              ? 'bg-gray-400'
+                              : isCompleted
+                              ? 'bg-green-600'
+                              : 'bg-orange-600'
+                    }`}
+                          style={{ width: `${progress}%` }}
+                  />
+                </div>
+                </div>
+
+                    <div className={`flex items-center justify-between text-xs ${
+                      isPaused
+                        ? 'text-gray-400'
+                        : isCompleted
+                        ? 'text-green-700'
+                        : 'text-gray-600'
+                    }`}>
+                      <span>
+                        {completedSteps} / {totalSteps} kroků
+                    </span>
+                      {goal.status === 'active' && (
+                    <button
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                            handleGoalClick(goal.id)
+                                    }}
+                          className="flex items-center gap-1 text-orange-600 hover:text-orange-700 font-medium transition-colors"
+                                  >
+                          Zobrazit
+                          <ArrowRight className="w-3.5 h-3.5" />
+                                  </button>
+                            )}
+                          </div>
+                    </div>
                           </div>
                         )
-                      })()}
-                      
-                      <div className="flex items-center justify-between mt-2 pt-2 border-t">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            const prevMonth = new Date(selectedDateForGoal)
-                            prevMonth.setMonth(prevMonth.getMonth() - 1)
-                            setSelectedDateForGoal(prevMonth)
-                          }}
-                          className="p-1 hover:bg-gray-100 rounded-lg"
-                        >
-                          <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                          </svg>
-                        </button>
-                        <span className="text-xs font-semibold text-gray-800">
-                          {selectedDateForGoal.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
-                        </span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            const nextMonth = new Date(selectedDateForGoal)
-                            nextMonth.setMonth(nextMonth.getMonth() + 1)
-                            setSelectedDateForGoal(nextMonth)
-                          }}
-                          className="p-1 hover:bg-gray-100 rounded-lg"
-                        >
-                          <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                          </svg>
-                        </button>
-                      </div>
-                      
-                      <div className="flex gap-2 mt-2">
-                        <button
-                          onClick={async (e) => {
-                            e.stopPropagation()
-                            const dateStr = getLocalDateString(selectedDateForGoal)
-                            try {
-                              const response = await fetch('/api/goals', {
-                                method: 'PUT',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ goalId: goal.id, target_date: dateStr })
-                              })
-                              if (response.ok) {
-                                const updatedGoal = await response.json()
-                                const updatedGoals = goals.map((g: any) => g.id === goal.id ? updatedGoal : g)
-                                onGoalsUpdate?.(updatedGoals)
-                                setQuickEditGoalId(null)
-                                setQuickEditGoalField(null)
-                                setQuickEditGoalPosition(null)
-                              }
-                            } catch (error) {
-                              console.error('Error updating goal date:', error)
-                            }
-                          }}
-                          className="flex-1 px-3 py-1.5 bg-orange-600 text-white text-xs rounded-lg hover:bg-orange-700 transition-colors"
-                        >
-                          {t('details.step.confirm') || 'Uložit'}
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setQuickEditGoalId(null)
-                            setQuickEditGoalField(null)
-                            setQuickEditGoalPosition(null)
-                          }}
-                          className="px-3 py-1.5 bg-gray-200 text-gray-700 text-xs rounded-lg hover:bg-gray-300 transition-colors"
-                        >
-                          {t('common.cancel') || 'Zrušit'}
-                        </button>
-                      </div>
+                      })}
                     </div>
-                  </>
-                )
-              }
-              
-              return null
-            })()}
-          </div>
-        </>,
-        document.body
-      )}
-
-      {/* Edit Goal Modal */}
-      {editingGoal && typeof window !== 'undefined' && createPortal(
-        <>
-          <div 
-            className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
-            onClick={() => setEditingGoal(null)}
-          >
-            <div 
-              className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    {editingGoal?.id ? t('goals.edit') : t('goals.create')}
-                  </h2>
-                  <button
-                    onClick={() => setEditingGoal(null)}
-                    className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 transition-colors"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+                  )}
                 </div>
-              </div>
-
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Left column - General Info */}
-                  <div className="space-y-4">
-                    <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">{t('modal.generalInfo')}</h3>
-                    
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-2">
-                        {t('goals.goalTitle')} <span className="text-orange-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={editFormData.title}
-                        onChange={(e) => setEditFormData({...editFormData, title: e.target.value})}
-                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                        placeholder={t('goals.goalTitlePlaceholder')}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-2">
-                        {t('goals.goalDescription')}
-                      </label>
-                      <textarea
-                        value={editFormData.description}
-                        onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
-                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white resize-none"
-                        rows={3}
-                        placeholder={t('goals.goalDescriptionPlaceholder')}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-2">
-                          {t('common.endDate')}
-                        </label>
-                        <input
-                          type="date"
-                          value={editFormData.target_date}
-                          onChange={(e) => setEditFormData({...editFormData, target_date: e.target.value})}
-                          className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-2">
-                          {t('table.status')}
-                        </label>
-                        <select
-                          value={editFormData.status}
-                          onChange={(e) => setEditFormData({...editFormData, status: e.target.value})}
-                          className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                        >
-                          <option value="active">{t('goals.status.active')}</option>
-                          <option value="completed">{t('goals.status.completed')}</option>
-                          <option value="considering">{t('goals.status.considering')}</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="pt-2">
-                      <label className="flex items-center gap-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={editFormData.is_focused}
-                          onChange={(e) => setEditFormData({...editFormData, is_focused: e.target.checked})}
-                          className="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                        />
-                        <span className="text-sm font-semibold text-gray-800">
-                          {t('modal.addToFocus')}
-                        </span>
-                      </label>
-                      <p className="text-xs text-gray-500 mt-1 ml-8">
-                        {t('modal.focusDescription')}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Right column - Steps */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">{t('table.steps')}</h3>
-                      <button
-                        type="button"
-                        onClick={handleAddStep}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-colors"
-                      >
-                        <Plus className="w-4 h-4" />
-                        {t('goals.addStep')}
-                      </button>
-                    </div>
-                    
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 min-h-[300px]">
-                      {editFormData.steps.length === 0 ? (
-                        <div className="text-center py-12 text-gray-400">
-                          <svg className="w-10 h-10 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                          </svg>
-                          <p className="text-sm">{t('steps.noSteps')}</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
-                          {editFormData.steps.map((step, index) => {
-                            const isEditing = step.isEditing || (!step.title && step.id === editFormData.steps[editFormData.steps.length - 1]?.id)
-                            
-                            return (
-                              <div 
-                                key={step.id} 
-                                data-step-id={step.id}
-                                className="bg-white p-3 rounded-lg border border-gray-200 hover:border-orange-600 transition-colors"
-                              >
-                                {isEditing ? (
-                                  <>
-                                    <div className="flex items-start justify-between mb-2">
-                                      <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-2 py-0.5 rounded">{t('goals.stepNumber')} {index + 1}</span>
-                                      <button
-                                        type="button"
-                                        onClick={() => handleDeleteStep(step.id)}
-                                        className="text-red-400 hover:text-red-600 hover:bg-red-50 rounded p-1 transition-colors"
-                                      >
-                                        <X className="w-3.5 h-3.5" />
-                                      </button>
-                                    </div>
-                                    <input
-                                      type="text"
-                                      value={step.title}
-                                      onChange={(e) => {
-                                        const updatedSteps = editFormData.steps.map(s =>
-                                          s.id === step.id ? { ...s, title: e.target.value } : s
-                                        )
-                                        setEditFormData({ ...editFormData, steps: updatedSteps })
-                                      }}
-                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
-                                      placeholder={t('steps.stepTitle')}
-                                      autoFocus
-                                    />
-                                    <input
-                                      type="date"
-                                      value={step.date || ''}
-                                      onChange={(e) => {
-                                        const updatedSteps = editFormData.steps.map(s =>
-                                          s.id === step.id ? { ...s, date: e.target.value } : s
-                                        )
-                                        setEditFormData({ ...editFormData, steps: updatedSteps })
-                                      }}
-                                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
-                                      placeholder={t('steps.dateOptional')}
-                                    />
-                                    <div className="flex items-center gap-2 mt-2">
-                                      <button
-                                        type="button"
-                                        onClick={() => handleSaveStep(step.id)}
-                                        className="px-3 py-1.5 text-xs font-medium bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
-                                      >
-                                        {t('common.save')}
-                                      </button>
-                                      <button
-                                        type="button"
-                                        onClick={() => handleDeleteStep(step.id)}
-                                        className="px-3 py-1.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                                      >
-                                        {t('common.cancel')}
-                                      </button>
-                                    </div>
-                                  </>
-                                ) : (
-                                  <div 
-                                    className="flex items-center justify-between cursor-pointer group"
-                                    onClick={() => {
-                                      if (onOpenStepModal && !step.id.startsWith('temp-')) {
-                                        handleEditStep(step)
-                                      } else {
-                                      const updatedSteps = editFormData.steps.map(s =>
-                                        s.id === step.id ? { ...s, isEditing: true } : s
-                                      )
-                                      setEditFormData({ ...editFormData, steps: updatedSteps })
-                                      }
-                                    }}
-                                  >
-                                    <div className="flex items-center gap-3 flex-1">
-                                      <span className="text-xs font-semibold text-gray-500 w-8">#{index + 1}</span>
-                                      <div className="flex-1">
-                                        <div className="font-medium text-sm text-gray-900">{step.title || t('common.noTitle')}</div>
-                                        {step.date && (
-                                          <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
-                                            <Calendar className="w-3 h-3" />
-                                            {(() => {
-                                              try {
-                                                const dateStr = step.date.includes('T') ? step.date.split('T')[0] : step.date
-                                                const dateParts = dateStr.split('-')
-                                                if (dateParts.length === 3) {
-                                                  return new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2])).toLocaleDateString(localeCode, { day: '2-digit', month: '2-digit' })
-                                                }
-                                                return dateStr
-                                              } catch {
-                                                return step.date
-                                              }
-                                            })()}
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                      <button
-                                        type="button"
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          if (onOpenStepModal && !step.id.startsWith('temp-')) {
-                                            handleEditStep(step)
-                                          } else {
-                                          const updatedSteps = editFormData.steps.map(s =>
-                                            s.id === step.id ? { ...s, isEditing: true } : s
-                                          )
-                                          setEditFormData({ ...editFormData, steps: updatedSteps })
-                                          }
-                                        }}
-                                        className="text-gray-400 hover:text-orange-600 p-1"
-                                      >
-                                        <Edit className="w-4 h-4" />
-                                      </button>
-                                      <button
-                                        type="button"
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          handleDeleteStep(step.id)
-                                        }}
-                                        className="text-gray-400 hover:text-red-600 p-1"
-                                      >
-                                        <X className="w-4 h-4" />
-                                      </button>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            )
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-6 border-t border-gray-200 flex items-center justify-between">
-                {editingGoal?.id && (
-                  <button
-                    onClick={handleDeleteGoal}
-                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
-                  >
-                    {t('common.delete') || 'Smazat'}
-                  </button>
-                )}
-                <div className={`flex gap-3 ${editingGoal?.id ? '' : 'ml-auto'}`}>
-                  <button
-                    onClick={() => setEditingGoal(null)}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
-                  >
-                    {t('common.cancel') || 'Zrušit'}
-                  </button>
-                  <button
-                    onClick={editingGoal?.id ? handleUpdateGoal : handleCreateGoal}
-                    disabled={goalModalSaving}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                      goalModalSaving
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-orange-600 text-white hover:bg-orange-700'
-                    }`}
-                  >
-                    {goalModalSaving ? (
-                      <>
-                        <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        {t('common.saving')}
-                      </>
-                    ) : (t('common.save') || 'Uložit')}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>,
-        document.body
-      )}
     </div>
   )
 }
-

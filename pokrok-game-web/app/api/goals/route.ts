@@ -82,7 +82,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { goalId, title, description, target_date, status, progressPercentage } = body
+    const { goalId, title, description, target_date, status, progressPercentage, icon } = body
     
     if (!goalId) {
       return NextResponse.json({ error: 'Goal ID is required' }, { status: 400 })
@@ -105,7 +105,8 @@ export async function PUT(request: NextRequest) {
       title,
       description,
       target_date: target_date ? new Date(target_date) : undefined,
-      status
+      status,
+      icon
     }
 
     if (progressPercentage !== undefined) {
@@ -118,9 +119,14 @@ export async function PUT(request: NextRequest) {
     }
     
     return NextResponse.json(updatedGoal)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error updating goal:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const errorMessage = error?.message || 'Internal server error'
+    const errorDetails = error?.details || error
+    return NextResponse.json({ 
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? errorDetails : undefined
+    }, { status: 500 })
   }
 }
 
@@ -133,7 +139,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { goalId } = body
+    const { goalId, deleteSteps } = body
     
     if (!goalId) {
       return NextResponse.json({ error: 'Goal ID is required' }, { status: 400 })
@@ -152,14 +158,19 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Goal not found or access denied' }, { status: 404 })
     }
 
-    const success = await deleteGoalById(goalId)
+    const success = await deleteGoalById(goalId, deleteSteps === true)
     if (!success) {
       return NextResponse.json({ error: 'Goal not found' }, { status: 404 })
     }
     
     return NextResponse.json({ success: true })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting goal:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const errorMessage = error?.message || 'Internal server error'
+    const errorDetails = error?.details || error
+    return NextResponse.json({ 
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? errorDetails : undefined
+    }, { status: 500 })
   }
 }

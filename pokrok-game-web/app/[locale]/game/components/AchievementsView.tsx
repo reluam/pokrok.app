@@ -31,7 +31,7 @@ export function AchievementsView({
       id: 'first_goal',
       title: t('achievements.firstGoal.title'),
       description: t('achievements.firstGoal.description'),
-      icon: '🎯',
+      icon: null,
       unlocked: goals.length >= 1,
       progress: Math.min(goals.length, 1),
       maxProgress: 1
@@ -85,7 +85,7 @@ export function AchievementsView({
       id: 'goal_setter',
       title: t('achievements.goalSetter.title'),
       description: t('achievements.goalSetter.description'),
-      icon: '🎯',
+      icon: null,
       unlocked: goals.length >= 5,
       progress: Math.min(goals.length, 5),
       maxProgress: 5

@@ -122,7 +122,7 @@ export function YearView({
   
   // Group all goals together (no area categorization)
   const goalsByArea = yearGoals.length > 0 ? [{
-    area: { id: null, name: 'Všechny cíle', color: '#9CA3AF', icon: '🎯' },
+    area: { id: null, name: 'Všechny cíle', color: '#9CA3AF', icon: null },
     goals: yearGoals
   }] : []
   
@@ -237,7 +237,7 @@ export function YearView({
                     <div className="p-3 space-y-2">
                       {goalsToShow.map((goal) => {
                         const goalProgress = goal.steps ? (goal.steps.filter((step: any) => step.completed).length / Math.max(goal.steps.length, 1)) * 100 : 0
-                        const areaIcon = '🎯'
+                        const areaIcon = null
                         
                         return (
                           <div 

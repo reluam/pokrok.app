@@ -16,12 +16,17 @@
     "noDeadline": "Bez termínu",
     "noTitle": "Bez názvu",
     "endDate": "Datum skončení",
+    "newDate": "Nové datum:",
     "close": "Zavřít",
     "error": "Něco se pokazilo!",
     "tryAgain": "Zkusit znovu",
     "notFound": "Nenalezeno",
     "pageNotFound": "Požadovaná stránka nebyla nalezena",
-    "backToHome": "Zpět na hlavní stránku"
+    "backToHome": "Zpět na hlavní stránku",
+    "search": "Hledat...",
+    "noResults": "Žádné výsledky",
+    "previous": "Předchozí",
+    "next": "Další"
   },
   "homepage": {
     "tagline": "Aplikace pro plánování života",
@@ -56,10 +61,13 @@
     "addNewGoal": "PŘIDAT NOVÝ CÍL",
     "goalTitle": "NÁZEV CÍLE",
     "goalTitlePlaceholder": "Např. Naučit se programovat",
+    "newGoalTitle": "Nový cíl",
     "goalDescription": "POPIS (volitelné)",
     "goalDescriptionPlaceholder": "Podrobnější popis cíle...",
+    "addDescription": "Přidat popis",
     "category": "KATEGORIE",
     "deadline": "DEADLINE (volitelné)",
+    "addDate": "Přidat datum",
     "addGoalButton": "PŘIDAT CÍL",
     "cancelButton": "ZRUŠIT",
     "noGoals": "Žádné cíle nejsou nastavené",
@@ -70,6 +78,9 @@
     "createdAt": "Vytvořeno",
     "completedAt": "Dokončeno",
     "delete": "SMAZAT",
+    "deleteConfirm": "Opravdu chcete smazat tento cíl?",
+    "deleteConfirmDescription": "Tato akce je nevratná.",
+    "deleteWithSteps": "Odstranit i související kroky",
     "categories": {
       "personal": "Osobní",
       "career": "Kariéra",
@@ -88,14 +99,14 @@
     "status": {
       "active": "Aktivní",
       "completed": "Splněný",
-      "considering": "Ke zvážení"
+      "paused": "Odložený"
     },
     "filters": {
       "status": {
         "all": "Všechny statusy",
         "active": "Aktivní",
         "completed": "Splněné",
-        "considering": "Ke zvážení"
+        "paused": "Odložené"
       },
       "area": {
         "all": "Všechny oblasti"
@@ -135,6 +146,7 @@
     "noHabitsDescription": "Klikněte na tlačítko níže pro přidání nového návyku",
     "categoryLabel": "Kategorie",
     "difficultyLabel": "Obtížnost",
+    "frequencyLabel": "Frekvence",
     "createdAt": "Vytvořeno",
     "custom": "Vlastní",
     "frequency": "Frekvence",
@@ -143,6 +155,8 @@
     "maxStreak": "Max streak",
     "days": "dní",
     "delete": "SMAZAT",
+    "deleteConfirm": "Opravdu chcete smazat návyk \"{name}\"? Tato akce je nevratná.",
+    "deleteError": "Nepodařilo se smazat návyk",
     "categories": {
       "personal": "Osobní",
       "health": "Zdraví",
@@ -156,6 +170,29 @@
       "easy": "Snadná",
       "medium": "Střední",
       "hard": "Těžká"
+    },
+    "timeline": "Timeline",
+    "statistics": "Statistiky",
+    "settings": "Nastavení",
+    "selectedDays": "Vybrané dny",
+    "noCategory": "Bez kategorie",
+    "noDifficulty": "Bez obtížnosti",
+    "frequency": {
+      "daily": "Denně",
+      "weekly": "Týdně",
+      "custom": "Vlastní"
+    },
+    "difficulty": {
+      "easy": "Snadná",
+      "medium": "Střední",
+      "hard": "Těžká"
+    },
+    "stats": {
+      "totalPlanned": "Naplánováno",
+      "totalCompleted": "Splněno",
+      "completedOutside": "Mimo plán",
+      "currentStreak": "Aktuální streak",
+      "maxStreak": "Nejdelší streak"
     },
     "filters": {
       "frequency": {
@@ -358,9 +395,15 @@
   "navigation": {
     "title": "Navigace",
     "overview": "Přehled",
+    "focus": "Focus",
     "goals": "Cíle",
     "steps": "Kroky",
-    "habits": "Návyky"
+    "habits": "Návyky",
+    "noGoals": "Žádné cíle",
+    "noHabits": "Žádné návyky",
+    "goalNotFound": "Cíl nenalezen",
+    "habitNotFound": "Návyk nenalezen",
+    "backToOverview": "Zpět na přehled"
   },
   "progress": {
     "title": "Pokrok",
@@ -647,7 +690,17 @@
     "goal": {
       "titleRequired": "Název cíle je povinný",
       "deleteConfirm": "Opravdu chcete smazat tento cíl? Tato akce je nevratná.",
-      "deleteError": "Nepodařilo se smazat cíl"
+      "deleteError": "Nepodařilo se smazat cíl",
+      "progress": "Pokrok",
+      "dates": "Datumy",
+      "createdAt": "Datum založení",
+      "completedAt": "Datum dokončení",
+      "deadline": "Deadline",
+      "stepsStatistics": "Statistiky kroků",
+      "totalSteps": "Celkem kroků",
+      "completedSteps": "Splněné kroky",
+      "remainingSteps": "Zbývající kroky",
+      "done": "Dokončené"
     }
   },
   "steps": {
@@ -712,6 +765,7 @@
     "categories": {
       "gettingStarted": "První kroky",
       "overview": "Jak používat",
+      "focus": "Focus",
       "goals": "Cíle",
       "steps": "Kroky",
       "habits": "Návyky"
@@ -783,8 +837,8 @@
         "title": "🎯 Prioritizace",
         "description": "Máte mnoho úkolů, ale nevíte, na co se zaměřit.",
         "step1": "Vytvořte všechny cíle",
-        "step2": "Označte 2-3 nejdůležitější 've fokusu'",
-        "step3": "Zaměřte se na fokus v denním přehledu",
+        "step2": "Nastavte status 'Aktivní' pro důležité cíle",
+        "step3": "Zaměřte se na aktivní cíle v sekci Focus",
         "step4": "Pravidelně revidujte priority",
         "result": "💡 Výsledek: Jasnost - víte, co dělat dnes"
       },
@@ -819,6 +873,7 @@
       "activeExplanation": "Aktivní = Právě na něm pracujete (lze změnit na Odložený)",
       "deadlineExplanation": "Termín = Volitelný, pomáhá s motivací",
       "tableTitle": "Ukázka tabulky cílů",
+      "cardsTitle": "Ukázka karet cílů",
       "tableName": "Název",
       "tableStatus": "Stav",
       "tableDeadline": "Termín",
@@ -827,22 +882,26 @@
       "tableExample2": "Pravidelně cvičit",
       "tableExample3": "Přečíst 12 knih",
       "postponed": "Odložený",
+      "completed": "Dokončený",
       "tableClickHint": "📌 Kliknutím na řádek otevřete detail cíle",
+      "cardsClickHint": "📌 Kliknutím na kartu otevřete detail cíle",
+      "cardsFiltersHint": "☑️ Použijte filtry nahoře pro zobrazení pouze aktivních, odložených nebo dokončených cílů",
+      "cardsStatusHint": "🔄 Status = Aktivní (právě na něm pracujete) / Odložený (pozastavený) / Dokončený (splněný)",
       "tableStarHint": "⭐ Hvězdička = Ve fokusu (kliknutím přepnete)",
       "tableStatusHint": "🔄 Stav = Aktivní / Odložený / Dokončený",
       "howToCreate": "Jak vytvořit cíl?",
-      "howToStep1": "Přejděte do sekce Cíle",
-      "howToStep2": "Klikněte na 'Přidat cíl'",
-      "howToStep3": "Vyplňte název a popis",
-      "howToStep4": "Nastavte termín (volitelné)",
-      "howToStep5": "Zaškrtněte 'Ve fokusu' pro důležité cíle",
+      "howToStep1": "Přejděte do sekce Cíle (v levém menu)",
+      "howToStep2": "Klikněte na 'Přidat cíl' - automaticky se vytvoří nový cíl",
+      "howToStep3": "Na stránce detailu cíle upravte název, popis a termín",
+      "howToStep4": "Nastavte status 'Aktivní' pro důležité cíle",
+      "howToStep5": "Přidejte kroky pomocí tlačítka '+' u sekce STEPS",
       "createGoal": "Vytvořit cíl",
       "goToGoals": "Přejít do Cílů",
       "tips": "Tipy",
-      "tip1": "Označte 2-3 nejdůležitější cíle jako 've fokusu'",
+      "tip1": "Nastavte status 'Aktivní' pro důležité cíle",
       "tip2": "Velké cíle rozdělte na menší kroky",
-      "tip3": "Kliknutím na řádek otevřete editaci",
-      "tip4": "Přepínejte mezi 'Aktivní' a 'Odložené'"
+      "tip3": "Kliknutím na kartu otevřete detail a editaci",
+      "tip4": "Použijte filtry pro zobrazení pouze aktivních, odložených nebo dokončených cílů"
     },
     "stepsHelp": {
       "title": "Kroky",
@@ -904,6 +963,7 @@
       "reminderExplanation": "Připomínka = Volitelná notifikace v daný čas",
       "daysExplanation": "Dny = Které dny v týdnu se návyk zobrazí",
       "tableTitle": "Ukázka tabulky návyků",
+      "timelineTitle": "Ukázka timeline návyků",
       "tableName": "Název",
       "tableFrequency": "Frekvence",
       "tableReminder": "Připomínka",
@@ -912,13 +972,18 @@
       "tableExample2": "Čtení před spaním",
       "tableExample3": "Meditace",
       "monFri": "Po-Pá",
+      "settingsIcon": "Nastavení návyku",
       "tableOrangeHint": "🟠 Oranžové čtverečky = Splněné dny",
       "tableGrayHint": "⬜ Šedé čtverečky = Nesplněné dny",
+      "timelineOrangeHint": "🟠 Oranžové boxy = Splněné dny (kliknutím označíte/odznačíte)",
+      "timelineGrayHint": "⬜ Šedé boxy = Nesplněné dny",
+      "timelineSettingsHint": "⚙️ Ozubené kolečko = Otevře nastavení návyku",
       "tableClickHint": "📌 Kliknutím na řádek otevřete detail",
+      "timelineClickHint": "📌 Kliknutím na box označíte/odznačíte návyk jako splněný",
       "howToCreate": "Jak vytvořit návyk?",
-      "howToStep1": "Přejděte do sekce Návyky",
-      "howToStep2": "Klikněte na 'Přidat návyk'",
-      "howToStep3": "Vyplňte název",
+      "howToStep1": "Přejděte do sekce Návyky (v levém menu)",
+      "howToStep2": "Klikněte na 'Přidat návyk' v pravém horním rohu",
+      "howToStep3": "Vyplňte název a popis",
       "howToStep4": "Vyberte frekvenci a dny",
       "howToStep5": "Nastavte připomínku (volitelné)",
       "createHabit": "Vytvořit návyk",
@@ -927,7 +992,7 @@
       "tip1": "Začněte s malými návyky, které snadno splníte",
       "tip2": "Lepší malý návyk každý den než velký jednou za týden",
       "tip3": "Používejte připomínky",
-      "tip4": "Sledujte konzistenci v týdenním přehledu"
+      "tip4": "Sledujte konzistenci v timeline a statistikách"
     },
     "days": {
       "mon": "Po",

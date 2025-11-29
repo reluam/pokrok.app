@@ -35,14 +35,16 @@ export default async function LocaleLayout({
     
     // Validate that messages were loaded successfully
     if (!messages || typeof messages !== 'object' || Object.keys(messages).length === 0) {
-      console.error(`[layout] Messages are empty for locale: ${locale}`)
+      const safeLocale = String(locale || 'unknown')
+      console.error(`[layout] Messages are empty for locale: ${safeLocale}`)
       // Try to load English as fallback
       if (locale !== 'en') {
         try {
           messages = await getMessages({ locale: 'en' })
-          console.warn(`[layout] Using English fallback messages for locale: ${locale}`)
+          console.warn(`[layout] Using English fallback messages for locale: ${safeLocale}`)
         } catch (fallbackError) {
-          console.error('[layout] Failed to load fallback English messages:', fallbackError)
+          const fallbackErrorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError)
+          console.error('[layout] Failed to load fallback English messages:', fallbackErrorMessage)
           messages = {} // Last resort: empty messages
         }
       } else {
@@ -50,14 +52,18 @@ export default async function LocaleLayout({
       }
     }
   } catch (error) {
-    console.error(`[layout] Failed to load messages for locale ${locale}:`, error)
+    const safeLocale = String(locale || 'unknown')
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error(`[layout] Failed to load messages for locale ${safeLocale}:`, errorMessage)
     // Try to load English as fallback
     if (locale !== 'en') {
       try {
         messages = await getMessages({ locale: 'en' })
-        console.warn(`[layout] Using English fallback messages for locale: ${locale}`)
+        const safeLocale = String(locale || 'unknown')
+        console.warn(`[layout] Using English fallback messages for locale: ${safeLocale}`)
       } catch (fallbackError) {
-        console.error('[layout] Failed to load fallback English messages:', fallbackError)
+        const fallbackErrorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError)
+        console.error('[layout] Failed to load fallback English messages:', fallbackErrorMessage)
         messages = {} // Last resort: empty messages
       }
     } else {

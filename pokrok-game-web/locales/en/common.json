@@ -16,12 +16,17 @@
     "noDeadline": "No deadline",
     "noTitle": "No title",
     "endDate": "End date",
+    "newDate": "New date:",
     "close": "Close",
     "error": "Something went wrong!",
     "tryAgain": "Try again",
     "notFound": "Not Found",
     "pageNotFound": "Could not find requested resource",
-    "backToHome": "Return Home"
+    "backToHome": "Return Home",
+    "search": "Search...",
+    "noResults": "No results",
+    "previous": "Previous",
+    "next": "Next"
   },
   "homepage": {
     "tagline": "Life planning app",
@@ -56,10 +61,13 @@
     "addNewGoal": "ADD NEW GOAL",
     "goalTitle": "GOAL TITLE",
     "goalTitlePlaceholder": "E.g. Learn to program",
+    "newGoalTitle": "New Goal",
     "goalDescription": "DESCRIPTION (optional)",
     "goalDescriptionPlaceholder": "More detailed description of the goal...",
+    "addDescription": "Add description",
     "category": "CATEGORY",
     "deadline": "DEADLINE (optional)",
+    "addDate": "Add date",
     "addGoalButton": "ADD GOAL",
     "cancelButton": "CANCEL",
     "noGoals": "No goals set",
@@ -70,6 +78,9 @@
     "createdAt": "Created",
     "completedAt": "Completed",
     "delete": "DELETE",
+    "deleteConfirm": "Are you sure you want to delete this goal?",
+    "deleteConfirmDescription": "This action cannot be undone.",
+    "deleteWithSteps": "Also delete related steps",
     "categories": {
       "personal": "Personal",
       "career": "Career",
@@ -88,14 +99,14 @@
     "status": {
       "active": "Active",
       "completed": "Completed",
-      "considering": "Considering"
+      "paused": "Paused"
     },
     "filters": {
       "status": {
         "all": "All statuses",
         "active": "Active",
         "completed": "Completed",
-        "considering": "Considering"
+        "paused": "Paused"
       },
       "area": {
         "all": "All areas"
@@ -135,6 +146,7 @@
     "noHabitsDescription": "Click the button below to add a new habit",
     "categoryLabel": "Category",
     "difficultyLabel": "Difficulty",
+    "frequencyLabel": "Frequency",
     "createdAt": "Created",
     "custom": "Custom",
     "frequency": "Frequency",
@@ -143,6 +155,8 @@
     "maxStreak": "Max streak",
     "days": "days",
     "delete": "DELETE",
+    "deleteConfirm": "Do you really want to delete the habit \"{name}\"? This action cannot be undone.",
+    "deleteError": "Failed to delete habit",
     "categories": {
       "personal": "Personal",
       "health": "Health",
@@ -156,6 +170,29 @@
       "easy": "Easy",
       "medium": "Medium",
       "hard": "Hard"
+    },
+    "timeline": "Timeline",
+    "statistics": "Statistics",
+    "settings": "Settings",
+    "selectedDays": "Selected days",
+    "noCategory": "No category",
+    "noDifficulty": "No difficulty",
+    "frequency": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "custom": "Custom"
+    },
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    },
+    "stats": {
+      "totalPlanned": "Total planned",
+      "totalCompleted": "Total completed",
+      "completedOutside": "Completed outside plan",
+      "currentStreak": "Current streak",
+      "maxStreak": "Max streak"
     },
     "filters": {
       "frequency": {
@@ -358,9 +395,15 @@
   "navigation": {
     "title": "Navigation",
     "overview": "Overview",
+    "focus": "Focus",
     "goals": "Goals",
     "steps": "Steps",
-    "habits": "Habits"
+    "habits": "Habits",
+    "noGoals": "No goals",
+    "noHabits": "No habits",
+    "goalNotFound": "Goal not found",
+    "habitNotFound": "Habit not found",
+    "backToOverview": "Back to overview"
   },
   "progress": {
     "title": "Progress",
@@ -647,7 +690,17 @@
     "goal": {
       "titleRequired": "Goal title is required",
       "deleteConfirm": "Are you sure you want to delete this goal? This action cannot be undone.",
-      "deleteError": "Failed to delete goal"
+      "deleteError": "Failed to delete goal",
+      "progress": "Progress",
+      "dates": "Dates",
+      "createdAt": "Created at",
+      "completedAt": "Completed at",
+      "deadline": "Deadline",
+      "stepsStatistics": "Steps Statistics",
+      "totalSteps": "Total Steps",
+      "completedSteps": "Completed Steps",
+      "remainingSteps": "Remaining Steps",
+      "done": "Done"
     }
   },
   "steps": {
@@ -712,6 +765,7 @@
     "categories": {
       "gettingStarted": "Getting Started",
       "overview": "How to Use",
+      "focus": "Focus",
       "goals": "Goals",
       "steps": "Steps",
       "habits": "Habits"
@@ -783,8 +837,8 @@
         "title": "🎯 Prioritization",
         "description": "You have many tasks but don't know what to focus on.",
         "step1": "Create all your goals",
-        "step2": "Mark 2-3 most important as 'in focus'",
-        "step3": "Focus on these in the daily overview",
+        "step2": "Set status 'Active' for important goals",
+        "step3": "Focus on active goals in the Focus section",
         "step4": "Regularly review priorities",
         "result": "💡 Result: Clarity - you know what to do today"
       },
@@ -819,6 +873,7 @@
       "activeExplanation": "Active = Currently working on (can change to Postponed)",
       "deadlineExplanation": "Deadline = Optional, helps with motivation",
       "tableTitle": "Goals table example",
+      "cardsTitle": "Goals cards example",
       "tableName": "Name",
       "tableStatus": "Status",
       "tableDeadline": "Deadline",
@@ -827,22 +882,26 @@
       "tableExample2": "Exercise regularly",
       "tableExample3": "Read 12 books",
       "postponed": "Postponed",
+      "completed": "Completed",
       "tableClickHint": "📌 Click on a row to open goal details",
+      "cardsClickHint": "📌 Click on a card to open goal details",
+      "cardsFiltersHint": "☑️ Use filters at the top to show only active, postponed, or completed goals",
+      "cardsStatusHint": "🔄 Status = Active (currently working on) / Postponed (paused) / Completed (finished)",
       "tableStarHint": "⭐ Star = In Focus (click to toggle)",
       "tableStatusHint": "🔄 Status = Active / Postponed / Completed",
       "howToCreate": "How to create a goal?",
-      "howToStep1": "Go to the Goals section",
-      "howToStep2": "Click 'Add goal'",
-      "howToStep3": "Fill in name and description",
-      "howToStep4": "Set deadline (optional)",
-      "howToStep5": "Check 'In Focus' for important goals",
+      "howToStep1": "Go to the Goals section (in left menu)",
+      "howToStep2": "Click 'Add goal' - a new goal will be automatically created",
+      "howToStep3": "On the goal detail page, edit name, description, and deadline",
+      "howToStep4": "Set status 'Active' for important goals",
+      "howToStep5": "Add steps using the '+' button next to STEPS section",
       "createGoal": "Create goal",
       "goToGoals": "Go to Goals",
       "tips": "Tips",
-      "tip1": "Mark 2-3 most important goals as 'in focus'",
+      "tip1": "Set status 'Active' for important goals",
       "tip2": "Break big goals into smaller steps",
-      "tip3": "Click on a row to edit",
-      "tip4": "Switch between 'Active' and 'Postponed'"
+      "tip3": "Click on a card to open details and edit",
+      "tip4": "Use filters to show only active, postponed, or completed goals"
     },
     "stepsHelp": {
       "title": "Steps",
@@ -904,6 +963,7 @@
       "reminderExplanation": "Reminder = Optional notification at a given time",
       "daysExplanation": "Days = Which days of the week the habit appears",
       "tableTitle": "Habits table example",
+      "timelineTitle": "Habits timeline example",
       "tableName": "Name",
       "tableFrequency": "Frequency",
       "tableReminder": "Reminder",
@@ -912,13 +972,18 @@
       "tableExample2": "Reading before bed",
       "tableExample3": "Meditation",
       "monFri": "Mon-Fri",
+      "settingsIcon": "Habit settings",
       "tableOrangeHint": "🟠 Orange squares = Completed days",
       "tableGrayHint": "⬜ Gray squares = Incomplete days",
+      "timelineOrangeHint": "🟠 Orange boxes = Completed days (click to toggle)",
+      "timelineGrayHint": "⬜ Gray boxes = Incomplete days",
+      "timelineSettingsHint": "⚙️ Gear icon = Opens habit settings",
       "tableClickHint": "📌 Click on a row to open details",
+      "timelineClickHint": "📌 Click on a box to mark/unmark habit as completed",
       "howToCreate": "How to create a habit?",
-      "howToStep1": "Go to the Habits section",
-      "howToStep2": "Click 'Add habit'",
-      "howToStep3": "Fill in the name",
+      "howToStep1": "Go to the Habits section (in left menu)",
+      "howToStep2": "Click 'Add habit' in the top right corner",
+      "howToStep3": "Fill in name and description",
       "howToStep4": "Select frequency and days",
       "howToStep5": "Set reminder (optional)",
       "createHabit": "Create habit",
@@ -927,7 +992,7 @@
       "tip1": "Start with small habits you can easily complete",
       "tip2": "Better a small habit every day than a big one once a week",
       "tip3": "Use reminders",
-      "tip4": "Track consistency in the weekly overview"
+      "tip4": "Track consistency in the timeline and statistics"
     },
     "days": {
       "mon": "Mo",

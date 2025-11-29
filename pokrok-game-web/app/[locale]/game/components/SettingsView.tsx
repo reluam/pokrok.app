@@ -665,26 +665,26 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
         return (
           <div>
             <div className="space-y-6">
-              <div>
+            <div>
                 <h4 className="text-lg font-bold text-gray-800 mb-4">📅 Formát data</h4>
-                <div className="bg-white rounded-lg p-4 border border-gray-200">
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
                     Formát zobrazení data
-                  </label>
-                  <select
+                </label>
+                <select
                     value={displaySettings.dateFormat}
                     onChange={(e) => handleSaveDisplaySettings(undefined, e.target.value as 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY')}
-                    disabled={isSavingDisplay}
+                  disabled={isSavingDisplay}
                     className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:outline-none disabled:opacity-50"
-                  >
+                >
                     <option value="DD.MM.YYYY">DD.MM.YYYY (např. 15.01.2025)</option>
                     <option value="MM/DD/YYYY">MM/DD/YYYY (např. 01/15/2025)</option>
                     <option value="YYYY-MM-DD">YYYY-MM-DD (např. 2025-01-15)</option>
                     <option value="DD MMM YYYY">DD MMM YYYY (např. 15 led 2025)</option>
-                  </select>
-                  <p className="text-xs text-gray-500 mt-2">
+                </select>
+                <p className="text-xs text-gray-500 mt-2">
                     Tento formát se použije pro zobrazení dat mimo aktuální týden
-                  </p>
+                </p>
                 </div>
               </div>
             </div>

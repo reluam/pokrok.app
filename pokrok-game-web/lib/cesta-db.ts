@@ -1663,6 +1663,14 @@ export async function updateGoalById(goalId: string, updates: Partial<Goal>): Pr
       setParts.push(`status = $${values.length + 1}`)
       values.push(updates.status)
     }
+    if (updates.icon !== undefined) {
+      if (updates.icon === null) {
+        setParts.push('icon = NULL')
+      } else {
+        setParts.push(`icon = $${values.length + 1}`)
+        values.push(updates.icon)
+      }
+    }
     if (updates.focus_status !== undefined) {
       if (updates.focus_status === null) {
         setParts.push('focus_status = NULL')
@@ -1724,15 +1732,90 @@ export async function updateGoalById(goalId: string, updates: Partial<Goal>): Pr
   }
 }
 
-export async function deleteGoalById(goalId: string): Promise<boolean> {
+export async function deleteGoalById(goalId: string, deleteSteps: boolean = false): Promise<boolean> {
   try {
-    console.log('Deleting goal with ID:', goalId)
+    console.log('Deleting goal with ID:', goalId, 'deleteSteps:', deleteSteps)
     
     // Get userId before deleting
     const goal = await sql`
       SELECT user_id FROM goals WHERE id = ${goalId}
     `
     
+    if (goal.length === 0) {
+      return false
+    }
+    
+    const userId = goal[0].user_id
+    
+    // Handle steps based on deleteSteps parameter
+    if (deleteSteps) {
+      // Delete all steps related to this goal
+      const steps = await sql`
+        SELECT id FROM daily_steps 
+        WHERE goal_id = ${goalId} AND user_id = ${userId}
+      `
+      
+      const stepIds = steps.map(step => step.id)
+      
+      if (stepIds.length > 0) {
+        // Delete related automations, metrics, etc. (similar to deleteGoal function)
+        const automations = await sql`
+          SELECT id FROM automations 
+          WHERE target_id = ANY(${stepIds})
+        `
+        const automationIds = automations.map(automation => automation.id)
+        
+        if (automationIds.length > 0) {
+          await sql`
+            DELETE FROM event_interactions 
+            WHERE automation_id = ANY(${automationIds})
+          `
+        }
+        
+        await sql`
+          DELETE FROM metrics 
+          WHERE step_id = ANY(${stepIds})
+        `
+        
+        await sql`
+          DELETE FROM automations 
+          WHERE target_id = ANY(${stepIds})
+        `
+        
+        // Delete the steps
+        await sql`
+          DELETE FROM daily_steps 
+          WHERE goal_id = ${goalId} AND user_id = ${userId}
+        `
+      }
+    } else {
+      // Just disconnect steps from the goal (set goal_id to null)
+      await sql`
+        UPDATE daily_steps 
+        SET goal_id = NULL 
+        WHERE goal_id = ${goalId} AND user_id = ${userId}
+      `
+    }
+    
+    // Delete events related to this goal (if goal_id column exists)
+    // Note: Events may be automatically deleted via CASCADE if foreign key is set up
+    try {
+      await sql`
+        DELETE FROM events 
+        WHERE goal_id = ${goalId} AND user_id = ${userId}
+      `
+    } catch (error: any) {
+      // If goal_id column doesn't exist, try to delete via automation_id
+      // First get all automation IDs for this goal's steps
+      if (error?.code === '42703' || error?.message?.includes('does not exist')) {
+        console.log('Events table does not have goal_id column, skipping event deletion')
+        // Events will be cleaned up via CASCADE or can be left as orphaned records
+      } else {
+        throw error
+      }
+    }
+    
+    // Delete the goal
     const result = await sql`
       DELETE FROM goals 
       WHERE id = ${goalId}
@@ -1742,8 +1825,8 @@ export async function deleteGoalById(goalId: string): Promise<boolean> {
     console.log('Delete result:', result)
     
     // Invalidate goals cache for this user
-    if (goal.length > 0 && goal[0].user_id) {
-      invalidateGoalsCache(goal[0].user_id)
+    if (userId) {
+      invalidateGoalsCache(userId)
     }
     
     return result.length > 0
