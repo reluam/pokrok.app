@@ -391,7 +391,7 @@ export function JourneyGameView({
   const [deleteGoalWithSteps, setDeleteGoalWithSteps] = useState(false)
   const [isDeletingGoal, setIsDeletingGoal] = useState(false)
   const goalTitleRef = useRef<HTMLInputElement | HTMLHeadingElement>(null)
-  const goalDescriptionRef = useRef<HTMLParagraphElement>(null)
+  const goalDescriptionRef = useRef<HTMLTextAreaElement | HTMLParagraphElement>(null)
   const goalDateRef = useRef<HTMLSpanElement>(null)
   const goalStatusRef = useRef<HTMLButtonElement>(null)
   const goalIconRef = useRef<HTMLSpanElement>(null)
@@ -8256,7 +8256,7 @@ export function JourneyGameView({
                       </div>
                       {editingGoalDetailDescription ? (
                         <textarea
-                          ref={goalDescriptionRef}
+                          ref={goalDescriptionRef as React.RefObject<HTMLTextAreaElement>}
                           value={goalDetailDescriptionValue}
                           onChange={(e) => setGoalDetailDescriptionValue(e.target.value)}
                           onBlur={handleDescriptionSave}
@@ -8273,7 +8273,7 @@ export function JourneyGameView({
                       ) : (
                         goal.description && (
                           <p 
-                            ref={goalDescriptionRef}
+                            ref={goalDescriptionRef as React.RefObject<HTMLParagraphElement>}
                             onClick={() => setEditingGoalDetailDescription(true)}
                             className="text-gray-600 mb-6 text-lg cursor-pointer hover:text-orange-600 transition-colors"
                           >
