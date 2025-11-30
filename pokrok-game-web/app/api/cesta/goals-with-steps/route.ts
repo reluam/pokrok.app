@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
       icon,
       metrics,
       steps,
+      areaId,
     } = await request.json()
     
     console.log('📝 Goal data:', { 
@@ -62,10 +63,10 @@ export async function POST(request: NextRequest) {
     const goal = await sql`
       INSERT INTO goals (
         id, user_id, title, description, target_date, status, priority, 
-        category, goal_type, progress_percentage, icon
+        category, goal_type, progress_percentage, icon, area_id
       ) VALUES (
         ${goalId}, ${dbUser.id}, ${title}, ${description || null}, ${targetDateObj}, 'active',
-        'meaningful', 'medium-term', 'outcome', 0, ${icon || null}
+        'meaningful', 'medium-term', 'outcome', 0, ${icon || null}, ${areaId || null}
       ) RETURNING *
     `
 

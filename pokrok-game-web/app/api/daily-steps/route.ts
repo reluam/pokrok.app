@@ -50,18 +50,21 @@ export async function GET(request: NextRequest) {
     
     // Support both userId and goalId queries
     if (goalId) {
+      try {
       // Get steps for a specific goal
       const { neon } = await import('@neondatabase/serverless')
       const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
       
+        // Query steps for a specific goal
+        // Note: goal_id is VARCHAR(255) in the database
       const steps = await sql`
         SELECT 
           id, user_id, goal_id, title, description, completed, 
           TO_CHAR(date, 'YYYY-MM-DD') as date,
-          is_important, is_urgent, aspiration_id, 
-          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
-          COALESCE(checklist, '[]'::jsonb) as checklist,
-          COALESCE(require_checklist_complete, false) as require_checklist_complete
+            is_important, is_urgent, aspiration_id, area_id,
+            estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+            COALESCE(checklist, '[]'::jsonb) as checklist,
+            COALESCE(require_checklist_complete, false) as require_checklist_complete
         FROM daily_steps
         WHERE goal_id = ${goalId}
         ORDER BY created_at DESC
@@ -73,6 +76,15 @@ export async function GET(request: NextRequest) {
       }))
       
       return NextResponse.json(normalizedSteps)
+      } catch (error: any) {
+        console.error('Error fetching steps for goal:', goalId, error)
+        console.error('Error stack:', error?.stack)
+        return NextResponse.json({ 
+          error: 'Internal server error', 
+          details: error?.message || 'Unknown error',
+          goalId 
+        }, { status: 500 })
+      }
     }
     
     if (!userId) {
@@ -111,6 +123,7 @@ export async function POST(request: NextRequest) {
     const { 
       userId, 
       goalId, 
+      areaId,
       title, 
       description, 
       date, 
@@ -122,6 +135,21 @@ export async function POST(request: NextRequest) {
       checklist,
       requireChecklistComplete
     } = body
+    
+    // Debug logging
+    console.log('Creating step with:', { userId, goalId, areaId, title })
+    
+    // Validate mutual exclusivity: areaId and goalId cannot both be set
+    if (areaId && goalId) {
+      return NextResponse.json({ 
+        error: 'Step cannot have both area and goal assigned',
+        details: 'A step must be assigned to either an area or a goal, not both'
+      }, { status: 400 })
+    }
+    
+    // Normalize areaId - empty string should be treated as null
+    const normalizedAreaId = areaId && areaId.trim() !== '' ? areaId : null
+    const normalizedGoalId = goalId && goalId.trim() !== '' ? goalId : null
     
     if (!userId || !title) {
       return NextResponse.json({ 
@@ -174,7 +202,8 @@ export async function POST(request: NextRequest) {
 
     const stepData = {
       user_id: userId,
-      goal_id: goalId || null,
+      goal_id: normalizedGoalId,
+      area_id: normalizedAreaId,
       title,
       description: description || undefined,
       completed: false,
@@ -208,7 +237,18 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json()
-    const { stepId, completed, completedAt, title, description, goalId, goal_id, aspirationId, aspiration_id, isImportant, isUrgent, estimatedTime, xpReward, date, checklist, requireChecklistComplete } = body
+    const { stepId, completed, completedAt, title, description, goalId, goal_id, areaId, aspirationId, aspiration_id, isImportant, isUrgent, estimatedTime, xpReward, date, checklist, requireChecklistComplete } = body
+    
+    // Debug logging
+    console.log('Updating step:', { stepId, goalId, goal_id, areaId, hasGoalId: goalId !== undefined, hasGoal_id: goal_id !== undefined, hasAreaId: areaId !== undefined })
+    
+    // Validate mutual exclusivity: areaId and goalId cannot both be set
+    if (areaId && (goalId || goal_id)) {
+      return NextResponse.json({ 
+        error: 'Step cannot have both area and goal assigned',
+        details: 'A step must be assigned to either an area or a goal, not both'
+      }, { status: 400 })
+    }
     
     if (!stepId) {
       return NextResponse.json({ error: 'Step ID is required' }, { status: 400 })
@@ -235,7 +275,7 @@ export async function PUT(request: NextRequest) {
         RETURNING 
           id, user_id, goal_id, title, description, completed, 
           TO_CHAR(date, 'YYYY-MM-DD') as date,
-          is_important, is_urgent, aspiration_id, 
+          is_important, is_urgent, aspiration_id, area_id,
           estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
           COALESCE(checklist, '[]'::jsonb) as checklist,
           COALESCE(require_checklist_complete, false) as require_checklist_complete
@@ -265,7 +305,7 @@ export async function PUT(request: NextRequest) {
           RETURNING 
             id, user_id, goal_id, title, description, completed, 
             TO_CHAR(date, 'YYYY-MM-DD') as date,
-            is_important, is_urgent, aspiration_id, 
+            is_important, is_urgent, aspiration_id, area_id,
             estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
         `
         
@@ -290,7 +330,7 @@ export async function PUT(request: NextRequest) {
           RETURNING 
             id, user_id, goal_id, title, description, completed, 
             TO_CHAR(date, 'YYYY-MM-DD') as date,
-            is_important, is_urgent, aspiration_id, 
+            is_important, is_urgent, aspiration_id, area_id,
             estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
         `
         
@@ -331,9 +371,82 @@ export async function PUT(request: NextRequest) {
       const updates: any = {}
       if (title !== undefined) updates.title = title
       if (description !== undefined) updates.description = description
-      if (goalId !== undefined || goal_id !== undefined) {
-        updates.goal_id = goalId || goal_id || null
+      
+      // Handle goal_id and area_id with proper mutual exclusivity
+      // Normalize empty strings to null
+      const normalizedGoalId = (goalId !== undefined && goalId !== null && String(goalId).trim() !== '') 
+        ? (goalId || goal_id) 
+        : ((goal_id !== undefined && goal_id !== null && String(goal_id).trim() !== '') ? goal_id : null)
+      const normalizedAreaId = (areaId !== undefined && areaId !== null && String(areaId).trim() !== '') 
+        ? areaId 
+        : null
+      
+      // Only update if explicitly provided in the request
+      // Check if values are actually provided (not just undefined or empty)
+      const hasGoalIdValue = (goalId !== undefined && goalId !== null && String(goalId).trim() !== '') || 
+                            (goal_id !== undefined && goal_id !== null && String(goal_id).trim() !== '')
+      const hasAreaIdValue = areaId !== undefined && areaId !== null && String(areaId).trim() !== ''
+      
+      // Determine which one to use - prioritize non-null values
+      // If both are provided, check which one has a value
+      const bothProvided = (goalId !== undefined || goal_id !== undefined) && areaId !== undefined
+      
+      console.log('🔍 PUT request logic:', {
+        goalId,
+        goal_id,
+        areaId,
+        hasGoalIdValue,
+        hasAreaIdValue,
+        bothProvided,
+        normalizedGoalId,
+        normalizedAreaId
+      })
+      
+      if (bothProvided) {
+        // Both were provided - use the one with a value
+        if (hasGoalIdValue) {
+          // goalId has a value - use it and clear area_id
+          console.log('✅ Using goalId, clearing area_id')
+          updates.goal_id = normalizedGoalId
+          updates.area_id = null
+        } else if (hasAreaIdValue) {
+          // areaId has a value - use it and clear goal_id
+          console.log('✅ Using areaId, clearing goal_id')
+          updates.area_id = normalizedAreaId
+          updates.goal_id = null
+        } else {
+          // Both are null/empty - clear both
+          console.log('⚠️ Both are null/empty, clearing both')
+          updates.goal_id = null
+          updates.area_id = null
+        }
+      } else if (goalId !== undefined || goal_id !== undefined) {
+        // Only goalId was provided
+        if (hasGoalIdValue) {
+          console.log('✅ Only goalId provided with value, clearing area_id')
+          updates.goal_id = normalizedGoalId
+          updates.area_id = null // Clear area_id if goalId has a value
+        } else {
+          // goalId is null/empty - clear it, but don't touch area_id
+          console.log('⚠️ Only goalId provided but null/empty, clearing goal_id only')
+          updates.goal_id = null
+        }
+      } else if (areaId !== undefined) {
+        // Only areaId was provided
+        if (hasAreaIdValue) {
+          console.log('✅ Only areaId provided with value, clearing goal_id')
+          updates.area_id = normalizedAreaId
+          updates.goal_id = null // Clear goal_id if areaId has a value
+        } else {
+          // areaId is null/empty - clear it
+          console.log('⚠️ Only areaId provided but null/empty, clearing area_id only')
+          updates.area_id = null
+        }
+      } else {
+        console.log('⚠️ Neither goalId nor areaId provided in request')
       }
+      
+      console.log('📝 Final updates object:', updates)
       if (aspirationId !== undefined || aspiration_id !== undefined) {
         updates.aspiration_id = aspirationId || aspiration_id || null
       }
@@ -349,7 +462,14 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ error: 'No fields to update' }, { status: 400 })
       }
 
+      console.log('💾 Calling updateDailyStepFields with:', { stepId, updates })
       const updatedStep = await updateDailyStepFields(stepId, updates)
+      console.log('📦 Updated step returned:', updatedStep ? {
+        id: updatedStep.id,
+        goal_id: updatedStep.goal_id,
+        area_id: updatedStep.area_id,
+        title: updatedStep.title
+      } : null)
 
       if (!updatedStep) {
         return NextResponse.json({ error: 'Step not found' }, { status: 404 })

@@ -322,6 +322,7 @@ export interface Habit {
   always_show: boolean
   xp_reward: number
   aspiration_id?: string
+  area_id?: string
   created_at: Date
   updated_at: Date
 }
@@ -437,6 +438,7 @@ export async function initializeCestaDatabase() {
         always_show BOOLEAN DEFAULT FALSE,
         xp_reward INTEGER DEFAULT 0,
         aspiration_id VARCHAR(255) REFERENCES aspirations(id) ON DELETE SET NULL,
+        area_id VARCHAR(255) REFERENCES areas(id) ON DELETE SET NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
@@ -527,9 +529,15 @@ export async function initializeCestaDatabase() {
         is_important BOOLEAN DEFAULT FALSE,
         is_urgent BOOLEAN DEFAULT FALSE,
         aspiration_id VARCHAR(255) REFERENCES aspirations(id) ON DELETE SET NULL,
+        area_id VARCHAR(255) REFERENCES areas(id) ON DELETE SET NULL,
         deadline DATE,
+        estimated_time INTEGER DEFAULT 30,
+        xp_reward INTEGER DEFAULT 1,
+        checklist JSONB DEFAULT '[]'::jsonb,
+        require_checklist_complete BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        CHECK ((area_id IS NULL AND goal_id IS NOT NULL) OR (area_id IS NOT NULL AND goal_id IS NULL) OR (area_id IS NULL AND goal_id IS NULL))
       )
     `
 
@@ -1054,7 +1062,7 @@ export async function getDailyStepsByUserId(
         SELECT 
           id, user_id, goal_id, title, description, completed, 
           TO_CHAR(date, 'YYYY-MM-DD') as date,
-          is_important, is_urgent, aspiration_id, 
+          is_important, is_urgent, aspiration_id, area_id,
           estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
           checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete
         FROM daily_steps 
@@ -1073,7 +1081,7 @@ export async function getDailyStepsByUserId(
         SELECT 
           id, user_id, goal_id, title, description, completed, 
           TO_CHAR(date, 'YYYY-MM-DD') as date,
-          is_important, is_urgent, aspiration_id, 
+          is_important, is_urgent, aspiration_id, area_id,
           estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
           checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete
         FROM daily_steps 
@@ -1093,7 +1101,7 @@ export async function getDailyStepsByUserId(
         SELECT 
           id, user_id, goal_id, title, description, completed, 
           TO_CHAR(date, 'YYYY-MM-DD') as date,
-          is_important, is_urgent, aspiration_id, 
+          is_important, is_urgent, aspiration_id, area_id,
           estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
           checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete
         FROM daily_steps 
@@ -1195,20 +1203,20 @@ export async function createDailyStep(stepData: Omit<Partial<DailyStep>, 'date'>
   const step = await sql`
     INSERT INTO daily_steps (
       id, user_id, goal_id, title, description, completed, date, 
-      is_important, is_urgent, aspiration_id, 
+      is_important, is_urgent, aspiration_id, area_id,
       estimated_time, xp_reward, deadline, checklist
     ) VALUES (
-      ${id}, ${stepData.user_id}, ${stepData.goal_id}, ${stepData.title}, 
+      ${id}, ${stepData.user_id}, ${stepData.goal_id || null}, ${stepData.title}, 
       ${stepData.description || null}, ${stepData.completed || false}, 
       ${dateValue}, ${stepData.is_important || false}, 
-      ${stepData.is_urgent || false}, ${stepData.aspiration_id || null}, 
+      ${stepData.is_urgent || false}, ${stepData.aspiration_id || null}, ${stepData.area_id || null}, 
       ${stepData.estimated_time || 30},
       ${stepData.xp_reward || 1}, ${stepData.deadline || null},
       ${checklistJson}::jsonb
     ) RETURNING 
       id, user_id, goal_id, title, description, completed, 
       TO_CHAR(date, 'YYYY-MM-DD') as date,
-      is_important, is_urgent, aspiration_id, 
+      is_important, is_urgent, aspiration_id, area_id,
       estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
       checklist
   `
@@ -1297,6 +1305,163 @@ export async function updateDailyStep(stepId: string, stepData: Partial<DailySte
   } catch (error) {
     console.error('Error updating daily step:', error)
     throw error
+  }
+}
+
+export async function updateDailyStepFields(stepId: string, updates: Partial<DailyStep>): Promise<DailyStep | null> {
+  try {
+    // Build dynamic update query
+    const setParts: string[] = []
+    const values: any[] = []
+    
+    if (updates.title !== undefined) {
+      setParts.push(`title = $${values.length + 1}`)
+      values.push(updates.title)
+    }
+    if (updates.description !== undefined) {
+      setParts.push(`description = $${values.length + 1}`)
+      values.push(updates.description)
+    }
+    if (updates.completed !== undefined) {
+      setParts.push(`completed = $${values.length + 1}`)
+      values.push(updates.completed)
+      if (updates.completed) {
+        setParts.push(`completed_at = $${values.length + 1}`)
+        values.push(new Date().toISOString())
+      } else {
+        setParts.push(`completed_at = NULL`)
+      }
+    }
+    if (updates.date !== undefined) {
+      let dateValue: string | null = null
+      if (updates.date) {
+        if (updates.date instanceof Date) {
+          const year = updates.date.getFullYear()
+          const month = String(updates.date.getMonth() + 1).padStart(2, '0')
+          const day = String(updates.date.getDate()).padStart(2, '0')
+          dateValue = `${year}-${month}-${day}`
+        } else if (typeof updates.date === 'string') {
+          if (updates.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            dateValue = updates.date
+          } else if (updates.date.includes('T')) {
+            dateValue = updates.date.split('T')[0]
+          }
+        }
+      }
+      setParts.push(`date = $${values.length + 1}`)
+      values.push(dateValue)
+    }
+    // Mutual exclusivity for goal_id and area_id
+    // Check if values are actually provided (not just undefined)
+    const hasGoalIdValue = updates.goal_id !== undefined && updates.goal_id !== null
+    const hasAreaIdValue = updates.area_id !== undefined && updates.area_id !== null
+    
+    console.log('🔧 updateDailyStepFields - processing goal_id and area_id:', {
+      goal_id: updates.goal_id,
+      area_id: updates.area_id,
+      hasGoalIdValue,
+      hasAreaIdValue
+    })
+    
+    if (hasGoalIdValue) {
+      // goal_id has a value - use it and clear area_id
+      console.log('✅ Setting goal_id, clearing area_id')
+      setParts.push(`goal_id = $${values.length + 1}`)
+      values.push(updates.goal_id)
+      setParts.push('area_id = NULL') // Clear area_id if goal_id is set
+    } else if (updates.goal_id !== undefined) {
+      // goal_id was explicitly set to null - clear it, but don't touch area_id unless it's also provided
+      console.log('⚠️ goal_id is null, clearing it')
+      setParts.push('goal_id = NULL')
+      if (hasAreaIdValue) {
+        console.log('✅ Also setting area_id since goal_id is null')
+        setParts.push(`area_id = $${values.length + 1}`)
+        values.push(updates.area_id)
+      }
+    } else if (hasAreaIdValue) {
+      // area_id has a value - use it and clear goal_id
+      console.log('✅ Setting area_id, clearing goal_id')
+      setParts.push(`area_id = $${values.length + 1}`)
+      values.push(updates.area_id)
+      setParts.push('goal_id = NULL') // Clear goal_id if area_id is set
+    } else if (updates.area_id !== undefined) {
+      // area_id was explicitly set to null - clear it
+      console.log('⚠️ area_id is null, clearing it')
+      setParts.push('area_id = NULL')
+    }
+    if (updates.aspiration_id !== undefined) {
+      setParts.push(`aspiration_id = $${values.length + 1}`)
+      values.push(updates.aspiration_id)
+    }
+    if (updates.is_important !== undefined) {
+      setParts.push(`is_important = $${values.length + 1}`)
+      values.push(updates.is_important)
+    }
+    if (updates.is_urgent !== undefined) {
+      setParts.push(`is_urgent = $${values.length + 1}`)
+      values.push(updates.is_urgent)
+    }
+    if (updates.estimated_time !== undefined) {
+      setParts.push(`estimated_time = $${values.length + 1}`)
+      values.push(updates.estimated_time)
+    }
+    if (updates.xp_reward !== undefined) {
+      setParts.push(`xp_reward = $${values.length + 1}`)
+      values.push(updates.xp_reward)
+    }
+    if (updates.checklist !== undefined) {
+      setParts.push(`checklist = $${values.length + 1}::jsonb`)
+      values.push(JSON.stringify(updates.checklist))
+    }
+    if (updates.require_checklist_complete !== undefined) {
+      setParts.push(`require_checklist_complete = $${values.length + 1}`)
+      values.push(updates.require_checklist_complete)
+    }
+    
+    // Always update updated_at
+    setParts.push('updated_at = NOW()')
+    
+    if (setParts.length === 1) {
+      // Only updated_at, no actual updates
+      // Still fetch and return the step
+    } else {
+      const query = `UPDATE daily_steps SET ${setParts.join(', ')} WHERE id = $${values.length + 1} RETURNING id, user_id, goal_id, title, description, completed, TO_CHAR(date, 'YYYY-MM-DD') as date, is_important, is_urgent, aspiration_id, area_id, estimated_time, xp_reward, deadline, completed_at, created_at, updated_at, COALESCE(checklist, '[]'::jsonb) as checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete`
+      values.push(stepId)
+      
+      const result = await sql.query(query, values)
+      const rows = result as any[]
+      if (rows.length === 0) {
+        return null
+      }
+      
+      // Update goal progress if step was completed
+      if (updates.completed && rows[0].goal_id) {
+        await updateGoalProgressCombined(rows[0].goal_id)
+      }
+      
+      return rows[0] as DailyStep
+    }
+    
+    // Fetch the step if no updates were made
+    const step = await sql`
+      SELECT id, user_id, goal_id, title, description, completed, 
+        TO_CHAR(date, 'YYYY-MM-DD') as date,
+        is_important, is_urgent, aspiration_id, area_id,
+        estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+        COALESCE(checklist, '[]'::jsonb) as checklist,
+        COALESCE(require_checklist_complete, false) as require_checklist_complete
+      FROM daily_steps
+      WHERE id = ${stepId}
+    `
+    
+    if (step.length === 0) {
+      return null
+    }
+    
+    return step[0] as DailyStep
+  } catch (error) {
+    console.error('Error updating daily step fields:', error)
+    return null
   }
 }
 
@@ -1403,78 +1568,6 @@ export async function updateDailyStepValue(stepId: string, value: number): Promi
   }
 }
 
-// Safe update function for daily steps with multiple fields
-export async function updateDailyStepFields(
-  stepId: string,
-  updates: {
-    title?: string
-    description?: string
-    goal_id?: string | null
-    aspiration_id?: string | null
-    is_important?: boolean
-    is_urgent?: boolean
-    estimated_time?: number
-    xp_reward?: number
-    date?: string | null
-    checklist?: ChecklistItem[]
-  }
-): Promise<DailyStep | null> {
-  try {
-    // Use individual safe updates with template literals
-    if (updates.title !== undefined) {
-      await sql`UPDATE daily_steps SET title = ${updates.title}, updated_at = NOW() WHERE id = ${stepId}`
-    }
-    if (updates.description !== undefined) {
-      await sql`UPDATE daily_steps SET description = ${updates.description}, updated_at = NOW() WHERE id = ${stepId}`
-    }
-    if (updates.goal_id !== undefined) {
-      await sql`UPDATE daily_steps SET goal_id = ${updates.goal_id}, updated_at = NOW() WHERE id = ${stepId}`
-    }
-    if (updates.aspiration_id !== undefined) {
-      await sql`UPDATE daily_steps SET aspiration_id = ${updates.aspiration_id}, updated_at = NOW() WHERE id = ${stepId}`
-    }
-    if (updates.is_important !== undefined) {
-      await sql`UPDATE daily_steps SET is_important = ${updates.is_important}, updated_at = NOW() WHERE id = ${stepId}`
-    }
-    if (updates.is_urgent !== undefined) {
-      await sql`UPDATE daily_steps SET is_urgent = ${updates.is_urgent}, updated_at = NOW() WHERE id = ${stepId}`
-    }
-    if (updates.estimated_time !== undefined) {
-      await sql`UPDATE daily_steps SET estimated_time = ${updates.estimated_time}, updated_at = NOW() WHERE id = ${stepId}`
-    }
-    if (updates.xp_reward !== undefined) {
-      await sql`UPDATE daily_steps SET xp_reward = ${updates.xp_reward}, updated_at = NOW() WHERE id = ${stepId}`
-    }
-    if (updates.date !== undefined) {
-      await sql`UPDATE daily_steps SET date = ${updates.date}, updated_at = NOW() WHERE id = ${stepId}`
-    }
-    if (updates.checklist !== undefined) {
-      const checklistJson = JSON.stringify(updates.checklist)
-      await sql`UPDATE daily_steps SET checklist = ${checklistJson}::jsonb, updated_at = NOW() WHERE id = ${stepId}`
-    }
-
-    // Get the updated step with formatted date
-    const result = await sql`
-      SELECT 
-        id, user_id, goal_id, title, description, completed, 
-        TO_CHAR(date, 'YYYY-MM-DD') as date,
-        is_important, is_urgent, aspiration_id, 
-        estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
-        checklist
-      FROM daily_steps 
-      WHERE id = ${stepId}
-    `
-
-    if (result.length === 0) {
-      return null
-    }
-
-    return result[0] as DailyStep
-  } catch (error) {
-    console.error('Error updating daily step fields:', error)
-    return null
-  }
-}
 
 export async function updateDailyStepDate(stepId: string, newDate: Date): Promise<DailyStep> {
   try {
@@ -3533,11 +3626,11 @@ export async function createHabit(habitData: Omit<Habit, 'id' | 'created_at' | '
     const result = await sql`
       INSERT INTO habits (
         id, user_id, name, description, frequency, streak, 
-        max_streak, category, difficulty, is_custom, reminder_time, selected_days, always_show, xp_reward, aspiration_id
+        max_streak, category, difficulty, is_custom, reminder_time, selected_days, always_show, xp_reward, aspiration_id, area_id
       ) VALUES (
         ${id}, ${habitData.user_id}, ${habitData.name}, ${habitData.description}, 
         ${habitData.frequency}, ${habitData.streak}, ${habitData.max_streak}, 
-        ${habitData.category}, ${habitData.difficulty}, ${habitData.is_custom}, ${habitData.reminder_time}, ${habitData.selected_days}, ${habitData.always_show}, ${habitData.xp_reward}, ${habitData.aspiration_id || null}
+        ${habitData.category}, ${habitData.difficulty}, ${habitData.is_custom}, ${habitData.reminder_time}, ${habitData.selected_days}, ${habitData.always_show}, ${habitData.xp_reward}, ${habitData.aspiration_id || null}, ${habitData.area_id || null}
       ) RETURNING *
     `
     
@@ -3577,6 +3670,7 @@ export async function updateHabit(habitId: string, updates: Partial<Omit<Habit, 
         always_show = COALESCE(${updates.always_show}, always_show),
         xp_reward = COALESCE(${updates.xp_reward}, xp_reward),
         aspiration_id = ${updates.aspiration_id !== undefined ? updates.aspiration_id : null},
+        area_id = ${updates.area_id !== undefined ? updates.area_id : null},
         updated_at = NOW()
       WHERE id = ${habitId}
       RETURNING *

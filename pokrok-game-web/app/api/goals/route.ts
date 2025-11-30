@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { userId, title, description, targetDate, status, priority, goalType, progressPercentage, progressType } = body
+    const { userId, title, description, targetDate, status, priority, goalType, progressPercentage, progressType, icon, areaId } = body
     
     if (!userId || !title) {
       return NextResponse.json({ error: 'User ID and title are required' }, { status: 400 })
@@ -62,7 +62,9 @@ export async function POST(request: NextRequest) {
       category: 'medium-term' as const, // Keep category for compatibility
       goal_type: goalType || 'outcome',
       progress_percentage: progressPercentage || 0,
-      progress_type: progressType || 'percentage'
+      progress_type: progressType || 'percentage',
+      icon: icon || 'Target',
+      area_id: areaId || undefined
     }
 
     const goal = await createGoal(goalData)
@@ -82,7 +84,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { goalId, title, description, target_date, status, progressPercentage, icon } = body
+    const { goalId, title, description, target_date, status, progressPercentage, icon, areaId } = body
     
     if (!goalId) {
       return NextResponse.json({ error: 'Goal ID is required' }, { status: 400 })
@@ -106,7 +108,8 @@ export async function PUT(request: NextRequest) {
       description,
       target_date: target_date ? new Date(target_date) : undefined,
       status,
-      icon
+      icon,
+      area_id: areaId !== undefined ? areaId : undefined
     }
 
     if (progressPercentage !== undefined) {

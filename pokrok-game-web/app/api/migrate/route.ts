@@ -191,6 +191,15 @@ async function runMigrations() {
       await sql`ALTER TABLE daily_steps ADD COLUMN require_checklist_complete BOOLEAN DEFAULT FALSE`
     }
     
+    // Add estimated_time and xp_reward columns if they don't exist
+    if (!dailyStepsColumnNames.includes('estimated_time')) {
+      await sql`ALTER TABLE daily_steps ADD COLUMN estimated_time INTEGER DEFAULT 30`
+    }
+    
+    if (!dailyStepsColumnNames.includes('xp_reward')) {
+      await sql`ALTER TABLE daily_steps ADD COLUMN xp_reward INTEGER DEFAULT 1`
+    }
+    
     // Add date_format column to user_settings table
     const userSettingsColumns = await sql`
       SELECT column_name 
@@ -218,6 +227,74 @@ async function runMigrations() {
       } catch (e2: any) {
         console.log('Note: Could not update goals status constraint with alternative name:', e2?.message)
       }
+    }
+    
+    // Create areas table if it doesn't exist
+    const areasTableExists = await sql`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'areas'
+      )
+    `
+    
+    if (!areasTableExists[0]?.exists) {
+      await sql`
+        CREATE TABLE areas (
+          id VARCHAR(255) PRIMARY KEY,
+          user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          name VARCHAR(255) NOT NULL,
+          description TEXT,
+          color VARCHAR(7) NOT NULL DEFAULT '#3B82F6',
+          icon VARCHAR(50),
+          "order" INTEGER DEFAULT 0,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        )
+      `
+    }
+    
+    // Add area_id to habits if it doesn't exist
+    const habitsColumns = await sql`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'habits'
+    `
+    const habitsColumnNames = habitsColumns.map((row: any) => row.column_name)
+    
+    if (!habitsColumnNames.includes('area_id')) {
+      await sql`ALTER TABLE habits ADD COLUMN area_id VARCHAR(255) REFERENCES areas(id) ON DELETE SET NULL`
+    }
+    
+    // Add area_id to daily_steps if it doesn't exist (must be after areas table is created)
+    // Re-fetch columns in case new ones were added above
+    const dailyStepsColumnsForArea = await sql`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'daily_steps'
+    `
+    const dailyStepsColumnNamesForArea = dailyStepsColumnsForArea.map((row: any) => row.column_name)
+    
+    if (!dailyStepsColumnNamesForArea.includes('area_id')) {
+      await sql`ALTER TABLE daily_steps ADD COLUMN area_id VARCHAR(255) REFERENCES areas(id) ON DELETE SET NULL`
+    }
+    
+    // Add constraint to daily_steps to ensure area_id and goal_id are mutually exclusive
+    // First check if constraint exists
+    const dailyStepsConstraints = await sql`
+      SELECT constraint_name 
+      FROM information_schema.table_constraints 
+      WHERE table_name = 'daily_steps' 
+      AND constraint_name = 'daily_steps_area_goal_exclusive'
+    `
+    
+    if (dailyStepsConstraints.length === 0) {
+      // Add check constraint: either area_id or goal_id can be set, but not both
+      await sql`
+        ALTER TABLE daily_steps 
+        ADD CONSTRAINT daily_steps_area_goal_exclusive 
+        CHECK ((area_id IS NULL AND goal_id IS NOT NULL) OR (area_id IS NOT NULL AND goal_id IS NULL) OR (area_id IS NULL AND goal_id IS NULL))
+      `
     }
     
     return { success: true, message: 'Migration completed successfully' }

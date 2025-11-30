@@ -264,6 +264,7 @@ export function JourneyGameView({
     description: '',
     date: '',
     goalId: '',
+    areaId: '',
     completed: false,
     is_important: false,
     is_urgent: false,
@@ -291,6 +292,29 @@ export function JourneyGameView({
   const [rightSidebarWidth, setRightSidebarWidth] = useState<'288px' | '48px' | '0px'>('288px')
   const [expandedAreas, setExpandedAreas] = useState<Set<string | null>>(new Set())
   const [pendingWorkflow, setPendingWorkflow] = useState<any>(null)
+  
+  // Auto-expand/collapse areas based on current page
+  useEffect(() => {
+    if (mainPanelSection.startsWith('area-')) {
+      // If we're on an area page, expand that area and collapse all others
+      const areaId = mainPanelSection.replace('area-', '')
+      setExpandedAreas(new Set([areaId]))
+    } else if (mainPanelSection.startsWith('goal-')) {
+      // If we're on a goal page, check if the goal belongs to an area
+      const goalId = mainPanelSection.replace('goal-', '')
+      const goal = goals.find(g => g.id === goalId)
+      if (goal && goal.area_id) {
+        // Goal belongs to an area - expand that area and collapse all others
+        setExpandedAreas(new Set([goal.area_id]))
+      } else {
+        // Goal doesn't belong to any area - collapse all areas
+        setExpandedAreas(new Set())
+      }
+    } else {
+      // If we're on any other page, collapse all areas
+      setExpandedAreas(new Set())
+    }
+  }, [mainPanelSection, goals])
   
   // Responsive logic
   useEffect(() => {
@@ -392,6 +416,40 @@ export function JourneyGameView({
   const [isDeletingGoal, setIsDeletingGoal] = useState(false)
   const [showCreateMenu, setShowCreateMenu] = useState(false)
   const createMenuButtonRef = useRef<HTMLButtonElement>(null)
+  
+  // Areas state
+  const [areas, setAreas] = useState<any[]>([])
+  const [showGoalDetailAreaPicker, setShowGoalDetailAreaPicker] = useState(false)
+  const [showAreasManagementModal, setShowAreasManagementModal] = useState(false)
+  const [editingArea, setEditingArea] = useState<any | null>(null)
+  const [areaModalName, setAreaModalName] = useState('')
+  const [areaModalDescription, setAreaModalDescription] = useState('')
+  const [areaModalColor, setAreaModalColor] = useState('#ea580c')
+  const [areaModalIcon, setAreaModalIcon] = useState('Target')
+  const [isSavingArea, setIsSavingArea] = useState(false)
+  const [showAreaIconPicker, setShowAreaIconPicker] = useState(false)
+  const [goalDetailAreaPickerPosition, setGoalDetailAreaPickerPosition] = useState<{ top: number; left: number } | null>(null)
+  const goalAreaRef = useRef<HTMLSpanElement>(null)
+  
+  // Load areas
+  useEffect(() => {
+    const loadAreas = async () => {
+      const currentUserId = userId || player?.user_id
+      if (!currentUserId) return
+      
+      try {
+        const response = await fetch(`/api/cesta/areas?userId=${currentUserId}`)
+        if (response.ok) {
+          const data = await response.json()
+          setAreas(data.areas || [])
+        }
+      } catch (error) {
+        console.error('Error loading areas:', error)
+      }
+    }
+    
+    loadAreas()
+  }, [userId, player?.user_id])
   const goalTitleRef = useRef<HTMLInputElement | HTMLHeadingElement>(null)
   const goalDescriptionRef = useRef<HTMLTextAreaElement | HTMLParagraphElement>(null)
   const goalDateRef = useRef<HTMLSpanElement>(null)
@@ -648,35 +706,35 @@ export function JourneyGameView({
           return newSet
         })
         
-        // Add to loading set
-        setLoadingSteps(prev => new Set(prev).add(stepId))
-        
-        try {
-          const response = await fetch('/api/daily-steps', {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              stepId: stepId,
-              completed: completed,
-              completedAt: completed ? new Date().toISOString() : null
-            }),
-          })
+    // Add to loading set
+    setLoadingSteps(prev => new Set(prev).add(stepId))
+    
+    try {
+      const response = await fetch('/api/daily-steps', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          stepId: stepId,
+          completed: completed,
+          completedAt: completed ? new Date().toISOString() : null
+        }),
+      })
 
-          if (response.ok) {
-            const updatedStep = await response.json()
-            // Update the step in dailySteps array
-            const updatedSteps = dailySteps.map(step => 
-              step.id === updatedStep.id ? updatedStep : step
-            )
-            if (onDailyStepsUpdate) {
-              onDailyStepsUpdate(updatedSteps)
-            }
-            // Update selected item if it's the same step
-            if (selectedItem && selectedItem.id === stepId) {
-              setSelectedItem(updatedStep)
-            }
+      if (response.ok) {
+        const updatedStep = await response.json()
+        // Update the step in dailySteps array
+        const updatedSteps = dailySteps.map(step => 
+          step.id === updatedStep.id ? updatedStep : step
+        )
+        if (onDailyStepsUpdate) {
+          onDailyStepsUpdate(updatedSteps)
+        }
+        // Update selected item if it's the same step
+        if (selectedItem && selectedItem.id === stepId) {
+          setSelectedItem(updatedStep)
+        }
             // Update cache for the goal to force re-render
             if (updatedStep.goal_id) {
               // Update cache directly
@@ -691,8 +749,8 @@ export function JourneyGameView({
                 [updatedStep.goal_id]: (prev[updatedStep.goal_id] || 0) + 1
               }))
             }
-          } else {
-            console.error('Failed to update step')
+      } else {
+        console.error('Failed to update step')
             // Revert optimistic update on error
             if (step) {
               const revertedStep = { ...step, completed: false }
@@ -701,10 +759,10 @@ export function JourneyGameView({
                 onDailyStepsUpdate(updatedSteps)
               }
             }
-            alert('Nepodařilo se aktualizovat krok')
-          }
-          } catch (error) {
-            console.error('Error updating step:', error)
+        alert('Nepodařilo se aktualizovat krok')
+      }
+    } catch (error) {
+      console.error('Error updating step:', error)
             // Revert optimistic update on error
             if (step) {
               const revertedStep = { ...step, completed: !completed }
@@ -713,14 +771,14 @@ export function JourneyGameView({
                 onDailyStepsUpdate(updatedSteps)
               }
             }
-            alert('Chyba při aktualizaci kroku')
-          } finally {
-          // Remove from loading set
-          setLoadingSteps(prev => {
-            const newSet = new Set(prev)
-            newSet.delete(stepId)
-            return newSet
-          })
+      alert('Chyba při aktualizaci kroku')
+    } finally {
+      // Remove from loading set
+      setLoadingSteps(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(stepId)
+        return newSet
+      })
         }
       }, 300) // 0.3s animation delay
     } else {
@@ -915,6 +973,7 @@ export function JourneyGameView({
   const [editingHabitFrequency, setEditingHabitFrequency] = useState<'daily' | 'weekly' | 'monthly' | 'custom'>('daily')
   const [editingHabitSelectedDays, setEditingHabitSelectedDays] = useState<string[]>([])
   const [editingHabitAlwaysShow, setEditingHabitAlwaysShow] = useState<boolean>(false)
+  const [editingHabitAreaId, setEditingHabitAreaId] = useState<string | null>(null)
   const [editingHabitXpReward, setEditingHabitXpReward] = useState<number>(0)
   const [editingHabitCategory, setEditingHabitCategory] = useState<string>('')
   const [editingHabitDifficulty, setEditingHabitDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
@@ -1055,6 +1114,7 @@ export function JourneyGameView({
         description: step.description || '',
         date: stepDate,
         goalId: step.goal_id || '',
+        areaId: step.area_id || '',
         completed: step.completed || false,
         is_important: step.is_important || false,
         is_urgent: step.is_urgent || false,
@@ -1064,14 +1124,20 @@ export function JourneyGameView({
         require_checklist_complete: step.require_checklist_complete || false
       })
     } else {
-      // Create new step
-      const defaultDate = date || getLocalDateString(selectedDayDate)
+      // Create new step - always use today's date as default
+      const defaultDate = date || getLocalDateString(new Date())
+      // Check if we're on an area page and should assign the step to that area
+      let defaultAreaId = ''
+      if (mainPanelSection.startsWith('area-')) {
+        defaultAreaId = mainPanelSection.replace('area-', '')
+      }
       setStepModalData({
         id: null,
         title: '',
         description: '',
         date: defaultDate,
         goalId: '',
+        areaId: defaultAreaId,
         completed: false,
         is_important: false,
         is_urgent: false,
@@ -1082,6 +1148,127 @@ export function JourneyGameView({
       })
     }
     setShowStepModal(true)
+  }
+
+  // Handle step modal save
+  const handleSaveStepModal = async () => {
+    if (!stepModalData.title.trim()) {
+      alert('Název kroku je povinný')
+      return
+    }
+
+    const currentUserId = userId || player?.user_id
+    if (!currentUserId) {
+      alert('Uživatel není nalezen')
+      return
+    }
+
+    // Validate mutual exclusivity
+    if (stepModalData.goalId && stepModalData.areaId) {
+      alert('Krok nemůže mít současně přiřazený cíl i oblast')
+      return
+    }
+
+    setStepModalSaving(true)
+    try {
+      const isNewStep = !stepModalData.id
+      const requestBody = {
+        ...(isNewStep ? {} : { stepId: stepModalData.id }),
+        userId: currentUserId,
+        goalId: (stepModalData.goalId && stepModalData.goalId.trim() !== '') ? stepModalData.goalId : null,
+        areaId: (stepModalData.areaId && stepModalData.areaId.trim() !== '') ? stepModalData.areaId : null,
+        title: stepModalData.title,
+        description: stepModalData.description || '',
+        date: stepModalData.date || getLocalDateString(new Date()),
+        isImportant: stepModalData.is_important,
+        isUrgent: stepModalData.is_urgent,
+        estimatedTime: stepModalData.estimated_time,
+        checklist: stepModalData.checklist,
+        requireChecklistComplete: stepModalData.require_checklist_complete
+      }
+      
+      console.log('🚀 Saving step:', {
+        isNewStep,
+        stepId: stepModalData.id,
+        stepModalData: {
+          goalId: stepModalData.goalId,
+          areaId: stepModalData.areaId,
+          title: stepModalData.title
+        },
+        requestBody: {
+          goalId: requestBody.goalId,
+          areaId: requestBody.areaId,
+          stepId: requestBody.stepId
+        }
+      })
+      
+      const response = await fetch('/api/daily-steps', {
+        method: isNewStep ? 'POST' : 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      })
+
+      if (response.ok) {
+        const updatedStep = await response.json()
+        
+        // Update dailySteps in parent component
+        if (onDailyStepsUpdate) {
+          if (isNewStep) {
+            onDailyStepsUpdate([...dailySteps, updatedStep])
+          } else {
+            const updatedSteps = dailySteps.map(step => 
+              step.id === updatedStep.id ? updatedStep : step
+            )
+            onDailyStepsUpdate(updatedSteps)
+          }
+        }
+        
+        // Update cache for the goal to force re-render (if on goal detail page)
+        if (updatedStep.goal_id && selectedGoalId === updatedStep.goal_id) {
+          if (stepsCacheRef.current[updatedStep.goal_id]) {
+            if (isNewStep) {
+              stepsCacheRef.current[updatedStep.goal_id].data = [...stepsCacheRef.current[updatedStep.goal_id].data, updatedStep]
+            } else {
+              stepsCacheRef.current[updatedStep.goal_id].data = stepsCacheRef.current[updatedStep.goal_id].data.map(
+                (s: any) => s.id === updatedStep.id ? updatedStep : s
+              )
+            }
+          }
+          setStepsCacheVersion(prev => ({
+            ...prev,
+            [updatedStep.goal_id]: (prev[updatedStep.goal_id] || 0) + 1
+          }))
+        }
+        
+        // Close modal after successful save
+        setShowStepModal(false)
+        setStepModalData({
+          id: null,
+          title: '',
+          description: '',
+          date: '',
+          goalId: '',
+          areaId: '',
+          completed: false,
+          is_important: false,
+          is_urgent: false,
+          deadline: '',
+          estimated_time: 0,
+          checklist: [],
+          require_checklist_complete: false
+        })
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
+        alert(`Chyba při ${isNewStep ? 'vytváření' : 'aktualizaci'} kroku: ${errorData.error || 'Nepodařilo se uložit krok'}`)
+      }
+    } catch (error) {
+      console.error('Error saving step:', error)
+      alert(`Chyba při ${stepModalData.id ? 'aktualizaci' : 'vytváření'} kroku`)
+    } finally {
+      setStepModalSaving(false)
+    }
   }
 
   // Handle habit modal
@@ -1096,6 +1283,15 @@ export function JourneyGameView({
     setEditingHabitCategory(habit?.category || '')
     setEditingHabitDifficulty(habit?.difficulty || 'medium')
     setEditingHabitReminderTime(habit?.reminder_time || '')
+    
+    // If creating new habit and we're on an area page, automatically assign the area
+    if (!habit && mainPanelSection.startsWith('area-')) {
+      const areaId = mainPanelSection.replace('area-', '')
+      setEditingHabitAreaId(areaId)
+    } else {
+      setEditingHabitAreaId(habit?.area_id || null)
+    }
+    
     setShowHabitModal(true)
   }
 
@@ -1129,7 +1325,8 @@ export function JourneyGameView({
           alwaysShow: editingHabitAlwaysShow,
           xpReward: editingHabitXpReward,
           category: editingHabitCategory,
-          difficulty: editingHabitDifficulty
+          difficulty: editingHabitDifficulty,
+          areaId: editingHabitAreaId || null
         }),
       })
 
@@ -1143,10 +1340,10 @@ export function JourneyGameView({
             onHabitsUpdate([...habits, updatedHabit])
           } else {
             // Update existing habit
-            const updatedHabits = habits.map(habit => 
-              habit.id === updatedHabit.id ? updatedHabit : habit
-            )
-            onHabitsUpdate(updatedHabits)
+          const updatedHabits = habits.map(habit => 
+            habit.id === updatedHabit.id ? updatedHabit : habit
+          )
+          onHabitsUpdate(updatedHabits)
           }
         }
         
@@ -1203,109 +1400,115 @@ export function JourneyGameView({
     }
   }
 
-  const handleSaveStepModal = async () => {
-    if (!stepModalData.title.trim()) {
-      alert('Název kroku je povinný')
+  // Handle areas management modal
+  const handleOpenAreasManagementModal = () => {
+    setShowAreasManagementModal(true)
+    setEditingArea(null)
+  }
+
+  const handleOpenAreaEditModal = (area?: any) => {
+    if (area) {
+      setEditingArea(area)
+      setAreaModalName(area.name || '')
+      setAreaModalDescription(area.description || '')
+      setAreaModalColor(area.color || '#ea580c')
+      setAreaModalIcon(area.icon || 'Target')
+    } else {
+      setEditingArea(null)
+      setAreaModalName('')
+      setAreaModalDescription('')
+      setAreaModalColor('#ea580c')
+      setAreaModalIcon('Target')
+    }
+  }
+
+  const handleSaveArea = async () => {
+    if (!areaModalName.trim()) {
+      alert(t('areas.nameRequired') || 'Název oblasti je povinný')
       return
     }
 
-    const currentUserId = userId || player?.user_id
-    if (!currentUserId) {
-      console.error('Cannot save step: userId not available', { userId, playerUserId: player?.user_id, user: user?.id })
-      alert('Chyba: Uživatel není nalezen. Zkuste to prosím znovu za chvíli.')
+    if (!userId) {
+      alert(t('common.error') || 'Chyba: Uživatel není nalezen')
       return
     }
 
-    console.log('Saving step:', { 
-      isUpdate: !!stepModalData.id, 
-      title: stepModalData.title, 
-      userId: currentUserId,
-      date: stepModalData.date 
-    })
-
-    setStepModalSaving(true)
+    setIsSavingArea(true)
     try {
-      const requestBody = stepModalData.id ? {
-        stepId: stepModalData.id,
-        title: stepModalData.title,
-        description: stepModalData.description || '',
-        date: stepModalData.date || null,
-        goalId: stepModalData.goalId || null,
-        completed: stepModalData.completed,
-        isImportant: stepModalData.is_important,
-        isUrgent: stepModalData.is_urgent,
-        estimatedTime: stepModalData.estimated_time,
-        checklist: stepModalData.checklist,
-        requireChecklistComplete: stepModalData.require_checklist_complete
-      } : {
-        userId: currentUserId,
-        goalId: stepModalData.goalId || null,
-        title: stepModalData.title,
-        description: stepModalData.description || '',
-        date: stepModalData.date || null,
-        isImportant: stepModalData.is_important,
-        isUrgent: stepModalData.is_urgent,
-        estimatedTime: stepModalData.estimated_time,
-        checklist: stepModalData.checklist,
-        requireChecklistComplete: stepModalData.require_checklist_complete
-      }
-
-      console.log('Sending request:', requestBody)
-
-      const response = await fetch('/api/daily-steps', {
-        method: stepModalData.id ? 'PUT' : 'POST',
+      const isNewArea = !editingArea
+      const response = await fetch('/api/cesta/areas', {
+        method: isNewArea ? 'POST' : 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({
+          ...(isNewArea ? {} : { id: editingArea.id }),
+          userId,
+          name: areaModalName.trim(),
+          description: areaModalDescription.trim() || null,
+          color: areaModalColor,
+          icon: areaModalIcon,
+          order: isNewArea ? areas.length : editingArea.order
+        }),
       })
 
-      console.log('Response status:', response.status, response.ok)
-
       if (response.ok) {
-        const savedStep = await response.json()
-        console.log('Step saved successfully:', savedStep)
+        // Reload areas
+        const areasResponse = await fetch('/api/cesta/areas')
+        if (areasResponse.ok) {
+          const data = await areasResponse.json()
+          setAreas(data.areas || [])
+        }
         
-        // Reload steps
-        const stepsResponse = await fetch(`/api/daily-steps?userId=${currentUserId}`)
-        if (stepsResponse.ok) {
-          const steps = await stepsResponse.json()
-          console.log('Steps reloaded:', steps.length)
-          onDailyStepsUpdate?.(steps)
-        }
-        setShowStepModal(false)
-        setStepModalData({
-          id: null,
-          title: '',
-          description: '',
-          date: '',
-          goalId: '',
-          completed: false,
-          is_important: false,
-          is_urgent: false,
-          deadline: '',
-          estimated_time: 0,
-          checklist: [],
-          require_checklist_complete: false
-        })
+        // Close edit modal but keep management modal open
+        setEditingArea(null)
+        setAreaModalName('')
+        setAreaModalDescription('')
+        setAreaModalColor('#ea580c')
+        setAreaModalIcon('Target')
       } else {
-        const errorText = await response.text()
-        console.error('Error response:', response.status, errorText)
-        let errorData
-        try {
-          errorData = JSON.parse(errorText)
-        } catch {
-          errorData = { error: errorText || 'Neznámá chyba' }
-        }
-        alert(`Chyba při ${stepModalData.id ? 'aktualizaci' : 'vytváření'} kroku: ${errorData.error || 'Nepodařilo se uložit krok'}`)
+        const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
+        alert(`Chyba při ${isNewArea ? 'vytváření' : 'aktualizaci'} oblasti: ${errorData.error || 'Nepodařilo se uložit oblast'}`)
       }
     } catch (error) {
-      console.error('Error saving step:', error)
-      alert(`Chyba při ${stepModalData.id ? 'aktualizaci' : 'vytváření'} kroku: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
+      console.error('Error saving area:', error)
+      alert(`Chyba při ${editingArea ? 'aktualizaci' : 'vytváření'} oblasti`)
     } finally {
-      setStepModalSaving(false)
+      setIsSavingArea(false)
     }
   }
+
+  const handleDeleteArea = async (areaId: string) => {
+    if (!confirm(t('areas.deleteConfirm') || 'Opravdu chcete smazat tuto oblast? Cíle, kroky a návyky přiřazené k této oblasti budou odpojeny.')) {
+      return
+    }
+
+    try {
+      const response = await fetch('/api/cesta/areas', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: areaId }),
+      })
+
+      if (response.ok) {
+        // Reload areas
+        const areasResponse = await fetch('/api/cesta/areas')
+        if (areasResponse.ok) {
+          const data = await areasResponse.json()
+          setAreas(data.areas || [])
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
+        alert(t('areas.deleteError') || `Nepodařilo se smazat oblast: ${errorData.error || 'Neznámá chyba'}`)
+      }
+    } catch (error) {
+      console.error('Error deleting area:', error)
+      alert(t('areas.deleteError') || 'Chyba při mazání oblasti')
+    }
+  }
+
 
   const handleSaveStep = async () => {
     if (!selectedItem || selectedItemType !== 'step') return
@@ -3933,6 +4136,12 @@ export function JourneyGameView({
       return
     }
 
+    // Check if we're on an area page and should assign the goal to that area
+    let areaId: string | null = null
+    if (mainPanelSection.startsWith('area-')) {
+      areaId = mainPanelSection.replace('area-', '')
+    }
+
     try {
       // Create goal with placeholder values
       const response = await fetch('/api/cesta/goals-with-steps', {
@@ -3947,7 +4156,8 @@ export function JourneyGameView({
           status: 'active',
           icon: 'Target',
           steps: [],
-          metrics: []
+          metrics: [],
+          areaId: areaId || null
         }),
       })
 
@@ -4477,17 +4687,23 @@ export function JourneyGameView({
   }, [goals])
 
   // Preload steps for all goals when goals are loaded
+  // Only preload steps for goals that are actually being viewed (active goals or goal detail pages)
   useEffect(() => {
     const preloadSteps = async () => {
       if (goals.length === 0) return
       
-      const goalIds = goals.map(goal => goal.id).filter(Boolean)
-      if (goalIds.length === 0) return
+      // Only preload steps for active goals (not paused/completed) to reduce initial load time
+      const activeGoalIds = goals
+        .filter(goal => goal.status === 'active')
+        .map(goal => goal.id)
+        .filter(Boolean)
+      
+      if (activeGoalIds.length === 0) return
       
       // Check which goals need loading
-      const goalsNeedingSteps = goalIds.filter(id => !stepsCacheRef.current[id]?.loaded)
+      const goalsNeedingSteps = activeGoalIds.filter(id => !stepsCacheRef.current[id]?.loaded)
       
-      // Batch load steps for all goals that need them
+      // Batch load steps for goals that need them
       if (goalsNeedingSteps.length > 0) {
         try {
           // Load steps for each goal (daily-steps API doesn't support batch, so we do parallel requests)
@@ -4500,6 +4716,8 @@ export function JourneyGameView({
                 stepsCacheRef.current[goalId] = { data: stepsArray, loaded: true }
                 // Trigger reactivity
                 setStepsCacheVersion((prev: Record<string, number>) => ({ ...prev, [goalId]: (prev[goalId] || 0) + 1 }))
+              } else {
+                console.error(`Failed to load steps for goal ${goalId}:`, stepsResponse.status, stepsResponse.statusText)
               }
             } catch (error) {
               console.error(`Error preloading steps for goal ${goalId}:`, error)
@@ -7968,6 +8186,122 @@ export function JourneyGameView({
         })
         
         const renderMainContent = () => {
+          // Check if it's an area page
+          if (mainPanelSection.startsWith('area-')) {
+            const areaId = mainPanelSection.replace('area-', '')
+            const area = areas.find(a => a.id === areaId)
+            
+            if (!area) {
+              return (
+                <div className="w-full min-h-full flex items-center justify-center bg-orange-50">
+                  <div className="text-center">
+                    <p className="text-gray-500">{t('navigation.areaNotFound') || 'Oblast nenalezena'}</p>
+                    <button
+                      onClick={() => setMainPanelSection('overview')}
+                      className="mt-4 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+                    >
+                      {t('navigation.backToOverview')}
+                    </button>
+                  </div>
+                </div>
+              )
+            }
+            
+            // Filter steps and habits by area
+            const areaGoals = goals.filter(goal => goal.area_id === areaId && goal.status === 'active')
+            const areaGoalIds = areaGoals.map(goal => goal.id).filter(Boolean)
+            
+            // Include steps that are directly assigned to the area OR belong to goals in this area
+            const areaSteps = dailySteps.filter(step => 
+              step.area_id === areaId || 
+              (step.goal_id && areaGoalIds.includes(step.goal_id))
+            )
+            const areaHabits = habits.filter(habit => habit.area_id === areaId)
+            
+            const IconComponent = getIconComponent(area.icon || 'Target')
+            const areaColor = area.color || '#ea580c'
+            
+            return (
+              <div className="w-full min-h-full flex flex-col bg-orange-50">
+                {/* Mobile header */}
+                <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <IconComponent className="w-5 h-5" style={{ color: areaColor }} />
+                      <h2 className="text-lg font-bold text-gray-900 truncate">{area.name}</h2>
+                    </div>
+                    <button
+                      onClick={() => setMainPanelSection('overview')}
+                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      title={t('navigation.backToOverview')}
+                    >
+                      <ChevronLeft className="w-5 h-5 text-gray-700" />
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Area detail content */}
+                <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
+                  <div className="p-6">
+                    {/* Area header - compact with stats on the right */}
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <IconComponent className="w-6 h-6 flex-shrink-0" style={{ color: areaColor }} />
+                          <div className="min-w-0">
+                            <h1 className="text-xl font-bold text-gray-900 truncate">{area.name}</h1>
+                            {area.description && (
+                              <p className="text-sm text-gray-600 mt-0.5 truncate">{area.description}</p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Area statistics - on the right */}
+                        <div className="flex items-center gap-4 text-gray-600 flex-shrink-0">
+                          {areaGoals.length > 0 && (
+                            <div className="text-sm">
+                              <span className="font-semibold">{areaGoals.length}</span> {areaGoals.length === 1 ? (localeCode === 'cs-CZ' ? 'cíl' : 'goal') : (localeCode === 'cs-CZ' ? 'cílů' : 'goals')}
+                            </div>
+                          )}
+                          {areaSteps.length > 0 && (
+                            <div className="text-sm">
+                              <span className="font-semibold">{areaSteps.length}</span> {areaSteps.length === 1 ? (localeCode === 'cs-CZ' ? 'krok' : 'step') : (localeCode === 'cs-CZ' ? 'kroků' : 'steps')}
+                            </div>
+                          )}
+                          {areaHabits.length > 0 && (
+                            <div className="text-sm">
+                              <span className="font-semibold">{areaHabits.length}</span> {areaHabits.length === 1 ? (localeCode === 'cs-CZ' ? 'návyk' : 'habit') : (localeCode === 'cs-CZ' ? 'návyků' : 'habits')}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Unified Day View - filtered by area */}
+                    <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
+                      <UnifiedDayView
+                        player={player}
+                        goals={areaGoals}
+                        habits={areaHabits}
+                        dailySteps={areaSteps}
+                        handleItemClick={handleItemClick}
+                        handleHabitToggle={handleHabitToggle}
+                        handleStepToggle={handleStepToggle}
+                        loadingHabits={loadingHabits}
+                        loadingSteps={loadingSteps}
+                        onOpenStepModal={handleOpenStepModal}
+                        onNavigateToHabits={onNavigateToHabits}
+                        onNavigateToSteps={onNavigateToSteps}
+                        onStepDateChange={handleStepDateChange}
+                        onStepTimeChange={handleStepTimeChange}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          }
+          
           // Check if it's a habit detail page
           if (mainPanelSection.startsWith('habit-')) {
             const habitId = mainPanelSection.replace('habit-', '')
@@ -8112,6 +8446,12 @@ export function JourneyGameView({
               setShowGoalDetailDatePicker(false)
             }
             
+            // Handle area selection
+            const handleGoalAreaSelect = async (areaId: string | null) => {
+              await handleUpdateGoalForDetail(goalId, { areaId: areaId })
+              setShowGoalDetailAreaPicker(false)
+            }
+            
               return (
                 <div className="w-full min-h-full flex flex-col bg-orange-50">
                 {/* Mobile header */}
@@ -8210,8 +8550,49 @@ export function JourneyGameView({
                               )}
                           </span>
                         </div>
-                        {/* Status picker and Delete button - aligned to the right */}
+                        {/* Area picker, Status picker and Delete button - aligned to the right */}
                         <div className="flex items-center gap-2 ml-auto">
+                          {/* Area picker */}
+                          <button
+                            ref={goalAreaRef}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (goalAreaRef.current) {
+                                const rect = goalAreaRef.current.getBoundingClientRect()
+                                setGoalDetailAreaPickerPosition({ 
+                                  top: rect.bottom + 5, 
+                                  left: rect.left 
+                                })
+                                setShowGoalDetailAreaPicker(true)
+                              }
+                            }}
+                            className="flex items-center gap-2 px-3 py-1.5 text-sm border-2 border-gray-300 bg-gray-50 text-gray-700 rounded-lg transition-all hover:bg-gray-100"
+                          >
+                            {goal.area_id ? (
+                              <>
+                                {(() => {
+                                  const area = areas.find(a => a.id === goal.area_id)
+                                  if (area) {
+                                    const IconComponent = getIconComponent(area.icon || 'Target')
+                                    return <IconComponent className="w-4 h-4" style={{ color: area.color || '#3B82F6' }} />
+                                  }
+                                  return <Target className="w-4 h-4" />
+                                })()}
+                                <span className="font-medium">
+                                  {areas.find(a => a.id === goal.area_id)?.name || t('details.goal.area')}
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <Target className="w-4 h-4" />
+                                <span className="font-medium text-gray-500">
+                                  {t('details.goal.selectArea')}
+                                </span>
+                              </>
+                            )}
+                            <ChevronDown className={`w-3 h-3 transition-transform ${showGoalDetailAreaPicker ? 'rotate-180' : ''}`} />
+                          </button>
+                          {/* Status picker */}
                           <button
                             ref={goalStatusRef}
                             onClick={(e) => {
@@ -8532,7 +8913,7 @@ export function JourneyGameView({
                                   doneSteps.map(renderStepCard)
                                 ) : (
                                   <div className="text-center py-8 text-gray-400">
-                                    <p className="text-sm">Žádné dokončené kroky</p>
+                                    <p className="text-sm">{t('goals.noCompletedSteps') || 'No completed steps'}</p>
                                   </div>
                                 )}
                               </div>
@@ -8744,6 +9125,57 @@ export function JourneyGameView({
                           )}
                         </button>
                       ))}
+                    </div>
+                  </>
+                )}
+                
+                {/* Area picker modal for goal area */}
+                {showGoalDetailAreaPicker && goalDetailAreaPickerPosition && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setShowGoalDetailAreaPicker(false)}
+                    />
+                    <div 
+                      className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[200px] max-h-64 overflow-y-auto"
+                      style={{
+                        top: `${goalDetailAreaPickerPosition.top}px`,
+                        left: `${goalDetailAreaPickerPosition.left}px`
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          await handleGoalAreaSelect(null)
+                        }}
+                        className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors font-medium flex items-center gap-2 ${
+                          !goal.area_id 
+                            ? 'bg-gray-50 text-gray-700 font-semibold' 
+                            : 'text-gray-700'
+                        }`}
+                      >
+                        <span>{t('details.goal.noArea') || 'Bez oblasti'}</span>
+                      </button>
+                      {areas.map((area) => {
+                        const IconComponent = getIconComponent(area.icon || 'Target')
+                        return (
+                          <button
+                            key={area.id}
+                            type="button"
+                            onClick={async () => {
+                              await handleGoalAreaSelect(area.id)
+                            }}
+                            className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors font-medium flex items-center gap-2 ${
+                              goal.area_id === area.id 
+                                ? 'bg-orange-50 text-orange-700 font-semibold' 
+                                : 'text-gray-700'
+                            }`}
+                          >
+                            <IconComponent className="w-4 h-4" style={{ color: area.color || '#3B82F6' }} />
+                            <span>{area.name}</span>
+                          </button>
+                        )
+                      })}
                     </div>
                   </>
                 )}
@@ -8982,20 +9414,99 @@ export function JourneyGameView({
                                   )
                                 })}
                                 {(() => {
-                                  const activeGoals = sortedGoalsForSidebar.filter(g => g.status === 'active')
-                                  const pausedGoals = sortedGoalsForSidebar.filter(g => g.status === 'paused')
-                                  const completedGoals = sortedGoalsForSidebar.filter(g => g.status === 'completed')
-                                  const isPausedExpanded = expandedSidebarSections.has('paused')
-                                  const isCompletedExpanded = expandedSidebarSections.has('completed')
+                                  // Group goals by area
+                                  const goalsByArea = areas.reduce((acc, area) => {
+                                    const areaGoals = sortedGoalsForSidebar.filter(g => g.area_id === area.id && g.status === 'active')
+                                    if (areaGoals.length > 0) {
+                                      acc[area.id] = { area, goals: areaGoals }
+                                    }
+                                    return acc
+                                  }, {} as Record<string, { area: any; goals: any[] }>)
+                                  
+                                  // Goals without area
+                                  const goalsWithoutArea = sortedGoalsForSidebar.filter(g => !g.area_id && g.status === 'active')
                                   
                                   return (
                                     <>
-                                      {/* Active goals */}
-                                      {activeGoals.map((goal) => {
+                                      {/* Areas with goals */}
+                                      {Object.values(goalsByArea).map(({ area, goals: areaGoals }) => {
+                                        const isExpanded = expandedAreas.has(area.id)
+                                        const IconComponent = getIconComponent(area.icon || 'Target')
+                                        const areaColor = area.color || '#ea580c'
+                                        const areaSectionId = `area-${area.id}`
+                                        const isAreaSelected = mainPanelSection === areaSectionId
+                                        
+                                        return (
+                                          <div key={area.id}>
+                                            <div className="flex items-center gap-1">
+                      <button
+                                                onClick={() => {
+                                                  setMainPanelSection(areaSectionId)
+                                                  setMobileMenuOpen(false)
+                                                }}
+                                                className={`flex-1 flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                                                  isAreaSelected
+                                                    ? 'bg-orange-600 text-white'
+                                                    : 'text-gray-700 hover:bg-gray-100'
+                                                }`}
+                                              >
+                                                <IconComponent className={`w-5 h-5 flex-shrink-0 ${isAreaSelected ? 'text-white' : ''}`} style={!isAreaSelected ? { color: areaColor } : undefined} />
+                                                <span className={`font-medium flex-1 ${isAreaSelected ? 'text-white' : 'text-gray-900'}`}>{area.name}</span>
+                      </button>
+                      <button
+                                                onClick={(e) => {
+                                                  e.stopPropagation()
+                                                  // Only allow one area to be expanded at a time
+                                                  if (isExpanded) {
+                                                    // Collapse this area
+                                                    setExpandedAreas(new Set())
+                                                  } else {
+                                                    // Expand this area and collapse all others
+                                                    setExpandedAreas(new Set([area.id]))
+                                                  }
+                                                }}
+                                                className="px-2 py-3 transition-colors text-gray-500 hover:bg-gray-100"
+                                              >
+                                                <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                                              </button>
+                                            </div>
+                                            
+                                            {/* Goals under area */}
+                                            {isExpanded && (
+                                              <div className="pl-8 space-y-1">
+                                                {areaGoals.map((goal) => {
+                                                  const goalSectionId = `goal-${goal.id}`
+                                                  const GoalIconComponent = getIconComponent(goal.icon)
+                                                  return (
+                                                    <button
+                                                      key={goal.id}
+                                                      onClick={() => {
+                                                        setMainPanelSection(goalSectionId)
+                                                        setMobileMenuOpen(false)
+                                                      }}
+                                                      className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                                                        mainPanelSection === goalSectionId
+                                                          ? 'bg-orange-600 text-white'
+                                                          : 'text-gray-700 hover:bg-gray-100'
+                                                      }`}
+                                                    >
+                                                      <GoalIconComponent className={`w-4 h-4 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} style={mainPanelSection !== goalSectionId ? { color: areaColor } : undefined} />
+                                                      <span className="font-medium">{goal.title}</span>
+                      </button>
+                                                  )
+                                                })}
+                    </div>
+                                            )}
+                  </div>
+                                        )
+                                      })}
+                                      
+                                      {/* Goals without area */}
+                                      {goalsWithoutArea.map((goal) => {
                                         const goalSectionId = `goal-${goal.id}`
                                         const IconComponent = getIconComponent(goal.icon)
                                         return (
-                      <button
+                                          <button
                                             key={goal.id}
                                             onClick={() => {
                                               setMainPanelSection(goalSectionId)
@@ -9009,97 +9520,9 @@ export function JourneyGameView({
                                           >
                                             <IconComponent className={`w-5 h-5 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} />
                                             <span className="font-medium">{goal.title}</span>
-                      </button>
+                                          </button>
                                         )
                                       })}
-                                      
-                                      {/* Paused goals - collapsible */}
-                                      {pausedGoals.length > 0 && (
-                                        <>
-                      <button
-                                            onClick={() => {
-                                              const newSet = new Set(expandedSidebarSections)
-                                              if (isPausedExpanded) {
-                                                newSet.delete('paused')
-                                              } else {
-                                                newSet.add('paused')
-                                              }
-                                              setExpandedSidebarSections(newSet)
-                                            }}
-                                            className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 transition-colors"
-                                          >
-                                            <span className="font-medium">
-                                              {t('goals.status.paused')} {pausedGoals.length}
-                                            </span>
-                                            <ChevronDown className={`w-4 h-4 transition-transform ${isPausedExpanded ? 'rotate-180' : ''}`} />
-                                          </button>
-                                          {isPausedExpanded && pausedGoals.map((goal) => {
-                                            const goalSectionId = `goal-${goal.id}`
-                                            const IconComponent = getIconComponent(goal.icon)
-                                            return (
-                                              <button
-                                                key={goal.id}
-                                                onClick={() => {
-                                                  setMainPanelSection(goalSectionId)
-                                                  setMobileMenuOpen(false)
-                                                }}
-                                                className={`w-full flex items-center gap-3 px-4 py-3 pl-8 transition-colors text-left ${
-                                                  mainPanelSection === goalSectionId
-                                                    ? 'bg-orange-600 text-white'
-                                                    : 'text-gray-700 hover:bg-gray-100'
-                                                }`}
-                                              >
-                                                <IconComponent className={`w-5 h-5 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} />
-                                                <span className="font-medium">{goal.title}</span>
-                      </button>
-                                            )
-                                          })}
-                                        </>
-                                      )}
-                                      
-                                      {/* Completed goals - collapsible */}
-                                      {completedGoals.length > 0 && (
-                                        <>
-                                          <button
-                                            onClick={() => {
-                                              const newSet = new Set(expandedSidebarSections)
-                                              if (isCompletedExpanded) {
-                                                newSet.delete('completed')
-                                              } else {
-                                                newSet.add('completed')
-                                              }
-                                              setExpandedSidebarSections(newSet)
-                                            }}
-                                            className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 transition-colors"
-                                          >
-                                            <span className="font-medium">
-                                              {t('goals.status.completed')} {completedGoals.length}
-                                            </span>
-                                            <ChevronDown className={`w-4 h-4 transition-transform ${isCompletedExpanded ? 'rotate-180' : ''}`} />
-                                          </button>
-                                          {isCompletedExpanded && completedGoals.map((goal) => {
-                                            const goalSectionId = `goal-${goal.id}`
-                                            const IconComponent = getIconComponent(goal.icon)
-                                            return (
-                                              <button
-                                                key={goal.id}
-                                                onClick={() => {
-                                                  setMainPanelSection(goalSectionId)
-                                                  setMobileMenuOpen(false)
-                                                }}
-                                                className={`w-full flex items-center gap-3 px-4 py-3 pl-8 transition-colors text-left ${
-                                                  mainPanelSection === goalSectionId
-                                                    ? 'bg-orange-600 text-white'
-                                                    : 'text-gray-700 hover:bg-gray-100'
-                                                }`}
-                                              >
-                                                <IconComponent className={`w-5 h-5 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} />
-                                                <span className="font-medium">{goal.title}</span>
-                                              </button>
-                                            )
-                                          })}
-                                        </>
-                                      )}
                                     </>
                                   )
                                 })()}
@@ -9254,16 +9677,219 @@ export function JourneyGameView({
                     )
                   })}
                   
-                  {/* Goals list - directly under Focus (only active goals) */}
+                  {/* Areas list - directly under Focus */}
                   {!sidebarCollapsed && (() => {
-                    // Only show active goals in navigation
-                    const activeGoals = sortedGoalsForSidebar.filter(g => g.status === 'active')
+                    // Group goals by area
+                    const goalsByArea = areas.reduce((acc, area) => {
+                      const areaGoals = sortedGoalsForSidebar.filter(g => g.area_id === area.id && g.status === 'active')
+                      if (areaGoals.length > 0) {
+                        acc[area.id] = { area, goals: areaGoals }
+                      }
+                      return acc
+                    }, {} as Record<string, { area: any; goals: any[] }>)
                     
-                    if (activeGoals.length === 0) return null
+                    // Goals without area
+                    const goalsWithoutArea = sortedGoalsForSidebar.filter(g => !g.area_id && g.status === 'active')
                     
                     return (
                       <div className="space-y-1 mt-2">
-                        {activeGoals.map((goal) => {
+                        {/* Areas header with settings */}
+                        <div className="flex items-center justify-between px-4 py-2">
+                          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                            {t('areas.title') || 'Oblasti'}
+                          </h3>
+                          <button
+                            onClick={() => handleOpenAreasManagementModal()}
+                            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700"
+                            title={t('areas.manage') || 'Spravovat oblasti'}
+                          >
+                            <Settings className="w-4 h-4" />
+                          </button>
+                        </div>
+                        
+                        {/* Areas with goals */}
+                        {Object.keys(goalsByArea).length > 0 && Object.values(goalsByArea).map(({ area, goals: areaGoals }) => {
+                          const isExpanded = expandedAreas.has(area.id)
+                          const IconComponent = getIconComponent(area.icon || 'Target')
+                          const areaColor = area.color || '#ea580c'
+                          
+                          return (
+                            <div key={area.id} className="space-y-1">
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => {
+                                    setMainPanelSection(`area-${area.id}`)
+                                    // useEffect will automatically expand this area and collapse others
+                                  }}
+                                  className={`flex-1 flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-left ${
+                                    mainPanelSection === `area-${area.id}`
+                                      ? 'bg-orange-600 text-white'
+                                      : 'text-gray-700 hover:bg-gray-100'
+                                  }`}
+                                  title={area.name}
+                                >
+                                  <IconComponent className="w-5 h-5 flex-shrink-0" style={mainPanelSection === `area-${area.id}` ? undefined : { color: areaColor }} />
+                                  <span className={`font-medium truncate flex-1 ${mainPanelSection === `area-${area.id}` ? 'text-white' : 'text-gray-900'}`}>
+                                    {area.name}
+                                  </span>
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    // Only allow one area to be expanded at a time
+                                    if (isExpanded) {
+                                      // Collapse this area
+                                      setExpandedAreas(new Set())
+                                    } else {
+                                      // Expand this area and collapse all others
+                                      setExpandedAreas(new Set([area.id]))
+                                    }
+                                  }}
+                                  className="px-2 py-2.5 rounded-lg transition-colors text-gray-500 hover:bg-gray-100"
+                                  title={isExpanded ? t('navigation.collapseArea') : t('navigation.expandArea')}
+                                >
+                                  {isExpanded ? (
+                                    <ChevronUp className="w-4 h-4" />
+                                  ) : (
+                                    <ChevronDown className="w-4 h-4" />
+                                  )}
+                                </button>
+                              </div>
+                              
+                              {/* Goals under area */}
+                              {isExpanded && (
+                                <div className="pl-6 space-y-1 border-l-2" style={{ borderColor: areaColor }}>
+                                  {areaGoals.map((goal) => {
+                                    const goalSectionId = `goal-${goal.id}`
+                                    const isSelected = mainPanelSection === goalSectionId
+                                    const GoalIconComponent = getIconComponent(goal.icon)
+                                    return (
+                                      <button
+                                        key={goal.id}
+                                        onClick={() => setMainPanelSection(goalSectionId)}
+                                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-left ${
+                                          isSelected
+                                            ? 'bg-orange-600 text-white'
+                                            : 'text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                        title={goal.title}
+                                      >
+                                        <GoalIconComponent className={`w-4 h-4 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-700'}`} style={!isSelected ? { color: areaColor } : undefined} />
+                                        <span className={`font-medium truncate flex-1 ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                          {goal.title}
+                                        </span>
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                        
+                        {/* Goals without area */}
+                        {goalsWithoutArea.length > 0 && (
+                          <div className="space-y-1">
+                            {goalsWithoutArea.map((goal) => {
+                              const goalSectionId = `goal-${goal.id}`
+                              const isSelected = mainPanelSection === goalSectionId
+                              const IconComponent = getIconComponent(goal.icon)
+                              return (
+                                <button
+                                  key={goal.id}
+                                  onClick={() => setMainPanelSection(goalSectionId)}
+                                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-left ${
+                                    isSelected
+                                      ? 'bg-orange-600 text-white'
+                                      : 'text-gray-700 hover:bg-gray-100'
+                                  }`}
+                                  title={goal.title}
+                                >
+                                  <IconComponent className={`w-5 h-5 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-700'}`} />
+                                  <span className={`font-medium truncate flex-1 ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                    {goal.title}
+                                  </span>
+                                </button>
+                              )
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })()}
+                  
+                  {/* Collapsed areas - show as icons with goals */}
+                  {sidebarCollapsed && (() => {
+                    // Group goals by area
+                    const goalsByArea = areas.reduce((acc, area) => {
+                      const areaGoals = sortedGoalsForSidebar.filter(g => g.area_id === area.id && g.status === 'active')
+                      if (areaGoals.length > 0) {
+                        acc[area.id] = { area, goals: areaGoals }
+                      }
+                      return acc
+                    }, {} as Record<string, { area: any; goals: any[] }>)
+                    
+                    // Goals without area
+                    const goalsWithoutArea = sortedGoalsForSidebar.filter(g => !g.area_id && g.status === 'active')
+                    
+                    if (Object.keys(goalsByArea).length === 0 && goalsWithoutArea.length === 0) return null
+                    
+                    return (
+                      <div className="space-y-2 mt-2">
+                        {/* Areas */}
+                        {Object.values(goalsByArea).slice(0, 5).map(({ area, goals: areaGoals }) => {
+                          const isExpanded = expandedAreas.has(area.id)
+                          const IconComponent = getIconComponent(area.icon || 'Target')
+                          const areaColor = area.color || '#ea580c'
+                          const isAreaSelected = mainPanelSection.startsWith('area-') && mainPanelSection === `area-${area.id}`
+                          
+                          return (
+                            <div key={area.id} className="space-y-1">
+                              <button
+                                onClick={() => {
+                                  // Open area page - useEffect will automatically expand this area and collapse others
+                                  setMainPanelSection(`area-${area.id}`)
+                                }}
+                                className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors ${
+                                  isAreaSelected
+                                    ? 'bg-orange-600 text-white'
+                                    : 'text-gray-700 hover:bg-gray-100'
+                                }`}
+                                title={area.name}
+                              >
+                                <IconComponent className={`w-5 h-5 ${isAreaSelected ? 'text-white' : ''}`} style={!isAreaSelected ? { color: areaColor } : undefined} />
+                              </button>
+                              
+                              {/* Goals under area - always shown in collapsed menu */}
+                              {isExpanded && (
+                                <div className="pl-2 space-y-1 border-l-2" style={{ borderColor: areaColor }}>
+                                  {areaGoals.map((goal) => {
+                                    const goalSectionId = `goal-${goal.id}`
+                                    const isSelected = mainPanelSection === goalSectionId
+                                    const GoalIconComponent = getIconComponent(goal.icon)
+                                    return (
+                                      <button
+                                        key={goal.id}
+                                        onClick={() => setMainPanelSection(goalSectionId)}
+                                        className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors ${
+                                          isSelected
+                                            ? 'bg-orange-600 text-white'
+                                            : 'text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                        title={goal.title}
+                                      >
+                                        <GoalIconComponent className={`w-5 h-5 ${isSelected ? 'text-white' : ''}`} style={!isSelected ? { color: areaColor } : undefined} />
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                        
+                        {/* Goals without area */}
+                        {goalsWithoutArea.slice(0, 5).map((goal) => {
                           const goalSectionId = `goal-${goal.id}`
                           const isSelected = mainPanelSection === goalSectionId
                           const IconComponent = getIconComponent(goal.icon)
@@ -9271,50 +9897,17 @@ export function JourneyGameView({
                             <button
                               key={goal.id}
                               onClick={() => setMainPanelSection(goalSectionId)}
-                              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-left ${
+                              className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors ${
                                 isSelected
                                   ? 'bg-orange-600 text-white'
                                   : 'text-gray-700 hover:bg-gray-100'
                               }`}
                               title={goal.title}
                             >
-                              <IconComponent className={`w-5 h-5 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-700'}`} />
-                              <span className={`font-medium truncate flex-1 ${isSelected ? 'text-white' : 'text-gray-900'}`}>
-                                {goal.title}
-                              </span>
+                              <IconComponent className={`w-5 h-5 ${isSelected ? 'text-white' : 'text-gray-700'}`} />
                             </button>
                           )
                         })}
-                      </div>
-                    )
-                  })()}
-                  
-                  {/* Collapsed goals - show as icons (only active goals) */}
-                  {sidebarCollapsed && (() => {
-                    const activeGoals = sortedGoalsForSidebar.filter(g => g.status === 'active')
-                    if (activeGoals.length === 0) return null
-                    
-                    return (
-                      <div className="space-y-2 mt-2">
-                          {activeGoals.slice(0, 5).map((goal) => {
-                            const goalSectionId = `goal-${goal.id}`
-                            const isSelected = mainPanelSection === goalSectionId
-                            const IconComponent = getIconComponent(goal.icon)
-                            return (
-                              <button
-                                key={goal.id}
-                                onClick={() => setMainPanelSection(goalSectionId)}
-                                className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors ${
-                                  isSelected
-                                    ? 'bg-orange-600 text-white'
-                                    : 'text-gray-700 hover:bg-gray-100'
-                                }`}
-                                title={goal.title}
-                              >
-                                <IconComponent className={`w-5 h-5 ${isSelected ? 'text-white' : 'text-gray-700'}`} />
-                              </button>
-                            )
-                          })}
                       </div>
                     )
                   })()}
@@ -9439,27 +10032,69 @@ export function JourneyGameView({
                                 <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
                                 <span className="font-medium">{t('navigation.focus')}</span>
                               </button>
-                              {sortedGoalsForSidebar.map((goal) => {
-                                const goalSectionId = `goal-${goal.id}`
-                                const IconComponent = getIconComponent(goal.icon)
+                              {/* Areas in mobile menu for other sections */}
+                              {(() => {
+                                // Group goals by area
+                                const goalsByArea = areas.reduce((acc, area) => {
+                                  const areaGoals = sortedGoalsForSidebar.filter(g => g.area_id === area.id && g.status === 'active')
+                                  if (areaGoals.length > 0) {
+                                    acc[area.id] = { area, goals: areaGoals }
+                                  }
+                                  return acc
+                                }, {} as Record<string, { area: any; goals: any[] }>)
+                                
+                                // Goals without area
+                                const goalsWithoutArea = sortedGoalsForSidebar.filter(g => !g.area_id && g.status === 'active')
+                                
                                 return (
-                                  <button
-                                    key={goal.id}
-                                    onClick={() => {
-                                      setMainPanelSection(goalSectionId)
-                                      setMobileMenuOpen(false)
-                                    }}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                                      mainPanelSection === goalSectionId
-                                        ? 'bg-orange-600 text-white'
-                                        : 'text-gray-700 hover:bg-gray-100'
-                                    }`}
-                                  >
-                                    <IconComponent className={`w-5 h-5 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} />
-                                    <span className="font-medium">{goal.title}</span>
-                                  </button>
+                                  <>
+                                    {Object.values(goalsByArea).map(({ area, goals: areaGoals }) => {
+                                      const areaSectionId = `area-${area.id}`
+                                      const IconComponent = getIconComponent(area.icon || 'Target')
+                                      const areaColor = area.color || '#ea580c'
+                                      return (
+                                        <button
+                                          key={area.id}
+                                          onClick={() => {
+                                            setMainPanelSection(areaSectionId)
+                                            setMobileMenuOpen(false)
+                                          }}
+                                          className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                                            mainPanelSection === areaSectionId
+                                              ? 'bg-orange-600 text-white'
+                                              : 'text-gray-700 hover:bg-gray-100'
+                                          }`}
+                                        >
+                                          <IconComponent className={`w-5 h-5 flex-shrink-0 ${mainPanelSection === areaSectionId ? 'text-white' : ''}`} style={mainPanelSection !== areaSectionId ? { color: areaColor } : undefined} />
+                                          <span className="font-medium">{area.name}</span>
+                                        </button>
+                                      )
+                                    })}
+                                    
+                                    {goalsWithoutArea.map((goal) => {
+                                      const goalSectionId = `goal-${goal.id}`
+                                      const IconComponent = getIconComponent(goal.icon)
+                                      return (
+                                        <button
+                                          key={goal.id}
+                                          onClick={() => {
+                                            setMainPanelSection(goalSectionId)
+                                            setMobileMenuOpen(false)
+                                          }}
+                                          className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                                            mainPanelSection === goalSectionId
+                                              ? 'bg-orange-600 text-white'
+                                              : 'text-gray-700 hover:bg-gray-100'
+                                          }`}
+                                        >
+                                          <IconComponent className={`w-5 h-5 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} />
+                                          <span className="font-medium">{goal.title}</span>
+                                        </button>
+                                      )
+                                    })}
+                                  </>
                                 )
-                              })}
+                              })()}
                             </nav>
                           </div>
                         </>
@@ -10299,27 +10934,63 @@ export function JourneyGameView({
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">
-                      {t('steps.goal')}
-                    </label>
-                    <select
-                      value={stepModalData.goalId}
-                      onChange={(e) => setStepModalData({...stepModalData, goalId: e.target.value})}
-                          className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                    >
-                      <option value="">{t('steps.noGoal')}</option>
-                      {goals.map((goal: any) => (
-                        <option key={goal.id} value={goal.id}>{goal.title}</option>
-                      ))}
-                    </select>
-                  </div>
+                  {/* Goal selection - only show if no area is selected */}
+                  {!stepModalData.areaId && (
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-2">
+                        {t('steps.goal')}
+                      </label>
+                      <select
+                        value={stepModalData.goalId}
+                        onChange={(e) => {
+                          const newGoalId = e.target.value
+                          setStepModalData({
+                            ...stepModalData, 
+                            goalId: newGoalId,
+                            areaId: newGoalId ? '' : stepModalData.areaId // Clear area if goal is selected
+                          })
+                        }}
+                            className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
+                      >
+                        <option value="">{t('steps.noGoal')}</option>
+                        {goals.map((goal: any) => (
+                          <option key={goal.id} value={goal.id}>{goal.title}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Area selection - only show if no goal is selected */}
+                  {!stepModalData.goalId && (
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-2">
+                        {t('details.goal.area') || 'Oblast'}
+                      </label>
+                      <select
+                        value={stepModalData.areaId || ''}
+                        onChange={(e) => {
+                          const newAreaId = e.target.value
+                          setStepModalData({
+                            ...stepModalData, 
+                            areaId: newAreaId,
+                            goalId: newAreaId ? '' : stepModalData.goalId // Clear goal if area is selected
+                          })
+                        }}
+                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
+                      >
+                        <option value="">{t('details.goal.noArea') || 'Bez oblasti'}</option>
+                        {areas.map((area) => (
+                          <option key={area.id} value={area.id}>{area.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-2">
-                          Odhadovaný čas (min)
+                          {t('steps.estimatedTimeLabel') || 'Estimated time (min)'}
                     </label>
                     <input
                       type="number"
@@ -10338,7 +11009,7 @@ export function JourneyGameView({
                       onChange={(e) => setStepModalData({...stepModalData, is_important: e.target.checked})}
                       className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                     />
-                    <span className="text-sm text-gray-700">⭐ Důležitý</span>
+                    <span className="text-sm text-gray-700">{t('steps.importantLabel') || '⭐ Important'}</span>
                   </label>
                       </div>
                     </div>
@@ -10348,7 +11019,7 @@ export function JourneyGameView({
                   <div className="lg:border-l lg:pl-6 border-gray-200">
                     <div className="flex items-center justify-between mb-3">
                       <label className="block text-sm font-semibold text-gray-800 flex items-center gap-2">
-                        Checklist
+                        {t('steps.checklistTitle') || 'Checklist'}
                         {checklistSaving && (
                           <svg className="animate-spin h-4 w-4 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -10357,7 +11028,7 @@ export function JourneyGameView({
                         )}
                       </label>
                       <span className="text-xs text-gray-500">
-                        {stepModalData.checklist.filter(item => item.completed).length}/{stepModalData.checklist.length} splněno
+                        {stepModalData.checklist.filter(item => item.completed).length}/{stepModalData.checklist.length} {t('steps.checklistCompleted') || 'completed'}
                       </span>
                     </div>
                     
@@ -10368,8 +11039,8 @@ export function JourneyGameView({
                           <svg className="w-10 h-10 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                           </svg>
-                          <p className="text-sm">Zatím žádné položky</p>
-                          <p className="text-xs mt-1">Přidejte pod-úkoly pro tento krok</p>
+                          <p className="text-sm">{t('steps.checklistNoItems') || 'No items yet'}</p>
+                          <p className="text-xs mt-1">{t('steps.checklistNoItemsDescription') || 'Add sub-tasks for this step'}</p>
                         </div>
                       ) : (
                         stepModalData.checklist.map((item, index) => (
@@ -10386,12 +11057,18 @@ export function JourneyGameView({
                               onClick={async () => {
                                 const updatedChecklist = [...stepModalData.checklist]
                                 updatedChecklist[index] = { ...item, completed: !item.completed }
-                                setStepModalData({...stepModalData, checklist: updatedChecklist})
+                                const updatedStepModalData = {...stepModalData, checklist: updatedChecklist}
+                                setStepModalData(updatedStepModalData)
+                                
+                                // Update selectedItem if it's the same step
+                                if (selectedItem && selectedItem.id === stepModalData.id) {
+                                  setSelectedItem({...selectedItem, checklist: updatedChecklist})
+                                }
                                 
                                 // Auto-save if step already exists
                                 if (stepModalData.id) {
                                   try {
-                                    await fetch('/api/daily-steps', {
+                                    const response = await fetch('/api/daily-steps', {
                                       method: 'PUT',
                                       headers: { 'Content-Type': 'application/json' },
                                       body: JSON.stringify({
@@ -10399,13 +11076,46 @@ export function JourneyGameView({
                                         checklist: updatedChecklist
                                       })
                                     })
-                                    // Refresh steps
-                                    const currentUserId = userId || player?.user_id
-                                    if (currentUserId) {
-                                      const stepsResponse = await fetch(`/api/daily-steps?userId=${currentUserId}`)
-                                      if (stepsResponse.ok) {
-                                        const steps = await stepsResponse.json()
-                                        onDailyStepsUpdate?.(steps)
+                                    
+                                    if (response.ok) {
+                                      const updatedStep = await response.json()
+                                      
+                                      // Update selectedItem with full response
+                                      if (selectedItem && selectedItem.id === stepModalData.id) {
+                                        setSelectedItem(updatedStep)
+                                      }
+                                      
+                                      // Update dailySteps prop by replacing the updated step
+                                      if (dailySteps && onDailyStepsUpdate) {
+                                        const updatedDailySteps = dailySteps.map(step => 
+                                          step.id === stepModalData.id ? updatedStep : step
+                                        )
+                                        onDailyStepsUpdate(updatedDailySteps)
+                                      } else {
+                                        // Fallback: Refresh all steps if dailySteps prop is not available
+                                        const currentUserId = userId || player?.user_id
+                                        if (currentUserId) {
+                                          const stepsResponse = await fetch(`/api/daily-steps?userId=${currentUserId}`)
+                                          if (stepsResponse.ok) {
+                                            const steps = await stepsResponse.json()
+                                            onDailyStepsUpdate?.(steps)
+                                          }
+                                        }
+                                      }
+                                      
+                                      // Update cache for the goal to force re-render (if on goal detail page)
+                                      if (updatedStep.goal_id && selectedGoalId === updatedStep.goal_id) {
+                                        // Update cache directly
+                                        if (stepsCacheRef.current[updatedStep.goal_id]) {
+                                          stepsCacheRef.current[updatedStep.goal_id].data = stepsCacheRef.current[updatedStep.goal_id].data.map(
+                                            (s: any) => s.id === stepModalData.id ? updatedStep : s
+                                          )
+                                        }
+                                        // Invalidate cache version to trigger re-render
+                                        setStepsCacheVersion(prev => ({
+                                          ...prev,
+                                          [updatedStep.goal_id]: (prev[updatedStep.goal_id] || 0) + 1
+                                        }))
                                       }
                                     }
                                   } catch (error) {
@@ -10431,7 +11141,13 @@ export function JourneyGameView({
                               onChange={(e) => {
                                 const updatedChecklist = [...stepModalData.checklist]
                                 updatedChecklist[index] = { ...item, title: e.target.value }
-                                setStepModalData({...stepModalData, checklist: updatedChecklist})
+                                const updatedStepModalData = {...stepModalData, checklist: updatedChecklist}
+                                setStepModalData(updatedStepModalData)
+                                
+                                // Update selectedItem if it's the same step
+                                if (selectedItem && selectedItem.id === stepModalData.id) {
+                                  setSelectedItem({...selectedItem, checklist: updatedChecklist})
+                                }
                                 
                                 // Debounced auto-save for text changes
                                 if (stepModalData.id) {
@@ -10441,7 +11157,7 @@ export function JourneyGameView({
                                   checklistSaveTimeoutRef.current = setTimeout(async () => {
                                     setChecklistSaving(true)
                                     try {
-                                      await fetch('/api/daily-steps', {
+                                      const response = await fetch('/api/daily-steps', {
                                         method: 'PUT',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({
@@ -10449,12 +11165,46 @@ export function JourneyGameView({
                                           checklist: updatedChecklist
                                         })
                                       })
-                                      const currentUserId = userId || player?.user_id
-                                      if (currentUserId) {
-                                        const stepsResponse = await fetch(`/api/daily-steps?userId=${currentUserId}`)
-                                        if (stepsResponse.ok) {
-                                          const steps = await stepsResponse.json()
-                                          onDailyStepsUpdate?.(steps)
+                                      
+                                      if (response.ok) {
+                                        const updatedStep = await response.json()
+                                        
+                                        // Update selectedItem with full response
+                                        if (selectedItem && selectedItem.id === stepModalData.id) {
+                                          setSelectedItem(updatedStep)
+                                        }
+                                        
+                                        // Update dailySteps prop by replacing the updated step
+                                        if (dailySteps && onDailyStepsUpdate) {
+                                          const updatedDailySteps = dailySteps.map(step => 
+                                            step.id === stepModalData.id ? updatedStep : step
+                                          )
+                                          onDailyStepsUpdate(updatedDailySteps)
+                                        } else {
+                                          // Fallback: Refresh all steps if dailySteps prop is not available
+                                          const currentUserId = userId || player?.user_id
+                                          if (currentUserId) {
+                                            const stepsResponse = await fetch(`/api/daily-steps?userId=${currentUserId}`)
+                                            if (stepsResponse.ok) {
+                                              const steps = await stepsResponse.json()
+                                              onDailyStepsUpdate?.(steps)
+                                            }
+                                          }
+                                        }
+                                        
+                                        // Update cache for the goal to force re-render (if on goal detail page)
+                                        if (updatedStep.goal_id && selectedGoalId === updatedStep.goal_id) {
+                                          // Update cache directly
+                                          if (stepsCacheRef.current[updatedStep.goal_id]) {
+                                            stepsCacheRef.current[updatedStep.goal_id].data = stepsCacheRef.current[updatedStep.goal_id].data.map(
+                                              (s: any) => s.id === stepModalData.id ? updatedStep : s
+                                            )
+                                          }
+                                          // Invalidate cache version to trigger re-render
+                                          setStepsCacheVersion(prev => ({
+                                            ...prev,
+                                            [updatedStep.goal_id]: (prev[updatedStep.goal_id] || 0) + 1
+                                          }))
                                         }
                                       }
                                     } catch (error) {
@@ -10468,7 +11218,7 @@ export function JourneyGameView({
                               className={`flex-1 bg-transparent text-sm border-none focus:ring-0 p-0 ${
                                 item.completed ? 'line-through text-gray-500' : 'text-gray-800'
                               }`}
-                              placeholder="Název položky..."
+                              placeholder={t('steps.checklistItemPlaceholder') || 'Item name...'}
                             />
                             <button
                               type="button"
@@ -10531,7 +11281,7 @@ export function JourneyGameView({
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                       </svg>
-                      Přidat položku
+                      {t('steps.checklistAddItem') || 'Add item'}
                     </button>
                     
                     {/* Require checklist complete option */}
@@ -10543,7 +11293,7 @@ export function JourneyGameView({
                           onChange={(e) => setStepModalData({...stepModalData, require_checklist_complete: e.target.checked})}
                       className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                     />
-                        <span className="text-xs text-gray-600">Vyžadovat splnění všech položek před dokončením kroku</span>
+                        <span className="text-xs text-gray-600">{t('steps.checklistRequireComplete') || 'Require all items to be completed before finishing the step'}</span>
                   </label>
                     )}
                   </div>
@@ -10560,6 +11310,7 @@ export function JourneyGameView({
                       description: '',
                       date: '',
                       goalId: '',
+                      areaId: '',
                       completed: false,
                       is_important: false,
                       is_urgent: false,
@@ -10632,46 +11383,46 @@ export function JourneyGameView({
 
               <div className="p-6">
                 {/* Settings */}
-                <div className="space-y-4">
+                  <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-800 mb-2">
-                        Název <span className="text-orange-500">*</span>
+                        {t('habits.nameLabel') || 'Name'} <span className="text-orange-500">*</span>
                       </label>
                       <input
                         type="text"
                         value={editingHabitName}
                         onChange={(e) => setEditingHabitName(e.target.value)}
                         className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                        placeholder="Název návyku"
+                        placeholder={t('habits.namePlaceholder') || 'Habit name'}
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-800 mb-2">
-                        Popis
+                        {t('habits.descriptionLabel') || 'Description'}
                       </label>
                       <textarea
                         value={editingHabitDescription}
                         onChange={(e) => setEditingHabitDescription(e.target.value)}
                         className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white resize-none"
                         rows={3}
-                        placeholder="Popis návyku"
+                        placeholder={t('habits.descriptionPlaceholder') || 'Habit description'}
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-800 mb-2">
-                        Frekvence
+                        {t('habits.frequencyLabel') || 'Frequency'}
                       </label>
                       <select
                         value={editingHabitFrequency}
                         onChange={(e) => setEditingHabitFrequency(e.target.value as 'daily' | 'weekly' | 'monthly' | 'custom')}
                         className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                       >
-                        <option value="daily">Denně</option>
-                        <option value="weekly">Týdně</option>
-                        <option value="monthly">Měsíčně</option>
-                        <option value="custom">Vlastní</option>
+                        <option value="daily">{t('habits.frequencyDaily') || 'Daily'}</option>
+                        <option value="weekly">{t('habits.frequencyWeekly') || 'Weekly'}</option>
+                        <option value="monthly">{t('habits.frequencyMonthly') || 'Monthly'}</option>
+                        <option value="custom">{t('habits.frequencyCustom') || 'Custom'}</option>
                       </select>
                     </div>
 
@@ -10715,6 +11466,27 @@ export function JourneyGameView({
                         Vždy zobrazovat (i když není naplánováno)
                       </label>
                     </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-2">
+                        {t('details.goal.area') || 'Oblast'}
+                      </label>
+                      <select
+                        value={editingHabitAreaId || ''}
+                        onChange={(e) => setEditingHabitAreaId(e.target.value || null)}
+                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
+                      >
+                        <option value="">{t('details.goal.noArea') || 'Bez oblasti'}</option>
+                        {areas.map((area) => {
+                          const IconComponent = getIconComponent(area.icon || 'Target')
+                          return (
+                            <option key={area.id} value={area.id}>
+                              {area.name}
+                            </option>
+                          )
+                        })}
+                      </select>
+                  </div>
                 </div>
               </div>
 
@@ -10733,17 +11505,17 @@ export function JourneyGameView({
                 
                 {/* Action buttons */}
                 <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => {
-                      setShowHabitModal(false)
-                      setHabitModalData(null)
-                    }}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
-                  >
-                    {t('common.cancel')}
-                  </button>
-                  <button
-                    onClick={handleSaveHabitModal}
+                <button
+                  onClick={() => {
+                    setShowHabitModal(false)
+                    setHabitModalData(null)
+                  }}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  onClick={handleSaveHabitModal}
                     disabled={habitModalSaving}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
                       habitModalSaving
@@ -10760,11 +11532,247 @@ export function JourneyGameView({
                         {t('common.saving')}
                       </>
                     ) : t('common.save')}
-                  </button>
+                </button>
                 </div>
               </div>
             </div>
           </div>
+        </>,
+        document.body
+      )}
+
+      {/* Areas Management Modal */}
+      {showAreasManagementModal && typeof window !== 'undefined' && createPortal(
+        <>
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-50"
+            onClick={() => setShowAreasManagementModal(false)}
+          />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-gray-900">{t('areas.title') || 'Oblasti'}</h2>
+                <button
+                  onClick={() => setShowAreasManagementModal(false)}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto p-6">
+                {/* Areas list */}
+                {areas.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-500 mb-4">{t('areas.noAreas') || 'Zatím nemáte žádné oblasti'}</p>
+                    <button
+                      onClick={() => handleOpenAreaEditModal()}
+                      className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                    >
+                      {t('areas.addFirst') || 'Vytvořit první oblast'}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    {areas.map((area) => {
+                      const IconComponent = getIconComponent(area.icon || 'Target')
+                      const areaGoals = goals.filter(g => g.area_id === area.id)
+                      const areaSteps = dailySteps.filter(s => s.area_id === area.id)
+                      const areaHabits = habits.filter(h => h.area_id === area.id)
+                      
+                      return (
+                        <div
+                          key={area.id}
+                          className="bg-gray-50 rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <IconComponent className="w-6 h-6" style={{ color: area.color || '#ea580c' }} />
+                              <h3 className="text-lg font-semibold text-gray-900">{area.name}</h3>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => handleOpenAreaEditModal(area)}
+                                className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-700"
+                                title={t('common.edit') || 'Upravit'}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteArea(area.id)}
+                                className="p-1.5 rounded-lg hover:bg-red-100 transition-colors text-gray-500 hover:text-red-600"
+                                title={t('common.delete') || 'Smazat'}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                          {area.description && (
+                            <p className="text-sm text-gray-600 mb-3">{area.description}</p>
+                          )}
+                          <div className="flex items-center gap-4 text-sm text-gray-500">
+                            <span>{areaGoals.length} {t('goals.title') || 'cílů'}</span>
+                            <span>{areaSteps.length} {t('steps.title') || 'kroků'}</span>
+                            <span>{areaHabits.length} {t('habits.title') || 'návyků'}</span>
+                          </div>
+            </div>
+  )
+                    })}
+                  </div>
+                )}
+
+                {/* Add Area Button */}
+                <button
+                  onClick={() => handleOpenAreaEditModal()}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span>{t('areas.add') || 'Přidat oblast'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Area Edit Modal (nested) */}
+          {editingArea !== null && (
+            <>
+              <div
+                className="fixed inset-0 bg-black bg-opacity-50 z-[60]"
+                onClick={() => setEditingArea(null)}
+              />
+              <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                <div
+                  className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="p-6">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      {editingArea ? (t('areas.edit') || 'Upravit oblast') : (t('areas.add') || 'Přidat oblast')}
+                    </h2>
+                    
+                    {/* Name */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {t('areas.name') || 'Název'} *
+                      </label>
+                      <input
+                        type="text"
+                        value={areaModalName}
+                        onChange={(e) => setAreaModalName(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        placeholder={t('areas.namePlaceholder') || 'Název oblasti'}
+                      />
+                    </div>
+
+                    {/* Description */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {t('areas.description') || 'Popis'}
+                      </label>
+                      <textarea
+                        value={areaModalDescription}
+                        onChange={(e) => setAreaModalDescription(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        rows={3}
+                        placeholder={t('areas.descriptionPlaceholder') || 'Popis oblasti'}
+                      />
+                    </div>
+
+                    {/* Color */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {t('areas.color') || 'Barva'}
+                      </label>
+                      <input
+                        type="color"
+                        value={areaModalColor}
+                        onChange={(e) => setAreaModalColor(e.target.value)}
+                        className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                      />
+                    </div>
+
+                    {/* Icon */}
+                    <div className="mb-6">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('areas.icon') || 'Ikona'}
+                      </label>
+                      <button
+                        onClick={() => setShowAreaIconPicker(!showAreaIconPicker)}
+                        className="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                      >
+                        <div className="flex items-center gap-2">
+                          {(() => {
+                            const IconComp = getIconComponent(areaModalIcon)
+                            return <IconComp className="w-5 h-5" style={{ color: areaModalColor }} />
+                          })()}
+                          <span>{AVAILABLE_ICONS.find(i => i.name === areaModalIcon)?.label || areaModalIcon}</span>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${showAreaIconPicker ? 'rotate-180' : ''}`} />
+                      </button>
+                      {showAreaIconPicker && (
+                        <div className="mt-2 p-3 border border-gray-300 rounded-lg bg-white max-h-48 overflow-y-auto">
+                          <div className="grid grid-cols-6 gap-2">
+                            {AVAILABLE_ICONS.map((icon) => {
+                              const IconComp = getIconComponent(icon.name)
+                              return (
+                                <button
+                                  key={icon.name}
+                                  onClick={() => {
+                                    setAreaModalIcon(icon.name)
+                                    setShowAreaIconPicker(false)
+                                  }}
+                                  className={`p-2 rounded-lg hover:bg-gray-100 transition-colors ${
+                                    areaModalIcon === icon.name ? 'bg-orange-100 border-2 border-orange-500' : ''
+                                  }`}
+                                  title={icon.label}
+                                >
+                                  <IconComp className="w-5 h-5 mx-auto" style={{ color: areaModalColor }} />
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-end gap-3">
+                      <button
+                        onClick={() => {
+                          setEditingArea(null)
+                          setAreaModalName('')
+                          setAreaModalDescription('')
+                          setAreaModalColor('#ea580c')
+                          setAreaModalIcon('Target')
+                        }}
+                        className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                        disabled={isSavingArea}
+                      >
+                        {t('common.cancel') || 'Zrušit'}
+                      </button>
+                      <button
+                        onClick={async () => {
+                          await handleSaveArea()
+                          if (!isSavingArea) {
+                            setEditingArea(null)
+                          }
+                        }}
+                        disabled={isSavingArea || !areaModalName.trim()}
+                        className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isSavingArea ? (t('common.saving') || 'Ukládám...') : (t('common.save') || 'Uložit')}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </>,
         document.body
       )}

@@ -399,11 +399,16 @@
     "goals": "Cíle",
     "steps": "Kroky",
     "habits": "Návyky",
+    "areas": "Oblasti",
     "noGoals": "Žádné cíle",
     "noHabits": "Žádné návyky",
+    "noAreas": "Žádné oblasti",
     "goalNotFound": "Cíl nenalezen",
     "habitNotFound": "Návyk nenalezen",
-    "backToOverview": "Zpět na přehled"
+    "areaNotFound": "Oblast nenalezena",
+    "backToOverview": "Zpět na přehled",
+    "expandArea": "Rozbalit oblast",
+    "collapseArea": "Sbalit oblast"
   },
   "progress": {
     "title": "Pokrok",
@@ -659,6 +664,9 @@
       "urgent": "Urgentní",
       "goal": "Cíl",
       "noGoal": "Bez cíle",
+      "area": "Oblast",
+      "noArea": "Bez oblasti",
+      "selectArea": "Vybrat oblast",
       "aspiration": "Aspirace",
       "noAspiration": "Bez aspirace",
       "newDate": "Nové datum:",
@@ -696,6 +704,10 @@
       "createdAt": "Datum založení",
       "completedAt": "Datum dokončení",
       "deadline": "Deadline",
+      "area": "Oblast",
+      "noArea": "Bez oblasti",
+      "selectArea": "Vybrat oblast",
+      "selectArea": "Vybrat oblast",
       "stepsStatistics": "Statistiky kroků",
       "totalSteps": "Celkem kroků",
       "completedSteps": "Splněné kroky",
@@ -758,7 +770,16 @@
     "noStepsDescription": "Přidejte první krok pro začátek",
     "dateOptional": "Datum (volitelné)",
     "descriptionOptional": "Popis (volitelné)",
-    "checklistNotComplete": "Nejsou dokončeny všechny položky checklistu"
+    "checklistNotComplete": "Nejsou dokončeny všechny položky checklistu",
+    "estimatedTimeLabel": "Odhadovaný čas (min)",
+    "importantLabel": "⭐ Důležitý",
+    "checklistTitle": "Checklist",
+    "checklistCompleted": "splněno",
+    "checklistNoItems": "Zatím žádné položky",
+    "checklistNoItemsDescription": "Přidejte pod-úkoly pro tento krok",
+    "checklistItemPlaceholder": "Název položky...",
+    "checklistAddItem": "Přidat položku",
+    "checklistRequireComplete": "Vyžadovat splnění všech položek před dokončením kroku"
   },
   "help": {
     "title": "Nápověda",
@@ -778,7 +799,11 @@
         "clarity": "Jasnost",
         "goals": "Cíle"
       },
-      "stepsToSuccess": "3 kroky k úspěchu",
+      "stepsToSuccess": "4 kroky k úspěchu",
+      "step0": {
+        "title": "Oblasti",
+        "subtitle": "První věc, se kterou se v Pokroku setkáte jsou <strong>Oblasti</strong>. Oblasti reflektují různé části Vašeho života a v aplikaci slouží primárně pro jednodušší zobrazení a filtrování. Do Oblastí si můžete přidávat <strong>Návyky</strong>, <strong>Cíle</strong> i <strong>Kroky</strong>. Oblasti jsou zamýšlené jako oblasti života - například Kariéra, finance nebo zdraví, ale můžete je používat i pro větší projekty nebo Vaše vlastní zobrazení různých cílů / kroků / návyků. Když jste v nějaké oblasti a přidáte krok, cíl nebo návyk, tak se automaticky přiřadí do této oblasti."
+      },
       "step1": {
         "title": "Vytvořte cíl",
         "subtitle": "<strong>Cíle</strong> jsou největší <strong>stavební bloky</strong> Pokroku. Jsou to všechny věci, kterých chcete dosáhnout a které <strong>nejsou řešitelné v rámci jednoho sezení</strong>. Cíle si můžete vytvořit jak potřebujete a ideálně můžete použít framework <strong>SMART</strong> - tedy udělat cíle <strong>Specifické, Měřitelné, Ambiciózní, Relevantní, Časově rámované</strong>. K tomu můžete v Pokroku použít právě <strong>Kroky</strong> - pro dílčí části, případně <strong>návyky</strong> - pro opakované a měřitelné úkoly.",
@@ -1029,6 +1054,41 @@
       "sat": "So",
       "sun": "Ne"
     }
+  },
+  "areas": {
+    "title": "Oblasti",
+    "add": "Přidat oblast",
+    "create": "Vytvořit oblast",
+    "edit": "Upravit oblast",
+    "delete": "Smazat oblast",
+    "name": "Název oblasti",
+    "namePlaceholder": "Např. Zdraví, Kariéra, Vztahy",
+    "description": "Popis",
+    "descriptionPlaceholder": "Popis oblasti...",
+    "color": "Barva",
+    "icon": "Ikona",
+    "noAreas": "Žádné oblasti",
+    "noAreasDescription": "Vytvořte oblast pro organizaci vašich cílů, kroků a návyků",
+    "selectArea": "Vybrat oblast",
+    "noArea": "Bez oblasti",
+    "areaGoals": "Cíle v oblasti",
+    "areaSteps": "Kroky v oblasti",
+    "areaHabits": "Návyky v oblasti",
+    "title": "Oblasti",
+    "add": "Přidat oblast",
+    "edit": "Upravit oblast",
+    "name": "Název",
+    "namePlaceholder": "Název oblasti",
+    "nameRequired": "Název oblasti je povinný",
+    "description": "Popis",
+    "descriptionPlaceholder": "Popis oblasti",
+    "color": "Barva",
+    "icon": "Ikona",
+    "manage": "Spravovat oblasti",
+    "noAreas": "Zatím nemáte žádné oblasti",
+    "addFirst": "Vytvořit první oblast",
+    "deleteConfirm": "Opravdu chcete smazat tuto oblast? Cíle, kroky a návyky přiřazené k této oblasti budou odpojeny.",
+    "deleteError": "Nepodařilo se smazat oblast"
   }
 }
 

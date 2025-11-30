@@ -67,7 +67,9 @@ import {
   MapPin,
   Phone,
   Mail,
-  Search
+  Search,
+  Wallet,
+  Coins
 } from 'lucide-react'
 
 const iconMap: Record<string, any> = {
@@ -77,7 +79,14 @@ const iconMap: Record<string, any> = {
   Bot, Ghost, Skull, Crown, Gem, Key, Lock, Shield, Compass, Map, Globe, Flag, Medal, Award, Gift,
   Cake, Cookie, Pizza, Apple, Banana, Cherry, Grape, Carrot,
   ArrowUp, ArrowRight, ArrowDown, ArrowLeft,
-  User, MapPin, Phone, Mail
+  User, MapPin, Phone, Mail, Search, Wallet, Coins
+}
+
+// Map emoji icons to outline icons
+const emojiToIconMap: Record<string, string> = {
+  '💰': 'Wallet', // Money bag emoji -> Wallet icon
+  '🌱': 'Leaf',    // Seedling emoji -> Leaf icon
+  '🎯': 'Target'   // Target emoji -> Target icon (already handled, but for consistency)
 }
 
 const emojiMap: Record<string, string> = {
@@ -93,6 +102,17 @@ export function getIconComponent(iconName?: string | null) {
   if (!iconName || iconName === '🎯') {
     return Target // Default icon
   }
+  
+  // Check if it's an emoji that needs to be mapped to an outline icon
+  if (emojiToIconMap[iconName]) {
+    const mappedIconName = emojiToIconMap[iconName]
+    const icon = iconMap[mappedIconName]
+    if (icon) {
+      return icon
+    }
+  }
+  
+  // Check if it's a direct icon name
   const icon = iconMap[iconName]
   if (!icon) {
     console.warn(`Icon "${iconName}" not found in iconMap, using Target as default`)
