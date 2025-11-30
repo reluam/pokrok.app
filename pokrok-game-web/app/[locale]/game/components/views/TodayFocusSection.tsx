@@ -672,7 +672,7 @@ export function TodayFocusSection({
                                         ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
                                         : !isScheduled 
                                           ? `bg-gray-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}` 
-                                          : `bg-gray-200 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
+                                          : `bg-orange-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
                                     } ${isSelected ? 'ring-2 ring-orange-400 ring-offset-1' : ''}`}
                                   >
                                     {isLoading ? (
@@ -757,7 +757,7 @@ export function TodayFocusSection({
                                         ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
                                         : !isScheduled 
                                           ? `bg-gray-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}` 
-                                          : `bg-gray-200 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
+                                          : `bg-orange-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
                                     } ${isSelected ? 'ring-2 ring-orange-400 ring-offset-1' : ''}`}
                                     title={isCompleted ? 'Splněno' : 'Klikni pro splnění'}
                                   >
@@ -849,7 +849,7 @@ export function TodayFocusSection({
                                   ? 'bg-gray-100 cursor-not-allowed'
                                   : !isScheduled 
                                     ? 'bg-gray-100 hover:bg-orange-200 cursor-pointer' 
-                                    : 'bg-gray-200 hover:bg-orange-200 cursor-pointer'
+                                    : 'bg-orange-100 hover:bg-orange-200 cursor-pointer'
                             }`}
                             title={isCompleted ? 'Splněno' : 'Klikni pro splnění'}
                           >

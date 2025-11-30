@@ -15,10 +15,6 @@ export default function HomePage() {
   const t = useTranslations()
   const locale = useLocale()
 
-  const handleGuestContinue = () => {
-    router.push(`/${locale}/game`)
-  }
-
   // Redirect signed-in users to game
   useEffect(() => {
     if (isLoaded && isSignedIn) {
@@ -84,17 +80,6 @@ export default function HomePage() {
                 {t('homepage.signIn')}
               </button>
             </Link>
-            
-            <div className="text-center text-gray-500 text-sm">
-              {t('homepage.or')}
-            </div>
-            
-            <button 
-              onClick={handleGuestContinue}
-              className="w-full px-6 py-3 rounded-xl font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300 transition-all duration-300"
-            >
-              {t('homepage.continueAsGuest')}
-            </button>
           </div>
         </div>
       </div>

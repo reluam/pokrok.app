@@ -781,23 +781,29 @@
       "stepsToSuccess": "3 steps to success",
       "step1": {
         "title": "Create a goal",
-        "subtitle": "What do you want to achieve?",
+        "subtitle": "<strong>Goals</strong> are the largest <strong>building blocks</strong> of Pokrok. They are all the things you want to achieve that <strong>cannot be solved within a single session</strong>. You can create goals as needed and ideally use the <strong>SMART</strong> framework - making goals <strong>Specific, Measurable, Ambitious, Relevant, and Time-bound</strong>. For this, you can use <strong>Steps</strong> in Pokrok - for sub-parts, or <strong>habits</strong> - for repeated and measurable tasks.",
         "example": "Learn React",
+        "exampleDesc": "I want to create my own web application",
+        "exampleDeadline": "Until March 15th",
+        "exampleProgress": "Progress",
+        "exampleStepsCount": "2/5 steps",
         "inFocus": "In Focus",
         "button": "Create goal"
       },
       "step2": {
         "title": "Add steps",
-        "subtitle": "Concrete actions towards your goal",
+        "subtitle": "<strong>Steps</strong> can be used as <strong>To-Do items without any goal</strong>, but their <strong>primary purpose</strong> is to help break down <strong>Goals into smaller parts</strong> - ideally parts that can be done <strong>within one day</strong>. Completing steps then <strong>increases the goal's progress</strong>. If needed, a Step can be further broken down into individual <strong>checklist</strong> items in the step settings for better control.",
         "example1": "Install Node.js",
         "example2": "Complete tutorial",
+        "example1Time": "30 min",
+        "example2Time": "45 min",
         "today": "Today",
         "tomorrow": "Tomorrow",
         "button": "Create step"
       },
       "step3": {
         "title": "Build habits",
-        "subtitle": "Recurring activities",
+        "subtitle": "The third fundamental building block is <strong>habits</strong>, which are actions that are <strong>repeatable and measurable</strong>. Habits can be set to <strong>Daily, weekly, monthly, or in custom intervals</strong>. Habits are <strong>not assigned to goals</strong> as such. Instead, I recommend creating a <strong>Step</strong> that specifies how many times, for example, I must complete the habit - (Meditation - 5x per week for one year).",
         "example1": "Morning exercise",
         "example2": "Reading",
         "everyDay": "Every day",
@@ -853,6 +859,26 @@
         "week2": "Week 2+:",
         "week2Task": "Add habits"
       }
+    },
+    "focusHelp": {
+      "title": "Focus",
+      "subtitle": "Weekly and daily overview of your habits and steps.",
+      "weeklyFocus": "Weekly focus",
+      "dailyFocus": "Daily focus",
+      "habits": "Habits",
+      "steps": "Steps",
+      "todaySteps": "Today's steps",
+      "overdueSteps": "Overdue steps",
+      "futureSteps": "Future steps",
+      "exampleOverdueStep": "Complete project",
+      "descriptionTitle": "Main Focus Components",
+      "habitsDescription": "Habits are repeatable actions that you can complete each day. In the weekly overview, you see all habits and their status for each day of the week. Orange boxes indicate completed days, light orange boxes indicate planned days.",
+      "stepsDescription": "Steps are divided into three categories:",
+      "todayStepsDescription": "Today's steps - steps scheduled for today (orange border)",
+      "overdueStepsDescription": "Overdue steps - steps that should have been completed earlier (red border)",
+      "futureStepsDescription": "Future steps - steps scheduled for future days (gray border)",
+      "timeline": "Timeline",
+      "timelineDescription": "Clicking on a day in the timeline switches to the daily overview. In the daily overview, you'll see only steps and habits for the selected day. Clicking on the same day again returns to the weekly overview."
     },
     "goalsHelp": {
       "title": "Goals",

@@ -781,23 +781,29 @@
       "stepsToSuccess": "3 kroky k úspěchu",
       "step1": {
         "title": "Vytvořte cíl",
-        "subtitle": "Co chcete dosáhnout?",
+        "subtitle": "<strong>Cíle</strong> jsou největší <strong>stavební bloky</strong> Pokroku. Jsou to všechny věci, kterých chcete dosáhnout a které <strong>nejsou řešitelné v rámci jednoho sezení</strong>. Cíle si můžete vytvořit jak potřebujete a ideálně můžete použít framework <strong>SMART</strong> - tedy udělat cíle <strong>Specifické, Měřitelné, Ambiciózní, Relevantní, Časově rámované</strong>. K tomu můžete v Pokroku použít právě <strong>Kroky</strong> - pro dílčí části, případně <strong>návyky</strong> - pro opakované a měřitelné úkoly.",
         "example": "Naučit se React",
+        "exampleDesc": "Chci vytvořit vlastní webovou aplikaci",
+        "exampleDeadline": "Do 15. března",
+        "exampleProgress": "Pokrok",
+        "exampleStepsCount": "2/5 kroků",
         "inFocus": "Ve fokusu",
         "button": "Vytvořit cíl"
       },
       "step2": {
         "title": "Přidejte kroky",
-        "subtitle": "Konkrétní akce k cíli",
+        "subtitle": "<strong>Kroky</strong> můžou být použité jako <strong>To-Do bez jakéhokoliv cíle</strong>, ale jejich <strong>primární účel</strong> je pomoct rozložit <strong>Cíle na menší části</strong> - ideálně takové části, které se dají udělat <strong>během jednoho dne</strong>. Dosahováním kroků se poté <strong>navyšuje progress cíle</strong>. Pokud je potřeba, Krok se dá pro větší kontrolu v nastavení kroku dále rozpadnout na jednotlivé položky v <strong>checklistu</strong>.",
         "example1": "Nainstalovat Node.js",
         "example2": "Projít tutorial",
+        "example1Time": "30 min",
+        "example2Time": "45 min",
         "today": "Dnes",
         "tomorrow": "Zítra",
         "button": "Vytvořit krok"
       },
       "step3": {
         "title": "Budujte návyky",
-        "subtitle": "Opakující se aktivity",
+        "subtitle": "Třetím základním stavebním prvkem jsou <strong>návyky</strong>, což jsou úkony, které jsou <strong>opakovatelné a měřitelné</strong>. Návyky se dají nastavit <strong>Denně, týdně, měsíčně, případně ve vlastních intervalech</strong>. Návyky se <strong>nepřiřazují k cílům</strong> jako takové. Místo toho doporučuji vytvořit <strong>Krok</strong>, který bude mít specifikované kolikrát například musím návyk splnit - (Meditace - 5x týdně po dobu jednoho roku).",
         "example1": "Ranní cvičení",
         "example2": "Čtení",
         "everyDay": "Každý den",
@@ -853,6 +859,26 @@
         "week2": "Týden 2+:",
         "week2Task": "Přidejte návyky"
       }
+    },
+    "focusHelp": {
+      "title": "Focus",
+      "subtitle": "Týdenní a denní přehled vašich návyků a kroků.",
+      "weeklyFocus": "Týdenní focus",
+      "dailyFocus": "Denní focus",
+      "habits": "Návyky",
+      "steps": "Kroky",
+      "todaySteps": "Dnešní kroky",
+      "overdueSteps": "Zpožděné kroky",
+      "futureSteps": "Budoucí kroky",
+      "exampleOverdueStep": "Dokončit projekt",
+      "descriptionTitle": "Hlavní části Focus",
+      "habitsDescription": "Návyky jsou opakovatelné úkony, které můžete plnit každý den. V týdenním přehledu vidíte všechny návyky a jejich stav pro každý den týdne. Oranžové boxy označují splněné dny, světle oranžové naplánované dny.",
+      "stepsDescription": "Kroky jsou rozděleny do tří kategorií:",
+      "todayStepsDescription": "Dnešní kroky - kroky naplánované na dnešní den (oranžový border)",
+      "overdueStepsDescription": "Zpožděné kroky - kroky, které měly být dokončeny dříve (červený border)",
+      "futureStepsDescription": "Budoucí kroky - kroky naplánované na budoucí dny (šedý border)",
+      "timeline": "Timeline",
+      "timelineDescription": "Kliknutím na den v timeline se přepnete na denní přehled. V denním přehledu uvidíte pouze kroky a návyky pro vybraný den. Kliknutím na stejný den znovu se vrátíte zpět na týdenní přehled."
     },
     "goalsHelp": {
       "title": "Cíle",

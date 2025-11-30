@@ -390,6 +390,8 @@ export function JourneyGameView({
   const [showDeleteGoalModal, setShowDeleteGoalModal] = useState(false)
   const [deleteGoalWithSteps, setDeleteGoalWithSteps] = useState(false)
   const [isDeletingGoal, setIsDeletingGoal] = useState(false)
+  const [showCreateMenu, setShowCreateMenu] = useState(false)
+  const createMenuButtonRef = useRef<HTMLButtonElement>(null)
   const goalTitleRef = useRef<HTMLInputElement | HTMLHeadingElement>(null)
   const goalDescriptionRef = useRef<HTMLTextAreaElement | HTMLParagraphElement>(null)
   const goalDateRef = useRef<HTMLSpanElement>(null)
@@ -7913,7 +7915,7 @@ export function JourneyGameView({
                                 isCompleted
                                   ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
                                   : isScheduled
-                                    ? `bg-gray-200 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
+                                    ? `bg-orange-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
                                     : `bg-gray-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
                               }`}
                               title={dateStr}
@@ -9318,6 +9320,65 @@ export function JourneyGameView({
                   })()}
                   
                 </nav>
+              </div>
+              
+              {/* Create button - fixed at bottom */}
+              <div className={`${sidebarCollapsed ? 'p-2' : 'p-4'} border-t border-gray-200 flex-shrink-0 relative`}>
+                <button
+                  ref={createMenuButtonRef}
+                  onClick={() => setShowCreateMenu(!showCreateMenu)}
+                  className={`${sidebarCollapsed ? 'w-10 h-10 p-0' : 'w-full px-4 py-3'} flex items-center justify-center gap-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors shadow-lg font-medium`}
+                  title={sidebarCollapsed ? 'Vytvořit' : undefined}
+                >
+                  <Plus className={sidebarCollapsed ? "w-7 h-7" : "w-5 h-5"} strokeWidth={sidebarCollapsed ? 3 : 2} />
+                  {!sidebarCollapsed && (
+                    <span>{t('common.add') || 'Vytvořit'}</span>
+                  )}
+                </button>
+                
+                {/* Create menu dropdown */}
+                {showCreateMenu && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setShowCreateMenu(false)}
+                    />
+                    <div 
+                      className={`absolute ${sidebarCollapsed ? 'left-14 bottom-12' : 'left-4 bottom-20'} z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[160px]`}
+                    >
+                      <button
+                        onClick={() => {
+                          handleCreateGoal()
+                          setShowCreateMenu(false)
+                        }}
+                        className="w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors font-medium flex items-center gap-2 text-gray-700"
+                      >
+                        <Target className="w-4 h-4" />
+                        <span>{t('navigation.goals')}</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleOpenStepModal()
+                          setShowCreateMenu(false)
+                        }}
+                        className="w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors font-medium flex items-center gap-2 text-gray-700"
+                      >
+                        <Footprints className="w-4 h-4" />
+                        <span>{t('navigation.steps')}</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleOpenHabitModal(null)
+                          setShowCreateMenu(false)
+                        }}
+                        className="w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors font-medium flex items-center gap-2 text-gray-700"
+                      >
+                        <CheckSquare className="w-4 h-4" />
+                        <span>{t('navigation.habits')}</span>
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
               
               {/* Toggle button - centered at top when collapsed */}

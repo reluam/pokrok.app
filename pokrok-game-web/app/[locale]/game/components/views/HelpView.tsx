@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { useTranslations } from 'next-intl'
-import { HelpCircle, Target, Footprints, CheckSquare, Plus, ArrowRight, Menu, Rocket, Calendar, Eye, Sparkles, TrendingUp, Clock, Star, Zap, BookOpen, AlertTriangle, Settings } from 'lucide-react'
+import { useState, useMemo, useCallback } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
+import { HelpCircle, Target, Footprints, CheckSquare, Plus, ArrowRight, Menu, Rocket, Calendar, Eye, Sparkles, TrendingUp, Clock, Star, Zap, BookOpen, AlertTriangle, Settings, Check, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { getLocalDateString } from '../utils/dateHelpers'
 
 interface HelpViewProps {
   onAddGoal?: () => void
@@ -48,8 +49,69 @@ export function HelpView({
   onNavigateToSteps,
 }: HelpViewProps) {
   const t = useTranslations('help')
+  const tCommon = useTranslations()
+  const locale = useLocale()
+  const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
   const [selectedCategory, setSelectedCategory] = useState<HelpCategory>('getting-started')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  
+  // State for Focus section - week/day view
+  const getWeekStart = (date: Date): Date => {
+    const d = new Date(date)
+    const day = d.getDay()
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1)
+    const weekStart = new Date(d)
+    weekStart.setDate(diff)
+    weekStart.setHours(0, 0, 0, 0)
+    return weekStart
+  }
+  
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const [focusWeekStart, setFocusWeekStart] = useState<Date>(() => getWeekStart(new Date()))
+  const [focusSelectedDay, setFocusSelectedDay] = useState<Date | null>(null)
+  
+  // Week days for focus
+  const focusWeekDays = useMemo(() => {
+    const days: Date[] = []
+    const start = new Date(focusWeekStart)
+    for (let i = 0; i < 7; i++) {
+      const day = new Date(start)
+      day.setDate(start.getDate() + i)
+      days.push(day)
+    }
+    return days
+  }, [focusWeekStart])
+  
+  const dayNamesShort = localeCode === 'cs-CZ' 
+    ? ['Ne', 'Po', 'Út', 'St', 'Čt', 'Pá', 'So']
+    : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  
+  const handleFocusDayClick = useCallback((day: Date) => {
+    const dateStr = getLocalDateString(day)
+    const currentSelectedStr = focusSelectedDay ? getLocalDateString(focusSelectedDay) : null
+    
+    if (currentSelectedStr === dateStr) {
+      // Click on same day = back to week view
+      setFocusSelectedDay(null)
+    } else {
+      setFocusSelectedDay(day)
+    }
+  }, [focusSelectedDay])
+  
+  const handleFocusPrevWeek = useCallback(() => {
+    const newStart = new Date(focusWeekStart)
+    newStart.setDate(newStart.getDate() - 7)
+    setFocusWeekStart(newStart)
+    setFocusSelectedDay(null)
+  }, [focusWeekStart])
+  
+  const handleFocusNextWeek = useCallback(() => {
+    const newStart = new Date(focusWeekStart)
+    newStart.setDate(newStart.getDate() + 7)
+    setFocusWeekStart(newStart)
+    setFocusSelectedDay(null)
+  }, [focusWeekStart])
 
   const categories = [
     { id: 'getting-started' as HelpCategory, label: t('categories.gettingStarted'), icon: Rocket },
@@ -82,30 +144,55 @@ export function HelpView({
             </div>
 
             {/* 3 Steps */}
-            <div className="space-y-4">
-              <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                <Footprints className="w-5 h-5 text-orange-500" />
-                {t('gettingStarted.stepsToSuccess')}
-              </h3>
-
-              {/* Step 1 */}
-              <div className="bg-white rounded-xl border border-orange-200 p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold">1</div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 flex items-center gap-1">
-                      <Target className="w-4 h-4 text-orange-500" /> {t('gettingStarted.step1.title')}
-                    </h4>
-                    <p className="text-xs text-gray-500">{t('gettingStarted.step1.subtitle')}</p>
+            <div className="space-y-8 mt-6">
+              {/* Step 1 - Goals */}
+              <div className="bg-white rounded-xl border border-orange-200 p-6">
+                <div className="mb-4">
+                  <h4 className="font-semibold text-gray-900 flex items-center gap-2 mb-4">
+                    <Target className="w-5 h-5 text-orange-500" /> {t('gettingStarted.step1.title')}
+                  </h4>
+                  <div className="text-sm text-gray-700 leading-relaxed space-y-2">
+                    {t.rich('gettingStarted.step1.subtitle', {
+                      strong: (chunks) => <strong className="text-gray-900 font-semibold">{chunks}</strong>
+                    })}
                   </div>
                 </div>
-                <div className="bg-orange-50 rounded-lg p-3 mb-3">
-                  <div className="flex items-center gap-2">
-                    <Target className="w-4 h-4 text-orange-500" />
-                    <span className="text-sm font-medium text-gray-800">{t('gettingStarted.step1.example')}</span>
-                    <span className="text-xs bg-orange-200 text-orange-700 px-2 py-0.5 rounded-full ml-auto">{t('gettingStarted.step1.inFocus')}</span>
+                
+                {/* Example Goal Card */}
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm mb-4 overflow-hidden">
+                  <div className="p-5 border-b border-gray-100">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="flex-shrink-0">
+                          <Target className="w-6 h-6 text-orange-600" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {t('gettingStarted.step1.example')}
+                        </h3>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">
+                      {t('gettingStarted.step1.exampleDesc')}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-green-100 text-green-700">
+                        <Target className="w-3.5 h-3.5" />
+                        {tCommon('goals.status.active')}
+                      </span>
+                      <span className="text-xs text-gray-500">{t('gettingStarted.step1.exampleDeadline')}</span>
+                    </div>
+                  </div>
+                  <div className="px-5 py-3 bg-gray-50">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-600">{t('gettingStarted.step1.exampleProgress')}</span>
+                      <span className="text-xs font-medium text-gray-700">{t('gettingStarted.step1.exampleStepsCount')}</span>
+                    </div>
+                    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-orange-500 rounded-full" style={{ width: '40%' }} />
+                    </div>
                   </div>
                 </div>
+                
                 <div className="flex gap-2">
                   {onAddGoal && (
                     <button onClick={onAddGoal} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600">
@@ -120,29 +207,42 @@ export function HelpView({
                 </div>
               </div>
 
-              {/* Step 2 */}
-              <div className="bg-white rounded-xl border border-orange-200 p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold">2</div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 flex items-center gap-1">
-                      <Footprints className="w-4 h-4 text-orange-500" /> {t('gettingStarted.step2.title')}
-                    </h4>
-                    <p className="text-xs text-gray-500">{t('gettingStarted.step2.subtitle')}</p>
+              {/* Step 2 - Steps */}
+              <div className="bg-white rounded-xl border border-orange-200 p-6">
+                <div className="mb-4">
+                  <h4 className="font-semibold text-gray-900 flex items-center gap-2 mb-4">
+                    <Footprints className="w-5 h-5 text-orange-500" /> {t('gettingStarted.step2.title')}
+                  </h4>
+                  <div className="text-sm text-gray-700 leading-relaxed space-y-2">
+                    {t.rich('gettingStarted.step2.subtitle', {
+                      strong: (chunks) => <strong className="text-gray-900 font-semibold">{chunks}</strong>
+                    })}
                   </div>
                 </div>
-                <div className="bg-orange-50 rounded-lg p-3 space-y-2 mb-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    <CheckSquare className="w-4 h-4 text-orange-400" />
-                    <span className="text-gray-700">{t('gettingStarted.step2.example1')}</span>
-                    <span className="text-xs text-gray-400 ml-auto">{t('gettingStarted.step2.today')}</span>
+                
+                {/* Example Step Cards */}
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-orange-400 bg-orange-50/30">
+                    <div className="w-6 h-6 rounded-lg border-2 border-orange-400 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                    </div>
+                    <span className="flex-1 text-sm font-medium text-orange-600">
+                      {t('gettingStarted.step2.example1')}
+                    </span>
+                    <span className="hidden sm:block w-20 text-xs text-center text-orange-600 capitalize">{t('gettingStarted.step2.today')}</span>
+                    <span className="hidden sm:block w-14 text-xs text-gray-400 text-center">{t('gettingStarted.step2.example1Time')}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <CheckSquare className="w-4 h-4 text-orange-400" />
-                    <span className="text-gray-700">{t('gettingStarted.step2.example2')}</span>
-                    <span className="text-xs text-gray-400 ml-auto">{t('gettingStarted.step2.tomorrow')}</span>
+                  <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white">
+                    <div className="w-6 h-6 rounded-lg border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                    </div>
+                    <span className="flex-1 text-sm font-medium text-gray-500">
+                      {t('gettingStarted.step2.example2')}
+                    </span>
+                    <span className="hidden sm:block w-20 text-xs text-center text-gray-500 capitalize">{t('gettingStarted.step2.tomorrow')}</span>
+                    <span className="hidden sm:block w-14 text-xs text-gray-400 text-center">{t('gettingStarted.step2.example2Time')}</span>
                   </div>
                 </div>
+                
                 <div className="flex gap-2">
                   {onAddStep && (
                     <button onClick={onAddStep} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600">
@@ -157,29 +257,82 @@ export function HelpView({
                 </div>
               </div>
 
-              {/* Step 3 */}
-              <div className="bg-white rounded-xl border border-orange-200 p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold">3</div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 flex items-center gap-1">
-                      <CheckSquare className="w-4 h-4 text-orange-500" /> {t('gettingStarted.step3.title')}
-                    </h4>
-                    <p className="text-xs text-gray-500">{t('gettingStarted.step3.subtitle')}</p>
+              {/* Step 3 - Habits */}
+              <div className="bg-white rounded-xl border border-orange-200 p-6">
+                <div className="mb-4">
+                  <h4 className="font-semibold text-gray-900 flex items-center gap-2 mb-4">
+                    <CheckSquare className="w-5 h-5 text-orange-500" /> {t('gettingStarted.step3.title')}
+                  </h4>
+                  <div className="text-sm text-gray-700 leading-relaxed space-y-2">
+                    {t.rich('gettingStarted.step3.subtitle', {
+                      strong: (chunks) => <strong className="text-gray-900 font-semibold">{chunks}</strong>
+                    })}
                   </div>
                 </div>
-                <div className="bg-orange-50 rounded-lg p-3 space-y-2 mb-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Zap className="w-4 h-4 text-orange-500" />
-                    <span className="text-gray-700">{t('gettingStarted.step3.example1')}</span>
-                    <span className="text-xs text-gray-400 ml-auto">{t('gettingStarted.step3.everyDay')}</span>
+                
+                {/* Example Habit Timeline */}
+                <div className="bg-white rounded-xl border-2 border-gray-200 p-4 mb-4">
+                  {/* Header with day names */}
+                  <div className="flex items-center gap-1 mb-2 pl-[100px]">
+                    {(() => {
+                      const days = [
+                        t('days.mon'),
+                        t('days.tue'),
+                        t('days.wed'),
+                        t('days.thu'),
+                        t('days.fri'),
+                        t('days.sat'),
+                        t('days.sun')
+                      ]
+                      const startDate = 15 // Fixed start date for example
+                      return days.map((day, idx) => (
+                        <div key={idx} className="w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded text-gray-400">
+                          <span className="uppercase leading-none">{day}</span>
+                          <span className="text-[8px] leading-none">{startDate + idx}</span>
+                        </div>
+                      ))
+                    })()}
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <BookOpen className="w-4 h-4 text-orange-500" />
-                    <span className="text-gray-700">{t('gettingStarted.step3.example2')}</span>
-                    <span className="text-xs text-gray-400 ml-auto">{t('gettingStarted.step3.monFri')}</span>
+                  
+                  {/* Habits with boxes */}
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1">
+                      <button className="w-[100px] text-left text-[11px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate flex-shrink-0">
+                        {t('gettingStarted.step3.example1')}
+                      </button>
+                      <div className="flex gap-1">
+                        <div className="w-7 h-7 rounded bg-orange-500 flex items-center justify-center shadow-sm">
+                          <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                        </div>
+                        <div className="w-7 h-7 rounded bg-orange-500 flex items-center justify-center shadow-sm">
+                          <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                        </div>
+                        <div className="w-7 h-7 rounded bg-orange-100"></div>
+                        <div className="w-7 h-7 rounded bg-orange-100"></div>
+                        <div className="w-7 h-7 rounded bg-orange-100"></div>
+                        <div className="w-7 h-7 rounded bg-orange-100"></div>
+                        <div className="w-7 h-7 rounded bg-orange-100"></div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button className="w-[100px] text-left text-[11px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate flex-shrink-0">
+                        {t('gettingStarted.step3.example2')}
+                      </button>
+                      <div className="flex gap-1">
+                        <div className="w-7 h-7 rounded bg-orange-500 flex items-center justify-center shadow-sm">
+                          <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                        </div>
+                        <div className="w-7 h-7 rounded bg-orange-100"></div>
+                        <div className="w-7 h-7 rounded bg-orange-100"></div>
+                        <div className="w-7 h-7 rounded bg-orange-100"></div>
+                        <div className="w-7 h-7 rounded bg-orange-100"></div>
+                        <div className="w-7 h-7 rounded bg-orange-100"></div>
+                        <div className="w-7 h-7 rounded bg-orange-100"></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
+                
                 <div className="flex gap-2">
                   {onAddHabit && (
                     <button onClick={onAddHabit} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600">
@@ -223,74 +376,309 @@ export function HelpView({
         )
 
       case 'overview':
+        const isWeekView = !focusSelectedDay
+        const displayDate = focusSelectedDay || focusWeekStart
+        const todayStr = getLocalDateString(today)
+        
         return (
           <div className="space-y-6">
             <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white">
-              <h2 className="text-2xl font-bold mb-2">{t('howToUse.title')}</h2>
-              <p className="text-orange-100">{t('howToUse.subtitle')}</p>
+              <h2 className="text-2xl font-bold mb-2">{t('focusHelp.title')}</h2>
+              <p className="text-orange-100">{t('focusHelp.subtitle')}</p>
             </div>
 
-            {/* Use Cases */}
-            <div className="space-y-4">
-              {/* UC1 */}
-              <div className="bg-white rounded-xl border border-orange-200 p-4">
-                <h4 className="font-semibold text-gray-900 mb-2">{t('howToUse.useCase1.title')}</h4>
-                <p className="text-sm text-gray-600 mb-3">{t('howToUse.useCase1.description')}</p>
-                <div className="space-y-1.5">
-                  <Step number={1} text={t('howToUse.useCase1.step1')} />
-                  <Step number={2} text={t('howToUse.useCase1.step2')} />
-                  <Step number={3} text={t('howToUse.useCase1.step3')} />
-                  <Step number={4} text={t('howToUse.useCase1.step4')} />
+            {/* Weekly Focus - Interactive Timeline */}
+            <div className="bg-white rounded-xl border border-orange-200 p-6">
+              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-orange-500" />
+                {isWeekView ? t('focusHelp.weeklyFocus') : t('focusHelp.dailyFocus')}
+              </h3>
+              
+              {/* Timeline */}
+              <div className="bg-white rounded-2xl p-4 shadow-sm border border-orange-100 mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <button
+                    onClick={handleFocusPrevWeek}
+                    className="p-2 hover:bg-orange-100 rounded-lg transition-colors text-gray-500 hover:text-orange-600"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  
+                  <div className="flex items-center gap-2 flex-1 justify-center">
+                    <div className="relative flex items-center w-full max-w-xl">
+                      <div className="absolute left-4 right-4 h-0.5 bg-gray-200 top-3" />
+                      
+                      <div className="relative flex justify-between w-full">
+                        {focusWeekDays.map((day) => {
+                          const dateStr = getLocalDateString(day)
+                          const isToday = dateStr === todayStr
+                          const isSelected = focusSelectedDay && getLocalDateString(focusSelectedDay) === dateStr
+                          const isPast = day < today
+                          const isFuture = day > today
+                          
+                          // Example stats for help
+                          let completionPercentage = 0
+                          if (isPast) {
+                            completionPercentage = day.getDate() % 3 === 0 ? 100 : day.getDate() % 3 === 1 ? 75 : 0
+                          }
+                          
+                          let dotColor = 'bg-gray-200'
+                          if (isToday) {
+                            dotColor = isSelected ? 'bg-orange-500 ring-4 ring-orange-200' : 'bg-orange-500'
+                          } else if (isPast) {
+                            if (completionPercentage === 100) {
+                              dotColor = isSelected ? 'bg-orange-600 ring-4 ring-orange-200' : 'bg-orange-600'
+                            } else if (completionPercentage === 0) {
+                              dotColor = isSelected ? 'bg-white ring-4 ring-orange-200' : 'bg-white'
+                            } else {
+                              dotColor = 'bg-transparent'
+                            }
+                          }
+                          
+                          return (
+                            <button
+                              key={dateStr}
+                              onClick={() => handleFocusDayClick(day)}
+                              className="flex flex-col items-center group"
+                            >
+                              <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all relative z-10 ${dotColor === 'bg-transparent' ? 'bg-white' : dotColor}`}>
+                                {isPast && completionPercentage === 100 && (
+                                  <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                                )}
+                                {isPast && completionPercentage === 0 && (
+                                  <X className="w-6 h-6 text-orange-600" strokeWidth={2.5} />
+                                )}
+                                {isPast && completionPercentage > 0 && completionPercentage < 100 && (
+                                  <svg className="w-6 h-6 absolute inset-0" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10" fill="none" stroke="#e5e7eb" strokeWidth="2" />
+                                    <circle
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      fill="none"
+                                      stroke="#ea580c"
+                                      strokeWidth="4"
+                                      strokeDasharray={`${2 * Math.PI * 10 * (completionPercentage / 100)} ${2 * Math.PI * 10 * (1 - completionPercentage / 100)}`}
+                                      strokeDashoffset={0}
+                                      transform="rotate(-90 12 12)"
+                                      strokeLinecap="round"
+                                    />
+                                  </svg>
+                                )}
+                              </div>
+                              
+                              <span className={`text-xs font-semibold mt-1 uppercase ${isSelected ? 'text-orange-600' : 'text-gray-500'}`}>
+                                {dayNamesShort[day.getDay()]}
+                              </span>
+                              
+                              <span className={`text-lg font-bold ${isSelected ? 'text-orange-600' : 'text-gray-900'}`}>
+                                {day.getDate()}
+                              </span>
+                              
+                              <span className={`text-[10px] ${isSelected ? 'text-orange-600' : 'text-gray-400'}`}>
+                                {isPast ? `${completionPercentage === 100 ? 5 : completionPercentage === 75 ? 3 : 0}/5` : '—'}
+                              </span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={handleFocusNextWeek}
+                    disabled={focusWeekStart >= getWeekStart(today)}
+                    className={`p-2 rounded-lg transition-colors ${
+                      focusWeekStart >= getWeekStart(today)
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'hover:bg-orange-100 text-gray-500 hover:text-orange-600'
+                    }`}
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
                 </div>
-                <p className="text-xs text-orange-600 mt-3 bg-orange-50 p-2 rounded">{t('howToUse.useCase1.result')}</p>
               </div>
-
-              {/* UC2 */}
-              <div className="bg-white rounded-xl border border-orange-200 p-4">
-                <h4 className="font-semibold text-gray-900 mb-2">{t('howToUse.useCase2.title')}</h4>
-                <p className="text-sm text-gray-600 mb-3">{t('howToUse.useCase2.description')}</p>
-                <div className="space-y-1.5">
-                  <Step number={1} text={t('howToUse.useCase2.step1')} />
-                  <Step number={2} text={t('howToUse.useCase2.step2')} />
-                  <Step number={3} text={t('howToUse.useCase2.step3')} />
-                  <Step number={4} text={t('howToUse.useCase2.step4')} />
+              
+              {/* Focus Content - Week or Day View */}
+              {isWeekView ? (
+                <div className="space-y-4">
+                  {/* Habits Section */}
+                  <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
+                      <h4 className="font-semibold text-gray-900">{t('focusHelp.habits')}</h4>
+                    </div>
+                    <div className="flex items-center gap-1 mb-2 pl-[100px]">
+                      {focusWeekDays.map((day) => (
+                        <div key={getLocalDateString(day)} className="w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded text-gray-400">
+                          <span className="uppercase leading-none">{dayNamesShort[day.getDay()]}</span>
+                          <span className="text-[8px] leading-none">{day.getDate()}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1">
+                        <span className="w-[100px] text-left text-[11px] font-medium text-gray-600 flex-shrink-0">
+                          {t('gettingStarted.step3.example1')}
+                        </span>
+                        <div className="flex gap-1">
+                          <div className="w-7 h-7 rounded bg-orange-500 flex items-center justify-center shadow-sm">
+                            <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                          </div>
+                          <div className="w-7 h-7 rounded bg-orange-500 flex items-center justify-center shadow-sm">
+                            <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                          </div>
+                          <div className="w-7 h-7 rounded bg-orange-100"></div>
+                          <div className="w-7 h-7 rounded bg-orange-100"></div>
+                          <div className="w-7 h-7 rounded bg-orange-100"></div>
+                          <div className="w-7 h-7 rounded bg-orange-100"></div>
+                          <div className="w-7 h-7 rounded bg-orange-100"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Steps Section */}
+                  <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">2</span>
+                      <h4 className="font-semibold text-gray-900">{t('focusHelp.steps')}</h4>
+                    </div>
+                    <div className="space-y-2">
+                      {/* Today's Steps */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="w-5 h-5 bg-orange-400 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2a</span>
+                          <span className="text-xs font-medium text-gray-700">{t('focusHelp.todaySteps')}</span>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-orange-400 bg-orange-50/30 ml-7">
+                          <div className="w-6 h-6 rounded-lg border-2 border-orange-400 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                            <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                          </div>
+                          <span className="flex-1 text-sm font-medium text-orange-600">
+                            {t('gettingStarted.step2.example1')}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Overdue Steps */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2b</span>
+                          <span className="text-xs font-medium text-gray-700">{t('focusHelp.overdueSteps')}</span>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-red-300 bg-red-50/30 ml-7">
+                          <div className="w-6 h-6 rounded-lg border-2 border-red-400 flex items-center justify-center flex-shrink-0">
+                          </div>
+                          <span className="flex-1 text-sm font-medium text-red-600">
+                            {t('focusHelp.exampleOverdueStep')}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Future Steps */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="w-5 h-5 bg-gray-400 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2c</span>
+                          <span className="text-xs font-medium text-gray-700">{t('focusHelp.futureSteps')}</span>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white ml-7">
+                          <div className="w-6 h-6 rounded-lg border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                          </div>
+                          <span className="flex-1 text-sm font-medium text-gray-500">
+                            {t('gettingStarted.step2.example2')}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-xs text-orange-600 mt-3 bg-orange-50 p-2 rounded">{t('howToUse.useCase2.result')}</p>
-              </div>
-
-              {/* UC3 */}
-              <div className="bg-white rounded-xl border border-orange-200 p-4">
-                <h4 className="font-semibold text-gray-900 mb-2">{t('howToUse.useCase3.title')}</h4>
-                <p className="text-sm text-gray-600 mb-3">{t('howToUse.useCase3.description')}</p>
-                <div className="space-y-1.5">
-                  <Step number={1} text={t('howToUse.useCase3.step1')} />
-                  <Step number={2} text={t('howToUse.useCase3.step2')} />
-                  <Step number={3} text={t('howToUse.useCase3.step3')} />
-                  <Step number={4} text={t('howToUse.useCase3.step4')} />
+              ) : (
+                <div className="space-y-4">
+                  {/* Day View - Habits */}
+                  <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
+                      <h4 className="font-semibold text-gray-900">{t('focusHelp.habits')}</h4>
+                    </div>
+                    <div className="flex items-center gap-1 mb-1">
+                      <div className="w-[100px] flex-shrink-0" />
+                      <div className="w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded bg-orange-100 text-orange-700 font-semibold">
+                        <span className="uppercase leading-none">{dayNamesShort[focusSelectedDay!.getDay()]}</span>
+                        <span className="text-[8px] leading-none">{focusSelectedDay!.getDate()}</span>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1">
+                        <span className="w-[100px] text-left text-[11px] font-medium text-gray-600 flex-shrink-0">
+                          {t('gettingStarted.step3.example1')}
+                        </span>
+                        <div className="w-7 h-7 rounded bg-orange-500 flex items-center justify-center shadow-sm">
+                          <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Day View - Steps */}
+                  <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">2</span>
+                      <h4 className="font-semibold text-gray-900">{t('focusHelp.steps')}</h4>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-orange-400 bg-orange-50/30">
+                        <div className="w-6 h-6 rounded-lg border-2 border-orange-400 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                          <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                        </div>
+                        <span className="flex-1 text-sm font-medium text-orange-600">
+                          {t('gettingStarted.step2.example1')}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-xs text-orange-600 mt-3 bg-orange-50 p-2 rounded">{t('howToUse.useCase3.result')}</p>
-              </div>
-            </div>
-
-            {/* Quick Start */}
-            <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
-              <h4 className="font-semibold text-gray-900 mb-3">{t('howToUse.quickStart.title')}</h4>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="bg-white rounded-lg p-3 border border-orange-100">
-                  <span className="font-medium text-orange-600">{t('howToUse.quickStart.day1')}</span>
-                  <p className="text-gray-600">{t('howToUse.quickStart.day1Task')}</p>
-                </div>
-                <div className="bg-white rounded-lg p-3 border border-orange-100">
-                  <span className="font-medium text-orange-600">{t('howToUse.quickStart.day23')}</span>
-                  <p className="text-gray-600">{t('howToUse.quickStart.day23Task')}</p>
-                </div>
-                <div className="bg-white rounded-lg p-3 border border-orange-100">
-                  <span className="font-medium text-orange-600">{t('howToUse.quickStart.day45')}</span>
-                  <p className="text-gray-600">{t('howToUse.quickStart.day45Task')}</p>
-                </div>
-                <div className="bg-white rounded-lg p-3 border border-orange-100">
-                  <span className="font-medium text-orange-600">{t('howToUse.quickStart.week2')}</span>
-                  <p className="text-gray-600">{t('howToUse.quickStart.week2Task')}</p>
+              )}
+              
+              {/* Description below focus */}
+              <div className="mt-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h4 className="font-semibold text-gray-900 mb-3">{t('focusHelp.descriptionTitle')}</h4>
+                <div className="space-y-3 text-sm text-gray-700">
+                  <div className="flex items-start gap-3">
+                    <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
+                    <div>
+                      <p className="font-medium text-gray-900 mb-1">{t('focusHelp.habits')}</p>
+                      <p>{t('focusHelp.habitsDescription')}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
+                    <div>
+                      <p className="font-medium text-gray-900 mb-1">{t('focusHelp.steps')}</p>
+                      <p className="mb-2">{t('focusHelp.stepsDescription')}</p>
+                      <div className="ml-4 space-y-1.5 text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 bg-orange-400 text-white rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">2a</span>
+                          <span>{t('focusHelp.todayStepsDescription')}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">2b</span>
+                          <span>{t('focusHelp.overdueStepsDescription')}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 bg-gray-400 text-white rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">2c</span>
+                          <span>{t('focusHelp.futureStepsDescription')}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
+                    <div>
+                      <p className="font-medium text-gray-900 mb-1">{t('focusHelp.timeline')}</p>
+                      <p>{t('focusHelp.timelineDescription')}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -980,3 +1368,4 @@ export function HelpView({
     </div>
   )
 }
+
