@@ -765,7 +765,7 @@ export function JourneyGameView({
                 ...prev,
                 [updatedStep.goal_id]: (prev[updatedStep.goal_id] || 0) + 1
               }))
-            }
+        }
       } else {
         console.error('Failed to update step')
             // Revert optimistic update on error
@@ -4131,8 +4131,8 @@ export function JourneyGameView({
       } else {
         console.error('Failed to update goal')
         alert('Nepodařilo se aktualizovat cíl')
-      }
-    } catch (error) {
+            }
+          } catch (error) {
       console.error('Error updating goal:', error)
       alert('Chyba při aktualizaci cíle')
     }
@@ -4185,8 +4185,8 @@ export function JourneyGameView({
           ? `${errorData.error || 'Chyba'}: ${errorData.details}`
           : (errorData.error || 'Nepodařilo se uložit oblast')
         alert(errorMessage)
-      }
-    } catch (error) {
+            }
+          } catch (error) {
       console.error('Error updating area:', error)
       alert('Chyba při aktualizaci oblasti')
     }
@@ -9892,6 +9892,16 @@ export function JourneyGameView({
                                               const pausedGoals = areaGoals.filter(g => g.status === 'paused')
                                               const completedGoals = areaGoals.filter(g => g.status === 'completed')
                                               
+                                              console.log('[Mobile Menu - Area Goals]', {
+                                                areaId: area.id,
+                                                areaName: area.name,
+                                                totalGoals: areaGoals.length,
+                                                active: activeGoals.length,
+                                                paused: pausedGoals.length,
+                                                completed: completedGoals.length,
+                                                allGoalStatuses: areaGoals.map(g => ({ id: g.id, status: g.status, title: g.title }))
+                                              })
+                                              
                                               const pausedSectionKey = `${area.id}-paused`
                                               const completedSectionKey = `${area.id}-completed`
                                               const isPausedExpanded = expandedGoalSections.has(pausedSectionKey)
@@ -9918,15 +9928,16 @@ export function JourneyGameView({
                                                       >
                                                         <GoalIconComponent className={`w-4 h-4 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} style={mainPanelSection !== goalSectionId ? { color: areaColor } : undefined} />
                                                         <span className="font-medium">{goal.title}</span>
-                                                      </button>
+                      </button>
                                                     )
                                                   })}
                                                   
-                                                  {/* Paused goals section */}
+                                                  {/* Paused goals section - only show if there are paused goals */}
                                                   {pausedGoals.length > 0 && (
                                                     <div>
                                                       <button
-                                                        onClick={() => {
+                                                        onClick={(e) => {
+                                                          e.stopPropagation()
                                                           const newSet = new Set(expandedGoalSections)
                                                           if (isPausedExpanded) {
                                                             newSet.delete(pausedSectionKey)
@@ -9963,16 +9974,17 @@ export function JourneyGameView({
                                                               </button>
                                                             )
                                                           })}
-                                                        </div>
+                    </div>
                                                       )}
-                                                    </div>
+                  </div>
                                                   )}
                                                   
-                                                  {/* Completed goals section */}
+                                                  {/* Completed goals section - only show if there are completed goals */}
                                                   {completedGoals.length > 0 && (
                                                     <div>
                                                       <button
-                                                        onClick={() => {
+                                                        onClick={(e) => {
+                                                          e.stopPropagation()
                                                           const newSet = new Set(expandedGoalSections)
                                                           if (isCompletedExpanded) {
                                                             newSet.delete(completedSectionKey)
@@ -10199,9 +10211,9 @@ export function JourneyGameView({
                   
                   {/* Areas list - directly under Focus */}
                   {!sidebarCollapsed && (() => {
-                    // Group goals by area
+                    // Group goals by area - include all goals (active, paused, completed)
                     const goalsByArea = areas.reduce((acc, area) => {
-                      const areaGoals = sortedGoalsForSidebar.filter(g => g.area_id === area.id && g.status === 'active')
+                      const areaGoals = sortedGoalsForSidebar.filter(g => g.area_id === area.id)
                       // Always include area, even if it has no goals
                       acc[area.id] = { area, goals: areaGoals }
                       return acc
@@ -10282,6 +10294,16 @@ export function JourneyGameView({
                                 const activeGoals = areaGoals.filter(g => g.status === 'active')
                                 const pausedGoals = areaGoals.filter(g => g.status === 'paused')
                                 const completedGoals = areaGoals.filter(g => g.status === 'completed')
+                                
+                                console.log('[Desktop Sidebar - Area Goals]', {
+                                  areaId: area.id,
+                                  areaName: area.name,
+                                  totalGoals: areaGoals.length,
+                                  active: activeGoals.length,
+                                  paused: pausedGoals.length,
+                                  completed: completedGoals.length,
+                                  allGoalStatuses: areaGoals.map(g => ({ id: g.id, status: g.status, title: g.title }))
+                                })
                                 
                                 const pausedSectionKey = `${area.id}-paused`
                                 const completedSectionKey = `${area.id}-completed`
@@ -11577,12 +11599,12 @@ export function JourneyGameView({
 
                   {/* Goal selection - only show if no area is selected */}
                   {!stepModalData.areaId && (
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-2">
-                        {t('steps.goal')}
-                      </label>
-                      <select
-                        value={stepModalData.goalId}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-2">
+                      {t('steps.goal')}
+                    </label>
+                    <select
+                      value={stepModalData.goalId}
                         onChange={(e) => {
                           const newGoalId = e.target.value
                           setStepModalData({
@@ -11592,21 +11614,21 @@ export function JourneyGameView({
                           })
                         }}
                             className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                      >
-                        <option value="">{t('steps.noGoal')}</option>
-                        {goals.map((goal: any) => (
-                          <option key={goal.id} value={goal.id}>{goal.title}</option>
-                        ))}
-                      </select>
-                    </div>
+                    >
+                      <option value="">{t('steps.noGoal')}</option>
+                      {goals.map((goal: any) => (
+                        <option key={goal.id} value={goal.id}>{goal.title}</option>
+                      ))}
+                    </select>
+                  </div>
                   )}
 
                   {/* Area selection - only show if no goal is selected */}
                   {!stepModalData.goalId && (
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-2">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-2">
                         {t('details.goal.area') || 'Oblast'}
-                      </label>
+                    </label>
                       <select
                         value={stepModalData.areaId || ''}
                         onChange={(e) => {
@@ -11626,7 +11648,7 @@ export function JourneyGameView({
                       </select>
                     </div>
                   )}
-                </div>
+                  </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
