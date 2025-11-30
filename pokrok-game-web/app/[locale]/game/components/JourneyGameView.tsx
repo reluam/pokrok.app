@@ -429,7 +429,7 @@ export function JourneyGameView({
   const [isSavingArea, setIsSavingArea] = useState(false)
   const [showAreaIconPicker, setShowAreaIconPicker] = useState(false)
   const [goalDetailAreaPickerPosition, setGoalDetailAreaPickerPosition] = useState<{ top: number; left: number } | null>(null)
-  const goalAreaRef = useRef<HTMLSpanElement>(null)
+  const goalAreaRef = useRef<HTMLButtonElement>(null)
   
   // Load areas
   useEffect(() => {
