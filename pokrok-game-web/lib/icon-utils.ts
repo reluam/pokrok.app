@@ -69,7 +69,29 @@ import {
   Mail,
   Search,
   Wallet,
-  Coins
+  Coins,
+  // Health icons
+  Activity,
+  HeartPulse,
+  Stethoscope,
+  Pill,
+  // Technology icons
+  Cpu,
+  Smartphone,
+  Laptop,
+  Code,
+  Monitor,
+  Wifi,
+  // Economy/Finance icons
+  DollarSign,
+  TrendingUp,
+  Banknote,
+  CreditCard,
+  // Career icons
+  Building,
+  Users,
+  // Layout/Organization icons
+  LayoutDashboard,
 } from 'lucide-react'
 
 const iconMap: Record<string, any> = {
@@ -79,7 +101,17 @@ const iconMap: Record<string, any> = {
   Bot, Ghost, Skull, Crown, Gem, Key, Lock, Shield, Compass, Map, Globe, Flag, Medal, Award, Gift,
   Cake, Cookie, Pizza, Apple, Banana, Cherry, Grape, Carrot,
   ArrowUp, ArrowRight, ArrowDown, ArrowLeft,
-  User, MapPin, Phone, Mail, Search, Wallet, Coins
+  User, MapPin, Phone, Mail, Search, Wallet, Coins,
+  // Health icons
+  Activity, HeartPulse, Stethoscope, Pill,
+  // Technology icons
+  Cpu, Smartphone, Laptop, Code, Monitor, Wifi,
+  // Economy/Finance icons
+  DollarSign, TrendingUp, Banknote, CreditCard,
+  // Career icons
+  Building, Users,
+  // Layout/Organization icons
+  LayoutDashboard
 }
 
 // Map emoji icons to outline icons
@@ -95,7 +127,17 @@ const emojiMap: Record<string, string> = {
   Bird: '🐦', Fish: '🐟', Cat: '🐱', Dog: '🐶', Rabbit: '🐰',
   Bot: '🤖', Ghost: '👻', Skull: '💀', Crown: '👑', Gem: '💎', Key: '🗝️', Lock: '🔒', Shield: '🛡️', Compass: '🧭', Map: '🗺️', Globe: '🌍', Flag: '🏳️', Medal: '🏅', Award: '🏆', Gift: '🎁',
   Cake: '🎂', Cookie: '🍪', Pizza: '🍕', Apple: '🍎', Banana: '🍌', Cherry: '🍒', Grape: '🍇', Carrot: '🥕',
-  ArrowUp: '⬆️', ArrowRight: '➡️', ArrowDown: '⬇️', ArrowLeft: '⬅️'
+  ArrowUp: '⬆️', ArrowRight: '➡️', ArrowDown: '⬇️', ArrowLeft: '⬅️',
+  // Health icons
+  Activity: '📊', HeartPulse: '💓', Stethoscope: '🩺', Pill: '💊',
+  // Technology icons
+  Cpu: '💻', Smartphone: '📱', Laptop: '💻', Code: '💻', Monitor: '🖥️', Wifi: '📶',
+  // Economy/Finance icons
+  DollarSign: '💵', TrendingUp: '📈', Banknote: '💵', CreditCard: '💳',
+  // Career icons
+  Building: '🏢', Users: '👥',
+  // Layout/Organization icons
+  LayoutDashboard: '📊'
 }
 
 export function getIconComponent(iconName?: string | null) {
@@ -197,6 +239,30 @@ export const AVAILABLE_ICONS = [
   { name: 'Cherry', label: 'Třešně' },
   { name: 'Grape', label: 'Hrozny' },
   { name: 'Carrot', label: 'Mrkev' },
+  // Health icons
+  { name: 'Activity', label: 'Aktivita' },
+  { name: 'HeartPulse', label: 'Zdraví' },
+  { name: 'Stethoscope', label: 'Lékař' },
+  { name: 'Pill', label: 'Léky' },
+  // Technology icons
+  { name: 'Cpu', label: 'Počítač' },
+  { name: 'Smartphone', label: 'Smartphone' },
+  { name: 'Laptop', label: 'Laptop' },
+  { name: 'Code', label: 'Kód' },
+  { name: 'Monitor', label: 'Monitor' },
+  { name: 'Wifi', label: 'WiFi' },
+  // Economy/Finance icons
+  { name: 'DollarSign', label: 'Dolar' },
+  { name: 'TrendingUp', label: 'Růst' },
+  { name: 'Banknote', label: 'Bankovka' },
+  { name: 'CreditCard', label: 'Kreditka' },
+  { name: 'Wallet', label: 'Peněženka' },
+  { name: 'Coins', label: 'Mince' },
+  // Career icons
+  { name: 'Building', label: 'Budova' },
+  { name: 'Users', label: 'Tým' },
+  // Layout/Organization icons
+  { name: 'LayoutDashboard', label: 'Přehled' },
 ] as const
 
 export type IconName = typeof AVAILABLE_ICONS[number]['name']

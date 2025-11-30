@@ -1086,6 +1086,7 @@
     "icon": "Ikona",
     "manage": "Spravovat oblasti",
     "noAreas": "Zatím nemáte žádné oblasti",
+    "noAreasDescription": "Oblasti slouží k rozdělení cílů, návyků a kroků na jednotlivé oblasti tak, jak chcete - například Zdraví, Práce, Projekt, atd.",
     "addFirst": "Vytvořit první oblast",
     "deleteConfirm": "Opravdu chcete smazat tuto oblast? Cíle, kroky a návyky přiřazené k této oblasti budou odpojeny.",
     "deleteError": "Nepodařilo se smazat oblast"

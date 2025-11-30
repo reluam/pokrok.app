@@ -9,7 +9,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStr
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { SettingsPage } from './SettingsPage'
-import { Footprints, Calendar, Target, CheckCircle, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Edit, Trash2, Plus, Clock, Star, Zap, Check, Settings, HelpCircle, LayoutDashboard, Sparkles, CheckSquare, Menu, Moon, Search, Flame, Trophy } from 'lucide-react'
+import { Footprints, Calendar, Target, CheckCircle, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Edit, Trash2, Plus, Clock, Star, Zap, Check, Settings, HelpCircle, LayoutDashboard, Sparkles, CheckSquare, Menu, Moon, Search, Flame, Trophy, Folder } from 'lucide-react'
 import { DailyReviewWorkflow } from './DailyReviewWorkflow'
 import { CalendarProgram } from './CalendarProgram'
 import { getIconEmoji, getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
@@ -422,10 +422,11 @@ export function JourneyGameView({
   const [showGoalDetailAreaPicker, setShowGoalDetailAreaPicker] = useState(false)
   const [showAreasManagementModal, setShowAreasManagementModal] = useState(false)
   const [editingArea, setEditingArea] = useState<any | null>(null)
+  const [showAreaEditModal, setShowAreaEditModal] = useState(false)
   const [areaModalName, setAreaModalName] = useState('')
   const [areaModalDescription, setAreaModalDescription] = useState('')
   const [areaModalColor, setAreaModalColor] = useState('#ea580c')
-  const [areaModalIcon, setAreaModalIcon] = useState('Target')
+  const [areaModalIcon, setAreaModalIcon] = useState('LayoutDashboard')
   const [isSavingArea, setIsSavingArea] = useState(false)
   const [showAreaIconPicker, setShowAreaIconPicker] = useState(false)
   const [goalDetailAreaPickerPosition, setGoalDetailAreaPickerPosition] = useState<{ top: number; left: number } | null>(null)
@@ -1412,14 +1413,15 @@ export function JourneyGameView({
       setAreaModalName(area.name || '')
       setAreaModalDescription(area.description || '')
       setAreaModalColor(area.color || '#ea580c')
-      setAreaModalIcon(area.icon || 'Target')
+      setAreaModalIcon(area.icon || 'LayoutDashboard')
     } else {
       setEditingArea(null)
       setAreaModalName('')
       setAreaModalDescription('')
       setAreaModalColor('#ea580c')
-      setAreaModalIcon('Target')
+      setAreaModalIcon('LayoutDashboard')
     }
+    setShowAreaEditModal(true)
   }
 
   const handleSaveArea = async () => {
@@ -1461,11 +1463,12 @@ export function JourneyGameView({
         }
         
         // Close edit modal but keep management modal open
+        setShowAreaEditModal(false)
         setEditingArea(null)
         setAreaModalName('')
         setAreaModalDescription('')
         setAreaModalColor('#ea580c')
-        setAreaModalIcon('Target')
+        setAreaModalIcon('LayoutDashboard')
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
         alert(`Chyba při ${isNewArea ? 'vytváření' : 'aktualizaci'} oblasti: ${errorData.error || 'Nepodařilo se uložit oblast'}`)
@@ -8218,7 +8221,7 @@ export function JourneyGameView({
             )
             const areaHabits = habits.filter(habit => habit.area_id === areaId)
             
-            const IconComponent = getIconComponent(area.icon || 'Target')
+            const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
             const areaColor = area.color || '#ea580c'
             
             return (
@@ -8573,7 +8576,7 @@ export function JourneyGameView({
                                 {(() => {
                                   const area = areas.find(a => a.id === goal.area_id)
                                   if (area) {
-                                    const IconComponent = getIconComponent(area.icon || 'Target')
+                                    const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
                                     return <IconComponent className="w-4 h-4" style={{ color: area.color || '#3B82F6' }} />
                                   }
                                   return <Target className="w-4 h-4" />
@@ -9158,7 +9161,7 @@ export function JourneyGameView({
                         <span>{t('details.goal.noArea') || 'Bez oblasti'}</span>
                       </button>
                       {areas.map((area) => {
-                        const IconComponent = getIconComponent(area.icon || 'Target')
+                        const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
                         return (
                           <button
                             key={area.id}
@@ -9433,7 +9436,7 @@ export function JourneyGameView({
                                       {(Object.values(goalsByArea) as Array<{ area: any; goals: any[] }>).map((item: { area: any; goals: any[] }) => {
                                         const { area, goals: areaGoals } = item
                                         const isExpanded = expandedAreas.has(area.id)
-                                        const IconComponent = getIconComponent(area.icon || 'Target')
+                                        const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
                                         const areaColor = area.color || '#ea580c'
                                         const areaSectionId = `area-${area.id}`
                                         const isAreaSelected = mainPanelSection === areaSectionId
@@ -9714,7 +9717,7 @@ export function JourneyGameView({
                         {Object.keys(goalsByArea).length > 0 && (Object.values(goalsByArea) as Array<{ area: any; goals: any[] }>).map((item: { area: any; goals: any[] }) => {
                           const { area, goals: areaGoals } = item
                           const isExpanded = expandedAreas.has(area.id)
-                          const IconComponent = getIconComponent(area.icon || 'Target')
+                          const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
                           const areaColor = area.color || '#ea580c'
                           
                           return (
@@ -9844,7 +9847,7 @@ export function JourneyGameView({
                          {(Object.values(goalsByArea) as Array<{ area: any; goals: any[] }>).slice(0, 5).map((item: { area: any; goals: any[] }) => {
                            const { area, goals: areaGoals } = item
                           const isExpanded = expandedAreas.has(area.id)
-                          const IconComponent = getIconComponent(area.icon || 'Target')
+                          const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
                           const areaColor = area.color || '#ea580c'
                           const isAreaSelected = mainPanelSection.startsWith('area-') && mainPanelSection === `area-${area.id}`
                           
@@ -9974,6 +9977,16 @@ export function JourneyGameView({
                         <CheckSquare className="w-4 h-4" />
                         <span>{t('navigation.habits')}</span>
                       </button>
+                      <button
+                        onClick={() => {
+                          handleOpenAreaEditModal()
+                          setShowCreateMenu(false)
+                        }}
+                        className="w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors font-medium flex items-center gap-2 text-gray-700"
+                      >
+                        <LayoutDashboard className="w-4 h-4" />
+                        <span>{t('areas.title') || 'Oblast'}</span>
+                      </button>
                     </div>
                   </>
                 )}
@@ -10056,7 +10069,7 @@ export function JourneyGameView({
                                     {(Object.values(goalsByArea) as Array<{ area: any; goals: any[] }>).map((item: { area: any; goals: any[] }) => {
                                       const { area, goals: areaGoals } = item
                                       const areaSectionId = `area-${area.id}`
-                                      const IconComponent = getIconComponent(area.icon || 'Target')
+                                      const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
                                       const areaColor = area.color || '#ea580c'
                                       return (
                                         <button
@@ -11486,7 +11499,7 @@ export function JourneyGameView({
                       >
                         <option value="">{t('details.goal.noArea') || 'Bez oblasti'}</option>
                         {areas.map((area) => {
-                          const IconComponent = getIconComponent(area.icon || 'Target')
+                          const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
                           return (
                             <option key={area.id} value={area.id}>
                               {area.name}
@@ -11577,18 +11590,15 @@ export function JourneyGameView({
                 {/* Areas list */}
                 {areas.length === 0 ? (
                   <div className="text-center py-12">
-                    <p className="text-gray-500 mb-4">{t('areas.noAreas') || 'Zatím nemáte žádné oblasti'}</p>
-                    <button
-                      onClick={() => handleOpenAreaEditModal()}
-                      className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
-                    >
-                      {t('areas.addFirst') || 'Vytvořit první oblast'}
-                    </button>
+                    <p className="text-gray-500 mb-2 text-lg font-medium">{t('areas.noAreas') || 'Zatím nemáte žádné oblasti'}</p>
+                    <p className="text-gray-600 text-sm max-w-md mx-auto leading-relaxed">
+                      {t('areas.noAreasDescription') || 'Oblasti slouží k rozdělení cílů, návyků a kroků na jednotlivé oblasti tak, jak chcete - například Zdraví, Práce, Projekt, atd.'}
+                    </p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     {areas.map((area) => {
-                      const IconComponent = getIconComponent(area.icon || 'Target')
+                      const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
                       const areaGoals = goals.filter(g => g.area_id === area.id)
                       const areaSteps = dailySteps.filter(s => s.area_id === area.id)
                       const areaHabits = habits.filter(h => h.area_id === area.id)
@@ -11636,7 +11646,10 @@ export function JourneyGameView({
 
                 {/* Add Area Button */}
                 <button
-                  onClick={() => handleOpenAreaEditModal()}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleOpenAreaEditModal()
+                  }}
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                 >
                   <Plus className="w-5 h-5" />
@@ -11645,142 +11658,148 @@ export function JourneyGameView({
               </div>
             </div>
           </div>
+        </>,
+        document.body
+      )}
 
-          {/* Area Edit Modal (nested) */}
-          {editingArea !== null && (
-            <>
-              <div
-                className="fixed inset-0 bg-black bg-opacity-50 z-[60]"
-                onClick={() => setEditingArea(null)}
-              />
-              <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-                <div
-                  className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="p-6">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                      {editingArea ? (t('areas.edit') || 'Upravit oblast') : (t('areas.add') || 'Přidat oblast')}
-                    </h2>
-                    
-                    {/* Name */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        {t('areas.name') || 'Název'} *
-                      </label>
-                      <input
-                        type="text"
-                        value={areaModalName}
-                        onChange={(e) => setAreaModalName(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                        placeholder={t('areas.namePlaceholder') || 'Název oblasti'}
-                      />
-                    </div>
+      {/* Area Edit Modal - separate portal */}
+      {showAreaEditModal && typeof window !== 'undefined' && createPortal(
+        <>
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-[60]"
+            onClick={() => {
+              setShowAreaEditModal(false)
+              setEditingArea(null)
+            }}
+          />
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <div
+              className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  {editingArea ? (t('areas.edit') || 'Upravit oblast') : (t('areas.add') || 'Přidat oblast')}
+                </h2>
+                
+                {/* Name */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t('areas.name') || 'Název'} *
+                  </label>
+                  <input
+                    type="text"
+                    value={areaModalName}
+                    onChange={(e) => setAreaModalName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    placeholder={t('areas.namePlaceholder') || 'Název oblasti'}
+                  />
+                </div>
 
-                    {/* Description */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        {t('areas.description') || 'Popis'}
-                      </label>
-                      <textarea
-                        value={areaModalDescription}
-                        onChange={(e) => setAreaModalDescription(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                        rows={3}
-                        placeholder={t('areas.descriptionPlaceholder') || 'Popis oblasti'}
-                      />
-                    </div>
+                {/* Description */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t('areas.description') || 'Popis'}
+                  </label>
+                  <textarea
+                    value={areaModalDescription}
+                    onChange={(e) => setAreaModalDescription(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    rows={3}
+                    placeholder={t('areas.descriptionPlaceholder') || 'Popis oblasti'}
+                  />
+                </div>
 
-                    {/* Color */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        {t('areas.color') || 'Barva'}
-                      </label>
-                      <input
-                        type="color"
-                        value={areaModalColor}
-                        onChange={(e) => setAreaModalColor(e.target.value)}
-                        className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
-                      />
-                    </div>
+                {/* Color */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t('areas.color') || 'Barva'}
+                  </label>
+                  <input
+                    type="color"
+                    value={areaModalColor}
+                    onChange={(e) => setAreaModalColor(e.target.value)}
+                    className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                  />
+                </div>
 
-                    {/* Icon */}
-                    <div className="mb-6">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('areas.icon') || 'Ikona'}
-                      </label>
-                      <button
-                        onClick={() => setShowAreaIconPicker(!showAreaIconPicker)}
-                        className="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                      >
-                        <div className="flex items-center gap-2">
-                          {(() => {
-                            const IconComp = getIconComponent(areaModalIcon)
-                            return <IconComp className="w-5 h-5" style={{ color: areaModalColor }} />
-                          })()}
-                          <span>{AVAILABLE_ICONS.find(i => i.name === areaModalIcon)?.label || areaModalIcon}</span>
-                        </div>
-                        <ChevronDown className={`w-4 h-4 transition-transform ${showAreaIconPicker ? 'rotate-180' : ''}`} />
-                      </button>
-                      {showAreaIconPicker && (
-                        <div className="mt-2 p-3 border border-gray-300 rounded-lg bg-white max-h-48 overflow-y-auto">
-                          <div className="grid grid-cols-6 gap-2">
-                            {AVAILABLE_ICONS.map((icon) => {
-                              const IconComp = getIconComponent(icon.name)
-                              return (
-                                <button
-                                  key={icon.name}
-                                  onClick={() => {
-                                    setAreaModalIcon(icon.name)
-                                    setShowAreaIconPicker(false)
-                                  }}
-                                  className={`p-2 rounded-lg hover:bg-gray-100 transition-colors ${
-                                    areaModalIcon === icon.name ? 'bg-orange-100 border-2 border-orange-500' : ''
-                                  }`}
-                                  title={icon.label}
-                                >
-                                  <IconComp className="w-5 h-5 mx-auto" style={{ color: areaModalColor }} />
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </div>
-                      )}
+                {/* Icon */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('areas.icon') || 'Ikona'}
+                  </label>
+                  <button
+                    onClick={() => setShowAreaIconPicker(!showAreaIconPicker)}
+                    className="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    <div className="flex items-center gap-2">
+                      {(() => {
+                        const IconComp = getIconComponent(areaModalIcon)
+                        return <IconComp className="w-5 h-5" style={{ color: areaModalColor }} />
+                      })()}
+                      <span>{AVAILABLE_ICONS.find(i => i.name === areaModalIcon)?.label || areaModalIcon}</span>
                     </div>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${showAreaIconPicker ? 'rotate-180' : ''}`} />
+                  </button>
+                  {showAreaIconPicker && (
+                    <div className="mt-2 p-3 border border-gray-300 rounded-lg bg-white max-h-48 overflow-y-auto">
+                      <div className="grid grid-cols-6 gap-2">
+                        {AVAILABLE_ICONS.map((icon) => {
+                          const IconComp = getIconComponent(icon.name)
+                          return (
+                            <button
+                              key={icon.name}
+                              onClick={() => {
+                                setAreaModalIcon(icon.name)
+                                setShowAreaIconPicker(false)
+                              }}
+                              className={`p-2 rounded-lg hover:bg-gray-100 transition-colors ${
+                                areaModalIcon === icon.name ? 'bg-orange-100 border-2 border-orange-500' : ''
+                              }`}
+                              title={icon.label}
+                            >
+                              <IconComp className="w-5 h-5 mx-auto" style={{ color: areaModalColor }} />
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
-                    {/* Actions */}
-                    <div className="flex items-center justify-end gap-3">
-                      <button
-                        onClick={() => {
-                          setEditingArea(null)
-                          setAreaModalName('')
-                          setAreaModalDescription('')
-                          setAreaModalColor('#ea580c')
-                          setAreaModalIcon('Target')
-                        }}
-                        className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                        disabled={isSavingArea}
-                      >
-                        {t('common.cancel') || 'Zrušit'}
-                      </button>
-                      <button
-                        onClick={async () => {
-                          await handleSaveArea()
-                          if (!isSavingArea) {
-                            setEditingArea(null)
-                          }
-                        }}
-                        disabled={isSavingArea || !areaModalName.trim()}
-                        className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isSavingArea ? (t('common.saving') || 'Ukládám...') : (t('common.save') || 'Uložit')}
-                      </button>
-                    </div>
-                  </div>
+                {/* Actions */}
+                <div className="flex items-center justify-end gap-3">
+                  <button
+                    onClick={() => {
+                      setShowAreaEditModal(false)
+                      setEditingArea(null)
+                      setAreaModalName('')
+                      setAreaModalDescription('')
+                      setAreaModalColor('#ea580c')
+                      setAreaModalIcon('LayoutDashboard')
+                    }}
+                    className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                    disabled={isSavingArea}
+                  >
+                    {t('common.cancel') || 'Zrušit'}
+                  </button>
+                  <button
+                    onClick={async () => {
+                      await handleSaveArea()
+                      if (!isSavingArea) {
+                        setShowAreaEditModal(false)
+                        setEditingArea(null)
+                      }
+                    }}
+                    disabled={isSavingArea || !areaModalName.trim()}
+                    className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSavingArea ? (t('common.saving') || 'Ukládám...') : (t('common.save') || 'Uložit')}
+                  </button>
                 </div>
               </div>
-            </>
-          )}
+            </div>
+          </div>
         </>,
         document.body
       )}
