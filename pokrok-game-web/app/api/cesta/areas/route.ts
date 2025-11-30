@@ -57,38 +57,106 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { name, description, color, icon, order } = body
     
-    if (!name) {
+    console.log('Creating area with data:', { name, description, color, icon, order, dbUserId: dbUser.id })
+    
+    if (!name || !name.trim()) {
       return NextResponse.json({ error: 'Name is required' }, { status: 400 })
     }
 
     const id = crypto.randomUUID()
     
-    // Get max order if not provided
-    let areaOrder = order
-    if (areaOrder === undefined || areaOrder === null) {
-      const maxOrderResult = await sql`
-        SELECT COALESCE(MAX("order"), 0) as max_order 
-        FROM areas 
-        WHERE user_id = ${dbUser.id}
-      `
-      areaOrder = (maxOrderResult[0]?.max_order || 0) + 1
+    // Get max order if not provided or invalid
+    let areaOrder: number
+    if (order !== undefined && order !== null && typeof order === 'number' && !isNaN(order)) {
+      areaOrder = order
+    } else {
+      try {
+        const maxOrderResult = await sql`
+          SELECT COALESCE(MAX("order"), 0) as max_order 
+          FROM areas 
+          WHERE user_id = ${dbUser.id}
+        `
+        areaOrder = (maxOrderResult[0]?.max_order || 0) + 1
+      } catch (orderError) {
+        console.error('Error getting max order:', orderError)
+        areaOrder = 1 // Default to 1 if query fails
+      }
     }
 
-    const area = await sql`
-      INSERT INTO areas (
-        id, user_id, name, description, color, icon, "order"
-      ) VALUES (
-        ${id}, ${dbUser.id}, ${name}, ${description || null}, 
-        ${color || '#3B82F6'}, ${icon || 'Target'}, ${areaOrder}
-      ) RETURNING *
-    `
-    
-    return NextResponse.json({ area: area[0] })
+    // Normalize icon - use LayoutDashboard as default if empty or invalid
+    const normalizedIcon = (icon && typeof icon === 'string' && icon.trim()) ? icon.trim() : 'LayoutDashboard'
+    const normalizedColor = (color && typeof color === 'string' && color.trim()) ? color.trim() : '#3B82F6'
+    const normalizedDescription = (description && typeof description === 'string' && description.trim()) ? description.trim() : null
+
+    // Validate icon length (max 50 characters)
+    if (normalizedIcon.length > 50) {
+      return NextResponse.json({ 
+        error: 'Icon name is too long',
+        details: `Icon name must be 50 characters or less. Current length: ${normalizedIcon.length} characters.`
+      }, { status: 400 })
+    }
+
+    console.log('Normalized values:', { normalizedIcon, normalizedColor, normalizedDescription, areaOrder, id })
+
+    try {
+      const area = await sql`
+        INSERT INTO areas (
+          id, user_id, name, description, color, icon, "order"
+        ) VALUES (
+          ${id}, ${dbUser.id}, ${name.trim()}, ${normalizedDescription}, 
+          ${normalizedColor}, ${normalizedIcon}, ${areaOrder}
+        ) RETURNING *
+      `
+      
+      console.log('Area created successfully:', area[0])
+      return NextResponse.json({ area: area[0] })
+    } catch (sqlError: any) {
+      console.error('SQL error creating area:', sqlError)
+      console.error('SQL error details:', {
+        message: sqlError.message,
+        code: sqlError.code,
+        detail: sqlError.detail,
+        hint: sqlError.hint
+      })
+      
+      // Check if it's a varchar length error
+      if (sqlError.code === '22001' && sqlError.message?.includes('character varying')) {
+        // Try to determine which field caused the error
+        if (normalizedIcon && normalizedIcon.length > 50) {
+          return NextResponse.json({ 
+            error: 'Icon name is too long',
+            details: `Icon name must be 50 characters or less. Current length: ${normalizedIcon.length} characters. Please choose a shorter icon name.`
+          }, { status: 400 })
+        } else if (name && name.length > 255) {
+          return NextResponse.json({ 
+            error: 'Area name is too long',
+            details: `Area name must be 255 characters or less. Current length: ${name.length} characters.`
+          }, { status: 400 })
+        } else {
+          return NextResponse.json({ 
+            error: 'Data too long for database field',
+            details: 'One of the fields exceeds the maximum allowed length. Please check the icon name (max 50 characters) and area name (max 255 characters).'
+          }, { status: 400 })
+        }
+      }
+      
+      throw sqlError // Re-throw to be caught by outer catch
+    }
   } catch (error: any) {
     console.error('Error creating area:', error)
+    console.error('Error stack:', error.stack)
+    
+    // Check if it's a varchar length error in the outer catch too
+    if (error.code === '22001' && error.message?.includes('character varying')) {
+      return NextResponse.json({ 
+        error: 'Data too long for database field',
+        details: 'One of the fields exceeds the maximum allowed length. Please check the icon name (max 50 characters) and area name (max 255 characters).'
+      }, { status: 400 })
+    }
+    
     return NextResponse.json({ 
       error: 'Internal server error',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env.NODE_ENV === 'development' ? (error.message || String(error)) : undefined
     }, { status: 500 })
   }
 }
@@ -113,6 +181,25 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Area ID is required' }, { status: 400 })
     }
 
+    // Validate name length
+    if (name && name.trim().length > 255) {
+      return NextResponse.json({ 
+        error: 'Area name is too long',
+        details: `Area name must be 255 characters or less. Current length: ${name.trim().length} characters.`
+      }, { status: 400 })
+    }
+
+    // Normalize icon
+    const normalizedIcon = (icon && typeof icon === 'string' && icon.trim()) ? icon.trim() : 'LayoutDashboard'
+    
+    // Validate icon length
+    if (normalizedIcon.length > 50) {
+      return NextResponse.json({ 
+        error: 'Icon name is too long',
+        details: `Icon name must be 50 characters or less. Current length: ${normalizedIcon.length} characters. Please choose a shorter icon name.`
+      }, { status: 400 })
+    }
+
     // Verify ownership
     const existingArea = await sql`
       SELECT user_id FROM areas WHERE id = ${id}
@@ -126,26 +213,61 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
-    const area = await sql`
-      UPDATE areas 
-      SET 
-        name = ${name || ''},
-        description = ${description !== undefined ? description : null},
-        color = ${color || '#3B82F6'},
-        icon = ${icon || 'Target'},
-        "order" = ${order !== undefined ? order : 0},
-        updated_at = NOW()
-      WHERE id = ${id}
-      RETURNING *
-    `
-    
-    if (area.length === 0) {
-      return NextResponse.json({ error: 'Area not found' }, { status: 404 })
+    try {
+      const area = await sql`
+        UPDATE areas 
+        SET 
+          name = ${name || ''},
+          description = ${description !== undefined ? description : null},
+          color = ${color || '#3B82F6'},
+          icon = ${normalizedIcon},
+          "order" = ${order !== undefined ? order : 0},
+          updated_at = NOW()
+        WHERE id = ${id}
+        RETURNING *
+      `
+      
+      if (area.length === 0) {
+        return NextResponse.json({ error: 'Area not found' }, { status: 404 })
+      }
+      
+      return NextResponse.json({ area: area[0] })
+    } catch (sqlError: any) {
+      console.error('SQL error updating area:', sqlError)
+      
+      // Check if it's a varchar length error
+      if (sqlError.code === '22001' && sqlError.message?.includes('character varying')) {
+        if (normalizedIcon && normalizedIcon.length > 50) {
+          return NextResponse.json({ 
+            error: 'Icon name is too long',
+            details: `Icon name must be 50 characters or less. Current length: ${normalizedIcon.length} characters. Please choose a shorter icon name.`
+          }, { status: 400 })
+        } else if (name && name.length > 255) {
+          return NextResponse.json({ 
+            error: 'Area name is too long',
+            details: `Area name must be 255 characters or less. Current length: ${name.length} characters.`
+          }, { status: 400 })
+        } else {
+          return NextResponse.json({ 
+            error: 'Data too long for database field',
+            details: 'One of the fields exceeds the maximum allowed length. Please check the icon name (max 50 characters) and area name (max 255 characters).'
+          }, { status: 400 })
+        }
+      }
+      
+      throw sqlError
     }
-    
-    return NextResponse.json({ area: area[0] })
   } catch (error: any) {
     console.error('Error updating area:', error)
+    
+    // Check if it's a varchar length error in the outer catch too
+    if (error.code === '22001' && error.message?.includes('character varying')) {
+      return NextResponse.json({ 
+        error: 'Data too long for database field',
+        details: 'One of the fields exceeds the maximum allowed length. Please check the icon name (max 50 characters) and area name (max 255 characters).'
+      }, { status: 400 })
+    }
+    
     return NextResponse.json({ 
       error: 'Internal server error',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined

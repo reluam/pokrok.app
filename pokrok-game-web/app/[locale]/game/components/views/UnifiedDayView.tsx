@@ -309,7 +309,7 @@ export function UnifiedDayView({
       </div>
       
       {/* Timeline */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-orange-100">
+      <div className="bg-white rounded-2xl p-4 shadow-sm border border-orange-100 relative z-0">
         <div className="flex items-center justify-between">
           {/* Prev button */}
           <button
@@ -322,10 +322,10 @@ export function UnifiedDayView({
           {/* Days */}
           <div className="flex items-center gap-2 flex-1 justify-center">
             {/* Timeline line */}
-            <div className="relative flex items-center w-full max-w-xl">
+            <div className="relative flex items-center w-full max-w-xl z-0">
               <div className="absolute left-4 right-4 h-0.5 bg-gray-200 top-3" />
               
-              <div className="relative flex justify-between w-full">
+              <div className="relative flex justify-between w-full z-0">
                 {weekDays.map((day) => {
                   const dateStr = getLocalDateString(day)
                   const isToday = dateStr === todayStr
@@ -397,7 +397,7 @@ export function UnifiedDayView({
                       className="flex flex-col items-center group"
                     >
                       {/* Dot */}
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all relative z-10 ${dotColor === 'bg-transparent' ? 'bg-white' : dotColor}`}>
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all relative z-0 ${dotColor === 'bg-transparent' ? 'bg-white' : dotColor}`}>
                         {isPast && stats.total > 0 && (
                           <>
                             {completionPercentage === 100 && (

@@ -291,6 +291,8 @@ export function JourneyGameView({
   const [leftSidebarWidth, setLeftSidebarWidth] = useState<'288px' | '48px' | '0px'>('288px')
   const [rightSidebarWidth, setRightSidebarWidth] = useState<'288px' | '48px' | '0px'>('288px')
   const [expandedAreas, setExpandedAreas] = useState<Set<string | null>>(new Set())
+  // State for expanded goal status sections (paused/completed) per area
+  const [expandedGoalSections, setExpandedGoalSections] = useState<Set<string>>(new Set()) // Format: "areaId-paused" or "areaId-completed"
   const [pendingWorkflow, setPendingWorkflow] = useState<any>(null)
   
   // Auto-expand/collapse areas based on current page
@@ -414,6 +416,9 @@ export function JourneyGameView({
   const [showDeleteGoalModal, setShowDeleteGoalModal] = useState(false)
   const [deleteGoalWithSteps, setDeleteGoalWithSteps] = useState(false)
   const [isDeletingGoal, setIsDeletingGoal] = useState(false)
+  const [showDeleteAreaModal, setShowDeleteAreaModal] = useState(false)
+  const [areaToDelete, setAreaToDelete] = useState<string | null>(null)
+  const [isDeletingArea, setIsDeletingArea] = useState(false)
   const [showCreateMenu, setShowCreateMenu] = useState(false)
   const createMenuButtonRef = useRef<HTMLButtonElement>(null)
   
@@ -431,6 +436,17 @@ export function JourneyGameView({
   const [showAreaIconPicker, setShowAreaIconPicker] = useState(false)
   const [goalDetailAreaPickerPosition, setGoalDetailAreaPickerPosition] = useState<{ top: number; left: number } | null>(null)
   const goalAreaRef = useRef<HTMLButtonElement>(null)
+  
+  // Area detail page inline editing state
+  const [editingAreaDetailTitle, setEditingAreaDetailTitle] = useState(false)
+  const [areaDetailTitleValue, setAreaDetailTitleValue] = useState('')
+  const [showAreaDetailIconPicker, setShowAreaDetailIconPicker] = useState(false)
+  const [areaDetailIconPickerPosition, setAreaDetailIconPickerPosition] = useState<{ top: number; left: number } | null>(null)
+  const [showAreaDetailColorPicker, setShowAreaDetailColorPicker] = useState(false)
+  const [areaDetailColorPickerPosition, setAreaDetailColorPickerPosition] = useState<{ top: number; left: number } | null>(null)
+  const areaIconRef = useRef<HTMLSpanElement>(null)
+  const areaTitleRef = useRef<HTMLHeadingElement>(null)
+  const areaColorRef = useRef<HTMLButtonElement>(null)
   
   // Load areas
   useEffect(() => {
@@ -1430,6 +1446,21 @@ export function JourneyGameView({
       return
     }
 
+    // Validate name length
+    if (areaModalName.trim().length > 255) {
+      const nameTooLongMsg = t('areas.nameTooLong') || 'Název oblasti je příliš dlouhý. Maximální délka je 255 znaků. Aktuální délka: {length} znaků.'
+      alert(nameTooLongMsg.replace('{length}', String(areaModalName.trim().length)))
+      return
+    }
+
+    // Validate icon length
+    const iconToSave = areaModalIcon || 'LayoutDashboard'
+    if (iconToSave.length > 50) {
+      const iconTooLongMsg = t('areas.iconTooLong') || 'Název ikony je příliš dlouhý. Maximální délka je 50 znaků. Aktuální délka: {length} znaků. Prosím vyberte kratší ikonu.'
+      alert(iconTooLongMsg.replace('{length}', String(iconToSave.length)))
+      return
+    }
+
     if (!userId) {
       alert(t('common.error') || 'Chyba: Uživatel není nalezen')
       return
@@ -1445,12 +1476,11 @@ export function JourneyGameView({
         },
         body: JSON.stringify({
           ...(isNewArea ? {} : { id: editingArea.id }),
-          userId,
           name: areaModalName.trim(),
           description: areaModalDescription.trim() || null,
           color: areaModalColor,
-          icon: areaModalIcon,
-          order: isNewArea ? areas.length : editingArea.order
+          icon: iconToSave,
+          order: isNewArea ? (areas.length || 0) : (editingArea?.order ?? undefined)
         }),
       })
 
@@ -1471,7 +1501,10 @@ export function JourneyGameView({
         setAreaModalIcon('LayoutDashboard')
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
-        alert(`Chyba při ${isNewArea ? 'vytváření' : 'aktualizaci'} oblasti: ${errorData.error || 'Nepodařilo se uložit oblast'}`)
+        const errorMessage = errorData.details 
+          ? `${errorData.error || 'Chyba'}: ${errorData.details}`
+          : (errorData.error || 'Nepodařilo se uložit oblast')
+        alert(`Chyba při ${isNewArea ? 'vytváření' : 'aktualizaci'} oblasti: ${errorMessage}`)
       }
     } catch (error) {
       console.error('Error saving area:', error)
@@ -1481,18 +1514,22 @@ export function JourneyGameView({
     }
   }
 
-  const handleDeleteArea = async (areaId: string) => {
-    if (!confirm(t('areas.deleteConfirm') || 'Opravdu chcete smazat tuto oblast? Cíle, kroky a návyky přiřazené k této oblasti budou odpojeny.')) {
-      return
-    }
+  const handleDeleteArea = (areaId: string) => {
+    setAreaToDelete(areaId)
+    setShowDeleteAreaModal(true)
+  }
 
+  const handleDeleteAreaConfirm = async () => {
+    if (!areaToDelete) return
+
+    setIsDeletingArea(true)
     try {
       const response = await fetch('/api/cesta/areas', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id: areaId }),
+        body: JSON.stringify({ id: areaToDelete }),
       })
 
       if (response.ok) {
@@ -1502,6 +1539,14 @@ export function JourneyGameView({
           const data = await areasResponse.json()
           setAreas(data.areas || [])
         }
+        
+        // If we're on the area page, navigate back to overview
+        if (mainPanelSection === `area-${areaToDelete}`) {
+          setMainPanelSection('overview')
+        }
+        
+        setShowDeleteAreaModal(false)
+        setAreaToDelete(null)
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
         alert(t('areas.deleteError') || `Nepodařilo se smazat oblast: ${errorData.error || 'Neznámá chyba'}`)
@@ -1509,6 +1554,8 @@ export function JourneyGameView({
     } catch (error) {
       console.error('Error deleting area:', error)
       alert(t('areas.deleteError') || 'Chyba při mazání oblasti')
+    } finally {
+      setIsDeletingArea(false)
     }
   }
 
@@ -4091,6 +4138,60 @@ export function JourneyGameView({
     }
   }
 
+  const handleUpdateAreaForDetail = async (areaId: string, updates: any) => {
+    // Validate name if it's being updated
+    if (updates.name !== undefined) {
+      if (!updates.name || !updates.name.trim()) {
+        alert(t('areas.nameRequired') || 'Název oblasti je povinný')
+        return
+      }
+      if (updates.name.trim().length > 255) {
+        const nameTooLongMsg = t('areas.nameTooLong') || 'Název oblasti je příliš dlouhý. Maximální délka je 255 znaků. Aktuální délka: {length} znaků.'
+        alert(nameTooLongMsg.replace('{length}', String(updates.name.trim().length)))
+        return
+      }
+    }
+
+    // Validate icon if it's being updated
+    if (updates.icon !== undefined) {
+      const iconToSave = updates.icon || 'LayoutDashboard'
+      if (iconToSave.length > 50) {
+        const iconTooLongMsg = t('areas.iconTooLong') || 'Název ikony je příliš dlouhý. Maximální délka je 50 znaků. Aktuální délka: {length} znaků. Prosím vyberte kratší ikonu.'
+        alert(iconTooLongMsg.replace('{length}', String(iconToSave.length)))
+        return
+      }
+    }
+
+    try {
+      const response = await fetch('/api/cesta/areas', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: areaId,
+          ...updates
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const updatedArea = data.area
+        // Update areas in state
+        setAreas(prevAreas => prevAreas.map(a => a.id === areaId ? updatedArea : a))
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
+        const errorMessage = errorData.details 
+          ? `${errorData.error || 'Chyba'}: ${errorData.details}`
+          : (errorData.error || 'Nepodařilo se uložit oblast')
+        alert(errorMessage)
+      }
+    } catch (error) {
+      console.error('Error updating area:', error)
+      alert('Chyba při aktualizaci oblasti')
+    }
+  }
+
   const handleUpdateGoal = async (goalId: string, updates: any) => {
     if (!updates.title || !updates.title.trim()) {
       alert('Název cíle je povinný')
@@ -4780,6 +4881,21 @@ export function JourneyGameView({
           }
     }
   }, [mainPanelSection, goals])
+
+  // Update area detail page state when area changes
+  useEffect(() => {
+    if (mainPanelSection.startsWith('area-')) {
+      const areaId = mainPanelSection.replace('area-', '')
+      const area = areas.find(a => a.id === areaId)
+      
+      if (area) {
+        setAreaDetailTitleValue(area.name)
+        setEditingAreaDetailTitle(false)
+        setShowAreaDetailIconPicker(false)
+        setShowAreaDetailColorPicker(false)
+      }
+    }
+  }, [mainPanelSection, areas])
 
 
 
@@ -8246,36 +8362,129 @@ export function JourneyGameView({
                 {/* Area detail content */}
                 <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
                   <div className="p-6">
-                    {/* Area header - compact with stats on the right */}
+                    {/* Area header - with inline editing */}
                     <div className="mb-4">
-                      <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center justify-between gap-4 flex-wrap">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <IconComponent className="w-6 h-6 flex-shrink-0" style={{ color: areaColor }} />
-                          <div className="min-w-0">
-                            <h1 className="text-xl font-bold text-gray-900 truncate">{area.name}</h1>
+                          <span 
+                            ref={areaIconRef}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (areaIconRef.current) {
+                                const rect = areaIconRef.current.getBoundingClientRect()
+                                setAreaDetailIconPickerPosition({ top: rect.bottom + 5, left: rect.left })
+                                setShowAreaDetailIconPicker(true)
+                                setIconSearchQuery('')
+                              }
+                            }}
+                            className="cursor-pointer hover:opacity-70 transition-opacity flex items-center flex-shrink-0"
+                          >
+                            <IconComponent className="w-6 h-6" style={{ color: areaColor }} />
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            {editingAreaDetailTitle ? (
+                              <input
+                                ref={areaTitleRef as React.RefObject<HTMLInputElement>}
+                                type="text"
+                                value={areaDetailTitleValue}
+                                onChange={(e) => setAreaDetailTitleValue(e.target.value)}
+                                onBlur={async () => {
+                                  if (areaDetailTitleValue.trim() && areaDetailTitleValue !== area.name) {
+                                    await handleUpdateAreaForDetail(areaId, { name: areaDetailTitleValue.trim() })
+                                  } else if (!areaDetailTitleValue.trim()) {
+                                    setAreaDetailTitleValue(area.name)
+                                  }
+                                  setEditingAreaDetailTitle(false)
+                                }}
+                                onKeyDown={async (e) => {
+                                  if (e.key === 'Enter') {
+                                    if (areaDetailTitleValue.trim() && areaDetailTitleValue !== area.name) {
+                                      await handleUpdateAreaForDetail(areaId, { name: areaDetailTitleValue.trim() })
+                                    }
+                                    setEditingAreaDetailTitle(false)
+                                  } else if (e.key === 'Escape') {
+                                    setAreaDetailTitleValue(area.name)
+                                    setEditingAreaDetailTitle(false)
+                                  }
+                                }}
+                                className="text-xl font-bold text-gray-900 bg-transparent border-2 border-orange-500 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-orange-500 w-full"
+                                autoFocus
+                              />
+                            ) : (
+                              <h1 
+                                ref={areaTitleRef as React.RefObject<HTMLHeadingElement>}
+                                onClick={() => {
+                                  setAreaDetailTitleValue(area.name)
+                                  setEditingAreaDetailTitle(true)
+                                }}
+                                className="text-xl font-bold text-gray-900 cursor-pointer hover:text-orange-600 transition-colors truncate"
+                              >
+                                {area.name}
+                              </h1>
+                            )}
                             {area.description && (
                               <p className="text-sm text-gray-600 mt-0.5 truncate">{area.description}</p>
                             )}
                           </div>
                         </div>
                         
-                        {/* Area statistics - on the right */}
-                        <div className="flex items-center gap-4 text-gray-600 flex-shrink-0">
-                          {areaGoals.length > 0 && (
-                            <div className="text-sm">
-                              <span className="font-semibold">{areaGoals.length}</span> {areaGoals.length === 1 ? (localeCode === 'cs-CZ' ? 'cíl' : 'goal') : (localeCode === 'cs-CZ' ? 'cílů' : 'goals')}
-                            </div>
-                          )}
-                          {areaSteps.length > 0 && (
-                            <div className="text-sm">
-                              <span className="font-semibold">{areaSteps.length}</span> {areaSteps.length === 1 ? (localeCode === 'cs-CZ' ? 'krok' : 'step') : (localeCode === 'cs-CZ' ? 'kroků' : 'steps')}
-                            </div>
-                          )}
-                          {areaHabits.length > 0 && (
-                            <div className="text-sm">
-                              <span className="font-semibold">{areaHabits.length}</span> {areaHabits.length === 1 ? (localeCode === 'cs-CZ' ? 'návyk' : 'habit') : (localeCode === 'cs-CZ' ? 'návyků' : 'habits')}
-                            </div>
-                          )}
+                        {/* Controls and statistics - on the right */}
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                          {/* Area statistics */}
+                          <div className="flex items-center gap-4 text-gray-600">
+                            {areaGoals.length > 0 && (
+                              <div className="text-sm">
+                                <span className="font-semibold">{areaGoals.length}</span> {areaGoals.length === 1 ? (localeCode === 'cs-CZ' ? 'cíl' : 'goal') : (localeCode === 'cs-CZ' ? 'cílů' : 'goals')}
+                              </div>
+                            )}
+                            {areaSteps.length > 0 && (
+                              <div className="text-sm">
+                                <span className="font-semibold">{areaSteps.length}</span> {areaSteps.length === 1 ? (localeCode === 'cs-CZ' ? 'krok' : 'step') : (localeCode === 'cs-CZ' ? 'kroků' : 'steps')}
+                              </div>
+                            )}
+                            {areaHabits.length > 0 && (
+                              <div className="text-sm">
+                                <span className="font-semibold">{areaHabits.length}</span> {areaHabits.length === 1 ? (localeCode === 'cs-CZ' ? 'návyk' : 'habit') : (localeCode === 'cs-CZ' ? 'návyků' : 'habits')}
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Color picker button */}
+                          <button
+                            ref={areaColorRef}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (areaColorRef.current) {
+                                const rect = areaColorRef.current.getBoundingClientRect()
+                                const pickerWidth = 280
+                                // Calculate left position: try to align with button, but shift left if needed to fit
+                                const leftPosition = Math.min(
+                                  Math.max(rect.left - 100, 10), // At least 10px from left edge, prefer 100px left of button
+                                  window.innerWidth - pickerWidth - 10 // At least 10px from right edge
+                                )
+                                setAreaDetailColorPickerPosition({ 
+                                  top: rect.bottom + 5, 
+                                  left: leftPosition 
+                                })
+                                setShowAreaDetailColorPicker(true)
+                              }
+                            }}
+                            className="w-8 h-8 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-colors flex-shrink-0"
+                            style={{ backgroundColor: areaColor }}
+                            title={t('areas.color') || 'Barva'}
+                          />
+                          
+                          {/* Delete button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleDeleteArea(areaId)
+                            }}
+                            className="flex items-center gap-2 px-3 py-1.5 text-sm border-2 border-red-300 bg-red-50 text-red-700 rounded-lg transition-all hover:bg-red-100 flex-shrink-0"
+                            title={t('areas.delete') || 'Smazat oblast'}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -8301,6 +8510,206 @@ export function JourneyGameView({
                     </div>
                   </div>
                 </div>
+                
+                {/* Area Icon Picker */}
+                {showAreaDetailIconPicker && areaDetailIconPickerPosition && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setShowAreaDetailIconPicker(false)}
+                    />
+                    <div 
+                      className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl"
+                      style={{
+                        top: `${areaDetailIconPickerPosition.top}px`,
+                        left: `${areaDetailIconPickerPosition.left}px`,
+                        width: '320px',
+                        maxHeight: '400px',
+                        display: 'flex',
+                        flexDirection: 'column'
+                      }}
+                    >
+                      {/* Search bar */}
+                      <div className="p-3 border-b border-gray-200">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <input
+                            type="text"
+                            value={iconSearchQuery}
+                            onChange={(e) => setIconSearchQuery(e.target.value)}
+                            placeholder={t('common.search') || 'Hledat...'}
+                            className="w-full pl-9 pr-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                            autoFocus
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Icons grid */}
+                      <div className="p-3 overflow-y-auto flex-1">
+                        <div className="grid grid-cols-6 gap-2">
+                          {AVAILABLE_ICONS
+                            .filter(icon => {
+                              const query = iconSearchQuery.toLowerCase().trim()
+                              if (!query) return true
+                              return icon.label.toLowerCase().includes(query) ||
+                                     icon.name.toLowerCase().includes(query)
+                            })
+                            .map((icon) => {
+                              const IconComponent = getIconComponent(icon.name)
+                              const isSelected = area.icon === icon.name
+                              if (!IconComponent) {
+                                console.warn(`Icon component not found for: ${icon.name}`)
+                                return null
+                              }
+                              return (
+                                <button
+                                  key={icon.name}
+                                  type="button"
+                                  onClick={async () => {
+                                    await handleUpdateAreaForDetail(areaId, { icon: icon.name })
+                                    setShowAreaDetailIconPicker(false)
+                                    setIconSearchQuery('')
+                                  }}
+                                  className={`p-2 rounded-lg transition-all hover:bg-gray-100 ${
+                                    isSelected 
+                                      ? 'bg-orange-50 border-2 border-orange-500' 
+                                      : 'border-2 border-transparent hover:border-gray-300'
+                                  }`}
+                                  title={icon.label}
+                                >
+                                  <IconComponent className={`w-5 h-5 mx-auto ${isSelected ? 'text-orange-600' : 'text-gray-700'}`} />
+                                </button>
+                              )
+                            })
+                            .filter(Boolean)}
+                        </div>
+                        {AVAILABLE_ICONS.filter(icon => {
+                          const query = iconSearchQuery.toLowerCase().trim()
+                          if (!query) return false
+                          return icon.label.toLowerCase().includes(query) ||
+                                 icon.name.toLowerCase().includes(query)
+                        }).length === 0 && iconSearchQuery.trim() && (
+                          <div className="text-center py-8 text-gray-500 text-sm">
+                            {t('common.noResults') || 'Žádné výsledky'}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+                
+                {/* Area Color Picker */}
+                {showAreaDetailColorPicker && areaDetailColorPickerPosition && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setShowAreaDetailColorPicker(false)}
+                    />
+                    <div 
+                      className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-4"
+                      style={{
+                        top: `${areaDetailColorPickerPosition.top}px`,
+                        left: `${areaDetailColorPickerPosition.left}px`,
+                        width: '240px'
+                      }}
+                    >
+                      <div className="mb-3">
+                        <label className="block text-sm font-semibold text-gray-700 mb-3">
+                          {t('areas.color') || 'Barva'}
+                        </label>
+                        <div className="grid grid-cols-4 gap-3">
+                          {[
+                            { value: '#ea580c', name: 'Oranžová' }, // Primary
+                            { value: '#3B82F6', name: 'Modrá' },
+                            { value: '#10B981', name: 'Zelená' },
+                            { value: '#8B5CF6', name: 'Fialová' },
+                            { value: '#EC4899', name: 'Růžová' },
+                            { value: '#EF4444', name: 'Červená' },
+                            { value: '#F59E0B', name: 'Amber' },
+                            { value: '#6366F1', name: 'Indigo' }
+                          ].map((color) => (
+                            <button
+                              key={color.value}
+                              type="button"
+                              onClick={async () => {
+                                await handleUpdateAreaForDetail(areaId, { color: color.value })
+                                setShowAreaDetailColorPicker(false)
+                              }}
+                              className={`w-12 h-12 rounded-lg border-2 transition-all hover:scale-110 ${
+                                areaColor === color.value 
+                                  ? 'border-gray-800 ring-2 ring-offset-2 ring-orange-400' 
+                                  : 'border-gray-300 hover:border-gray-400'
+                              }`}
+                              style={{ backgroundColor: color.value }}
+                              title={color.name}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+                
+                {/* Delete area confirmation modal */}
+                {showDeleteAreaModal && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40 bg-black/20" 
+                      onClick={() => {
+                        setShowDeleteAreaModal(false)
+                        setAreaToDelete(null)
+                      }}
+                    />
+                    <div 
+                      className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-6"
+                      style={{
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '400px',
+                        maxWidth: '90vw'
+                      }}
+                    >
+                      <h3 className="text-lg font-bold text-gray-900 mb-4">
+                        {t('areas.deleteConfirm') || 'Opravdu chcete smazat tuto oblast?'}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-6">
+                        {t('areas.deleteConfirmDescription') || 'Cíle, kroky a návyky přiřazené k této oblasti budou odpojeny. Tato akce je nevratná.'}
+                      </p>
+                      
+                      {/* Actions */}
+                      <div className="flex gap-3 justify-end">
+                        <button
+                          onClick={() => {
+                            setShowDeleteAreaModal(false)
+                            setAreaToDelete(null)
+                          }}
+                          disabled={isDeletingArea}
+                          className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {t('common.cancel') || 'Zrušit'}
+                        </button>
+                        <button
+                          onClick={handleDeleteAreaConfirm}
+                          disabled={isDeletingArea}
+                          className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                          {isDeletingArea ? (
+                            <>
+                              <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              {t('common.saving') || 'Mažu...'}
+                            </>
+                          ) : (
+                            t('areas.delete') || 'Smazat'
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )
           }
@@ -9418,12 +9827,12 @@ export function JourneyGameView({
                                   )
                                 })}
                                 {(() => {
-                                  // Group goals by area
+                                  // Group goals by area - show all areas even if they have no goals
                                   const goalsByArea = areas.reduce((acc, area) => {
-                                    const areaGoals = sortedGoalsForSidebar.filter(g => g.area_id === area.id && g.status === 'active')
-                                    if (areaGoals.length > 0) {
-                                      acc[area.id] = { area, goals: areaGoals }
-                                    }
+                                    // Include all goals for this area (active, paused, completed)
+                                    const areaGoals = sortedGoalsForSidebar.filter(g => g.area_id === area.id)
+                                    // Always include area, even if it has no goals
+                                    acc[area.id] = { area, goals: areaGoals }
                                     return acc
                                   }, {} as Record<string, { area: any; goals: any[] }>)
                                   
@@ -9477,31 +9886,136 @@ export function JourneyGameView({
                                             </div>
                                             
                                             {/* Goals under area */}
-                                            {isExpanded && (
-                                              <div className="pl-8 space-y-1">
-                                                {areaGoals.map((goal) => {
-                                                  const goalSectionId = `goal-${goal.id}`
-                                                  const GoalIconComponent = getIconComponent(goal.icon)
-                                                  return (
-                                                    <button
-                                                      key={goal.id}
-                                                      onClick={() => {
-                                                        setMainPanelSection(goalSectionId)
-                                                        setMobileMenuOpen(false)
-                                                      }}
-                                                      className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                                                        mainPanelSection === goalSectionId
-                                                          ? 'bg-orange-600 text-white'
-                                                          : 'text-gray-700 hover:bg-gray-100'
-                                                      }`}
-                                                    >
-                                                      <GoalIconComponent className={`w-4 h-4 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} style={mainPanelSection !== goalSectionId ? { color: areaColor } : undefined} />
-                                                      <span className="font-medium">{goal.title}</span>
-                      </button>
-                                                  )
-                                                })}
-                    </div>
-                                            )}
+                                            {isExpanded && (() => {
+                                              // Split goals by status
+                                              const activeGoals = areaGoals.filter(g => g.status === 'active')
+                                              const pausedGoals = areaGoals.filter(g => g.status === 'paused')
+                                              const completedGoals = areaGoals.filter(g => g.status === 'completed')
+                                              
+                                              const pausedSectionKey = `${area.id}-paused`
+                                              const completedSectionKey = `${area.id}-completed`
+                                              const isPausedExpanded = expandedGoalSections.has(pausedSectionKey)
+                                              const isCompletedExpanded = expandedGoalSections.has(completedSectionKey)
+                                              
+                                              return (
+                                                <div className="pl-8 space-y-1">
+                                                  {/* Active goals - always visible */}
+                                                  {activeGoals.map((goal) => {
+                                                    const goalSectionId = `goal-${goal.id}`
+                                                    const GoalIconComponent = getIconComponent(goal.icon)
+                                                    return (
+                                                      <button
+                                                        key={goal.id}
+                                                        onClick={() => {
+                                                          setMainPanelSection(goalSectionId)
+                                                          setMobileMenuOpen(false)
+                                                        }}
+                                                        className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                                                          mainPanelSection === goalSectionId
+                                                            ? 'bg-orange-600 text-white'
+                                                            : 'text-gray-700 hover:bg-gray-100'
+                                                        }`}
+                                                      >
+                                                        <GoalIconComponent className={`w-4 h-4 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} style={mainPanelSection !== goalSectionId ? { color: areaColor } : undefined} />
+                                                        <span className="font-medium">{goal.title}</span>
+                                                      </button>
+                                                    )
+                                                  })}
+                                                  
+                                                  {/* Paused goals section */}
+                                                  {pausedGoals.length > 0 && (
+                                                    <div>
+                                                      <button
+                                                        onClick={() => {
+                                                          const newSet = new Set(expandedGoalSections)
+                                                          if (isPausedExpanded) {
+                                                            newSet.delete(pausedSectionKey)
+                                                          } else {
+                                                            newSet.add(pausedSectionKey)
+                                                          }
+                                                          setExpandedGoalSections(newSet)
+                                                        }}
+                                                        className="w-full flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                                                      >
+                                                        <ChevronDown className={`w-4 h-4 transition-transform ${isPausedExpanded ? 'rotate-180' : ''}`} />
+                                                        <span>{t('goals.filters.status.paused') || 'Odložené'} ({pausedGoals.length})</span>
+                                                      </button>
+                                                      {isPausedExpanded && (
+                                                        <div className="pl-6 space-y-1">
+                                                          {pausedGoals.map((goal) => {
+                                                            const goalSectionId = `goal-${goal.id}`
+                                                            const GoalIconComponent = getIconComponent(goal.icon)
+                                                            return (
+                                                              <button
+                                                                key={goal.id}
+                                                                onClick={() => {
+                                                                  setMainPanelSection(goalSectionId)
+                                                                  setMobileMenuOpen(false)
+                                                                }}
+                                                                className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                                                                  mainPanelSection === goalSectionId
+                                                                    ? 'bg-orange-600 text-white'
+                                                                    : 'text-gray-700 hover:bg-gray-100'
+                                                                }`}
+                                                              >
+                                                                <GoalIconComponent className={`w-4 h-4 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} style={mainPanelSection !== goalSectionId ? { color: areaColor } : undefined} />
+                                                                <span className="font-medium">{goal.title}</span>
+                                                              </button>
+                                                            )
+                                                          })}
+                                                        </div>
+                                                      )}
+                                                    </div>
+                                                  )}
+                                                  
+                                                  {/* Completed goals section */}
+                                                  {completedGoals.length > 0 && (
+                                                    <div>
+                                                      <button
+                                                        onClick={() => {
+                                                          const newSet = new Set(expandedGoalSections)
+                                                          if (isCompletedExpanded) {
+                                                            newSet.delete(completedSectionKey)
+                                                          } else {
+                                                            newSet.add(completedSectionKey)
+                                                          }
+                                                          setExpandedGoalSections(newSet)
+                                                        }}
+                                                        className="w-full flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                                                      >
+                                                        <ChevronDown className={`w-4 h-4 transition-transform ${isCompletedExpanded ? 'rotate-180' : ''}`} />
+                                                        <span>{t('goals.filters.status.completed') || 'Hotové'} ({completedGoals.length})</span>
+                                                      </button>
+                                                      {isCompletedExpanded && (
+                                                        <div className="pl-6 space-y-1">
+                                                          {completedGoals.map((goal) => {
+                                                            const goalSectionId = `goal-${goal.id}`
+                                                            const GoalIconComponent = getIconComponent(goal.icon)
+                                                            return (
+                                                              <button
+                                                                key={goal.id}
+                                                                onClick={() => {
+                                                                  setMainPanelSection(goalSectionId)
+                                                                  setMobileMenuOpen(false)
+                                                                }}
+                                                                className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                                                                  mainPanelSection === goalSectionId
+                                                                    ? 'bg-orange-600 text-white'
+                                                                    : 'text-gray-700 hover:bg-gray-100'
+                                                                }`}
+                                                              >
+                                                                <GoalIconComponent className={`w-4 h-4 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} style={mainPanelSection !== goalSectionId ? { color: areaColor } : undefined} />
+                                                                <span className="font-medium">{goal.title}</span>
+                                                              </button>
+                                                            )
+                                                          })}
+                                                        </div>
+                                                      )}
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              )
+                                            })()}
                   </div>
                                         )
                                       })}
@@ -9688,9 +10202,8 @@ export function JourneyGameView({
                     // Group goals by area
                     const goalsByArea = areas.reduce((acc, area) => {
                       const areaGoals = sortedGoalsForSidebar.filter(g => g.area_id === area.id && g.status === 'active')
-                      if (areaGoals.length > 0) {
-                        acc[area.id] = { area, goals: areaGoals }
-                      }
+                      // Always include area, even if it has no goals
+                      acc[area.id] = { area, goals: areaGoals }
                       return acc
                     }, {} as Record<string, { area: any; goals: any[] }>)
                     
@@ -9764,32 +10277,139 @@ export function JourneyGameView({
                               </div>
                               
                               {/* Goals under area */}
-                              {isExpanded && (
-                                <div className="pl-6 space-y-1 border-l-2" style={{ borderColor: areaColor }}>
-                                  {areaGoals.map((goal) => {
-                                    const goalSectionId = `goal-${goal.id}`
-                                    const isSelected = mainPanelSection === goalSectionId
-                                    const GoalIconComponent = getIconComponent(goal.icon)
-                                    return (
-                                      <button
-                                        key={goal.id}
-                                        onClick={() => setMainPanelSection(goalSectionId)}
-                                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-left ${
-                                          isSelected
-                                            ? 'bg-orange-600 text-white'
-                                            : 'text-gray-700 hover:bg-gray-100'
-                                        }`}
-                                        title={goal.title}
-                                      >
-                                        <GoalIconComponent className={`w-4 h-4 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-700'}`} style={!isSelected ? { color: areaColor } : undefined} />
-                                        <span className={`font-medium truncate flex-1 ${isSelected ? 'text-white' : 'text-gray-900'}`}>
-                                          {goal.title}
-                                        </span>
-                                      </button>
-                                    )
-                                  })}
-                                </div>
-                              )}
+                              {isExpanded && (() => {
+                                // Split goals by status
+                                const activeGoals = areaGoals.filter(g => g.status === 'active')
+                                const pausedGoals = areaGoals.filter(g => g.status === 'paused')
+                                const completedGoals = areaGoals.filter(g => g.status === 'completed')
+                                
+                                const pausedSectionKey = `${area.id}-paused`
+                                const completedSectionKey = `${area.id}-completed`
+                                const isPausedExpanded = expandedGoalSections.has(pausedSectionKey)
+                                const isCompletedExpanded = expandedGoalSections.has(completedSectionKey)
+                                
+                                return (
+                                  <div className="pl-6 space-y-1 border-l-2" style={{ borderColor: areaColor }}>
+                                    {/* Active goals - always visible */}
+                                    {activeGoals.map((goal) => {
+                                      const goalSectionId = `goal-${goal.id}`
+                                      const isSelected = mainPanelSection === goalSectionId
+                                      const GoalIconComponent = getIconComponent(goal.icon)
+                                      return (
+                                        <button
+                                          key={goal.id}
+                                          onClick={() => setMainPanelSection(goalSectionId)}
+                                          className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-left ${
+                                            isSelected
+                                              ? 'bg-orange-600 text-white'
+                                              : 'text-gray-700 hover:bg-gray-100'
+                                          }`}
+                                          title={goal.title}
+                                        >
+                                          <GoalIconComponent className={`w-4 h-4 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-700'}`} style={!isSelected ? { color: areaColor } : undefined} />
+                                          <span className={`font-medium truncate flex-1 ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                            {goal.title}
+                                          </span>
+                                        </button>
+                                      )
+                                    })}
+                                    
+                                    {/* Paused goals section */}
+                                    {pausedGoals.length > 0 && (
+                                      <div>
+                                        <button
+                                          onClick={() => {
+                                            const newSet = new Set(expandedGoalSections)
+                                            if (isPausedExpanded) {
+                                              newSet.delete(pausedSectionKey)
+                                            } else {
+                                              newSet.add(pausedSectionKey)
+                                            }
+                                            setExpandedGoalSections(newSet)
+                                          }}
+                                          className="w-full flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                                        >
+                                          <ChevronDown className={`w-4 h-4 transition-transform ${isPausedExpanded ? 'rotate-180' : ''}`} />
+                                          <span>{t('goals.filters.status.paused') || 'Odložené'} ({pausedGoals.length})</span>
+                                        </button>
+                                        {isPausedExpanded && (
+                                          <div className="pl-6 space-y-1">
+                                            {pausedGoals.map((goal) => {
+                                              const goalSectionId = `goal-${goal.id}`
+                                              const isSelected = mainPanelSection === goalSectionId
+                                              const GoalIconComponent = getIconComponent(goal.icon)
+                                              return (
+                                                <button
+                                                  key={goal.id}
+                                                  onClick={() => setMainPanelSection(goalSectionId)}
+                                                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-left ${
+                                                    isSelected
+                                                      ? 'bg-orange-600 text-white'
+                                                      : 'text-gray-700 hover:bg-gray-100'
+                                                  }`}
+                                                  title={goal.title}
+                                                >
+                                                  <GoalIconComponent className={`w-4 h-4 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-700'}`} style={!isSelected ? { color: areaColor } : undefined} />
+                                                  <span className={`font-medium truncate flex-1 ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                                    {goal.title}
+                                                  </span>
+                                                </button>
+                                              )
+                                            })}
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+                                    
+                                    {/* Completed goals section */}
+                                    {completedGoals.length > 0 && (
+                                      <div>
+                                        <button
+                                          onClick={() => {
+                                            const newSet = new Set(expandedGoalSections)
+                                            if (isCompletedExpanded) {
+                                              newSet.delete(completedSectionKey)
+                                            } else {
+                                              newSet.add(completedSectionKey)
+                                            }
+                                            setExpandedGoalSections(newSet)
+                                          }}
+                                          className="w-full flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                                        >
+                                          <ChevronDown className={`w-4 h-4 transition-transform ${isCompletedExpanded ? 'rotate-180' : ''}`} />
+                                          <span>{t('goals.filters.status.completed') || 'Hotové'} ({completedGoals.length})</span>
+                                        </button>
+                                        {isCompletedExpanded && (
+                                          <div className="pl-6 space-y-1">
+                                            {completedGoals.map((goal) => {
+                                              const goalSectionId = `goal-${goal.id}`
+                                              const isSelected = mainPanelSection === goalSectionId
+                                              const GoalIconComponent = getIconComponent(goal.icon)
+                                              return (
+                                                <button
+                                                  key={goal.id}
+                                                  onClick={() => setMainPanelSection(goalSectionId)}
+                                                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-left ${
+                                                    isSelected
+                                                      ? 'bg-orange-600 text-white'
+                                                      : 'text-gray-700 hover:bg-gray-100'
+                                                  }`}
+                                                  title={goal.title}
+                                                >
+                                                  <GoalIconComponent className={`w-4 h-4 flex-shrink-0 ${isSelected ? 'text-white' : 'text-gray-700'}`} style={!isSelected ? { color: areaColor } : undefined} />
+                                                  <span className={`font-medium truncate flex-1 ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                                    {goal.title}
+                                                  </span>
+                                                </button>
+                                              )
+                                            })}
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                )
+                              })()}
                             </div>
                           )
                         })}
@@ -9829,10 +10449,10 @@ export function JourneyGameView({
                   {sidebarCollapsed && (() => {
                     // Group goals by area
                     const goalsByArea = areas.reduce((acc, area) => {
-                      const areaGoals = sortedGoalsForSidebar.filter(g => g.area_id === area.id && g.status === 'active')
-                      if (areaGoals.length > 0) {
-                        acc[area.id] = { area, goals: areaGoals }
-                      }
+                      // Include all goals for this area (active, paused, completed)
+                      const areaGoals = sortedGoalsForSidebar.filter(g => g.area_id === area.id)
+                      // Always include area, even if it has no goals
+                      acc[area.id] = { area, goals: areaGoals }
                       return acc
                     }, {} as Record<string, { area: any; goals: any[] }>)
                     
@@ -11712,15 +12332,34 @@ export function JourneyGameView({
 
                 {/* Color */}
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('areas.color') || 'Barva'}
                   </label>
-                  <input
-                    type="color"
-                    value={areaModalColor}
-                    onChange={(e) => setAreaModalColor(e.target.value)}
-                    className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
-                  />
+                  <div className="grid grid-cols-4 gap-3">
+                    {[
+                      { value: '#ea580c', name: 'Oranžová' }, // Primary
+                      { value: '#3B82F6', name: 'Modrá' },
+                      { value: '#10B981', name: 'Zelená' },
+                      { value: '#8B5CF6', name: 'Fialová' },
+                      { value: '#EC4899', name: 'Růžová' },
+                      { value: '#EF4444', name: 'Červená' },
+                      { value: '#F59E0B', name: 'Amber' },
+                      { value: '#6366F1', name: 'Indigo' }
+                    ].map((color) => (
+                      <button
+                        key={color.value}
+                        type="button"
+                        onClick={() => setAreaModalColor(color.value)}
+                        className={`w-12 h-12 rounded-lg border-2 transition-all hover:scale-110 ${
+                          areaModalColor === color.value 
+                            ? 'border-gray-800 ring-2 ring-offset-2 ring-orange-400' 
+                            : 'border-gray-300 hover:border-gray-400'
+                        }`}
+                        style={{ backgroundColor: color.value }}
+                        title={color.name}
+                      />
+                    ))}
+                  </div>
                 </div>
 
                 {/* Icon */}

@@ -252,6 +252,20 @@ async function runMigrations() {
           updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         )
       `
+    } else {
+      // Check if icon column exists and has correct size
+      const areasColumns = await sql`
+        SELECT column_name, character_maximum_length
+        FROM information_schema.columns 
+        WHERE table_name = 'areas' AND column_name = 'icon'
+      `
+      if (areasColumns.length > 0) {
+        const iconColumn = areasColumns[0] as any
+        // If icon column exists but has size less than 50, alter it
+        if (!iconColumn.character_maximum_length || iconColumn.character_maximum_length < 50) {
+          await sql`ALTER TABLE areas ALTER COLUMN icon TYPE VARCHAR(50)`
+        }
+      }
     }
     
     // Add area_id to habits if it doesn't exist

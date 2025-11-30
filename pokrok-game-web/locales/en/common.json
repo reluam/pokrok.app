@@ -1082,7 +1082,13 @@
     "noArea": "No area",
     "areaGoals": "Goals in area",
     "areaSteps": "Steps in area",
-    "areaHabits": "Habits in area"
+    "areaHabits": "Habits in area",
+    "nameRequired": "Area name is required",
+    "nameTooLong": "Area name is too long. Maximum length is 255 characters. Current length: {length} characters.",
+    "iconTooLong": "Icon name is too long. Maximum length is 50 characters. Current length: {length} characters. Please choose a shorter icon.",
+    "deleteConfirm": "Are you sure you want to delete this area?",
+    "deleteConfirmDescription": "Goals, steps, and habits assigned to this area will be unassigned. This action cannot be undone.",
+    "manage": "Manage areas"
   },
   "areas": {
     "title": "Areas",
@@ -1106,7 +1112,8 @@
     "nameRequired": "Area name is required",
     "manage": "Manage areas",
     "addFirst": "Create first area",
-    "deleteConfirm": "Are you sure you want to delete this area? Goals, steps and habits assigned to this area will be unlinked.",
+    "deleteConfirm": "Are you sure you want to delete this area?",
+    "deleteConfirmDescription": "Goals, steps and habits assigned to this area will be unlinked. This action cannot be undone.",
     "deleteError": "Failed to delete area"
   }
 }

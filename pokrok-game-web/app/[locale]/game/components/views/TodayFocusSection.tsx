@@ -273,8 +273,12 @@ export function TodayFocusSection({
   }, [goals])
   
   // Get steps from active focus goals for today (with goals)
+  // If on area page, show all steps from area goals, not just focus goals
   const focusSteps = useMemo(() => {
     const activeFocusGoalIds = new Set(activeFocusGoals.map(g => g.id))
+    // If all goals are from an area (all have area_id), show all steps from these goals
+    const allGoalsHaveArea = goals.length > 0 && goals.every(g => g.area_id)
+    const goalIds = allGoalsHaveArea ? new Set(goals.map(g => g.id)) : activeFocusGoalIds
     
     return dailySteps
       .filter(step => {
@@ -289,10 +293,10 @@ export function TodayFocusSection({
           // Check if step is within the current week (inclusive)
           const isInWeek = stepDateObj.getTime() >= weekStart.getTime() && stepDateObj.getTime() <= weekEnd.getTime()
           
-          // Check if step belongs to an active focus goal
-          const belongsToActiveGoal = step.goal_id && activeFocusGoalIds.has(step.goal_id)
+          // Check if step belongs to a goal (focus goal or area goal)
+          const belongsToGoal = step.goal_id && goalIds.has(step.goal_id)
           
-          return isInWeek && belongsToActiveGoal
+          return isInWeek && belongsToGoal
         }
         
         // In day view, filter by exact date only
@@ -303,10 +307,10 @@ export function TodayFocusSection({
         // Only include steps for the selected day (not overdue, not future)
         const isSelectedDay = stepDateObj.getTime() === displayDate.getTime()
         
-        // Check if step belongs to an active focus goal
-        const belongsToActiveGoal = step.goal_id && activeFocusGoalIds.has(step.goal_id)
+        // Check if step belongs to a goal (focus goal or area goal)
+        const belongsToGoal = step.goal_id && goalIds.has(step.goal_id)
         
-        return isSelectedDay && belongsToActiveGoal
+        return isSelectedDay && belongsToGoal
       })
       .sort((a, b) => {
         // Sort by goal focus_order first, then by date
@@ -328,9 +332,13 @@ export function TodayFocusSection({
   
   // Get all today's steps (including from active focus goals), sorted by priority
   // Combine focusSteps and other steps
+  // If on area page, show all steps from area goals, not just focus goals
   const allTodaysSteps = useMemo(() => {
     // Combine focusSteps and steps without goals
     const activeFocusGoalIds = new Set(activeFocusGoals.map(g => g.id))
+    // If all goals are from an area (all have area_id), show all steps from these goals
+    const allGoalsHaveArea = goals.length > 0 && goals.every(g => g.area_id)
+    const goalIds = allGoalsHaveArea ? new Set(goals.map(g => g.id)) : activeFocusGoalIds
     
     const stepsWithoutGoals = dailySteps
       .filter(step => {
@@ -345,8 +353,8 @@ export function TodayFocusSection({
           // Check if step is within the current week (inclusive)
           const isInWeek = stepDateObj.getTime() >= weekStart.getTime() && stepDateObj.getTime() <= weekEnd.getTime()
           
-          // Check if step doesn't belong to any goal (or goal is not in active focus)
-          const hasNoGoal = !step.goal_id || !activeFocusGoalIds.has(step.goal_id)
+          // Check if step doesn't belong to any goal (or goal is not in area/focus)
+          const hasNoGoal = !step.goal_id || !goalIds.has(step.goal_id)
           
           return isInWeek && hasNoGoal
         }
@@ -359,8 +367,8 @@ export function TodayFocusSection({
         // Only include steps from today (not overdue, not future)
         const isToday = stepDateObj.getTime() === displayDate.getTime()
         
-        // Check if step doesn't belong to any goal (or goal is not in active focus)
-        const hasNoGoal = !step.goal_id || !activeFocusGoalIds.has(step.goal_id)
+        // Check if step doesn't belong to any goal (or goal is not in area/focus)
+        const hasNoGoal = !step.goal_id || !goalIds.has(step.goal_id)
         
         return isToday && hasNoGoal
       })
@@ -595,7 +603,7 @@ export function TodayFocusSection({
           {/* Two Column Layout - Mobile/Tablet: stacked, Large Desktop: side by side */}
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left Column: Habits - Week view shows compact table on desktop, vertical day layout on mobile */}
-            {isWeekView && weekStartDate && (
+            {isWeekView && weekStartDate && weekHabits.length > 0 && (
               <div className="flex-shrink-0 lg:border-r lg:border-gray-200 lg:pr-6 pb-6 lg:pb-0 border-b lg:border-b-0 w-full lg:w-auto" style={{ minWidth: '200px' }}>
                 <h4 
                   onClick={() => onNavigateToHabits?.()}
@@ -790,7 +798,7 @@ export function TodayFocusSection({
                 )}
               </div>
             )}
-            {!isWeekView && (
+            {!isWeekView && todaysHabits.length > 0 && (
             <div className="flex-shrink-0 lg:border-r lg:border-gray-200 lg:pr-6 pb-6 lg:pb-0 border-b lg:border-b-0 w-full lg:w-auto" style={{ width: `auto`, maxWidth: '100%' }}>
               <h4 
                 onClick={() => onNavigateToHabits?.()}
