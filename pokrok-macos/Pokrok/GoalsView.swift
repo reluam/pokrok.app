@@ -12,6 +12,7 @@ struct GoalsView: View {
     @Binding var goals: [Goal]
     @Binding var steps: [Step]
     @EnvironmentObject var apiManager: APIManager
+    @StateObject private var localizationManager = LocalizationManager.shared
     
     @State private var showingAddGoal = false
     @State private var selectedGoal: Goal?
@@ -31,14 +32,14 @@ struct GoalsView: View {
             // Top header with filter and add button
             HStack {
                 Menu {
-                    Button("All statuses") { filterStatus = nil }
+                    Button(t("goals.filters.status.all")) { filterStatus = nil }
                     Divider()
-                    Button("Active") { filterStatus = "active" }
-                    Button("Completed") { filterStatus = "completed" }
-                    Button("Paused") { filterStatus = "paused" }
+                    Button(t("goals.status.active")) { filterStatus = "active" }
+                    Button(t("goals.status.completed")) { filterStatus = "completed" }
+                    Button(t("goals.status.considering")) { filterStatus = "paused" }
                 } label: {
                     HStack(spacing: 6) {
-                        Text(filterStatus == nil ? "All statuses" : filterStatus?.capitalized ?? "All statuses")
+                        Text(filterStatus == nil ? t("goals.filters.status.all") : (filterStatus == "active" ? t("goals.status.active") : (filterStatus == "completed" ? t("goals.status.completed") : t("goals.status.considering"))))
                             .font(.system(size: 13))
                         Image(systemName: "chevron.down")
                             .font(.system(size: 9))
@@ -56,7 +57,7 @@ struct GoalsView: View {
                     HStack(spacing: 5) {
                         Image(systemName: "plus")
                             .font(.system(size: 12, weight: .semibold))
-                        Text("Add goal")
+                        Text(t("goals.add"))
                             .font(.system(size: 13, weight: .semibold))
                     }
                     .foregroundColor(.white)
@@ -76,7 +77,7 @@ struct GoalsView: View {
                 VStack(spacing: 0) {
                     // Table header
                     HStack(spacing: 0) {
-                        Text("Name")
+                        Text(t("table.name"))
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(Color(white: 0.3))
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -89,13 +90,13 @@ struct GoalsView: View {
                             .frame(width: 120)
                             .padding(.vertical, 8)
                         
-                        Text("Date")
+                        Text(t("table.date"))
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(Color(white: 0.3))
                             .frame(width: 150, alignment: .leading)
                             .padding(.vertical, 8)
                         
-                        Text("Steps")
+                        Text(t("goals.steps"))
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(Color(white: 0.3))
                             .frame(width: 100, alignment: .leading)
@@ -121,10 +122,10 @@ struct GoalsView: View {
                     // Table rows
                     if filteredGoals.isEmpty {
                         VStack(spacing: 8) {
-                            Text("Žádné cíle nejsou nastavené")
+                            Text(t("goals.noGoals"))
                                 .font(.system(size: 16))
                                 .foregroundColor(.gray)
-                            Text("Klikněte na tlačítko výše pro přidání nového cíle")
+                            Text(t("goals.noGoalsDescription"))
                                 .font(.system(size: 13))
                                 .foregroundColor(.gray.opacity(0.7))
                         }
@@ -306,7 +307,7 @@ struct CreateGoalModal: View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Text("Create goal")
+                Text(t("goals.create"))
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(Color(white: 0.2))
                 Spacer()
@@ -326,7 +327,7 @@ struct CreateGoalModal: View {
                 HStack(alignment: .top, spacing: 32) {
                     // Left: General Information
                     VStack(alignment: .leading, spacing: 20) {
-                        Text("GENERAL INFORMATION")
+                        Text(t("modal.generalInfo").uppercased())
                             .font(.system(size: 11, weight: .bold))
                             .foregroundColor(Color(white: 0.4))
                             .tracking(1)
@@ -498,7 +499,7 @@ struct CreateGoalModal: View {
                 .padding(.vertical, 10)
                 
                 Button(action: saveGoal) {
-                    Text("Save")
+                    Text(t("common.save"))
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 24)
@@ -579,7 +580,7 @@ struct EditGoalModal: View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Text("Edit goal")
+                Text(t("goals.edit"))
                     .font(.system(size: 20, weight: .bold))
                     .foregroundColor(Color(white: 0.2))
                 Spacer()
@@ -599,7 +600,7 @@ struct EditGoalModal: View {
                 HStack(alignment: .top, spacing: 32) {
                     // Left: General Information
                     VStack(alignment: .leading, spacing: 20) {
-                        Text("GENERAL INFORMATION")
+                        Text(t("modal.generalInfo").uppercased())
                             .font(.system(size: 11, weight: .bold))
                             .foregroundColor(Color(white: 0.4))
                             .tracking(1)
@@ -798,7 +799,7 @@ struct EditGoalModal: View {
                 .cornerRadius(8)
                 
                 Button(action: saveChanges) {
-                    Text("Save")
+                    Text(t("common.save"))
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 24)

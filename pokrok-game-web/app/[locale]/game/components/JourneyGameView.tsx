@@ -8854,6 +8854,7 @@ export function JourneyGameView({
                                   description: '',
                                   date: defaultDate,
                                   goalId: goalId,
+                                  areaId: '',
                                   completed: false,
                                   is_important: false,
                                   is_urgent: false,
@@ -9429,7 +9430,8 @@ export function JourneyGameView({
                                   return (
                                     <>
                                       {/* Areas with goals */}
-                                      {Object.values(goalsByArea).map(({ area, goals: areaGoals }) => {
+                                      {(Object.values(goalsByArea) as Array<{ area: any; goals: any[] }>).map((item: { area: any; goals: any[] }) => {
+                                        const { area, goals: areaGoals } = item
                                         const isExpanded = expandedAreas.has(area.id)
                                         const IconComponent = getIconComponent(area.icon || 'Target')
                                         const areaColor = area.color || '#ea580c'
@@ -9576,6 +9578,7 @@ export function JourneyGameView({
                           description: '',
                           date: defaultDate,
                           goalId: goalId || '',
+                          areaId: '',
                           completed: false,
                           is_important: false,
                           is_urgent: false,
@@ -9708,7 +9711,8 @@ export function JourneyGameView({
                         </div>
                         
                         {/* Areas with goals */}
-                        {Object.keys(goalsByArea).length > 0 && Object.values(goalsByArea).map(({ area, goals: areaGoals }) => {
+                        {Object.keys(goalsByArea).length > 0 && (Object.values(goalsByArea) as Array<{ area: any; goals: any[] }>).map((item: { area: any; goals: any[] }) => {
+                          const { area, goals: areaGoals } = item
                           const isExpanded = expandedAreas.has(area.id)
                           const IconComponent = getIconComponent(area.icon || 'Target')
                           const areaColor = area.color || '#ea580c'
@@ -9837,7 +9841,8 @@ export function JourneyGameView({
                     return (
                       <div className="space-y-2 mt-2">
                         {/* Areas */}
-                        {Object.values(goalsByArea).slice(0, 5).map(({ area, goals: areaGoals }) => {
+                         {(Object.values(goalsByArea) as Array<{ area: any; goals: any[] }>).slice(0, 5).map((item: { area: any; goals: any[] }) => {
+                           const { area, goals: areaGoals } = item
                           const isExpanded = expandedAreas.has(area.id)
                           const IconComponent = getIconComponent(area.icon || 'Target')
                           const areaColor = area.color || '#ea580c'
@@ -10048,7 +10053,8 @@ export function JourneyGameView({
                                 
                                 return (
                                   <>
-                                    {Object.values(goalsByArea).map(({ area, goals: areaGoals }) => {
+                                    {(Object.values(goalsByArea) as Array<{ area: any; goals: any[] }>).map((item: { area: any; goals: any[] }) => {
+                                      const { area, goals: areaGoals } = item
                                       const areaSectionId = `area-${area.id}`
                                       const IconComponent = getIconComponent(area.icon || 'Target')
                                       const areaColor = area.color || '#ea580c'
@@ -10846,6 +10852,7 @@ export function JourneyGameView({
                 description: '',
                 date: '',
                 goalId: '',
+                areaId: '',
                 completed: false,
                 is_important: false,
                 is_urgent: false,
@@ -10874,6 +10881,7 @@ export function JourneyGameView({
                         description: '',
                         date: '',
                         goalId: '',
+                        areaId: '',
                         completed: false,
                         is_important: false,
                         is_urgent: false,

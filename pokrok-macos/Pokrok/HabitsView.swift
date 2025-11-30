@@ -3,6 +3,7 @@ import SwiftUI
 struct HabitsView: View {
     @Binding var habits: [Habit]
     @EnvironmentObject var apiManager: APIManager
+    @StateObject private var localizationManager = LocalizationManager.shared
     
     @State private var showingAddHabit = false
     @State private var selectedHabit: Habit?
@@ -20,7 +21,7 @@ struct HabitsView: View {
             // Header
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Návyky")
+                    Text(t("habits.title"))
                         .font(.largeTitle.bold())
                     Text("\(habits.count) celkem • Nejdelší streak: \(habits.compactMap { $0.maxStreak }.max() ?? 0) dní")
                         .font(.subheadline)
@@ -31,16 +32,16 @@ struct HabitsView: View {
                 
                 // Filter
                 Picker("Frekvence", selection: $filterFrequency) {
-                    Text("Všechny").tag(nil as String?)
-                    Text("Denní").tag("daily" as String?)
-                    Text("Týdenní").tag("weekly" as String?)
-                    Text("Měsíční").tag("monthly" as String?)
+                    Text(t("habits.filters.frequency.all")).tag(nil as String?)
+                    Text(t("habits.filters.frequency.daily")).tag("daily" as String?)
+                    Text(t("habits.filters.frequency.weekly")).tag("weekly" as String?)
+                    Text(t("habits.filters.frequency.monthly")).tag("monthly" as String?)
                 }
                 .pickerStyle(.segmented)
                 .frame(width: 280)
                 
                 Button(action: { showingAddHabit = true }) {
-                    Label("Přidat návyk", systemImage: "plus")
+                    Label(t("habits.add"), systemImage: "plus")
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.orange)
@@ -141,7 +142,7 @@ struct HabitCardLarge: View {
                         Text("\(habit.streak ?? 0)")
                             .font(.title3.bold())
                     }
-                    Text("Aktuální streak")
+                    Text(t("habits.streak"))
                         .font(.caption2)
                         .foregroundColor(.secondary)
                 }
@@ -152,7 +153,7 @@ struct HabitCardLarge: View {
                     Text("\(habit.maxStreak ?? 0)")
                         .font(.title3.bold())
                         .foregroundColor(.blue)
-                    Text("Nejlepší")
+                    Text(t("habits.maxStreak"))
                         .font(.caption2)
                         .foregroundColor(.secondary)
                 }
@@ -241,7 +242,7 @@ struct AddHabitSheet: View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Text("Nový návyk")
+                Text(t("habits.addNewHabit"))
                     .font(.title2.bold())
                 Spacer()
                 Button("Zrušit") { dismiss() }
@@ -269,9 +270,9 @@ struct AddHabitSheet: View {
                     }
                     
                     Picker("Frekvence", selection: $frequency) {
-                        Text("Denně").tag(Frequency.daily)
-                        Text("Týdně").tag(Frequency.weekly)
-                        Text("Vlastní").tag(Frequency.custom)
+                        Text(t("habits.filters.frequency.daily")).tag(Frequency.daily)
+                        Text(t("habits.filters.frequency.weekly")).tag(Frequency.weekly)
+                        Text(t("habits.filters.frequency.custom")).tag(Frequency.custom)
                     }
                     .pickerStyle(.segmented)
                     

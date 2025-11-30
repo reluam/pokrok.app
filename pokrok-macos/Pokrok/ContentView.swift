@@ -17,20 +17,22 @@ struct ContentView: View {
 
 struct MainAppView: View {
     @EnvironmentObject var authManager: AuthManager
+    @StateObject private var localizationManager = LocalizationManager.shared
     
     @State private var selectedTab: AppTab = .overview
     @State private var goals: [Goal] = []
     @State private var habits: [Habit] = []
     @State private var steps: [Step] = []
+    @State private var user: UserData?
     @State private var isLoading = true
     @State private var showingHelp = false
     @State private var showingSettings = false
     
     enum AppTab: String, CaseIterable {
-        case overview = "Overview"
-        case goals = "Goals"
-        case steps = "Steps"
-        case habits = "Habits"
+        case overview
+        case goals
+        case steps
+        case habits
         
         var icon: String {
             switch self {
@@ -40,13 +42,22 @@ struct MainAppView: View {
             case .habits: return "checkmark.square.fill"
             }
         }
+        
+        func displayName(_ locale: LocalizationManager) -> String {
+            switch self {
+            case .overview: return locale.t("navigation.overview")
+            case .goals: return locale.t("navigation.goals")
+            case .steps: return locale.t("navigation.steps")
+            case .habits: return locale.t("navigation.habits")
+            }
+        }
     }
     
     var body: some View {
         NavigationSplitView {
             // Sidebar
             List(AppTab.allCases, id: \.self, selection: $selectedTab) { tab in
-                Label(tab.rawValue, systemImage: tab.icon)
+                Label(tab.displayName(localizationManager), systemImage: tab.icon)
                     .tag(tab)
             }
             .listStyle(.sidebar)
@@ -114,6 +125,13 @@ struct MainAppView: View {
                 self.goals = gameData.goals
                 self.habits = gameData.habits
                 self.steps = gameData.steps ?? []
+                self.user = gameData.user
+                
+                // Initialize localization with user's preferred locale
+                if let preferredLocale = gameData.user.preferredLocale,
+                   let locale = AppLocale(rawValue: preferredLocale) {
+                    localizationManager.updateLocale(locale)
+                }
             }
         } catch {
             print("Error loading data: \(error)")
@@ -152,7 +170,7 @@ struct AppHeaderBar: View {
             HStack(spacing: 6) {
                 Image(systemName: "house.fill")
                     .font(.system(size: 13))
-                Text("Main Panel")
+                Text(t("game.menu.mainPanel"))
                     .font(.system(size: 13, weight: .semibold))
             }
             .foregroundColor(.white)
@@ -171,7 +189,7 @@ struct AppHeaderBar: View {
                         .font(.system(size: 14))
                     Text("79")
                         .font(.system(size: 14, weight: .bold))
-                    Text("XP")
+                    Text(t("game.xp"))
                         .font(.system(size: 12))
                         .opacity(0.8)
                 }
@@ -183,7 +201,7 @@ struct AppHeaderBar: View {
                         .font(.system(size: 14))
                     Text("4")
                         .font(.system(size: 14, weight: .bold))
-                    Text("Streak")
+                    Text(t("progress.streak"))
                         .font(.system(size: 12))
                         .opacity(0.8)
                 }
@@ -194,7 +212,7 @@ struct AppHeaderBar: View {
                     HStack(spacing: 5) {
                         Image(systemName: "questionmark.circle")
                             .font(.system(size: 14))
-                        Text("Help")
+                        Text(t("help.title"))
                             .font(.system(size: 13))
                     }
                     .foregroundColor(.white)
@@ -206,7 +224,7 @@ struct AppHeaderBar: View {
                     HStack(spacing: 5) {
                         Image(systemName: "gearshape")
                             .font(.system(size: 14))
-                        Text("Settings")
+                        Text(t("settings.title"))
                             .font(.system(size: 13))
                     }
                     .foregroundColor(.white)
@@ -225,7 +243,7 @@ struct LoadingView: View {
         VStack(spacing: 16) {
             ProgressView()
                 .scaleEffect(1.5)
-            Text("Načítání...")
+            Text(t("common.loading"))
                 .font(.headline)
                 .foregroundColor(.secondary)
         }

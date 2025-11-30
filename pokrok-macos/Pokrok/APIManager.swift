@@ -411,6 +411,29 @@ class APIManager: ObservableObject {
         return try decoder.decode(Step.self, from: data)
     }
     
+    // MARK: - User Settings
+    
+    func updateUserLocale(_ locale: String) async throws {
+        let url = URL(string: "\(baseURL)/api/user/locale")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        addAuthHeaders(to: &request)
+        
+        let body = ["locale": locale]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        
+        let (_, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.serverError(httpResponse.statusCode)
+        }
+    }
+    
     // MARK: - Helpers
     
     private func addAuthHeaders(to request: inout URLRequest) {

@@ -3,20 +3,22 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var authManager: AuthManager
+    @StateObject private var localizationManager = LocalizationManager.shared
     
     @State private var selectedTab: SettingsTab = .user
     @State private var user: UserData?
     @State private var player: Player?
     @State private var isLoading = true
+    @State private var isSavingLocale = false
     
     enum SettingsTab: String, CaseIterable {
-        case user = "Uživatel"
-        case goals = "Cíle"
-        case steps = "Kroky"
-        case statistics = "Statistiky"
-        case workflows = "Workflows"
-        case display = "Zobrazení"
-        case danger = "Účet"
+        case user
+        case goals
+        case steps
+        case statistics
+        case workflows
+        case display
+        case danger
         
         var icon: String {
             switch self {
@@ -29,6 +31,18 @@ struct SettingsView: View {
             case .danger: return "person.circle.fill"
             }
         }
+        
+        func displayName(_ locale: LocalizationManager) -> String {
+            switch self {
+            case .user: return locale.t("settings.tabs.user")
+            case .goals: return locale.t("settings.tabs.goals")
+            case .steps: return locale.t("settings.tabs.steps")
+            case .statistics: return locale.t("settings.tabs.statistics")
+            case .workflows: return locale.t("settings.tabs.workflows")
+            case .display: return locale.t("settings.tabs.display")
+            case .danger: return locale.t("settings.tabs.danger")
+            }
+        }
     }
     
     private let primaryOrange = Color(red: 0.918, green: 0.345, blue: 0.047)
@@ -38,7 +52,7 @@ struct SettingsView: View {
             HStack(spacing: 0) {
                 // Sidebar with tabs
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("Nastavení")
+                    Text(t("settings.title"))
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(Color(white: 0.2))
                         .padding(.horizontal, 20)
@@ -52,6 +66,7 @@ struct SettingsView: View {
                             ForEach(SettingsTab.allCases, id: \.self) { tab in
                                 TabButton(
                                     tab: tab,
+                                    tabName: tab.displayName(localizationManager),
                                     isSelected: selectedTab == tab,
                                     primaryOrange: primaryOrange
                                 ) {
@@ -75,6 +90,7 @@ struct SettingsView: View {
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                         } else {
                             tabContentView
+                                .environmentObject(localizationManager)
                         }
                     }
                     .padding(24)
@@ -83,7 +99,7 @@ struct SettingsView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Zavřít") {
+                    Button(t("common.close")) {
                         dismiss()
                     }
                 }
@@ -139,6 +155,7 @@ struct SettingsView: View {
 
 struct TabButton: View {
     let tab: SettingsView.SettingsTab
+    let tabName: String
     let isSelected: Bool
     let primaryOrange: Color
     let action: () -> Void
@@ -151,7 +168,7 @@ struct TabButton: View {
                     .foregroundColor(isSelected ? primaryOrange : Color.gray.opacity(0.6))
                     .frame(width: 20)
                 
-                Text(tab.rawValue)
+                Text(tabName)
                     .font(.system(size: 13, weight: isSelected ? .semibold : .regular))
                     .foregroundColor(isSelected ? Color(white: 0.2) : Color.gray.opacity(0.7))
                 
@@ -176,6 +193,8 @@ struct TabButton: View {
 struct UserSettingsView: View {
     let user: UserData?
     let primaryOrange: Color
+    @StateObject private var localizationManager = LocalizationManager.shared
+    @State private var isSavingLocale = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -184,14 +203,61 @@ struct UserSettingsView: View {
                 HStack(spacing: 6) {
                     Text("📧")
                         .font(.system(size: 18))
-                    Text("Kontaktní údaje")
+                    Text(t("settings.user.contactInfo"))
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(Color(white: 0.2))
                 }
                 
                 VStack(alignment: .leading, spacing: 12) {
-                    LabeledField(label: "Email", value: user?.email ?? "N/A")
-                    LabeledField(label: "Jméno", value: user?.name ?? "N/A")
+                    LabeledField(label: t("settings.user.email"), value: user?.email ?? "N/A")
+                    LabeledField(label: t("settings.user.name"), value: user?.name ?? "N/A")
+                }
+            }
+            
+            // Language Selection
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(spacing: 6) {
+                    Text("🌐")
+                        .font(.system(size: 18))
+                    Text(t("settings.user.language.title"))
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(Color(white: 0.2))
+                }
+                
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(t("settings.user.language.label"))
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(Color.gray.opacity(0.7))
+                    
+                    Picker("", selection: $localizationManager.currentLocale) {
+                        ForEach(AppLocale.allCases, id: \.self) { locale in
+                            Text(locale.displayName).tag(locale)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .frame(maxWidth: 200)
+                    .disabled(isSavingLocale)
+                    .onChange(of: localizationManager.currentLocale) { oldValue, newValue in
+                        Task {
+                            await updateLocale(newValue)
+                        }
+                    }
+                    
+                    if isSavingLocale {
+                        HStack(spacing: 4) {
+                            ProgressView()
+                                .scaleEffect(0.7)
+                            Text(t("common.saving"))
+                                .font(.system(size: 11))
+                                .foregroundColor(Color.gray.opacity(0.7))
+                        }
+                        .padding(.top, 4)
+                    }
+                    
+                    Text(t("settings.user.language.description"))
+                        .font(.system(size: 11))
+                        .foregroundColor(Color.gray.opacity(0.6))
+                        .padding(.top, 4)
                 }
             }
             
@@ -200,25 +266,37 @@ struct UserSettingsView: View {
                 HStack(spacing: 6) {
                     Text("📅")
                         .font(.system(size: 18))
-                    Text("Účet")
+                    Text(t("settings.user.account"))
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(Color(white: 0.2))
                 }
                 
                 VStack(alignment: .leading, spacing: 12) {
-                    LabeledField(label: "Registrován", value: "N/A")
+                    LabeledField(label: t("settings.user.registered"), value: "N/A")
                     
-                    LabeledField(label: "Uživatelské ID", value: user?.id ?? "N/A")
+                    LabeledField(label: t("settings.user.userId"), value: user?.id ?? "N/A")
                 }
             }
         }
     }
     
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.locale = Locale(identifier: "cs_CZ")
-        return formatter.string(from: date)
+    private func updateLocale(_ locale: AppLocale) async {
+        isSavingLocale = true
+        defer { isSavingLocale = false }
+        
+        do {
+            try await APIManager.shared.updateUserLocale(locale.rawValue)
+            // Locale is already updated in LocalizationManager via onChange
+        } catch {
+            print("Error updating locale: \(error)")
+            // Revert locale change on error
+            await MainActor.run {
+                if let preferredLocale = user?.preferredLocale,
+                   let locale = AppLocale(rawValue: preferredLocale) {
+                    localizationManager.currentLocale = locale
+                }
+            }
+        }
     }
 }
 

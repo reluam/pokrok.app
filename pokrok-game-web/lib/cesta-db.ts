@@ -1334,17 +1334,20 @@ export async function updateDailyStepFields(stepId: string, updates: Partial<Dai
     }
     if (updates.date !== undefined) {
       let dateValue: string | null = null
-      if (updates.date) {
-        if (updates.date instanceof Date) {
-          const year = updates.date.getFullYear()
-          const month = String(updates.date.getMonth() + 1).padStart(2, '0')
-          const day = String(updates.date.getDate()).padStart(2, '0')
+      const date = updates.date
+      if (date) {
+        if (date instanceof Date) {
+          const year = date.getFullYear()
+          const month = String(date.getMonth() + 1).padStart(2, '0')
+          const day = String(date.getDate()).padStart(2, '0')
           dateValue = `${year}-${month}-${day}`
-        } else if (typeof updates.date === 'string') {
-          if (updates.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-            dateValue = updates.date
-          } else if (updates.date.includes('T')) {
-            dateValue = updates.date.split('T')[0]
+        } else {
+          // TypeScript knows date is string here
+          const dateStr = date as string
+          if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            dateValue = dateStr
+          } else if (dateStr.includes('T')) {
+            dateValue = dateStr.split('T')[0]
           }
         }
       }

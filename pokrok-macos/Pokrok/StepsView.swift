@@ -4,6 +4,7 @@ struct StepsView: View {
     let goals: [Goal]
     @Binding var steps: [Step]
     @EnvironmentObject var apiManager: APIManager
+    @StateObject private var localizationManager = LocalizationManager.shared
     
     @State private var showingAddStep = false
     @State private var selectedStep: Step?
@@ -46,7 +47,7 @@ struct StepsView: View {
                 HStack(spacing: 16) {
                     // Show completed checkbox
                     Toggle(isOn: $showCompleted) {
-                        Text("Show completed")
+                        Text(t("steps.filters.showCompleted"))
                             .font(.system(size: 13))
                             .foregroundColor(Color(white: 0.3))
                     }
@@ -54,14 +55,14 @@ struct StepsView: View {
                     
                     // Goal filter
                     Menu {
-                        Button("All goals") { goalFilter = nil }
+                        Button(t("steps.filters.goal.all")) { goalFilter = nil }
                         Divider()
                         ForEach(goals) { goal in
                             Button(goal.title) { goalFilter = goal.id }
                         }
                     } label: {
                         HStack(spacing: 6) {
-                            Text(goalFilter == nil ? "All goals" : (goals.first(where: { $0.id == goalFilter })?.title ?? "All goals"))
+                            Text(goalFilter == nil ? t("steps.filters.goal.all") : (goals.first(where: { $0.id == goalFilter })?.title ?? t("steps.filters.goal.all")))
                                 .font(.system(size: 13))
                             Image(systemName: "chevron.down")
                                 .font(.system(size: 9))
@@ -100,7 +101,7 @@ struct StepsView: View {
                     HStack(spacing: 5) {
                         Image(systemName: "plus")
                             .font(.system(size: 12, weight: .semibold))
-                        Text("Add step")
+                        Text(t("steps.addStep"))
                             .font(.system(size: 13, weight: .semibold))
                     }
                     .foregroundColor(.white)
@@ -120,32 +121,32 @@ struct StepsView: View {
                 VStack(spacing: 0) {
                     // Table header
                     HStack(spacing: 0) {
-                        Text("Name")
+                        Text(t("table.name"))
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(Color(white: 0.3))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
                         
-                        Text("Checklist")
+                        Text(t("steps.title"))
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(Color(white: 0.3))
                             .frame(width: 100, alignment: .leading)
                             .padding(.vertical, 8)
                         
-                        Text("Date")
+                        Text(t("table.date"))
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(Color(white: 0.3))
                             .frame(width: 150, alignment: .leading)
                             .padding(.vertical, 8)
                         
-                        Text("Goal")
+                        Text(t("steps.goal"))
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(Color(white: 0.3))
                             .frame(width: 200, alignment: .leading)
                             .padding(.vertical, 8)
                         
-                        Text("Time")
+                        Text(t("steps.stepTime"))
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(Color(white: 0.3))
                             .frame(width: 100, alignment: .leading)
@@ -171,10 +172,10 @@ struct StepsView: View {
                     // Table rows
                     if filteredSteps.isEmpty {
                         VStack(spacing: 8) {
-                            Text("Žádné kroky nejsou nastavené")
+                            Text(t("steps.noSteps"))
                                 .font(.system(size: 16))
                                 .foregroundColor(.gray)
-                            Text("Klikněte na tlačítko výše pro přidání nového kroku")
+                            Text(t("steps.noStepsDescription"))
                                 .font(.system(size: 13))
                                 .foregroundColor(.gray.opacity(0.7))
                         }

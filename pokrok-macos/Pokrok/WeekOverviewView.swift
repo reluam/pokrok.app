@@ -4,6 +4,7 @@ struct WeekOverviewView: View {
     @Binding var goals: [Goal]
     @Binding var habits: [Habit]
     @Binding var steps: [Step]
+    @StateObject private var localizationManager = LocalizationManager.shared
     @State private var currentWeekStart: Date = Date().startOfWeek
     @State private var selectedDay: Date? = nil
     @State private var editingStep: Step? = nil
@@ -18,10 +19,11 @@ struct WeekOverviewView: View {
     }
     
     private var headerText: String {
+        let localeCode = localizationManager.currentLocale == .cs ? "cs_CZ" : "en_US"
         if let selected = selectedDay {
             let formatter = DateFormatter()
             formatter.dateFormat = "EEEE, d. MMMM yyyy"
-            formatter.locale = Locale(identifier: "cs_CZ")
+            formatter.locale = Foundation.Locale(identifier: localeCode)
             return formatter.string(from: selected)
         } else {
             let formatter = DateFormatter()
@@ -29,6 +31,7 @@ struct WeekOverviewView: View {
             let startDay = formatter.string(from: currentWeekStart)
             let endDay = formatter.string(from: weekDays[6])
             formatter.dateFormat = "MMMM yyyy"
+            formatter.locale = Foundation.Locale(identifier: localeCode)
             let monthYear = formatter.string(from: weekDays[6])
             return "\(startDay). - \(endDay). \(monthYear)"
         }
@@ -437,7 +440,7 @@ struct StatsBarView: View {
                     .frame(width: 120, height: 6)
                 }
                 
-                Text("Progress")
+                Text(t("progress.title"))
                     .font(.system(size: 10))
                     .foregroundColor(.gray)
             }
@@ -456,7 +459,7 @@ struct StatsBarView: View {
                         .foregroundColor(.gray)
                 }
                 
-                Text("Completed")
+                Text(t("progress.completed"))
                     .font(.system(size: 10))
                     .foregroundColor(.gray)
             }
@@ -528,7 +531,7 @@ struct WeeklyFocusView: View {
                     Image(systemName: "target")
                         .font(.system(size: 16))
                         .foregroundColor(primaryOrange)
-                    Text("Weekly Focus")
+                    Text(t("focus.weeklyFocus"))
                         .font(.system(size: 17, weight: .bold))
                         .foregroundColor(primaryOrange)
                 }
@@ -539,7 +542,7 @@ struct WeeklyFocusView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "plus")
                             .font(.system(size: 11, weight: .semibold))
-                        Text("Add Step")
+                        Text(t("focus.addStep"))
                             .font(.system(size: 12, weight: .semibold))
                     }
                     .foregroundColor(primaryOrange)
@@ -556,13 +559,13 @@ struct WeeklyFocusView: View {
             HStack(alignment: .top, spacing: 20) {
                 // Habits Table
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("HABITS")
+                    Text(t("sections.habits"))
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundColor(.gray)
                         .tracking(0.5)
                     
                     if weekHabits.isEmpty {
-                        Text("No habits yet")
+                        Text(t("habits.noHabits"))
                             .font(.system(size: 12))
                             .foregroundColor(.gray)
                             .padding(.vertical, 20)
@@ -583,7 +586,7 @@ struct WeeklyFocusView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         HStack(spacing: 6) {
-                            Text("STEPS THIS WEEK")
+                            Text(t("focus.stepsThisWeek"))
                                 .font(.system(size: 10, weight: .semibold))
                                 .foregroundColor(.gray)
                                 .tracking(0.5)
@@ -601,7 +604,7 @@ struct WeeklyFocusView: View {
                     }
                     
                     if weekSteps.isEmpty {
-                        Text("No steps scheduled")
+                        Text(t("focus.noStepsThisWeek"))
                             .font(.system(size: 12))
                             .foregroundColor(.gray)
                             .padding(.vertical, 20)
@@ -696,7 +699,7 @@ struct DailyFocusView: View {
             HStack {
                 Image(systemName: "target")
                     .foregroundColor(primaryOrange)
-                Text("Daily Focus")
+                Text(t("focus.dailyFocus"))
                     .font(.title3.bold())
                 
                 Spacer()
@@ -704,7 +707,7 @@ struct DailyFocusView: View {
                 Button(action: {}) {
                     HStack(spacing: 4) {
                         Image(systemName: "plus")
-                        Text("Add Step")
+                        Text(t("focus.addStep"))
                     }
                     .font(.subheadline)
                     .foregroundColor(primaryOrange)
@@ -721,12 +724,12 @@ struct DailyFocusView: View {
             HStack(alignment: .top, spacing: 24) {
                 // Habits List
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("HABITS")
+                    Text(t("sections.habits"))
                         .font(.caption.bold())
                         .foregroundColor(.secondary)
                     
                     if dayHabits.isEmpty {
-                        Text("No habits for \(dayLabel)")
+                        Text(t("habits.noHabits"))
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                             .padding()
@@ -749,7 +752,7 @@ struct DailyFocusView: View {
                 // Steps List
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
-                        Text("STEPS")
+                        Text(t("sections.steps"))
                             .font(.caption.bold())
                             .foregroundColor(.secondary)
                         
@@ -861,7 +864,7 @@ struct DayStepsListView: View {
     var body: some View {
         VStack(spacing: 8) {
             if steps.isEmpty {
-                Text("No steps for \(dayLabel)")
+                Text(t("focus.noStepsToday"))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .padding()
@@ -877,7 +880,7 @@ struct DayStepsListView: View {
                         HStack(spacing: 4) {
                             Image(systemName: "checkmark")
                                 .font(.caption)
-                            Text("\(completedSteps.count) splněn\(completedSteps.count == 1 ? "ý" : "ých") krok\(completedSteps.count == 1 ? "" : "ů")")
+                            Text("\(completedSteps.count) \(t("progress.completed"))")
                                 .font(.caption)
                             Image(systemName: showCompleted ? "chevron.up" : "chevron.down")
                                 .font(.caption2)
@@ -1442,7 +1445,7 @@ struct OtherStepsView: View {
         VStack(alignment: .leading, spacing: 12) {
             // Header
             HStack {
-                Text("Další kroky")
+                Text(t("focus.otherSteps"))
                     .font(.system(size: 17, weight: .bold))
                     .foregroundColor(Color(white: 0.2))
                 
@@ -1463,13 +1466,13 @@ struct OtherStepsView: View {
             HStack(alignment: .top, spacing: 16) {
                 // Overdue Steps
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("OVERDUE STEPS")
+                    Text(t("focus.overdueSteps"))
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundColor(.gray.opacity(0.6))
                         .tracking(0.5)
                     
                     if overdueSteps.isEmpty {
-                        Text("Žádné kroky po termínu")
+                        Text(t("focus.noOverdueSteps"))
                             .font(.system(size: 12))
                             .foregroundColor(.gray.opacity(0.5))
                             .frame(maxWidth: .infinity)
@@ -1493,13 +1496,13 @@ struct OtherStepsView: View {
                 
                 // Future Steps
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("FUTURE STEPS")
+                    Text(t("focus.futureSteps"))
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundColor(.gray.opacity(0.6))
                         .tracking(0.5)
                     
                     if futureSteps.isEmpty {
-                        Text("Žádné budoucí kroky")
+                        Text(t("focus.noFutureSteps"))
                             .font(.system(size: 12))
                             .foregroundColor(.gray.opacity(0.5))
                             .frame(maxWidth: .infinity)
