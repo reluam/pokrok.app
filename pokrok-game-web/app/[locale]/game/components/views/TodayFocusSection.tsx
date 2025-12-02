@@ -743,7 +743,8 @@ export function TodayFocusSection({
                                 const isScheduled = isHabitScheduledForDay(habit, day)
                                 const isCompleted = isHabitCompletedForDay(habit, day)
                                 const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
-                                const isLoading = loadingHabits.has(habit.id)
+                                // Check loading state for this specific habit-day combination
+                                const isLoading = loadingHabits.has(`${habit.id}-${dateStr}`)
                                 const today = new Date()
                                 today.setHours(0, 0, 0, 0)
                                 const isFuture = day > today
@@ -826,7 +827,8 @@ export function TodayFocusSection({
                         if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
                         return false
                       })()
-                      const isLoading = loadingHabits.has(habit.id)
+                      // Check loading state for this specific habit-day combination
+                      const isLoading = loadingHabits.has(`${habit.id}-${displayDateStr}`)
                       const today = new Date()
                       today.setHours(0, 0, 0, 0)
                       const isFuture = selectedDayDate > today

@@ -275,6 +275,7 @@ export function JourneyGameView({
   })
   const [checklistSaving, setChecklistSaving] = useState(false)
   const checklistSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [lastAddedChecklistItemId, setLastAddedChecklistItemId] = useState<string | null>(null)
   const [stepModalSaving, setStepModalSaving] = useState(false)
   const [habitModalSaving, setHabitModalSaving] = useState(false)
   const [showHabitModal, setShowHabitModal] = useState(false)
@@ -590,6 +591,12 @@ export function JourneyGameView({
   }
 
   const handleHabitCalendarToggle = async (habitId: string, date: string, currentState: 'completed' | 'missed' | 'planned' | 'not-scheduled' | 'today', isScheduled: boolean) => {
+    // Create loading key for this specific habit-day combination
+    const loadingKey = `${habitId}-${date}`
+    
+    // Add to loading set
+    setLoadingHabits(prev => new Set(prev).add(loadingKey))
+    
     try {
       let newState: boolean | null = null
       
@@ -675,6 +682,13 @@ export function JourneyGameView({
       }
     } catch (error) {
       console.error('Error updating habit calendar:', error)
+    } finally {
+      // Remove from loading set
+      setLoadingHabits(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(loadingKey)
+        return newSet
+      })
     }
   }
 
@@ -4007,15 +4021,19 @@ export function JourneyGameView({
         }, []) // Empty dependency array - create component only once to prevent state resets
 
   const handleHabitToggle = async (habitId: string, date?: string) => {
+    // Use provided date or default to today
+    const dateToUse = date || (() => {
+      const now = new Date()
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    })()
+    
+    // Create loading key: use habitId-date for specific dates, habitId for today (when no date provided)
+    const loadingKey = date ? `${habitId}-${dateToUse}` : habitId
+    
     // Add to loading set
-    setLoadingHabits(prev => new Set(prev).add(habitId))
+    setLoadingHabits(prev => new Set(prev).add(loadingKey))
     
     try {
-      // Use provided date or default to today
-      const dateToUse = date || (() => {
-      const now = new Date()
-        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-      })()
       const response = await fetch('/api/habits/toggle', {
         method: 'POST',
         headers: {
@@ -4057,7 +4075,7 @@ export function JourneyGameView({
       // Remove from loading set
       setLoadingHabits(prev => {
         const newSet = new Set(prev)
-        newSet.delete(habitId)
+        newSet.delete(loadingKey)
         return newSet
       })
     }
@@ -7751,7 +7769,8 @@ export function JourneyGameView({
                     const isCompleted = isHabitCompletedForDay(date)
                     const isToday = dateStr === getLocalDateString(today)
                     const isFuture = date > today
-                    const isLoading = loadingHabits.has(habit.id)
+                    // Check loading state for this specific habit-day combination
+                    const isLoading = loadingHabits.has(`${habit.id}-${dateStr}`)
                     
                     // Check if this is the first day of a month (month boundary)
                     const isMonthStart = index > 0 && date.getMonth() !== timelineDates[index - 1].getMonth()
@@ -8234,7 +8253,8 @@ export function JourneyGameView({
                         const isCompleted = habit.habit_completions && habit.habit_completions[dateStr] === true
                         const isToday = dateStr === getLocalDateString(today)
                         const isFuture = date > today
-                        const isLoading = loadingHabits.has(habit.id)
+                        // Check loading state for this specific habit-day combination
+                        const isLoading = loadingHabits.has(`${habit.id}-${dateStr}`)
                         const isMonthStart = index > 0 && date.getMonth() !== timelineDates[index - 1].getMonth()
                         
                         return (
@@ -10095,6 +10115,7 @@ export function JourneyGameView({
                     onGoalsUpdate={onGoalsUpdate}
                     userId={userId}
                     player={player}
+                    dailySteps={dailySteps}
                     onOpenStepModal={(step, goalId) => {
                       if (step) {
                         handleOpenStepModal(undefined, step)
@@ -11709,7 +11730,7 @@ export function JourneyGameView({
                         stepModalData.checklist.map((item, index) => (
                           <div 
                             key={item.id} 
-                            className={`flex items-center gap-3 p-2.5 rounded-lg border transition-all ${
+                            className={`flex items-start gap-3 p-3 rounded-lg border transition-all ${
                               item.completed 
                                 ? 'bg-orange-50 border-orange-200' 
                                 : 'bg-gray-50 border-gray-200 hover:border-orange-300'
@@ -11798,8 +11819,20 @@ export function JourneyGameView({
                                 </svg>
                               )}
                             </button>
-                    <input
-                              type="text"
+                    <textarea
+                              ref={(el) => {
+                                if (el) {
+                                  // Auto-resize on mount
+                                  el.style.height = 'auto'
+                                  el.style.height = `${el.scrollHeight}px`
+                                  
+                                  // Focus if this is the newly added item
+                                  if (item.id === lastAddedChecklistItemId) {
+                                    el.focus()
+                                    setLastAddedChecklistItemId(null)
+                                  }
+                                }
+                              }}
                               value={item.title}
                               onChange={(e) => {
                                 const updatedChecklist = [...stepModalData.checklist]
@@ -11811,6 +11844,10 @@ export function JourneyGameView({
                                 if (selectedItem && selectedItem.id === stepModalData.id) {
                                   setSelectedItem({...selectedItem, checklist: updatedChecklist})
                                 }
+                                
+                                // Auto-resize textarea
+                                e.target.style.height = 'auto'
+                                e.target.style.height = `${Math.max(e.target.scrollHeight, 24)}px`
                                 
                                 // Debounced auto-save for text changes
                                 if (stepModalData.id) {
@@ -11878,10 +11915,18 @@ export function JourneyGameView({
                                   }, 500)
                                 }
                               }}
-                              className={`flex-1 bg-transparent text-sm border-none focus:ring-0 p-0 ${
+                              onKeyDown={(e) => {
+                                // Prevent Enter from submitting the form
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                  e.preventDefault()
+                                }
+                              }}
+                              rows={1}
+                              className={`flex-1 bg-transparent text-sm border-none focus:ring-0 p-0 resize-none overflow-hidden min-h-[24px] ${
                                 item.completed ? 'line-through text-gray-500' : 'text-gray-800'
                               }`}
                               placeholder={t('steps.checklistItemPlaceholder') || 'Item name...'}
+                              style={{ height: 'auto', minHeight: '24px' }}
                             />
                             <button
                               type="button"
@@ -11934,6 +11979,7 @@ export function JourneyGameView({
                           title: '',
                           completed: false
                         }
+                        setLastAddedChecklistItemId(newItem.id)
                         setStepModalData({
                           ...stepModalData, 
                           checklist: [...stepModalData.checklist, newItem]

@@ -17,6 +17,7 @@ interface GoalsManagementViewProps {
   onCreateGoal?: () => void
   onGoalDateClick?: (goalId: string, e: React.MouseEvent) => void
   onGoalStatusClick?: (goalId: string, e: React.MouseEvent) => void
+  dailySteps?: any[] // Add dailySteps prop to update cache when steps change
 }
 
 export function GoalsManagementView({
@@ -28,7 +29,8 @@ export function GoalsManagementView({
   onGoalClick,
   onCreateGoal,
   onGoalDateClick,
-  onGoalStatusClick
+  onGoalStatusClick,
+  dailySteps = []
 }: GoalsManagementViewProps) {
   const t = useTranslations()
   const localeCode = useLocale()
@@ -71,7 +73,7 @@ export function GoalsManagementView({
         
         setGoalStepsCache(stepsMap)
         setLoadingSteps(new Set())
-    } catch (error) {
+          } catch (error) {
         console.error('Error loading steps:', error)
         setLoadingSteps(new Set())
       }
@@ -84,6 +86,31 @@ export function GoalsManagementView({
       setLoadingSteps(new Set())
     }
   }, [goals])
+
+  // Update cache when dailySteps prop changes (e.g., when checklist is updated)
+  useEffect(() => {
+    if (dailySteps.length > 0) {
+      // Group steps by goal_id
+      const stepsByGoal: Record<string, any[]> = {}
+      dailySteps.forEach(step => {
+        if (step.goal_id) {
+          if (!stepsByGoal[step.goal_id]) {
+            stepsByGoal[step.goal_id] = []
+          }
+          stepsByGoal[step.goal_id].push(step)
+        }
+      })
+      
+      // Update cache for goals that have steps in dailySteps
+      setGoalStepsCache(prev => {
+        const updated = { ...prev }
+        Object.keys(stepsByGoal).forEach(goalId => {
+          updated[goalId] = stepsByGoal[goalId]
+        })
+        return updated
+      })
+    }
+  }, [dailySteps])
 
   // Calculate progress for a goal
   const calculateProgress = (goalId: string) => {
