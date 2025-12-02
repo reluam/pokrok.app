@@ -3,13 +3,169 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations, useLocale } from 'next-intl'
-import { Check, ChevronDown, ChevronUp, Plus, X, Filter } from 'lucide-react'
+import { Check, ChevronDown, ChevronUp, Plus, X, Filter, GripVertical, Edit } from 'lucide-react'
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core'
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { isHabitScheduledForDay } from '../utils/habitHelpers'
 
 interface HabitsManagementViewProps {
   habits: any[]
   onHabitsUpdate?: (habits: any[]) => void
   handleHabitToggle?: (habitId: string, date?: string) => Promise<void>
   loadingHabits: Set<string>
+}
+
+// Sortable habit row component
+function SortableHabitRow({
+  habit,
+  index,
+  isCompletedToday,
+  shouldGrayOut,
+  loadingHabits,
+  handleHabitToggle,
+  initializeEditingHabit,
+  setQuickEditHabitPosition,
+  setQuickEditHabitId,
+  setQuickEditHabitField,
+  t
+}: {
+  habit: any
+  index: number
+  isCompletedToday: boolean
+  shouldGrayOut: boolean
+  loadingHabits: Set<string>
+  handleHabitToggle?: (habitId: string, date?: string) => Promise<void>
+  initializeEditingHabit: (habit: any) => void
+  setQuickEditHabitPosition: (pos: { top: number; left: number }) => void
+  setQuickEditHabitId: (id: string) => void
+  setQuickEditHabitField: (field: 'frequency' | 'days' | null) => void
+  t: any
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: habit.id })
+  
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+  
+  const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+  
+  return (
+    <tr
+      ref={setNodeRef}
+      style={style}
+      onClick={() => initializeEditingHabit(habit)}
+      className={`border-b border-gray-100 hover:bg-orange-50/30 cursor-pointer transition-all duration-200 last:border-b-0 ${
+        isCompletedToday ? 'bg-orange-50/50 hover:bg-orange-50' : 'bg-white'
+      } ${shouldGrayOut ? 'opacity-50' : ''}`}
+    >
+      <td className="px-4 py-2 first:pl-6">
+        <div className="flex items-center justify-center gap-2">
+          <button
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <GripVertical className="w-4 h-4" />
+          </button>
+          <button
+            onClick={async (e) => {
+              e.stopPropagation()
+              if (!loadingHabits.has(habit.id) && handleHabitToggle) {
+                await handleHabitToggle(habit.id)
+              }
+            }}
+            disabled={loadingHabits.has(habit.id)}
+            className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
+          >
+            {loadingHabits.has(habit.id) ? (
+              <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : isCompletedToday ? (
+              <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
+            ) : (
+              <Check className={`w-5 h-5 ${shouldGrayOut ? 'text-gray-300' : 'text-gray-400'}`} strokeWidth={2.5} fill="none" />
+            )}
+          </button>
+        </div>
+      </td>
+      <td className="px-4 py-2">
+        <span className={`font-semibold text-sm ${isCompletedToday ? 'text-gray-500 line-through' : shouldGrayOut ? 'text-gray-400' : 'text-gray-900'}`}>
+          {habit.name}
+        </span>
+      </td>
+      <td className="px-4 py-2">
+        <span 
+          onClick={(e) => {
+            e.stopPropagation()
+            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+            setQuickEditHabitPosition({ top: rect.bottom + 4, left: rect.left })
+            setQuickEditHabitId(habit.id)
+            setQuickEditHabitField('frequency')
+          }}
+          className={`text-xs px-2.5 py-1.5 rounded-lg bg-gray-50 border border-gray-200 font-medium cursor-pointer hover:opacity-80 transition-opacity ${
+            shouldGrayOut ? 'text-gray-400' : 'text-gray-700'
+          }`}
+        >
+          {habit.frequency === 'custom' ? t('habits.filters.frequency.weekly') :
+            habit.frequency === 'daily' ? t('habits.filters.frequency.daily') :
+            habit.frequency === 'weekly' ? t('habits.filters.frequency.weekly') :
+              habit.frequency === 'monthly' ? t('habits.filters.frequency.monthly') : t('habits.filters.frequency.daily')}
+        </span>
+      </td>
+      <td className="px-4 py-2">
+        {habit.selected_days && habit.selected_days.length > 0 ? (
+          <div className="flex gap-1 flex-wrap">
+            {habit.selected_days.map((day: string) => {
+              const dayLabels: { [key: string]: string } = {
+                monday: t('daysShort.mon'),
+                tuesday: t('daysShort.tue'),
+                wednesday: t('daysShort.wed'),
+                thursday: t('daysShort.thu'),
+                friday: t('daysShort.fri'),
+                saturday: t('daysShort.sat'),
+                sunday: t('daysShort.sun')
+              }
+              return (
+                <span key={day} className={`text-xs px-1.5 py-0.5 rounded ${
+                  shouldGrayOut 
+                    ? 'bg-gray-100 text-gray-400' 
+                    : 'bg-orange-100 text-orange-700'
+                }`}>
+                  {dayLabels[day] || day}
+                </span>
+              )
+            })}
+          </div>
+        ) : (
+          <span className={`text-xs ${shouldGrayOut ? 'text-gray-300' : 'text-gray-400'}`}>-</span>
+        )}
+      </td>
+      <td className="px-4 py-2 last:pr-6">
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            initializeEditingHabit(habit)
+          }}
+          className="text-gray-400 hover:text-orange-600 transition-colors"
+        >
+          <Edit className="w-4 h-4" />
+        </button>
+      </td>
+    </tr>
+  )
 }
 
 export function HabitsManagementView({
@@ -25,7 +181,7 @@ export function HabitsManagementView({
   const [editingHabit, setEditingHabit] = useState<any>(null)
   
   // Filters
-  const [habitsFrequencyFilter, setHabitsFrequencyFilter] = useState<'all' | 'daily' | 'weekly' | 'monthly' | 'custom'>('all')
+  const [habitsFrequencyFilter, setHabitsFrequencyFilter] = useState<'all' | 'daily' | 'weekly' | 'monthly'>('all')
   const [habitsShowCompletedToday, setHabitsShowCompletedToday] = useState(true)
   const [filtersExpanded, setFiltersExpanded] = useState(false)
   
@@ -33,6 +189,110 @@ export function HabitsManagementView({
   const [quickEditHabitId, setQuickEditHabitId] = useState<string | null>(null)
   const [quickEditHabitField, setQuickEditHabitField] = useState<'frequency' | 'days' | null>(null)
   const [quickEditHabitPosition, setQuickEditHabitPosition] = useState<{ top: number; left: number } | null>(null)
+  
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
+  
+  // Handle drag end for reordering habits
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+    
+    if (!over || active.id === over.id) {
+      return
+    }
+    
+    // Get all habits sorted by current order (not filtered)
+    const allHabitsSorted = [...habits].sort((a: any, b: any) => {
+      const aOrder = a.order !== undefined ? a.order : (a.created_at ? new Date(a.created_at).getTime() : 0)
+      const bOrder = b.order !== undefined ? b.order : (b.created_at ? new Date(b.created_at).getTime() : 0)
+      return aOrder - bOrder
+    })
+    
+    // Get filtered habits (for display) to find indices
+    const filteredHabits = allHabitsSorted.filter((habit: any) => {
+      if (habitsFrequencyFilter !== 'all') {
+        // Treat custom as weekly for filtering
+        const habitFrequency = habit.frequency === 'custom' ? 'weekly' : habit.frequency
+        if (habitFrequency !== habitsFrequencyFilter) {
+          return false
+        }
+      }
+      if (!habitsShowCompletedToday) {
+        const today = new Date().toISOString().split('T')[0]
+        const habitCompletions = habit.completions || []
+        const isCompletedToday = habitCompletions.some((c: any) => c.date === today)
+        if (isCompletedToday) {
+          return false
+        }
+      }
+      return true
+    })
+    
+    const oldIndex = filteredHabits.findIndex((h: any) => h.id === active.id)
+    const newIndex = filteredHabits.findIndex((h: any) => h.id === over.id)
+    
+    if (oldIndex === -1 || newIndex === -1) {
+      return
+    }
+    
+    // Get the dragged and target habits
+    const draggedHabit = filteredHabits[oldIndex]
+    const targetHabit = filteredHabits[newIndex]
+    
+    // Find positions in all habits
+    const allHabitsOldIndex = allHabitsSorted.findIndex((h: any) => h.id === draggedHabit.id)
+    const allHabitsTargetIndex = allHabitsSorted.findIndex((h: any) => h.id === targetHabit.id)
+    
+    if (allHabitsOldIndex === -1 || allHabitsTargetIndex === -1) {
+      return
+    }
+    
+    // Reorder all habits (not just filtered ones)
+    const reorderedAllHabits = arrayMove(allHabitsSorted, allHabitsOldIndex, allHabitsTargetIndex)
+    
+    // Update order for all habits based on their new positions
+    const updates = reorderedAllHabits.map((habit: any, index: number) => ({
+      id: habit.id,
+      order: index
+    }))
+    
+    // Update all habits with new order
+    try {
+      await Promise.all(updates.map(async (update) => {
+        await fetch('/api/habits', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            habitId: update.id,
+            order: update.order
+          })
+        })
+      }))
+      
+      // Update local state immediately for better UX
+      if (onHabitsUpdate) {
+        onHabitsUpdate(reorderedAllHabits.map((h: any, idx: number) => ({
+          ...h,
+          order: idx
+        })))
+      }
+    } catch (error) {
+      console.error('Error updating habit order:', error)
+      // Refresh habits on error
+      if (onHabitsUpdate) {
+        const response = await fetch('/api/habits')
+        if (response.ok) {
+          const updatedHabits = await response.json()
+          onHabitsUpdate(updatedHabits)
+        }
+      }
+    }
+  }
 
   // Auto-open modal if flag is set
   useEffect(() => {
@@ -48,18 +308,27 @@ export function HabitsManagementView({
           selectedDays: [],
           alwaysShow: false,
           reminderEnabled: false,
-          reminderTime: ''
+          reminderTime: '',
+          monthlyType: 'specificDays'
         })
       }
     }
   }, [])
 
   const initializeEditingHabit = (habit: any) => {
+    // Determine monthly type based on selected_days
+    let monthlyType: 'specificDays' | 'weekdayInMonth' = 'specificDays'
+    if (habit?.frequency === 'monthly' && habit?.selected_days) {
+      const hasWeekDay = habit.selected_days.some((d: string) => d.includes('_'))
+      monthlyType = hasWeekDay ? 'weekdayInMonth' : 'specificDays'
+    }
+    
     setEditingHabit({
       ...habit,
       reminderEnabled: !!habit.reminder_time,
       selectedDays: habit.selected_days || [],
-      alwaysShow: habit.always_show || false
+      alwaysShow: habit.always_show || false,
+      monthlyType: monthlyType
     })
   }
 
@@ -69,11 +338,6 @@ export function HabitsManagementView({
       return
     }
 
-    // Validate custom frequency
-    if (editingHabit.frequency === 'custom' && editingHabit.selectedDays.length === 0) {
-      alert('Pro vlastní frekvenci musíte vybrat alespoň jeden den')
-      return
-    }
 
     try {
       const isCreating = !editingHabit.id
@@ -216,7 +480,6 @@ export function HabitsManagementView({
             <option value="daily">{t('habits.filters.frequency.daily')}</option>
             <option value="weekly">{t('habits.filters.frequency.weekly')}</option>
             <option value="monthly">{t('habits.filters.frequency.monthly')}</option>
-            <option value="custom">{t('habits.filters.frequency.custom')}</option>
           </select>
           
           {/* Completed Today Filter */}
@@ -245,7 +508,6 @@ export function HabitsManagementView({
             <option value="daily">{t('habits.filters.frequency.daily')}</option>
             <option value="weekly">{t('habits.filters.frequency.weekly')}</option>
             <option value="monthly">{t('habits.filters.frequency.monthly')}</option>
-            <option value="custom">{t('habits.filters.frequency.custom')}</option>
           </select>
           
           {/* Completed Today Filter */}
@@ -270,7 +532,8 @@ export function HabitsManagementView({
               reminderEnabled: true,
               reminderTime: '09:00',
               selectedDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-              alwaysShow: false
+              alwaysShow: false,
+              monthlyType: 'specificDays'
             })
           }}
           className="hidden md:flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
@@ -294,25 +557,85 @@ export function HabitsManagementView({
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-16 last:pr-6"></th>
                 </tr>
               </thead>
-              <tbody style={{ overflow: 'visible' }}>
-                {habits.filter((habit: any) => {
-                  // Filter by frequency
-                  if (habitsFrequencyFilter !== 'all' && habit.frequency !== habitsFrequencyFilter) {
-                    return false
-                  }
-                  
-                  // Filter by completed today (if unchecked, hide completed)
-                  if (!habitsShowCompletedToday) {
-                    const today = new Date().toISOString().split('T')[0]
-                    const habitCompletions = habit.completions || []
-                    const isCompletedToday = habitCompletions.some((c: any) => c.date === today)
-                    if (isCompletedToday) {
-                      return false
-                    }
-                  }
-                  
-                  return true
-                }).map((habit, index) => {
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={habits
+                    .filter((habit: any) => {
+                      if (habitsFrequencyFilter !== 'all') {
+                        // Treat custom as weekly for filtering
+                        const habitFrequency = habit.frequency === 'custom' ? 'weekly' : habit.frequency
+                        if (habitFrequency !== habitsFrequencyFilter) {
+                          return false
+                        }
+                      }
+                      if (!habitsShowCompletedToday) {
+                        const today = new Date().toISOString().split('T')[0]
+                        const habitCompletions = habit.completions || []
+                        const isCompletedToday = habitCompletions.some((c: any) => c.date === today)
+                        if (isCompletedToday) {
+                          return false
+                        }
+                      }
+                      return true
+                    })
+                    .sort((a: any, b: any) => {
+                      if (a.order !== undefined && b.order !== undefined) {
+                        return (a.order || 0) - (b.order || 0)
+                      }
+                      const aTime = a.created_at ? new Date(a.created_at).getTime() : 0
+                      const bTime = b.created_at ? new Date(b.created_at).getTime() : 0
+                      return aTime - bTime
+                    })
+                    .map((h: any) => h.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <tbody style={{ overflow: 'visible' }}>
+                    {habits
+                      .filter((habit: any) => {
+                        // Filter by frequency
+                        if (habitsFrequencyFilter !== 'all' && habit.frequency !== habitsFrequencyFilter) {
+                          return false
+                        }
+                        
+                        // Filter by completed today (if unchecked, hide completed)
+                        if (!habitsShowCompletedToday) {
+                          const today = new Date().toISOString().split('T')[0]
+                          const habitCompletions = habit.completions || []
+                          const isCompletedToday = habitCompletions.some((c: any) => c.date === today)
+                          if (isCompletedToday) {
+                            return false
+                          }
+                        }
+                        
+                        return true
+                      })
+                      .sort((a: any, b: any) => {
+                        // First sort by reminder_time (habits with time come first, sorted by time)
+                        const aTime = a.reminder_time || ''
+                        const bTime = b.reminder_time || ''
+                        
+                        // If both have times, sort by time
+                        if (aTime && bTime) {
+                          return aTime.localeCompare(bTime)
+                        }
+                        // If only one has time, it comes first
+                        if (aTime && !bTime) return -1
+                        if (!aTime && bTime) return 1
+                        
+                        // If neither has time, sort by order if available
+                        if (a.order !== undefined && b.order !== undefined) {
+                          return (a.order || 0) - (b.order || 0)
+                        }
+                        // Otherwise by created_at (newer first = at bottom)
+                        const aCreated = a.created_at ? new Date(a.created_at).getTime() : 0
+                        const bCreated = b.created_at ? new Date(b.created_at).getTime() : 0
+                        return aCreated - bCreated
+                      })
+                      .map((habit, index) => {
                   // Calculate isCompletedToday using local date and habit_completions
                   const now = new Date()
                   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
@@ -332,14 +655,19 @@ export function HabitsManagementView({
                         isActiveToday = true
                         break
                       case 'weekly':
+                        if (habit.selected_days && habit.selected_days.length > 0) {
+                          isActiveToday = habit.selected_days.includes(todayName)
+                        }
+                        break
                       case 'custom':
+                        // Legacy custom frequency - treat as weekly
                         if (habit.selected_days && habit.selected_days.length > 0) {
                           isActiveToday = habit.selected_days.includes(todayName)
                         }
                         break
                       case 'monthly':
-                        const createdDate = habit.created_at ? new Date(habit.created_at) : new Date()
-                        isActiveToday = now.getDate() === createdDate.getDate()
+                        // Use helper function for monthly frequency check
+                        isActiveToday = isHabitScheduledForDay(habit, now)
                         break
                     }
                   }
@@ -347,106 +675,20 @@ export function HabitsManagementView({
                   const shouldGrayOut = !isActiveToday && !(habit.always_show || habit.alwaysShow)
                   
                   return (
-                    <tr
+                    <SortableHabitRow
                       key={habit.id}
-                        onClick={() => initializeEditingHabit(habit)}
-                        className={`border-b border-gray-100 hover:bg-orange-50/30 cursor-pointer transition-all duration-200 last:border-b-0 ${
-                          isCompletedToday ? 'bg-orange-50/50 hover:bg-orange-50' : 'bg-white'
-                        } ${shouldGrayOut ? 'opacity-50' : ''}`}
-                      >
-                        <td className="px-4 py-2 first:pl-6">
-                          <div className="flex items-center justify-center">
-                            <button
-                              onClick={async (e) => {
-                                e.stopPropagation()
-                                if (!loadingHabits.has(habit.id) && handleHabitToggle) {
-                                  await handleHabitToggle(habit.id)
-                                }
-                              }}
-                              disabled={loadingHabits.has(habit.id)}
-                              className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
-                            >
-                              {loadingHabits.has(habit.id) ? (
-                                <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                              ) : isCompletedToday ? (
-                                <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
-                              ) : (
-                                <Check className={`w-5 h-5 ${shouldGrayOut ? 'text-gray-300' : 'text-gray-400'}`} strokeWidth={2.5} fill="none" />
-                              )}
-                            </button>
-                          </div>
-                        </td>
-                        <td className="px-4 py-2">
-                          <span className={`font-semibold text-sm ${isCompletedToday ? 'text-gray-500 line-through' : shouldGrayOut ? 'text-gray-400' : 'text-gray-900'}`}>
-                            {habit.name}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2">
-                          <span 
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                              setQuickEditHabitPosition({ top: rect.bottom + 4, left: rect.left })
-                              setQuickEditHabitId(habit.id)
-                              setQuickEditHabitField('frequency')
-                            }}
-                            className={`text-xs px-2.5 py-1.5 rounded-lg bg-gray-50 border border-gray-200 font-medium cursor-pointer hover:opacity-80 transition-opacity ${
-                              shouldGrayOut ? 'text-gray-400' : 'text-gray-700'
-                            }`}
-                          >
-                            {habit.frequency === 'custom' ? t('table.custom') :
-                              habit.frequency === 'daily' ? t('habits.filters.frequency.daily') :
-                              habit.frequency === 'weekly' ? t('habits.filters.frequency.weekly') :
-                                habit.frequency === 'monthly' ? t('habits.filters.frequency.monthly') : t('habits.filters.frequency.daily')}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2">
-                          {habit.selected_days && habit.selected_days.length > 0 ? (
-                            <div className="flex gap-1 flex-wrap">
-                              {habit.selected_days.map((day: string) => {
-                                const dayLabels: { [key: string]: string } = {
-                                  monday: t('daysShort.mon'),
-                                  tuesday: t('daysShort.tue'),
-                                  wednesday: t('daysShort.wed'),
-                                  thursday: t('daysShort.thu'),
-                                  friday: t('daysShort.fri'),
-                                  saturday: t('daysShort.sat'),
-                                  sunday: t('daysShort.sun')
-                                }
-                                return (
-                                  <span key={day} className={`text-xs px-1.5 py-0.5 rounded ${
-                                    shouldGrayOut 
-                                      ? 'bg-gray-100 text-gray-400' 
-                                      : 'bg-orange-100 text-orange-700'
-                                  }`}>
-                                    {dayLabels[day]}
-                                  </span>
-                                )
-                              })}
-                            </div>
-                          ) : (
-                            <span className={`text-xs ${shouldGrayOut ? 'text-gray-300' : 'text-gray-400'}`}>-</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-2 last:pr-6">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              initializeEditingHabit(habit)
-                            }}
-                            className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-                            title={t('common.edit') || 'Upravit'}
-                            onMouseDown={(e) => e.stopPropagation()}
-                          >
-                            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </button>
-                        </td>
-                      </tr>
+                      habit={habit}
+                      index={index}
+                      isCompletedToday={isCompletedToday}
+                      shouldGrayOut={shouldGrayOut}
+                      loadingHabits={loadingHabits}
+                      handleHabitToggle={handleHabitToggle}
+                      initializeEditingHabit={initializeEditingHabit}
+                      setQuickEditHabitPosition={setQuickEditHabitPosition}
+                      setQuickEditHabitId={setQuickEditHabitId}
+                      setQuickEditHabitField={setQuickEditHabitField}
+                      t={t}
+                    />
                   )
                 })}
                 {habits.length === 0 && (
@@ -458,6 +700,8 @@ export function HabitsManagementView({
                   </tr>
                 )}
               </tbody>
+                </SortableContext>
+              </DndContext>
             </table>
           </div>
         </div>
@@ -502,54 +746,21 @@ export function HabitsManagementView({
                   />
                 </div>
 
-                {/* Days selection - only show for custom frequency */}
-                {editingHabit.frequency === 'custom' && (
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">{t('table.daysOfWeek')}</label>
-                    <div className="grid grid-cols-7 gap-2 mb-3">
-                      {[
-                        { key: 'monday', label: t('daysShort.mon') },
-                        { key: 'tuesday', label: t('daysShort.tue') },
-                        { key: 'wednesday', label: t('daysShort.wed') },
-                        { key: 'thursday', label: t('daysShort.thu') },
-                        { key: 'friday', label: t('daysShort.fri') },
-                        { key: 'saturday', label: t('daysShort.sat') },
-                        { key: 'sunday', label: t('daysShort.sun') }
-                      ].map(({ key, label }) => (
-                        <button
-                          key={key}
-                          type="button"
-                          onClick={() => {
-                            const newDays = editingHabit.selectedDays.includes(key)
-                              ? editingHabit.selectedDays.filter((d: string) => d !== key)
-                              : [...editingHabit.selectedDays, key]
-                            setEditingHabit({...editingHabit, selectedDays: newDays})
-                          }}
-                          className={`px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${
-                            editingHabit.selectedDays.includes(key)
-                              ? 'bg-orange-600 text-white border-orange-600 shadow-md'
-                              : 'bg-white text-gray-700 border-gray-300 hover:border-orange-600 hover:bg-orange-50'
-                          }`}
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-2">{t('table.frequency')}</label>
                     <select
                       value={editingHabit.frequency || 'daily'}
-                      onChange={(e) => setEditingHabit({...editingHabit, frequency: e.target.value})}
+                      onChange={(e) => {
+                        const newFrequency = e.target.value
+                        console.log('[DEBUG] Frequency changed to:', newFrequency)
+                        setEditingHabit({...editingHabit, frequency: newFrequency, selectedDays: editingHabit.selectedDays || []})
+                      }}
                       className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
                     >
                       <option value="daily">{t('habits.filters.frequency.daily')}</option>
                       <option value="weekly">{t('habits.filters.frequency.weekly')}</option>
                       <option value="monthly">{t('habits.filters.frequency.monthly')}</option>
-                      <option value="custom">{t('table.custom')}</option>
                     </select>
                   </div>
                   <div>
@@ -575,6 +786,191 @@ export function HabitsManagementView({
                     )}
                   </div>
                 </div>
+
+                {/* Selected Days for Weekly, Monthly, and Custom frequencies */}
+                {(editingHabit.frequency === 'weekly' || editingHabit.frequency === 'monthly') && (
+                  <div className="mt-4">
+                    <label className="block text-sm font-semibold text-gray-800 mb-2">
+                      {editingHabit.frequency === 'weekly' 
+                        ? (t('habits.selectDaysOfWeek') || 'Vyberte dny v týdnu')
+                        : editingHabit.frequency === 'monthly'
+                        ? (t('habits.selectDaysOfMonth') || 'Vyberte dny v měsíci')
+                        : (t('habits.selectDays') || 'Vyberte dny')}
+                    </label>
+                    {editingHabit.frequency === 'monthly' ? (
+                      <div className="space-y-3">
+                        {/* Toggle between specific days and weekday in month */}
+                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingHabit({...editingHabit, monthlyType: 'specificDays'})
+                              // Clear weekday selections when switching
+                              const dayNumbers = editingHabit.selectedDays?.filter((d: string) => /^\d+$/.test(d)) || []
+                              setEditingHabit({...editingHabit, selectedDays: dayNumbers, monthlyType: 'specificDays'})
+                            }}
+                            className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+                              editingHabit.monthlyType === 'specificDays'
+                                ? 'bg-orange-600 text-white shadow-md'
+                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                            }`}
+                          >
+                            {t('habits.monthlyType.specificDays')}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingHabit({...editingHabit, monthlyType: 'weekdayInMonth'})
+                              // Clear specific day numbers when switching
+                              const weekDays = editingHabit.selectedDays?.filter((d: string) => /^[a-z]+_[a-z]+$/.test(d)) || []
+                              setEditingHabit({...editingHabit, selectedDays: weekDays, monthlyType: 'weekdayInMonth'})
+                            }}
+                            className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+                              editingHabit.monthlyType === 'weekdayInMonth'
+                                ? 'bg-orange-600 text-white shadow-md'
+                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                            }`}
+                          >
+                            {t('habits.monthlyType.weekdayInMonth')}
+                          </button>
+                        </div>
+                        
+                        {editingHabit.monthlyType === 'specificDays' ? (
+                          /* Day of month selection (1-31) */
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-800 mb-2">
+                              {t('habits.dayOfMonth')}
+                            </label>
+                            <input
+                              type="text"
+                              placeholder={t('habits.dayOfMonthPlaceholder') || "E.g. 1, 15, 31"}
+                              value={editingHabit.selectedDays?.filter((d: string) => /^\d+$/.test(d)).join(', ') || ''}
+                              onChange={(e) => {
+                                const values = e.target.value.split(',').map(v => v.trim()).filter(v => {
+                                  const num = parseInt(v)
+                                  return !isNaN(num) && num >= 1 && num <= 31
+                                })
+                                const otherDays = editingHabit.selectedDays?.filter((d: string) => !/^\d+$/.test(d)) || []
+                                setEditingHabit({...editingHabit, selectedDays: [...otherDays, ...values.map(v => v.toString())]})
+                              }}
+                              className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">{t('habits.dayOfMonthHint') || 'Enter day numbers separated by commas (1-31)'}</p>
+                          </div>
+                        ) : (
+                          /* Day of week in month selection (e.g., first Monday, last Friday) */
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-800 mb-2">
+                              {t('habits.dayOfWeekInMonth')}
+                            </label>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">
+                                  {t('habits.week') || 'Week'}
+                                </label>
+                                <select
+                                  value={(() => {
+                                    const monthWeekDay = editingHabit.selectedDays?.find((d: string) => d.includes('_'))
+                                    return monthWeekDay ? monthWeekDay.split('_')[0] : ''
+                                  })()}
+                                  onChange={(e) => {
+                                    const currentMonthDay = (() => {
+                                      const monthWeekDay = editingHabit.selectedDays?.find((d: string) => d.includes('_'))
+                                      return monthWeekDay ? monthWeekDay.split('_')[1] : ''
+                                    })()
+                                    const otherDays = editingHabit.selectedDays?.filter((d: string) => !/^[a-z]+_[a-z]+$/.test(d)) || []
+                                    const dayNumbers = editingHabit.selectedDays?.filter((d: string) => /^\d+$/.test(d)) || []
+                                    if (e.target.value && currentMonthDay) {
+                                      setEditingHabit({...editingHabit, selectedDays: [...otherDays, ...dayNumbers, `${e.target.value}_${currentMonthDay}`]})
+                                    } else {
+                                      setEditingHabit({...editingHabit, selectedDays: [...otherDays, ...dayNumbers]})
+                                    }
+                                  }}
+                                  className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
+                                >
+                                  <option value="">-- {t('common.select') || 'Select'} --</option>
+                                  <option value="first">{t('habits.first')}</option>
+                                  <option value="second">{t('habits.second')}</option>
+                                  <option value="third">{t('habits.third')}</option>
+                                  <option value="fourth">{t('habits.fourth')}</option>
+                                  <option value="last">{t('habits.last')}</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">
+                                  {t('habits.day') || 'Day'}
+                                </label>
+                                <select
+                                  value={(() => {
+                                    const monthWeekDay = editingHabit.selectedDays?.find((d: string) => d.includes('_'))
+                                    return monthWeekDay ? monthWeekDay.split('_')[1] : ''
+                                  })()}
+                                  onChange={(e) => {
+                                    const currentMonthWeek = (() => {
+                                      const monthWeekDay = editingHabit.selectedDays?.find((d: string) => d.includes('_'))
+                                      return monthWeekDay ? monthWeekDay.split('_')[0] : ''
+                                    })()
+                                    const otherDays = editingHabit.selectedDays?.filter((d: string) => !/^[a-z]+_[a-z]+$/.test(d)) || []
+                                    const dayNumbers = editingHabit.selectedDays?.filter((d: string) => /^\d+$/.test(d)) || []
+                                    if (currentMonthWeek && e.target.value) {
+                                      setEditingHabit({...editingHabit, selectedDays: [...otherDays, ...dayNumbers, `${currentMonthWeek}_${e.target.value}`]})
+                                    } else {
+                                      setEditingHabit({...editingHabit, selectedDays: [...otherDays, ...dayNumbers]})
+                                    }
+                                  }}
+                                  className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
+                                >
+                                  <option value="">-- {t('common.select') || 'Select'} --</option>
+                                  <option value="monday">{t('daysShort.mon')}</option>
+                                  <option value="tuesday">{t('daysShort.tue')}</option>
+                                  <option value="wednesday">{t('daysShort.wed')}</option>
+                                  <option value="thursday">{t('daysShort.thu')}</option>
+                                  <option value="friday">{t('daysShort.fri')}</option>
+                                  <option value="saturday">{t('daysShort.sat')}</option>
+                                  <option value="sunday">{t('daysShort.sun')}</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(key => {
+                          const dayLabels: { [key: string]: string } = {
+                            monday: t('daysShort.mon'),
+                            tuesday: t('daysShort.tue'),
+                            wednesday: t('daysShort.wed'),
+                            thursday: t('daysShort.thu'),
+                            friday: t('daysShort.fri'),
+                            saturday: t('daysShort.sat'),
+                            sunday: t('daysShort.sun')
+                          }
+                          const label = dayLabels[key]
+                          return (
+                            <button
+                              key={key}
+                              type="button"
+                              onClick={() => {
+                                const newDays = editingHabit.selectedDays?.includes(key)
+                                  ? editingHabit.selectedDays.filter((d: string) => d !== key)
+                                  : [...(editingHabit.selectedDays || []), key]
+                                setEditingHabit({...editingHabit, selectedDays: newDays})
+                              }}
+                              className={`px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${
+                                editingHabit.selectedDays?.includes(key)
+                                  ? 'bg-orange-600 text-white border-orange-600 shadow-md'
+                                  : 'bg-white text-gray-700 border-gray-300 hover:border-orange-600 hover:bg-orange-50'
+                              }`}
+                            >
+                              {label}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <div>
                   <div className="flex items-center gap-2 mb-2">
@@ -766,33 +1162,6 @@ export function HabitsManagementView({
                         }`}
                       >
                         {t('habits.filters.frequency.monthly')}
-                      </button>
-                      <button
-                        onClick={async (e) => {
-                          e.stopPropagation()
-                          try {
-                            const response = await fetch(`/api/cesta/habits/${habit.id}`, {
-                              method: 'PATCH',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ frequency: 'custom' })
-                            })
-                            if (response.ok) {
-                              const updatedHabit = await response.json()
-                              const updatedHabits = habits.map((h: any) => h.id === habit.id ? updatedHabit : h)
-                              onHabitsUpdate?.(updatedHabits)
-                              setQuickEditHabitId(null)
-                              setQuickEditHabitField(null)
-                              setQuickEditHabitPosition(null)
-                            }
-                          } catch (error) {
-                            console.error('Error updating habit frequency:', error)
-                          }
-                        }}
-                        className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
-                          habit.frequency === 'custom' ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
-                        }`}
-                      >
-                        {t('habits.filters.frequency.custom')}
                       </button>
                     </div>
                   </>

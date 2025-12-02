@@ -3,6 +3,7 @@
 import { useMemo } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString } from '../utils/dateHelpers'
+import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { Check } from 'lucide-react'
 
 interface WeekHabitsTableProps {
@@ -64,16 +65,7 @@ export function WeekHabitsTable({
     })
   }, [habits, weekDays])
   
-  // Check if habit is scheduled for a specific day
-  const isHabitScheduledForDay = (habit: any, day: Date): boolean => {
-    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-    const dayName = dayNames[day.getDay()]
-    
-    if (habit.always_show) return true
-    if (habit.frequency === 'daily') return true
-    if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
-    return false
-  }
+  // Use helper function for habit scheduling check
   
   // Check if habit is completed for a specific day
   const isHabitCompletedForDay = (habit: any, day: Date): boolean => {
@@ -161,7 +153,9 @@ export function WeekHabitsTable({
                     disabled={!isScheduled || isLoading}
                     className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
                       !isScheduled 
-                        ? 'bg-gray-100 cursor-default' 
+                        ? isCompleted
+                          ? 'bg-orange-100 hover:bg-orange-200 cursor-pointer'
+                          : 'bg-gray-100 cursor-default'
                         : isCompleted
                           ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
                           : 'bg-gray-200 hover:bg-orange-200 cursor-pointer'
@@ -170,12 +164,12 @@ export function WeekHabitsTable({
                   >
                     {isLoading ? (
                       <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                            ) : isCompleted ? (
-                      <Check className="w-4 h-4 text-white" strokeWidth={3} />
-                            ) : null}
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    ) : isCompleted ? (
+                      <Check className={`w-4 h-4 ${isScheduled ? 'text-white' : 'text-orange-600'}`} strokeWidth={3} />
+                    ) : null}
                           </button>
                   )
                 })}

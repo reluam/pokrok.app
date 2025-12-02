@@ -280,6 +280,24 @@ async function runMigrations() {
       await sql`ALTER TABLE habits ADD COLUMN area_id VARCHAR(255) REFERENCES areas(id) ON DELETE SET NULL`
     }
     
+    // Add order column to habits if it doesn't exist
+    if (!habitsColumnNames.includes('order')) {
+      await sql`ALTER TABLE habits ADD COLUMN "order" INTEGER DEFAULT 0`
+    }
+    
+    // Add notification_enabled column to habits if it doesn't exist
+    if (!habitsColumnNames.includes('notification_enabled')) {
+      await sql`ALTER TABLE habits ADD COLUMN notification_enabled BOOLEAN DEFAULT FALSE`
+    }
+    
+    // Convert custom frequency habits to weekly
+    // This migration converts all habits with frequency 'custom' to 'weekly' while preserving selected_days
+    await sql`
+      UPDATE habits 
+      SET frequency = 'weekly' 
+      WHERE frequency = 'custom'
+    `
+    
     // Add area_id to daily_steps if it doesn't exist (must be after areas table is created)
     // Re-fetch columns in case new ones were added above
     const dailyStepsColumnsForArea = await sql`

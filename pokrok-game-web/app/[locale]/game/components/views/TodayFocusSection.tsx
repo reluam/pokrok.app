@@ -3,6 +3,7 @@
 import { useMemo, useEffect, useRef, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
+import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { Check, Target, ArrowRight, ChevronDown, ChevronUp, Plus } from 'lucide-react'
 import { getIconEmoji, getIconComponent } from '@/lib/icon-utils'
 
@@ -250,17 +251,36 @@ export function TodayFocusSection({
   const dayName = dayNames[dayOfWeek]
   
   const todaysHabits = useMemo(() => {
+    let filtered: any[] = []
+    
     // If week view, habits are already filtered in WeekView, so just use them
     if (isWeekView) {
-      return habits
+      filtered = habits
+    } else {
+      // Otherwise, filter for selected day
+      filtered = habits.filter(habit => {
+        if (habit.always_show) return true
+        if (habit.frequency === 'daily') return true
+        if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
+        return false
+      })
     }
     
-    // Otherwise, filter for selected day
-    return habits.filter(habit => {
-      if (habit.always_show) return true
-      if (habit.frequency === 'daily') return true
-      if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
-      return false
+    // Sort by reminder_time (habits with time come first, sorted by time)
+    return filtered.sort((a: any, b: any) => {
+      const aTime = a.reminder_time || ''
+      const bTime = b.reminder_time || ''
+      
+      // If both have times, sort by time
+      if (aTime && bTime) {
+        return aTime.localeCompare(bTime)
+      }
+      // If only one has time, it comes first
+      if (aTime && !bTime) return -1
+      if (!aTime && bTime) return 1
+      
+      // If neither has time, keep original order
+      return 0
     })
   }, [habits, dayName, isWeekView])
   
@@ -457,15 +477,7 @@ export function TodayFocusSection({
   }, [displayedStepIds, onDisplayedStepsChange])
   
   // Helper functions for week view habits table
-  const isHabitScheduledForDay = (habit: any, day: Date): boolean => {
-    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-    const dayName = dayNames[day.getDay()]
-    
-    if (habit.always_show) return true
-    if (habit.frequency === 'daily') return true
-    if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
-    return false
-  }
+  // Use helper function for habit scheduling check
   
   const isHabitCompletedForDay = (habit: any, day: Date): boolean => {
     const dateStr = getLocalDateString(day)
@@ -480,7 +492,8 @@ export function TodayFocusSection({
     return habits.filter(habit => {
       if (habit.always_show) return true
       if (habit.frequency === 'daily') return true
-      if (habit.frequency === 'custom' && habit.selected_days) {
+      // Include both custom (legacy) and weekly habits
+      if ((habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.selected_days) {
         return weekDays.some(day => {
           const dayName = dayNames[day.getDay()]
           return habit.selected_days?.includes(dayName)
@@ -674,7 +687,9 @@ export function TodayFocusSection({
                                     disabled={isLoading}
                                     className={`w-6 h-6 rounded flex items-center justify-center transition-all ${
                                       isCompleted
-                                        ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                                        ? isScheduled
+                                          ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                                          : 'bg-orange-100 hover:bg-orange-200 cursor-pointer'
                                         : !isScheduled 
                                           ? `bg-gray-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}` 
                                           : `bg-orange-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
@@ -686,7 +701,7 @@ export function TodayFocusSection({
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                       </svg>
                                     ) : isCompleted ? (
-                                      <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                                      <Check className={`w-3 h-3 ${isScheduled ? 'text-white' : 'text-orange-600'}`} strokeWidth={3} />
                                     ) : null}
                                   </button>
                                 )

@@ -14,6 +14,7 @@ import { DailyReviewWorkflow } from './DailyReviewWorkflow'
 import { CalendarProgram } from './CalendarProgram'
 import { getIconEmoji, getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
 import { getLocalDateString, normalizeDate } from './utils/dateHelpers'
+import { isHabitScheduledForDay, getHabitStartDate } from './utils/habitHelpers'
 import { ManagementPage } from './pages/ManagementPage'
 import { UnifiedDayView } from './views/UnifiedDayView'
 import { FocusManagementView } from './views/FocusManagementView'
@@ -419,6 +420,9 @@ export function JourneyGameView({
   const [isDeletingGoal, setIsDeletingGoal] = useState(false)
   const [showDeleteAreaModal, setShowDeleteAreaModal] = useState(false)
   const [areaToDelete, setAreaToDelete] = useState<string | null>(null)
+  const [showDeleteHabitModal, setShowDeleteHabitModal] = useState(false)
+  const [habitToDelete, setHabitToDelete] = useState<string | null>(null)
+  const [isDeletingHabit, setIsDeletingHabit] = useState(false)
   const [isDeletingArea, setIsDeletingArea] = useState(false)
   const [showCreateMenu, setShowCreateMenu] = useState(false)
   const createMenuButtonRef = useRef<HTMLButtonElement>(null)
@@ -1001,14 +1005,20 @@ export function JourneyGameView({
   const [habitDetailTab, setHabitDetailTab] = useState<'calendar' | 'settings'>('calendar')
   const [editingHabitName, setEditingHabitName] = useState<string>('')
   const [editingHabitDescription, setEditingHabitDescription] = useState<string>('')
-  const [editingHabitFrequency, setEditingHabitFrequency] = useState<'daily' | 'weekly' | 'monthly' | 'custom'>('daily')
+  const [editingHabitFrequency, setEditingHabitFrequency] = useState<'daily' | 'weekly' | 'monthly'>('daily')
   const [editingHabitSelectedDays, setEditingHabitSelectedDays] = useState<string[]>([])
+  const [editingHabitMonthWeek, setEditingHabitMonthWeek] = useState<string>('')
+  const [editingHabitMonthDay, setEditingHabitMonthDay] = useState<string>('')
+  const [editingHabitMonthlyType, setEditingHabitMonthlyType] = useState<'specificDays' | 'weekdayInMonth'>('specificDays')
+  const [editingHabitWeekdayInMonthSelections, setEditingHabitWeekdayInMonthSelections] = useState<Array<{week: string, day: string}>>([])
+  const [editingHabitAutoAdjust31, setEditingHabitAutoAdjust31] = useState<boolean>(true)
   const [editingHabitAlwaysShow, setEditingHabitAlwaysShow] = useState<boolean>(false)
   const [editingHabitAreaId, setEditingHabitAreaId] = useState<string | null>(null)
   const [editingHabitXpReward, setEditingHabitXpReward] = useState<number>(0)
   const [editingHabitCategory, setEditingHabitCategory] = useState<string>('')
   const [editingHabitDifficulty, setEditingHabitDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
   const [editingHabitReminderTime, setEditingHabitReminderTime] = useState<string>('')
+  const [editingHabitNotificationEnabled, setEditingHabitNotificationEnabled] = useState<boolean>(false)
 
   // Goal editing states
   const [goalTitle, setGoalTitle] = useState('')
@@ -1314,6 +1324,44 @@ export function JourneyGameView({
     setEditingHabitCategory(habit?.category || '')
     setEditingHabitDifficulty(habit?.difficulty || 'medium')
     setEditingHabitReminderTime(habit?.reminder_time || '')
+    setEditingHabitNotificationEnabled(habit?.notification_enabled || false)
+    
+    // Parse monthly frequency selections
+    if (habit?.frequency === 'monthly' && habit?.selected_days) {
+      const monthWeekDays = habit.selected_days.filter((d: string) => d.includes('_'))
+      if (monthWeekDays.length > 0) {
+        // Group by unique combinations - collect all weeks and days
+        const weekSet = new Set<string>()
+        const daySet = new Set<string>()
+        monthWeekDays.forEach((d: string) => {
+          const [week, day] = d.split('_')
+          if (week) weekSet.add(week)
+          if (day) daySet.add(day)
+        })
+        // Create a single selection with all weeks and days
+        setEditingHabitWeekdayInMonthSelections([{ 
+          week: Array.from(weekSet).join(','), 
+          day: Array.from(daySet).join(',') 
+        }])
+        setEditingHabitMonthlyType('weekdayInMonth')
+      } else {
+        setEditingHabitWeekdayInMonthSelections([])
+        setEditingHabitMonthlyType('specificDays')
+      }
+    } else {
+      // For new habits or non-monthly habits, if frequency is monthly and type is weekdayInMonth, initialize with one empty selection
+      if (editingHabitFrequency === 'monthly' && editingHabitMonthlyType === 'weekdayInMonth') {
+        setEditingHabitWeekdayInMonthSelections([{ week: '', day: '' }])
+      } else {
+        setEditingHabitWeekdayInMonthSelections([])
+        setEditingHabitMonthlyType('specificDays')
+      }
+    }
+    
+    // Initialize autoAdjust31 for new habits
+    if (!habit) {
+      setEditingHabitAutoAdjust31(true)
+    }
     
     // If creating new habit and we're on an area page, automatically assign the area
     if (!habit && mainPanelSection.startsWith('area-')) {
@@ -1332,11 +1380,6 @@ export function JourneyGameView({
       return
     }
 
-    // Validate custom frequency
-    if (editingHabitFrequency === 'custom' && editingHabitSelectedDays.length === 0) {
-      alert('Pro vlastní frekvenci musíte vybrat alespoň jeden den')
-      return
-    }
 
     setHabitModalSaving(true)
     try {
@@ -1352,6 +1395,7 @@ export function JourneyGameView({
           description: editingHabitDescription,
           frequency: editingHabitFrequency,
           reminderTime: editingHabitReminderTime || null,
+          notificationEnabled: editingHabitNotificationEnabled,
           selectedDays: editingHabitSelectedDays,
           alwaysShow: editingHabitAlwaysShow,
           xpReward: editingHabitXpReward,
@@ -1396,11 +1440,15 @@ export function JourneyGameView({
   const handleDeleteHabit = async () => {
     if (!habitModalData?.id) return
 
-    const confirmMessage = t('habits.deleteConfirm', { name: habitModalData.name }) || `Opravdu chcete smazat návyk "${habitModalData.name}"? Tato akce je nevratná.`
-    if (!confirm(confirmMessage)) {
-      return
-    }
+    // Open delete confirmation modal
+    setHabitToDelete(habitModalData.id)
+    setShowDeleteHabitModal(true)
+  }
 
+  const handleConfirmDeleteHabit = async () => {
+    if (!habitToDelete) return
+
+    setIsDeletingHabit(true)
     try {
       const response = await fetch('/api/habits', {
         method: 'DELETE',
@@ -1408,19 +1456,21 @@ export function JourneyGameView({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          habitId: habitModalData.id
+          habitId: habitToDelete
         }),
       })
 
       if (response.ok) {
         // Remove habit from parent component
         if (onHabitsUpdate) {
-          onHabitsUpdate(habits.filter(habit => habit.id !== habitModalData.id))
+          onHabitsUpdate(habits.filter(habit => habit.id !== habitToDelete))
         }
         
-        // Close modal after successful deletion
+        // Close modals after successful deletion
         setShowHabitModal(false)
         setHabitModalData(null)
+        setShowDeleteHabitModal(false)
+        setHabitToDelete(null)
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
         alert(t('habits.deleteError') || `Nepodařilo se smazat návyk: ${errorData.error || 'Neznámá chyba'}`)
@@ -2531,13 +2581,12 @@ export function JourneyGameView({
                   </label>
                     <select
                         value={editingHabitFrequency || item.frequency || 'daily'}
-                        onChange={(e) => setEditingHabitFrequency(e.target.value as 'daily' | 'weekly' | 'monthly' | 'custom')}
+                        onChange={(e) => setEditingHabitFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
                     >
                         <option value="daily">Denně</option>
                         <option value="weekly">Týdně</option>
                         <option value="monthly">Měsíčně</option>
-                        <option value="custom">Vlastní</option>
                     </select>
                     </div>
                     
@@ -3176,7 +3225,8 @@ export function JourneyGameView({
         return true
       }
       
-      // If frequency is 'custom', check if today is in selected_days
+      // Custom frequency was removed - treat as weekly
+      // This handles legacy habits that were converted from custom to weekly
       if (habit.frequency === 'custom' && habit.selected_days) {
         const included = habit.selected_days.includes(todayName)
         return included
@@ -4021,11 +4071,11 @@ export function JourneyGameView({
         }, []) // Empty dependency array - create component only once to prevent state resets
 
   const handleHabitToggle = async (habitId: string, date?: string) => {
-    // Use provided date or default to today
-    const dateToUse = date || (() => {
+      // Use provided date or default to today
+      const dateToUse = date || (() => {
       const now = new Date()
-      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-    })()
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+      })()
     
     // Create loading key: use habitId-date for specific dates, habitId for today (when no date provided)
     const loadingKey = date ? `${habitId}-${dateToUse}` : habitId
@@ -4775,7 +4825,22 @@ export function JourneyGameView({
     })
   }
 
-  const todaysHabits = getTodaysHabits()
+  const todaysHabits = getTodaysHabits().sort((a: any, b: any) => {
+    // Sort by reminder_time (habits with time come first, sorted by time)
+    const aTime = a.reminder_time || ''
+    const bTime = b.reminder_time || ''
+    
+    // If both have times, sort by time
+    if (aTime && bTime) {
+      return aTime.localeCompare(bTime)
+    }
+    // If only one has time, it comes first
+    if (aTime && !bTime) return -1
+    if (!aTime && bTime) return 1
+    
+    // If neither has time, keep original order
+    return 0
+  })
 
   // Initialize sorted goals
   // Initialize sorted goals when goals change
@@ -7481,14 +7546,9 @@ export function JourneyGameView({
     }
     
     // Helper functions for habit scheduling and completion
-    const isHabitScheduledForDay = (day: Date): boolean => {
-      const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-      const dayName = dayNames[day.getDay()]
-      
-      if (habit.always_show) return true
-      if (habit.frequency === 'daily') return true
-      if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
-      return false
+    // Use helper function for habit scheduling check
+    const checkHabitScheduled = (day: Date): boolean => {
+      return isHabitScheduledForDay(habit, day)
     }
     
     const isHabitCompletedForDay = (day: Date): boolean => {
@@ -7516,15 +7576,18 @@ export function JourneyGameView({
         const today = new Date()
         today.setHours(0, 0, 0, 0)
         
-        // Go back 365 days to calculate stats
-        for (let i = 365; i >= 0; i--) {
-          const date = new Date(today)
-          date.setDate(date.getDate() - i)
-          allDates.push(date)
+        // Get start date (created_at or earliest completion, whichever is earlier)
+        const startDate = getHabitStartDate(habit)
+        
+        // Go from start date to today
+        const currentDate = new Date(startDate)
+        while (currentDate <= today) {
+          allDates.push(new Date(currentDate))
+          currentDate.setDate(currentDate.getDate() + 1)
         }
         
         allDates.forEach(date => {
-          const isScheduled = isHabitScheduledForDay(date)
+          const isScheduled = checkHabitScheduled(date)
           const isCompleted = isHabitCompletedForDay(date)
           const dateStr = getLocalDateString(date)
           
@@ -7539,20 +7602,58 @@ export function JourneyGameView({
         })
         
         // Calculate current streak (backwards from today)
+        // Streak continues if there's no scheduled missed day
+        // Splnění v nenaplánovaný den se nepočítá do streak, ale do celkově splněných
+        // Start from today and go backwards
         let streakDate = new Date(today)
+        streakDate.setHours(0, 0, 0, 0)
+        const startDateNormalized = new Date(startDate)
+        startDateNormalized.setHours(0, 0, 0, 0)
+        
+        // Count backwards from today
         while (true) {
-          const isScheduled = isHabitScheduledForDay(streakDate)
+          // Check if we've gone past the start date
+          if (streakDate.getTime() < startDateNormalized.getTime()) {
+            break
+          }
+          
+          const isScheduled = checkHabitScheduled(streakDate)
           const isCompleted = isHabitCompletedForDay(streakDate)
           
           if (isScheduled && isCompleted) {
+            // This day counts towards the streak
             currentStreak++
+            // Move to previous day
             streakDate.setDate(streakDate.getDate() - 1)
+            streakDate.setHours(0, 0, 0, 0)
           } else if (isScheduled && !isCompleted) {
-            break // Streak broken
+            // Scheduled but not completed - streak broken
+            break
           } else {
+            // Not scheduled - skip (doesn't break streak, but doesn't add to it either)
             streakDate.setDate(streakDate.getDate() - 1)
-            if (streakDate < new Date('2020-01-01')) break // Safety check
+            streakDate.setHours(0, 0, 0, 0)
           }
+        }
+        
+        // Calculate max streak by going through all dates
+        let tempStreak = 0
+        maxStreak = 0
+        const checkDate = new Date(startDate)
+        while (checkDate <= today) {
+          const isScheduled = checkHabitScheduled(checkDate)
+          const isCompleted = isHabitCompletedForDay(checkDate)
+          
+          if (isScheduled && isCompleted) {
+            tempStreak++
+            maxStreak = Math.max(maxStreak, tempStreak)
+          } else if (isScheduled && !isCompleted) {
+            // Scheduled but not completed - reset streak
+            tempStreak = 0
+          }
+          // Not scheduled - doesn't affect streak
+          
+          checkDate.setDate(checkDate.getDate() + 1)
         }
       }
       
@@ -7560,7 +7661,7 @@ export function JourneyGameView({
         totalPlanned,
         totalCompleted,
         completedOutsidePlan,
-        currentStreak: habit.streak || currentStreak,
+        currentStreak: currentStreak, // Always use calculated streak, not from database
         maxStreak
       }
     }
@@ -7580,7 +7681,7 @@ export function JourneyGameView({
     
     const handleHabitBoxClick = async (date: Date) => {
       const dateStr = getLocalDateString(date)
-      const isScheduled = isHabitScheduledForDay(date)
+      const isScheduled = checkHabitScheduled(date)
       const isCompleted = isHabitCompletedForDay(date)
       
       let currentState: 'completed' | 'missed' | 'planned' | 'not-scheduled' | 'today' = 'not-scheduled'
@@ -7765,7 +7866,9 @@ export function JourneyGameView({
                 <div className="flex gap-1 relative">
                   {timelineDates.map((date, index) => {
                     const dateStr = getLocalDateString(date)
-                    const isScheduled = isHabitScheduledForDay(date)
+                    // IMPORTANT: Check if scheduled FIRST, before checking completion
+                    // This ensures we correctly identify if a day is scheduled or not
+                    const isScheduled = checkHabitScheduled(date)
                     const isCompleted = isHabitCompletedForDay(date)
                     const isToday = dateStr === getLocalDateString(today)
                     const isFuture = date > today
@@ -7774,6 +7877,34 @@ export function JourneyGameView({
                     
                     // Check if this is the first day of a month (month boundary)
                     const isMonthStart = index > 0 && date.getMonth() !== timelineDates[index - 1].getMonth()
+                    
+                    // Determine the visual state based on completion and scheduling
+                    // We need TWO different colors for completed habits:
+                    // 1. Completed AND scheduled = dark orange (bg-orange-500)
+                    // 2. Completed BUT NOT scheduled = light orange (bg-orange-100 with border)
+                    const getButtonClassName = () => {
+                      // Debug: log ALL values to see what's happening
+                      if (isCompleted) {
+                        console.log(`[DEBUG] Habit ${habit.name} on ${dateStr}: isCompleted=${isCompleted}, isScheduled=${isScheduled}, frequency=${habit.frequency}, selected_days=${JSON.stringify(habit.selected_days)}`)
+                      }
+                      
+                      if (isCompleted) {
+                        if (isScheduled) {
+                          // Completed and scheduled - dark orange
+                          return 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                        } else {
+                          // Completed but NOT scheduled - light orange with border
+                          return 'bg-orange-100 hover:bg-orange-200 cursor-pointer'
+                        }
+                      } else {
+                        // Not completed
+                        if (isScheduled) {
+                          return `bg-gray-200 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
+                        } else {
+                          return `bg-gray-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
+                        }
+                      }
+                    }
                     
                     return (
                       <div key={dateStr} className="relative">
@@ -7787,14 +7918,8 @@ export function JourneyGameView({
                         <button
                           onClick={() => !isFuture && !isLoading && handleHabitBoxClick(date)}
                           disabled={isFuture || isLoading}
-                          className={`w-8 h-8 rounded flex items-center justify-center transition-all flex-shrink-0 ${
-                            isCompleted
-                              ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
-                              : isScheduled
-                                ? `bg-gray-200 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
-                                : `bg-gray-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
-                          }`}
-                          title={dateStr}
+                          className={`w-8 h-8 rounded flex items-center justify-center transition-all flex-shrink-0 ${getButtonClassName()}`}
+                          title={`${dateStr}${isScheduled ? ' - Naplánováno' : ' - Nenaplánováno'}${isCompleted ? ' - Splněno' : ' - Nesplněno'}`}
                         >
                           {isLoading ? (
                             <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -7802,12 +7927,38 @@ export function JourneyGameView({
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                           ) : isCompleted ? (
-                            <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                            <Check className={`w-4 h-4 ${isScheduled ? 'text-white' : 'text-orange-600'}`} strokeWidth={3} />
                           ) : null}
                         </button>
                       </div>
                     )
                   })}
+                </div>
+              </div>
+              
+              {/* Legend/Explanations */}
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="flex flex-wrap gap-4 text-xs text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded bg-gray-200 border-2 border-gray-300 flex items-center justify-center flex-shrink-0"></div>
+                    <span>{t('habits.legend.planned') || 'Naplánováno'}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center flex-shrink-0"></div>
+                    <span>{t('habits.legend.notPlanned') || 'Nenaplánováno'}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded bg-orange-500 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                    </div>
+                    <span>{t('habits.legend.completedPlanned') || 'Dokončeno naplánované'}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded bg-orange-100 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-4 h-4 text-orange-600" strokeWidth={3} />
+                    </div>
+                    <span>{t('habits.legend.completedNotPlanned') || 'Dokončeno nenaplánované'}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -7850,11 +8001,11 @@ export function JourneyGameView({
                   <div className="text-gray-900">
                     {habit.frequency === 'daily' ? t('habits.frequency.daily') || 'Denně' :
                      habit.frequency === 'weekly' ? t('habits.frequency.weekly') || 'Týdně' :
-                     habit.frequency === 'custom' ? t('habits.frequency.custom') || 'Vlastní' :
+                     habit.frequency === 'custom' ? t('habits.frequency.weekly') || 'Týdně' :
                      habit.frequency}
                   </div>
                 </div>
-                {habit.frequency === 'custom' && habit.selected_days && (
+                {(habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.selected_days && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       {t('habits.selectedDays') || 'Vybrané dny'}
@@ -7909,14 +8060,9 @@ export function JourneyGameView({
         const today = new Date()
         today.setHours(0, 0, 0, 0)
         
-        const isHabitScheduledForDay = (day: Date): boolean => {
-          const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-          const dayName = dayNames[day.getDay()]
-          
-          if (habit.always_show) return true
-          if (habit.frequency === 'daily') return true
-          if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
-          return false
+        // Use helper function for habit scheduling check
+        const checkHabitScheduled = (day: Date): boolean => {
+          return isHabitScheduledForDay(habit, day)
         }
         
         const isHabitCompletedForDay = (day: Date): boolean => {
@@ -7924,11 +8070,14 @@ export function JourneyGameView({
           return habit.habit_completions && habit.habit_completions[dateStr] === true
         }
         
-        // Go back 365 days to calculate stats
-        for (let i = 365; i >= 0; i--) {
-          const date = new Date(today)
-          date.setDate(date.getDate() - i)
-          const isScheduled = isHabitScheduledForDay(date)
+        // Get start date (created_at or earliest completion, whichever is earlier)
+        const startDate = getHabitStartDate(habit)
+        
+        // Go from start date to today
+        const currentDate = new Date(startDate)
+        while (currentDate <= today) {
+          const date = new Date(currentDate)
+          const isScheduled = checkHabitScheduled(date)
           const isCompleted = isHabitCompletedForDay(date)
           
           if (isScheduled) {
@@ -7939,28 +8088,69 @@ export function JourneyGameView({
           } else if (isCompleted) {
             completedOutsidePlan++
           }
+          
+          currentDate.setDate(currentDate.getDate() + 1)
         }
         
-        // Calculate current streak
+        // Calculate current streak (backwards from today)
+        // Streak continues if there's no scheduled missed day
+        // Splnění v nenaplánovaný den se nepočítá do streak, ale do celkově splněných
+        const habitStartDate = getHabitStartDate(habit)
         let streakDate = new Date(today)
+        streakDate.setHours(0, 0, 0, 0)
+        const habitStartDateNormalized = new Date(habitStartDate)
+        habitStartDateNormalized.setHours(0, 0, 0, 0)
         let habitStreak = 0
+        
+        // Count backwards from today
         while (true) {
-          const isScheduled = isHabitScheduledForDay(streakDate)
+          // Check if we've gone past the start date
+          if (streakDate.getTime() < habitStartDateNormalized.getTime()) {
+            break
+          }
+          
+          const isScheduled = checkHabitScheduled(streakDate)
           const isCompleted = isHabitCompletedForDay(streakDate)
           
           if (isScheduled && isCompleted) {
+            // This day counts towards the streak
             habitStreak++
+            // Move to previous day
             streakDate.setDate(streakDate.getDate() - 1)
+            streakDate.setHours(0, 0, 0, 0)
           } else if (isScheduled && !isCompleted) {
+            // Scheduled but not completed - streak broken
             break
           } else {
+            // Not scheduled - skip (doesn't break streak, but doesn't add to it either)
             streakDate.setDate(streakDate.getDate() - 1)
-            if (streakDate < new Date('2020-01-01')) break
+            streakDate.setHours(0, 0, 0, 0)
           }
         }
         
         currentStreak = Math.max(currentStreak, habitStreak)
-        maxStreak = Math.max(maxStreak, habit.max_streak || 0)
+        
+        // Calculate max streak by going through all dates
+        let tempStreak = 0
+        let habitMaxStreak = 0
+        const checkDate = new Date(habitStartDate)
+        while (checkDate <= today) {
+          const isScheduled = checkHabitScheduled(checkDate)
+          const isCompleted = isHabitCompletedForDay(checkDate)
+          
+          if (isScheduled && isCompleted) {
+            tempStreak++
+            habitMaxStreak = Math.max(habitMaxStreak, tempStreak)
+          } else if (isScheduled && !isCompleted) {
+            // Scheduled but not completed - reset streak
+            tempStreak = 0
+          }
+          // Not scheduled - doesn't affect streak
+          
+          checkDate.setDate(checkDate.getDate() + 1)
+        }
+        
+        maxStreak = Math.max(maxStreak, habitMaxStreak, habit.max_streak || 0)
       })
       
       return {
@@ -8005,7 +8195,7 @@ export function JourneyGameView({
       
       const isScheduled = habit.always_show || 
                         habit.frequency === 'daily' || 
-                        (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName))
+                        ((habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.selected_days && habit.selected_days.includes(dayName))
       const isCompleted = habit.habit_completions && habit.habit_completions[dateStr] === true
       
       let currentState: 'completed' | 'missed' | 'planned' | 'not-scheduled' | 'today' = 'not-scheduled'
@@ -8247,9 +8437,8 @@ export function JourneyGameView({
                         const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
                         const dayName = dayNames[date.getDay()]
                         
-                        const isScheduled = habit.always_show || 
-                                          habit.frequency === 'daily' || 
-                                          (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName))
+                        // Use helper function for habit scheduling check
+                        const isScheduled = isHabitScheduledForDay(habit, date)
                         const isCompleted = habit.habit_completions && habit.habit_completions[dateStr] === true
                         const isToday = dateStr === getLocalDateString(today)
                         const isFuture = date > today
@@ -8270,12 +8459,14 @@ export function JourneyGameView({
                               disabled={isFuture || isLoading}
                               className={`w-8 h-8 rounded flex items-center justify-center transition-all ${
                                 isCompleted
-                                  ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                                  ? isScheduled
+                                    ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                                    : 'bg-orange-100 hover:bg-orange-200 cursor-pointer'
                                   : isScheduled
-                                    ? `bg-orange-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
+                                    ? `bg-gray-200 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
                                     : `bg-gray-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
                               }`}
-                              title={dateStr}
+                              title={`${dateStr}${isScheduled ? ' - Naplánováno' : ' - Nenaplánováno'}${isCompleted ? ' - Splněno' : ' - Nesplněno'}`}
                             >
                               {isLoading ? (
                                 <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -8283,7 +8474,7 @@ export function JourneyGameView({
                                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
                               ) : isCompleted ? (
-                                <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                                <Check className={`w-4 h-4 ${isScheduled ? 'text-white' : 'text-orange-600'}`} strokeWidth={3} />
                               ) : null}
                             </button>
                           </div>
@@ -8293,6 +8484,32 @@ export function JourneyGameView({
                   </div>
                 )
               })}
+            </div>
+            
+            {/* Legend/Explanations */}
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <div className="flex flex-wrap gap-4 text-xs text-gray-600">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded bg-gray-200 border-2 border-gray-300 flex items-center justify-center flex-shrink-0"></div>
+                  <span>{t('habits.legend.planned') || 'Naplánováno'}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center flex-shrink-0"></div>
+                  <span>{t('habits.legend.notPlanned') || 'Nenaplánováno'}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded bg-orange-500 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                  </div>
+                  <span>{t('habits.legend.completedPlanned') || 'Dokončeno naplánované'}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded bg-orange-100 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-4 h-4 text-orange-600" strokeWidth={3} />
+                  </div>
+                  <span>{t('habits.legend.completedNotPlanned') || 'Dokončeno nenaplánované'}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -10934,7 +11151,7 @@ export function JourneyGameView({
                       const visibleHabits = habits.filter(habit => {
                         if (habit.always_show) return true
                         if (habit.frequency === 'daily') return true
-                        if (habit.frequency === 'custom' && habit.selected_days) {
+                        if ((habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.selected_days) {
                           return habit.selected_days.includes(dayNames[dayOfWeek])
                         }
                         return false
@@ -10953,7 +11170,7 @@ export function JourneyGameView({
                       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
                       if (h.always_show) return true
                       if (h.frequency === 'daily') return true
-                      if (h.frequency === 'custom' && h.selected_days) {
+                      if ((h.frequency === 'custom' || h.frequency === 'weekly') && h.selected_days) {
                         return h.selected_days.includes(dayNames[dayOfWeek])
                       }
                       return false
@@ -12091,112 +12308,435 @@ export function JourneyGameView({
               </div>
 
               <div className="p-6">
-                {/* Settings */}
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-2">
-                        {t('habits.nameLabel') || 'Name'} <span className="text-orange-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={editingHabitName}
-                        onChange={(e) => setEditingHabitName(e.target.value)}
-                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                        placeholder={t('habits.namePlaceholder') || 'Habit name'}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-2">
-                        {t('habits.descriptionLabel') || 'Description'}
-                      </label>
-                      <textarea
-                        value={editingHabitDescription}
-                        onChange={(e) => setEditingHabitDescription(e.target.value)}
-                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white resize-none"
-                        rows={3}
-                        placeholder={t('habits.descriptionPlaceholder') || 'Habit description'}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-2">
-                        {t('habits.frequencyLabel') || 'Frequency'}
-                      </label>
-                      <select
-                        value={editingHabitFrequency}
-                        onChange={(e) => setEditingHabitFrequency(e.target.value as 'daily' | 'weekly' | 'monthly' | 'custom')}
-                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                      >
-                        <option value="daily">{t('habits.frequencyDaily') || 'Daily'}</option>
-                        <option value="weekly">{t('habits.frequencyWeekly') || 'Weekly'}</option>
-                        <option value="monthly">{t('habits.frequencyMonthly') || 'Monthly'}</option>
-                        <option value="custom">{t('habits.frequencyCustom') || 'Custom'}</option>
-                      </select>
-                    </div>
-
-                    {editingHabitFrequency === 'custom' && (
+                {/* Settings - Two Column Layout */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Left Column: Name, Description, Area */}
+                    <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-800 mb-2">
-                          Vyberte dny
+                          {t('habits.nameLabel') || 'Name'} <span className="text-orange-500">*</span>
                         </label>
-                        <div className="flex flex-wrap gap-2">
-                          {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => (
-                            <button
-                              key={day}
-                              onClick={() => {
-                                if (editingHabitSelectedDays.includes(day)) {
-                                  setEditingHabitSelectedDays(editingHabitSelectedDays.filter(d => d !== day))
-                                } else {
-                                  setEditingHabitSelectedDays([...editingHabitSelectedDays, day])
-                                }
-                              }}
-                              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                                editingHabitSelectedDays.includes(day)
-                                  ? 'bg-orange-600 text-white'
-                                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                              }`}
-                            >
-                              {day === 'monday' ? 'Po' : day === 'tuesday' ? 'Út' : day === 'wednesday' ? 'St' : day === 'thursday' ? 'Čt' : day === 'friday' ? 'Pá' : day === 'saturday' ? 'So' : 'Ne'}
-                            </button>
-                          ))}
-                        </div>
+                        <input
+                          type="text"
+                          value={editingHabitName}
+                          onChange={(e) => setEditingHabitName(e.target.value)}
+                          className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
+                          placeholder={t('habits.namePlaceholder') || 'Habit name'}
+                        />
                       </div>
-                    )}
 
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={editingHabitAlwaysShow}
-                        onChange={(e) => setEditingHabitAlwaysShow(e.target.checked)}
-                        className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                      />
-                      <label className="text-sm text-gray-700">
-                        Vždy zobrazovat (i když není naplánováno)
-                      </label>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-800 mb-2">
+                          {t('habits.descriptionLabel') || 'Description'}
+                        </label>
+                        <textarea
+                          value={editingHabitDescription}
+                          onChange={(e) => setEditingHabitDescription(e.target.value)}
+                          className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white resize-none"
+                          rows={3}
+                          placeholder={t('habits.descriptionPlaceholder') || 'Habit description'}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-800 mb-2">
+                          {t('details.goal.area') || 'Oblast'}
+                        </label>
+                        <select
+                          value={editingHabitAreaId || ''}
+                          onChange={(e) => setEditingHabitAreaId(e.target.value || null)}
+                          className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
+                        >
+                          <option value="">{t('details.goal.noArea') || 'Bez oblasti'}</option>
+                          {areas.map((area) => {
+                            const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
+                            return (
+                              <option key={area.id} value={area.id}>
+                                {area.name}
+                              </option>
+                            )
+                          })}
+                        </select>
+                      </div>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-2">
-                        {t('details.goal.area') || 'Oblast'}
-                      </label>
-                      <select
-                        value={editingHabitAreaId || ''}
-                        onChange={(e) => setEditingHabitAreaId(e.target.value || null)}
-                        className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                      >
-                        <option value="">{t('details.goal.noArea') || 'Bez oblasti'}</option>
-                        {areas.map((area) => {
-                          const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
-                          return (
-                            <option key={area.id} value={area.id}>
-                              {area.name}
-                            </option>
-                          )
-                        })}
-                      </select>
+                    {/* Right Column: Time, Frequency */}
+                    <div className="space-y-4">
+                      {/* Habit Time and Notification Section */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-800 mb-2">
+                          {t('habits.habitTime') || 'Čas návyku'}
+                        </label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="time"
+                            value={editingHabitReminderTime || '09:00'}
+                            onChange={(e) => setEditingHabitReminderTime(e.target.value)}
+                            className="flex-1 px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
+                          />
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id="habitNotificationEnabled"
+                              checked={editingHabitNotificationEnabled}
+                              onChange={(e) => {
+                                setEditingHabitNotificationEnabled(e.target.checked)
+                                // Request notification permission when enabling
+                                if (e.target.checked && typeof window !== 'undefined' && 'Notification' in window) {
+                                  if (Notification.permission === 'default') {
+                                    Notification.requestPermission()
+                                  }
+                                }
+                              }}
+                              className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                            />
+                            <label htmlFor="habitNotificationEnabled" className="text-sm font-medium text-gray-700 cursor-pointer whitespace-nowrap">
+                              {t('habits.notificationEnabled') || 'Upozornění'}
+                            </label>
+                          </div>
+                        </div>
+                        {editingHabitNotificationEnabled && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            {t('habits.notificationHint') || 'Zobrazí se browserové upozornění v zadaný čas'}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-800 mb-2">
+                          {t('habits.frequencyLabel') || 'Frequency'}
+                        </label>
+                        <select
+                          value={editingHabitFrequency}
+                          onChange={(e) => setEditingHabitFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
+                          className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
+                        >
+                          <option value="daily">{t('habits.frequencyDaily') || 'Daily'}</option>
+                          <option value="weekly">{t('habits.frequencyWeekly') || 'Weekly'}</option>
+                          <option value="monthly">{t('habits.frequencyMonthly') || 'Monthly'}</option>
+                        </select>
+                      </div>
+
+                      {(editingHabitFrequency === 'weekly' || editingHabitFrequency === 'monthly') && (
+                        <div>
+                        <label className="block text-sm font-semibold text-gray-800 mb-2">
+                          {editingHabitFrequency === 'weekly' 
+                            ? (t('habits.selectDaysOfWeek') || 'Vyberte dny v týdnu')
+                            : editingHabitFrequency === 'monthly'
+                            ? (t('habits.selectDaysOfMonth') || 'Vyberte dny v měsíci')
+                            : (t('habits.selectDays') || 'Vyberte dny')}
+                        </label>
+                        {editingHabitFrequency === 'monthly' ? (
+                          <div className="space-y-3">
+                            {/* Toggle between specific days and weekday in month */}
+                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingHabitMonthlyType('specificDays')
+                                  // Clear weekday selections when switching
+                                  const dayNumbers = editingHabitSelectedDays?.filter((d: string) => /^\d+$/.test(d)) || []
+                                  setEditingHabitSelectedDays(dayNumbers)
+                                  setEditingHabitMonthWeek('')
+                                  setEditingHabitMonthDay('')
+                                }}
+                                className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+                                  editingHabitMonthlyType === 'specificDays'
+                                    ? 'bg-orange-600 text-white shadow-md'
+                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                }`}
+                              >
+                                {t('habits.monthlyType.specificDays')}
+                  </button>
+                  <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingHabitMonthlyType('weekdayInMonth')
+                                  // Clear specific day numbers when switching
+                                  const weekDays = editingHabitSelectedDays?.filter((d: string) => /^[a-z]+_[a-z]+$/.test(d)) || []
+                                  setEditingHabitSelectedDays(weekDays)
+                                  // Initialize with one empty selection if empty
+                                  if (editingHabitWeekdayInMonthSelections.length === 0) {
+                                    setEditingHabitWeekdayInMonthSelections([{ week: '', day: '' }])
+                                  }
+                                }}
+                                className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+                                  editingHabitMonthlyType === 'weekdayInMonth'
+                                    ? 'bg-orange-600 text-white shadow-md'
+                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                }`}
+                              >
+                                {t('habits.monthlyType.weekdayInMonth')}
+                  </button>
+              </div>
+
+                            {editingHabitMonthlyType === 'specificDays' ? (
+                              /* Day of month selection (1-31) */
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-800 mb-2">
+                                  {t('habits.dayOfMonth')}
+                                </label>
+                                <div className="flex flex-wrap gap-1.5 mb-3">
+                                  {Array.from({ length: 31 }, (_, i) => i + 1).map(day => {
+                                    const dayStr = day.toString()
+                                    const isSelected = editingHabitSelectedDays?.some((d: string) => /^\d+$/.test(d) && d === dayStr)
+                                    return (
+                                      <button
+                                        key={day}
+                                        type="button"
+                                        onClick={() => {
+                                          const otherDays = editingHabitSelectedDays?.filter((d: string) => !/^\d+$/.test(d)) || []
+                                          const dayNumbers = editingHabitSelectedDays?.filter((d: string) => /^\d+$/.test(d)) || []
+                                          if (isSelected) {
+                                            setEditingHabitSelectedDays([...otherDays, ...dayNumbers.filter(d => d !== dayStr)])
+                                          } else {
+                                            setEditingHabitSelectedDays([...otherDays, ...dayNumbers, dayStr])
+                                          }
+                                        }}
+                                        className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-all ${
+                                          isSelected
+                                            ? 'bg-orange-600 text-white shadow-sm'
+                                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                        }`}
+                                      >
+                                        {day}.
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                                <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={editingHabitAutoAdjust31}
+                                    onChange={(e) => setEditingHabitAutoAdjust31(e.target.checked)}
+                                    className="w-3.5 h-3.5 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                                  />
+                                  <span>{t('habits.autoAdjust31') || 'Automaticky upravit 31. den na 30. pro měsíce s 30 dny'}</span>
+                                </label>
+                              </div>
+                            ) : (
+                              /* Day of week in month selection (e.g., first Monday, last Friday) */
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-800 mb-2">
+                                  {t('habits.dayOfWeekInMonth')}
+                                </label>
+                                <div className="space-y-3">
+                                  {editingHabitWeekdayInMonthSelections.map((selection, index) => {
+                                    // Parse selected weeks and days from selection (comma-separated)
+                                    const selectedWeeks = selection.week ? selection.week.split(',').filter(w => w) : []
+                                    const selectedDays = selection.day ? selection.day.split(',').filter(d => d) : []
+                                    
+                                    return (
+                                      <div key={index} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                        <div className="space-y-3">
+                                          {/* Week buttons */}
+                                          <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                                              {t('habits.week') || 'Week'}:
+                                            </label>
+                                            <div className="flex flex-wrap gap-1.5">
+                                              {['first', 'second', 'third', 'fourth', 'last'].map(week => {
+                                                const weekLabels: Record<string, string> = {
+                                                  first: t('habits.first'),
+                                                  second: t('habits.second'),
+                                                  third: t('habits.third'),
+                                                  fourth: t('habits.fourth'),
+                                                  last: t('habits.last')
+                                                }
+                                                const isSelected = selectedWeeks.includes(week)
+                                                return (
+                                                  <button
+                                                    key={week}
+                                                    type="button"
+                                                    onClick={() => {
+                                                      const newWeeks = isSelected
+                                                        ? selectedWeeks.filter(w => w !== week)
+                                                        : [...selectedWeeks, week]
+                                                      const newSelections = [...editingHabitWeekdayInMonthSelections]
+                                                      newSelections[index] = { 
+                                                        week: newWeeks.join(','), 
+                                                        day: selectedDays.join(',') 
+                                                      }
+                                                      setEditingHabitWeekdayInMonthSelections(newSelections)
+                                                      // Update selectedDays - create all combinations
+                                                      const otherDays = editingHabitSelectedDays?.filter((d: string) => !/^[a-z]+_[a-z]+$/.test(d)) || []
+                                                      const dayNumbers = editingHabitSelectedDays?.filter((d: string) => /^\d+$/.test(d)) || []
+                                                      const weekDaySelections: string[] = []
+                                                      newWeeks.forEach(w => {
+                                                        selectedDays.forEach(d => {
+                                                          weekDaySelections.push(`${w}_${d}`)
+                                                        })
+                                                      })
+                                                      setEditingHabitSelectedDays([...otherDays, ...dayNumbers, ...weekDaySelections])
+                                                    }}
+                                                    className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-all ${
+                                                      isSelected
+                                                        ? 'bg-orange-600 text-white shadow-sm'
+                                                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                                    }`}
+                                                  >
+                                                    {weekLabels[week]}
+                                                  </button>
+                                                )
+                                              })}
+                                            </div>
+                                          </div>
+                                          
+                                          {/* Day buttons */}
+                                          <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                                              {t('habits.day') || 'Day'}:
+                                            </label>
+                                            <div className="flex flex-wrap gap-1.5">
+                                              {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => {
+                                                const dayLabels: Record<string, string> = {
+                                                  monday: t('daysShort.mon'),
+                                                  tuesday: t('daysShort.tue'),
+                                                  wednesday: t('daysShort.wed'),
+                                                  thursday: t('daysShort.thu'),
+                                                  friday: t('daysShort.fri'),
+                                                  saturday: t('daysShort.sat'),
+                                                  sunday: t('daysShort.sun')
+                                                }
+                                                const isSelected = selectedDays.includes(day)
+                                                return (
+                                                  <button
+                                                    key={day}
+                                                    type="button"
+                                                    onClick={() => {
+                                                      const newDays = isSelected
+                                                        ? selectedDays.filter(d => d !== day)
+                                                        : [...selectedDays, day]
+                                                      const newSelections = [...editingHabitWeekdayInMonthSelections]
+                                                      newSelections[index] = { 
+                                                        week: selectedWeeks.join(','), 
+                                                        day: newDays.join(',') 
+                                                      }
+                                                      setEditingHabitWeekdayInMonthSelections(newSelections)
+                                                      // Update selectedDays - create all combinations
+                                                      const otherDays = editingHabitSelectedDays?.filter((d: string) => !/^[a-z]+_[a-z]+$/.test(d)) || []
+                                                      const dayNumbers = editingHabitSelectedDays?.filter((d: string) => /^\d+$/.test(d)) || []
+                                                      const weekDaySelections: string[] = []
+                                                      selectedWeeks.forEach(w => {
+                                                        newDays.forEach(d => {
+                                                          weekDaySelections.push(`${w}_${d}`)
+                                                        })
+                                                      })
+                                                      setEditingHabitSelectedDays([...otherDays, ...dayNumbers, ...weekDaySelections])
+                                                    }}
+                                                    className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-all ${
+                                                      isSelected
+                                                        ? 'bg-orange-600 text-white shadow-sm'
+                                                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                                    }`}
+                                                  >
+                                                    {dayLabels[day]}
+                                                  </button>
+                                                )
+                                              })}
+                                            </div>
+                                          </div>
+                                        </div>
+                                        
+                                        {/* Delete button */}
+                                        <div className="mt-2 flex justify-end">
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              const newSelections = editingHabitWeekdayInMonthSelections.filter((_, i) => i !== index)
+                                              setEditingHabitWeekdayInMonthSelections(newSelections)
+                                              // Update selectedDays
+                                              const otherDays = editingHabitSelectedDays?.filter((d: string) => !/^[a-z]+_[a-z]+$/.test(d)) || []
+                                              const dayNumbers = editingHabitSelectedDays?.filter((d: string) => /^\d+$/.test(d)) || []
+                                              const weekDaySelections: string[] = []
+                                              newSelections.forEach(s => {
+                                                const weeks = s.week ? s.week.split(',') : []
+                                                const days = s.day ? s.day.split(',') : []
+                                                weeks.forEach(w => {
+                                                  days.forEach(d => {
+                                                    weekDaySelections.push(`${w}_${d}`)
+                                                  })
+                                                })
+                                              })
+                                              setEditingHabitSelectedDays([...otherDays, ...dayNumbers, ...weekDaySelections])
+                                            }}
+                                            className="px-2 py-1 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                                            title={t('common.delete') || 'Delete'}
+                                          >
+                                            {t('common.delete') || 'Smazat'}
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )
+                                  })}
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const newSelections = editingHabitWeekdayInMonthSelections.length === 0 
+                                        ? [{ week: '', day: '' }]
+                                        : [...editingHabitWeekdayInMonthSelections, { week: '', day: '' }]
+                                      setEditingHabitWeekdayInMonthSelections(newSelections)
+                                    }}
+                                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-orange-600 hover:text-orange-700 font-medium border border-orange-300 rounded-md hover:bg-orange-50 transition-colors w-full justify-center"
+                                  >
+                                    <Plus className="w-3.5 h-3.5" />
+                                    {t('habits.addAnother') || 'Add another'}
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap gap-2">
+                            {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => {
+                              const dayLabels: { [key: string]: string } = {
+                                monday: t('daysShort.mon') || 'Po',
+                                tuesday: t('daysShort.tue') || 'Út',
+                                wednesday: t('daysShort.wed') || 'St',
+                                thursday: t('daysShort.thu') || 'Čt',
+                                friday: t('daysShort.fri') || 'Pá',
+                                saturday: t('daysShort.sat') || 'So',
+                                sunday: t('daysShort.sun') || 'Ne'
+                              }
+                              return (
+                                <button
+                                  key={day}
+                                  type="button"
+                                  onClick={() => {
+                                    if (editingHabitSelectedDays?.includes(day)) {
+                                      setEditingHabitSelectedDays(editingHabitSelectedDays.filter((d: string) => d !== day))
+                                    } else {
+                                      setEditingHabitSelectedDays([...(editingHabitSelectedDays || []), day])
+                                    }
+                                  }}
+                                  className={`px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${
+                                    editingHabitSelectedDays?.includes(day)
+                                      ? 'bg-orange-600 text-white border-orange-600 shadow-md'
+                                      : 'bg-white text-gray-700 border-gray-300 hover:border-orange-600 hover:bg-orange-50'
+                                  }`}
+                                >
+                                  {dayLabels[day]}
+                                </button>
+                              )
+                            })}
+                          </div>
+                        )}
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={editingHabitAlwaysShow}
+                          onChange={(e) => setEditingHabitAlwaysShow(e.target.checked)}
+                          className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                        />
+                        <label className="text-sm text-gray-700">
+                          Vždy zobrazovat (i když není naplánováno)
+                        </label>
+                      </div>
+                    </div>
                   </div>
-                </div>
               </div>
 
               <div className="p-6 border-t border-gray-200 flex items-center justify-between">
@@ -12271,7 +12811,7 @@ export function JourneyGameView({
                 >
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
-              </div>
+                            </div>
 
               {/* Content */}
               <div className="flex-1 overflow-y-auto p-6">
@@ -12282,7 +12822,7 @@ export function JourneyGameView({
                     <p className="text-gray-600 text-sm max-w-md mx-auto leading-relaxed">
                       {t('areas.noAreasDescription') || 'Oblasti slouží k rozdělení cílů, návyků a kroků na jednotlivé oblasti tak, jak chcete - například Zdraví, Práce, Projekt, atd.'}
                     </p>
-                  </div>
+                    </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     {areas.map((area) => {
@@ -12300,8 +12840,8 @@ export function JourneyGameView({
                             <div className="flex items-center gap-3">
                               <IconComponent className="w-6 h-6" style={{ color: area.color || '#ea580c' }} />
                               <h3 className="text-lg font-semibold text-gray-900">{area.name}</h3>
-                            </div>
-                            <div className="flex items-center gap-1">
+                      </div>
+                      <div className="flex items-center gap-1">
                               <button
                                 onClick={() => handleOpenAreaEditModal(area)}
                                 className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-700"
@@ -12316,8 +12856,8 @@ export function JourneyGameView({
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
-                            </div>
-                          </div>
+                      </div>
+                      </div>
                           {area.description && (
                             <p className="text-sm text-gray-600 mb-3">{area.description}</p>
                           )}
@@ -12325,8 +12865,8 @@ export function JourneyGameView({
                             <span>{areaGoals.length} {t('goals.title') || 'cílů'}</span>
                             <span>{areaSteps.length} {t('steps.title') || 'kroků'}</span>
                             <span>{areaHabits.length} {t('habits.title') || 'návyků'}</span>
-                          </div>
-            </div>
+                      </div>
+                    </div>
   )
                     })}
                   </div>
@@ -12374,35 +12914,35 @@ export function JourneyGameView({
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     {t('areas.name') || 'Název'} *
-                  </label>
-                  <input
-                    type="text"
+                      </label>
+                      <input
+                        type="text"
                     value={areaModalName}
                     onChange={(e) => setAreaModalName(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     placeholder={t('areas.namePlaceholder') || 'Název oblasti'}
-                  />
-                </div>
+                      />
+                    </div>
 
                 {/* Description */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     {t('areas.description') || 'Popis'}
-                  </label>
-                  <textarea
+                      </label>
+                      <textarea
                     value={areaModalDescription}
                     onChange={(e) => setAreaModalDescription(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    rows={3}
+                        rows={3}
                     placeholder={t('areas.descriptionPlaceholder') || 'Popis oblasti'}
-                  />
-                </div>
+                      />
+                    </div>
 
                 {/* Color */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('areas.color') || 'Barva'}
-                  </label>
+                      </label>
                   <div className="grid grid-cols-4 gap-3">
                     {[
                       { value: '#ea580c', name: 'Oranžová' }, // Primary
@@ -12428,14 +12968,14 @@ export function JourneyGameView({
                       />
                     ))}
                   </div>
-                </div>
+                    </div>
 
                 {/* Icon */}
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('areas.icon') || 'Ikona'}
-                  </label>
-                  <button
+                        </label>
+                            <button
                     onClick={() => setShowAreaIconPicker(!showAreaIconPicker)}
                     className="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
                   >
@@ -12469,9 +13009,9 @@ export function JourneyGameView({
                             </button>
                           )
                         })}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
 
                 {/* Actions */}
@@ -12503,8 +13043,70 @@ export function JourneyGameView({
                   >
                     {isSavingArea ? (t('common.saving') || 'Ukládám...') : (t('common.save') || 'Uložit')}
                   </button>
-                </div>
+                    </div>
+                  </div>
               </div>
+          </div>
+        </>,
+        document.body
+      )}
+
+      {/* Delete habit confirmation modal */}
+      {showDeleteHabitModal && habitModalData && typeof window !== 'undefined' && createPortal(
+        <>
+          <div 
+            className="fixed inset-0 z-40 bg-black/20" 
+            onClick={() => {
+              setShowDeleteHabitModal(false)
+              setHabitToDelete(null)
+            }}
+          />
+          <div 
+            className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-6"
+            style={{
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '400px',
+              maxWidth: '90vw'
+            }}
+          >
+            <h3 className="text-lg font-bold text-gray-900 mb-4">
+              {t('habits.deleteConfirm', { name: habitModalData.name }) || `Opravdu chcete smazat návyk "${habitModalData.name}"?`}
+            </h3>
+            <p className="text-sm text-gray-600 mb-6">
+              {t('habits.deleteConfirmDescription') || 'Tato akce je nevratná.'}
+            </p>
+            
+            {/* Actions */}
+            <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => {
+                  setShowDeleteHabitModal(false)
+                  setHabitToDelete(null)
+                  }}
+                disabled={isDeletingHabit}
+                className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                {t('common.cancel') || 'Zrušit'}
+                </button>
+                <button
+                onClick={handleConfirmDeleteHabit}
+                disabled={isDeletingHabit}
+                className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isDeletingHabit ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {t('common.saving') || 'Mažu...'}
+                  </>
+                ) : (
+                  t('common.delete') || 'Smazat'
+                )}
+                </button>
             </div>
           </div>
         </>,

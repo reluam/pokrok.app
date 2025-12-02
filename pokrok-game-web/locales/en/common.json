@@ -26,7 +26,8 @@
     "search": "Search...",
     "noResults": "No results",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "select": "Select"
   },
   "homepage": {
     "tagline": "Life planning app",
@@ -154,7 +155,9 @@
     "nameLabel": "Name",
     "descriptionLabel": "Description",
     "frequencyLabel": "Frequency",
+    "nameLabel": "Name",
     "namePlaceholder": "Habit name",
+    "descriptionLabel": "Description",
     "descriptionPlaceholder": "Habit description",
     "frequencyDaily": "Daily",
     "frequencyWeekly": "Weekly",
@@ -166,7 +169,14 @@
     "days": "days",
     "delete": "DELETE",
     "deleteConfirm": "Do you really want to delete the habit \"{name}\"? This action cannot be undone.",
+    "deleteConfirmDescription": "This action is irreversible.",
     "deleteError": "Failed to delete habit",
+    "legend": {
+      "planned": "Planned",
+      "notPlanned": "Not planned",
+      "completedPlanned": "Completed planned",
+      "completedNotPlanned": "Completed not planned"
+    },
     "categories": {
       "personal": "Personal",
       "health": "Health",
@@ -187,6 +197,30 @@
     "selectedDays": "Selected days",
     "noCategory": "No category",
     "noDifficulty": "No difficulty",
+    "selectDaysOfWeek": "Select days of the week",
+    "selectDaysOfMonth": "Select days of the month",
+    "selectDays": "Select days",
+    "dayOfMonth": "Day of month",
+    "dayOfWeekInMonth": "Day of week in month",
+    "first": "First",
+    "second": "Second",
+    "third": "Third",
+    "fourth": "Fourth",
+    "last": "Last",
+    "addAnother": "Add another",
+    "monthlyType": {
+      "specificDays": "Specific days (1-31)",
+      "weekdayInMonth": "Day of week in month"
+    },
+    "dayOfMonthPlaceholder": "E.g. 1, 15, 31",
+    "dayOfMonthHint": "Enter day numbers separated by commas (1-31)",
+    "autoAdjust31": "Automatically adjust day 31 to day 30 for months with 30 days",
+    "habitTime": "Habit time",
+    "notificationEnabled": "Notification",
+    "notificationTime": "Notification time",
+    "notificationHint": "Browser notification will be shown at the specified time",
+    "week": "Week",
+    "day": "Day",
     "frequency": {
       "daily": "Daily",
       "weekly": "Weekly",

@@ -317,6 +317,7 @@ export interface Habit {
   difficulty: 'easy' | 'medium' | 'hard'
   is_custom: boolean
   reminder_time: string | null
+  notification_enabled?: boolean
   selected_days: string[] | null
   habit_completions: { [date: string]: boolean | null } | null
   always_show: boolean
@@ -3629,11 +3630,11 @@ export async function createHabit(habitData: Omit<Habit, 'id' | 'created_at' | '
     const result = await sql`
       INSERT INTO habits (
         id, user_id, name, description, frequency, streak, 
-        max_streak, category, difficulty, is_custom, reminder_time, selected_days, always_show, xp_reward, aspiration_id, area_id
+        max_streak, category, difficulty, is_custom, reminder_time, notification_enabled, selected_days, always_show, xp_reward, aspiration_id, area_id, "order"
       ) VALUES (
         ${id}, ${habitData.user_id}, ${habitData.name}, ${habitData.description}, 
         ${habitData.frequency}, ${habitData.streak}, ${habitData.max_streak}, 
-        ${habitData.category}, ${habitData.difficulty}, ${habitData.is_custom}, ${habitData.reminder_time}, ${habitData.selected_days}, ${habitData.always_show}, ${habitData.xp_reward}, ${habitData.aspiration_id || null}, ${habitData.area_id || null}
+        ${habitData.category}, ${habitData.difficulty}, ${habitData.is_custom}, ${habitData.reminder_time}, ${(habitData as any).notification_enabled || false}, ${habitData.selected_days}, ${habitData.always_show}, ${habitData.xp_reward}, ${habitData.aspiration_id || null}, ${habitData.area_id || null}, ${(habitData as any).order || 0}
       ) RETURNING *
     `
     
@@ -3669,11 +3670,13 @@ export async function updateHabit(habitId: string, updates: Partial<Omit<Habit, 
         category = COALESCE(${updates.category}, category),
         difficulty = COALESCE(${updates.difficulty}, difficulty),
         reminder_time = COALESCE(${updates.reminder_time}, reminder_time),
+        notification_enabled = COALESCE(${(updates as any).notification_enabled}, notification_enabled),
         selected_days = COALESCE(${updates.selected_days}, selected_days),
         always_show = COALESCE(${updates.always_show}, always_show),
         xp_reward = COALESCE(${updates.xp_reward}, xp_reward),
         aspiration_id = ${updates.aspiration_id !== undefined ? updates.aspiration_id : null},
         area_id = ${updates.area_id !== undefined ? updates.area_id : null},
+        "order" = COALESCE(${(updates as any).order}, "order"),
         updated_at = NOW()
       WHERE id = ${habitId}
       RETURNING *

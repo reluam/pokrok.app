@@ -218,8 +218,8 @@ export function HelpView({
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   )}
-                </div>
               </div>
+            </div>
 
               {/* Step 2 - Steps */}
               <div className="bg-white rounded-xl border border-orange-200 p-6">

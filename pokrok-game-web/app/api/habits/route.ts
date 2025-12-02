@@ -51,12 +51,20 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, description, frequency, streak, maxStreak, category, difficulty, isCustom, reminderTime, selectedDays, alwaysShow, xpReward, aspirationId, areaId } = body
+    const { name, description, frequency, streak, maxStreak, category, difficulty, isCustom, reminderTime, notificationEnabled, selectedDays, alwaysShow, xpReward, aspirationId, areaId, order } = body
     
     if (!name) {
       return NextResponse.json({ error: 'Name is required' }, { status: 400 })
     }
 
+    // Get max order for this user to put new habit at the end
+    const maxOrderResult = await sql`
+      SELECT COALESCE(MAX("order"), 0) as max_order
+      FROM habits
+      WHERE user_id = ${dbUser.id}
+    `
+    const maxOrder = maxOrderResult[0]?.max_order || 0
+    
     const habitData = {
       user_id: dbUser.id,
       name,
@@ -68,11 +76,13 @@ export async function POST(request: NextRequest) {
       difficulty: difficulty || 'medium',
       is_custom: isCustom || false,
       reminder_time: reminderTime || null,
+      notification_enabled: notificationEnabled || false,
       selected_days: selectedDays || null,
       always_show: alwaysShow || false,
       xp_reward: xpReward || 1,
       aspiration_id: aspirationId || null,
       area_id: areaId || null,
+      order: order !== undefined ? order : maxOrder + 1,
       habit_completions: {}
     }
 
@@ -104,24 +114,30 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { habitId, name, description, frequency, category, difficulty, reminderTime, selectedDays, alwaysShow, xpReward, aspirationId, areaId } = body
+    const { habitId, name, description, frequency, category, difficulty, reminderTime, notificationEnabled, selectedDays, alwaysShow, xpReward, aspirationId, areaId, order } = body
     
     if (!habitId) {
       return NextResponse.json({ error: 'Habit ID is required' }, { status: 400 })
     }
 
-    const updates = {
+    const updates: any = {
       name,
       description,
       frequency,
       category,
       difficulty,
       reminder_time: reminderTime,
+      notification_enabled: notificationEnabled,
       selected_days: selectedDays,
       always_show: alwaysShow,
       xp_reward: xpReward,
       aspiration_id: aspirationId,
       area_id: areaId !== undefined ? areaId : undefined
+    }
+    
+    // Add order if provided
+    if (order !== undefined) {
+      updates.order = order
     }
 
     const habit = await updateHabit(habitId, updates)
