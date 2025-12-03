@@ -29,8 +29,8 @@ interface DisplayContentProps {
   setShowStepGoalPicker: (value: boolean) => void
   stepGoalId: string | null
   setStepGoalId: (value: string | null) => void
-  habitDetailTab: string
-  setHabitDetailTab: (value: string) => void
+  habitDetailTab: 'calendar' | 'settings'
+  setHabitDetailTab: (value: 'calendar' | 'settings') => void
   currentMonth: Date
   setCurrentMonth: (value: Date) => void
   editingHabitName: string
