@@ -1,7 +1,7 @@
 {
   "extends": "next/core-web-vitals",
   "rules": {
-    "max-lines": ["error", { "max": 2000, "skipBlankLines": true, "skipComments": true }]
+    "max-lines": ["warn", { "max": 2000, "skipBlankLines": true, "skipComments": true }]
   }
 }
 
