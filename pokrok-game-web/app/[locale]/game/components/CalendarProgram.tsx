@@ -100,7 +100,7 @@ export function CalendarProgram({
   const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
   
   // Day names for calendar display
-  const dayNames = [
+  const dayNames = useMemo(() => [
     t('calendar.days.sunday'),
     t('calendar.days.monday'),
     t('calendar.days.tuesday'),
@@ -108,8 +108,8 @@ export function CalendarProgram({
     t('calendar.days.thursday'),
     t('calendar.days.friday'),
     t('calendar.days.saturday')
-  ]
-  const dayNamesShort = [
+  ], [t])
+  const dayNamesShort = useMemo(() => [
     t('calendar.daysShort.sunday'),
     t('calendar.daysShort.monday'),
     t('calendar.daysShort.tuesday'),
@@ -117,7 +117,7 @@ export function CalendarProgram({
     t('calendar.daysShort.thursday'),
     t('calendar.daysShort.friday'),
     t('calendar.daysShort.saturday')
-  ]
+  ], [t])
   
   // Loading states for toggles
   const [loadingSteps, setLoadingSteps] = useState<Set<string>>(new Set())

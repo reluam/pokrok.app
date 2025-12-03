@@ -2,6 +2,7 @@
 
 import { ItemDetailRenderer } from '../details/ItemDetailRenderer'
 import { UnifiedDayView } from '../views/UnifiedDayView'
+import { getLocalDateString } from '../utils/dateHelpers'
 
 interface DisplayContentProps {
   selectedItem: any
@@ -102,8 +103,8 @@ export function DisplayContent(props: DisplayContentProps) {
         setStepEstimatedTime={props.setStepEstimatedTime}
         showDatePicker={props.showDatePicker}
         setShowDatePicker={props.setShowDatePicker}
-        selectedDate={props.selectedDate}
-        setSelectedDate={props.setSelectedDate}
+        selectedDate={props.selectedDate ? getLocalDateString(props.selectedDate) : ''}
+        setSelectedDate={(value: string) => props.setSelectedDate(value ? new Date(value) : null)}
         stepIsImportant={props.stepIsImportant}
         setStepIsImportant={props.setStepIsImportant}
         stepIsUrgent={props.stepIsUrgent}

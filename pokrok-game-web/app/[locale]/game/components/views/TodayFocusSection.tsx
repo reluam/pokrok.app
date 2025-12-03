@@ -325,7 +325,7 @@ export function TodayFocusSection({
       // If neither has time, keep original order
       return 0
     })
-  }, [habits, dayName, isWeekView, displayDate])
+  }, [habits, isWeekView, displayDate])
   
   // Get active focus goals - use status instead of focus_status
   // Active status = in focus, paused/completed = out of focus
