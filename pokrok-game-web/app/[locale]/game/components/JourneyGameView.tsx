@@ -1166,7 +1166,7 @@ export function JourneyGameView({
       setEditingHabitDifficulty(selectedItem.difficulty || 'medium')
       setEditingHabitReminderTime(selectedItem.reminder_time || '')
     }
-  }, [selectedItem, selectedItemType])
+  }, [selectedItem, selectedItemType, t])
 
   // Handle step modal
   const handleOpenStepModal = (date?: string, step?: any) => {

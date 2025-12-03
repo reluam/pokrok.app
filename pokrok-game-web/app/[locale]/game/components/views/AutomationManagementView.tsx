@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations } from 'next-intl'
 import { Plus, X, Edit, Trash2, Target, Calendar } from 'lucide-react'
@@ -41,7 +41,7 @@ export function AutomationManagementView({
   })
 
   // Load automations
-  const loadAutomations = async () => {
+  const loadAutomations = useCallback(async () => {
     const currentUserId = userId || player?.user_id
     if (!currentUserId) return
 
@@ -57,11 +57,11 @@ export function AutomationManagementView({
     } finally {
       setLoading(false)
     }
-  }
+  }, [userId, player?.user_id])
 
   useEffect(() => {
     loadAutomations()
-  }, [userId, player?.user_id])
+  }, [userId, player?.user_id, loadAutomations])
 
   const handleCreateAutomation = async () => {
     if (!formData.target_id) {

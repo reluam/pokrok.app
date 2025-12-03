@@ -146,7 +146,7 @@ export function DailyPlanningView({
     }
 
     loadDailySteps()
-  }, [player?.user_id, currentDate])
+  }, [player?.user_id, currentDate, onDailyStepsUpdate])
 
   // Load steps from goals for sidebar
   useEffect(() => {

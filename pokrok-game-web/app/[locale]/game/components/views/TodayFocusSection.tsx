@@ -140,8 +140,11 @@ export function TodayFocusSection({
     setTimePickerPosition(null)
   }
   
-  const displayDate = new Date(selectedDayDate)
-  displayDate.setHours(0, 0, 0, 0)
+  const displayDate = useMemo(() => {
+    const date = new Date(selectedDayDate)
+    date.setHours(0, 0, 0, 0)
+    return date
+  }, [selectedDayDate])
   const displayDateStr = getLocalDateString(displayDate)
   
   // Get focus title based on selected date
@@ -322,7 +325,7 @@ export function TodayFocusSection({
       // If neither has time, keep original order
       return 0
     })
-  }, [habits, dayName, isWeekView])
+  }, [habits, dayName, isWeekView, displayDate])
   
   // Get active focus goals - use status instead of focus_status
   // Active status = in focus, paused/completed = out of focus
@@ -388,7 +391,7 @@ export function TodayFocusSection({
         const dateB = new Date(normalizeDate(b.date))
         return dateA.getTime() - dateB.getTime()
       })
-  }, [dailySteps, activeFocusGoals, displayDate, isWeekView, weekStart, weekEnd])
+  }, [dailySteps, activeFocusGoals, displayDate, isWeekView, weekStart, weekEnd, goals])
   
   // Get all today's steps (including from active focus goals), sorted by priority
   // Combine focusSteps and other steps

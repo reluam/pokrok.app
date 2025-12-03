@@ -57,8 +57,11 @@ export function UnifiedDayView({
     return weekStart
   }
   
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const today = useMemo(() => {
+    const date = new Date()
+    date.setHours(0, 0, 0, 0)
+    return date
+  }, [])
   const todayStr = getLocalDateString(today)
   
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => getWeekStart(new Date()))

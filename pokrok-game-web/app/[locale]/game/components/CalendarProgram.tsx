@@ -2,7 +2,7 @@
 
 import { useTranslations, useLocale } from 'next-intl'
 
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { ChevronLeft, ChevronRight, CheckCircle, Circle, Target, Footprints, Check } from 'lucide-react'
 
 // --- DATUM UTIL ---
@@ -152,7 +152,7 @@ export function CalendarProgram({
   }
 
   // Helper: is habit scheduled for a specific date
-  const isHabitScheduledForDate = (habit: any, date: Date, dateStr: string) => {
+  const isHabitScheduledForDate = useCallback((habit: any, date: Date, dateStr: string) => {
     // Always show flag wins
     if (habit.always_show) return true
 
@@ -201,7 +201,7 @@ export function CalendarProgram({
     }
 
     return false
-  }
+  }, [dayNames, dayNamesShort])
 
   // Get month/year for display
   const monthYear = currentMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })
@@ -250,7 +250,7 @@ export function CalendarProgram({
     }
     
     loadWorkflowResponses()
-  }, [player?.user_id, viewMode, currentMonth, currentWeekStart])
+  }, [player?.user_id, viewMode, currentMonth, currentWeekStart, firstDayOfMonth, lastDayOfMonth])
 
   // Navigate months
   const goToPreviousMonth = () => {
@@ -493,7 +493,7 @@ export function CalendarProgram({
       steps: daySteps,
       workflowResponse
     }
-  }, [selectedDate, habits, dailySteps, workflowResponses])
+  }, [selectedDate, habits, dailySteps, workflowResponses, isHabitScheduledForDate, t])
 
   // Render calendar day (compact for month view)
   const renderCalendarDay = (day: number) => {

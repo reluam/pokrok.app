@@ -6,8 +6,8 @@ import { UnifiedDayView } from '../views/UnifiedDayView'
 interface DisplayContentProps {
   selectedItem: any
   selectedItemType: 'step' | 'habit' | 'goal' | 'stat' | null
-  editingStepTitle: string
-  setEditingStepTitle: (value: string) => void
+  editingStepTitle: boolean
+  setEditingStepTitle: (value: boolean) => void
   stepTitle: string
   setStepTitle: (value: string) => void
   stepDescription: string

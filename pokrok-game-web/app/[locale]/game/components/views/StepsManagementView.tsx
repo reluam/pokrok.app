@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations, useLocale } from 'next-intl'
 import { Edit, X, Plus, Calendar, Target, Check, Filter, ChevronDown, ChevronUp } from 'lucide-react'
@@ -241,7 +241,7 @@ export function StepsManagementView({
     }
   }
 
-  const reloadSteps = async () => {
+  const reloadSteps = useCallback(async () => {
     const currentUserId = userId || player?.user_id
     if (!currentUserId) return
 
@@ -255,12 +255,12 @@ export function StepsManagementView({
     } catch (error) {
       console.error('Error reloading steps:', error)
     }
-  }
+  }, [userId, player?.user_id, onDailyStepsUpdate])
 
   // Load steps on mount - always reload to get all steps including overdue
   useEffect(() => {
     reloadSteps()
-  }, [userId, player?.user_id])
+  }, [reloadSteps])
 
   // Sort and filter steps
   const sortedSteps = useMemo(() => {
