@@ -32,7 +32,123 @@
   "homepage": {
     "tagline": "Aplikace pro plánování života",
     "description": "Pokrok spojuje velký přehled s konkrétními kroky, čímž pomáhá zvýšit motivaci a snížit přehlcení. Plánujte svůj život efektivně a dosahujte svých cílů krok za krokem.",
+    "startFree": "Začít zdarma",
+    "trialInfo": "14denní zkušební verze zdarma • Bez platební karty",
+    "hero": {
+      "title": "Životní plánovač pro lidi, kteří chtějí dosáhnout svých cílů",
+      "description": "Pokrok vám pomůže získat jasnost a smysluplnost v tom, jak dosáhnout toho, co v životě chcete. Rozdělte velké cíle na malé kroky, budujte návyky a sledujte svůj pokrok."
+    },
+    "philosophy": {
+      "title": "Pokrok není další aplikace pro produktivitu",
+      "description": "Pokrok je aplikace pro život, jaký chcete mít. Pomáhá vám žít takový život, jaký si přejete - ne jen být produktivnější, ale skutečně dosáhnout toho, co v životě chcete.",
+      "flexibility": "Používejte Pokrok tak, jak potřebujete - denně pro každodenní plánování, týdně pro přehled nad týdnem, nebo dokonce měsíčně pro reflexi a plánování dopředu. Pokrok je váš parťák k životu, jaký chcete mít."
+    },
+    "problem": {
+      "title": "Máte velké cíle, ale nevíte, kde začít?",
+      "subtitle": "Mnoho lidí má představu o tom, čeho chtějí dosáhnout, ale chybí jim jasnost v tom, jak na to.",
+      "overwhelmed": "Cítíte se přehlceni všemi věcmi, které chcete udělat",
+      "overwhelmedDesc": "Máte spoustu nápadů a cílů, ale nevíte, na co se soustředit",
+      "noClarity": "Chybí vám jasnost v prioritách",
+      "noClarityDesc": "Nevíte, které cíle jsou důležité a které mohou počkat",
+      "noProgress": "Nevidíte pokrok směrem k cílům",
+      "noProgressDesc": "Cíle zůstávají jen na papíře, bez konkrétních kroků k jejich dosažení"
+    },
+    "solution": {
+      "title": "Pokrok vám pomůže získat jasnost",
+      "subtitle": "Rozdělte své cíle na malé kroky, budujte návyky a sledujte pokrok. Získejte smysluplnost v tom, jak dosáhnout toho, co chcete.",
+      "clarity": "Získejte jasnost",
+      "clarityDesc": "Vidíte přesně, na co se máte soustředit dnes a proč",
+      "meaning": "Najděte smysluplnost",
+      "meaningDesc": "Každý krok má svůj smysl a vede vás k vašim cílům",
+      "progress": "Sledujte pokrok",
+      "progressDesc": "Vidíte, jak se posouváte vpřed a co už jste dokázali"
+    },
     "features": {
+      "title": "Jak vám Pokrok pomůže dosáhnout cílů",
+      "subtitle": "Jednoduché nástroje pro životní plánování, které vám dají jasnost a smysluplnost",
+      "clarity": {
+        "title": "Clarity - Jasnost v tom, na co se soustředit",
+        "subtitle": "Začněte každý den s jasností",
+        "description": "Focus view vám ukáže pouze to, na co se máte soustředit dnes. Vidíte své návyky, kroky z aktivních cílů a vše, co potřebujete dokončit. Žádné rozptýlení, jen to, co je důležité.",
+        "benefit1": "Zobrazuje pouze kroky z aktivních cílů - vidíte, co je opravdu důležité",
+        "benefit2": "Kompaktní přehled dnešních návyků - budujte pozitivní rutiny",
+        "benefit3": "Rychlý přehled pokroku - vidíte, jak se posouváte vpřed",
+        "exampleTitle": "Dnešní fokus",
+        "example1": "Dokončit návrh projektu",
+        "example2": "Příprava na prezentaci",
+        "habitsTitle": "Návyky",
+        "habit1": "Ranní cvičení",
+        "habit2": "Čtení 30 minut"
+      },
+      "management": {
+        "title": "Rozdělte cíle na kroky a budujte návyky",
+        "goals": {
+          "title": "Cíle",
+          "description": "Nastavte si krátkodobé i dlouhodobé cíle. Organizujte je podle priorit a sledujte pokrok. Každý cíl má svůj smysl a vede vás k tomu, čeho chcete dosáhnout."
+        },
+        "habits": {
+          "title": "Návyky",
+          "description": "Budujte pozitivní návyky s denní, týdenní nebo měsíční frekvencí. Sledujte své streak a pokrok. Malé každodenní kroky vedou k velkým změnám."
+        },
+        "steps": {
+          "title": "Kroky",
+          "description": "Rozdělte své cíle na malé, dosažitelné kroky. Plánujte je na konkrétní dny a sledujte jejich dokončení. Každý krok vás přibližuje k vašim cílům."
+        },
+        "areas": {
+          "title": "Oblasti",
+          "description": "Organizujte své cíle, návyky a kroky do oblastí života, jako je Zdraví, Kariéra, Vztahy nebo cokoliv jiného, co má pro vás smysl. Oblasti vám pomohou mít přehled o různých aspektech vašeho života."
+        }
+      },
+      "calendar": {
+        "title": "Kalendář",
+        "description": "Vizualizujte své kroky a návyky v kalendářovém zobrazení. Plánujte dopředu a mějte přehled o svém čase. Vidíte, jak se vaše úsilí hromadí a přibližuje vás k cílům.",
+        "benefit1": "Denní, týdenní, měsíční a roční zobrazení",
+        "benefit2": "Vizuální přehled dokončených úkolů",
+        "benefit3": "Snadné plánování a přesouvání kroků"
+      },
+      "statistics": {
+        "title": "Statistiky",
+        "description": "Sledujte svůj pokrok s detailními statistikami. Vidíte, kolik kroků jste dokončili, jak dlouhý máte streak a celkový pokrok. Každý dokončený krok vás přibližuje k vašim cílům.",
+        "benefit1": "Přehled dokončených kroků a návyků",
+        "benefit2": "Streak statistiky pro návyky",
+        "benefit3": "Celkový pokrok v procentech"
+      },
+      "startDay": {
+        "title": "Začněte svůj den",
+        "subtitle": "Začněte každý den s jasností",
+        "description": "Plánujte svůj den s úmyslem tím, že sladíte své cíle, upřednostníte úkoly a nastavíte realistickou pracovní zátěž.",
+        "benefit1": "Plánujte, co potřebujete udělat dnes, aniž byste ztratili zaměření na zítřek",
+        "benefit2": "Vizualizujte a blokujte čas pro práci ve svém kalendáři",
+        "benefit3": "Sjednoťte svou práci napříč různými nástroji a organizujte ji",
+        "example1": "Dokumentovat zpětnou vazbu zákazníků",
+        "example2": "Příprava na týmovou schůzku",
+        "example3": "Kontrola e-mailů"
+      },
+      "workDay": {
+        "title": "Pracujte během dne",
+        "subtitle": "Zůstaňte soustředění a na správné cestě celý den",
+        "description": "Snadno upravujte svůj denní plán bez ztráty soustředění nebo přebírání příliš mnoha úkolů.",
+        "benefit1": "Přitahujte nové úkoly nebo události při práci",
+        "benefit2": "Sledujte svůj pokrok v reálném čase",
+        "benefit3": "Automatické připomenutí pro přestávky a udržení energie",
+        "focusMode": "Režim soustředění",
+        "task1": "Odpovědět na zpětnou vazbu uživatelů",
+        "task2": "Vytvořit demo nového přístupu"
+      },
+      "endDay": {
+        "title": "Učiňte každý den počítaným",
+        "subtitle": "Skončete každý den s pocitem úspěchu",
+        "description": "Automaticky sledujte své denní úspěchy, zaznamenávejte pokrok a dokončete den s klidem a úspěchem.",
+        "benefit1": "Podívejte se, kam skutečně šel váš čas",
+        "benefit2": "Vizualizujte svou práci ve svém kalendáři",
+        "benefit3": "Skončete práci včas, bez pocitu viny",
+        "stats": "Statistiky týdne",
+        "completed": "Dokončeno",
+        "highlights": "Dnešní úspěchy",
+        "highlight1": "Dokončeno 5 úkolů",
+        "highlight2": "Splněno 3 návyky",
+        "highlight3": "Získáno 50 XP"
+      },
       "overview": {
         "title": "VELKÝ PŘEHLED",
         "description": "Mějte přehled o všech svých cílech, návycích a krocích na jednom místě"
@@ -45,6 +161,25 @@
         "title": "VYŠŠÍ MOTIVACE",
         "description": "Snížení přehlcení a jasná struktura pomáhají udržet motivaci"
       }
+    },
+    "testimonials": {
+      "title": "Důvěřují nám profesionálové, kteří chtějí dělat svou nejlepší práci každý den",
+      "quote1": "Používám Pokrok ke sledování všeho a zajištění, že důležité úkoly jsou hotové.",
+      "author1": "Geoff Ralston",
+      "role1": "Prezident, YC",
+      "quote2": "Pokrok je produktivita aplikace, kterou jsem hledal celý život. Ve skutečnosti jsem lhal. Je lepší.",
+      "author2": "Henry Ault",
+      "role2": "Zakladatel @ Eco",
+      "quote3": "Nástroj, který měl největší dopad na můj život a produktivitu, je nepochybně Pokrok.",
+      "author3": "Paul Galatis",
+      "role3": "CEO @ Names and Faces"
+    },
+    "cta": {
+      "title": "Začněte dosahovat svých cílů",
+      "subtitle": "Získejte jasnost a smysluplnost v tom, jak dosáhnout toho, co v životě chcete"
+    },
+    "footer": {
+      "rights": "Všechna práva vyhrazena."
     },
     "startJourney": "ZAČNI SVOU CESTU",
     "signUp": "REGISTROVAT SE",
@@ -73,6 +208,7 @@
     "cancelButton": "ZRUŠIT",
     "noGoals": "Žádné cíle nejsou nastavené",
     "noGoalsDescription": "Klikněte na tlačítko níže pro přidání nového cíle",
+    "noCompletedSteps": "Žádné dokončené kroky",
     "categoryLabel": "Kategorie",
     "deadlineLabel": "Deadline",
     "noDeadline": "Bez deadlinu",
@@ -482,6 +618,9 @@
   "focus": {
     "weeklyFocus": "Týdenní fokus",
     "dailyFocus": "Dnešní fokus",
+    "todayFocus": "Dnešní fokus",
+    "yesterdayFocus": "Včerejší fokus",
+    "tomorrowFocus": "Zítřejší fokus",
     "addStep": "Přidat krok",
     "stepsThisWeek": "Kroky v týdnu",
     "stepsToday": "Dnešní kroky",
@@ -805,6 +944,8 @@
     "addStepButton": "PŘIDAT KROK",
     "editStep": "Upravit krok",
     "deleteStep": "Smazat krok",
+    "deleteConfirmTitle": "Smazat krok",
+    "deleteConfirmText": "Opravdu chcete smazat krok \"{stepTitle}\"? Tato akce je nevratná.",
     "noSteps": "Žádné kroky",
     "noStepsDescription": "Přidejte první krok pro začátek",
     "dateOptional": "Datum (volitelné)",
@@ -841,7 +982,8 @@
       "stepsToSuccess": "4 kroky k úspěchu",
       "step0": {
         "title": "Oblasti",
-        "subtitle": "První věc, se kterou se v Pokroku setkáte jsou <strong>Oblasti</strong>. Oblasti reflektují různé části Vašeho života a v aplikaci slouží primárně pro jednodušší zobrazení a filtrování. Do Oblastí si můžete přidávat <strong>Návyky</strong>, <strong>Cíle</strong> i <strong>Kroky</strong>. Oblasti jsou zamýšlené jako oblasti života - například Kariéra, finance nebo zdraví, ale můžete je používat i pro větší projekty nebo Vaše vlastní zobrazení různých cílů / kroků / návyků. Když jste v nějaké oblasti a přidáte krok, cíl nebo návyk, tak se automaticky přiřadí do této oblasti."
+        "subtitle": "První věc, se kterou se v Pokroku setkáte jsou <strong>Oblasti</strong>. Oblasti reflektují různé části Vašeho života a v aplikaci slouží primárně pro jednodušší zobrazení a filtrování. Do Oblastí si můžete přidávat <strong>Návyky</strong>, <strong>Cíle</strong> i <strong>Kroky</strong>. Oblasti jsou zamýšlené jako oblasti života - například Kariéra, finance nebo zdraví, ale můžete je používat i pro větší projekty nebo Vaše vlastní zobrazení různých cílů / kroků / návyků. Když jste v nějaké oblasti a přidáte krok, cíl nebo návyk, tak se automaticky přiřadí do této oblasti.",
+        "button": "Vytvořit oblast"
       },
       "step1": {
         "title": "Vytvořte cíl",

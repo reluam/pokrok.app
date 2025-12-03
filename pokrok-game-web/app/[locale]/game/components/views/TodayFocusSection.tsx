@@ -144,6 +144,49 @@ export function TodayFocusSection({
   displayDate.setHours(0, 0, 0, 0)
   const displayDateStr = getLocalDateString(displayDate)
   
+  // Get focus title based on selected date
+  const getFocusTitle = useMemo(() => {
+    if (isWeekView) {
+      return t('focus.weeklyFocus')
+    }
+    
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+    
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    
+    // Check if it's today
+    if (displayDate.getTime() === today.getTime()) {
+      return t('focus.todayFocus') || 'Dnešní fokus'
+    }
+    
+    // Check if it's yesterday
+    if (displayDate.getTime() === yesterday.getTime()) {
+      return t('focus.yesterdayFocus') || 'Včerejší fokus'
+    }
+    
+    // Check if it's tomorrow
+    if (displayDate.getTime() === tomorrow.getTime()) {
+      return t('focus.tomorrowFocus') || 'Zítřejší fokus'
+    }
+    
+    // Otherwise, use day name in genitive
+    const dayNames = localeCode === 'cs-CZ'
+      ? ['neděle', 'pondělí', 'úterý', 'středy', 'čtvrtka', 'pátku', 'soboty']
+      : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    
+    const dayIndex = displayDate.getDay()
+    const dayName = dayNames[dayIndex]
+    
+    return localeCode === 'cs-CZ'
+      ? `${dayName.charAt(0).toUpperCase() + dayName.slice(1)} fokus`
+      : `${dayName}'s Focus`
+  }, [displayDate, isWeekView, localeCode, t])
+  
   // Reset showCompletedHabits when date changes
   useEffect(() => {
     setShowCompletedHabits(false)
@@ -257,12 +300,9 @@ export function TodayFocusSection({
     if (isWeekView) {
       filtered = habits
     } else {
-      // Otherwise, filter for selected day
+      // Otherwise, filter for selected day using helper function
       filtered = habits.filter(habit => {
-        if (habit.always_show) return true
-        if (habit.frequency === 'daily') return true
-        if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
-        return false
+        return isHabitScheduledForDay(habit, displayDate)
       })
     }
     
@@ -489,7 +529,7 @@ export function TodayFocusSection({
     if (!isWeekView) return []
     const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
     
-    return habits.filter(habit => {
+    const filtered = habits.filter(habit => {
       if (habit.always_show) return true
       if (habit.frequency === 'daily') return true
       // Include both custom (legacy) and weekly habits
@@ -500,6 +540,23 @@ export function TodayFocusSection({
         })
       }
       return false
+    })
+    
+    // Sort by reminder_time (habits with time come first, sorted by time)
+    return filtered.sort((a: any, b: any) => {
+      const aTime = a.reminder_time || ''
+      const bTime = b.reminder_time || ''
+      
+      // If both have times, sort by time
+      if (aTime && bTime) {
+        return aTime.localeCompare(bTime)
+      }
+      // If only one has time, it comes first
+      if (aTime && !bTime) return -1
+      if (!aTime && bTime) return 1
+      
+      // If neither has time, keep original order
+      return 0
     })
   }, [isWeekView, habits, weekDays])
   
@@ -585,14 +642,14 @@ export function TodayFocusSection({
   
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex gap-6">
+      <div className="flex gap-6 min-w-0">
         {/* Left: Today's Focus Box - Habits and Today's Steps */}
-        <div className="bg-white rounded-xl p-6 border border-orange-200 shadow-sm flex-1">
+        <div className="bg-white rounded-xl p-6 border border-orange-200 shadow-sm flex-1 min-w-0">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Target className="w-5 h-5 text-orange-600" />
               <h3 className="text-lg font-bold text-orange-800">
-                {isWeekView ? t('focus.weeklyFocus') : t('focus.dailyFocus')}
+                {getFocusTitle}
               </h3>
             </div>
             {onOpenStepModal && (
@@ -614,10 +671,10 @@ export function TodayFocusSection({
           </div>
           
           {/* Two Column Layout - Mobile/Tablet: stacked, Large Desktop: side by side */}
-          <div className="flex flex-col lg:flex-row gap-6">
+          <div className="flex flex-col lg:flex-row gap-6 min-w-0">
             {/* Left Column: Habits - Week view shows compact table on desktop, vertical day layout on mobile */}
             {isWeekView && weekStartDate && weekHabits.length > 0 && (
-              <div className="flex-shrink-0 lg:border-r lg:border-gray-200 lg:pr-6 pb-6 lg:pb-0 border-b lg:border-b-0 w-full lg:w-auto" style={{ minWidth: '200px' }}>
+              <div className="flex-shrink lg:border-r lg:border-gray-200 lg:pr-6 pb-6 lg:pb-0 border-b lg:border-b-0 w-full lg:w-auto lg:flex-shrink-0">
                 <h4 
                   onClick={() => onNavigateToHabits?.()}
                   className={`text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 ${onNavigateToHabits ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
@@ -626,84 +683,76 @@ export function TodayFocusSection({
                 </h4>
                 {weekHabits.length > 0 ? (
                   <>
-                    {/* Mobile/Tablet: Compact colored squares */}
+                    {/* Mobile/Tablet: Habits as titles with checkboxes below */}
                     <div className="lg:hidden">
-                      {/* Header with day names */}
-                      <div className="flex items-center gap-1 mb-2 pl-[100px]">
-                          {weekDays.map((day) => {
-                            const dateStr = getLocalDateString(day)
-                            const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
-                            const dayName = dayNamesShort[day.getDay()]
-                          const isToday = day.toDateString() === new Date().toDateString()
-                            
-                            return (
-                            <div
-                                key={dateStr}
-                              className={`w-6 h-6 flex flex-col items-center justify-center text-[8px] rounded ${
-                                isSelected 
-                                  ? 'bg-orange-500 text-white font-bold' 
-                                  : isToday 
-                                    ? 'bg-orange-100 text-orange-700 font-semibold'
-                                    : 'text-gray-400'
-                                }`}
-                              >
-                              <span className="uppercase leading-none">{dayName}</span>
-                              <span className="text-[7px] leading-none">{day.getDate()}</span>
-                                </div>
-                            )
-                          })}
-                      </div>
-                      
-                      {/* Habits with colored squares */}
-                      <div className="space-y-1.5">
+                      {/* Habits with title above and checkboxes below */}
+                      <div className="space-y-2.5">
                         {weekHabits.map((habit) => (
-                          <div key={habit.id} className="flex items-center gap-1">
-                              <button
-                                onClick={() => handleItemClick(habit, 'habit')}
-                              className="w-[96px] text-left text-[10px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate flex-shrink-0"
-                                title={habit.name}
-                              >
-                                {habit.name}
-                              </button>
-                            <div className="flex gap-0.5">
-                            {weekDays.map((day) => {
-                              const dateStr = getLocalDateString(day)
-                              const isScheduled = isHabitScheduledForDay(habit, day)
-                              const isCompleted = isHabitCompletedForDay(habit, day)
-                              const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
+                          <div key={habit.id} className="flex flex-col gap-1.5">
+                            {/* Habit name as title */}
+                            <button
+                              onClick={() => handleItemClick(habit, 'habit')}
+                              className="text-xs font-semibold text-gray-800 hover:text-orange-600 transition-colors text-left leading-tight"
+                              title={habit.name}
+                            >
+                              {habit.name}
+                            </button>
+                            
+                            {/* Day completion squares below title */}
+                            <div className="flex gap-1 justify-between">
+                              {weekDays.map((day) => {
+                                const dateStr = getLocalDateString(day)
+                                const isScheduled = isHabitScheduledForDay(habit, day)
+                                const isCompleted = isHabitCompletedForDay(habit, day)
+                                const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
                                 const isLoading = loadingHabits.has(habit.id)
-                              const today = new Date()
-                              today.setHours(0, 0, 0, 0)
-                              const isFuture = day > today
-                              
-                              return (
-                                  <button
-                                  key={dateStr}
-                                    onClick={() => {
-                                      if (handleHabitToggle && !isLoading && !isFuture) {
-                                        handleHabitToggle(habit.id, dateStr)
-                                      }
-                                    }}
-                                    disabled={isLoading}
-                                    className={`w-6 h-6 rounded flex items-center justify-center transition-all ${
-                                      isCompleted
-                                        ? isScheduled
-                                          ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
-                                          : 'bg-orange-100 hover:bg-orange-200 cursor-pointer'
-                                        : !isScheduled 
-                                          ? `bg-gray-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}` 
-                                          : `bg-orange-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
-                                    } ${isSelected ? 'ring-2 ring-orange-400 ring-offset-1' : ''}`}
-                                  >
-                                    {isLoading ? (
-                                      <svg className="animate-spin h-2.5 w-2.5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                      </svg>
-                                    ) : isCompleted ? (
-                                      <Check className={`w-3 h-3 ${isScheduled ? 'text-white' : 'text-orange-600'}`} strokeWidth={3} />
-                                    ) : null}
-                                  </button>
+                                const today = new Date()
+                                today.setHours(0, 0, 0, 0)
+                                const isFuture = day > today
+                                const dayName = dayNamesShort[day.getDay()]
+                                const isTodayDate = day.toDateString() === new Date().toDateString()
+                                
+                                return (
+                                  <div key={dateStr} className="flex flex-col items-center gap-0.5 flex-1">
+                                    {/* Day label */}
+                                    <div className={`text-[8px] font-medium leading-none ${
+                                      isSelected 
+                                        ? 'text-orange-600' 
+                                        : isTodayDate 
+                                          ? 'text-orange-500'
+                                          : 'text-gray-500'
+                                    }`}>
+                                      {dayName}
+                                    </div>
+                                    
+                                    {/* Checkbox */}
+                                    <button
+                                      onClick={() => {
+                                        if (handleHabitToggle && !isLoading && !isFuture) {
+                                          handleHabitToggle(habit.id, dateStr)
+                                        }
+                                      }}
+                                      disabled={isLoading || isFuture}
+                                      className={`w-7 h-7 rounded-md flex items-center justify-center transition-all touch-manipulation ${
+                                        isCompleted
+                                          ? isScheduled
+                                            ? 'bg-orange-500 hover:bg-orange-600 active:bg-orange-700 cursor-pointer shadow-sm'
+                                            : 'bg-orange-100 hover:bg-orange-200 active:bg-orange-300 cursor-pointer'
+                                          : !isScheduled 
+                                            ? `bg-gray-100 ${isFuture ? 'cursor-not-allowed opacity-50' : 'hover:bg-orange-200 active:bg-orange-300 cursor-pointer'}` 
+                                            : `bg-orange-100 ${isFuture ? 'cursor-not-allowed opacity-50' : 'hover:bg-orange-200 active:bg-orange-300 cursor-pointer'}`
+                                      } ${isSelected ? 'ring-1 ring-orange-400' : ''}`}
+                                    >
+                                      {isLoading ? (
+                                        <svg className="animate-spin h-2.5 w-2.5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                      ) : isCompleted ? (
+                                        <Check className={`w-3.5 h-3.5 ${isScheduled ? 'text-white' : 'text-orange-600'}`} strokeWidth={3} />
+                                      ) : null}
+                                    </button>
+                                  </div>
                                 )
                               })}
                             </div>
@@ -752,7 +801,7 @@ export function TodayFocusSection({
                             >
                               {habit.name}
                             </button>
-                            <div className="flex gap-1">
+                            <div className="flex gap-1 flex-shrink-0">
                               {weekDays.map((day) => {
                                 const dateStr = getLocalDateString(day)
                                 const isScheduled = isHabitScheduledForDay(habit, day)
@@ -773,7 +822,7 @@ export function TodayFocusSection({
                                         }
                                       }}
                                     disabled={isLoading}
-                                    className={`w-7 h-7 rounded flex items-center justify-center transition-all ${
+                                    className={`w-6 h-6 lg:w-7 lg:h-7 rounded flex items-center justify-center transition-all flex-shrink-0 ${
                                         isCompleted
                                         ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
                                         : !isScheduled 
@@ -906,7 +955,7 @@ export function TodayFocusSection({
             )}
             
             {/* Right Column: Today's Steps (with goals if they have one) */}
-            <div className={`flex-1 min-w-0 ${isWeekView ? '' : ''}`}>
+            <div className="flex-1 min-w-0">
               <div className="flex items-center mb-3">
               <h4 
                 onClick={() => onNavigateToSteps?.()}
@@ -1164,7 +1213,7 @@ export function TodayFocusSection({
         })
         
         return allSteps.length > 0
-      })() && (
+      })() && isWeekView && (
         <div className="w-full">
           <div className="bg-white rounded-xl p-6 border-2 border-gray-300 shadow-sm">
             <div className="flex items-center justify-between mb-3">

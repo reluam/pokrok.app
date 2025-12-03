@@ -32,7 +32,123 @@
   "homepage": {
     "tagline": "Life planning app",
     "description": "Pokrok connects the big overview with concrete steps, helping to increase motivation and reduce overwhelm. Plan your life effectively and achieve your goals step by step.",
+    "startFree": "Start for Free",
+    "trialInfo": "14-day free trial • No credit card required",
+    "hero": {
+      "title": "Life planner for people who want to achieve their goals",
+      "description": "Pokrok helps you gain clarity and meaning in how to achieve what you want in life. Break down big goals into small steps, build habits, and track your progress."
+    },
+    "philosophy": {
+      "title": "Pokrok is not another productivity app",
+      "description": "Pokrok is an app for the life you want to have. It helps you live the life you desire - not just be more productive, but actually achieve what you want in life.",
+      "flexibility": "Use Pokrok as you need - daily for everyday planning, weekly for an overview of the week, or even monthly for reflection and planning ahead. Pokrok is your partner for the life you want to have."
+    },
+    "problem": {
+      "title": "You have big goals, but don't know where to start?",
+      "subtitle": "Many people have an idea of what they want to achieve, but lack clarity on how to do it.",
+      "overwhelmed": "You feel overwhelmed by all the things you want to do",
+      "overwhelmedDesc": "You have lots of ideas and goals, but don't know what to focus on",
+      "noClarity": "You lack clarity in priorities",
+      "noClarityDesc": "You don't know which goals are important and which can wait",
+      "noProgress": "You don't see progress towards goals",
+      "noProgressDesc": "Goals remain just on paper, without concrete steps to achieve them"
+    },
+    "solution": {
+      "title": "Pokrok helps you gain clarity",
+      "subtitle": "Break down your goals into small steps, build habits, and track progress. Gain meaning in how to achieve what you want.",
+      "clarity": "Get clarity",
+      "clarityDesc": "You see exactly what to focus on today and why",
+      "meaning": "Find meaning",
+      "meaningDesc": "Every step has its purpose and leads you to your goals",
+      "progress": "Track progress",
+      "progressDesc": "You see how you're moving forward and what you've already achieved"
+    },
     "features": {
+      "title": "How Pokrok helps you achieve your goals",
+      "subtitle": "Simple tools for life planning that give you clarity and meaning",
+      "clarity": {
+        "title": "Clarity - Focus on what matters",
+        "subtitle": "Start each day with clarity",
+        "description": "Focus view shows you only what you need to focus on today. See your habits, steps from active goals, and everything you need to complete. No distractions, just what's important.",
+        "benefit1": "Shows only steps from active goals - you see what's really important",
+        "benefit2": "Compact overview of today's habits - build positive routines",
+        "benefit3": "Quick overview of progress - you see how you're moving forward",
+        "exampleTitle": "Today's Focus",
+        "example1": "Complete project design",
+        "example2": "Prepare for presentation",
+        "habitsTitle": "Habits",
+        "habit1": "Morning exercise",
+        "habit2": "Read 30 minutes"
+      },
+      "management": {
+        "title": "Break down goals into steps and build habits",
+        "goals": {
+          "title": "Goals",
+          "description": "Set short-term and long-term goals. Organize them by priority and track progress. Every goal has its purpose and leads you to what you want to achieve."
+        },
+        "habits": {
+          "title": "Habits",
+          "description": "Build positive habits with daily, weekly, or monthly frequency. Track your streaks and progress. Small daily steps lead to big changes."
+        },
+        "steps": {
+          "title": "Steps",
+          "description": "Break down your goals into small, achievable steps. Plan them for specific days and track their completion. Every step brings you closer to your goals."
+        },
+        "areas": {
+          "title": "Areas",
+          "description": "Organize your goals, habits, and steps into life areas such as Health, Career, Relationships, or anything else that makes sense to you. Areas help you keep track of different aspects of your life."
+        }
+      },
+      "calendar": {
+        "title": "Calendar",
+        "description": "Visualize your steps and habits in calendar view. Plan ahead and keep track of your time. You see how your efforts accumulate and bring you closer to your goals.",
+        "benefit1": "Daily, weekly, monthly, and yearly views",
+        "benefit2": "Visual overview of completed tasks",
+        "benefit3": "Easy planning and moving steps"
+      },
+      "statistics": {
+        "title": "Statistics",
+        "description": "Track your progress with detailed statistics. See how many steps you've completed, your streak length, and overall progress. Every completed step brings you closer to your goals.",
+        "benefit1": "Overview of completed steps and habits",
+        "benefit2": "Streak statistics for habits",
+        "benefit3": "Overall progress in percentage"
+      },
+      "startDay": {
+        "title": "Start your Day",
+        "subtitle": "Start each day with clarity",
+        "description": "Plan your day with intention by aligning your goals, prioritizing tasks, and setting a realistic workload.",
+        "benefit1": "Plan what you need to get done today, without losing focus on tomorrow",
+        "benefit2": "Visualize and block time for work on your calendar",
+        "benefit3": "Unify your work across your different tools and organize it",
+        "example1": "Document customer feedback",
+        "example2": "Prepare for team meeting",
+        "example3": "Check emails"
+      },
+      "workDay": {
+        "title": "Work through your day",
+        "subtitle": "Stay focused and on track all day",
+        "description": "Easily adjust your daily plan without losing focus or taking on too much.",
+        "benefit1": "Pull in new tasks or events as you work",
+        "benefit2": "Track your progress in real-time",
+        "benefit3": "Automatic reminders to help you take breaks and maintain energy",
+        "focusMode": "Focus Mode",
+        "task1": "Respond to user feedback",
+        "task2": "Create demo of new approach"
+      },
+      "endDay": {
+        "title": "Make every day count",
+        "subtitle": "End each day feeling successful",
+        "description": "Automatically track your daily wins, record your progress, and finish the day feeling calm and accomplished.",
+        "benefit1": "See where your time actually went",
+        "benefit2": "Visualize your work on your calendar",
+        "benefit3": "End work on time, without guilt",
+        "stats": "Week Statistics",
+        "completed": "Completed",
+        "highlights": "Today's Highlights",
+        "highlight1": "Completed 5 tasks",
+        "highlight2": "Completed 3 habits",
+        "highlight3": "Earned 50 XP"
+      },
       "overview": {
         "title": "BIG OVERVIEW",
         "description": "Keep track of all your goals, habits, and steps in one place"
@@ -45,6 +161,25 @@
         "title": "HIGHER MOTIVATION",
         "description": "Reduced overwhelm and clear structure help maintain motivation"
       }
+    },
+    "testimonials": {
+      "title": "Trusted by professionals who want to do their best work every day",
+      "quote1": "I use Pokrok to track everything and ensure important tasks get done.",
+      "author1": "Geoff Ralston",
+      "role1": "President, YC",
+      "quote2": "Pokrok is the productivity app I've been searching for my whole life. Actually, I lied. It's better.",
+      "author2": "Henry Ault",
+      "role2": "Founder @ Eco",
+      "quote3": "The tool that has had the greatest impact on my life and my productivity is unquestionably Pokrok.",
+      "author3": "Paul Galatis",
+      "role3": "CEO @ Names and Faces"
+    },
+    "cta": {
+      "title": "Start achieving your goals",
+      "subtitle": "Gain clarity and meaning in how to achieve what you want in life"
+    },
+    "footer": {
+      "rights": "All rights reserved."
     },
     "startJourney": "START YOUR JOURNEY",
     "signUp": "SIGN UP",
@@ -487,6 +622,9 @@
   "focus": {
     "weeklyFocus": "Weekly Focus",
     "dailyFocus": "Today's Focus",
+    "todayFocus": "Today's Focus",
+    "yesterdayFocus": "Yesterday's Focus",
+    "tomorrowFocus": "Tomorrow's Focus",
     "addStep": "Add Step",
     "stepsThisWeek": "Steps This Week",
     "stepsToday": "Today's Steps",
@@ -809,6 +947,8 @@
     "addStepButton": "ADD STEP",
     "editStep": "Edit step",
     "deleteStep": "Delete step",
+    "deleteConfirmTitle": "Delete step",
+    "deleteConfirmText": "Are you sure you want to delete the step \"{stepTitle}\"? This action cannot be undone.",
     "noSteps": "No steps",
     "noStepsDescription": "Add your first step to get started",
     "dateOptional": "Date (optional)",
@@ -845,7 +985,8 @@
       "stepsToSuccess": "4 steps to success",
       "step0": {
         "title": "Areas",
-        "subtitle": "The first thing you'll encounter in Pokrok are <strong>Areas</strong>. Areas reflect different parts of your life and in the app they primarily serve for easier viewing and filtering. You can add <strong>Habits</strong>, <strong>Goals</strong>, and <strong>Steps</strong> to Areas. Areas are intended as life areas - for example Career, finances, or health, but you can also use them for larger projects or your own view of different goals / steps / habits. When you're in an area and add a step, goal, or habit, it will automatically be assigned to that area."
+        "subtitle": "The first thing you'll encounter in Pokrok are <strong>Areas</strong>. Areas reflect different parts of your life and in the app they primarily serve for easier viewing and filtering. You can add <strong>Habits</strong>, <strong>Goals</strong>, and <strong>Steps</strong> to Areas. Areas are intended as life areas - for example Career, finances, or health, but you can also use them for larger projects or your own view of different goals / steps / habits. When you're in an area and add a step, goal, or habit, it will automatically be assigned to that area.",
+        "button": "Create area"
       },
       "step1": {
         "title": "Create a goal",

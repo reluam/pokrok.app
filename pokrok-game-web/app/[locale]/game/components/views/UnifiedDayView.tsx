@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Check, X, ChevronLeft, ChevronRight, Flame, CheckCircle2, Target } from 'lucide-react'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
+import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { TodayFocusSection } from './TodayFocusSection'
 
 interface UnifiedDayViewProps {
@@ -116,15 +117,10 @@ export function UnifiedDayView({
   // Calculate stats for a specific day
   const getDayStats = useCallback((date: Date) => {
     const dateStr = getLocalDateString(date)
-    const dayOfWeek = date.getDay()
-    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-    const dayName = dayNames[dayOfWeek]
     
-    // Habits for this day
+    // Habits for this day - use helper function
     const dayHabits = habits.filter(habit => {
-      if (habit.frequency === 'daily') return true
-      if (habit.frequency === 'custom' && habit.selected_days?.includes(dayName)) return true
-      return false
+      return isHabitScheduledForDay(habit, date)
     })
     
     const completedHabits = dayHabits.filter(h => 
@@ -171,11 +167,9 @@ export function UnifiedDayView({
       totalSteps += daySteps.length
       completedSteps += daySteps.filter(s => s.completed).length
       
-      // Count habits
+      // Count habits - use helper function
       const dayHabits = habits.filter(habit => {
-        if (habit.frequency === 'daily') return true
-        if (habit.frequency === 'custom' && habit.selected_days?.includes(dayName)) return true
-        return false
+        return isHabitScheduledForDay(habit, day)
       })
       totalHabits += dayHabits.length
       completedHabits += dayHabits.filter(h => 
@@ -228,11 +222,9 @@ export function UnifiedDayView({
     })
     const completedSteps = daySteps.filter(s => s.completed).length
     
-    // Habits
+    // Habits - use helper function
     const dayHabits = habits.filter(habit => {
-      if (habit.frequency === 'daily') return true
-      if (habit.frequency === 'custom' && habit.selected_days?.includes(dayName)) return true
-      return false
+      return isHabitScheduledForDay(habit, selectedDayDate)
     })
     const completedHabits = dayHabits.filter(h => 
       h.habit_completions && h.habit_completions[dateStr] === true

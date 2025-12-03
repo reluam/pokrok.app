@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { HelpCircle, Target, Footprints, CheckSquare, Plus, ArrowRight, Menu, Rocket, Calendar, Eye, Sparkles, TrendingUp, Clock, Star, Zap, BookOpen, AlertTriangle, Settings, Check, ChevronLeft, ChevronRight, X, LayoutDashboard } from 'lucide-react'
+import { HelpCircle, Target, Footprints, CheckSquare, Plus, ArrowRight, Menu, Rocket, Calendar, Eye, Sparkles, TrendingUp, Clock, Star, Zap, BookOpen, AlertTriangle, Settings, Check, ChevronLeft, ChevronRight, X, LayoutDashboard, Heart, ListTodo, Flame, BarChart3, Edit, Trash2, Briefcase, Smartphone, TrendingUp as TrendingUpIcon } from 'lucide-react'
 import { getLocalDateString } from '../utils/dateHelpers'
 
 interface HelpViewProps {
@@ -13,6 +13,7 @@ interface HelpViewProps {
   onNavigateToHabits?: () => void
   onNavigateToSteps?: () => void
   onNavigateToManagement?: () => void
+  onOpenAreasManagement?: () => void
   realGoals?: any[]
   realHabits?: any[]
   realSteps?: any[]
@@ -47,9 +48,12 @@ export function HelpView({
   onNavigateToGoals,
   onNavigateToHabits,
   onNavigateToSteps,
+  onNavigateToManagement,
+  onOpenAreasManagement,
 }: HelpViewProps) {
   const t = useTranslations('help')
   const tCommon = useTranslations()
+  const tHomepage = useTranslations('homepage')
   const locale = useLocale()
   const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
   const [selectedCategory, setSelectedCategory] = useState<HelpCategory>('getting-started')
@@ -133,13 +137,26 @@ export function HelpView({
             {/* Hero */}
             <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white">
               <div className="flex items-center gap-3 mb-3">
-                <Rocket className="w-8 h-8" />
-                <h2 className="text-2xl font-bold">{t('gettingStarted.welcome')}</h2>
+                <Target className="w-8 h-8" />
+                <h2 className="text-2xl font-bold">
+                  {tHomepage('hero.title') || 'Životní plánovač pro lidi, kteří chtějí dosáhnout svých cílů'}
+                </h2>
               </div>
-              <p className="text-orange-100">
-                {t.rich('gettingStarted.tagline', {
-                  strong: (chunks) => <strong>{chunks}</strong>
-                })}
+              <p className="text-orange-100 text-base leading-relaxed">
+                {tHomepage('hero.description') || 'Pokrok vám pomůže získat jasnost a smysluplnost v tom, jak dosáhnout toho, co v životě chcete. Rozdělte velké cíle na malé kroky, budujte návyky a sledujte svůj pokrok.'}
+              </p>
+            </div>
+
+            {/* Getting Started - Practical Steps */}
+            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200">
+              <div className="flex items-center gap-3 mb-4">
+                <Rocket className="w-6 h-6 text-orange-600" />
+                <h3 className="text-2xl font-bold text-gray-900">
+                  {t('gettingStarted.stepsToSuccess') || '4 kroky k úspěchu'}
+                </h3>
+              </div>
+              <p className="text-gray-700 mb-6 text-sm">
+                {tHomepage('features.clarity.description') || 'Začněte s praktickými kroky. Vytvořte si oblasti, přidejte cíle, rozdělte je na kroky a budujte návyky. Pokrok vám ukáže, na co se soustředit dnes.'}
               </p>
             </div>
 
@@ -156,6 +173,136 @@ export function HelpView({
                       strong: (chunks) => <strong className="text-gray-900 font-semibold">{chunks}</strong>
                     })}
                   </div>
+                </div>
+
+                {/* Example Areas */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  {/* Example Area 1 - Health */}
+                  <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <span 
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0"
+                          style={{ backgroundColor: '#10b981' }}
+                        >
+                          <Flame className="w-4 h-4 text-white" />
+                        </span>
+                        <h3 className="text-lg font-semibold text-gray-900">{locale === 'cs' ? 'Zdraví' : 'Health'}</h3>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-700 opacity-50 cursor-not-allowed">
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button className="p-1.5 rounded-lg hover:bg-red-100 transition-colors text-gray-500 hover:text-red-600 opacity-50 cursor-not-allowed">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">{locale === 'cs' ? 'Zdravotní cíle a návyky' : 'Health goals and habits'}</p>
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <span>2 {tCommon('goals.title') || 'GOALS'}</span>
+                      <span>5 {locale === 'cs' ? 'KROKY' : 'STEPS'}</span>
+                      <span>3 {tCommon('habits.title') || 'HABITS'}</span>
+                    </div>
+                  </div>
+
+                  {/* Example Area 2 - Career */}
+                  <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <span 
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0"
+                          style={{ backgroundColor: '#ea580c' }}
+                        >
+                          <Briefcase className="w-4 h-4 text-white" />
+                        </span>
+                        <h3 className="text-lg font-semibold text-gray-900">{locale === 'cs' ? 'Kariéra' : 'Career'}</h3>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-700 opacity-50 cursor-not-allowed">
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button className="p-1.5 rounded-lg hover:bg-red-100 transition-colors text-gray-500 hover:text-red-600 opacity-50 cursor-not-allowed">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <span>3 {tCommon('goals.title') || 'GOALS'}</span>
+                      <span>8 {locale === 'cs' ? 'KROKY' : 'STEPS'}</span>
+                      <span>1 {tCommon('habits.title') || 'HABITS'}</span>
+                    </div>
+                  </div>
+
+                  {/* Example Area 3 - Relationships */}
+                  <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <span 
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0"
+                          style={{ backgroundColor: '#3b82f6' }}
+                        >
+                          <Heart className="w-4 h-4 text-white" />
+                        </span>
+                        <h3 className="text-lg font-semibold text-gray-900">{locale === 'cs' ? 'Vztahy' : 'Relationships'}</h3>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-700 opacity-50 cursor-not-allowed">
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button className="p-1.5 rounded-lg hover:bg-red-100 transition-colors text-gray-500 hover:text-red-600 opacity-50 cursor-not-allowed">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">{locale === 'cs' ? 'Vztahy s rodinou a přáteli' : 'Family and friends'}</p>
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <span>1 {tCommon('goals.title') || 'GOALS'}</span>
+                      <span>2 {locale === 'cs' ? 'KROKY' : 'STEPS'}</span>
+                      <span>2 {tCommon('habits.title') || 'HABITS'}</span>
+                    </div>
+                  </div>
+
+                  {/* Example Area 4 - Personal Growth */}
+                  <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <span 
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0"
+                          style={{ backgroundColor: '#8b5cf6' }}
+                        >
+                          <TrendingUpIcon className="w-4 h-4 text-white" />
+                        </span>
+                        <h3 className="text-lg font-semibold text-gray-900">{locale === 'cs' ? 'Osobní růst' : 'Personal Growth'}</h3>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-700 opacity-50 cursor-not-allowed">
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button className="p-1.5 rounded-lg hover:bg-red-100 transition-colors text-gray-500 hover:text-red-600 opacity-50 cursor-not-allowed">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <span>2 {tCommon('goals.title') || 'GOALS'}</span>
+                      <span>4 {locale === 'cs' ? 'KROKY' : 'STEPS'}</span>
+                      <span>0 {tCommon('habits.title') || 'HABITS'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  {onOpenAreasManagement && (
+                    <button onClick={onOpenAreasManagement} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600">
+                      <Plus className="w-4 h-4" /> {t('gettingStarted.step0.button') || 'Vytvořit oblast'}
+                    </button>
+                  )}
+                  {onNavigateToManagement && (
+                    <button onClick={onNavigateToManagement} className="px-3 py-2 border border-orange-200 text-orange-600 text-sm rounded-lg hover:bg-orange-50">
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -363,7 +510,7 @@ export function HelpView({
             </div>
 
             {/* What's Next */}
-            <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
+            <div className="bg-orange-50 rounded-xl p-4 border border-orange-100 mt-6">
               <h4 className="font-semibold text-gray-900 flex items-center gap-2 mb-2">
                 <TrendingUp className="w-5 h-5 text-orange-500" /> {t('gettingStarted.whatsNext')}
               </h4>
