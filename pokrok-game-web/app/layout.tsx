@@ -1,5 +1,6 @@
 import { Inter, Press_Start_2P } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import './globals.css'
 
 const inter = Inter({ 
@@ -35,6 +36,7 @@ export default function RootLayout({
         </head>
         <body className={`${inter.variable} ${pressStart2P.variable} antialiased`}>
           {children}
+          <SpeedInsights />
         </body>
       </html>
     </ClerkProvider>

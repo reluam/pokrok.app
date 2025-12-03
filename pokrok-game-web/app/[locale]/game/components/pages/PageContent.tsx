@@ -125,17 +125,20 @@ export function PageContent(props: PageContentProps) {
     handleOpenAreaEditModal,
     handleDeleteArea,
     showDeleteAreaModal,
+    setShowDeleteAreaModal,
     setAreaToDelete,
     isDeletingArea,
     setIsDeletingArea,
     handleUpdateAreaForDetail,
     showAreaDetailIconPicker,
     areaDetailIconPickerPosition,
+    setAreaDetailIconPickerPosition,
     setShowAreaDetailIconPicker,
     iconSearchQuery,
     setIconSearchQuery,
     showAreaDetailColorPicker,
     areaDetailColorPickerPosition,
+    setAreaDetailColorPickerPosition,
     setShowAreaDetailColorPicker,
     areaDetailTitleValue,
     setAreaDetailTitleValue,
@@ -334,7 +337,7 @@ export function PageContent(props: PageContentProps) {
           // Check if it's an area page
           if (mainPanelSection.startsWith('area-')) {
             const areaId = mainPanelSection.replace('area-', '')
-            const area = areas.find(a => a.id === areaId)
+            const area = areas.find((a: any) => a.id === areaId)
             
             if (!area) {
               return (
@@ -353,15 +356,15 @@ export function PageContent(props: PageContentProps) {
             }
             
             // Filter steps and habits by area
-            const areaGoals = goals.filter(goal => goal.area_id === areaId && goal.status === 'active')
-            const areaGoalIds = areaGoals.map(goal => goal.id).filter(Boolean)
+            const areaGoals = goals.filter((goal: any) => goal.area_id === areaId && goal.status === 'active')
+            const areaGoalIds = areaGoals.map((goal: any) => goal.id).filter(Boolean)
             
             // Include steps that are directly assigned to the area OR belong to goals in this area
-            const areaSteps = dailySteps.filter(step => 
-              step.area_id === areaId || 
+            const areaSteps = dailySteps.filter((step: any) =>
+              step.area_id === areaId ||
               (step.goal_id && areaGoalIds.includes(step.goal_id))
             )
-            const areaHabits = habits.filter(habit => habit.area_id === areaId)
+            const areaHabits = habits.filter((habit: any) => habit.area_id === areaId)
             
             const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
             const areaColor = area.color || '#ea580c'
@@ -743,7 +746,7 @@ export function PageContent(props: PageContentProps) {
           // Check if it's a habit detail page
           if (mainPanelSection.startsWith('habit-')) {
             const habitId = mainPanelSection.replace('habit-', '')
-            const habit = habits.find(h => h.id === habitId)
+            const habit = habits.find((h: any) => h.id === habitId)
             
             if (!habit) {
               return (
@@ -778,7 +781,7 @@ export function PageContent(props: PageContentProps) {
           // Check if it's a goal detail page
           if (mainPanelSection.startsWith('goal-')) {
             const goalId = mainPanelSection.replace('goal-', '')
-            const goal = goals.find(g => g.id === goalId)
+            const goal = goals.find((g: any) => g.id === goalId)
             
             if (!goal) {
               return (
@@ -930,9 +933,9 @@ export function PageContent(props: PageContentProps) {
                                 })}
                                 {(() => {
                                   // Group goals by area - show all areas even if they have no goals
-                                  const goalsByArea = areas.reduce((acc, area) => {
+                                  const goalsByArea = areas.reduce((acc: Record<string, { area: any; goals: any[] }>, area: any) => {
                                     // Include all goals for this area (active, paused, completed)
-                                    const areaGoals = sortedGoalsForSidebar.filter(g => g.area_id === area.id)
+                                    const areaGoals = sortedGoalsForSidebar.filter((g: any) => g.area_id === area.id)
                                     // Always include area, even if it has no goals
                                     acc[area.id] = { area, goals: areaGoals }
                                     return acc
@@ -1227,7 +1230,7 @@ export function PageContent(props: PageContentProps) {
                     }}
                     onCreateGoal={handleCreateGoal}
                     onGoalDateClick={(goalId, e) => {
-                      const goal = goals.find(g => g.id === goalId)
+                      const goal = goals.find((g: any) => g.id === goalId)
                       if (!goal) return
                       
                       const rect = (e.target as HTMLElement).getBoundingClientRect()
@@ -1241,7 +1244,7 @@ export function PageContent(props: PageContentProps) {
                       })
                     }}
                     onGoalStatusClick={(goalId, e) => {
-                      const goal = goals.find(g => g.id === goalId)
+                      const goal = goals.find((g: any) => g.id === goalId)
                       if (!goal) return
                       
                       const rect = (e.target as HTMLElement).getBoundingClientRect()
@@ -1365,7 +1368,7 @@ export function PageContent(props: PageContentProps) {
                               {/* Areas in mobile menu for other sections */}
                               {(() => {
                                 // Group goals by area
-                                const goalsByArea = areas.reduce((acc, area) => {
+                                const goalsByArea = areas.reduce((acc: Record<string, { area: any; goals: any[] }>, area: any) => {
                                   const areaGoals = sortedGoalsForSidebar.filter(g => g.area_id === area.id && g.status === 'active')
                                   if (areaGoals.length > 0) {
                                     acc[area.id] = { area, goals: areaGoals }
@@ -1442,7 +1445,7 @@ export function PageContent(props: PageContentProps) {
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       {(() => {
                         const goalId = mainPanelSection.replace('goal-', '')
-                        const goal = goals.find(g => g.id === goalId)
+                        const goal = goals.find((g: any) => g.id === goalId)
                         if (!goal) return null
                         const IconComponent = getIconComponent(goal.icon)
                         return (
@@ -1590,7 +1593,7 @@ export function PageContent(props: PageContentProps) {
                       const now = new Date()
                       const dayOfWeek = now.getDay()
                       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-                      const visibleHabits = habits.filter(habit => {
+                      const visibleHabits = habits.filter((habit: any) => {
                         if (habit.always_show) return true
                         if (habit.frequency === 'daily') return true
                         if ((habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.selected_days) {
@@ -1598,7 +1601,7 @@ export function PageContent(props: PageContentProps) {
                         }
                         return false
                       })
-                      return visibleHabits.slice(0, 4).map(habit => (
+                      return visibleHabits.slice(0, 4).map((habit: any) => (
                         <div key={habit.id} className="p-3 rounded-xl border">
                           <div className="flex items-center gap-2 text-sm">
                             <span className="truncate flex-1">{habit.name}</span>
@@ -1606,7 +1609,7 @@ export function PageContent(props: PageContentProps) {
                         </div>
                       ))
                     })()}
-                    {habits.filter(h => {
+                    {habits.filter((h: any) => {
                       const now = new Date()
                       const dayOfWeek = now.getDay()
                       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
@@ -1629,7 +1632,7 @@ export function PageContent(props: PageContentProps) {
                 <div className="bg-white bg-opacity-95 rounded-2xl p-6 text-gray-800 backdrop-blur-sm border border-orange-200 shadow-xl">
                   <h3 className="text-base font-bold mb-4 text-orange-800">{t('sections.steps')}</h3>
                   <div className="space-y-3">
-                    {dailySteps.slice(0, 5).map((step) => (
+                    {dailySteps.slice(0, 5).map((step: any) => (
                       <div key={step.id} className="p-3 rounded-xl border text-sm">
                         <span className="truncate">{step.title}</span>
                       </div>

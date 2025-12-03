@@ -37,8 +37,8 @@ interface DisplayContentProps {
   setEditingHabitName: (value: string) => void
   editingHabitDescription: string
   setEditingHabitDescription: (value: string) => void
-  editingHabitFrequency: string
-  setEditingHabitFrequency: (value: string) => void
+  editingHabitFrequency: 'daily' | 'weekly' | 'monthly'
+  setEditingHabitFrequency: (value: 'daily' | 'weekly' | 'monthly') => void
   editingHabitSelectedDays: string[]
   setEditingHabitSelectedDays: (value: string[]) => void
   editingHabitAlwaysShow: boolean
@@ -47,8 +47,8 @@ interface DisplayContentProps {
   setEditingHabitXpReward: (value: number) => void
   editingHabitCategory: string
   setEditingHabitCategory: (value: string) => void
-  editingHabitDifficulty: string
-  setEditingHabitDifficulty: (value: string) => void
+  editingHabitDifficulty: 'easy' | 'medium' | 'hard'
+  setEditingHabitDifficulty: (value: 'easy' | 'medium' | 'hard') => void
   editingHabitReminderTime: string
   setEditingHabitReminderTime: (value: string) => void
   handleCloseDetail: () => void
@@ -64,8 +64,8 @@ interface DisplayContentProps {
   userId: string | null
   setSelectedItem: (item: any) => void
   onHabitsUpdate: (habits: any[]) => void
-  stepsCacheRef: React.RefObject<any>
-  setStepsCacheVersion: (value: number) => void
+  stepsCacheRef: React.MutableRefObject<Record<string, { data: any[], loaded: boolean }>>
+  setStepsCacheVersion: React.Dispatch<React.SetStateAction<Record<string, number>>>
   completedSteps: number
   activeHabits: number
   completedGoals: number
@@ -85,8 +85,68 @@ interface DisplayContentProps {
 }
 
 export function DisplayContent(props: DisplayContentProps) {
+  // Wrapper for handleHabitToggle to match expected signature
+  const handleHabitToggleWrapper = async (habitId: string, date?: string): Promise<void> => {
+    props.handleHabitToggle(habitId)
+  }
+
+  // Wrapper for handleStepToggle to match expected signature
+  const handleStepToggleWrapper = async (stepId: string, completed: boolean): Promise<void> => {
+    props.handleStepToggle(stepId, completed)
+  }
+
+  // Wrapper for onStepDateChange to match expected signature
+  const onStepDateChangeWrapper = async (stepId: string, newDate: string): Promise<void> => {
+    props.onStepDateChange(stepId, new Date(newDate))
+  }
+
+  // Wrapper for onStepTimeChange to match expected signature
+  const onStepTimeChangeWrapper = async (stepId: string, minutes: number): Promise<void> => {
+    props.onStepTimeChange(stepId, String(minutes))
+  }
+
   // If there's a selected item, show its detail for editing
   if (props.selectedItem && props.selectedItemType) {
+    // Wrapper for handleToggleStepCompleted to match expected signature
+    const handleToggleStepCompletedWrapper = async (completed: boolean): Promise<void> => {
+      if (props.selectedItem?.id) {
+        props.handleToggleStepCompleted(props.selectedItem.id, completed)
+      }
+    }
+
+    // Wrapper for handleSaveStep to match expected signature
+    const handleSaveStepWrapper = async (): Promise<void> => {
+      props.handleSaveStep()
+    }
+
+    // Wrapper for handleRescheduleStep to match expected signature
+    const handleRescheduleStepWrapper = async (date: string): Promise<void> => {
+      if (props.selectedItem?.id) {
+        const dateObj = new Date(date)
+        props.handleRescheduleStep(props.selectedItem.id, dateObj)
+      }
+    }
+
+    // Wrapper for handleHabitCalendarToggle to match expected signature
+    const handleHabitCalendarToggleWrapper = async (
+      habitId: string,
+      date: string,
+      currentState: 'completed' | 'missed' | 'planned' | 'not-scheduled' | 'today',
+      isScheduled: boolean
+    ): Promise<void> => {
+      props.handleHabitCalendarToggle(habitId, date)
+    }
+
+    // Wrapper for handleUpdateGoalForDetail to match expected signature
+    const handleUpdateGoalForDetailWrapper = async (goalId: string, updates: any): Promise<void> => {
+      props.handleUpdateGoalForDetail(goalId, updates)
+    }
+
+    // Wrapper for handleDeleteGoalForDetail to match expected signature
+    const handleDeleteGoalForDetailWrapper = async (goalId: string, showConfirm: boolean): Promise<void> => {
+      props.handleDeleteGoalForDetail(goalId)
+    }
+
     return (
       <ItemDetailRenderer
         item={props.selectedItem}
@@ -136,12 +196,12 @@ export function DisplayContent(props: DisplayContentProps) {
         editingHabitReminderTime={props.editingHabitReminderTime}
         setEditingHabitReminderTime={props.setEditingHabitReminderTime}
         handleCloseDetail={props.handleCloseDetail}
-        handleToggleStepCompleted={props.handleToggleStepCompleted}
-        handleSaveStep={props.handleSaveStep}
-        handleRescheduleStep={props.handleRescheduleStep}
-        handleHabitCalendarToggle={props.handleHabitCalendarToggle}
-        handleUpdateGoalForDetail={props.handleUpdateGoalForDetail}
-        handleDeleteGoalForDetail={props.handleDeleteGoalForDetail}
+        handleToggleStepCompleted={handleToggleStepCompletedWrapper}
+        handleSaveStep={handleSaveStepWrapper}
+        handleRescheduleStep={handleRescheduleStepWrapper}
+        handleHabitCalendarToggle={handleHabitCalendarToggleWrapper}
+        handleUpdateGoalForDetail={handleUpdateGoalForDetailWrapper}
+        handleDeleteGoalForDetail={handleDeleteGoalForDetailWrapper}
         goals={props.goals}
         habits={props.habits}
         player={props.player}
@@ -167,16 +227,16 @@ export function DisplayContent(props: DisplayContentProps) {
       habits={props.habits}
       dailySteps={props.dailySteps}
       handleItemClick={props.handleItemClick}
-      handleHabitToggle={props.handleHabitToggle}
-      handleStepToggle={props.handleStepToggle}
+      handleHabitToggle={handleHabitToggleWrapper}
+      handleStepToggle={handleStepToggleWrapper}
       loadingHabits={props.loadingHabits}
       loadingSteps={props.loadingSteps}
       animatingSteps={props.animatingSteps}
       onOpenStepModal={props.onOpenStepModal}
       onNavigateToHabits={props.onNavigateToHabits}
       onNavigateToSteps={props.onNavigateToSteps}
-      onStepDateChange={props.onStepDateChange}
-      onStepTimeChange={props.onStepTimeChange}
+      onStepDateChange={onStepDateChangeWrapper}
+      onStepTimeChange={onStepTimeChangeWrapper}
     />
   )
 }

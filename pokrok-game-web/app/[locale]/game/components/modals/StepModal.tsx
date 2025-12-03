@@ -244,7 +244,7 @@ export function StepModal({
                     )}
                   </label>
                   <span className="text-xs text-gray-500">
-                    {stepModalData.checklist.filter(item => item.completed).length}/{stepModalData.checklist.length} {t('steps.checklistCompleted') || 'completed'}
+                    {stepModalData.checklist.filter((item: any) => item.completed).length}/{stepModalData.checklist.length} {t('steps.checklistCompleted') || 'completed'}
                   </span>
                 </div>
                 
