@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireAuth, verifyOwnership } from '@/lib/auth-helpers'
 import { neon } from '@neondatabase/serverless'
 
 const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
@@ -8,11 +9,18 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
+
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userId')
     
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
+    // ✅ SECURITY: Ověření vlastnictví userId, pokud je poskytnut
+    const targetUserId = userId || dbUser.id
+    if (userId && !verifyOwnership(userId, dbUser)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     try {
@@ -24,7 +32,7 @@ export async function GET(request: NextRequest) {
       // Get enabled workflows
       const allWorkflows = await sql`
         SELECT * FROM workflows 
-        WHERE user_id = ${userId}
+        WHERE user_id = ${targetUserId}
           AND enabled = true
           AND (completed_at IS NULL OR DATE(completed_at) != ${today})
         ORDER BY trigger_time ASC

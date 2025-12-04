@@ -1,29 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
-import { createGoal, getGoalsByUserId, updateGoalById, deleteGoalById, getUserByClerkId } from '@/lib/cesta-db'
+import { requireAuth, verifyEntityOwnership, verifyOwnership } from '@/lib/auth-helpers'
+import { createGoal, getGoalsByUserId, updateGoalById, deleteGoalById } from '@/lib/cesta-db'
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId: clerkUserId } = await auth()
-    
-    if (!clerkUserId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
 
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userId')
     
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
-    }
-
-    // Verify that the userId belongs to the authenticated user
-    const dbUser = await getUserByClerkId(clerkUserId)
-    if (!dbUser || dbUser.id !== userId) {
+    // ✅ SECURITY: Ověření vlastnictví userId, pokud je poskytnut
+    if (userId && !verifyOwnership(userId, dbUser)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const goals = await getGoalsByUserId(userId)
+    // Použít dbUser.id místo userId z query parametru
+    const targetUserId = userId || dbUser.id
+    const goals = await getGoalsByUserId(targetUserId)
     return NextResponse.json(goals)
   } catch (error) {
     console.error('Error fetching goals:', error)
@@ -33,27 +29,36 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId: clerkUserId } = await auth()
-    
-    if (!clerkUserId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
 
     const body = await request.json()
     const { userId, title, description, targetDate, status, priority, goalType, progressPercentage, progressType, icon, areaId } = body
     
-    if (!userId || !title) {
-      return NextResponse.json({ error: 'User ID and title are required' }, { status: 400 })
+    if (!title) {
+      return NextResponse.json({ error: 'Title is required' }, { status: 400 })
     }
 
-    // Verify that the userId belongs to the authenticated user
-    const dbUser = await getUserByClerkId(clerkUserId)
-    if (!dbUser || dbUser.id !== userId) {
+    // ✅ SECURITY: Ověření vlastnictví userId, pokud je poskytnut
+    if (userId && !verifyOwnership(userId, dbUser)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
+    
+    // ✅ SECURITY: Ověření vlastnictví areaId, pokud je poskytnut
+    if (areaId) {
+      const areaOwned = await verifyEntityOwnership(areaId, 'areas', dbUser)
+      if (!areaOwned) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
+    }
+    
+    // Použít dbUser.id místo userId z body
+    const targetUserId = userId || dbUser.id
 
     const goalData = {
-      user_id: userId,
+      user_id: targetUserId,
       title,
       description: description || undefined,
       target_date: targetDate ? new Date(targetDate) : undefined,
@@ -77,11 +82,10 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const { userId: clerkUserId } = await auth()
-    
-    if (!clerkUserId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
 
     const body = await request.json()
     const { goalId, title, description, target_date, status, progressPercentage, icon, areaId } = body
@@ -90,17 +94,18 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Goal ID is required' }, { status: 400 })
     }
 
-    // Verify that the goal belongs to the authenticated user
-    const dbUser = await getUserByClerkId(clerkUserId)
-    if (!dbUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    // ✅ SECURITY: Ověření vlastnictví goalu (efektivnější než načítat všechny goals)
+    const goalOwned = await verifyEntityOwnership(goalId, 'goals', dbUser)
+    if (!goalOwned) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
-
-    // Get the goal to verify ownership
-    const goals = await getGoalsByUserId(dbUser.id)
-    const goal = goals.find(g => g.id === goalId)
-    if (!goal) {
-      return NextResponse.json({ error: 'Goal not found or access denied' }, { status: 404 })
+    
+    // ✅ SECURITY: Ověření vlastnictví areaId, pokud je poskytnut
+    if (areaId) {
+      const areaOwned = await verifyEntityOwnership(areaId, 'areas', dbUser)
+      if (!areaOwned) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
     }
 
     const updates: any = {
@@ -135,11 +140,10 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const { userId: clerkUserId } = await auth()
-    
-    if (!clerkUserId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
 
     const body = await request.json()
     const { goalId, deleteSteps } = body
@@ -148,17 +152,10 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Goal ID is required' }, { status: 400 })
     }
 
-    // Verify that the goal belongs to the authenticated user
-    const dbUser = await getUserByClerkId(clerkUserId)
-    if (!dbUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
-    }
-
-    // Get the goal to verify ownership
-    const goals = await getGoalsByUserId(dbUser.id)
-    const goal = goals.find(g => g.id === goalId)
-    if (!goal) {
-      return NextResponse.json({ error: 'Goal not found or access denied' }, { status: 404 })
+    // ✅ SECURITY: Ověření vlastnictví goalu (efektivnější než načítat všechny goals)
+    const goalOwned = await verifyEntityOwnership(goalId, 'goals', dbUser)
+    if (!goalOwned) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const success = await deleteGoalById(goalId, deleteSteps === true)
@@ -177,3 +174,4 @@ export async function DELETE(request: NextRequest) {
     }, { status: 500 })
   }
 }
+

@@ -1,23 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
-import { createHabit, getHabitsByUserId, getUserByClerkId, updateHabit, deleteHabit } from '@/lib/cesta-db'
+import { requireAuth, verifyEntityOwnership } from '@/lib/auth-helpers'
+import { createHabit, getHabitsByUserId, updateHabit, deleteHabit } from '@/lib/cesta-db'
 import { neon } from '@neondatabase/serverless'
 
 const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId: clerkUserId } = await auth()
-    
-    if (!clerkUserId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Get user from database
-    const dbUser = await getUserByClerkId(clerkUserId)
-    if (!dbUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
-    }
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
 
     // Use the existing function that properly loads habit_completions
     const habits = await getHabitsByUserId(dbUser.id)
@@ -38,20 +31,21 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId: clerkUserId } = await auth()
-    
-    if (!clerkUserId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Get user from database
-    const dbUser = await getUserByClerkId(clerkUserId)
-    if (!dbUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
-    }
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
 
     const body = await request.json()
     const { name, description, frequency, streak, maxStreak, category, difficulty, isCustom, reminderTime, notificationEnabled, selectedDays, alwaysShow, xpReward, aspirationId, areaId, order } = body
+    
+    // ✅ SECURITY: Ověření vlastnictví areaId, pokud je poskytnut
+    if (areaId) {
+      const areaOwned = await verifyEntityOwnership(areaId, 'areas', dbUser)
+      if (!areaOwned) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
+    }
     
     if (!name) {
       return NextResponse.json({ error: 'Name is required' }, { status: 400 })
@@ -101,23 +95,30 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const { userId: clerkUserId } = await auth()
-    
-    if (!clerkUserId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Get user from database
-    const dbUser = await getUserByClerkId(clerkUserId)
-    if (!dbUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
-    }
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
 
     const body = await request.json()
     const { habitId, name, description, frequency, category, difficulty, reminderTime, notificationEnabled, selectedDays, alwaysShow, xpReward, aspirationId, areaId, order } = body
     
     if (!habitId) {
       return NextResponse.json({ error: 'Habit ID is required' }, { status: 400 })
+    }
+
+    // ✅ SECURITY: Ověření vlastnictví habit
+    const habitOwned = await verifyEntityOwnership(habitId, 'habits', dbUser)
+    if (!habitOwned) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+    
+    // ✅ SECURITY: Ověření vlastnictví areaId, pokud je poskytnut
+    if (areaId) {
+      const areaOwned = await verifyEntityOwnership(areaId, 'areas', dbUser)
+      if (!areaOwned) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
     }
 
     const updates: any = {
@@ -154,23 +155,22 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const { userId: clerkUserId } = await auth()
-    
-    if (!clerkUserId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Get user from database
-    const dbUser = await getUserByClerkId(clerkUserId)
-    if (!dbUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
-    }
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
 
     const body = await request.json()
     const { habitId } = body
     
     if (!habitId) {
       return NextResponse.json({ error: 'Habit ID is required' }, { status: 400 })
+    }
+
+    // ✅ SECURITY: Ověření vlastnictví habit
+    const habitOwned = await verifyEntityOwnership(habitId, 'habits', dbUser)
+    if (!habitOwned) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const success = await deleteHabit(habitId)

@@ -107,10 +107,22 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const dbUser = await getUserByClerkId(userId)
+    if (!dbUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
     const { automationId, ...updates } = await request.json()
 
     if (!automationId) {
       return NextResponse.json({ error: 'Automation ID is required' }, { status: 400 })
+    }
+
+    // ✅ SECURITY: Ověření vlastnictví automation
+    const { verifyEntityOwnership } = await import('@/lib/auth-helpers')
+    const automationOwned = await verifyEntityOwnership(automationId, 'automations', dbUser)
+    if (!automationOwned) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const automation = await updateAutomation(automationId, updates)
@@ -130,11 +142,23 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const dbUser = await getUserByClerkId(userId)
+    if (!dbUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
     const { searchParams } = new URL(request.url)
     const automationId = searchParams.get('automationId')
 
     if (!automationId) {
       return NextResponse.json({ error: 'Automation ID is required' }, { status: 400 })
+    }
+
+    // ✅ SECURITY: Ověření vlastnictví automation
+    const { verifyEntityOwnership } = await import('@/lib/auth-helpers')
+    const automationOwned = await verifyEntityOwnership(automationId, 'automations', dbUser)
+    if (!automationOwned) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     await deleteAutomation(automationId)

@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "migrate": "node scripts/migrate-to-neon.js",
-    "init-cesta": "node scripts/init-cesta-db.js"
+    "init-cesta": "node scripts/init-cesta-db.js",
+    "add-indexes": "node scripts/add-performance-indexes.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.33.7",

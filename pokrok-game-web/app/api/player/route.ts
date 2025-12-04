@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireAuth, verifyOwnership } from '@/lib/auth-helpers'
 import { createPlayer, getPlayerByUserId } from '@/lib/cesta-db'
 import { neon } from '@neondatabase/serverless'
 
@@ -6,14 +7,21 @@ const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dum
 
 export async function GET(request: NextRequest) {
   try {
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
+
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userId')
     
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
+    // ✅ SECURITY: Ověření vlastnictví userId, pokud je poskytnut
+    const targetUserId = userId || dbUser.id
+    if (userId && !verifyOwnership(userId, dbUser)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const player = await getPlayerByUserId(userId)
+    const player = await getPlayerByUserId(targetUserId)
     
     if (!player) {
       return NextResponse.json({ error: 'Player not found' }, { status: 404 })
@@ -28,15 +36,26 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
+
     const body = await request.json()
     const { userId, name, gender, avatar, appearance, level, experience, energy, currentDay, currentTime } = body
     
-    if (!userId || !name) {
-      return NextResponse.json({ error: 'User ID and name are required' }, { status: 400 })
+    if (!name) {
+      return NextResponse.json({ error: 'Name is required' }, { status: 400 })
+    }
+
+    // ✅ SECURITY: Ověření vlastnictví userId, pokud je poskytnut
+    const targetUserId = userId || dbUser.id
+    if (userId && !verifyOwnership(userId, dbUser)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const playerData = {
-      user_id: userId,
+      user_id: targetUserId,
       name,
       gender: gender || 'male',
       avatar: avatar || 'default',
@@ -58,6 +77,11 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
+
     const body = await request.json()
     const { id, name, appearance } = body
     
@@ -65,13 +89,27 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Player ID and name are required' }, { status: 400 })
     }
 
+    // ✅ SECURITY: Ověření vlastnictví player
+    const existingPlayer = await sql`
+      SELECT user_id FROM players WHERE id = ${id}
+    `
+    
+    if (existingPlayer.length === 0) {
+      return NextResponse.json({ error: 'Player not found' }, { status: 404 })
+    }
+    
+    if (existingPlayer[0].user_id !== dbUser.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    // ✅ SECURITY: Přidat user_id do WHERE pro dodatečnou ochranu
     const result = await sql`
       UPDATE players 
       SET 
         name = ${name},
         appearance = ${JSON.stringify(appearance)},
         updated_at = NOW()
-      WHERE id = ${id}
+      WHERE id = ${id} AND user_id = ${dbUser.id}
       RETURNING *
     `
 

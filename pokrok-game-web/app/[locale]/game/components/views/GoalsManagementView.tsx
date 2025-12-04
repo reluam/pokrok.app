@@ -50,30 +50,48 @@ export function GoalsManagementView({
       setLoadingSteps(loadingSet)
       
       try {
-        // Load all steps in parallel
-        const stepPromises = goals.map(async (goal) => {
-    try {
-            const response = await fetch(`/api/daily-steps?goalId=${goal.id}`)
-      if (response.ok) {
-              const steps = await response.json()
-              return { goalId: goal.id, steps: Array.isArray(steps) ? steps : [] }
-            }
-            return { goalId: goal.id, steps: [] }
-          } catch (error) {
-            console.error(`Error loading steps for goal ${goal.id}:`, error)
-            return { goalId: goal.id, steps: [] }
+        // ✅ PERFORMANCE: Load all steps in one batch request
+        const goalIds = goals.map(goal => goal.id).filter(Boolean)
+        
+        if (goalIds.length > 0) {
+          const batchResponse = await fetch('/api/daily-steps/batch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ goalIds })
+          })
+          
+          if (batchResponse.ok) {
+            const { stepsByGoal } = await batchResponse.json()
+            setGoalStepsCache(stepsByGoal || {})
+          } else {
+            // Fallback to individual requests if batch fails
+            const stepPromises = goals.map(async (goal) => {
+              try {
+                const response = await fetch(`/api/daily-steps?goalId=${goal.id}`)
+                if (response.ok) {
+                  const steps = await response.json()
+                  return { goalId: goal.id, steps: Array.isArray(steps) ? steps : [] }
+                }
+                return { goalId: goal.id, steps: [] }
+              } catch (error) {
+                console.error(`Error loading steps for goal ${goal.id}:`, error)
+                return { goalId: goal.id, steps: [] }
+              }
+            })
+            
+            const results = await Promise.all(stepPromises)
+            const stepsMap: Record<string, any[]> = {}
+            results.forEach(({ goalId, steps }) => {
+              stepsMap[goalId] = steps
+            })
+            setGoalStepsCache(stepsMap)
           }
-        })
+        } else {
+          setGoalStepsCache({})
+        }
         
-        const results = await Promise.all(stepPromises)
-        const stepsMap: Record<string, any[]> = {}
-        results.forEach(({ goalId, steps }) => {
-          stepsMap[goalId] = steps
-        })
-        
-        setGoalStepsCache(stepsMap)
         setLoadingSteps(new Set())
-          } catch (error) {
+      } catch (error) {
         console.error('Error loading steps:', error)
         setLoadingSteps(new Set())
       }

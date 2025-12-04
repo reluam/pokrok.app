@@ -1,23 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
-import { getUserByClerkId, getPlayerByUserId, getGoalsByUserId, getHabitsByUserId } from '@/lib/cesta-db'
+import { requireAuth } from '@/lib/auth-helpers'
+import { getPlayerByUserId, getGoalsByUserId, getHabitsByUserId } from '@/lib/cesta-db'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId: clerkUserId } = await auth()
-    
-    if (!clerkUserId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Get user from database
-    const dbUser = await getUserByClerkId(clerkUserId)
-    if (!dbUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
-    }
+    // ✅ SECURITY & PERFORMANCE: Použít requireAuth helper
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
 
     // Load all game data in parallel
     const [player, goals, habits] = await Promise.all([

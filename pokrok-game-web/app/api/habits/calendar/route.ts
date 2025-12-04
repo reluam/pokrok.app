@@ -20,9 +20,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Verify the habit belongs to the user
+    // ✅ SECURITY: Ověření vlastnictví habit
+    const { getUserByClerkId } = await import('@/lib/cesta-db')
+    const dbUser = await getUserByClerkId(userId)
+    if (!dbUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
     const habitCheck = await sql`
-      SELECT id FROM habits 
+      SELECT id, user_id FROM habits 
       WHERE id = ${habitId}
     `
 
@@ -30,16 +36,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Habit not found' }, { status: 404 })
     }
 
-    // Get user from database to get user_id
-    const dbUser = await sql`
-      SELECT id FROM users WHERE clerk_user_id = ${userId}
-    `
-    
-    if (dbUser.length === 0) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    // ✅ SECURITY: Ověření, že habit patří uživateli
+    if (habitCheck[0].user_id !== dbUser.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
-    
-    const dbUserId = dbUser[0].id
+
+    // dbUser už máme z výše
+    const dbUserId = dbUser.id
 
     if (completed === null) {
       // Remove the completion record

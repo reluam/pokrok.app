@@ -1,22 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireAuth, verifyOwnership } from '@/lib/auth-helpers'
 import { neon } from '@neondatabase/serverless'
 
 const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
 
 export async function GET(request: NextRequest) {
   try {
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
+
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userId')
     
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
+    // ✅ SECURITY: Ověření vlastnictví userId, pokud je poskytnut
+    const targetUserId = userId || dbUser.id
+    if (userId && !verifyOwnership(userId, dbUser)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     // Try to get workflows, handle case where table doesn't exist yet
     try {
       const workflows = await sql`
         SELECT * FROM workflows 
-        WHERE user_id = ${userId}
+        WHERE user_id = ${targetUserId}
         ORDER BY created_at ASC
       `
       return NextResponse.json(workflows)
@@ -35,11 +43,22 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
+
     const body = await request.json()
     const { userId, type, name, description, trigger_time, enabled } = body
     
-    if (!userId || !type) {
-      return NextResponse.json({ error: 'User ID and type are required' }, { status: 400 })
+    if (!type) {
+      return NextResponse.json({ error: 'Type is required' }, { status: 400 })
+    }
+
+    // ✅ SECURITY: Ověření vlastnictví userId, pokud je poskytnut
+    const targetUserId = userId || dbUser.id
+    if (userId && !verifyOwnership(userId, dbUser)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     // Ensure workflows table exists
@@ -63,7 +82,7 @@ export async function POST(request: NextRequest) {
       INSERT INTO workflows (
         id, user_id, type, name, description, trigger_time, enabled
       ) VALUES (
-        ${id}, ${userId}, ${type}, ${name}, ${description || null}, 
+        ${id}, ${targetUserId}, ${type}, ${name}, ${description || null}, 
         ${trigger_time || '18:00'}, ${enabled !== false}
       ) RETURNING *
     `
@@ -76,11 +95,29 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
+
     const body = await request.json()
     const { id, enabled, trigger_time, completed_at } = body
     
     if (!id) {
       return NextResponse.json({ error: 'Workflow ID is required' }, { status: 400 })
+    }
+
+    // ✅ SECURITY: Ověření vlastnictví workflow
+    const existingWorkflow = await sql`
+      SELECT user_id FROM workflows WHERE id = ${id}
+    `
+    
+    if (existingWorkflow.length === 0) {
+      return NextResponse.json({ error: 'Workflow not found' }, { status: 404 })
+    }
+    
+    if (existingWorkflow[0].user_id !== dbUser.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const updates: any = {}
@@ -89,6 +126,7 @@ export async function PUT(request: NextRequest) {
     if (completed_at !== undefined) updates.completed_at = completed_at ? new Date() : null
     updates.updated_at = new Date()
 
+    // ✅ SECURITY: Přidat user_id do WHERE pro dodatečnou ochranu
     const workflow = await sql`
       UPDATE workflows 
       SET 
@@ -96,7 +134,7 @@ export async function PUT(request: NextRequest) {
         trigger_time = COALESCE(${updates.trigger_time}, trigger_time),
         completed_at = ${updates.completed_at},
         updated_at = ${updates.updated_at}
-      WHERE id = ${id}
+      WHERE id = ${id} AND user_id = ${dbUser.id}
       RETURNING *
     `
     

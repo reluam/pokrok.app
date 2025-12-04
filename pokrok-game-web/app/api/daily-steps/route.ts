@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createDailyStep, getDailyStepsByUserId, updateDailyStepFields } from '@/lib/cesta-db'
+import { requireAuth, verifyEntityOwnership, verifyOwnership } from '@/lib/auth-helpers'
+import { neon } from '@neondatabase/serverless'
+
+const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
 
 // Helper function to normalize date from database to YYYY-MM-DD string
 // PostgreSQL DATE type is stored without time, so we need to preserve it exactly as stored
@@ -41,6 +45,11 @@ function normalizeDateFromDB(date: any): string | null {
 
 export async function GET(request: NextRequest) {
   try {
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
+
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userId')
     const date = searchParams.get('date')
@@ -51,31 +60,33 @@ export async function GET(request: NextRequest) {
     // Support both userId and goalId queries
     if (goalId) {
       try {
-      // Get steps for a specific goal
-      const { neon } = await import('@neondatabase/serverless')
-      const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
-      
+        // ✅ SECURITY: Ověření vlastnictví goalu
+        const goalOwned = await verifyEntityOwnership(goalId, 'goals', dbUser)
+        if (!goalOwned) {
+          return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+        }
+        
         // Query steps for a specific goal
         // Note: goal_id is VARCHAR(255) in the database
-      const steps = await sql`
-        SELECT 
-          id, user_id, goal_id, title, description, completed, 
-          TO_CHAR(date, 'YYYY-MM-DD') as date,
+        const steps = await sql`
+          SELECT 
+            id, user_id, goal_id, title, description, completed, 
+            TO_CHAR(date, 'YYYY-MM-DD') as date,
             is_important, is_urgent, aspiration_id, area_id,
             estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
             COALESCE(checklist, '[]'::jsonb) as checklist,
             COALESCE(require_checklist_complete, false) as require_checklist_complete
-        FROM daily_steps
-        WHERE goal_id = ${goalId}
-        ORDER BY created_at DESC
-      `
-      
-      const normalizedSteps = steps.map((step: any) => ({
-        ...step,
-        date: normalizeDateFromDB(step.date)
-      }))
-      
-      return NextResponse.json(normalizedSteps)
+          FROM daily_steps
+          WHERE goal_id = ${goalId} AND user_id = ${dbUser.id}
+          ORDER BY created_at DESC
+        `
+        
+        const normalizedSteps = steps.map((step: any) => ({
+          ...step,
+          date: normalizeDateFromDB(step.date)
+        }))
+        
+        return NextResponse.json(normalizedSteps)
       } catch (error: any) {
         console.error('Error fetching steps for goal:', goalId, error)
         console.error('Error stack:', error?.stack)
@@ -87,21 +98,23 @@ export async function GET(request: NextRequest) {
       }
     }
     
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
+    // ✅ SECURITY: Ověření vlastnictví userId, pokud je poskytnut
+    const targetUserId = userId || dbUser.id
+    if (userId && !verifyOwnership(userId, dbUser)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     // Get daily steps for user with optional date filtering
     let steps
     if (startDate && endDate) {
       // Date range query (optimized)
-      steps = await getDailyStepsByUserId(userId, undefined, startDate, endDate)
+      steps = await getDailyStepsByUserId(targetUserId, undefined, startDate, endDate)
     } else if (date) {
       // Single date query
-      steps = await getDailyStepsByUserId(userId, new Date(date))
+      steps = await getDailyStepsByUserId(targetUserId, new Date(date))
     } else {
       // All steps (fallback - should be avoided for performance)
-      steps = await getDailyStepsByUserId(userId)
+      steps = await getDailyStepsByUserId(targetUserId)
     }
     
     // Normalize all date fields to YYYY-MM-DD strings to avoid timezone issues
@@ -119,6 +132,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
+
     const body = await request.json()
     const { 
       userId, 
@@ -139,6 +157,27 @@ export async function POST(request: NextRequest) {
     // Debug logging
     console.log('Creating step with:', { userId, goalId, areaId, title })
     
+    // ✅ SECURITY: Ověření vlastnictví userId, pokud je poskytnut
+    if (userId && !verifyOwnership(userId, dbUser)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+    
+    // ✅ SECURITY: Ověření vlastnictví goalId, pokud je poskytnut
+    if (goalId) {
+      const goalOwned = await verifyEntityOwnership(goalId, 'goals', dbUser)
+      if (!goalOwned) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
+    }
+    
+    // ✅ SECURITY: Ověření vlastnictví areaId, pokud je poskytnut
+    if (areaId) {
+      const areaOwned = await verifyEntityOwnership(areaId, 'areas', dbUser)
+      if (!areaOwned) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
+    }
+    
     // Validate mutual exclusivity: areaId and goalId cannot both be set
     if (areaId && goalId) {
       return NextResponse.json({ 
@@ -151,12 +190,15 @@ export async function POST(request: NextRequest) {
     const normalizedAreaId = areaId && areaId.trim() !== '' ? areaId : null
     const normalizedGoalId = goalId && goalId.trim() !== '' ? goalId : null
     
-    if (!userId || !title) {
+    if (!title) {
       return NextResponse.json({ 
-        error: 'User ID and title are required',
-        details: { hasUserId: !!userId, hasTitle: !!title }
+        error: 'Title is required',
+        details: { hasTitle: !!title }
       }, { status: 400 })
     }
+    
+    // Použít dbUser.id místo userId z body
+    const targetUserId = userId || dbUser.id
 
     // Handle date - always work with YYYY-MM-DD strings to avoid timezone issues
     // If date is provided as YYYY-MM-DD string, use it directly
@@ -201,7 +243,7 @@ export async function POST(request: NextRequest) {
     }
 
     const stepData = {
-      user_id: userId,
+      user_id: targetUserId,
       goal_id: normalizedGoalId,
       area_id: normalizedAreaId,
       title,
@@ -236,11 +278,43 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
+
     const body = await request.json()
     const { stepId, completed, completedAt, title, description, goalId, goal_id, areaId, aspirationId, aspiration_id, isImportant, isUrgent, estimatedTime, xpReward, date, checklist, requireChecklistComplete } = body
     
     // Debug logging
     console.log('Updating step:', { stepId, goalId, goal_id, areaId, hasGoalId: goalId !== undefined, hasGoal_id: goal_id !== undefined, hasAreaId: areaId !== undefined })
+    
+    if (!stepId) {
+      return NextResponse.json({ error: 'Step ID is required' }, { status: 400 })
+    }
+
+    // ✅ SECURITY: Ověření vlastnictví stepu
+    const stepOwned = await verifyEntityOwnership(stepId, 'daily_steps', dbUser)
+    if (!stepOwned) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+    
+    // ✅ SECURITY: Ověření vlastnictví goalId, pokud je poskytnut
+    if (goalId || goal_id) {
+      const targetGoalId = goalId || goal_id
+      const goalOwned = await verifyEntityOwnership(targetGoalId, 'goals', dbUser)
+      if (!goalOwned) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
+    }
+    
+    // ✅ SECURITY: Ověření vlastnictví areaId, pokud je poskytnut
+    if (areaId) {
+      const areaOwned = await verifyEntityOwnership(areaId, 'areas', dbUser)
+      if (!areaOwned) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
+    }
     
     // Validate mutual exclusivity: areaId and goalId cannot both be set
     if (areaId && (goalId || goal_id)) {
@@ -250,14 +324,6 @@ export async function PUT(request: NextRequest) {
       }, { status: 400 })
     }
     
-    if (!stepId) {
-      return NextResponse.json({ error: 'Step ID is required' }, { status: 400 })
-    }
-
-    // Update step completion status
-    const { neon } = await import('@neondatabase/serverless')
-    const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
-    
     // Check what type of update this is
     const isCompletionOnly = completed !== undefined && title === undefined && date === undefined
     const isDateOnly = date !== undefined && title === undefined && completed === undefined
@@ -265,13 +331,14 @@ export async function PUT(request: NextRequest) {
     if (isCompletionOnly) {
       // This is a completion toggle
       // Return date as YYYY-MM-DD string using TO_CHAR
+      // ✅ SECURITY: Přidat user_id do WHERE pro dodatečnou ochranu
       const result = await sql`
         UPDATE daily_steps 
         SET 
           completed = ${completed},
           completed_at = ${completedAt ? new Date(completedAt) : null},
           updated_at = NOW()
-        WHERE id = ${stepId}
+        WHERE id = ${stepId} AND user_id = ${dbUser.id}
         RETURNING 
           id, user_id, goal_id, title, description, completed, 
           TO_CHAR(date, 'YYYY-MM-DD') as date,
@@ -296,12 +363,13 @@ export async function PUT(request: NextRequest) {
       if (date) {
         // Use CAST to ensure date-only storage without time component
         // Return date as YYYY-MM-DD string using TO_CHAR
+        // ✅ SECURITY: Přidat user_id do WHERE pro dodatečnou ochranu
         const result = await sql`
           UPDATE daily_steps 
           SET 
             date = CAST(${date}::text AS DATE),
             updated_at = NOW()
-          WHERE id = ${stepId}
+          WHERE id = ${stepId} AND user_id = ${dbUser.id}
           RETURNING 
             id, user_id, goal_id, title, description, completed, 
             TO_CHAR(date, 'YYYY-MM-DD') as date,
@@ -321,12 +389,13 @@ export async function PUT(request: NextRequest) {
       } else {
         // Setting date to null
         // Return date as YYYY-MM-DD string using TO_CHAR (will be null)
+        // ✅ SECURITY: Přidat user_id do WHERE pro dodatečnou ochranu
         const result = await sql`
           UPDATE daily_steps 
           SET 
             date = NULL,
             updated_at = NOW()
-          WHERE id = ${stepId}
+          WHERE id = ${stepId} AND user_id = ${dbUser.id}
           RETURNING 
             id, user_id, goal_id, title, description, completed, 
             TO_CHAR(date, 'YYYY-MM-DD') as date,
@@ -489,6 +558,11 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
+
     const { searchParams } = new URL(request.url)
     const stepId = searchParams.get('stepId')
     
@@ -496,12 +570,16 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Step ID is required' }, { status: 400 })
     }
 
-    const { neon } = await import('@neondatabase/serverless')
-    const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
+    // ✅ SECURITY: Ověření vlastnictví stepu
+    const stepOwned = await verifyEntityOwnership(stepId, 'daily_steps', dbUser)
+    if (!stepOwned) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
     
+    // ✅ SECURITY: Přidat user_id do WHERE pro dodatečnou ochranu
     const result = await sql`
       DELETE FROM daily_steps 
-      WHERE id = ${stepId}
+      WHERE id = ${stepId} AND user_id = ${dbUser.id}
       RETURNING *
     `
 

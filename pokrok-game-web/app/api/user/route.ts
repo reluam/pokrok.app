@@ -1,22 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getUserByClerkId, createUser, createArea } from '@/lib/cesta-db'
+import { requireAuth } from '@/lib/auth-helpers'
+import { createUser, createArea } from '@/lib/cesta-db'
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const clerkId = searchParams.get('clerkId')
-    
-    if (!clerkId) {
-      return NextResponse.json({ error: 'Clerk ID is required' }, { status: 400 })
-    }
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
 
-    const user = await getUserByClerkId(clerkId)
-    
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
-    }
-
-    return NextResponse.json(user)
+    // ✅ SECURITY: Vrátit pouze data autentizovaného uživatele
+    return NextResponse.json(dbUser)
   } catch (error) {
     console.error('Error fetching user:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -25,19 +19,26 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { clerkId, email, firstName, lastName } = body
-    
-    if (!clerkId) {
-      return NextResponse.json({ error: 'Clerk ID is required' }, { status: 400 })
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { clerkUserId, dbUser } = authResult
+
+    // ✅ SECURITY: Pokud uživatel existuje, vrátit ho místo vytváření nového
+    if (dbUser) {
+      return NextResponse.json(dbUser)
     }
 
+    const body = await request.json()
+    const { email, firstName, lastName } = body
+    
     // Use email or construct from other fields
-    const userEmail = email || `${clerkId}@example.com`
+    const userEmail = email || `${clerkUserId}@example.com`
     // Construct name from firstName and lastName, or use email username as fallback
     const name = [firstName, lastName].filter(Boolean).join(' ') || userEmail.split('@')[0] || 'User'
 
-    const user = await createUser(clerkId, userEmail, name)
+    // ✅ SECURITY: Použít clerkUserId z autentizace, ne z body
+    const user = await createUser(clerkUserId, userEmail, name)
     
     return NextResponse.json(user)
   } catch (error) {

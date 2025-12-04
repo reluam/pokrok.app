@@ -6,16 +6,16 @@ const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dum
 // Using a simple Map that's cleared after each request
 // This is safe because each request has its own isolated cache
 const userCache = new Map<string, { user: any, timestamp: number }>()
-const USER_CACHE_TTL = 1000 // 1 second - very short to ensure data freshness
+const USER_CACHE_TTL = 60000 // 60 seconds - user data changes infrequently
 const MAX_CACHE_SIZE = 1000 // Prevent memory leaks
 
-// Cache for getHabitsByUserId (shorter TTL since habits change more frequently)
+// Cache for getHabitsByUserId (optimized TTL for better performance)
 const habitsCache = new Map<string, { habits: any[], timestamp: number }>()
-const HABITS_CACHE_TTL = 500 // 0.5 seconds - habits change more frequently
+const HABITS_CACHE_TTL = 30000 // 30 seconds - balance between freshness and performance
 
-// Cache for getGoalsByUserId (similar to habits)
+// Cache for getGoalsByUserId (optimized TTL for better performance)
 const goalsCache = new Map<string, { goals: any[], timestamp: number }>()
-const GOALS_CACHE_TTL = 500 // 0.5 seconds - goals change more frequently
+const GOALS_CACHE_TTL = 30000 // 30 seconds - balance between freshness and performance
 
 function cleanupCache() {
   const now = Date.now()

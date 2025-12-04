@@ -2814,28 +2814,49 @@ export function JourneyGameView({
       // Check which goals need loading
       const goalsNeedingSteps = activeGoalIds.filter(id => !stepsCacheRef.current[id]?.loaded)
       
-      // Batch load steps for goals that need them
+      // ✅ PERFORMANCE: Batch load steps for all goals in one request
       if (goalsNeedingSteps.length > 0) {
         try {
-          // Load steps for each goal (daily-steps API doesn't support batch, so we do parallel requests)
-          const stepPromises = goalsNeedingSteps.map(async (goalId) => {
-            try {
-              const stepsResponse = await fetch(`/api/daily-steps?goalId=${goalId}`)
-              if (stepsResponse.ok) {
-                const stepsData = await stepsResponse.json()
-                const stepsArray = Array.isArray(stepsData) ? stepsData : []
-                stepsCacheRef.current[goalId] = { data: stepsArray, loaded: true }
-                // Trigger reactivity
-                setStepsCacheVersion((prev: Record<string, number>) => ({ ...prev, [goalId]: (prev[goalId] || 0) + 1 }))
-              } else {
-                console.error(`Failed to load steps for goal ${goalId}:`, stepsResponse.status, stepsResponse.statusText)
-              }
-            } catch (error) {
-              console.error(`Error preloading steps for goal ${goalId}:`, error)
+          const batchResponse = await fetch('/api/daily-steps/batch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ goalIds: goalsNeedingSteps })
+          })
+          
+          if (batchResponse.ok) {
+            const { stepsByGoal } = await batchResponse.json()
+            
+            // Update cache for all goals
+            Object.keys(stepsByGoal).forEach((goalId) => {
+              const stepsArray = Array.isArray(stepsByGoal[goalId]) ? stepsByGoal[goalId] : []
+              stepsCacheRef.current[goalId] = { data: stepsArray, loaded: true }
+              // Trigger reactivity
+              setStepsCacheVersion((prev: Record<string, number>) => ({ 
+                ...prev, 
+                [goalId]: (prev[goalId] || 0) + 1 
+              }))
+            })
+          } else {
+            console.error('Failed to load batch steps:', batchResponse.status, batchResponse.statusText)
+            // Fallback to individual requests if batch fails
+            const stepPromises = goalsNeedingSteps.map(async (goalId) => {
+              try {
+                const stepsResponse = await fetch(`/api/daily-steps?goalId=${goalId}`)
+                if (stepsResponse.ok) {
+                  const stepsData = await stepsResponse.json()
+                  const stepsArray = Array.isArray(stepsData) ? stepsData : []
+                  stepsCacheRef.current[goalId] = { data: stepsArray, loaded: true }
+                  setStepsCacheVersion((prev: Record<string, number>) => ({ 
+                    ...prev, 
+                    [goalId]: (prev[goalId] || 0) + 1 
+                  }))
+                }
+              } catch (error) {
+                console.error(`Error preloading steps for goal ${goalId}:`, error)
               }
             })
-          
-          await Promise.all(stepPromises)
+            await Promise.all(stepPromises)
+          }
         } catch (error) {
           console.error('Error preloading steps:', error)
         }

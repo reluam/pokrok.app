@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { getUserByClerkId, toggleDailyStep, getUpdatedGoalAfterStepCompletion, getDailyStepsByUserId, updateGoalProgressCombined } from '@/lib/cesta-db'
+import { getUserByClerkId, toggleDailyStep, getUpdatedGoalAfterStepCompletion, updateGoalProgressCombined } from '@/lib/cesta-db'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -28,17 +28,25 @@ export async function PATCH(
       return NextResponse.json({ error: 'Step ID is required' }, { status: 400 })
     }
 
-    // Verify that the step belongs to the user
-    const userSteps = await getDailyStepsByUserId(dbUser.id)
-    const stepExists = userSteps.some(step => step.id === stepId)
-    
-    if (!stepExists) {
-      return NextResponse.json({ error: 'Step not found or access denied' }, { status: 404 })
+    // ✅ SECURITY: Efektivnější ověření vlastnictví stepu (místo načítání všech steps)
+    const { verifyEntityOwnership } = await import('@/lib/auth-helpers')
+    const stepOwned = await verifyEntityOwnership(stepId, 'daily_steps', dbUser)
+    if (!stepOwned) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
-
+    
     // Get current step to check if it will be completed after toggle
-    const currentStep = userSteps.find(step => step.id === stepId)
-    const willBeCompleted = currentStep ? !currentStep.completed : false
+    const { neon } = await import('@neondatabase/serverless')
+    const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
+    const currentStepResult = await sql`
+      SELECT completed FROM daily_steps WHERE id = ${stepId} AND user_id = ${dbUser.id}
+    `
+    
+    if (currentStepResult.length === 0) {
+      return NextResponse.json({ error: 'Step not found' }, { status: 404 })
+    }
+    
+    const willBeCompleted = !currentStepResult[0].completed
 
     const updatedStep = await toggleDailyStep(stepId)
     

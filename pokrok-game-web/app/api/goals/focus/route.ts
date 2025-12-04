@@ -27,11 +27,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Get the goal to verify ownership
+    // ✅ SECURITY: Efektivnější ověření vlastnictví goalu (místo načítání všech goals)
+    const { verifyEntityOwnership } = await import('@/lib/auth-helpers')
+    const goalOwned = await verifyEntityOwnership(goalId, 'goals', dbUser)
+    if (!goalOwned) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    // Načíst goals pouze pokud potřebujeme pro focus_order logiku
     const goals = await getGoalsByUserId(dbUser.id)
     const goal = goals.find(g => g.id === goalId)
     if (!goal) {
-      return NextResponse.json({ error: 'Goal not found or access denied' }, { status: 404 })
+      return NextResponse.json({ error: 'Goal not found' }, { status: 404 })
     }
 
     // If setting to active_focus, we need to handle focus_order
