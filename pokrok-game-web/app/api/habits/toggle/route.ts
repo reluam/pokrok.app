@@ -51,14 +51,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Habit not found after update' }, { status: 404 })
     }
     
-    const updatedHabit = {
-      ...habitResult[0],
-      habit_completions: habitResult[0].habit_completions || {}
-    }
+    const habitCompletions = habitResult[0].habit_completions || {}
     
     // Add completed_today for compatibility
     const today = date || new Date().toISOString().split('T')[0]
-    updatedHabit.completed_today = updatedHabit.habit_completions?.[today] === true
+    const completedToday = habitCompletions[today] === true
+    
+    const updatedHabit = {
+      ...habitResult[0],
+      habit_completions: habitCompletions,
+      completed_today: completedToday
+    }
 
     return NextResponse.json(updatedHabit)
 
