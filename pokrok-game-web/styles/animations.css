@@ -1,0 +1,207 @@
+/**
+ * Playful Animation Styles
+ * Custom animations for the playful design system
+ */
+
+/* Bounce Animation - for buttons and cards on click */
+@keyframes playfulBounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.05);
+  }
+}
+
+/* Wiggle Animation - for attention/errors */
+@keyframes playfulWiggle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+}
+
+/* Pulse Animation - for active states */
+@keyframes playfulPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.9;
+  }
+}
+
+/* Slide In Animation - for modals and panels */
+@keyframes playfulSlideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Slide In From Right */
+@keyframes playfulSlideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Slide In From Bottom */
+@keyframes playfulSlideInUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Float Animation - for decorative elements */
+@keyframes playfulFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Fade In Animation */
+@keyframes playfulFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Scale In Animation */
+@keyframes playfulScaleIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Click/Press Animation - for button clicks */
+@keyframes playfulClick {
+  0% {
+    transform: scale(1);
+    box-shadow: 3px 3px 0 0 #E8871E;
+  }
+  50% {
+    transform: scale(0.95);
+    box-shadow: 1px 1px 0 0 #E8871E;
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 3px 3px 0 0 #E8871E;
+  }
+}
+
+/* Click/Press Animation for pressed state (no shadow) */
+@keyframes playfulClickPressed {
+  0% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+  50% {
+    transform: scale(0.95);
+    box-shadow: inset 1px 1px 0 0 #E8871E;
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+/* Utility Classes */
+.animate-playful-bounce {
+  animation: playfulBounce 0.5s ease-in-out;
+}
+
+.animate-playful-wiggle {
+  animation: playfulWiggle 0.5s ease-in-out;
+}
+
+.animate-playful-pulse {
+  animation: playfulPulse 1s ease-in-out infinite;
+}
+
+.animate-playful-slide-in {
+  animation: playfulSlideIn 0.3s ease-out;
+}
+
+.animate-playful-slide-in-right {
+  animation: playfulSlideInRight 0.3s ease-out;
+}
+
+.animate-playful-slide-in-up {
+  animation: playfulSlideInUp 0.3s ease-out;
+}
+
+.animate-playful-float {
+  animation: playfulFloat 3s ease-in-out infinite;
+}
+
+.animate-playful-fade-in {
+  animation: playfulFadeIn 0.3s ease-out;
+}
+
+.animate-playful-scale-in {
+  animation: playfulScaleIn 0.3s ease-out;
+}
+
+.animate-playful-click {
+  animation: playfulClick 0.2s ease-out;
+}
+
+.animate-playful-click-pressed {
+  animation: playfulClickPressed 0.2s ease-out;
+}
+
+/* Hover Effects */
+.hover-playful-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-playful-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(93, 64, 55, 0.2);
+}
+
+.hover-playful-scale {
+  transition: transform 0.2s ease;
+}
+
+.hover-playful-scale:hover {
+  transform: scale(1.05);
+}
+
+.hover-playful-bounce:hover {
+  animation: playfulBounce 0.5s ease-in-out;
+}
+

@@ -1,3 +1,11 @@
+/**
+ * Utility function to merge class names
+ * Combines multiple class name strings/objects into a single string
+ */
+export function cn(...classes: (string | undefined | null | false)[]): string {
+  return classes.filter(Boolean).join(' ')
+}
+
 export function getBaseUrl(): string {
   // In production, use the environment variable
   if (process.env.NEXT_PUBLIC_SITE_URL) {

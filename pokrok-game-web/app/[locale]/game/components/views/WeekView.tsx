@@ -2,8 +2,9 @@
 
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
+import { Check, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
-import { Timeline } from './Timeline'
+import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { TodayFocusSection } from './TodayFocusSection'
 
 interface WeekViewProps {
@@ -43,6 +44,7 @@ export function WeekView({
 }: WeekViewProps) {
   const t = useTranslations()
   const locale = useLocale()
+  const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
   
   // Get current week start (Monday) - use today's week
   const getWeekStart = (date: Date): Date => {
@@ -54,6 +56,49 @@ export function WeekView({
     weekStart.setHours(0, 0, 0, 0)
     return weekStart
   }
+  
+  const today = useMemo(() => {
+    const date = new Date()
+    date.setHours(0, 0, 0, 0)
+    return date
+  }, [])
+  const todayStr = getLocalDateString(today)
+  
+  // Day names - use translations
+  const dayNamesShort = [
+    t('daysShort.sun'), t('daysShort.mon'), t('daysShort.tue'), t('daysShort.wed'),
+    t('daysShort.thu'), t('daysShort.fri'), t('daysShort.sat')
+  ]
+  
+  // Calculate stats for a specific day
+  const getDayStats = useCallback((date: Date) => {
+    const dateStr = getLocalDateString(date)
+    
+    // Habits for this day - use helper function
+    const dayHabits = habits.filter(habit => {
+      return isHabitScheduledForDay(habit, date)
+    })
+    
+    const completedHabits = dayHabits.filter(h => 
+      h.habit_completions && h.habit_completions[dateStr] === true
+    ).length
+    
+    // Steps for this day
+    const daySteps = dailySteps.filter(step => {
+      if (!step.date) return false
+      return normalizeDate(step.date) === dateStr
+    })
+    
+    const completedSteps = daySteps.filter(s => s.completed).length
+    const totalTasks = dayHabits.length + daySteps.length
+    const completedTasks = completedHabits + completedSteps
+    
+    return {
+      total: totalTasks,
+      completed: completedTasks,
+      isComplete: totalTasks > 0 && completedTasks === totalTasks
+    }
+  }, [habits, dailySteps])
   
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => {
     return getWeekStart(new Date())
@@ -97,13 +142,13 @@ export function WeekView({
     }
   }, [selectedDayDate, updateWeekIfNeeded])
   
-  // Handle date click on timeline
-  const handleTimelineDateClick = useCallback((date: Date) => {
+  // Handle day click - toggle between day and week view
+  const handleDayClick = useCallback((date: Date) => {
     const dateStr = getLocalDateString(date)
     const currentSelectedStr = selectedDayDate ? getLocalDateString(selectedDayDate) : null
     
-    // If clicking the same day, toggle back to week view
     if (currentSelectedStr === dateStr) {
+      // Click on same day = back to week view
       setSelectedDayDate(null)
     } else {
       setSelectedDayDate(date)
@@ -122,6 +167,28 @@ export function WeekView({
     }
     return days
   }, [currentWeekStart])
+  
+  const weekEndDate = weekDays[6]
+  
+  // Format header text
+  const headerText = useMemo(() => {
+    // Week range - "1. - 7. December 2025"
+    const startDay = currentWeekStart.getDate()
+    const endDay = weekEndDate.getDate()
+    const month = weekEndDate.toLocaleDateString(localeCode, { month: 'long' })
+    const year = weekEndDate.getFullYear()
+    return `${startDay}. - ${endDay}. ${month} ${year}`
+  }, [currentWeekStart, weekEndDate, localeCode])
+  
+  // Check if we're in current week
+  const currentWeekStartDate = getWeekStart(new Date())
+  const isCurrentWeek = getLocalDateString(currentWeekStart) === getLocalDateString(currentWeekStartDate)
+  
+  // Go to current week
+  const handleGoToCurrentWeek = useCallback(() => {
+    setCurrentWeekStart(currentWeekStartDate)
+    setSelectedDayDate(null)
+  }, [currentWeekStartDate])
   
   // Filter data based on selected day or week
   const displayData = useMemo(() => {
@@ -207,19 +274,179 @@ export function WeekView({
   }, [displayData.steps, displayedStepIds])
   
   return (
-    <div className="w-full h-full flex flex-col p-6 space-y-6 overflow-y-auto">
+    <div className="w-full h-full flex flex-col p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 overflow-y-auto bg-background">
+      {/* Header with date/week */}
+      <div className="flex items-center justify-center gap-3 flex-wrap">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-black capitalize font-playful">
+          {headerText}
+        </h1>
+        {!isCurrentWeek && (
+          <button
+            onClick={handleGoToCurrentWeek}
+            className="btn-playful-base px-3 py-1.5 text-xs sm:text-sm font-semibold text-black bg-primary-50 hover:bg-primary-100"
+          >
+            {t('focus.today')}
+          </button>
+        )}
+      </div>
+      
       {/* Timeline */}
-      <div className="flex-shrink-0">
-        <Timeline
-          selectedDate={currentWeekStart}
-          viewMode="week"
-          onDateClick={handleTimelineDateClick}
-          selectedDayDate={selectedDayDate}
-          habits={habits}
-          dailySteps={dailySteps}
-          onPrevClick={handlePrevWeek}
-          onNextClick={handleNextWeek}
-        />
+      <div className="box-playful-highlight p-4 sm:p-6">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
+          {/* Prev button */}
+          <button
+            onClick={handlePrevWeek}
+            className="btn-playful-base w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-white hover:bg-primary-50 flex-shrink-0 p-0"
+          >
+            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-black" />
+          </button>
+          
+          {/* Days */}
+          <div className="flex items-center gap-2 flex-1 justify-center min-w-0">
+            {/* Timeline line */}
+            <div className="relative flex items-center w-full max-w-2xl z-0">
+              <div className="absolute left-2 right-2 h-1 bg-primary-200 top-4" />
+              
+              <div className="relative flex justify-between w-full z-0">
+                {weekDays.map((day) => {
+                  const dateStr = getLocalDateString(day)
+                  const isToday = dateStr === todayStr
+                  const isSelected = selectedDayDate && getLocalDateString(selectedDayDate) === dateStr
+                  const stats = getDayStats(day)
+                  const isPast = day < today
+                  const isFuture = day > today
+                  
+                  // Calculate completion percentage (only for past days)
+                  // Use exact percentage for pie chart, rounded for display
+                  const completionPercentageExact = stats.total > 0 && isPast
+                    ? (stats.completed / stats.total) * 100 
+                    : 0
+                  const completionPercentage = Math.round(completionPercentageExact)
+                  
+                  // Determine color based on day type and completion percentage - Playful style
+                  let dotBg = 'bg-gray-200'
+                  let dotBorder = 'border-4 border-gray-300'
+                  let textColor = 'text-gray-500'
+                  let dayNumberColor = 'text-gray-700'
+                  let fractionColor = 'text-gray-400'
+                  
+                  if (isToday) {
+                    // Today - primary color
+                    dotBg = 'bg-primary-500'
+                    dotBorder = isSelected ? 'border-4 border-primary-700' : 'border-4 border-primary-500'
+                    textColor = isSelected ? 'text-primary-600' : 'text-black'
+                    dayNumberColor = isSelected ? 'text-primary-600' : 'text-black'
+                    fractionColor = isSelected ? 'text-primary-600' : 'text-gray-500'
+                  } else if (isFuture) {
+                    // Future days - gray
+                    dotBg = 'bg-gray-200'
+                    dotBorder = 'border-4 border-gray-300'
+                    textColor = 'text-gray-500'
+                    dayNumberColor = 'text-gray-700'
+                    fractionColor = 'text-gray-400'
+                  } else if (isPast) {
+                    // Past days - color based on completion percentage
+                    if (stats.total > 0) {
+                      if (completionPercentage === 100) {
+                        // 100% - primary full with checkmark
+                        dotBg = 'bg-primary-600'
+                        dotBorder = isSelected ? 'border-4 border-primary-700' : 'border-4 border-primary-600'
+                        textColor = isSelected ? 'text-primary-600' : 'text-black'
+                        dayNumberColor = isSelected ? 'text-primary-600' : 'text-black'
+                        fractionColor = isSelected ? 'text-primary-600' : 'text-gray-500'
+                      } else if (completionPercentage === 0) {
+                        // 0% - white background with X mark in primary color
+                        dotBg = 'bg-white'
+                        dotBorder = isSelected ? 'border-4 border-primary-700' : 'border-4 border-primary-500'
+                        textColor = isSelected ? 'text-primary-600' : 'text-black'
+                        dayNumberColor = isSelected ? 'text-primary-600' : 'text-black'
+                        fractionColor = isSelected ? 'text-primary-600' : 'text-gray-500'
+                      } else {
+                        // 1-99% - white with primary border
+                        dotBg = 'bg-white'
+                        dotBorder = isSelected ? 'border-4 border-primary-700' : 'border-4 border-primary-500'
+                        textColor = isSelected ? 'text-primary-600' : 'text-black'
+                        dayNumberColor = isSelected ? 'text-primary-600' : 'text-black'
+                        fractionColor = isSelected ? 'text-primary-600' : 'text-gray-500'
+                      }
+                    } else {
+                      // Past with no tasks - gray
+                      dotBg = 'bg-gray-300'
+                      dotBorder = 'border-4 border-gray-400'
+                      textColor = 'text-gray-500'
+                      dayNumberColor = 'text-gray-700'
+                      fractionColor = 'text-gray-400'
+                    }
+                  }
+                  
+                  return (
+                    <button
+                      key={dateStr}
+                      onClick={() => handleDayClick(day)}
+                      className="flex flex-col items-center group min-w-0 flex-1"
+                    >
+                      {/* Dot */}
+                      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all relative z-10 ${dotBg} ${dotBorder}`}>
+                        {isPast && stats.total > 0 && (
+                          <>
+                            {completionPercentage === 100 && (
+                              <Check className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={3} />
+                            )}
+                            {completionPercentage === 0 && (
+                              <X className="w-6 h-6 sm:w-7 sm:h-7 text-primary-600" strokeWidth={3} />
+                            )}
+                            {completionPercentage > 0 && completionPercentage < 100 && (
+                              <div className="text-xs sm:text-sm font-bold text-primary-600">
+                                {completionPercentage}%
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                      
+                      {/* Day name */}
+                      <span className={`text-xs sm:text-sm font-semibold mt-2 uppercase ${textColor}`}>
+                        {dayNamesShort[day.getDay()]}
+                      </span>
+                      
+                      {/* Day number */}
+                      <span className={`text-base sm:text-lg font-bold ${dayNumberColor}`}>
+                        {day.getDate()}
+                      </span>
+                      
+                      {/* Tasks count */}
+                      {stats.total > 0 && (
+                        <span className={`text-[10px] sm:text-xs ${fractionColor}`}>
+                          {stats.completed}/{stats.total}
+                        </span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+          
+          {/* Next button */}
+          <button
+            onClick={handleNextWeek}
+            className="btn-playful-base w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-white hover:bg-primary-50 flex-shrink-0 p-0"
+          >
+            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-black" />
+          </button>
+        </div>
+        
+        {/* Selected Day Info */}
+        {selectedDayDate && (
+          <div className="mt-4 box-playful-highlight-primary p-4">
+            <h4 className="text-base sm:text-lg font-bold text-black mb-2 font-playful">
+              {selectedDayDate.toLocaleDateString(localeCode, { weekday: 'long', day: 'numeric', month: 'long' })}
+            </h4>
+            <p className="text-sm text-black">
+              {t('focus.clickAgainToDeselect') || 'Klikni znovu pro zrušení výběru'}
+            </p>
+          </div>
+        )}
       </div>
       
       {/* Content based on selection */}

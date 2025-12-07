@@ -229,93 +229,71 @@ export function HabitsPage({
   }
   
   return (
-    <div className="w-full min-h-full flex flex-col bg-orange-50 p-6">
-      {/* Header with title and Add Habit button */}
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">{t('navigation.habits') || 'Návyky'}</h1>
-        <button
-          onClick={() => handleOpenHabitModal(null)}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          {t('habits.add') || 'Přidat návyk'}
-        </button>
-      </div>
-      
-      {/* Statistics section - without white box */}
-      <div className="mb-8">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-gray-100 rounded-lg">
-              <Calendar className="w-6 h-6 text-gray-600" />
-            </div>
+    <div className="w-full min-h-full flex flex-col bg-background">
+      {/* Statistics section */}
+      <div className="mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="box-playful-highlight p-3 flex items-center gap-3">
+            <Calendar className="w-5 h-5 text-primary-600" />
             <div>
-              <div className="text-sm text-gray-500 mb-1">{t('habits.stats.totalPlanned') || 'Naplánováno'}</div>
-              <div className="text-2xl font-bold text-gray-900">{stats.totalPlanned}</div>
+              <div className="text-xs text-gray-600 mb-0.5 font-playful">{t('habits.stats.totalPlanned') || 'Naplánováno'}</div>
+              <div className="text-xl font-bold text-black font-playful">{stats.totalPlanned}</div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <CheckCircle className="w-6 h-6 text-green-600" />
-            </div>
+          <div className="box-playful-highlight p-3 flex items-center gap-3">
+            <CheckCircle className="w-5 h-5 text-primary-600" />
             <div>
-              <div className="text-sm text-gray-500 mb-1">{t('habits.stats.totalCompleted') || 'Splněno'}</div>
-              <div className="text-2xl font-bold text-green-600">{stats.totalCompleted}</div>
+              <div className="text-xs text-gray-600 mb-0.5 font-playful">{t('habits.stats.totalCompleted') || 'Splněno'}</div>
+              <div className="text-xl font-bold text-black font-playful">{stats.totalCompleted}</div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Zap className="w-6 h-6 text-blue-600" />
-            </div>
+          <div className="box-playful-highlight p-3 flex items-center gap-3">
+            <Zap className="w-5 h-5 text-primary-600" />
             <div>
-              <div className="text-sm text-gray-500 mb-1">{t('habits.stats.completedOutside') || 'Mimo plán'}</div>
-              <div className="text-2xl font-bold text-blue-600">{stats.completedOutsidePlan}</div>
+              <div className="text-xs text-gray-600 mb-0.5 font-playful">{t('habits.stats.completedOutside') || 'Mimo plán'}</div>
+              <div className="text-xl font-bold text-black font-playful">{stats.completedOutsidePlan}</div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-orange-100 rounded-lg">
-              <Flame className="w-6 h-6 text-orange-600" />
-            </div>
+          <div className="box-playful-highlight p-3 flex items-center gap-3">
+            <Flame className="w-5 h-5 text-primary-600" />
             <div>
-              <div className="text-sm text-gray-500 mb-1">{t('habits.stats.currentStreak') || 'Aktuální streak'}</div>
-              <div className="text-2xl font-bold text-orange-600">{stats.currentStreak}</div>
+              <div className="text-xs text-gray-600 mb-0.5 font-playful">{t('habits.stats.currentStreak') || 'Aktuální streak'}</div>
+              <div className="text-xl font-bold text-black font-playful">{stats.currentStreak}</div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <Trophy className="w-6 h-6 text-purple-600" />
-            </div>
+          <div className="box-playful-highlight p-3 flex items-center gap-3">
+            <Trophy className="w-5 h-5 text-primary-600" />
             <div>
-              <div className="text-sm text-gray-500 mb-1">{t('habits.stats.maxStreak') || 'Nejdelší streak'}</div>
-              <div className="text-2xl font-bold text-purple-600">{stats.maxStreak}</div>
+              <div className="text-xs text-gray-600 mb-0.5 font-playful">{t('habits.stats.maxStreak') || 'Nejdelší streak'}</div>
+              <div className="text-xl font-bold text-black font-playful">{stats.maxStreak}</div>
             </div>
           </div>
         </div>
       </div>
       
       {/* Timeline section */}
-      <div className="mb-8 bg-white rounded-xl border-2 border-gray-200 p-4 shadow-sm">
+      <div className="box-playful-highlight p-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">{t('habits.timeline') || 'Timeline'}</h2>
+          <h2 className="text-lg font-semibold text-black font-playful">{t('habits.timeline') || 'Timeline'}</h2>
           <div className="flex items-center gap-2">
             <button
               onClick={() => handleTimelineShift('left')}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="btn-playful-base p-2"
               title={t('common.previous') || 'Předchozí'}
             >
-              <ChevronLeft className="w-5 h-5 text-gray-700" />
+              <ChevronLeft className="w-5 h-5 text-black" />
             </button>
             <button
               onClick={() => handleTimelineShift('right')}
               disabled={habitsPageTimelineOffset === 0}
-              className={`p-2 rounded-lg transition-colors ${
+              className={`btn-playful-base p-2 ${
                 habitsPageTimelineOffset === 0 
                   ? 'opacity-50 cursor-not-allowed' 
-                  : 'hover:bg-gray-100'
+                  : ''
               }`}
               title={t('common.next') || 'Další'}
             >
-              <ChevronRight className="w-5 h-5 text-gray-700" />
+              <ChevronRight className="w-5 h-5 text-black" />
             </button>
           </div>
         </div>
@@ -423,9 +401,9 @@ export function HabitsPage({
                       />
                     )}
                     <div
-                      className={`flex flex-col items-center w-full ${isToday ? 'bg-orange-100 rounded px-1 py-0.5' : ''}`}
+                      className={`flex flex-col items-center w-full ${isToday ? 'bg-primary-100 rounded-playful-sm px-1 py-0.5' : ''}`}
                     >
-                      <div className={`text-[10px] text-center leading-tight ${isToday ? 'font-semibold text-orange-700' : 'text-gray-600'}`}>
+                      <div className={`text-[10px] text-center leading-tight font-playful ${isToday ? 'font-semibold text-primary-700' : 'text-gray-600'}`}>
                         <div>{dayAbbr}</div>
                         <div>{day}</div>
                       </div>
@@ -464,10 +442,10 @@ export function HabitsPage({
                     {/* Settings icon button */}
                     <button
                       onClick={() => handleOpenHabitModal(habit)}
-                      className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
+                      className="btn-playful-base p-1.5 flex-shrink-0"
                       title={t('habits.settings') || 'Nastavení'}
                     >
-                      <Settings className="w-4 h-4 text-gray-600" />
+                      <Settings className="w-4 h-4 text-black" />
                     </button>
                   </div>
                   
@@ -498,24 +476,22 @@ export function HabitsPage({
                           <button
                             onClick={() => !isFuture && !isLoading && handleHabitBoxClick(habit, date)}
                             disabled={isFuture || isLoading}
-                            className={`w-8 h-8 rounded flex items-center justify-center transition-all ${
+                            className={`w-8 h-8 rounded-playful-sm flex items-center justify-center transition-all border-2 ${
                               isCompleted
-                                ? isScheduled
-                                  ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
-                                  : 'bg-orange-100 hover:bg-orange-200 cursor-pointer'
+                                ? 'box-playful-highlight bg-primary-100 border-primary-500 hover:bg-primary-200 cursor-pointer'
                                 : isScheduled
-                                  ? `bg-gray-200 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
-                                  : `bg-gray-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
+                                  ? `bg-white border-primary-500 ${isFuture ? 'cursor-not-allowed opacity-50' : 'hover:bg-primary-50 cursor-pointer box-playful-highlight'}`
+                                  : `bg-white border-gray-400 ${isFuture ? 'cursor-not-allowed opacity-50' : 'hover:bg-gray-50 cursor-pointer box-playful-pressed-gray'}`
                             }`}
                             title={`${dateStr}${isScheduled ? ' - Naplánováno' : ' - Nenaplánováno'}${isCompleted ? ' - Splněno' : ' - Nesplněno'}`}
                           >
                             {isLoading ? (
-                              <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <svg className="animate-spin h-3 w-3 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                               </svg>
                             ) : isCompleted ? (
-                              <Check className={`w-4 h-4 ${isScheduled ? 'text-white' : 'text-orange-600'}`} strokeWidth={3} />
+                              <Check className="w-4 h-4 text-primary-600" strokeWidth={3} />
                             ) : null}
                           </button>
                         </div>
@@ -528,27 +504,21 @@ export function HabitsPage({
           </div>
           
           {/* Legend/Explanations */}
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <div className="flex flex-wrap gap-4 text-xs text-gray-600">
+          <div className="mt-4 pt-4 border-t-2 border-primary-500">
+            <div className="flex flex-wrap gap-4 text-xs text-black font-playful">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded bg-gray-200 border-2 border-gray-300 flex items-center justify-center flex-shrink-0"></div>
+                <div className="w-6 h-6 rounded-playful-sm bg-white border-2 border-primary-500 flex items-center justify-center flex-shrink-0 box-playful-highlight"></div>
                 <span>{t('habits.legend.planned') || 'Naplánováno'}</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center flex-shrink-0"></div>
+                <div className="w-6 h-6 rounded-playful-sm bg-white border-2 border-gray-400 flex items-center justify-center flex-shrink-0 box-playful-pressed-gray"></div>
                 <span>{t('habits.legend.notPlanned') || 'Nenaplánováno'}</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded bg-orange-500 flex items-center justify-center flex-shrink-0">
-                  <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                <div className="w-6 h-6 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex items-center justify-center flex-shrink-0 box-playful-highlight">
+                  <Check className="w-4 h-4 text-primary-600" strokeWidth={3} />
                 </div>
-                <span>{t('habits.legend.completedPlanned') || 'Dokončeno naplánované'}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded bg-orange-100 flex items-center justify-center flex-shrink-0">
-                  <Check className="w-4 h-4 text-orange-600" strokeWidth={3} />
-                </div>
-                <span>{t('habits.legend.completedNotPlanned') || 'Dokončeno nenaplánované'}</span>
+                <span>{t('habits.legend.completed') || 'Splněno'}</span>
               </div>
             </div>
           </div>

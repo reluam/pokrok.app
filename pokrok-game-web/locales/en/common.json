@@ -309,6 +309,7 @@
     "legend": {
       "planned": "Planned",
       "notPlanned": "Not planned",
+      "completed": "Completed",
       "completedPlanned": "Completed planned",
       "completedNotPlanned": "Completed not planned"
     },
@@ -350,7 +351,10 @@
     "dayOfMonthPlaceholder": "E.g. 1, 15, 31",
     "dayOfMonthHint": "Enter day numbers separated by commas (1-31)",
     "autoAdjust31": "Automatically adjust day 31 to day 30 for months with 30 days",
+    "monthlyWeekdayHint": "For more complex selections, use the habit edit modal",
     "habitTime": "Habit time",
+    "reminderTime": "Reminder time",
+    "noReminder": "No reminder",
     "notificationEnabled": "Notification",
     "notificationTime": "Notification time",
     "notificationHint": "Browser notification will be shown at the specified time",
@@ -359,6 +363,7 @@
     "frequency": {
       "daily": "Daily",
       "weekly": "Weekly",
+      "monthly": "Monthly",
       "custom": "Custom"
     },
     "difficulty": {
@@ -575,6 +580,9 @@
     "title": "Navigation",
     "overview": "Overview",
     "focus": "Focus",
+    "focusDay": "Day",
+    "focusWeek": "Week",
+    "focusMonth": "Month",
     "goals": "Goals",
     "steps": "Steps",
     "habits": "Habits",

@@ -2,7 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Pixel Art Styling */
+/* Import Playful Design System Styles */
+@import '../styles/animations.css';
+@import '../styles/patterns.css';
+
+/* Pixel Art Styling (Legacy - keep for backward compatibility) */
 .pixel-art {
   font-family: 'Press Start 2P', monospace;
   image-rendering: pixelated;
@@ -10,7 +14,7 @@
   image-rendering: crisp-edges;
 }
 
-/* Game-specific animations */
+/* Game-specific animations (Legacy) */
 @keyframes pixelBounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
@@ -29,22 +33,220 @@
   animation: pixelGlow 2s ease-in-out infinite;
 }
 
-/* Custom scrollbar for game UI */
+/* Playful Design System Base Styles */
+@layer base {
+  body {
+    @apply bg-background text-text-primary;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  /* Playful font for headings */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Comic Neue', 'Nunito', 'Inter', sans-serif;
+    color: #5D4037;
+  }
+}
+
+/* Custom scrollbar for game UI - Playful Style */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
+  background: #FFFAF5;
+  border-radius: 8px;
+  border: 2px solid #5D4037;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
+  background: #FFB3BA;
+  border-radius: 8px;
+  border: 2px solid #5D4037;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #FF9AA2;
+}
+
+  /* Playful Button Base Styles - Simple, flat design */
+  @layer components {
+    .btn-playful-base {
+      @apply border-2 rounded-playful-lg font-semibold;
+      @apply transition-all duration-200;
+      @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+      @apply disabled:opacity-50 disabled:cursor-not-allowed;
+      @apply box-playful-highlight;
+    }
+    
+    /* Click animation for all buttons */
+    .btn-playful-base:active {
+      animation: playfulClick 0.2s ease-out;
+    }
+    
+    /* Loading state for buttons */
+    .btn-playful-base.loading {
+      @apply cursor-wait;
+      pointer-events: none;
+      opacity: 0.7;
+    }
+    
+    .btn-playful-base.loading .btn-playful-spinner {
+      display: inline-block;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  
+  /* Primary - White background with primary border */
+  .btn-playful-primary {
+    @apply btn-playful-base;
+    background-color: #FFFFFF; /* White background */
+    color: #E8871E; /* Primary orange text */
+  }
+  
+  .btn-playful-primary:hover {
+    background-color: #fef3e7; /* primary-50 - light orange on hover */
+  }
+  
+  /* Secondary - Light background */
+  .btn-playful-secondary {
+    @apply btn-playful-base;
+    background-color: #FFFAF5; /* background color */
+    color: #000000; /* High contrast black text */
+  }
+  
+  .btn-playful-secondary:hover {
+    background-color: #fef3e7; /* primary-50 - slightly warmer */
+  }
+  
+  /* Outline - Transparent with border */
+  .btn-playful-outline {
+    @apply btn-playful-base;
+    background-color: transparent;
+    color: #000000; /* High contrast black text */
+  }
+  
+  .btn-playful-outline:hover {
+    background-color: #FFFAF5; /* Light background on hover */
+  }
+  
+  /* Navigation/Menu button - no border, underline when active */
+  .btn-playful-nav {
+    @apply rounded-playful-md;
+    @apply relative;
+    background-color: transparent; /* Transparent background */
+    color: #000000; /* High contrast black text */
+    /* No shadow, no border for navigation buttons */
+    box-shadow: none;
+    border: none;
+  }
+  
+  .btn-playful-nav:hover {
+    background-color: #fef3e7; /* primary-50 */
+  }
+  
+  .btn-playful-nav.active {
+    background-color: transparent;
+    color: #000000; /* Black text for contrast */
+    text-decoration: underline;
+    text-decoration-color: #E8871E; /* Primary orange underline */
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+  
+  .btn-playful-nav.active:hover {
+    background-color: #fef3e7; /* primary-50 */
+  }
+  
+  .btn-playful-nav.active:active {
+    animation: playfulClick 0.2s ease-out;
+  }
+  
+  /* Playful Card Base Styles - Simple, flat design */
+  .card-playful-base {
+    @apply border-2 rounded-playful-lg;
+    @apply p-4 sm:p-6;
+    @apply transition-colors duration-200;
+    @apply relative;
+    border-color: #E8871E; /* Primary orange border */
+    background-color: #FFFFFF; /* White background */
+    /* Primary "shadow" effect - offset box behind */
+    box-shadow: 3px 3px 0 0 #E8871E;
+  }
+  
+  .card-playful-primary {
+    @apply card-playful-base;
+    background-color: #FFFAF5; /* Project background color */
+  }
+  
+  .card-playful-white {
+    @apply card-playful-base;
+    background-color: #FFFFFF; /* White */
+  }
+  
+  /* Box with primary "shadow" - offset effect */
+  .box-playful-highlight {
+    @apply border-2 rounded-playful-lg;
+    @apply relative;
+    border-color: #E8871E; /* Primary orange border */
+    /* Primary "shadow" effect - offset box behind */
+    box-shadow: 3px 3px 0 0 #E8871E;
+    /* Background can be set via Tailwind classes */
+  }
+  
+  .box-playful-highlight-primary {
+    @apply box-playful-highlight;
+    background-color: #FFFAF5; /* Light background */
+  }
+  
+  /* Gray pressed variant for not planned items */
+  .box-playful-pressed-gray {
+    @apply border-2 rounded-playful-lg;
+    @apply relative;
+    border-color: #9CA3AF; /* Gray border */
+    background-color: #FFFFFF; /* White background */
+    /* No shadow - flat appearance */
+    box-shadow: none;
+  }
+  
+  /* Active/pressed item - no shadow, just border */
+  .box-playful-pressed {
+    @apply border-2 rounded-playful-lg;
+    @apply relative;
+    border-color: #E8871E; /* Primary orange border */
+    background-color: #FFFFFF; /* White background */
+    /* No shadow - flat appearance */
+    box-shadow: none;
+  }
+  
+  .box-playful-pressed-primary {
+    @apply box-playful-pressed;
+    background-color: #FFFAF5; /* Light background */
+  }
+  
+  /* Danger button - red shadow and text, white background */
+  .btn-playful-danger {
+    @apply btn-playful-base;
+    background-color: #FFFFFF; /* White background */
+    color: #DC2626; /* Red text */
+    border-color: #DC2626; /* Red border */
+    /* Red shadow effect */
+    box-shadow: 3px 3px 0 0 #DC2626;
+  }
+  
+  .btn-playful-danger:hover {
+    background-color: #FEF2F2; /* Light red background on hover */
+  }
+  
+  .btn-playful-danger:active {
+    animation: playfulClick 0.2s ease-out;
+  }
 }
 

@@ -7,22 +7,27 @@ import { HabitsPage } from '../views/HabitsPage'
 import { HabitDetailPage } from '../views/HabitDetailPage'
 import { GoalDetailPage } from '../views/GoalDetailPage'
 import { UnifiedDayView } from '../views/UnifiedDayView'
+import { DayView } from '../views/DayView'
+import { WeekView } from '../views/WeekView'
+import { MonthView } from '../views/MonthView'
 import { SettingsPage } from '../SettingsPage'
 import { HelpView } from '../views/HelpView'
 import { GoalEditingForm } from '../journey/GoalEditingForm'
 import { DisplayContent } from '../content/DisplayContent'
 import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
-import { LayoutDashboard, ChevronLeft, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Menu, CheckSquare, Footprints } from 'lucide-react'
+import { LayoutDashboard, ChevronLeft, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Menu, CheckSquare, Footprints, Plus } from 'lucide-react'
 import { SidebarNavigation } from '../layout/SidebarNavigation'
 import { GoalsManagementView } from '../views/GoalsManagementView'
+import { HabitsManagementView } from '../views/HabitsManagementView'
 import { StepsManagementView } from '../views/StepsManagementView'
+import { HabitDetailInlineView } from '../views/HabitDetailInlineView'
 
 // NOTE: This component is very large (~2862 lines) and will be further refactored
 // For now, it contains the entire renderPageContent logic
 
 interface PageContentProps {
-  currentPage: 'main' | 'statistics' | 'achievements' | 'settings' | 'help'
+  currentPage: 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'help'
   [key: string]: any // Allow any props - this function uses many variables from parent
 }
 
@@ -121,6 +126,8 @@ export function PageContent(props: PageContentProps) {
     setExpandedAreas,
     expandedGoalSections,
     setExpandedGoalSections,
+    expandedFocus,
+    setExpandedFocus,
     handleOpenAreasManagementModal,
     handleOpenAreaEditModal,
     handleDeleteArea,
@@ -195,6 +202,9 @@ export function PageContent(props: PageContentProps) {
     goalStatusRef,
     goalAreaRef,
     selectedDayDate,
+    setSelectedDayDate,
+    setShowDatePickerModal,
+    setSelectedItemType,
     setStepModalData,
     setShowStepModal,
     stepsCacheVersion,
@@ -237,6 +247,42 @@ export function PageContent(props: PageContentProps) {
     { id: 'habits' as const, label: t('navigation.habits'), icon: CheckSquare },
     { id: 'steps' as const, label: t('navigation.steps'), icon: Footprints },
   ];
+  
+  // Filters state for Goals page
+  const [goalsStatusFilters, setGoalsStatusFilters] = React.useState<Set<string>>(new Set(['active']))
+  
+  // Filters state for Habits page
+  const [habitsFrequencyFilter, setHabitsFrequencyFilter] = React.useState<'all' | 'daily' | 'weekly' | 'monthly'>('all')
+  const [habitsShowCompletedToday, setHabitsShowCompletedToday] = React.useState(true)
+  const [selectedHabitForDetail, setSelectedHabitForDetail] = React.useState<string | null>(null)
+  const habitsPageTimelineContainerRef = React.useRef<HTMLDivElement>(null)
+  
+  // Reset selectedHabitForDetail when navigating to habits page
+  React.useEffect(() => {
+    if (currentPage === 'habits') {
+      setSelectedHabitForDetail(null)
+    }
+  }, [currentPage])
+  
+  // Expose reset function for external use (e.g., from HeaderNavigation)
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const handleResetHabitSelection = () => {
+        if (currentPage === 'habits') {
+          setSelectedHabitForDetail(null)
+        }
+      }
+      window.addEventListener('resetHabitSelection', handleResetHabitSelection)
+      return () => {
+        window.removeEventListener('resetHabitSelection', handleResetHabitSelection)
+      }
+    }
+  }, [currentPage])
+  
+  // Filters state for Steps page
+  const [stepsShowCompleted, setStepsShowCompleted] = React.useState(false)
+  const [stepsGoalFilter, setStepsGoalFilter] = React.useState<string | null>(null)
+  const [stepsDateFilter, setStepsDateFilter] = React.useState<string | null>(null)
   
   return (
     <>
@@ -317,10 +363,8 @@ export function PageContent(props: PageContentProps) {
           )
         }
         
-        // Sidebar navigation items - only Focus now
-        const sidebarItems = [
-          { id: 'overview' as const, label: t('navigation.focus'), icon: LayoutDashboard },
-        ]
+        // Sidebar navigation items - empty now since Focus is handled in SidebarNavigation
+        const sidebarItems: Array<{ id: string; label: string; icon: any }> = []
         
         // Goals for sidebar (sorted by priority/date)
         const sortedGoalsForSidebar = [...goals].sort((a, b) => {
@@ -865,319 +909,64 @@ export function PageContent(props: PageContentProps) {
           }
           
           switch (mainPanelSection) {
-            case 'overview':
+            case 'focus-day':
               return (
                 <div className="w-full min-h-full flex flex-col bg-orange-50">
-                  {/* Mobile header with hamburger menu - same as other sections */}
+                  {/* Mobile header */}
                   <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
                     <div className="flex items-center justify-between">
                       <h2 className="text-lg font-bold text-gray-900">
-                        {sidebarItems.find(item => item.id === mainPanelSection)?.label || t('navigation.focus')}
+                        {t('navigation.focusDay') || 'Day'}
                       </h2>
-                      <div className="relative">
-                      <button
-                          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                          title="Menu"
-                        >
-                          <Menu className="w-5 h-5 text-gray-700" />
-                      </button>
-                        
-                        {/* Mobile menu dropdown */}
-                        {mobileMenuOpen && (
-                          <>
-                            {/* Backdrop */}
-                            <div 
-                              className="fixed inset-0 z-[100]" 
-                              onClick={() => setMobileMenuOpen(false)}
-                            />
-                            <div className="fixed right-4 top-16 bg-white border border-gray-200 rounded-lg shadow-lg z-[101] min-w-[200px]">
-                              <nav className="py-2">
-                                <button
-                                  onClick={() => {
-                                    setMainPanelSection('overview')
-                                    setMobileMenuOpen(false)
-                                  }}
-                                  className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                                    mainPanelSection === 'overview'
-                                      ? 'bg-orange-600 text-white'
-                                      : 'text-gray-700 hover:bg-gray-100'
-                        }`}
-                      >
-                                  <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
-                                  <span className="font-medium">{t('navigation.focus')}</span>
-                      </button>
-                                
-                                {/* Goals, Habits, Steps in mobile menu */}
-                                {topMenuItems.map((item) => {
-                                  const Icon = item.icon
-                                  const isActive = mainPanelSection === (item.id as string)
-                                  return (
-                      <button
-                                      key={item.id}
-                                      onClick={() => {
-                                        setCurrentPage('main')
-                                        setMainPanelSection(item.id)
-                                        setMobileMenuOpen(false)
-                                      }}
-                                      className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                                        isActive
-                                          ? 'bg-orange-600 text-white'
-                                          : 'text-gray-700 hover:bg-gray-100'
-                        }`}
-                      >
-                                      <Icon className="w-5 h-5 flex-shrink-0" />
-                                      <span className="font-medium">{item.label}</span>
-                      </button>
-                                  )
-                                })}
-                                {(() => {
-                                  // Group goals by area - show all areas even if they have no goals
-                                  const goalsByArea = areas.reduce((acc: Record<string, { area: any; goals: any[] }>, area: any) => {
-                                    // Include all goals for this area (active, paused, completed)
-                                    const areaGoals = sortedGoalsForSidebar.filter((g: any) => g.area_id === area.id)
-                                    // Always include area, even if it has no goals
-                                    acc[area.id] = { area, goals: areaGoals }
-                                    return acc
-                                  }, {} as Record<string, { area: any; goals: any[] }>)
-                                  
-                                  // Goals without area
-                                  const goalsWithoutArea = sortedGoalsForSidebar.filter(g => !g.area_id && g.status === 'active')
-                                  
-                                  return (
-                                    <>
-                                      {/* Areas with goals */}
-                                      {(Object.values(goalsByArea) as Array<{ area: any; goals: any[] }>).map((item: { area: any; goals: any[] }) => {
-                                        const { area, goals: areaGoals } = item
-                                        const isExpanded = expandedAreas.has(area.id)
-                                        const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
-                                        const areaColor = area.color || '#ea580c'
-                                        const areaSectionId = `area-${area.id}`
-                                        const isAreaSelected = mainPanelSection === areaSectionId
-                                        
-                                        return (
-                                          <div key={area.id}>
-                                            <div className="flex items-center gap-1">
-                      <button
-                                                onClick={() => {
-                                                  setMainPanelSection(areaSectionId)
-                                                  setMobileMenuOpen(false)
-                                                }}
-                                                className={`flex-1 flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                                                  isAreaSelected
-                                                    ? 'bg-orange-600 text-white'
-                                                    : 'text-gray-700 hover:bg-gray-100'
-                                                }`}
-                                              >
-                                                <IconComponent className={`w-5 h-5 flex-shrink-0 ${isAreaSelected ? 'text-white' : ''}`} style={!isAreaSelected ? { color: areaColor } : undefined} />
-                                                <span className={`font-medium flex-1 ${isAreaSelected ? 'text-white' : 'text-gray-900'}`}>{area.name}</span>
-                      </button>
-                      <button
-                                                onClick={(e) => {
-                                                  e.stopPropagation()
-                                                  // Only allow one area to be expanded at a time
-                                                  if (isExpanded) {
-                                                    // Collapse this area
-                                                    setExpandedAreas(new Set())
-                                                  } else {
-                                                    // Expand this area and collapse all others
-                                                    setExpandedAreas(new Set([area.id]))
-                                                  }
-                                                }}
-                                                className="px-2 py-3 transition-colors text-gray-500 hover:bg-gray-100"
-                                              >
-                                                <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-                                              </button>
                                             </div>
-                                            
-                                            {/* Goals under area */}
-                                            {isExpanded && (() => {
-                                              // Split goals by status
-                                              const activeGoals = areaGoals.filter(g => g.status === 'active')
-                                              const pausedGoals = areaGoals.filter(g => g.status === 'paused')
-                                              const completedGoals = areaGoals.filter(g => g.status === 'completed')
-                                              
-                                              console.log('[Mobile Menu - Area Goals]', {
-                                                areaId: area.id,
-                                                areaName: area.name,
-                                                totalGoals: areaGoals.length,
-                                                active: activeGoals.length,
-                                                paused: pausedGoals.length,
-                                                completed: completedGoals.length,
-                                                allGoalStatuses: areaGoals.map(g => ({ id: g.id, status: g.status, title: g.title }))
-                                              })
-                                              
-                                              const pausedSectionKey = `${area.id}-paused`
-                                              const completedSectionKey = `${area.id}-completed`
-                                              const isPausedExpanded = expandedGoalSections.has(pausedSectionKey)
-                                              const isCompletedExpanded = expandedGoalSections.has(completedSectionKey)
-                                              
-                                              return (
-                                                <div className="pl-8 space-y-1">
-                                                  {/* Active goals - always visible */}
-                                                  {activeGoals.map((goal) => {
-                                                    const goalSectionId = `goal-${goal.id}`
-                                                    const GoalIconComponent = getIconComponent(goal.icon)
-                                                    return (
-                                                      <button
-                                                        key={goal.id}
-                                                        onClick={() => {
-                                                          setMainPanelSection(goalSectionId)
-                                                          setMobileMenuOpen(false)
-                                                        }}
-                                                        className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                                                          mainPanelSection === goalSectionId
-                                                            ? 'bg-orange-600 text-white'
-                                                            : 'text-gray-700 hover:bg-gray-100'
-                                                        }`}
-                                                      >
-                                                        <GoalIconComponent className={`w-4 h-4 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} style={mainPanelSection !== goalSectionId ? { color: areaColor } : undefined} />
-                                                        <span className="font-medium">{goal.title}</span>
-                      </button>
-                                                    )
-                                                  })}
-                                                  
-                                                  {/* Paused goals section - only show if there are paused goals */}
-                                                  {pausedGoals.length > 0 && (
-                                                    <div>
-                                                      <button
-                                                        onClick={(e) => {
-                                                          e.stopPropagation()
-                                                          const newSet = new Set(expandedGoalSections)
-                                                          if (isPausedExpanded) {
-                                                            newSet.delete(pausedSectionKey)
-                                                          } else {
-                                                            newSet.add(pausedSectionKey)
-                                                          }
-                                                          setExpandedGoalSections(newSet)
-                                                        }}
-                                                        className="w-full flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-                                                      >
-                                                        <ChevronDown className={`w-4 h-4 transition-transform ${isPausedExpanded ? 'rotate-180' : ''}`} />
-                                                        <span>{t('goals.filters.status.paused') || 'Odložené'} ({pausedGoals.length})</span>
-                                                      </button>
-                                                      {isPausedExpanded && (
-                                                        <div className="pl-6 space-y-1">
-                                                          {pausedGoals.map((goal) => {
-                                                            const goalSectionId = `goal-${goal.id}`
-                                                            const GoalIconComponent = getIconComponent(goal.icon)
-                                                            return (
-                                                              <button
-                                                                key={goal.id}
-                                                                onClick={() => {
-                                                                  setMainPanelSection(goalSectionId)
-                                                                  setMobileMenuOpen(false)
-                                                                }}
-                                                                className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                                                                  mainPanelSection === goalSectionId
-                                                                    ? 'bg-orange-600 text-white'
-                                                                    : 'text-gray-700 hover:bg-gray-100'
-                                                                }`}
-                                                              >
-                                                                <GoalIconComponent className={`w-4 h-4 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} style={mainPanelSection !== goalSectionId ? { color: areaColor } : undefined} />
-                                                                <span className="font-medium">{goal.title}</span>
-                                                              </button>
-                                                            )
-                                                          })}
                     </div>
-                                                      )}
-                  </div>
-                                                  )}
-                                                  
-                                                  {/* Completed goals section - only show if there are completed goals */}
-                                                  {completedGoals.length > 0 && (
-                                                    <div>
-                                                      <button
-                                                        onClick={(e) => {
-                                                          e.stopPropagation()
-                                                          const newSet = new Set(expandedGoalSections)
-                                                          if (isCompletedExpanded) {
-                                                            newSet.delete(completedSectionKey)
-                                                          } else {
-                                                            newSet.add(completedSectionKey)
-                                                          }
-                                                          setExpandedGoalSections(newSet)
-                                                        }}
-                                                        className="w-full flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-                                                      >
-                                                        <ChevronDown className={`w-4 h-4 transition-transform ${isCompletedExpanded ? 'rotate-180' : ''}`} />
-                                                        <span>{t('goals.filters.status.completed') || 'Hotové'} ({completedGoals.length})</span>
-                                                      </button>
-                                                      {isCompletedExpanded && (
-                                                        <div className="pl-6 space-y-1">
-                                                          {completedGoals.map((goal) => {
-                                                            const goalSectionId = `goal-${goal.id}`
-                                                            const GoalIconComponent = getIconComponent(goal.icon)
-                                                            return (
-                                                              <button
-                                                                key={goal.id}
-                                                                onClick={() => {
-                                                                  setMainPanelSection(goalSectionId)
-                                                                  setMobileMenuOpen(false)
-                                                                }}
-                                                                className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                                                                  mainPanelSection === goalSectionId
-                                                                    ? 'bg-orange-600 text-white'
-                                                                    : 'text-gray-700 hover:bg-gray-100'
-                                                                }`}
-                                                              >
-                                                                <GoalIconComponent className={`w-4 h-4 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} style={mainPanelSection !== goalSectionId ? { color: areaColor } : undefined} />
-                                                                <span className="font-medium">{goal.title}</span>
-                                                              </button>
-                                                            )
-                                                          })}
+                  
+                  {/* Day View */}
+                  <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
+                    <DayView
+                      goals={goals}
+                      habits={habits}
+                      dailySteps={dailySteps}
+                      selectedDayDate={selectedDayDate}
+                      setSelectedDayDate={setSelectedDayDate}
+                      setShowDatePickerModal={setShowDatePickerModal}
+                      handleItemClick={handleItemClick}
+                      handleHabitToggle={handleHabitToggle}
+                      handleStepToggle={handleStepToggle}
+                      setSelectedItem={setSelectedItem}
+                      setSelectedItemType={setSelectedItemType}
+                      onOpenStepModal={handleOpenStepModal}
+                      loadingHabits={loadingHabits}
+                      loadingSteps={loadingSteps}
+                      player={player}
+                      onNavigateToHabits={onNavigateToHabits}
+                      onNavigateToSteps={onNavigateToSteps}
+                    />
                                                         </div>
-                                                      )}
-                                                    </div>
-                                                  )}
                                                 </div>
                                               )
-                                            })()}
-                  </div>
-                                        )
-                                      })}
-                                      
-                                      {/* Goals without area */}
-                                      {goalsWithoutArea.map((goal) => {
-                                        const goalSectionId = `goal-${goal.id}`
-                                        const IconComponent = getIconComponent(goal.icon)
+            case 'focus-week':
                                         return (
-                                          <button
-                                            key={goal.id}
-                                            onClick={() => {
-                                              setMainPanelSection(goalSectionId)
-                                              setMobileMenuOpen(false)
-                                            }}
-                                            className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                                              mainPanelSection === goalSectionId
-                                                ? 'bg-orange-600 text-white'
-                                                : 'text-gray-700 hover:bg-gray-100'
-                                            }`}
-                                          >
-                                            <IconComponent className={`w-5 h-5 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} />
-                                            <span className="font-medium">{goal.title}</span>
-                                          </button>
-                                        )
-                                      })}
-                                    </>
-                                  )
-                                })()}
-                              </nav>
-                            </div>
-                          </>
-                        )}
-                      </div>
+                <div className="w-full min-h-full flex flex-col bg-orange-50">
+                  {/* Mobile header */}
+                  <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-lg font-bold text-gray-900">
+                        {t('navigation.focusWeek') || 'Week'}
+                      </h2>
                     </div>
                   </div>
 
-
-                  {/* Unified Day View */}
+                  {/* Week View */}
                   <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
-                    <UnifiedDayView
+                    <WeekView
                         player={player}
                         goals={goals}
                         habits={habits}
                         dailySteps={dailySteps}
+                      onHabitsUpdate={onHabitsUpdate}
+                      onDailyStepsUpdate={onDailyStepsUpdate}
+                      setShowDatePickerModal={setShowDatePickerModal}
                         handleItemClick={handleItemClick}
                         handleHabitToggle={handleHabitToggle}
                         handleStepToggle={handleStepToggle}
@@ -1186,9 +975,25 @@ export function PageContent(props: PageContentProps) {
                         onOpenStepModal={handleOpenStepModal}
                         onNavigateToHabits={onNavigateToHabits}
                         onNavigateToSteps={onNavigateToSteps}
-                        onStepDateChange={handleStepDateChange}
-                        onStepTimeChange={handleStepTimeChange}
                       />
+                  </div>
+                </div>
+              )
+            case 'focus-month':
+              return (
+                <div className="w-full min-h-full flex flex-col bg-orange-50">
+                  {/* Mobile header */}
+                  <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-lg font-bold text-gray-900">
+                        {t('navigation.focusMonth') || 'Month'}
+                      </h2>
+                    </div>
+                  </div>
+                  
+                  {/* Month View - Placeholder */}
+                  <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
+                    <MonthView />
                   </div>
                 </div>
               )
@@ -1311,6 +1116,8 @@ export function PageContent(props: PageContentProps) {
               setExpandedAreas={setExpandedAreas}
               expandedGoalSections={expandedGoalSections}
               setExpandedGoalSections={setExpandedGoalSections}
+              expandedFocus={expandedFocus}
+              setExpandedFocus={setExpandedFocus}
               handleOpenAreasManagementModal={handleOpenAreasManagementModal}
               handleCreateGoal={handleCreateGoal}
               handleOpenStepModal={handleOpenStepModal}
@@ -1324,7 +1131,7 @@ export function PageContent(props: PageContentProps) {
             {/* Right content area */}
             <div className="flex-1 overflow-y-auto bg-orange-50 h-full flex flex-col">
               {/* Mobile hamburger menu for all sections except overview */}
-              {mainPanelSection !== 'overview' && !mainPanelSection.startsWith('goal-') && (
+              {!mainPanelSection.startsWith('focus-') && !mainPanelSection.startsWith('goal-') && (
                 <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-bold text-gray-900">
@@ -1353,11 +1160,11 @@ export function PageContent(props: PageContentProps) {
                             <nav className="py-2">
                               <button
                                 onClick={() => {
-                                  setMainPanelSection('overview')
+                                  setMainPanelSection('focus-day')
                                   setMobileMenuOpen(false)
                                 }}
                                 className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                                  mainPanelSection === 'overview'
+                                  mainPanelSection.startsWith('focus-')
                                     ? 'bg-orange-600 text-white'
                                     : 'text-gray-700 hover:bg-gray-100'
                                 }`}
@@ -1578,6 +1385,330 @@ export function PageContent(props: PageContentProps) {
             realSteps={dailySteps}
           />
         );
+      }
+
+      case 'goals': {
+        const filteredGoals = goals.filter((goal: any) => goalsStatusFilters.has(goal.status))
+        const goalsCount = filteredGoals.length
+
+        const handleGoalsStatusFilterToggle = (status: string) => {
+          setGoalsStatusFilters(prev => {
+            const newSet = new Set(prev)
+            if (newSet.has(status)) {
+              newSet.delete(status)
+            } else {
+              newSet.add(status)
+            }
+            return newSet
+          })
+        }
+
+        return (
+          <div className="flex flex-1 overflow-hidden">
+            {/* Left Panel - Filters and Add button */}
+            <div className="w-64 border-r-2 border-primary-500 bg-white flex flex-col">
+              {/* Filters at top */}
+              <div className="p-4 border-b-2 border-primary-500">
+                <h3 className="text-sm font-bold text-black font-playful mb-4">{t('navigation.goals')}</h3>
+                <p className="text-xs text-gray-600 mb-4">
+                  {goalsCount} {goalsCount === 1 ? (localeCode === 'cs-CZ' ? 'cíl' : 'goal') : (localeCode === 'cs-CZ' ? 'cílů' : 'goals')}
+                </p>
+                
+                {/* Status Filters */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={goalsStatusFilters.has('active')}
+                      onChange={() => handleGoalsStatusFilterToggle('active')}
+                      className="w-4 h-4 text-primary-600 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+                    />
+                    <span className="text-xs font-medium text-black flex items-center gap-1.5">
+                      <Target className="w-3.5 h-3.5 text-green-600" />
+                      {t('goals.status.active')}
+                    </span>
+                  </label>
+                  
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={goalsStatusFilters.has('paused')}
+                      onChange={() => handleGoalsStatusFilterToggle('paused')}
+                      className="w-4 h-4 text-primary-600 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+                    />
+                    <span className="text-xs font-medium text-black flex items-center gap-1.5">
+                      <Moon className="w-3.5 h-3.5 text-yellow-600" />
+                      {t('goals.status.paused')}
+                    </span>
+                  </label>
+                  
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={goalsStatusFilters.has('completed')}
+                      onChange={() => handleGoalsStatusFilterToggle('completed')}
+                      className="w-4 h-4 text-primary-600 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+                    />
+                    <span className="text-xs font-medium text-black flex items-center gap-1.5">
+                      <CheckCircle className="w-3.5 h-3.5 text-blue-600" />
+                      {t('goals.status.completed')}
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Add button at bottom */}
+              <div className="mt-auto p-4 border-t-2 border-primary-500">
+                <button
+                  onClick={handleCreateGoal}
+                  className="btn-playful-base w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-white hover:bg-primary-50"
+                >
+                  <Plus className="w-5 h-5" />
+                  {t('goals.add')}
+                </button>
+              </div>
+            </div>
+            {/* Main Content */}
+            <div className="flex-1 overflow-y-auto">
+              <GoalsManagementView
+                goals={goals.filter((goal: any) => goalsStatusFilters.has(goal.status))}
+                player={player}
+                userId={userId}
+                onGoalsUpdate={onGoalsUpdate}
+                onGoalClick={(goalId: string) => {
+                  const goal = goals.find((g: any) => g.id === goalId)
+                  if (goal) {
+                    setSelectedItem(goal)
+                    setSelectedItemType('goal')
+                  }
+                }}
+                dailySteps={dailySteps}
+                hideHeader={true}
+              />
+            </div>
+          </div>
+        )
+      }
+
+      case 'habits': {
+        const filteredHabits = habits.filter((habit: any) => {
+          if (habitsFrequencyFilter !== 'all') {
+            if (habitsFrequencyFilter === 'daily' && habit.frequency !== 'daily') return false
+            if (habitsFrequencyFilter === 'weekly' && habit.frequency !== 'weekly' && habit.frequency !== 'custom') return false
+            if (habitsFrequencyFilter === 'monthly' && habit.frequency !== 'monthly') return false
+          }
+          if (!habitsShowCompletedToday) {
+            const today = new Date().toISOString().split('T')[0]
+            const habitCompletions = habit.completions || []
+            const isCompletedToday = habitCompletions.some((c: any) => c.date === today)
+            if (isCompletedToday) {
+              return false
+            }
+          }
+          return true
+        })
+        
+        const selectedHabit = selectedHabitForDetail ? habits.find((h: any) => h.id === selectedHabitForDetail) : null
+        
+        return (
+          <div className="flex flex-1 overflow-hidden">
+            {/* Left Panel - List of habits */}
+            <div className="w-64 border-r-2 border-primary-500 bg-white flex flex-col">
+              {/* Header */}
+              <div className="p-4 border-b-2 border-primary-500">
+                <button
+                  onClick={() => setSelectedHabitForDetail(null)}
+                  className="text-sm font-bold text-black font-playful mb-2 hover:text-primary-600 transition-colors cursor-pointer text-left w-full"
+                >
+                  {t('navigation.habits')}
+                </button>
+                <p className="text-xs text-gray-600">
+                  {filteredHabits.length} {filteredHabits.length === 1 ? (localeCode === 'cs-CZ' ? 'návyk' : 'habit') : (localeCode === 'cs-CZ' ? 'návyků' : 'habits')}
+                </p>
+              </div>
+              
+              {/* Habits list */}
+              <div className="flex-1 overflow-y-auto">
+                {filteredHabits.length === 0 ? (
+                  <div className="p-4 text-xs text-gray-500 text-center">
+                    {t('habits.noHabits') || 'Žádné návyky'}
+                  </div>
+                ) : (
+                  <div className="p-2">
+                    {filteredHabits.map((habit: any) => {
+                      const isSelected = selectedHabitForDetail === habit.id
+                      return (
+                        <button
+                          key={habit.id}
+                          onClick={() => setSelectedHabitForDetail(isSelected ? null : habit.id)}
+                          className={`w-full text-left px-3 py-2 mb-1 rounded-playful-sm text-sm font-playful transition-colors ${
+                            isSelected
+                              ? 'bg-primary-500 text-black font-semibold'
+                              : 'bg-white text-black hover:bg-primary-50 border-2 border-transparent hover:border-primary-500'
+                          }`}
+                        >
+                          {habit.name}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Add button at bottom */}
+              <div className="p-4 border-t-2 border-primary-500">
+                <button
+                  onClick={() => handleOpenHabitModal(null)}
+                  className="btn-playful-base w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-white hover:bg-primary-50"
+                >
+                  <Plus className="w-5 h-5" />
+                  {t('habits.add')}
+                </button>
+              </div>
+            </div>
+            
+            {/* Main Content */}
+            <div className="flex-1 overflow-y-auto">
+              {selectedHabit ? (
+                <HabitDetailInlineView
+                  habit={selectedHabit}
+                  habitsPageTimelineOffset={habitsPageTimelineOffset}
+                  setHabitsPageTimelineOffset={setHabitsPageTimelineOffset}
+                  habitsPageVisibleDays={habitsPageVisibleDays}
+                  setHabitsPageVisibleDays={setHabitsPageVisibleDays}
+                  handleHabitCalendarToggle={handleHabitCalendarToggle}
+                  loadingHabits={loadingHabits}
+                  onHabitUpdate={(updatedHabit) => {
+                    // Update the habit in the list
+                    if (onHabitsUpdate) {
+                      const newHabits = habits.map((h: any) => h.id === updatedHabit.id ? updatedHabit : h)
+                      onHabitsUpdate(newHabits)
+                    }
+                  }}
+                  habitsPageTimelineContainerRef={habitsPageTimelineContainerRef}
+                  areas={areas}
+                />
+              ) : (
+                <div className="p-6">
+                  <HabitsPage
+                    habits={filteredHabits}
+                    selectedHabitId={selectedHabitId}
+                    habitsPageTimelineOffset={habitsPageTimelineOffset}
+                    setHabitsPageTimelineOffset={setHabitsPageTimelineOffset}
+                    habitsPageVisibleDays={habitsPageVisibleDays}
+                    setHabitsPageVisibleDays={setHabitsPageVisibleDays}
+                    handleHabitCalendarToggle={handleHabitCalendarToggle}
+                    handleOpenHabitModal={handleOpenHabitModal}
+                    loadingHabits={loadingHabits}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      }
+
+      case 'steps': {
+        const filteredSteps = dailySteps.filter((step: any) => {
+          if (!stepsShowCompleted && step.completed) return false
+          if (stepsGoalFilter && (step.goal_id || step.goalId) !== stepsGoalFilter) return false
+          if (stepsDateFilter) {
+            const stepDate = step.date ? (step.date.includes('T') ? step.date.split('T')[0] : step.date) : null
+            if (stepDate !== stepsDateFilter) return false
+          }
+          return true
+        })
+        const stepsCount = filteredSteps.length
+
+        return (
+          <div className="flex flex-1 overflow-hidden">
+            {/* Left Panel - Filters and Add button */}
+            <div className="w-64 border-r-2 border-primary-500 bg-white flex flex-col">
+              {/* Filters at top */}
+              <div className="p-4 border-b-2 border-primary-500 overflow-y-auto">
+                <h3 className="text-sm font-bold text-black font-playful mb-4">{t('navigation.steps')}</h3>
+                <p className="text-xs text-gray-600 mb-4">
+                  {stepsCount} {stepsCount === 1 ? (localeCode === 'cs-CZ' ? 'krok' : 'step') : (localeCode === 'cs-CZ' ? 'kroků' : 'steps')}
+                </p>
+                
+                {/* Show Completed Checkbox */}
+                <div className="mb-3">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={stepsShowCompleted}
+                      onChange={(e) => setStepsShowCompleted(e.target.checked)}
+                      className="w-4 h-4 text-primary-600 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+                    />
+                    <span className="text-xs font-medium text-black">{t('steps.filters.showCompleted')}</span>
+                  </label>
+                </div>
+                
+                {/* Goal Filter */}
+                <div className="mb-3">
+                  <label className="text-xs font-semibold text-black mb-1.5 block">{t('steps.filters.goal.title') || 'Cíl'}</label>
+                  <select
+                    value={stepsGoalFilter || ''}
+                    onChange={(e) => setStepsGoalFilter(e.target.value || null)}
+                    className="w-full px-2 py-1.5 text-xs border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                  >
+                    <option value="">{t('steps.filters.goal.all')}</option>
+                    {goals.map((goal: any) => (
+                      <option key={goal.id} value={goal.id}>{goal.title}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                {/* Date Filter */}
+                <div className="mb-3">
+                  <label className="text-xs font-semibold text-black mb-1.5 block">{t('steps.filters.date.title') || 'Datum'}</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="date"
+                      value={stepsDateFilter || ''}
+                      onChange={(e) => setStepsDateFilter(e.target.value || null)}
+                      className="flex-1 px-2 py-1.5 text-xs border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                    />
+                    {stepsDateFilter && (
+                      <button
+                        onClick={() => setStepsDateFilter(null)}
+                        className="px-2 py-1.5 text-xs text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-playful-sm transition-colors"
+                      >
+                        {t('common.clear')}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Add button at bottom */}
+              <div className="mt-auto p-4 border-t-2 border-primary-500">
+                <button
+                  onClick={() => handleOpenStepModal()}
+                  className="btn-playful-base w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-white hover:bg-primary-50"
+                >
+                  <Plus className="w-5 h-5" />
+                  {t('steps.add')}
+                </button>
+              </div>
+            </div>
+            {/* Main Content */}
+            <div className="flex-1 overflow-y-auto">
+              <StepsManagementView
+                dailySteps={filteredSteps}
+                goals={goals}
+                player={player}
+                userId={userId}
+                onDailyStepsUpdate={onDailyStepsUpdate}
+                onOpenStepModal={handleOpenStepModal}
+                hideHeader={true}
+                showCompleted={stepsShowCompleted}
+                goalFilter={stepsGoalFilter}
+                dateFilter={stepsDateFilter}
+              />
+            </div>
+          </div>
+        )
       }
 
       default:

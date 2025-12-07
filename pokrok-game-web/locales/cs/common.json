@@ -305,6 +305,7 @@
     "legend": {
       "planned": "Naplánováno",
       "notPlanned": "Nenaplánováno",
+      "completed": "Splněno",
       "completedPlanned": "Dokončeno naplánované",
       "completedNotPlanned": "Dokončeno nenaplánované"
     },
@@ -346,7 +347,10 @@
     },
     "dayOfMonthPlaceholder": "Např. 1, 15, 31",
     "dayOfMonthHint": "Zadejte čísla dnů oddělená čárkami (1-31)",
+    "monthlyWeekdayHint": "Pro složitější výběr použijte modál pro úpravu návyku",
     "habitTime": "Čas návyku",
+    "reminderTime": "Čas připomínky",
+    "noReminder": "Bez připomínky",
     "notificationEnabled": "Upozornění",
     "notificationTime": "Čas upozornění",
     "notificationHint": "Zobrazí se browserové upozornění v zadaný čas",
@@ -355,6 +359,7 @@
     "frequency": {
       "daily": "Denně",
       "weekly": "Týdně",
+      "monthly": "Měsíčně",
       "custom": "Vlastní"
     },
     "difficulty": {
@@ -571,6 +576,9 @@
     "title": "Navigace",
     "overview": "Přehled",
     "focus": "Focus",
+    "focusDay": "Den",
+    "focusWeek": "Týden",
+    "focusMonth": "Měsíc",
     "goals": "Cíle",
     "steps": "Kroky",
     "habits": "Návyky",

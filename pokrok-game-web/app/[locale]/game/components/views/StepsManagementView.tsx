@@ -13,6 +13,10 @@ interface StepsManagementViewProps {
   userId?: string | null
   player?: any
   onOpenStepModal?: (step?: any) => void
+  hideHeader?: boolean
+  showCompleted?: boolean
+  goalFilter?: string | null
+  dateFilter?: string | null
 }
 
 export function StepsManagementView({
@@ -21,17 +25,26 @@ export function StepsManagementView({
   onDailyStepsUpdate,
   userId,
   player,
-  onOpenStepModal
+  onOpenStepModal,
+  hideHeader = false,
+  showCompleted: showCompletedProp,
+  goalFilter: goalFilterProp,
+  dateFilter: dateFilterProp
 }: StepsManagementViewProps) {
   const t = useTranslations()
   const localeCode = useLocale()
   
-  // Filters
+  // Filters - use props if provided, otherwise use local state
   const [showCompleted, setShowCompleted] = useState(false)
   const [stepsGoalFilter, setStepsGoalFilter] = useState<string | null>(null)
   const [stepsDateFilter, setStepsDateFilter] = useState<string | null>(null)
   const [loadingSteps, setLoadingSteps] = useState<Set<string>>(new Set())
   const [filtersExpanded, setFiltersExpanded] = useState(false)
+  
+  // Use props if provided
+  const effectiveShowCompleted = showCompletedProp !== undefined ? showCompletedProp : showCompleted
+  const effectiveGoalFilter = goalFilterProp !== undefined ? goalFilterProp : stepsGoalFilter
+  const effectiveDateFilter = dateFilterProp !== undefined ? dateFilterProp : stepsDateFilter
 
   // Quick edit modals for steps
   const [quickEditStepId, setQuickEditStepId] = useState<string | null>(null)
@@ -281,24 +294,26 @@ export function StepsManagementView({
 
   const filteredSteps = useMemo(() => {
     return sortedSteps.filter((step: any) => {
-      if (!showCompleted && step.completed) {
+      if (!effectiveShowCompleted && step.completed) {
         return false
       }
-      if (stepsGoalFilter && (step.goal_id || step.goalId) !== stepsGoalFilter) {
+      if (effectiveGoalFilter && (step.goal_id || step.goalId) !== effectiveGoalFilter) {
         return false
       }
-      if (stepsDateFilter) {
+      if (effectiveDateFilter) {
         const stepDate = step.date ? (step.date.includes('T') ? step.date.split('T')[0] : step.date) : null
-        if (stepDate !== stepsDateFilter) {
+        if (stepDate !== effectiveDateFilter) {
           return false
         }
       }
       return true
     })
-  }, [sortedSteps, showCompleted, stepsGoalFilter, stepsDateFilter])
+  }, [sortedSteps, effectiveShowCompleted, effectiveGoalFilter, effectiveDateFilter])
 
   return (
     <div className="w-full h-full flex flex-col">
+      {!hideHeader && (
+        <>
       {/* Filters Row - Mobile: collapsible, Desktop: always visible */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 px-4 py-3 bg-white border-b border-gray-200">
         {/* Mobile: Collapsible filters */}
@@ -347,7 +362,7 @@ export function StepsManagementView({
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
-              checked={showCompleted}
+              checked={effectiveShowCompleted}
               onChange={(e) => setShowCompleted(e.target.checked)}
               className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
             />
@@ -356,7 +371,7 @@ export function StepsManagementView({
           
           {/* Goal Filter */}
           <select
-            value={stepsGoalFilter || ''}
+            value={effectiveGoalFilter || ''}
             onChange={(e) => setStepsGoalFilter(e.target.value || null)}
                 className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
           >
@@ -370,7 +385,7 @@ export function StepsManagementView({
               <div className="flex items-center gap-2">
           <input
             type="date"
-            value={stepsDateFilter || ''}
+            value={effectiveDateFilter || ''}
             onChange={(e) => setStepsDateFilter(e.target.value || null)}
                   className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
                 />
@@ -393,7 +408,7 @@ export function StepsManagementView({
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
-              checked={showCompleted}
+              checked={effectiveShowCompleted}
               onChange={(e) => setShowCompleted(e.target.checked)}
               className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
             />
@@ -402,7 +417,7 @@ export function StepsManagementView({
           
           {/* Goal Filter */}
           <select
-            value={stepsGoalFilter || ''}
+            value={effectiveGoalFilter || ''}
             onChange={(e) => setStepsGoalFilter(e.target.value || null)}
             className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white min-w-[150px]"
           >
@@ -416,7 +431,7 @@ export function StepsManagementView({
           <div className="flex items-center gap-2">
             <input
               type="date"
-              value={stepsDateFilter || ''}
+              value={effectiveDateFilter || ''}
               onChange={(e) => setStepsDateFilter(e.target.value || null)}
               className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
             />
@@ -453,6 +468,8 @@ export function StepsManagementView({
           {t('steps.add')}
         </button>
       </div>
+        </>
+      )}
       
       {/* Steps Table */}
       <div className="flex-1 overflow-y-auto">

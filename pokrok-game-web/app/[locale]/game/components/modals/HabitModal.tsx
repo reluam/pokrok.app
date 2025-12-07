@@ -3,17 +3,19 @@
 import React from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations } from 'next-intl'
-import { X, Trash2, Plus } from 'lucide-react'
+import { X, Trash2, Plus, Loader2 } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
+import { PlayfulButton } from '@/components/design-system/Button/PlayfulButton'
 
 interface HabitModalProps {
   show: boolean
   habitModalData: any
   onClose: () => void
   onSave: () => Promise<void>
-  onDelete: () => void
+  onDelete?: () => void
   isSaving: boolean
   areas: any[]
+  asPageComponent?: boolean // If true, render as page component instead of modal
   // Editing state
   editingHabitName: string
   setEditingHabitName: (name: string) => void
@@ -51,6 +53,7 @@ export function HabitModal({
   onDelete,
   isSaving,
   areas,
+  asPageComponent = false,
   editingHabitName,
   setEditingHabitName,
   editingHabitDescription,
@@ -82,143 +85,146 @@ export function HabitModal({
 
   if (!show || typeof window === 'undefined') return null
 
-  return createPortal(
-    <>
-      <div 
-        className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
-        onClick={onClose}
-      >
-        <div 
-          className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {habitModalData?.name || (t('habits.add') || 'Přidat návyk')}
-              </h2>
-              <button
-                onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 transition-colors"
+  const content = (
+    <div 
+      className={`box-playful-highlight bg-background w-full ${asPageComponent ? 'pb-6' : 'max-w-4xl max-h-[90vh] overflow-y-auto'}`}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {!asPageComponent && (
+        <div className="p-4 border-b-2 border-primary-500">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-black font-playful">
+              {habitModalData?.id ? (habitModalData?.name || t('habits.edit')) : (t('habits.add') || 'Přidat návyk')}
+            </h2>
+            <button
+              onClick={onClose}
+              className="btn-playful-base p-2"
+            >
+              <X className="w-5 h-5 text-black" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {asPageComponent && (
+        <div className="p-4 border-b-2 border-primary-500">
+          <h2 className="text-lg font-semibold text-black font-playful">{t('habits.settings') || 'Nastavení'}</h2>
+        </div>
+      )}
+
+      <div className={`${asPageComponent ? 'p-4' : 'p-4'} bg-background`}>
+        {/* Settings - Two Column Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left Column: Name, Description, Area */}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-black mb-1.5 font-playful">
+                {t('habits.nameLabel') || 'Name'} <span className="text-primary-600">*</span>
+              </label>
+              <input
+                type="text"
+                value={editingHabitName}
+                onChange={(e) => setEditingHabitName(e.target.value)}
+                className="w-full px-2 py-1.5 text-sm border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                placeholder={t('habits.namePlaceholder') || 'Habit name'}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-black mb-1.5 font-playful">
+                {t('habits.descriptionLabel') || 'Description'}
+              </label>
+              <textarea
+                value={editingHabitDescription}
+                onChange={(e) => setEditingHabitDescription(e.target.value)}
+                className="w-full px-2 py-1.5 text-sm border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white resize-none"
+                rows={3}
+                placeholder={t('habits.descriptionPlaceholder') || 'Habit description'}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-black mb-1.5 font-playful">
+                {t('details.goal.area') || 'Oblast'}
+              </label>
+              <select
+                value={editingHabitAreaId || ''}
+                onChange={(e) => setEditingHabitAreaId(e.target.value || null)}
+                className="w-full px-2 py-1.5 text-sm border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
               >
-                <X className="w-5 h-5" />
-              </button>
+                <option value="">{t('details.goal.noArea') || 'Bez oblasti'}</option>
+                {areas.map((area) => {
+                  const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
+                  return (
+                    <option key={area.id} value={area.id}>
+                      {area.name}
+                    </option>
+                  )
+                })}
+              </select>
             </div>
           </div>
 
-          <div className="p-6">
-            {/* Settings - Two Column Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Left Column: Name, Description, Area */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800 mb-2">
-                    {t('habits.nameLabel') || 'Name'} <span className="text-orange-500">*</span>
-                  </label>
+          {/* Right Column: Time, Frequency */}
+          <div className="space-y-4">
+            {/* Habit Time and Notification Section */}
+            <div>
+              <label className="block text-xs font-semibold text-black mb-1.5 font-playful">
+                {t('habits.habitTime') || 'Čas návyku'}
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="time"
+                  value={editingHabitReminderTime || '09:00'}
+                  onChange={(e) => setEditingHabitReminderTime(e.target.value)}
+                  className="flex-1 px-2 py-1.5 text-sm border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                />
+                <div className="flex items-center gap-2">
                   <input
-                    type="text"
-                    value={editingHabitName}
-                    onChange={(e) => setEditingHabitName(e.target.value)}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                    placeholder={t('habits.namePlaceholder') || 'Habit name'}
+                    type="checkbox"
+                    id="habitNotificationEnabled"
+                    checked={editingHabitNotificationEnabled}
+                    onChange={(e) => {
+                      setEditingHabitNotificationEnabled(e.target.checked)
+                      // Request notification permission when enabling
+                      if (e.target.checked && typeof window !== 'undefined' && 'Notification' in window) {
+                        if (Notification.permission === 'default') {
+                          Notification.requestPermission()
+                        }
+                      }
+                    }}
+                    className="w-4 h-4 text-primary-600 border-primary-500 rounded-playful-sm focus:ring-primary-500"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800 mb-2">
-                    {t('habits.descriptionLabel') || 'Description'}
+                  <label htmlFor="habitNotificationEnabled" className="text-xs font-semibold text-black cursor-pointer whitespace-nowrap font-playful">
+                    {t('habits.notificationEnabled') || 'Upozornění'}
                   </label>
-                  <textarea
-                    value={editingHabitDescription}
-                    onChange={(e) => setEditingHabitDescription(e.target.value)}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white resize-none"
-                    rows={3}
-                    placeholder={t('habits.descriptionPlaceholder') || 'Habit description'}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800 mb-2">
-                    {t('details.goal.area') || 'Oblast'}
-                  </label>
-                  <select
-                    value={editingHabitAreaId || ''}
-                    onChange={(e) => setEditingHabitAreaId(e.target.value || null)}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                  >
-                    <option value="">{t('details.goal.noArea') || 'Bez oblasti'}</option>
-                    {areas.map((area) => {
-                      const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
-                      return (
-                        <option key={area.id} value={area.id}>
-                          {area.name}
-                        </option>
-                      )
-                    })}
-                  </select>
                 </div>
               </div>
+              {editingHabitNotificationEnabled && (
+                <p className="text-xs text-gray-600 mt-1">
+                  {t('habits.notificationHint') || 'Zobrazí se browserové upozornění v zadaný čas'}
+                </p>
+              )}
+            </div>
 
-              {/* Right Column: Time, Frequency */}
-              <div className="space-y-4">
-                {/* Habit Time and Notification Section */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800 mb-2">
-                    {t('habits.habitTime') || 'Čas návyku'}
-                  </label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="time"
-                      value={editingHabitReminderTime || '09:00'}
-                      onChange={(e) => setEditingHabitReminderTime(e.target.value)}
-                      className="flex-1 px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                    />
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        id="habitNotificationEnabled"
-                        checked={editingHabitNotificationEnabled}
-                        onChange={(e) => {
-                          setEditingHabitNotificationEnabled(e.target.checked)
-                          // Request notification permission when enabling
-                          if (e.target.checked && typeof window !== 'undefined' && 'Notification' in window) {
-                            if (Notification.permission === 'default') {
-                              Notification.requestPermission()
-                            }
-                          }
-                        }}
-                        className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                      />
-                      <label htmlFor="habitNotificationEnabled" className="text-sm font-medium text-gray-700 cursor-pointer whitespace-nowrap">
-                        {t('habits.notificationEnabled') || 'Upozornění'}
-                      </label>
-                    </div>
-                  </div>
-                  {editingHabitNotificationEnabled && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      {t('habits.notificationHint') || 'Zobrazí se browserové upozornění v zadaný čas'}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800 mb-2">
-                    {t('habits.frequencyLabel') || 'Frequency'}
-                  </label>
-                  <select
-                    value={editingHabitFrequency}
-                    onChange={(e) => setEditingHabitFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
-                  >
-                    <option value="daily">{t('habits.frequencyDaily') || 'Daily'}</option>
-                    <option value="weekly">{t('habits.frequencyWeekly') || 'Weekly'}</option>
-                    <option value="monthly">{t('habits.frequencyMonthly') || 'Monthly'}</option>
-                  </select>
-                </div>
+            <div>
+              <label className="block text-xs font-semibold text-black mb-1.5 font-playful">
+                {t('habits.frequencyLabel') || 'Frequency'}
+              </label>
+              <select
+                value={editingHabitFrequency}
+                onChange={(e) => setEditingHabitFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
+                className="w-full px-2 py-1.5 text-sm border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+              >
+                <option value="daily">{t('habits.frequency.daily') || 'Daily'}</option>
+                <option value="weekly">{t('habits.frequency.weekly') || 'Weekly'}</option>
+                <option value="monthly">{t('habits.frequency.monthly') || 'Monthly'}</option>
+              </select>
+            </div>
 
                 {(editingHabitFrequency === 'weekly' || editingHabitFrequency === 'monthly') && (
                   <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">
+                    <label className="block text-xs font-semibold text-black mb-1.5 font-playful">
                       {editingHabitFrequency === 'weekly' 
                         ? (t('habits.selectDaysOfWeek') || 'Vyberte dny v týdnu')
                         : editingHabitFrequency === 'monthly'
@@ -228,7 +234,7 @@ export function HabitModal({
                     {editingHabitFrequency === 'monthly' ? (
                       <div className="space-y-3">
                         {/* Toggle between specific days and weekday in month */}
-                        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <div className="flex items-center gap-2">
                           <button
                             type="button"
                             onClick={() => {
@@ -239,10 +245,10 @@ export function HabitModal({
                               setEditingHabitMonthWeek('')
                               setEditingHabitMonthDay('')
                             }}
-                            className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+                            className={`flex-1 px-2 py-1 text-xs rounded-playful-sm border-2 transition-all font-playful ${
                               editingHabitMonthlyType === 'specificDays'
-                                ? 'bg-orange-600 text-white shadow-md'
-                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                ? 'bg-primary-500 text-black border-primary-500 box-playful-highlight'
+                                : 'bg-white text-black border-primary-500 hover:bg-primary-50'
                             }`}
                           >
                             {t('habits.monthlyType.specificDays')}
@@ -259,10 +265,10 @@ export function HabitModal({
                                 setEditingHabitWeekdayInMonthSelections([{ week: '', day: '' }])
                               }
                             }}
-                            className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+                            className={`flex-1 px-2 py-1 text-xs rounded-playful-sm border-2 transition-all font-playful ${
                               editingHabitMonthlyType === 'weekdayInMonth'
-                                ? 'bg-orange-600 text-white shadow-md'
-                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                ? 'bg-primary-500 text-black border-primary-500 box-playful-highlight'
+                                : 'bg-white text-black border-primary-500 hover:bg-primary-50'
                             }`}
                           >
                             {t('habits.monthlyType.weekdayInMonth')}
@@ -272,10 +278,10 @@ export function HabitModal({
                         {editingHabitMonthlyType === 'specificDays' ? (
                           /* Day of month selection (1-31) */
                           <div>
-                            <label className="block text-sm font-semibold text-gray-800 mb-2">
+                            <label className="block text-xs font-semibold text-black mb-1.5 font-playful">
                               {t('habits.dayOfMonth')}
                             </label>
-                            <div className="flex flex-wrap gap-1.5 mb-3">
+                            <div className="flex flex-wrap gap-1.5 mb-2">
                               {Array.from({ length: 31 }, (_, i) => i + 1).map(day => {
                                 const dayStr = day.toString()
                                 const isSelected = editingHabitSelectedDays?.some((d: string) => /^\d+$/.test(d) && d === dayStr)
@@ -292,10 +298,10 @@ export function HabitModal({
                                         setEditingHabitSelectedDays([...otherDays, ...dayNumbers, dayStr])
                                       }
                                     }}
-                                    className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-all ${
+                                    className={`px-2 py-1 text-xs rounded-playful-sm border-2 transition-all ${
                                       isSelected
-                                        ? 'bg-orange-600 text-white shadow-sm'
-                                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                        ? 'bg-primary-500 text-black border-primary-500 box-playful-highlight'
+                                        : 'bg-white text-black border-primary-500 hover:bg-primary-50'
                                     }`}
                                   >
                                     {day}.
@@ -303,12 +309,12 @@ export function HabitModal({
                                 )
                               })}
                             </div>
-                            <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
+                            <label className="flex items-center gap-2 text-xs text-black cursor-pointer font-playful">
                               <input
                                 type="checkbox"
                                 checked={editingHabitAutoAdjust31}
                                 onChange={(e) => setEditingHabitAutoAdjust31(e.target.checked)}
-                                className="w-3.5 h-3.5 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                                className="w-4 h-4 text-primary-600 border-primary-500 rounded-playful-sm focus:ring-primary-500"
                               />
                               <span>{t('habits.autoAdjust31') || 'Automaticky upravit 31. den na 30. pro měsíce s 30 dny'}</span>
                             </label>
@@ -316,7 +322,7 @@ export function HabitModal({
                         ) : (
                           /* Day of week in month selection (e.g., first Monday, last Friday) */
                           <div>
-                            <label className="block text-sm font-semibold text-gray-800 mb-2">
+                            <label className="block text-xs font-semibold text-black mb-1.5 font-playful">
                               {t('habits.dayOfWeekInMonth')}
                             </label>
                             <div className="space-y-3">
@@ -326,11 +332,11 @@ export function HabitModal({
                                 const selectedDays = selection.day ? selection.day.split(',').filter(d => d) : []
                                 
                                 return (
-                                  <div key={index} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                    <div className="space-y-3">
+                                  <div key={index} className="p-2 bg-white border-2 border-primary-500 rounded-playful-sm">
+                                    <div className="space-y-2">
                                       {/* Week buttons */}
                                       <div>
-                                        <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                                        <label className="block text-xs font-semibold text-black mb-1 font-playful">
                                           {t('habits.week') || 'Week'}:
                                         </label>
                                         <div className="flex flex-wrap gap-1.5">
@@ -368,10 +374,10 @@ export function HabitModal({
                                                   })
                                                   setEditingHabitSelectedDays([...otherDays, ...dayNumbers, ...weekDaySelections])
                                                 }}
-                                                className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-all ${
+                                                className={`px-2 py-1 text-xs rounded-playful-sm border-2 transition-all ${
                                                   isSelected
-                                                    ? 'bg-orange-600 text-white shadow-sm'
-                                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                                    ? 'bg-primary-500 text-black border-primary-500 box-playful-highlight'
+                                                    : 'bg-white text-black border-primary-500 hover:bg-primary-50'
                                                 }`}
                                               >
                                                 {weekLabels[week]}
@@ -383,7 +389,7 @@ export function HabitModal({
                                       
                                       {/* Day buttons */}
                                       <div>
-                                        <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                                        <label className="block text-xs font-semibold text-black mb-1 font-playful">
                                           {t('habits.day') || 'Day'}:
                                         </label>
                                         <div className="flex flex-wrap gap-1.5">
@@ -423,10 +429,10 @@ export function HabitModal({
                                                   })
                                                   setEditingHabitSelectedDays([...otherDays, ...dayNumbers, ...weekDaySelections])
                                                 }}
-                                                className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-all ${
+                                                className={`px-2 py-1 text-xs rounded-playful-sm border-2 transition-all ${
                                                   isSelected
-                                                    ? 'bg-orange-600 text-white shadow-sm'
-                                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                                    ? 'bg-primary-500 text-black border-primary-500 box-playful-highlight'
+                                                    : 'bg-white text-black border-primary-500 hover:bg-primary-50'
                                                 }`}
                                               >
                                                 {dayLabels[day]}
@@ -438,33 +444,35 @@ export function HabitModal({
                                     </div>
                                     
                                     {/* Delete button */}
-                                    <div className="mt-2 flex justify-end">
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          const newSelections = editingHabitWeekdayInMonthSelections.filter((_, i) => i !== index)
-                                          setEditingHabitWeekdayInMonthSelections(newSelections)
-                                          // Update selectedDays
-                                          const otherDays = editingHabitSelectedDays?.filter((d: string) => !/^[a-z]+_[a-z]+$/.test(d)) || []
-                                          const dayNumbers = editingHabitSelectedDays?.filter((d: string) => /^\d+$/.test(d)) || []
-                                          const weekDaySelections: string[] = []
-                                          newSelections.forEach(s => {
-                                            const weeks = s.week ? s.week.split(',') : []
-                                            const days = s.day ? s.day.split(',') : []
-                                            weeks.forEach(w => {
-                                              days.forEach(d => {
-                                                weekDaySelections.push(`${w}_${d}`)
+                                    {editingHabitWeekdayInMonthSelections.length > 1 && (
+                                      <div className="mt-2 flex justify-end">
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            const newSelections = editingHabitWeekdayInMonthSelections.filter((_, i) => i !== index)
+                                            setEditingHabitWeekdayInMonthSelections(newSelections)
+                                            // Update selectedDays
+                                            const otherDays = editingHabitSelectedDays?.filter((d: string) => !/^[a-z]+_[a-z]+$/.test(d)) || []
+                                            const dayNumbers = editingHabitSelectedDays?.filter((d: string) => /^\d+$/.test(d)) || []
+                                            const weekDaySelections: string[] = []
+                                            newSelections.forEach(s => {
+                                              const weeks = s.week ? s.week.split(',') : []
+                                              const days = s.day ? s.day.split(',') : []
+                                              weeks.forEach(w => {
+                                                days.forEach(d => {
+                                                  weekDaySelections.push(`${w}_${d}`)
+                                                })
                                               })
                                             })
-                                          })
-                                          setEditingHabitSelectedDays([...otherDays, ...dayNumbers, ...weekDaySelections])
-                                        }}
-                                        className="px-2 py-1 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
-                                        title={t('common.delete') || 'Delete'}
-                                      >
-                                        {t('common.delete') || 'Smazat'}
-                                      </button>
-                                    </div>
+                                            setEditingHabitSelectedDays([...otherDays, ...dayNumbers, ...weekDaySelections])
+                                          }}
+                                          className="px-2 py-1 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 rounded-playful-sm transition-colors"
+                                          title={t('common.delete') || 'Delete'}
+                                        >
+                                          {t('common.delete') || 'Smazat'}
+                                        </button>
+                                      </div>
+                                    )}
                                   </div>
                                 )
                               })}
@@ -476,7 +484,7 @@ export function HabitModal({
                                     : [...editingHabitWeekdayInMonthSelections, { week: '', day: '' }]
                                   setEditingHabitWeekdayInMonthSelections(newSelections)
                                 }}
-                                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-orange-600 hover:text-orange-700 font-medium border border-orange-300 rounded-md hover:bg-orange-50 transition-colors w-full justify-center"
+                                className="w-full px-2 py-1 text-xs text-primary-600 hover:text-primary-700 hover:bg-primary-50 border-2 border-primary-500 rounded-playful-sm transition-colors font-playful flex items-center justify-center gap-1.5"
                               >
                                 <Plus className="w-3.5 h-3.5" />
                                 {t('habits.addAnother') || 'Add another'}
@@ -497,6 +505,7 @@ export function HabitModal({
                             saturday: t('daysShort.sat') || 'So',
                             sunday: t('daysShort.sun') || 'Ne'
                           }
+                          const isSelected = editingHabitSelectedDays?.includes(day)
                           return (
                             <button
                               key={day}
@@ -508,10 +517,10 @@ export function HabitModal({
                                   setEditingHabitSelectedDays([...(editingHabitSelectedDays || []), day])
                                 }
                               }}
-                              className={`px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${
-                                editingHabitSelectedDays?.includes(day)
-                                  ? 'bg-orange-600 text-white border-orange-600 shadow-md'
-                                  : 'bg-white text-gray-700 border-gray-300 hover:border-orange-600 hover:bg-orange-50'
+                              className={`px-2 py-1 text-xs rounded-playful-sm border-2 transition-all ${
+                                isSelected
+                                  ? 'bg-primary-500 text-black border-primary-500 box-playful-highlight'
+                                  : 'bg-white text-black border-primary-500 hover:bg-primary-50'
                               }`}
                             >
                               {dayLabels[day]}
@@ -528,9 +537,9 @@ export function HabitModal({
                     type="checkbox"
                     checked={editingHabitAlwaysShow}
                     onChange={(e) => setEditingHabitAlwaysShow(e.target.checked)}
-                    className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                    className="w-4 h-4 text-primary-600 border-primary-500 rounded-playful-sm focus:ring-primary-500"
                   />
-                  <label className="text-sm text-gray-700">
+                  <label className="text-xs font-semibold text-black cursor-pointer font-playful">
                     Vždy zobrazovat (i když není naplánováno)
                   </label>
                 </div>
@@ -538,49 +547,55 @@ export function HabitModal({
             </div>
           </div>
 
-          <div className="p-6 border-t border-gray-200 flex items-center justify-between">
-            {/* Delete button - only show for existing habits */}
-            {habitModalData?.id && (
-              <button
-                onClick={onDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-2"
-              >
-                <Trash2 className="w-4 h-4" />
-                {t('common.delete') || 'Smazat'}
-              </button>
-            )}
-            {!habitModalData?.id && <div></div>}
-            
-            {/* Action buttons */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={onClose}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
-              >
-                {t('common.cancel')}
-              </button>
-              <button
-                onClick={onSave}
-                disabled={isSaving}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                  isSaving
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-orange-600 text-white hover:bg-orange-700'
-                }`}
-              >
-                {isSaving ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    {t('common.saving')}
-                  </>
-                ) : t('common.save')}
-              </button>
-            </div>
-          </div>
+      <div className={`${asPageComponent ? 'p-4' : 'p-4'} border-t-2 border-primary-500 bg-background flex items-center justify-between`}>
+        {/* Delete button - only show for existing habits */}
+        {habitModalData?.id && onDelete && (
+          <button
+            onClick={onDelete}
+            className="btn-playful-danger flex items-center gap-2 px-4 py-2 text-sm font-semibold"
+          >
+            <Trash2 className="w-4 h-4" />
+            {t('common.delete') || 'Smazat'}
+          </button>
+        )}
+        {!habitModalData?.id && <div></div>}
+        
+        {/* Action buttons */}
+        <div className="flex items-center gap-3">
+          {!asPageComponent && (
+            <button
+              onClick={onClose}
+              className="btn-playful-base px-4 py-2 text-sm font-semibold text-primary-600 bg-white"
+            >
+              {t('common.cancel')}
+            </button>
+          )}
+          <PlayfulButton
+            onClick={onSave}
+            disabled={isSaving}
+            loading={isSaving}
+            loadingText={t('common.saving')}
+            variant="primary"
+            className="px-4 py-2 text-sm font-semibold"
+          >
+            {t('common.save')}
+          </PlayfulButton>
         </div>
+      </div>
+    </div>
+  )
+
+  if (asPageComponent) {
+    return content
+  }
+
+  return createPortal(
+    <>
+      <div 
+        className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center p-4"
+        onClick={onClose}
+      >
+        {content}
       </div>
     </>,
     document.body

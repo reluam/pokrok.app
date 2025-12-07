@@ -563,16 +563,177 @@ export function TodayFocusSection({
     })
   }, [isWeekView, habits, weekDays])
   
+  // Calculate overdue and future steps (outside current week/day)
+  const { overdueStepsList, futureStepsList } = useMemo(() => {
+    // Get all steps that are not in the current week (for week view) or not today (for day view)
+    const allSteps = dailySteps.filter(step => {
+      if (!step.date || step.completed) return false
+      
+      const stepDate = normalizeDate(step.date)
+      const stepDateObj = new Date(stepDate)
+      stepDateObj.setHours(0, 0, 0, 0)
+      
+      if (isWeekView && weekStart && weekEnd) {
+        // In week view, exclude steps from current week
+        return stepDateObj.getTime() < weekStart.getTime() || stepDateObj.getTime() > weekEnd.getTime()
+      } else {
+        // In day view, exclude steps from today
+        return stepDateObj.getTime() !== displayDate.getTime()
+      }
+    })
+    
+    // Get actual today's date for overdue comparison
+    const actualToday = new Date()
+    actualToday.setHours(0, 0, 0, 0)
+    
+    // Separate steps into overdue steps and future steps
+    const overdueStepsList: any[] = []
+    const futureStepsList: any[] = []
+    
+    allSteps.forEach(step => {
+      const stepDate = normalizeDate(step.date)
+      const stepDateObj = new Date(stepDate)
+      stepDateObj.setHours(0, 0, 0, 0)
+      
+      if (isWeekView && weekStart && weekEnd) {
+        // In week view: 
+        // - overdue = before TODAY (not before week start!) - only truly late steps
+        // - future = after week end
+        const isOverdue = stepDateObj.getTime() < actualToday.getTime()
+        const isFuture = stepDateObj.getTime() > weekEnd.getTime()
+        
+        if (isOverdue) {
+          overdueStepsList.push(step)
+        } else if (isFuture) {
+          futureStepsList.push(step)
+        }
+      } else {
+        // In day view: overdue = before today, future = after today
+        const isOverdue = stepDateObj < displayDate
+        const isFuture = stepDateObj > displayDate
+        
+        if (isOverdue) {
+          overdueStepsList.push(step)
+        } else if (isFuture) {
+          futureStepsList.push(step)
+        }
+      }
+    })
+    
+    return { overdueStepsList, futureStepsList }
+  }, [dailySteps, isWeekView, weekStart, weekEnd, displayDate])
+  
+  // Render step function
+  const renderOtherStep = useMemo(() => {
+    const actualToday = new Date()
+    actualToday.setHours(0, 0, 0, 0)
+    
+    const StepComponent = (step: any) => {
+      const stepDate = normalizeDate(step.date)
+      const stepDateObj = new Date(stepDate)
+      stepDateObj.setHours(0, 0, 0, 0)
+      
+      // Overdue = before actual today (not before displayed week/day)
+      const isOverdue = stepDateObj.getTime() < actualToday.getTime()
+      
+      const stepDateFormatted = step.date ? formatStepDate(stepDateObj) : null
+      
+      return (
+        <div
+          key={step.id}
+          onClick={() => handleItemClick(step, 'step')}
+          className={`box-playful-highlight flex items-center gap-3 p-3 cursor-pointer ${
+            animatingSteps.has(step.id)
+              ? step.completed
+                ? 'border-primary-500 bg-primary-100 animate-pulse'
+                : 'border-primary-500 bg-primary-100 animate-pulse'
+              : isOverdue && !step.completed
+                ? 'border-primary-500 bg-red-50 hover:bg-red-100'
+                : 'border-primary-500 bg-white hover:bg-primary-50'
+          } ${step.completed && !animatingSteps.has(step.id) ? 'opacity-50' : ''}`}
+        >
+          {/* Checkbox */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              if (!loadingSteps.has(step.id)) {
+                handleStepToggle(step.id, !step.completed)
+              }
+            }}
+            disabled={loadingSteps.has(step.id)}
+            className={`w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
+              animatingSteps.has(step.id)
+                ? step.completed
+                  ? 'bg-white border-primary-500'
+                  : 'bg-white border-primary-500'
+                : step.completed 
+                  ? 'bg-white border-primary-500' 
+                  : isOverdue
+                    ? 'border-primary-500 hover:bg-primary-100'
+                    : 'border-primary-500 hover:bg-primary-100'
+            }`}
+          >
+            {loadingSteps.has(step.id) ? (
+              <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : animatingSteps.has(step.id) || step.completed ? (
+              <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+            ) : null}
+          </button>
+          
+          {/* Title */}
+          <span className={`flex-1 font-medium text-sm truncate flex items-center gap-2 ${
+            step.completed ? 'line-through text-gray-400' : isOverdue ? 'text-red-600' : 'text-black'
+          }`}>
+            {step.title}
+            {step.checklist && step.checklist.length > 0 && (
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
+                step.checklist.filter((c: any) => c.completed).length === step.checklist.length
+                  ? 'bg-primary-100 text-primary-600 border-primary-500'
+                  : 'bg-gray-100 text-gray-500 border-gray-300'
+              }`}>
+                {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
+              </span>
+            )}
+          </span>
+          
+          {/* Meta info - hidden on mobile */}
+          <button 
+            onClick={(e) => openDatePicker(e, step)}
+            className={`hidden sm:block w-20 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
+              isOverdue && !step.completed ? 'text-red-600 hover:bg-red-100 border-red-300' : 'text-gray-600 hover:bg-gray-100 border-gray-300'
+            }`}
+          >
+            {isOverdue && !step.completed && '❗'}
+            {stepDateFormatted || '-'}
+          </button>
+          <button 
+            onClick={(e) => openTimePicker(e, step)}
+            className={`hidden sm:block w-14 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
+              isOverdue && !step.completed ? 'text-red-600 hover:bg-red-100 border-red-300' : 'text-gray-600 hover:bg-gray-100 border-gray-300'
+            }`}
+          >
+            {step.estimated_time ? `${step.estimated_time} min` : '-'}
+          </button>
+        </div>
+      )
+    }
+    StepComponent.displayName = 'StepComponent'
+    return StepComponent
+  }, [animatingSteps, loadingSteps, handleStepToggle, handleItemClick, formatStepDate, openDatePicker, openTimePicker])
+  
   // Only show empty state if there are no steps AND no habits
   // Don't hide habits just because there are no steps
   const hasHabits = isWeekView ? weekHabits.length > 0 : todaysHabits.length > 0
   if (allTodaysSteps.length === 0 && !hasHabits) {
     return (
-      <div className="bg-white rounded-xl p-6 border border-orange-200 shadow-sm">
+      <div className="card-playful-base">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-orange-600" />
-            <h3 className="text-lg font-bold text-orange-800">
+            <Target className="w-5 h-5 text-primary-600" />
+            <h3 className="text-lg font-bold text-black font-playful">
               {isWeekView ? t('focus.weeklyFocus') : t('focus.dailyFocus')}
             </h3>
           </div>
@@ -583,19 +744,17 @@ export function TodayFocusSection({
                 const dateToUse = getLocalDateString(new Date())
                 onOpenStepModal(dateToUse)
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors border border-orange-200"
+              className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-primary-50 hover:bg-primary-100"
               title={t('focus.addStep')}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-              </svg>
+              <Plus className="w-4 h-4" />
               {t('focus.addStep')}
             </button>
           )}
         </div>
         <div className="text-center py-8">
-          <p className="mb-2 text-gray-500">{t('focus.noSteps')}</p>
-          <p className="text-sm text-gray-400 mb-6">{t('focus.allStepsCompleted')}</p>
+          <p className="mb-2 text-black">{t('focus.noSteps')}</p>
+          <p className="text-sm text-gray-600 mb-6">{t('focus.allStepsCompleted')}</p>
           
           {/* Action buttons */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
@@ -607,33 +766,27 @@ export function TodayFocusSection({
                     : displayDateStr
                   onOpenStepModal(dateToUse)
                 }}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors border border-orange-200"
+                className="btn-playful-base px-4 py-2 text-sm font-semibold text-black bg-primary-50 hover:bg-primary-100"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
+                <Plus className="w-4 h-4" />
                 {t('focus.addStep')}
               </button>
             )}
             {!onOpenStepModal && onNavigateToSteps && (
               <button
                 onClick={() => onNavigateToSteps()}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors border border-orange-200"
+                className="btn-playful-base px-4 py-2 text-sm font-semibold text-black bg-primary-50 hover:bg-primary-100"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
+                <Plus className="w-4 h-4" />
                 {t('focus.addStep')}
               </button>
             )}
             {onNavigateToHabits && (
               <button
                 onClick={() => onNavigateToHabits()}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors border border-orange-200"
+                className="btn-playful-base px-4 py-2 text-sm font-semibold text-black bg-primary-50 hover:bg-primary-100"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
+                <Plus className="w-4 h-4" />
                 Přidat návyk
               </button>
             )}
@@ -645,45 +798,23 @@ export function TodayFocusSection({
   
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex gap-6 min-w-0">
-        {/* Left: Today's Focus Box - Habits and Today's Steps */}
-        <div className="bg-white rounded-xl p-6 border border-orange-200 shadow-sm flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Target className="w-5 h-5 text-orange-600" />
-              <h3 className="text-lg font-bold text-orange-800">
-                {getFocusTitle}
-              </h3>
+      {/* Habits and Steps this week - side by side boxes */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Habits Box */}
+        {((isWeekView && weekStartDate && weekHabits.length > 0) || (!isWeekView && todaysHabits.length > 0)) && (
+          <div className="card-playful-base flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Target className="w-5 h-5 text-primary-600" />
+                <h3 className="text-lg font-bold text-black font-playful">
+                  {t('navigation.habits')}
+                </h3>
+              </div>
             </div>
-            {onOpenStepModal && (
-              <button
-                onClick={() => {
-                  // Always use today's date for new steps, not the selected day
-                  const dateToUse = getLocalDateString(new Date())
-                  onOpenStepModal(dateToUse)
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors border border-orange-200"
-                title={t('focus.addStep')}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
-                {t('focus.addStep')}
-              </button>
-            )}
-          </div>
-          
-          {/* Two Column Layout - Mobile/Tablet: stacked, Large Desktop: side by side */}
-          <div className="flex flex-col lg:flex-row gap-6 min-w-0">
+            
             {/* Left Column: Habits - Week view shows compact table on desktop, vertical day layout on mobile */}
             {isWeekView && weekStartDate && weekHabits.length > 0 && (
-              <div className="flex-shrink lg:border-r lg:border-gray-200 lg:pr-6 pb-6 lg:pb-0 border-b lg:border-b-0 w-full lg:w-auto lg:flex-shrink-0">
-                <h4 
-                  onClick={() => onNavigateToHabits?.()}
-                  className={`text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 ${onNavigateToHabits ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
-                >
-                  {t('navigation.habits')}
-                </h4>
+              <div className="w-full">
                 {weekHabits.length > 0 ? (
                   <>
                     {/* Mobile/Tablet: Habits as titles with checkboxes below */}
@@ -695,7 +826,7 @@ export function TodayFocusSection({
                             {/* Habit name as title */}
                             <button
                               onClick={() => handleItemClick(habit, 'habit')}
-                              className="text-xs font-semibold text-gray-800 hover:text-orange-600 transition-colors text-left leading-tight"
+                              className="text-xs font-semibold text-black hover:text-primary-600 transition-colors text-left leading-tight"
                               title={habit.name}
                             >
                               {habit.name}
@@ -720,9 +851,9 @@ export function TodayFocusSection({
                                     {/* Day label */}
                                     <div className={`text-[8px] font-medium leading-none ${
                                       isSelected 
-                                        ? 'text-orange-600' 
+                                        ? 'text-primary-600' 
                                         : isTodayDate 
-                                          ? 'text-orange-500'
+                                          ? 'text-primary-500'
                                           : 'text-gray-500'
                                     }`}>
                                       {dayName}
@@ -736,15 +867,15 @@ export function TodayFocusSection({
                                         }
                                       }}
                                       disabled={isLoading || isFuture}
-                                      className={`w-7 h-7 rounded-md flex items-center justify-center transition-all touch-manipulation ${
+                                      className={`w-7 h-7 rounded-playful-sm flex items-center justify-center transition-all touch-manipulation border-2 ${
                                         isCompleted
                                           ? isScheduled
-                                            ? 'bg-orange-500 hover:bg-orange-600 active:bg-orange-700 cursor-pointer shadow-sm'
-                                            : 'bg-orange-100 hover:bg-orange-200 active:bg-orange-300 cursor-pointer'
+                                            ? 'box-playful-highlight bg-primary-100 border-primary-500 cursor-pointer hover:bg-primary-200'
+                                            : 'box-playful-highlight bg-primary-100 border-primary-500 cursor-pointer hover:bg-primary-200'
                                           : !isScheduled 
-                                            ? `bg-gray-100 ${isFuture ? 'cursor-not-allowed opacity-50' : 'hover:bg-orange-200 active:bg-orange-300 cursor-pointer'}` 
-                                            : `bg-orange-100 ${isFuture ? 'cursor-not-allowed opacity-50' : 'hover:bg-orange-200 active:bg-orange-300 cursor-pointer'}`
-                                      } ${isSelected ? 'ring-1 ring-orange-400' : ''}`}
+                                            ? `bg-white border-gray-300 ${isFuture ? 'cursor-not-allowed opacity-50' : 'hover:border-primary-500 cursor-pointer'}` 
+                                            : `box-playful-highlight bg-white border-primary-500 ${isFuture ? 'cursor-not-allowed opacity-50' : 'hover:bg-primary-50 cursor-pointer'}`
+                                      } ${isSelected ? 'ring-2 ring-primary-400' : ''}`}
                                     >
                                       {isLoading ? (
                                         <svg className="animate-spin h-2.5 w-2.5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -752,7 +883,7 @@ export function TodayFocusSection({
                                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
                                       ) : isCompleted ? (
-                                        <Check className={`w-3.5 h-3.5 ${isScheduled ? 'text-white' : 'text-orange-600'}`} strokeWidth={3} />
+                                        <Check className="w-4 h-4 text-primary-600" strokeWidth={3} />
                                       ) : null}
                                     </button>
                                   </div>
@@ -764,47 +895,124 @@ export function TodayFocusSection({
                       </div>
                     </div>
                     
-                    {/* Desktop: Compact colored squares layout */}
-                    <div className="hidden lg:block overflow-y-auto max-h-[500px]">
-                      {/* Header with day names - aligned with checkboxes */}
-                      <div className="flex items-center gap-1 mb-1">
-                        <div className="w-[100px] flex-shrink-0" /> {/* Spacer for habit name */}
-                        {weekDays.map((day) => {
-                          const dateStr = getLocalDateString(day)
-                          const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
-                          const dayName = dayNamesShort[day.getDay()]
-                          const isToday = day.toDateString() === new Date().toDateString()
-                          
-                          return (
-                            <div
-                              key={dateStr}
-                              className={`w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded ${
-                                isSelected 
-                                  ? 'bg-orange-500 text-white font-bold' 
-                                  : isToday 
-                                    ? 'bg-orange-100 text-orange-700 font-semibold'
-                                    : 'text-gray-400'
-                                  }`}
-                                >
-                              <span className="uppercase leading-none">{dayName}</span>
-                              <span className="text-[8px] leading-none">{day.getDate()}</span>
+                    {/* Desktop: Responsive layout - names above on smaller screens, side-by-side on larger */}
+                    <div className="hidden lg:block">
+                      {/* Layout for smaller desktop (lg but not xl) - names above checkboxes */}
+                      <div className="lg:block xl:hidden">
+                        <div className="space-y-2.5">
+                          {weekHabits.map((habit) => (
+                            <div key={habit.id} className="flex flex-col gap-1.5">
+                              {/* Habit name as title */}
+                              <button
+                                onClick={() => handleItemClick(habit, 'habit')}
+                                className="text-xs font-semibold text-black hover:text-primary-600 transition-colors text-left leading-tight"
+                                title={habit.name}
+                              >
+                                {habit.name}
+                              </button>
+                              
+                              {/* Day completion squares below title */}
+                              <div className="flex gap-1 justify-between">
+                                {weekDays.map((day) => {
+                                  const dateStr = getLocalDateString(day)
+                                  const isScheduled = isHabitScheduledForDay(habit, day)
+                                  const isCompleted = isHabitCompletedForDay(habit, day)
+                                  const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
+                                  const isLoading = loadingHabits.has(`${habit.id}-${dateStr}`)
+                                  const today = new Date()
+                                  today.setHours(0, 0, 0, 0)
+                                  const isFuture = day > today
+                                  const dayName = dayNamesShort[day.getDay()]
+                                  const isTodayDate = day.toDateString() === new Date().toDateString()
+                                  
+                                  return (
+                                    <div key={dateStr} className="flex flex-col items-center gap-0.5 flex-1">
+                                      {/* Day label */}
+                                      <div className={`text-[8px] font-medium leading-none ${
+                                        isSelected 
+                                          ? 'text-primary-600' 
+                                          : isTodayDate 
+                                            ? 'text-primary-500'
+                                            : 'text-gray-500'
+                                      }`}>
+                                        {dayName}
+                                      </div>
+                                      
+                                      {/* Checkbox */}
+                                      <button
+                                        onClick={() => {
+                                          if (handleHabitToggle && !isLoading && !isFuture) {
+                                            handleHabitToggle(habit.id, dateStr)
+                                          }
+                                        }}
+                                        disabled={isLoading || isFuture}
+                                        className={`w-7 h-7 rounded-playful-sm flex items-center justify-center transition-all touch-manipulation border-2 ${
+                                          isCompleted
+                                            ? 'box-playful-highlight bg-primary-100 border-primary-500 cursor-pointer hover:bg-primary-200'
+                                            : !isScheduled 
+                                              ? `bg-white border-gray-300 ${isFuture ? 'cursor-not-allowed opacity-50' : 'hover:border-primary-500 cursor-pointer'}` 
+                                              : `box-playful-highlight bg-white border-primary-500 ${isFuture ? 'cursor-not-allowed opacity-50' : 'hover:bg-primary-50 cursor-pointer'}`
+                                        } ${isSelected ? 'ring-2 ring-primary-400' : ''}`}
+                                      >
+                                        {isLoading ? (
+                                          <svg className="animate-spin h-2.5 w-2.5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                          </svg>
+                                        ) : isCompleted ? (
+                                          <Check className="w-4 h-4 text-primary-600" strokeWidth={3} />
+                                        ) : null}
+                                      </button>
+                                    </div>
+                                  )
+                                })}
+                              </div>
                             </div>
-                          )
-                        })}
+                          ))}
+                        </div>
                       </div>
                       
-                      {/* Habits with colored squares - name on left, checkboxes on right */}
-                      <div className="space-y-1">
-                        {weekHabits.map((habit) => (
-                          <div key={habit.id} className="flex items-center gap-1">
-                                    <button
-                              onClick={() => handleItemClick(habit, 'habit')}
-                              className="w-[100px] text-left text-[11px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate flex-shrink-0"
-                              title={habit.name}
-                            >
-                              {habit.name}
-                            </button>
-                            <div className="flex gap-1 flex-shrink-0">
+                      {/* Layout for larger desktop (xl) - names on left, checkboxes on right */}
+                      <div className="hidden xl:block">
+                        {/* Header with day names - aligned with checkboxes */}
+                        <div className="flex items-center gap-1 mb-1">
+                          <div className="w-[100px] flex-shrink-0" /> {/* Spacer for habit name */}
+                          {weekDays.map((day) => {
+                            const dateStr = getLocalDateString(day)
+                            const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
+                            const dayName = dayNamesShort[day.getDay()]
+                            const isToday = day.toDateString() === new Date().toDateString()
+                            
+                            return (
+                              <div
+                                key={dateStr}
+                                className={`w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded-playful-sm border-2 ${
+                                  isSelected 
+                                    ? 'bg-white text-black font-bold border-primary-500' 
+                                    : isToday 
+                                      ? 'bg-primary-100 text-primary-700 font-semibold border-primary-500'
+                                      : 'text-gray-400 border-gray-300'
+                                    }`}
+                                  >
+                                <span className="uppercase leading-none">{dayName}</span>
+                                <span className="text-[8px] leading-none">{day.getDate()}</span>
+                              </div>
+                            )
+                          })}
+                        </div>
+                        
+                        {/* Habits with colored squares - name on left, checkboxes on right */}
+                        <div className="space-y-1">
+                          {weekHabits.map((habit) => (
+                            <div key={habit.id} className="flex items-center gap-1">
+                              <button
+                                onClick={() => handleItemClick(habit, 'habit')}
+                                className="w-[100px] text-left text-[11px] font-medium text-black hover:text-primary-600 transition-colors truncate flex-shrink-0"
+                                title={habit.name}
+                              >
+                                {habit.name}
+                              </button>
+                              <div className="flex gap-1 flex-shrink-0">
                               {weekDays.map((day) => {
                                 const dateStr = getLocalDateString(day)
                                 const isScheduled = isHabitScheduledForDay(habit, day)
@@ -825,39 +1033,40 @@ export function TodayFocusSection({
                                         }
                                       }}
                                     disabled={isLoading}
-                                    className={`w-6 h-6 lg:w-7 lg:h-7 rounded flex items-center justify-center transition-all flex-shrink-0 ${
+                                    className={`w-6 h-6 lg:w-7 lg:h-7 rounded-playful-sm flex items-center justify-center transition-all flex-shrink-0 border-2 ${
                                         isCompleted
-                                        ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                                        ? 'box-playful-highlight bg-primary-100 border-primary-500 cursor-pointer hover:bg-primary-200'
                                         : !isScheduled 
-                                          ? `bg-gray-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}` 
-                                          : `bg-orange-100 ${isFuture ? 'cursor-not-allowed' : 'hover:bg-orange-200 cursor-pointer'}`
-                                    } ${isSelected ? 'ring-2 ring-orange-400 ring-offset-1' : ''}`}
+                                          ? `bg-white border-gray-300 ${isFuture ? 'cursor-not-allowed opacity-50' : 'hover:border-primary-500 cursor-pointer'}` 
+                                          : `box-playful-highlight bg-white border-primary-500 ${isFuture ? 'cursor-not-allowed opacity-50' : 'hover:bg-primary-50 cursor-pointer'}`
+                                    } ${isSelected ? 'ring-2 ring-primary-400' : ''}`}
                                     title={isCompleted ? 'Splněno' : 'Klikni pro splnění'}
                                   >
                                     {isLoading ? (
                                       <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                      </svg>
                                       ) : isCompleted ? (
-                                      <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                                        <Check className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-primary-600" strokeWidth={3} />
                                       ) : null}
                                     </button>
                               )
                             })}
+                              </div>
                             </div>
-                          </div>
-                        ))}
-                  </div>
-                  </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </>
                 ) : (
                   <div className="text-center py-4">
-                    <p className="text-xs text-gray-400 mb-2">Žádné návyky</p>
+                    <p className="text-xs text-gray-600 mb-2">Žádné návyky</p>
                     {onNavigateToHabits && (
                       <button
                         onClick={() => onNavigateToHabits()}
-                        className="text-xs text-orange-600 hover:text-orange-700 font-medium underline"
+                        className="text-xs text-primary-600 hover:text-primary-700 font-semibold underline"
                       >
                         Přidat návyk
                       </button>
@@ -867,10 +1076,10 @@ export function TodayFocusSection({
               </div>
             )}
             {!isWeekView && todaysHabits.length > 0 && (
-            <div className="flex-shrink-0 lg:border-r lg:border-gray-200 lg:pr-6 pb-6 lg:pb-0 border-b lg:border-b-0 w-full lg:w-auto" style={{ width: `auto`, maxWidth: '100%' }}>
+            <div className="w-full">
               <h4 
                 onClick={() => onNavigateToHabits?.()}
-                className={`text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 ${onNavigateToHabits ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
+                className={`text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3 ${onNavigateToHabits ? 'cursor-pointer hover:text-primary-600 transition-colors' : ''}`}
               >
                 {t('navigation.habits')}
               </h4>
@@ -879,7 +1088,7 @@ export function TodayFocusSection({
                   {/* Header with day name */}
                   <div className="flex items-center gap-1 mb-1">
                     <div className="w-[100px] flex-shrink-0" />
-                    <div className="w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded bg-orange-100 text-orange-700 font-semibold">
+                    <div className="w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded-playful-sm border-2 bg-primary-100 text-primary-700 font-semibold border-primary-500">
                       <span className="uppercase leading-none">{dayNamesShort[selectedDayDate.getDay()]}</span>
                       <span className="text-[8px] leading-none">{selectedDayDate.getDate()}</span>
                     </div>
@@ -904,7 +1113,7 @@ export function TodayFocusSection({
                         <div key={habit.id} className="flex items-center gap-1">
                       <button
                             onClick={() => handleItemClick(habit, 'habit')}
-                            className="w-[100px] text-left text-[11px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate flex-shrink-0"
+                            className="w-[100px] text-left text-[11px] font-medium text-black hover:text-primary-600 transition-colors truncate flex-shrink-0"
                             title={habit.name}
                           >
                             {habit.name}
@@ -916,14 +1125,14 @@ export function TodayFocusSection({
                             }
                           }}
                             disabled={isLoading}
-                            className={`w-7 h-7 rounded flex items-center justify-center transition-all flex-shrink-0 ${
+                            className={`w-7 h-7 rounded-playful-sm flex items-center justify-center transition-all flex-shrink-0 border-2 ${
                               isCompleted
-                                ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                                ? 'box-playful-highlight bg-primary-100 border-primary-500 cursor-pointer hover:bg-primary-200'
                                 : isFuture
-                                  ? 'bg-gray-100 cursor-not-allowed'
+                                  ? 'bg-white border-gray-300 cursor-not-allowed opacity-50'
                                   : !isScheduled 
-                                    ? 'bg-gray-100 hover:bg-orange-200 cursor-pointer' 
-                                    : 'bg-orange-100 hover:bg-orange-200 cursor-pointer'
+                                    ? 'bg-white border-gray-300 hover:border-primary-500 cursor-pointer' 
+                                    : 'box-playful-highlight bg-white border-primary-500 hover:bg-primary-50 cursor-pointer'
                             }`}
                             title={isCompleted ? 'Splněno' : 'Klikni pro splnění'}
                           >
@@ -933,8 +1142,8 @@ export function TodayFocusSection({
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                           ) : isCompleted ? (
-                              <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                            ) : null}
+                            <Check className="w-4 h-4 text-primary-600" strokeWidth={3} />
+                          ) : null}
                       </button>
                         </div>
                     )
@@ -943,11 +1152,11 @@ export function TodayFocusSection({
                 </div>
               ) : (
                 <div className="text-center py-4">
-                  <p className="text-xs text-gray-400 mb-2">Žádné návyky</p>
+                  <p className="text-xs text-gray-600 mb-2">Žádné návyky</p>
                   {onNavigateToHabits && (
                     <button
                       onClick={() => onNavigateToHabits()}
-                      className="text-xs text-orange-600 hover:text-orange-700 font-medium underline"
+                      className="text-xs text-primary-600 hover:text-primary-700 font-semibold underline"
                     >
                       Přidat návyk
                     </button>
@@ -956,29 +1165,49 @@ export function TodayFocusSection({
               )}
             </div>
             )}
-            
-            {/* Right Column: Today's Steps (with goals if they have one) */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center mb-3">
-              <h4 
-                onClick={() => onNavigateToSteps?.()}
-                  className={`text-xs font-semibold text-gray-500 uppercase tracking-wide ${onNavigateToSteps ? 'cursor-pointer hover:text-orange-600 transition-colors' : ''}`}
-              >
-                {isWeekView ? t('focus.stepsThisWeek') : t('focus.stepsToday')}
-              </h4>
-                <span className="text-xs text-gray-400 ml-2">
+          </div>
+        )}
+        
+        {/* Steps This Week Box */}
+        {allTodaysSteps.length > 0 && (
+          <div className="card-playful-base flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Target className="w-5 h-5 text-primary-600" />
+                <h3 className="text-lg font-bold text-black font-playful">
+                  {isWeekView ? t('focus.stepsThisWeek') : t('focus.stepsToday')}
+                </h3>
+                <span className="text-sm text-gray-600">
                   {allTodaysSteps.filter(s => s.completed).length}/{allTodaysSteps.length}
                 </span>
-                <span className="flex-1"></span>
-                {/* Spacer to align with day column */}
-                <span className="w-20 flex-shrink-0"></span>
-                {/* Total time - aligned with time column */}
-                <span className="w-14 text-xs text-gray-500 text-center flex-shrink-0">
-                  {allTodaysSteps.filter(s => !s.completed).reduce((sum, s) => sum + (s.estimated_time || 0), 0) > 0 
-                    ? `${allTodaysSteps.filter(s => !s.completed).reduce((sum, s) => sum + (s.estimated_time || 0), 0)} min`
-                    : ''}
-                </span>
               </div>
+              {onOpenStepModal && (
+                <button
+                  onClick={() => {
+                    // Always use today's date for new steps, not the selected day
+                    const dateToUse = getLocalDateString(new Date())
+                    onOpenStepModal(dateToUse)
+                  }}
+                  className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-primary-50 hover:bg-primary-100"
+                  title={t('focus.addStep')}
+                >
+                  <Plus className="w-4 h-4" />
+                  {t('focus.addStep')}
+                </button>
+              )}
+            </div>
+            
+            <div className="flex items-center mb-3">
+              <span className="flex-1"></span>
+              {/* Spacer to align with day column */}
+              <span className="w-20 flex-shrink-0"></span>
+              {/* Total time - aligned with time column */}
+              <span className="w-14 text-xs text-gray-500 text-center flex-shrink-0">
+                {allTodaysSteps.filter(s => !s.completed).reduce((sum, s) => sum + (s.estimated_time || 0), 0) > 0 
+                  ? `${allTodaysSteps.filter(s => !s.completed).reduce((sum, s) => sum + (s.estimated_time || 0), 0)} min`
+                  : ''}
+              </span>
+            </div>
               {allTodaysSteps.length > 0 ? (
                 <div className="space-y-2">
                   {allTodaysSteps
@@ -1015,99 +1244,101 @@ export function TodayFocusSection({
                     return (
                       <div 
                         key={step.id}
-                                onClick={() => handleItemClick(step, 'step')}
-                        className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ${
+                        onClick={() => handleItemClick(step, 'step')}
+                        className={`box-playful-highlight flex items-center gap-3 p-3 cursor-pointer ${
                           animatingSteps.has(step.id)
                             ? step.completed
-                              ? 'border-green-400 bg-green-100 animate-pulse scale-110'
-                              : 'border-orange-400 bg-orange-100 animate-pulse scale-110'
+                              ? 'border-primary-500 bg-primary-100 animate-pulse'
+                              : 'border-primary-500 bg-primary-100 animate-pulse'
                             : isOverdue && !step.completed
-                              ? 'border-red-300 bg-red-50/30 hover:bg-red-50'
+                              ? 'border-primary-500 bg-red-50 hover:bg-red-100'
                               : isToday && !step.completed
-                                ? 'border-orange-400 bg-orange-50/30 hover:bg-orange-50'
-                                        : 'border-gray-200 bg-white hover:bg-gray-50'
+                                ? 'border-primary-500 bg-primary-50 hover:bg-primary-100'
+                                : 'border-primary-500 bg-white hover:bg-primary-50'
                         } ${step.completed && !animatingSteps.has(step.id) ? 'opacity-50' : ''}`}
-                              >
+                      >
                         {/* Checkbox */}
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      if (!loadingSteps.has(step.id)) {
-                                        handleStepToggle(step.id, !step.completed)
-                                      }
-                                    }}
-                                    disabled={loadingSteps.has(step.id)}
-                          className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${
-                                      animatingSteps.has(step.id)
-                                        ? step.completed
-                                          ? 'bg-green-500 border-green-500'
-                                          : 'bg-orange-500 border-orange-500'
-                                        : step.completed 
-                                          ? 'bg-orange-500 border-orange-500' 
-                                          : isOverdue
-                                            ? 'border-red-400 hover:bg-red-100'
-                                            : isToday
-                                              ? 'border-orange-400 hover:bg-orange-100'
-                                              : 'border-gray-300 hover:border-orange-400'
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (!loadingSteps.has(step.id)) {
+                              handleStepToggle(step.id, !step.completed)
+                            }
+                          }}
+                          disabled={loadingSteps.has(step.id)}
+                          className={`w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
+                            animatingSteps.has(step.id)
+                              ? step.completed
+                                ? 'bg-white border-primary-500'
+                                : 'bg-white border-primary-500'
+                              : step.completed 
+                                ? 'bg-white border-primary-500' 
+                                : isOverdue
+                                  ? 'border-primary-500 hover:bg-primary-100'
+                                  : isToday
+                                    ? 'border-primary-500 hover:bg-primary-100'
+                                    : 'border-primary-500 hover:bg-primary-100'
                           }`}
-                                  >
-                                    {loadingSteps.has(step.id) ? (
+                        >
+                          {loadingSteps.has(step.id) ? (
                             <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                      </svg>
-                                    ) : animatingSteps.has(step.id) || step.completed ? (
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          ) : animatingSteps.has(step.id) || step.completed ? (
                             <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                           ) : null}
-                                  </button>
+                        </button>
                         
                         {/* Title */}
                         <span className={`flex-1 text-sm truncate flex items-center gap-2 ${
-                                      step.completed 
-                                        ? 'line-through text-gray-400' 
-                                        : isOverdue 
+                          step.completed 
+                            ? 'line-through text-gray-400' 
+                            : isOverdue 
                               ? 'text-red-600' 
                               : stepDate === getLocalDateString(new Date())
-                                ? 'text-orange-600'
-                                : 'text-gray-500'
+                                ? 'text-primary-600'
+                                : 'text-black'
                         } ${step.is_important && !step.completed ? 'font-bold' : 'font-medium'}`}>
-                                      {step.title}
-                                      {step.checklist && step.checklist.length > 0 && (
-                                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0 ${
-                                          step.checklist.filter((c: any) => c.completed).length === step.checklist.length
-                                            ? 'bg-orange-100 text-orange-600'
-                                            : 'bg-gray-100 text-gray-500'
-                                        }`}>
-                                          {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
-                                      </span>
-                                    )}
-                                    </span>
+                          {step.title}
+                          {step.checklist && step.checklist.length > 0 && (
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
+                              step.checklist.filter((c: any) => c.completed).length === step.checklist.length
+                                ? 'bg-primary-100 text-primary-600 border-primary-500'
+                                : 'bg-gray-100 text-gray-500 border-gray-300'
+                            }`}>
+                              {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
+                            </span>
+                          )}
+                        </span>
                         
                         {/* Meta info - fixed width columns - hidden on mobile */}
-                          <button
-                            onClick={(e) => openDatePicker(e, step)}
-                          className={`hidden sm:block w-20 text-xs text-center capitalize flex-shrink-0 rounded px-1 py-0.5 transition-colors ${
-                          isOverdue && !step.completed 
-                            ? 'text-red-500 hover:bg-red-100' 
-                            : isToday
-                              ? 'text-orange-600 hover:bg-orange-100' 
-                              : 'text-gray-500 hover:bg-gray-100'
-                        }`}>
+                        <button
+                          onClick={(e) => openDatePicker(e, step)}
+                          className={`hidden sm:block w-20 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
+                            isOverdue && !step.completed 
+                              ? 'text-red-600 hover:bg-red-100 border-red-300' 
+                              : isToday
+                                ? 'text-primary-600 hover:bg-primary-100 border-primary-500' 
+                                : 'text-gray-600 hover:bg-gray-100 border-gray-300'
+                          }`}
+                        >
                           {isOverdue && !step.completed && '❗'}
                           {isToday ? t('focus.today') : stepDateFormatted || '-'}
-                          </button>
+                        </button>
                         <button 
                           onClick={(e) => openTimePicker(e, step)}
-                          className={`hidden sm:block w-14 text-xs text-center flex-shrink-0 rounded px-1 py-0.5 transition-colors ${
+                          className={`hidden sm:block w-14 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
                             isOverdue && !step.completed 
-                              ? 'text-red-500 hover:bg-red-100' 
+                              ? 'text-red-600 hover:bg-red-100 border-red-300' 
                               : isToday
-                                ? 'text-orange-600 hover:bg-orange-100' 
-                                : 'text-gray-500 hover:bg-gray-100'
-                          }`}>
+                                ? 'text-primary-600 hover:bg-primary-100 border-primary-500' 
+                                : 'text-gray-600 hover:bg-gray-100 border-gray-300'
+                          }`}
+                        >
                           {step.estimated_time ? `${step.estimated_time} min` : '-'}
                         </button>
-                                  </div>
+                      </div>
                     )
                   })}
                   
@@ -1116,7 +1347,7 @@ export function TodayFocusSection({
                     <>
                       <button
                         onClick={() => setShowCompletedSteps(!showCompletedSteps)}
-                        className="w-full mt-3 pt-3 border-t border-gray-100 text-xs text-gray-400 text-center hover:text-orange-500 transition-colors flex items-center justify-center gap-1"
+                        className="w-full mt-3 pt-3 border-t-2 border-primary-200 text-xs text-gray-600 text-center hover:text-primary-600 transition-colors flex items-center justify-center gap-1"
                       >
                         <span>✓ {allTodaysSteps.filter(s => s.completed).length} {allTodaysSteps.filter(s => s.completed).length === 1 ? 'splněný krok' : 'splněných kroků'}</span>
                         <ChevronDown className={`w-3 h-3 transition-transform ${showCompletedSteps ? 'rotate-180' : ''}`} />
@@ -1134,286 +1365,105 @@ export function TodayFocusSection({
                             return (
                               <div 
                                 key={step.id}
-                        onClick={() => handleItemClick(step, 'step')}
-                                className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ${
-                                  animatingSteps.has(step.id)
-                                    ? step.completed
-                                      ? 'border-green-400 bg-green-100 animate-pulse scale-110'
-                                      : 'border-orange-400 bg-orange-100 animate-pulse scale-110'
-                                    : 'border-gray-200 bg-white hover:bg-gray-50 opacity-50'
-                                }`}
-                      >
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              if (!loadingSteps.has(step.id)) {
-                                handleStepToggle(step.id, !step.completed)
-                              }
-                            }}
-                            disabled={loadingSteps.has(step.id)}
-                                  className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${
-                                    animatingSteps.has(step.id)
-                                      ? step.completed
-                                        ? 'bg-green-500 border-green-500'
-                                        : 'bg-orange-500 border-orange-500'
-                                      : 'bg-orange-500 border-orange-500'
-                                  }`}
-                          >
-                            {loadingSteps.has(step.id) ? (
+                                onClick={() => handleItemClick(step, 'step')}
+                                className={`box-playful-highlight flex items-center gap-3 p-3 cursor-pointer bg-white hover:bg-primary-50 opacity-50`}
+                              >
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    if (!loadingSteps.has(step.id)) {
+                                      handleStepToggle(step.id, !step.completed)
+                                    }
+                                  }}
+                                  disabled={loadingSteps.has(step.id)}
+                                  className={`w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors flex-shrink-0 bg-white border-primary-500`}
+                                >
+                                  {loadingSteps.has(step.id) ? (
                                     <svg className="animate-spin h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                            ) : animatingSteps.has(step.id) || step.completed ? (
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                  ) : (
                                     <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                            ) : null}
-                          </button>
+                                  )}
+                                </button>
                                 <span className="flex-1 text-sm truncate line-through text-gray-400 font-medium flex items-center gap-2">
-                            {step.title}
-                            {step.checklist && step.checklist.length > 0 && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-600 flex-shrink-0 no-underline">
-                                {step.checklist.length}/{step.checklist.length}
-                          </span>
-                            )}
-                          </span>
+                                  {step.title}
+                                  {step.checklist && step.checklist.length > 0 && (
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded-playful-sm bg-primary-100 text-primary-600 flex-shrink-0 no-underline border-2 border-primary-500">
+                                      {step.checklist.length}/{step.checklist.length}
+                                    </span>
+                                  )}
+                                </span>
                                 <span className="hidden sm:block w-20 text-xs text-center capitalize flex-shrink-0 text-gray-400">
-                                    {stepDateFormatted}
-                                  </span>
+                                  {stepDateFormatted}
+                                </span>
                                 <span className="hidden sm:block w-14 text-xs text-gray-400 text-center flex-shrink-0">
                                   {step.estimated_time ? `${step.estimated_time} min` : '-'}
                                 </span>
-                      </div>
-                    )
-                  })}
-                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
                       )}
                     </>
                   )}
                 </div>
               ) : null}
-            </div>
           </div>
-        </div>
+        )}
       </div>
       
-      {/* Additional Steps Section - Divided */}
-      {(() => {
-        // Get all steps that are not in the current week (for week view) or not today (for day view)
-        const allSteps = dailySteps.filter(step => {
-          if (!step.date || step.completed) return false
-          
-          const stepDate = normalizeDate(step.date)
-          const stepDateObj = new Date(stepDate)
-          stepDateObj.setHours(0, 0, 0, 0)
-          
-          if (isWeekView && weekStart && weekEnd) {
-            // In week view, exclude steps from current week
-            return stepDateObj < weekStart || stepDateObj > weekEnd
-          } else {
-            // In day view, exclude steps from today
-            return stepDateObj.getTime() !== displayDate.getTime()
-          }
-        })
-        
-        return allSteps.length > 0
-      })() && isWeekView && (
-        <div className="w-full">
-          <div className="bg-white rounded-xl p-6 border-2 border-gray-300 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xs font-medium text-gray-500">{t('focus.otherSteps')}</h3>
-              {onOpenStepModal && (
-                <button
-                  onClick={() => onOpenStepModal(displayDateStr)}
-                  className="w-5 h-5 rounded-full bg-gray-300 text-white hover:bg-gray-400 transition-colors flex items-center justify-center text-xs font-bold"
-                  title={t('focus.addStep')}
-                >
-                  +
-                </button>
-              )}
+      {/* Overdue Steps and Future Steps - side by side boxes */}
+      {((overdueStepsList.length > 0 || futureStepsList.length > 0) || isWeekView) && (
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Overdue Steps Box */}
+          {(overdueStepsList.length > 0 || isWeekView) && (
+            <div className="card-playful-base flex-1 min-w-0">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Target className="w-5 h-5 text-red-600" />
+                  <h3 className="text-lg font-bold text-black font-playful">
+                    {t('focus.overdueSteps')}
+                  </h3>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                {overdueStepsList.length > 0 ? (
+                  overdueStepsList.map(renderOtherStep)
+                ) : (
+                  <div className="text-gray-600 text-xs text-center py-3">
+                    {t('focus.noOverdueSteps')}
+                  </div>
+                )}
+              </div>
             </div>
-            
-            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-3">
-              {(() => {
-                // Separate steps into overdue steps and future steps
-                const overdueStepsList: any[] = []
-                const futureStepsList: any[] = []
-                
-                // Get all steps that are not in the current week (for week view) or not today (for day view)
-                const allSteps = dailySteps.filter(step => {
-                  if (!step.date || step.completed) return false
-                  
-                  const stepDate = normalizeDate(step.date)
-                  const stepDateObj = new Date(stepDate)
-                  stepDateObj.setHours(0, 0, 0, 0)
-                  
-                  if (isWeekView && weekStart && weekEnd) {
-                    // In week view, exclude steps from current week
-                    return stepDateObj.getTime() < weekStart.getTime() || stepDateObj.getTime() > weekEnd.getTime()
-                  } else {
-                    // In day view, exclude steps from today
-                    return stepDateObj.getTime() !== displayDate.getTime()
-                  }
-                })
-                
-                // Get actual today's date for overdue comparison
-                const actualToday = new Date()
-                actualToday.setHours(0, 0, 0, 0)
-                
-                allSteps.forEach(step => {
-                  const stepDate = normalizeDate(step.date)
-                  const stepDateObj = new Date(stepDate)
-                  stepDateObj.setHours(0, 0, 0, 0)
-                  
-                  if (isWeekView && weekStart && weekEnd) {
-                    // In week view: 
-                    // - overdue = before TODAY (not before week start!) - only truly late steps
-                    // - future = after week end
-                    const isOverdue = stepDateObj.getTime() < actualToday.getTime()
-                    const isFuture = stepDateObj.getTime() > weekEnd.getTime()
-                    
-                    if (isOverdue) {
-                      overdueStepsList.push(step)
-                    } else if (isFuture) {
-                      futureStepsList.push(step)
-                    }
-                  } else {
-                    // In day view: overdue = before today, future = after today
-                  const isOverdue = stepDateObj < displayDate
-                  const isFuture = stepDateObj > displayDate
-                  
-                  if (isOverdue) {
-                    overdueStepsList.push(step)
-                  } else if (isFuture) {
-                    futureStepsList.push(step)
-                    }
-                  }
-                })
-                
-                const renderStep = (step: typeof allSteps[0]) => {
-                  const stepDate = normalizeDate(step.date)
-                  const stepDateObj = new Date(stepDate)
-                  stepDateObj.setHours(0, 0, 0, 0)
-                  
-                  // Overdue = before actual today (not before displayed week/day)
-                  const isOverdue = stepDateObj.getTime() < actualToday.getTime()
-                  
-                  const stepDateFormatted = step.date ? formatStepDate(stepDateObj) : null
-                
-                  return (
-                    <div
-                      key={step.id}
-                      onClick={() => handleItemClick(step, 'step')}
-                      className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ${
-                        animatingSteps.has(step.id)
-                          ? step.completed
-                            ? 'border-green-400 bg-green-100 animate-pulse scale-110'
-                            : 'border-orange-400 bg-orange-100 animate-pulse scale-110'
-                          : isOverdue && !step.completed
-                            ? 'border-red-300 bg-red-50/30 hover:bg-red-50'
-                            : 'border-gray-200 bg-white hover:bg-gray-50'
-                      } ${step.completed && !animatingSteps.has(step.id) ? 'opacity-50' : ''}`}
-                    >
-                      {/* Checkbox */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            if (!loadingSteps.has(step.id)) {
-                              handleStepToggle(step.id, !step.completed)
-                            }
-                          }}
-                          disabled={loadingSteps.has(step.id)}
-                        className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${
-                          animatingSteps.has(step.id)
-                            ? step.completed
-                              ? 'bg-green-500 border-green-500'
-                              : 'bg-orange-500 border-orange-500'
-                            : step.completed 
-                              ? 'bg-orange-500 border-orange-500' 
-                              : isOverdue
-                                ? 'border-red-400 hover:bg-red-100'
-                                : 'border-gray-300 hover:border-orange-400'
-                        }`}
-                        >
-                          {loadingSteps.has(step.id) ? (
-                          <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        ) : animatingSteps.has(step.id) || step.completed ? (
-                          <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                        ) : null}
-                        </button>
-                      
-                      {/* Title */}
-                      <span className={`flex-1 font-medium text-sm truncate flex items-center gap-2 ${
-                        step.completed ? 'line-through text-gray-400' : isOverdue ? 'text-red-600' : 'text-gray-900'
-                      }`}>
-                          {step.title}
-                          {step.checklist && step.checklist.length > 0 && (
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0 ${
-                              step.checklist.filter((c: any) => c.completed).length === step.checklist.length
-                                ? 'bg-orange-100 text-orange-600'
-                                : 'bg-gray-100 text-gray-500'
-                            }`}>
-                              {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
-                        </span>
-                          )}
-                        </span>
-                      
-                      {/* Meta info - hidden on mobile */}
-                      <button 
-                        onClick={(e) => openDatePicker(e, step)}
-                        className={`hidden sm:block w-20 text-xs text-center capitalize flex-shrink-0 rounded px-1 py-0.5 transition-colors ${
-                          isOverdue && !step.completed ? 'text-red-500 hover:bg-red-100' : 'text-gray-500 hover:bg-gray-100'
-                        }`}>
-                        {isOverdue && !step.completed && '❗'}
-                        {stepDateFormatted || '-'}
-                      </button>
-                      <button 
-                        onClick={(e) => openTimePicker(e, step)}
-                        className={`hidden sm:block w-14 text-xs text-center flex-shrink-0 rounded px-1 py-0.5 transition-colors ${
-                          isOverdue && !step.completed ? 'text-red-500 hover:bg-red-100' : 'text-gray-500 hover:bg-gray-100'
-                        }`}>
-                        {step.estimated_time ? `${step.estimated_time} min` : '-'}
-                      </button>
-                    </div>
-                  )
-                }
-                
-                  return (
-                    <>
-                      {/* Overdue steps column */}
-                      <div className="flex flex-col">
-                        <h4 className="text-[10px] font-medium text-gray-400 mb-2 uppercase tracking-wide">{t('focus.overdueSteps')}</h4>
-                        <div className="space-y-1.5">
-                          {overdueStepsList.length > 0 ? (
-                            overdueStepsList.map(renderStep)
-                          ) : (
-                            <div className="text-gray-400 text-xs text-center py-3">
-                              {t('focus.noOverdueSteps')}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* Future steps column */}
-                      <div className="flex flex-col">
-                        <h4 className="text-[10px] font-medium text-gray-400 mb-2 uppercase tracking-wide">{t('focus.futureSteps')}</h4>
-                        <div className="space-y-1.5">
-                          {futureStepsList.length > 0 ? (
-                            futureStepsList.map(renderStep)
-                          ) : (
-                            <div className="text-gray-400 text-xs text-center py-3">
-                              {t('focus.noFutureSteps')}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </>
-                  )
-              })()}
+          )}
+          
+          {/* Future Steps Box */}
+          {(futureStepsList.length > 0 || isWeekView) && (
+            <div className="card-playful-base flex-1 min-w-0">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Target className="w-5 h-5 text-gray-600" />
+                  <h3 className="text-lg font-bold text-black font-playful">
+                    {t('focus.futureSteps')}
+                  </h3>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                {futureStepsList.length > 0 ? (
+                  futureStepsList.map(renderOtherStep)
+                ) : (
+                  <div className="text-gray-600 text-xs text-center py-3">
+                    {t('focus.noFutureSteps')}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
       
@@ -1428,21 +1478,21 @@ export function TodayFocusSection({
             }}
           />
           <div 
-            className="fixed z-50 bg-white border border-gray-200 rounded-xl shadow-xl p-4"
+            className="fixed z-50 box-playful-highlight p-4"
             style={{
               top: `${Math.min(datePickerPosition.top, window.innerHeight - 380)}px`,
               left: `${Math.min(Math.max(datePickerPosition.left - 100, 10), window.innerWidth - 250)}px`,
               width: '230px'
             }}
           >
-            <div className="text-sm font-bold text-gray-800 mb-3">Date</div>
+            <div className="text-sm font-bold text-black mb-3 font-playful">Date</div>
             
             {/* Day names */}
             <div className="grid grid-cols-7 gap-0.5 mb-1">
               {['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(day => (
-                <div key={day} className="text-center text-xs text-gray-400 font-medium py-1">
+                <div key={day} className="text-center text-xs text-gray-600 font-medium py-1">
                   {day}
-    </div>
+                </div>
               ))}
             </div>
             
@@ -1483,12 +1533,12 @@ export function TodayFocusSection({
                     <button
                       key={day.getTime()}
                       onClick={() => handleDateSelect(day)}
-                      className={`w-7 h-7 rounded text-xs font-medium transition-colors ${
+                      className={`w-7 h-7 rounded-playful-sm text-xs font-medium transition-colors border-2 ${
                         isSelected
-                          ? 'bg-orange-500 text-white'
+                          ? 'bg-white text-black font-bold border-primary-500'
                           : isToday
-                            ? 'bg-orange-100 text-orange-600 font-bold'
-                            : 'hover:bg-gray-100 text-gray-600'
+                            ? 'bg-primary-100 text-primary-600 font-bold border-primary-500'
+                            : 'hover:bg-primary-50 text-black border-gray-300'
                       }`}
                     >
                       {day.getDate()}
@@ -1506,11 +1556,11 @@ export function TodayFocusSection({
                   newMonth.setMonth(newMonth.getMonth() - 1)
                   setDatePickerMonth(newMonth)
                 }}
-                className="p-1 hover:bg-gray-100 rounded text-gray-400"
+                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
               >
-                <ChevronDown className="w-4 h-4 rotate-90" />
+                <ChevronDown className="w-4 h-4 rotate-90 text-black" />
               </button>
-              <span className="text-xs font-medium text-gray-600">
+              <span className="text-xs font-semibold text-black">
                 {datePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
               </span>
               <button
@@ -1519,9 +1569,9 @@ export function TodayFocusSection({
                   newMonth.setMonth(newMonth.getMonth() + 1)
                   setDatePickerMonth(newMonth)
                 }}
-                className="p-1 hover:bg-gray-100 rounded text-gray-400"
+                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
               >
-                <ChevronDown className="w-4 h-4 -rotate-90" />
+                <ChevronDown className="w-4 h-4 -rotate-90 text-black" />
               </button>
             </div>
             
@@ -1534,7 +1584,7 @@ export function TodayFocusSection({
                     handleDateSelect(currentDate)
                   }
                 }}
-                className="flex-1 px-3 py-1.5 bg-orange-500 text-white text-xs font-medium rounded-lg hover:bg-orange-600 transition-colors"
+                className="btn-playful-base flex-1 px-3 py-1.5 bg-white text-black text-xs font-semibold hover:bg-primary-50"
               >
                 Save
               </button>
@@ -1543,7 +1593,7 @@ export function TodayFocusSection({
                   setDatePickerStep(null)
                   setDatePickerPosition(null)
                 }}
-                className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                className="btn-playful-base px-3 py-1.5 bg-white text-black text-xs font-semibold hover:bg-primary-50"
               >
                 Cancel
               </button>
@@ -1563,14 +1613,14 @@ export function TodayFocusSection({
             }}
           />
           <div 
-            className="fixed z-50 bg-white border border-gray-200 rounded-xl shadow-xl p-4"
+            className="fixed z-50 box-playful-highlight p-4"
             style={{
               top: `${timePickerPosition.top}px`,
               left: `${timePickerPosition.left}px`,
               width: '160px'
             }}
           >
-            <div className="text-sm font-bold text-gray-800 mb-3">Čas (min)</div>
+            <div className="text-sm font-bold text-black mb-3 font-playful">Čas (min)</div>
             
             {/* Time options */}
             <div className="grid grid-cols-3 gap-1 mb-3">
@@ -1578,10 +1628,10 @@ export function TodayFocusSection({
                 <button
                   key={minutes}
                   onClick={() => handleTimeSelect(minutes)}
-                  className={`py-1.5 rounded text-xs font-medium transition-colors ${
+                  className={`py-1.5 rounded-playful-sm text-xs font-semibold transition-colors border-2 ${
                     timePickerStep?.estimated_time === minutes
-                      ? 'bg-orange-500 text-white'
-                      : 'hover:bg-orange-100 text-gray-600'
+                      ? 'bg-white text-black border-primary-500'
+                      : 'hover:bg-primary-100 text-black border-gray-300'
                   }`}
                 >
                   {minutes}
@@ -1597,7 +1647,7 @@ export function TodayFocusSection({
                 max="480"
                 placeholder="Vlastní"
                 defaultValue={timePickerStep?.estimated_time || ''}
-                className="flex-1 px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-orange-400"
+                className="flex-1 px-2 py-1.5 text-xs border-2 border-primary-500 rounded-playful-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     const value = parseInt((e.target as HTMLInputElement).value)
@@ -1616,7 +1666,7 @@ export function TodayFocusSection({
                     handleTimeSelect(value)
                   }
                 }}
-                className="px-2 py-1.5 bg-orange-500 text-white text-xs font-medium rounded-lg hover:bg-orange-600 transition-colors"
+                className="btn-playful-base px-2 py-1.5 bg-white text-black text-xs font-semibold hover:bg-primary-50"
               >
                 OK
               </button>
@@ -1628,7 +1678,7 @@ export function TodayFocusSection({
                 setTimePickerStep(null)
                 setTimePickerPosition(null)
               }}
-              className="w-full px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 transition-colors"
+              className="w-full px-3 py-1.5 bg-white text-black text-xs font-semibold rounded-playful-md hover:bg-primary-50 transition-colors border-4 border-primary-500"
             >
               Cancel
             </button>
@@ -1638,4 +1688,3 @@ export function TodayFocusSection({
     </div>
   )
 }
-

@@ -1,0 +1,98 @@
+/**
+ * Background Pattern Styles
+ * Playful patterns for backgrounds
+ */
+
+/* Diagonal Stripes - Pink and Yellow */
+.pattern-stripes-pink-yellow {
+  background: repeating-linear-gradient(
+    45deg,
+    #FFE5E5,
+    #FFE5E5 10px,
+    #FFF9E5 10px,
+    #FFF9E5 20px
+  );
+}
+
+/* Diagonal Stripes - Purple and Pink */
+.pattern-stripes-purple-pink {
+  background: repeating-linear-gradient(
+    45deg,
+    #E5E5FF,
+    #E5E5FF 10px,
+    #FFE5E5 10px,
+    #FFE5E5 20px
+  );
+}
+
+/* Diagonal Stripes - Yellow Green and Pink */
+.pattern-stripes-yellow-green-pink {
+  background: repeating-linear-gradient(
+    45deg,
+    #E5FFE5,
+    #E5FFE5 10px,
+    #FFE5E5 10px,
+    #FFE5E5 20px
+  );
+}
+
+/* Dots Pattern */
+.pattern-dots {
+  background: radial-gradient(circle, #5D4037 1px, transparent 1px);
+  background-size: 12px 12px;
+  background-position: 0 0, 6px 6px;
+}
+
+/* Dots Pattern - Lighter */
+.pattern-dots-light {
+  background: radial-gradient(circle, #A1887F 1px, transparent 1px);
+  background-size: 12px 12px;
+  background-position: 0 0, 6px 6px;
+}
+
+/* Grid Pattern */
+.pattern-grid {
+  background-image: 
+    linear-gradient(#5D4037 1px, transparent 1px),
+    linear-gradient(90deg, #5D4037 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Grid Pattern - Light */
+.pattern-grid-light {
+  background-image: 
+    linear-gradient(#A1887F 1px, transparent 1px),
+    linear-gradient(90deg, #A1887F 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Solid Pastel Backgrounds */
+.bg-playful-pink {
+  background-color: #FFE5E5;
+}
+
+.bg-playful-yellow-green {
+  background-color: #E5FFE5;
+}
+
+.bg-playful-purple {
+  background-color: #E5E5FF;
+}
+
+.bg-playful-yellow {
+  background-color: #FFF9E5;
+}
+
+/* Border Styles */
+.border-playful {
+  border: 3px solid #5D4037;
+}
+
+.border-playful-thick {
+  border: 4px solid #5D4037;
+}
+
+.border-playful-thin {
+  border: 2px solid #5D4037;
+}
+

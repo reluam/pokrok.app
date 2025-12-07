@@ -133,12 +133,12 @@ export function JourneyGameView({
     loadUserId()
   }, [user?.id, userId])
 
-  const [currentPage, setCurrentPage] = useState<'main' | 'statistics' | 'achievements' | 'settings' | 'help'>(() => {
+  const [currentPage, setCurrentPage] = useState<'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'help'>(() => {
     if (typeof window !== 'undefined') {
       try {
         const savedPage = localStorage.getItem('journeyGame_currentPage')
-        if (savedPage && ['main', 'statistics', 'achievements', 'settings', 'help'].includes(savedPage)) {
-          return savedPage as 'main' | 'statistics' | 'achievements' | 'settings' | 'help'
+        if (savedPage && ['main', 'goals', 'habits', 'steps', 'statistics', 'achievements', 'settings', 'help'].includes(savedPage)) {
+          return savedPage as 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'help'
         }
       } catch (error) {
         console.error('Error loading currentPage:', error)
@@ -153,13 +153,17 @@ export function JourneyGameView({
       try {
         const savedSection = localStorage.getItem('journeyGame_mainPanelSection')
         if (savedSection) {
+          // Migrate old 'overview' to 'focus-day'
+          if (savedSection === 'overview') {
+            return 'focus-day'
+          }
           return savedSection
         }
       } catch (error) {
         console.error('Error loading mainPanelSection:', error)
       }
     }
-    return 'overview'
+    return 'focus-day'
   })
   
   // Selected goal ID (extracted from mainPanelSection if it's a goal)
@@ -319,6 +323,8 @@ export function JourneyGameView({
   const [expandedAreas, setExpandedAreas] = useState<Set<string | null>>(new Set())
   // State for expanded goal status sections (paused/completed) per area
   const [expandedGoalSections, setExpandedGoalSections] = useState<Set<string>>(new Set()) // Format: "areaId-paused" or "areaId-completed"
+  // State for expanded Focus section in sidebar
+  const [expandedFocus, setExpandedFocus] = useState<boolean>(true) // Default to expanded
   const [pendingWorkflow, setPendingWorkflow] = useState<any>(null)
   
   // Auto-expand/collapse areas based on current page
@@ -3311,6 +3317,8 @@ export function JourneyGameView({
           setExpandedAreas={setExpandedAreas}
           expandedGoalSections={expandedGoalSections}
           setExpandedGoalSections={setExpandedGoalSections}
+          expandedFocus={expandedFocus}
+          setExpandedFocus={setExpandedFocus}
           handleOpenAreasManagementModal={handleOpenAreasManagementModal}
           handleOpenAreaEditModal={handleOpenAreaEditModal}
           handleDeleteArea={handleDeleteArea}
@@ -3382,6 +3390,9 @@ export function JourneyGameView({
           goalStatusRef={goalStatusRef}
           goalAreaRef={goalAreaRef}
           selectedDayDate={selectedDayDate}
+          setSelectedDayDate={setSelectedDayDate}
+          setShowDatePickerModal={setShowDatePickerModal}
+          setSelectedItemType={setSelectedItemType}
           setStepModalData={setStepModalData}
           setShowStepModal={setShowStepModal}
           stepsCacheVersion={stepsCacheVersion}

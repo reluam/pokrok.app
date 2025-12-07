@@ -14,6 +14,9 @@ interface HabitsManagementViewProps {
   onHabitsUpdate?: (habits: any[]) => void
   handleHabitToggle?: (habitId: string, date?: string) => Promise<void>
   loadingHabits: Set<string>
+  hideHeader?: boolean
+  frequencyFilter?: 'all' | 'daily' | 'weekly' | 'monthly'
+  showCompletedToday?: boolean
 }
 
 // Sortable habit row component
@@ -172,7 +175,10 @@ export function HabitsManagementView({
   habits = [],
   onHabitsUpdate,
   handleHabitToggle,
-  loadingHabits
+  loadingHabits,
+  hideHeader = false,
+  frequencyFilter,
+  showCompletedToday
 }: HabitsManagementViewProps) {
   const t = useTranslations()
   const localeCode = useLocale()
@@ -184,6 +190,10 @@ export function HabitsManagementView({
   const [habitsFrequencyFilter, setHabitsFrequencyFilter] = useState<'all' | 'daily' | 'weekly' | 'monthly'>('all')
   const [habitsShowCompletedToday, setHabitsShowCompletedToday] = useState(true)
   const [filtersExpanded, setFiltersExpanded] = useState(false)
+  
+  // Use props if provided, otherwise use local state
+  const effectiveFrequencyFilter = frequencyFilter !== undefined ? frequencyFilter : habitsFrequencyFilter
+  const effectiveShowCompletedToday = showCompletedToday !== undefined ? showCompletedToday : habitsShowCompletedToday
   
   // Quick edit modals
   const [quickEditHabitId, setQuickEditHabitId] = useState<string | null>(null)
@@ -215,14 +225,14 @@ export function HabitsManagementView({
     
     // Get filtered habits (for display) to find indices
     const filteredHabits = allHabitsSorted.filter((habit: any) => {
-      if (habitsFrequencyFilter !== 'all') {
+      if (effectiveFrequencyFilter !== 'all') {
         // Treat custom as weekly for filtering
         const habitFrequency = habit.frequency === 'custom' ? 'weekly' : habit.frequency
-        if (habitFrequency !== habitsFrequencyFilter) {
+        if (habitFrequency !== effectiveFrequencyFilter) {
           return false
         }
       }
-      if (!habitsShowCompletedToday) {
+      if (!effectiveShowCompletedToday) {
         const today = new Date().toISOString().split('T')[0]
         const habitCompletions = habit.completions || []
         const isCompletedToday = habitCompletions.some((c: any) => c.date === today)
@@ -429,6 +439,8 @@ export function HabitsManagementView({
 
   return (
     <div className="w-full h-full flex flex-col">
+      {!hideHeader && (
+        <>
       {/* Filters Row - Mobile: collapsible, Desktop: always visible */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 px-4 py-3 bg-white border-b border-gray-200">
         {/* Mobile: Collapsible filters */}
@@ -542,6 +554,8 @@ export function HabitsManagementView({
           {t('habits.add')}
         </button>
       </div>
+        </>
+      )}
 
       {/* Habits List */}
       <div className="flex-1 overflow-y-auto">
