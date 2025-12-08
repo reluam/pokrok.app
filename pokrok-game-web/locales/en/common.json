@@ -915,12 +915,14 @@
         "pending": "Pending"
       },
       "date": {
+        "title": "Date",
         "all": "All dates",
         "today": "Today",
         "overdue": "Overdue",
         "future": "Future"
       },
       "goal": {
+        "title": "Goal",
         "all": "All goals",
         "withoutGoal": "Without goal"
       },

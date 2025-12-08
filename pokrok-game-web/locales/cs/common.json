@@ -912,12 +912,14 @@
         "pending": "Nedokončené"
       },
       "date": {
+        "title": "Datum",
         "all": "Všechna data",
         "today": "Dnes",
         "overdue": "Po termínu",
         "future": "Budoucí"
       },
       "goal": {
+        "title": "Cíl",
         "all": "Všechny cíle",
         "withoutGoal": "Bez cíle"
       },

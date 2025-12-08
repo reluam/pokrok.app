@@ -1726,7 +1726,19 @@ export function PageContent(props: PageContentProps) {
       case 'steps': {
         const filteredSteps = dailySteps.filter((step: any) => {
           if (!stepsShowCompleted && step.completed) return false
-          if (stepsGoalFilter && (step.goal_id || step.goalId) !== stepsGoalFilter) return false
+          if (stepsGoalFilter) {
+            if (stepsGoalFilter === 'none') {
+              // Filter for steps without a goal
+              if (step.goal_id || step.goalId) {
+                return false
+              }
+            } else {
+              // Filter for steps with a specific goal
+              if ((step.goal_id || step.goalId) !== stepsGoalFilter) {
+                return false
+              }
+            }
+          }
           if (stepsDateFilter) {
             const stepDate = step.date ? (step.date.includes('T') ? step.date.split('T')[0] : step.date) : null
             if (stepDate !== stepsDateFilter) return false
@@ -1768,6 +1780,7 @@ export function PageContent(props: PageContentProps) {
                     className="w-full px-2 py-1.5 text-xs border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
                   >
                     <option value="">{t('steps.filters.goal.all')}</option>
+                    <option value="none">{t('steps.filters.goal.withoutGoal') || 'Bez cíle'}</option>
                     {goals.map((goal: any) => (
                       <option key={goal.id} value={goal.id}>{goal.title}</option>
                     ))}
