@@ -373,17 +373,17 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
             <div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="text-lg font-bold text-gray-800 mb-4">📧 {t('settings.user.contactInfo')}</h4>
+                  <h4 className="text-lg font-bold text-black font-playful mb-4">📧 {t('settings.user.contactInfo')}</h4>
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-bold text-gray-600 mb-1">Email</label>
-                      <p className="text-sm text-gray-800 bg-white p-2 rounded border">
+                      <label className="block text-sm font-bold text-black font-playful mb-1">Email</label>
+                      <p className="text-sm text-black bg-white p-2 rounded-playful-md border-2 border-primary-500 font-playful">
                         {user?.emailAddresses[0]?.emailAddress || 'N/A'}
                       </p>
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-gray-600 mb-1">Jméno</label>
-                      <p className="text-sm text-gray-800 bg-white p-2 rounded border">
+                      <label className="block text-sm font-bold text-black font-playful mb-1">Jméno</label>
+                      <p className="text-sm text-black bg-white p-2 rounded-playful-md border-2 border-primary-500 font-playful">
                         {user?.firstName || ''} {user?.lastName || ''}
                       </p>
                     </div>
@@ -391,23 +391,23 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
                 </div>
                 
                 <div>
-                  <h4 className="text-lg font-bold text-gray-800 mb-4">📅 {t('settings.user.account')}</h4>
+                  <h4 className="text-lg font-bold text-black font-playful mb-4">📅 {t('settings.user.account')}</h4>
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-bold text-gray-600 mb-1">{t('settings.user.registered')}</label>
-                      <p className="text-sm text-gray-800 bg-white p-2 rounded border">
+                      <label className="block text-sm font-bold text-black font-playful mb-1">{t('settings.user.registered')}</label>
+                      <p className="text-sm text-black bg-white p-2 rounded-playful-md border-2 border-primary-500 font-playful">
                         {user?.createdAt ? new Date(user.createdAt).toLocaleDateString(locale) : 'N/A'}
                       </p>
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-gray-600 mb-1">{t('settings.user.lastLogin')}</label>
-                      <p className="text-sm text-gray-800 bg-white p-2 rounded border">
+                      <label className="block text-sm font-bold text-black font-playful mb-1">{t('settings.user.lastLogin')}</label>
+                      <p className="text-sm text-black bg-white p-2 rounded-playful-md border-2 border-primary-500 font-playful">
                         {user?.lastSignInAt ? new Date(user.lastSignInAt).toLocaleDateString(locale) : 'N/A'}
                       </p>
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-gray-600 mb-1">{t('settings.user.accountStatus')}</label>
-                      <p className="text-sm text-gray-800 bg-white p-2 rounded border">
+                      <label className="block text-sm font-bold text-black font-playful mb-1">{t('settings.user.accountStatus')}</label>
+                      <p className="text-sm text-black bg-white p-2 rounded-playful-md border-2 border-primary-500 font-playful">
                         {user?.emailAddresses[0]?.verification?.status || 'N/A'}
                       </p>
                     </div>
@@ -417,16 +417,16 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
               
               {/* Language Settings */}
               <div className="mt-6">
-                <h4 className="text-lg font-bold text-gray-800 mb-4">🌐 {t('settings.user.language.title')}</h4>
-                <div className="bg-white rounded-lg p-4 border border-gray-200">
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                <h4 className="text-lg font-bold text-black font-playful mb-4">🌐 {t('settings.user.language.title')}</h4>
+                <div className="box-playful-highlight p-4">
+                  <label className="block text-sm font-bold text-black font-playful mb-2">
                     {t('settings.user.language.label')}
                   </label>
                   <select
                     value={preferredLocale || locale}
                     onChange={(e) => handleLocaleChange(e.target.value as Locale)}
                     disabled={isSavingLocale}
-                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none disabled:opacity-50"
+                    className="w-full p-3 border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 focus:outline-none disabled:opacity-50 bg-white"
                   >
                     {locales.map((loc) => (
                       <option key={loc} value={loc}>
@@ -434,11 +434,11 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
                       </option>
                     ))}
                   </select>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-gray-600 mt-2 font-playful">
                     {t('settings.user.language.description')}
                   </p>
                   {isSavingLocale && (
-                    <p className="text-sm text-gray-600 mt-2">{t('common.loading')}</p>
+                    <p className="text-sm text-primary-600 mt-2 font-playful">{t('common.loading')}</p>
                   )}
                       </div>
                         </div>
@@ -451,14 +451,14 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
           <div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="text-lg font-bold text-gray-800 mb-4">📊 {t('settings.goals.basicSettings')}</h4>
+                <h4 className="text-lg font-bold text-black font-playful mb-4">📊 {t('settings.goals.basicSettings')}</h4>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-bold text-gray-600 mb-2">{t('settings.goals.defaultStatus')}</label>
+                    <label className="block text-sm font-bold text-black font-playful mb-2">{t('settings.goals.defaultStatus')}</label>
                     <select 
                       value={goalsSettings.defaultStatus}
                       onChange={(e) => setGoalsSettings((prev: any) => ({ ...prev, defaultStatus: e.target.value }))}
-                      className="w-full p-2 border border-gray-300 rounded-lg bg-white"
+                      className="w-full p-2 border-2 border-primary-500 rounded-playful-md font-playful bg-white"
                     >
                       <option value="active">{t('settings.goals.active')}</option>
                       <option value="completed">{t('settings.goals.completed')}</option>
@@ -466,12 +466,12 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-gray-600 mb-2">{t('settings.goals.reminderDays')}</label>
+                    <label className="block text-sm font-bold text-black font-playful mb-2">{t('settings.goals.reminderDays')}</label>
                     <input
                       type="number"
                       value={goalsSettings.reminderDays}
                       onChange={(e) => setGoalsSettings((prev: any) => ({ ...prev, reminderDays: parseInt(e.target.value) }))}
-                      className="w-full p-2 border border-gray-300 rounded-lg"
+                      className="w-full p-2 border-2 border-primary-500 rounded-playful-md font-playful bg-white"
                       min="1"
                       max="30"
                     />
@@ -480,16 +480,16 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
               </div>
 
               <div>
-                <h4 className="text-lg font-bold text-gray-800 mb-4">⚙️ {t('settings.goals.automation')}</h4>
+                <h4 className="text-lg font-bold text-black font-playful mb-4">⚙️ {t('settings.goals.automation')}</h4>
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <input 
                       type="checkbox" 
                       checked={goalsSettings.autoComplete}
                       onChange={(e) => setGoalsSettings((prev: any) => ({ ...prev, autoComplete: e.target.checked }))}
-                      className="rounded"
+                      className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
                     />
-                    <span className="text-sm text-gray-600">{t('settings.goals.autoComplete')}</span>
+                    <span className="text-sm text-black font-playful">{t('settings.goals.autoComplete')}</span>
                   </div>
                 </div>
               </div>
@@ -501,15 +501,15 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
         return (
           <div>
             <div>
-              <h4 className="text-lg font-bold text-gray-800 mb-4">👣 {t('settings.steps.gameSettings')}</h4>
+              <h4 className="text-lg font-bold text-black font-playful mb-4">👣 {t('settings.steps.gameSettings')}</h4>
                 <div className="space-y-4">
                   <div>
-                  <label className="block text-sm font-bold text-gray-600 mb-2">{t('settings.steps.estimatedTimeDefault')}</label>
+                  <label className="block text-sm font-bold text-black font-playful mb-2">{t('settings.steps.estimatedTimeDefault')}</label>
                     <input
                       type="number"
                       value={stepsSettings.estimatedTimeDefault}
                       onChange={(e) => setStepsSettings((prev: any) => ({ ...prev, estimatedTimeDefault: parseInt(e.target.value) }))}
-                      className="w-full p-2 border border-gray-300 rounded-lg"
+                      className="w-full p-2 border-2 border-primary-500 rounded-playful-md font-playful bg-white"
                       min="5"
                       max="480"
                     />
@@ -523,34 +523,34 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
         return (
           <div>
                   <div>
-              <h4 className="text-lg font-bold text-gray-800 mb-4">📈 {t('settings.statistics.display')}</h4>
+              <h4 className="text-lg font-bold text-black font-playful mb-4">📈 {t('settings.statistics.display')}</h4>
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <input 
                       type="checkbox" 
                       checked={statisticsSettings.showStreaks}
                       onChange={(e) => setStatisticsSettings((prev: any) => ({ ...prev, showStreaks: e.target.checked }))}
-                      className="rounded"
+                      className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
                     />
-                  <span className="text-sm text-gray-600">{t('settings.statistics.showStreaks')}</span>
+                  <span className="text-sm text-black font-playful">{t('settings.statistics.showStreaks')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <input 
                       type="checkbox" 
                       checked={statisticsSettings.showProgress}
                       onChange={(e) => setStatisticsSettings((prev: any) => ({ ...prev, showProgress: e.target.checked }))}
-                      className="rounded"
+                      className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
                     />
-                  <span className="text-sm text-gray-600">{t('settings.statistics.showProgress')}</span>
+                  <span className="text-sm text-black font-playful">{t('settings.statistics.showProgress')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <input 
                       type="checkbox" 
                       checked={statisticsSettings.showAchievements}
                       onChange={(e) => setStatisticsSettings((prev: any) => ({ ...prev, showAchievements: e.target.checked }))}
-                      className="rounded"
+                      className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
                     />
-                  <span className="text-sm text-gray-600">{t('settings.statistics.showAchievements')}</span>
+                  <span className="text-sm text-black font-playful">{t('settings.statistics.showAchievements')}</span>
                 </div>
               </div>
             </div>
@@ -560,35 +560,35 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
       case 'workflows':
         return (
           <div>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 mb-6 font-playful">
               {t('settings.workflows.description')}
             </p>
             
             <div className="space-y-4">
               {loadingWorkflows ? (
                 <div className="text-center py-8">
-                  <div className="text-gray-500">{t('settings.workflows.loading')}</div>
+                  <div className="text-primary-600 font-playful">{t('settings.workflows.loading')}</div>
                 </div>
               ) : workflows.length === 0 ? (
-                <div className="bg-gray-50 rounded-lg p-6 text-center">
-                  <p className="text-gray-600 mb-4">{t('settings.workflows.noWorkflows')}</p>
+                <div className="box-playful-highlight p-6 text-center">
+                  <p className="text-gray-600 mb-4 font-playful">{t('settings.workflows.noWorkflows')}</p>
                 </div>
               ) : (
                 workflows.map((workflow) => (
                   <div
                     key={workflow.id}
-                    className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+                    className="box-playful-highlight p-6 hover:bg-primary-50 transition-colors"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h4 className="text-lg font-bold text-gray-900 mb-2">{workflow.name}</h4>
-                        <p className="text-gray-600 text-sm mb-4">{workflow.description}</p>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <h4 className="text-lg font-bold text-black mb-2 font-playful">{workflow.name}</h4>
+                        <p className="text-gray-600 text-sm mb-4 font-playful">{workflow.description}</p>
+                        <div className="flex items-center gap-4 text-sm text-gray-600 font-playful">
                           <span>🕐 {t('settings.workflows.time')}: {workflow.trigger_time || t('settings.workflows.notSet')}</span>
-                          <span className={`px-2 py-1 rounded ${
+                          <span className={`px-2 py-1 rounded-playful-sm border-2 ${
                             workflow.enabled 
-                              ? 'bg-green-100 text-green-700' 
-                              : 'bg-gray-100 text-gray-600'
+                              ? 'bg-primary-100 text-primary-600 border-primary-500' 
+                              : 'bg-white text-gray-600 border-gray-300'
                           }`}>
                             {workflow.enabled ? t('settings.workflows.active') : t('settings.workflows.inactive')}
                           </span>
@@ -597,17 +597,17 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleToggleWorkflow(workflow.id, !workflow.enabled)}
-                          className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                          className={`btn-playful-base px-4 py-2 font-medium text-sm ${
                             workflow.enabled
-                              ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                              : 'bg-green-500 text-white hover:bg-green-600'
+                              ? 'text-gray-600 bg-white hover:bg-primary-50'
+                              : 'text-primary-600 bg-white hover:bg-primary-50'
                           }`}
                         >
                           {workflow.enabled ? t('settings.workflows.stop') : t('settings.workflows.start')}
                         </button>
                         <button
                           onClick={() => handleConfigureWorkflow(workflow)}
-                          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+                          className="btn-playful-base px-4 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm"
                         >
                           {t('settings.workflows.configure')}
                         </button>
@@ -619,37 +619,37 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
               
               {/* Built-in Workflows */}
               <div className="mt-8">
-                <h4 className="text-lg font-bold text-gray-900 mb-4">{t('settings.workflows.availableWorkflows')}</h4>
+                <h4 className="text-lg font-bold text-black mb-4 font-playful">{t('settings.workflows.availableWorkflows')}</h4>
                 
                 {/* Pohled za dneškem */}
-                <div className="bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 rounded-lg p-6">
+                <div className="box-playful-highlight-primary p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h5 className="text-lg font-bold text-orange-900 mb-2">🌅 {t('settings.workflows.dailyReview.name')}</h5>
-                      <p className="text-gray-700 text-sm mb-4">
+                      <h5 className="text-lg font-bold text-black mb-2 font-playful">🌅 {t('settings.workflows.dailyReview.name')}</h5>
+                      <p className="text-gray-600 text-sm mb-4 font-playful">
                         {t('settings.workflows.dailyReview.description')}
                       </p>
-                      <div className="flex items-center gap-4 text-sm">
+                      <div className="flex items-center gap-4 text-sm font-playful">
                         <div className="flex items-center gap-2">
-                          <label className="text-gray-700">{t('settings.workflows.time')}:</label>
+                          <label className="text-black">{t('settings.workflows.time')}:</label>
                           <input
                             type="time"
                             value={workflows.find(w => w.type === 'daily_review')?.trigger_time || '18:00'}
                             onChange={(e) => handleWorkflowTimeChange('daily_review', e.target.value)}
-                            className="px-3 py-1 border border-gray-300 rounded-lg"
+                            className="px-3 py-1 border-2 border-primary-500 rounded-playful-md font-playful bg-white"
                           />
                         </div>
-                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
+                        <span className="px-2 py-1 bg-primary-100 text-primary-600 rounded-playful-sm border-2 border-primary-500 text-xs">
                           +10 XP za dokončení
                         </span>
                       </div>
                     </div>
                     <button
                       onClick={() => handleToggleBuiltInWorkflow('daily_review')}
-                      className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                      className={`btn-playful-base px-4 py-2 font-medium text-sm ${
                         workflows.find(w => w.type === 'daily_review')?.enabled
-                          ? 'bg-orange-600 text-white hover:bg-orange-600'
-                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          ? 'text-black bg-primary-500 hover:bg-primary-600'
+                          : 'text-gray-600 bg-white hover:bg-primary-50'
                       }`}
                     >
                       {workflows.find(w => w.type === 'daily_review')?.enabled ? t('settings.workflows.deactivate') : t('settings.workflows.activate')}
@@ -666,23 +666,23 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
           <div>
             <div className="space-y-6">
             <div>
-                <h4 className="text-lg font-bold text-gray-800 mb-4">📅 Formát data</h4>
-              <div className="bg-white rounded-lg p-4 border border-gray-200">
-                <label className="block text-sm font-bold text-gray-700 mb-2">
+                <h4 className="text-lg font-bold text-black mb-4 font-playful">📅 Formát data</h4>
+              <div className="box-playful-highlight p-4">
+                <label className="block text-sm font-bold text-black mb-2 font-playful">
                     Formát zobrazení data
                 </label>
                 <select
                     value={displaySettings.dateFormat}
                     onChange={(e) => handleSaveDisplaySettings(undefined, e.target.value as 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY')}
                   disabled={isSavingDisplay}
-                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:outline-none disabled:opacity-50"
+                    className="w-full p-3 border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 focus:outline-none disabled:opacity-50 bg-white"
                 >
                     <option value="DD.MM.YYYY">DD.MM.YYYY (např. 15.01.2025)</option>
                     <option value="MM/DD/YYYY">MM/DD/YYYY (např. 01/15/2025)</option>
                     <option value="YYYY-MM-DD">YYYY-MM-DD (např. 2025-01-15)</option>
                     <option value="DD MMM YYYY">DD MMM YYYY (např. 15 led 2025)</option>
                 </select>
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-gray-600 mt-2 font-playful">
                     Tento formát se použije pro zobrazení dat mimo aktuální týden
                 </p>
                 </div>
@@ -696,40 +696,40 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
           <div>
             <div>
               <div className="space-y-4">
-                <div className="bg-white rounded-lg p-4 border border-red-200">
-                  <h5 className="font-bold text-red-700 mb-2">🚪 {t('settings.danger.logout.title')}</h5>
-                  <p className="text-sm text-gray-600 mb-3">
+                <div className="box-playful-highlight p-4 border-2 border-red-500">
+                  <h5 className="font-bold text-red-600 mb-2 font-playful">🚪 {t('settings.danger.logout.title')}</h5>
+                  <p className="text-sm text-gray-600 mb-3 font-playful">
                     {t('settings.danger.logout.description')}
                   </p>
                   <button
                     onClick={handleLogout}
-                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                    className="btn-playful-danger px-4 py-2"
                   >
                     {t('settings.danger.logout.button')}
                   </button>
                 </div>
 
-                <div className="bg-white rounded-lg p-4 border border-red-200">
-                  <h5 className="font-bold text-red-700 mb-2">🗑️ {t('settings.danger.deleteAccount.title')}</h5>
-                  <p className="text-sm text-gray-600 mb-3">
+                <div className="box-playful-highlight p-4 border-2 border-red-500">
+                  <h5 className="font-bold text-red-600 mb-2 font-playful">🗑️ {t('settings.danger.deleteAccount.title')}</h5>
+                  <p className="text-sm text-gray-600 mb-3 font-playful">
                     {t('settings.danger.deleteAccount.description')}
                   </p>
                   <button
                     disabled
-                    className="px-4 py-2 bg-gray-400 text-white rounded-lg cursor-not-allowed"
+                    className="btn-playful-base px-4 py-2 bg-gray-200 text-gray-500 cursor-not-allowed"
                   >
                     {t('settings.danger.deleteAccount.button')}
                   </button>
                 </div>
 
-                <div className="bg-white rounded-lg p-4 border border-red-200">
-                  <h5 className="font-bold text-red-700 mb-2">🔄 {t('settings.danger.resetData.title')}</h5>
-                  <p className="text-sm text-gray-600 mb-3">
+                <div className="box-playful-highlight p-4 border-2 border-red-500">
+                  <h5 className="font-bold text-red-600 mb-2 font-playful">🔄 {t('settings.danger.resetData.title')}</h5>
+                  <p className="text-sm text-gray-600 mb-3 font-playful">
                     {t('settings.danger.resetData.description')}
                   </p>
                   <button
                     disabled
-                    className="px-4 py-2 bg-gray-400 text-white rounded-lg cursor-not-allowed"
+                    className="btn-playful-base px-4 py-2 bg-gray-200 text-gray-500 cursor-not-allowed"
                   >
                     {t('settings.danger.resetData.button')}
                   </button>
@@ -745,11 +745,11 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
   }
 
   return (
-    <div className="w-full h-full flex bg-white">
+    <div className="w-full h-full flex bg-background">
       {/* Left sidebar - Navigation - Hidden on mobile */}
-      <div className="hidden md:flex w-64 border-r border-gray-200 bg-gray-50 flex-shrink-0">
+      <div className="hidden md:flex w-64 border-r-2 border-primary-500 bg-white flex-shrink-0">
         <div className="p-4">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Nastavení</h2>
+          <h2 className="text-lg font-bold text-black font-playful mb-4">Nastavení</h2>
           <nav className="space-y-1">
             {tabs.map((tab) => {
               const Icon = tab.icon
@@ -757,10 +757,10 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-playful-md transition-colors font-playful ${
                     activeTab === tab.id
-                      ? 'bg-orange-600 text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-primary-500 text-black font-semibold'
+                      : 'text-black hover:bg-primary-50'
                   }`}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
@@ -775,18 +775,18 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
       {/* Right content area */}
       <div className="flex-1 overflow-y-auto relative">
         {/* Mobile hamburger menu */}
-        <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 p-3">
+        <div className="md:hidden sticky top-0 z-10 bg-white border-b-2 border-primary-500 p-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-gray-900">
+            <h2 className="text-lg font-bold text-black font-playful">
               {tabs.find(tab => tab.id === activeTab)?.label || 'Nastavení'}
             </h2>
             <div className="relative">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="btn-playful-base p-2"
                 title="Menu"
               >
-                <Menu className="w-5 h-5 text-gray-700" />
+                <Menu className="w-5 h-5 text-black" />
               </button>
               
               {/* Mobile menu dropdown */}
@@ -797,7 +797,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
                     className="fixed inset-0 z-[100]" 
                     onClick={() => setMobileMenuOpen(false)}
                   />
-                  <div className="fixed right-4 top-16 bg-white border border-gray-200 rounded-lg shadow-lg z-[101] min-w-[200px]">
+                  <div className="fixed right-4 top-16 box-playful-highlight z-[101] min-w-[200px]">
                     <nav className="py-2">
                       {tabs.map((tab) => {
                         const Icon = tab.icon
@@ -808,10 +808,10 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
                               setActiveTab(tab.id)
                               setMobileMenuOpen(false)
                             }}
-                            className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                            className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left font-playful ${
                               activeTab === tab.id
-                                ? 'bg-orange-600 text-white'
-                                : 'text-gray-700 hover:bg-gray-100'
+                                ? 'bg-primary-500 text-black font-semibold'
+                                : 'text-black hover:bg-primary-50'
                             }`}
                           >
                             <Icon className="w-5 h-5 flex-shrink-0" />

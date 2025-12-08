@@ -244,23 +244,23 @@ export function GoalDetailPage({
   }
 
   return (
-    <div className="w-full min-h-full flex flex-col bg-orange-50">
+    <div className="w-full min-h-full flex flex-col bg-background">
       {/* Mobile header */}
-      <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
+      <div className="md:hidden sticky top-0 z-10 bg-white border-b-2 border-primary-500 px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {(() => {
               const IconComponent = getIconComponent(goal.icon)
-              return <IconComponent className="w-5 h-5 text-gray-700" />
+              return <IconComponent className="w-5 h-5 text-primary-600" />
             })()}
-            <h2 className="text-lg font-bold text-gray-900 truncate">{goal.title}</h2>
+            <h2 className="text-lg font-bold text-black font-playful truncate">{goal.title}</h2>
           </div>
           <button
             onClick={() => setMainPanelSection('overview')}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="btn-playful-base p-2"
             title={t('navigation.backToOverview')}
           >
-            <ChevronLeft className="w-5 h-5 text-gray-700" />
+            <ChevronLeft className="w-5 h-5 text-black" />
           </button>
         </div>
       </div>
@@ -287,8 +287,8 @@ export function GoalDetailPage({
                 >
                   {goal.icon ? (() => {
                     const IconComponent = getIconComponent(goal.icon)
-                    return <IconComponent className="w-8 h-8 text-gray-700" />
-                  })() : <Target className="w-8 h-8 text-gray-700" />}
+                    return <IconComponent className="w-8 h-8 text-primary-600" />
+                  })() : <Target className="w-8 h-8 text-primary-600" />}
                 </span>
                 {editingGoalDetailTitle ? (
                   <input
@@ -305,14 +305,14 @@ export function GoalDetailPage({
                         setEditingGoalDetailTitle(false)
                       }
                     }}
-                    className="text-2xl font-bold text-gray-900 bg-transparent border-2 border-orange-500 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="text-2xl font-bold text-black font-playful bg-white border-2 border-primary-500 rounded-playful-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500"
                     autoFocus
                   />
                 ) : (
                   <h1 
                     ref={goalTitleRef as React.RefObject<HTMLHeadingElement>}
                     onClick={() => setEditingGoalDetailTitle(true)}
-                    className="text-2xl font-bold text-gray-900 cursor-pointer hover:text-orange-600 transition-colors"
+                    className="text-2xl font-bold text-black font-playful cursor-pointer hover:text-primary-600 transition-colors"
                   >
                     {goal.title}
                   </h1>
@@ -320,7 +320,7 @@ export function GoalDetailPage({
                 <span 
                   ref={goalDateRef}
                   onClick={handleGoalDateClick}
-                  className="text-lg font-medium cursor-pointer hover:text-orange-600 transition-colors"
+                  className="text-lg font-medium font-playful cursor-pointer hover:text-primary-600 transition-colors text-gray-600"
                 >
                   {goal.status === 'completed' && goal.updated_at
                     ? (
@@ -357,7 +357,7 @@ export function GoalDetailPage({
                       setShowGoalDetailAreaPicker(true)
                     }
                   }}
-                  className="flex items-center gap-2 px-3 py-1.5 text-sm border-2 border-gray-300 bg-gray-50 text-gray-700 rounded-lg transition-all hover:bg-gray-100"
+                  className="btn-playful-base flex items-center gap-2 px-3 py-1.5 text-sm text-primary-600 bg-white hover:bg-primary-50"
                 >
                   {goal.area_id ? (
                     <>
@@ -394,12 +394,12 @@ export function GoalDetailPage({
                       setShowGoalDetailStatusPicker(true)
                     }
                   }}
-                  className={`flex items-center gap-2 px-3 py-1.5 text-sm border-2 rounded-lg transition-all ${
+                  className={`btn-playful-base flex items-center gap-2 px-3 py-1.5 text-sm transition-all ${
                     goal.status === 'active' 
-                      ? 'border-orange-300 bg-orange-50 text-orange-700' 
+                      ? 'bg-primary-100 text-primary-600' 
                       : goal.status === 'completed'
-                      ? 'border-green-300 bg-green-50 text-green-700'
-                      : 'border-gray-300 bg-gray-50 text-gray-700'
+                      ? 'bg-primary-100 text-primary-600'
+                      : 'bg-white text-gray-600'
                   }`}
                 >
                   {goal.status === 'active' ? (
@@ -421,7 +421,7 @@ export function GoalDetailPage({
                     e.stopPropagation()
                     setShowDeleteGoalModal(true)
                   }}
-                  className="flex items-center gap-2 px-3 py-1.5 text-sm border-2 border-red-300 bg-red-50 text-red-700 rounded-lg transition-all hover:bg-red-100"
+                  className="btn-playful-danger flex items-center gap-2 px-3 py-1.5 text-sm"
                   title={t('goals.delete')}
                 >
                   <Trash2 className="w-4 h-4" />
@@ -440,7 +440,7 @@ export function GoalDetailPage({
                     setEditingGoalDetailDescription(false)
                   }
                 }}
-                className="w-full text-gray-600 mb-6 text-lg bg-transparent border-2 border-orange-500 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
+                className="w-full text-black mb-6 text-lg font-playful bg-white border-2 border-primary-500 rounded-playful-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
                 rows={3}
                 autoFocus
               />
@@ -449,7 +449,7 @@ export function GoalDetailPage({
                 <p 
                   ref={goalDescriptionRef as React.RefObject<HTMLParagraphElement>}
                   onClick={() => setEditingGoalDetailDescription(true)}
-                  className="text-gray-600 mb-6 text-lg cursor-pointer hover:text-orange-600 transition-colors"
+                  className="text-gray-600 mb-6 text-lg font-playful cursor-pointer hover:text-primary-600 transition-colors"
                 >
                   {goal.description}
                 </p>
@@ -458,7 +458,7 @@ export function GoalDetailPage({
             {!goal.description && !editingGoalDetailDescription && (
               <p 
                 onClick={() => setEditingGoalDetailDescription(true)}
-                className="text-gray-400 mb-6 text-lg cursor-pointer hover:text-orange-600 transition-colors italic"
+                className="text-gray-400 mb-6 text-lg font-playful cursor-pointer hover:text-primary-600 transition-colors italic"
               >
                 {t('goals.addDescription')}
               </p>
@@ -469,14 +469,14 @@ export function GoalDetailPage({
               {/* Progress bar - calculated from steps */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-lg font-medium text-gray-700">{t('details.goal.progress')}</span>
-                  <span className="text-2xl font-bold text-orange-600">
+                  <span className="text-lg font-medium text-black font-playful">{t('details.goal.progress')}</span>
+                  <span className="text-2xl font-bold text-primary-600 font-playful">
                     {totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0}%
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="w-full bg-white border-2 border-primary-500 rounded-playful-sm h-3 overflow-hidden">
                   <div 
-                    className="bg-orange-600 h-3 rounded-full transition-all duration-300"
+                    className="bg-primary-500 h-full rounded-playful-sm transition-all duration-300"
                     style={{ width: `${totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0}%` }}
                   />
                 </div>
@@ -485,18 +485,18 @@ export function GoalDetailPage({
               {/* Steps statistics - inline with larger numbers */}
               <div className="flex flex-wrap items-center gap-6">
                 <div className="flex items-baseline gap-3">
-                  <span className="text-lg text-gray-500 font-medium">{t('details.goal.totalSteps')}:</span>
-                  <span className="text-2xl font-bold text-gray-900">{totalSteps}</span>
+                  <span className="text-lg text-gray-600 font-medium font-playful">{t('details.goal.totalSteps')}:</span>
+                  <span className="text-2xl font-bold text-black font-playful">{totalSteps}</span>
                 </div>
                 <div className="flex items-baseline gap-3">
-                  <span className="text-lg text-gray-500 font-medium">{t('details.goal.completedSteps')}:</span>
-                  <span className="text-2xl font-bold text-green-600">
+                  <span className="text-lg text-gray-600 font-medium font-playful">{t('details.goal.completedSteps')}:</span>
+                  <span className="text-2xl font-bold text-primary-600 font-playful">
                     {completedSteps}
                   </span>
                 </div>
                 <div className="flex items-baseline gap-3">
-                  <span className="text-lg text-gray-500 font-medium">{t('details.goal.remainingSteps')}:</span>
-                  <span className="text-2xl font-bold text-orange-600">
+                  <span className="text-lg text-gray-600 font-medium font-playful">{t('details.goal.remainingSteps')}:</span>
+                  <span className="text-2xl font-bold text-primary-600 font-playful">
                     {remainingSteps}
                   </span>
                 </div>
@@ -541,18 +541,16 @@ export function GoalDetailPage({
                 <div
                   key={step.id}
                   onClick={() => handleItemClick(step, 'step')}
-                  className={`flex items-start gap-3 p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer ${
+                  className={`box-playful-highlight flex items-start gap-3 p-4 cursor-pointer transition-all duration-300 ${
                     isAnimating
                       ? step.completed
-                        ? 'border-green-400 bg-green-100 animate-pulse scale-110'
-                        : 'border-orange-400 bg-orange-100 animate-pulse scale-110'
+                        ? 'bg-primary-100 animate-pulse scale-110'
+                        : 'bg-primary-100 animate-pulse scale-110'
                       : step.completed
-                        ? 'border-green-200 bg-green-50/30 opacity-75'
+                        ? 'bg-primary-100 opacity-75'
                         : isOverdue
-                          ? 'border-red-300 bg-red-50 hover:bg-red-100'
-                          : isToday
-                            ? 'border-orange-300 bg-orange-50 hover:bg-orange-100'
-                            : 'border-gray-200 bg-white hover:bg-gray-50'
+                          ? 'bg-red-50 hover:bg-red-100'
+                          : 'bg-white hover:bg-primary-50'
                   }`}
                 >
                   <button
@@ -563,18 +561,16 @@ export function GoalDetailPage({
                       }
                     }}
                     disabled={loadingSteps.has(step.id) || isAnimating}
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 mt-0.5 ${
+                    className={`w-5 h-5 rounded-playful-sm border-2 flex items-center justify-center transition-all flex-shrink-0 mt-0.5 ${
                       isAnimating
                         ? step.completed
-                          ? 'bg-green-500 border-green-500 scale-110'
-                          : 'bg-orange-500 border-orange-500 scale-110'
+                          ? 'bg-primary-500 border-primary-500 scale-110'
+                          : 'bg-primary-500 border-primary-500 scale-110'
                         : step.completed 
-                          ? 'bg-green-500 border-green-500' 
+                          ? 'bg-primary-500 border-primary-500' 
                           : isOverdue
-                            ? 'border-red-400 hover:bg-red-100'
-                            : isToday
-                              ? 'border-orange-400 hover:bg-orange-100'
-                              : 'border-gray-300 hover:border-orange-400'
+                            ? 'border-primary-500 hover:bg-primary-100'
+                            : 'border-primary-500 hover:bg-primary-100'
                     }`}
                   >
                     {loadingSteps.has(step.id) ? (
@@ -589,31 +585,29 @@ export function GoalDetailPage({
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className={`font-medium text-sm ${
+                      <span className={`font-medium text-sm font-playful ${
                         step.completed 
                           ? 'line-through text-gray-400' 
                           : isOverdue 
                             ? 'text-red-600 font-semibold' 
-                            : isToday
-                              ? 'text-orange-600 font-semibold'
-                              : 'text-gray-900'
+                            : 'text-black'
                       }`}>
                         {step.title}
                       </span>
                       {step.checklist && step.checklist.length > 0 && (
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0 ${
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
                           step.checklist.filter((c: any) => c.completed).length === step.checklist.length
-                            ? 'bg-orange-100 text-orange-600'
-                            : 'bg-gray-100 text-gray-500'
+                            ? 'bg-primary-100 text-primary-600 border-primary-500'
+                            : 'bg-gray-100 text-gray-500 border-gray-300'
                         }`}>
                           {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
                         </span>
                       )}
                     </div>
                     {step.description && (
-                      <p className="text-xs text-gray-600 mb-2 line-clamp-2">{step.description}</p>
+                      <p className="text-xs text-gray-600 mb-2 line-clamp-2 font-playful">{step.description}</p>
                     )}
-                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                    <div className="flex items-center gap-3 text-xs text-gray-500 font-playful">
                       {stepDateFormatted && (
                         <span className={isOverdue && !step.completed ? 'text-red-600 font-medium' : ''}>
                           {isOverdue && !step.completed && '❗ '}
@@ -633,9 +627,9 @@ export function GoalDetailPage({
             }
             
             return (
-              <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="box-playful-highlight p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-gray-900">{t('sections.steps')}</h2>
+                  <h2 className="text-xl font-bold text-black font-playful">{t('sections.steps')}</h2>
                   <button
                     onClick={() => {
                       const defaultDate = getLocalDateString(selectedDayDate)
@@ -656,7 +650,7 @@ export function GoalDetailPage({
                       })
                       setShowStepModal(true)
                     }}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-orange-600 hover:bg-orange-700 text-white transition-colors"
+                    className="btn-playful-base w-8 h-8 flex items-center justify-center text-primary-600 bg-white hover:bg-primary-50"
                     title={t('focus.addStep')}
                   >
                     <Plus className="w-5 h-5" strokeWidth={2.5} />
@@ -667,14 +661,14 @@ export function GoalDetailPage({
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Remaining Column */}
                   <div className="flex flex-col">
-                    <div className="mb-4 pb-3 border-b border-gray-200">
-                      <h3 className="text-lg font-bold text-orange-600 mb-1">
+                    <div className="mb-4 pb-3 border-b-2 border-primary-500">
+                      <h3 className="text-lg font-bold text-primary-600 mb-1 font-playful">
                         {t('details.goal.remainingSteps')}
                       </h3>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 text-sm text-gray-600 font-playful">
                         <span className="font-semibold">{remainingCount}</span>
                         <span>z {totalSteps}</span>
-                        <span className="text-orange-600 font-semibold">({remainingPercentage}%)</span>
+                        <span className="text-primary-600 font-semibold">({remainingPercentage}%)</span>
                       </div>
                     </div>
                     <div className="space-y-3 flex-1 overflow-y-auto max-h-[600px] pr-2">
@@ -690,14 +684,14 @@ export function GoalDetailPage({
                   
                   {/* Done Column */}
                   <div className="flex flex-col">
-                    <div className="mb-4 pb-3 border-b border-gray-200">
-                      <h3 className="text-lg font-bold text-green-600 mb-1">
+                    <div className="mb-4 pb-3 border-b-2 border-primary-500">
+                      <h3 className="text-lg font-bold text-primary-600 mb-1 font-playful">
                         {t('details.goal.done')}
                       </h3>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 text-sm text-gray-600 font-playful">
                         <span className="font-semibold">{doneCount}</span>
                         <span>z {totalSteps}</span>
-                        <span className="text-green-600 font-semibold">({donePercentage}%)</span>
+                        <span className="text-primary-600 font-semibold">({donePercentage}%)</span>
                       </div>
                     </div>
                     <div className="space-y-3 flex-1 overflow-y-auto max-h-[600px] pr-2">
@@ -725,14 +719,14 @@ export function GoalDetailPage({
             onClick={() => setShowGoalDetailDatePicker(false)}
           />
           <div 
-            className="fixed z-50 bg-white border border-gray-200 rounded-xl shadow-xl p-4 date-picker"
+            className="fixed z-50 box-playful-highlight p-4 date-picker"
             style={{ 
               top: `${goalDetailDatePickerPosition.top}px`,
               left: `${goalDetailDatePickerPosition.left}px`,
               width: '230px'
             }}
           >
-            <div className="text-sm font-bold text-gray-800 mb-3">{t('common.newDate')}</div>
+            <div className="text-sm font-bold text-black font-playful mb-3">{t('common.newDate')}</div>
             
             {/* Day names */}
             <div className="grid grid-cols-7 gap-0.5 mb-1">
@@ -792,12 +786,12 @@ export function GoalDetailPage({
                     <button
                       key={day.getTime()}
                       onClick={() => handleGoalDateSelect(day)}
-                      className={`w-7 h-7 rounded text-xs font-medium transition-colors ${
+                      className={`w-7 h-7 rounded-playful-sm text-xs font-medium font-playful transition-colors border-2 ${
                         isSelected
-                          ? 'bg-orange-600 text-white'
+                          ? 'bg-primary-500 text-white border-primary-500'
                           : isToday
-                            ? 'bg-orange-100 text-orange-600 font-bold'
-                            : 'hover:bg-gray-100 text-gray-600'
+                            ? 'bg-primary-100 text-primary-600 font-bold border-primary-500'
+                            : 'hover:bg-primary-50 text-gray-600 border-transparent hover:border-primary-500'
                       }`}
                     >
                       {day.getDate()}
@@ -815,11 +809,11 @@ export function GoalDetailPage({
                   newMonth.setMonth(newMonth.getMonth() - 1)
                   setGoalDetailDatePickerMonth(newMonth)
                 }}
-                className="p-1 hover:bg-gray-100 rounded text-gray-400"
+                className="btn-playful-base p-1 text-gray-600"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="text-xs font-medium text-gray-600">
+              <span className="text-xs font-medium text-black font-playful">
                 {goalDetailDatePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
               </span>
               <button
@@ -828,7 +822,7 @@ export function GoalDetailPage({
                   newMonth.setMonth(newMonth.getMonth() + 1)
                   setGoalDetailDatePickerMonth(newMonth)
                 }}
-                className="p-1 hover:bg-gray-100 rounded text-gray-400"
+                className="btn-playful-base p-1 text-gray-600"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -838,7 +832,7 @@ export function GoalDetailPage({
             <div className="flex gap-2">
               <button
                 onClick={handleGoalDateSave}
-                className="flex-1 px-3 py-1.5 bg-orange-600 text-white text-xs font-medium rounded-lg hover:bg-orange-700 transition-colors"
+                className="btn-playful-base flex-1 px-3 py-1.5 text-xs font-medium text-primary-600 bg-white hover:bg-primary-50"
               >
                 {t('common.save')}
               </button>
@@ -848,7 +842,7 @@ export function GoalDetailPage({
                     await handleUpdateGoalForDetail(goalId, { target_date: null })
                     setShowGoalDetailDatePicker(false)
                   }}
-                  className="px-3 py-1.5 bg-red-100 text-red-700 text-xs font-medium rounded-lg hover:bg-red-200 transition-colors"
+                  className="btn-playful-danger px-3 py-1.5 text-xs font-medium"
                 >
                   {t('common.delete')}
                 </button>
@@ -858,7 +852,7 @@ export function GoalDetailPage({
                   setShowGoalDetailDatePicker(false)
                   setSelectedGoalDate(goal.target_date ? new Date(goal.target_date) : null)
                 }}
-                className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                className="btn-playful-base px-3 py-1.5 text-xs font-medium text-gray-600 bg-white hover:bg-primary-50"
               >
                 {t('common.cancel')}
               </button>
@@ -875,7 +869,7 @@ export function GoalDetailPage({
             onClick={() => setShowGoalDetailStatusPicker(false)}
           />
           <div 
-            className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[160px]"
+            className="fixed z-50 box-playful-highlight min-w-[160px]"
             style={{
               top: `${goalDetailStatusPickerPosition.top}px`,
               left: `${goalDetailStatusPickerPosition.left}px`
@@ -889,14 +883,10 @@ export function GoalDetailPage({
                   await handleUpdateGoalForDetail(goalId, { status: status as any })
                   setShowGoalDetailStatusPicker(false)
                 }}
-                className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors font-medium flex items-center gap-2 ${
+                className={`w-full text-left px-4 py-3 text-sm hover:bg-primary-50 transition-colors font-medium font-playful flex items-center gap-2 ${
                   goal.status === status 
-                    ? status === 'active' 
-                      ? 'bg-orange-50 text-orange-700 font-semibold' 
-                      : status === 'completed'
-                      ? 'bg-green-50 text-green-700 font-semibold'
-                      : 'bg-gray-50 text-gray-700 font-semibold'
-                    : 'text-gray-700'
+                    ? 'bg-primary-100 text-primary-600 font-semibold' 
+                    : 'text-black'
                 }`}
               >
                 {status === 'active' ? (
@@ -929,7 +919,7 @@ export function GoalDetailPage({
             onClick={() => setShowGoalDetailAreaPicker(false)}
           />
           <div 
-            className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl min-w-[200px] max-h-64 overflow-y-auto"
+            className="fixed z-50 box-playful-highlight min-w-[200px] max-h-64 overflow-y-auto"
             style={{
               top: `${goalDetailAreaPickerPosition.top}px`,
               left: `${goalDetailAreaPickerPosition.left}px`
@@ -940,10 +930,10 @@ export function GoalDetailPage({
               onClick={async () => {
                 await handleGoalAreaSelect(null)
               }}
-              className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors font-medium flex items-center gap-2 ${
+              className={`w-full text-left px-4 py-3 text-sm hover:bg-primary-50 transition-colors font-medium font-playful flex items-center gap-2 ${
                 !goal.area_id 
-                  ? 'bg-gray-50 text-gray-700 font-semibold' 
-                  : 'text-gray-700'
+                  ? 'bg-primary-100 text-primary-600 font-semibold' 
+                  : 'text-black'
               }`}
             >
               <span>{t('details.goal.noArea') || 'Bez oblasti'}</span>
@@ -957,10 +947,10 @@ export function GoalDetailPage({
                   onClick={async () => {
                     await handleGoalAreaSelect(area.id)
                   }}
-                  className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors font-medium flex items-center gap-2 ${
+                  className={`w-full text-left px-4 py-3 text-sm hover:bg-primary-50 transition-colors font-medium font-playful flex items-center gap-2 ${
                     goal.area_id === area.id 
-                      ? 'bg-orange-50 text-orange-700 font-semibold' 
-                      : 'text-gray-700'
+                      ? 'bg-primary-100 text-primary-600 font-semibold' 
+                      : 'text-black'
                   }`}
                 >
                   <IconComponent className="w-4 h-4" style={{ color: area.color || '#3B82F6' }} />
@@ -983,7 +973,7 @@ export function GoalDetailPage({
             }}
           />
           <div 
-            className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-6"
+            className="fixed z-50 box-playful-highlight p-6"
             style={{
               top: '50%',
               left: '50%',
@@ -992,10 +982,10 @@ export function GoalDetailPage({
               maxWidth: '90vw'
             }}
           >
-            <h3 className="text-lg font-bold text-gray-900 mb-4">
+            <h3 className="text-lg font-bold text-black font-playful mb-4">
               {t('goals.deleteConfirm') || 'Opravdu chcete smazat tento cíl?'}
             </h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-600 mb-4 font-playful">
               {t('goals.deleteConfirmDescription') || 'Tato akce je nevratná.'}
             </p>
             
@@ -1005,9 +995,9 @@ export function GoalDetailPage({
                 type="checkbox"
                 checked={deleteGoalWithSteps}
                 onChange={(e) => setDeleteGoalWithSteps(e.target.checked)}
-                className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
               />
-              <span className="text-sm text-gray-700">
+              <span className="text-sm text-black font-playful">
                 {t('goals.deleteWithSteps') || 'Odstranit i související kroky'}
               </span>
             </label>
@@ -1020,7 +1010,7 @@ export function GoalDetailPage({
                   setDeleteGoalWithSteps(false)
                 }}
                 disabled={isDeletingGoal}
-                className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-playful-base px-4 py-2 text-sm font-medium text-gray-600 bg-white hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('common.cancel')}
               </button>
@@ -1029,7 +1019,7 @@ export function GoalDetailPage({
                   await handleDeleteGoalForDetail(goalId, deleteGoalWithSteps)
                 }}
                 disabled={isDeletingGoal}
-                className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="btn-playful-danger px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isDeletingGoal ? (
                   <>
@@ -1056,7 +1046,7 @@ export function GoalDetailPage({
             onClick={() => setShowGoalDetailIconPicker(false)}
           />
           <div 
-            className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl"
+            className="fixed z-50 box-playful-highlight"
             style={{
               top: `${goalDetailIconPickerPosition.top}px`,
               left: `${goalDetailIconPickerPosition.left}px`,
@@ -1075,7 +1065,7 @@ export function GoalDetailPage({
                   value={iconSearchQuery}
                   onChange={(e) => setIconSearchQuery(e.target.value)}
                   placeholder={t('common.search') || 'Hledat...'}
-                  className="w-full pl-9 pr-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full pl-9 pr-3 py-2 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:outline-none focus:ring-2 focus:ring-primary-500"
                   autoFocus
                 />
               </div>
@@ -1107,14 +1097,14 @@ export function GoalDetailPage({
                           setShowGoalDetailIconPicker(false)
                           setIconSearchQuery('')
                         }}
-                        className={`p-2 rounded-lg transition-all hover:bg-gray-100 ${
+                        className={`p-2 rounded-playful-sm transition-all hover:bg-primary-50 border-2 ${
                           isSelected 
-                            ? 'bg-orange-50 border-2 border-orange-500' 
-                            : 'border-2 border-transparent hover:border-gray-300'
+                            ? 'bg-primary-100 border-primary-500' 
+                            : 'border-transparent hover:border-primary-500'
                         }`}
                         title={icon.label}
                       >
-                        <IconComponent className={`w-5 h-5 mx-auto ${isSelected ? 'text-orange-600' : 'text-gray-700'}`} />
+                        <IconComponent className={`w-5 h-5 mx-auto ${isSelected ? 'text-primary-600' : 'text-black'}`} />
                       </button>
                     )
                   })

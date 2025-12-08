@@ -208,21 +208,21 @@ export function GoalsManagementView({
   }
 
   return (
-    <div className="w-full h-full flex flex-col bg-orange-50">
+    <div className="w-full h-full flex flex-col bg-background">
       {!hideHeader && (
         <>
           {/* Header */}
-          <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <div className="bg-white border-b-2 border-primary-500 px-6 py-4">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{t('navigation.goals')}</h1>
-                <p className="text-sm text-gray-600 mt-1">
+                <h1 className="text-2xl font-bold text-black font-playful">{t('navigation.goals')}</h1>
+                <p className="text-sm text-gray-600 mt-1 font-playful">
                   {filteredAndSortedGoals.length} {filteredAndSortedGoals.length === 1 ? (localeCode === 'cs' ? 'cíl' : 'goal') : (localeCode === 'cs' ? 'cílů' : 'goals')}
                 </p>
             </div>
             <button
                 onClick={handleCreateGoal}
-                className="flex items-center gap-2 px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium shadow-sm"
+                className="btn-playful-base flex items-center gap-2 px-4 py-2.5 text-primary-600 bg-white hover:bg-primary-50"
             >
                 <Plus className="w-5 h-5" />
               {t('goals.add')}
@@ -236,10 +236,10 @@ export function GoalsManagementView({
                   type="checkbox"
                   checked={statusFilters.has('active')}
                   onChange={() => handleStatusFilterToggle('active')}
-                  className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                  className="w-5 h-5 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
                 />
-                <span className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
-                  <Target className="w-4 h-4 text-green-600" />
+                <span className="text-sm font-medium text-black font-playful flex items-center gap-1.5">
+                  <Target className="w-4 h-4 text-primary-600" />
                   {t('goals.status.active')}
                             </span>
               </label>
@@ -249,10 +249,10 @@ export function GoalsManagementView({
                   type="checkbox"
                   checked={statusFilters.has('paused')}
                   onChange={() => handleStatusFilterToggle('paused')}
-                  className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                  className="w-5 h-5 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
                 />
-                <span className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
-                  <Moon className="w-4 h-4 text-yellow-600" />
+                <span className="text-sm font-medium text-black font-playful flex items-center gap-1.5">
+                  <Moon className="w-4 h-4 text-primary-600" />
                   {t('goals.status.paused')}
                                   </span>
               </label>
@@ -262,10 +262,10 @@ export function GoalsManagementView({
                   type="checkbox"
                   checked={statusFilters.has('completed')}
                   onChange={() => handleStatusFilterToggle('completed')}
-                  className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                  className="w-5 h-5 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
                 />
-                <span className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
-                  <CheckCircle className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-black font-playful flex items-center gap-1.5">
+                  <CheckCircle className="w-4 h-4 text-primary-600" />
                             {t('goals.status.completed')}
                 </span>
               </label>
@@ -278,26 +278,28 @@ export function GoalsManagementView({
       <div className="flex-1 overflow-y-auto px-6 py-6">
         {filteredAndSortedGoals.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center py-16">
-            <Target className="w-16 h-16 text-gray-300 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">Žádné cíle</h3>
-            <p className="text-gray-500 mb-6">Začněte přidáním svého prvního cíle</p>
-                      <button
-              onClick={handleCreateGoal}
-              className="flex items-center gap-2 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium"
-            >
-              <Plus className="w-5 h-5" />
-              {t('goals.add')}
-                      </button>
-                    </div>
+            <div className="box-playful-highlight-primary p-8 max-w-md">
+              <Target className="w-16 h-16 text-primary-600 mb-4 mx-auto" />
+              <h3 className="text-xl font-semibold text-black mb-2 font-playful">Žádné cíle</h3>
+              <p className="text-gray-600 mb-6 font-playful">Začněte přidáním svého prvního cíle</p>
+              <button
+                onClick={handleCreateGoal}
+                className="btn-playful-base flex items-center justify-center gap-2 px-6 py-3 text-primary-600 bg-white hover:bg-primary-50 mx-auto"
+              >
+                <Plus className="w-5 h-5" />
+                {t('goals.add')}
+              </button>
+            </div>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredAndSortedGoals.map((goal) => {
               const { progress, completedSteps, totalSteps } = calculateProgress(goal.id)
               const IconComponent = getIconComponent(goal.icon)
               const statusConfig = {
-                active: { label: t('goals.status.active'), color: 'bg-green-100 text-green-700', icon: Target },
-                paused: { label: t('goals.status.paused'), color: 'bg-yellow-100 text-yellow-700', icon: Moon },
-                completed: { label: t('goals.status.completed'), color: 'bg-blue-100 text-blue-700', icon: CheckCircle }
+                active: { label: t('goals.status.active'), icon: Target },
+                paused: { label: t('goals.status.paused'), icon: Moon },
+                completed: { label: t('goals.status.completed'), icon: CheckCircle }
               }
               const status = statusConfig[goal.status as keyof typeof statusConfig] || statusConfig.active
 
@@ -309,21 +311,19 @@ export function GoalsManagementView({
                 <div
                   key={goal.id}
                   onClick={() => handleGoalClick(goal.id)}
-                  className={`rounded-xl shadow-sm border transition-all duration-200 cursor-pointer overflow-hidden group ${
+                  className={`box-playful-highlight cursor-pointer overflow-hidden group transition-all ${
                     isPaused
-                      ? 'bg-gray-50 border-gray-300 opacity-60 hover:opacity-80'
-                      : isCompleted
-                      ? 'bg-green-50 border-green-200 hover:shadow-md'
-                      : 'bg-white border-gray-200 hover:shadow-md'
-                        }`}
+                      ? 'opacity-60 hover:opacity-80'
+                      : ''
+                  }`}
                       >
                   {/* Goal Header */}
-                  <div className={`p-5 border-b ${
+                  <div className={`p-5 border-b-2 ${
                     isPaused
-                      ? 'border-gray-200'
+                      ? 'border-gray-300'
                       : isCompleted
-                      ? 'border-green-200'
-                      : 'border-gray-100'
+                      ? 'border-primary-500'
+                      : 'border-primary-500'
                   }`}>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -332,16 +332,16 @@ export function GoalsManagementView({
                             isPaused
                               ? 'text-gray-400'
                               : isCompleted
-                              ? 'text-green-600'
-                              : 'text-orange-600'
+                              ? 'text-primary-600'
+                              : 'text-primary-600'
                           }`} />
                     </div>
-                        <h3 className={`text-lg font-semibold truncate transition-colors ${
+                        <h3 className={`text-lg font-semibold truncate transition-colors font-playful ${
                           isPaused
                             ? 'text-gray-500'
                             : isCompleted
-                            ? 'text-green-800 group-hover:text-green-900'
-                            : 'text-gray-900 group-hover:text-orange-600'
+                            ? 'text-black group-hover:text-primary-600'
+                            : 'text-black group-hover:text-primary-600'
                         }`}>
                           {goal.title}
                     </h3>
@@ -349,11 +349,11 @@ export function GoalsManagementView({
                       </div>
                     
                     {goal.description && (
-                      <p className={`text-sm line-clamp-2 mb-3 ${
+                      <p className={`text-sm line-clamp-2 mb-3 font-playful ${
                         isPaused
                           ? 'text-gray-400'
                           : isCompleted
-                          ? 'text-green-700'
+                          ? 'text-gray-600'
                           : 'text-gray-600'
                       }`}>
                         {goal.description}
@@ -369,7 +369,13 @@ export function GoalsManagementView({
                             onGoalStatusClick(goal.id, e)
                           }
                                   }}
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium ${status.color} hover:opacity-80 transition-opacity cursor-pointer`}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-playful-sm text-xs font-medium font-playful border-2 border-primary-500 ${
+                          isPaused
+                            ? 'bg-white text-gray-600'
+                            : isCompleted
+                            ? 'bg-primary-100 text-primary-600'
+                            : 'bg-white text-primary-600'
+                        } hover:bg-primary-50 transition-colors cursor-pointer`}
                                 >
                         <status.icon className="w-3.5 h-3.5" />
                         {status.label}
@@ -381,13 +387,13 @@ export function GoalsManagementView({
                             onGoalDateClick(goal.id, e)
                           }
                           }}
-                        className={`text-xs flex items-center gap-1 hover:opacity-80 transition-opacity cursor-pointer ${
+                        className={`text-xs flex items-center gap-1 hover:text-primary-600 transition-colors cursor-pointer font-playful ${
                           isPaused
                             ? 'text-gray-400'
                             : isCompleted
-                            ? 'text-green-700'
+                            ? 'text-gray-600'
                             : goal.target_date
-                            ? 'text-gray-500'
+                            ? 'text-gray-600'
                             : 'text-gray-400 italic'
                         }`}
                       >
@@ -401,50 +407,50 @@ export function GoalsManagementView({
                   <div className="p-5">
                     <div className="mb-3">
                       <div className="flex items-center justify-between mb-2">
-                        <span className={`text-sm font-medium ${
+                        <span className={`text-sm font-medium font-playful ${
                           isPaused
                             ? 'text-gray-400'
                             : isCompleted
-                            ? 'text-green-700'
-                            : 'text-gray-700'
+                            ? 'text-gray-600'
+                            : 'text-black'
                         }`}>
                           Pokrok
                         </span>
-                        <span className={`text-sm font-semibold ${
+                        <span className={`text-sm font-semibold font-playful ${
                           isPaused
                             ? 'text-gray-500'
                             : isCompleted
-                            ? 'text-green-800'
-                            : 'text-gray-900'
+                            ? 'text-primary-600'
+                            : 'text-primary-600'
                         }`}>
                           {Math.round(progress)}%
                         </span>
           </div>
-                      <div className={`w-full rounded-full h-2.5 overflow-hidden ${
+                      <div className={`w-full rounded-playful-sm h-2.5 overflow-hidden border-2 border-primary-500 ${
                         isPaused
-                          ? 'bg-gray-300'
+                          ? 'bg-gray-200'
                           : isCompleted
-                          ? 'bg-green-200'
-                          : 'bg-gray-200'
+                          ? 'bg-primary-100'
+                          : 'bg-white'
                       }`}>
                         <div
-                          className={`h-full transition-all duration-300 rounded-full ${
+                          className={`h-full transition-all duration-300 rounded-playful-sm ${
                             isPaused
                               ? 'bg-gray-400'
                               : isCompleted
-                              ? 'bg-green-600'
-                              : 'bg-orange-600'
+                              ? 'bg-primary-500'
+                              : 'bg-primary-500'
                     }`}
                           style={{ width: `${progress}%` }}
                   />
                 </div>
                 </div>
 
-                    <div className={`flex items-center justify-between text-xs ${
+                    <div className={`flex items-center justify-between text-xs font-playful ${
                       isPaused
                         ? 'text-gray-400'
                         : isCompleted
-                        ? 'text-green-700'
+                        ? 'text-gray-600'
                         : 'text-gray-600'
                     }`}>
                       <span>
@@ -456,7 +462,7 @@ export function GoalsManagementView({
                                       e.stopPropagation()
                             handleGoalClick(goal.id)
                                     }}
-                          className="flex items-center gap-1 text-orange-600 hover:text-orange-700 font-medium transition-colors"
+                          className="flex items-center gap-1 text-primary-600 hover:text-primary-700 font-medium transition-colors"
                                   >
                           Zobrazit
                           <ArrowRight className="w-3.5 h-3.5" />

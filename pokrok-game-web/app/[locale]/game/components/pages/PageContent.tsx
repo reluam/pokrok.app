@@ -250,6 +250,7 @@ export function PageContent(props: PageContentProps) {
   
   // Filters state for Goals page
   const [goalsStatusFilters, setGoalsStatusFilters] = React.useState<Set<string>>(new Set(['active']))
+  const [selectedGoalForDetail, setSelectedGoalForDetail] = React.useState<string | null>(null)
   
   // Filters state for Habits page
   const [habitsFrequencyFilter, setHabitsFrequencyFilter] = React.useState<'all' | 'daily' | 'weekly' | 'monthly'>('all')
@@ -261,6 +262,13 @@ export function PageContent(props: PageContentProps) {
   React.useEffect(() => {
     if (currentPage === 'habits') {
       setSelectedHabitForDetail(null)
+    }
+  }, [currentPage])
+  
+  // Reset selectedGoalForDetail when navigating to goals page
+  React.useEffect(() => {
+    if (currentPage === 'goals') {
+      setSelectedGoalForDetail(null)
     }
   }, [currentPage])
   
@@ -1407,9 +1415,14 @@ export function PageContent(props: PageContentProps) {
           <div className="flex flex-1 overflow-hidden">
             {/* Left Panel - Filters and Add button */}
             <div className="w-64 border-r-2 border-primary-500 bg-white flex flex-col">
-              {/* Filters at top */}
+              {/* Header */}
               <div className="p-4 border-b-2 border-primary-500">
-                <h3 className="text-sm font-bold text-black font-playful mb-4">{t('navigation.goals')}</h3>
+                <button
+                  onClick={() => setSelectedGoalForDetail(null)}
+                  className="text-sm font-bold text-black font-playful mb-4 hover:text-primary-600 transition-colors cursor-pointer text-left w-full"
+                >
+                  {t('navigation.goals')}
+                </button>
                 <p className="text-xs text-gray-600 mb-4">
                   {goalsCount} {goalsCount === 1 ? (localeCode === 'cs-CZ' ? 'cíl' : 'goal') : (localeCode === 'cs-CZ' ? 'cílů' : 'goals')}
                 </p>
@@ -1421,10 +1434,10 @@ export function PageContent(props: PageContentProps) {
                       type="checkbox"
                       checked={goalsStatusFilters.has('active')}
                       onChange={() => handleGoalsStatusFilterToggle('active')}
-                      className="w-4 h-4 text-primary-600 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+                      className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
                     />
-                    <span className="text-xs font-medium text-black flex items-center gap-1.5">
-                      <Target className="w-3.5 h-3.5 text-green-600" />
+                    <span className="text-xs font-medium text-black font-playful flex items-center gap-1.5">
+                      <Target className="w-3.5 h-3.5 text-primary-600" />
                       {t('goals.status.active')}
                     </span>
                   </label>
@@ -1434,10 +1447,10 @@ export function PageContent(props: PageContentProps) {
                       type="checkbox"
                       checked={goalsStatusFilters.has('paused')}
                       onChange={() => handleGoalsStatusFilterToggle('paused')}
-                      className="w-4 h-4 text-primary-600 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+                      className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
                     />
-                    <span className="text-xs font-medium text-black flex items-center gap-1.5">
-                      <Moon className="w-3.5 h-3.5 text-yellow-600" />
+                    <span className="text-xs font-medium text-black font-playful flex items-center gap-1.5">
+                      <Moon className="w-3.5 h-3.5 text-primary-600" />
                       {t('goals.status.paused')}
                     </span>
                   </label>
@@ -1447,18 +1460,48 @@ export function PageContent(props: PageContentProps) {
                       type="checkbox"
                       checked={goalsStatusFilters.has('completed')}
                       onChange={() => handleGoalsStatusFilterToggle('completed')}
-                      className="w-4 h-4 text-primary-600 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+                      className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
                     />
-                    <span className="text-xs font-medium text-black flex items-center gap-1.5">
-                      <CheckCircle className="w-3.5 h-3.5 text-blue-600" />
+                    <span className="text-xs font-medium text-black font-playful flex items-center gap-1.5">
+                      <CheckCircle className="w-3.5 h-3.5 text-primary-600" />
                       {t('goals.status.completed')}
                     </span>
                   </label>
                 </div>
               </div>
+              
+              {/* Goals list */}
+              <div className="flex-1 overflow-y-auto">
+                {filteredGoals.length === 0 ? (
+                  <div className="p-4 text-xs text-gray-500 text-center">
+                    {t('goals.noGoals') || 'Žádné cíle'}
+                  </div>
+                ) : (
+                  <div className="p-2">
+                    {filteredGoals.map((goal: any) => {
+                      const isSelected = selectedGoalForDetail === goal.id
+                      const IconComponent = getIconComponent(goal.icon)
+                      return (
+                        <button
+                          key={goal.id}
+                          onClick={() => setSelectedGoalForDetail(isSelected ? null : goal.id)}
+                          className={`w-full text-left px-3 py-2 mb-1 rounded-playful-sm text-sm font-playful transition-colors flex items-center gap-2 ${
+                            isSelected
+                              ? 'bg-primary-500 text-black font-semibold'
+                              : 'bg-white text-black hover:bg-primary-50 border-2 border-transparent hover:border-primary-500'
+                          }`}
+                        >
+                          <IconComponent className="w-4 h-4 flex-shrink-0" />
+                          <span className="truncate">{goal.title}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
 
               {/* Add button at bottom */}
-              <div className="mt-auto p-4 border-t-2 border-primary-500">
+              <div className="p-4 border-t-2 border-primary-500">
                 <button
                   onClick={handleCreateGoal}
                   className="btn-playful-base w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-white hover:bg-primary-50"
@@ -1470,21 +1513,93 @@ export function PageContent(props: PageContentProps) {
             </div>
             {/* Main Content */}
             <div className="flex-1 overflow-y-auto">
-              <GoalsManagementView
-                goals={goals.filter((goal: any) => goalsStatusFilters.has(goal.status))}
-                player={player}
-                userId={userId}
-                onGoalsUpdate={onGoalsUpdate}
-                onGoalClick={(goalId: string) => {
-                  const goal = goals.find((g: any) => g.id === goalId)
-                  if (goal) {
-                    setSelectedItem(goal)
-                    setSelectedItemType('goal')
+              {selectedGoalForDetail ? (
+                (() => {
+                  const selectedGoal = goals.find((g: any) => g.id === selectedGoalForDetail)
+                  if (!selectedGoal) {
+                    return (
+                      <div className="p-6 text-center">
+                        <p className="text-gray-500">{t('navigation.goalNotFound') || 'Cíl nenalezen'}</p>
+                      </div>
+                    )
                   }
-                }}
-                dailySteps={dailySteps}
-                hideHeader={true}
-              />
+                  return (
+                    <GoalDetailPage
+                      goal={selectedGoal}
+                      goalId={selectedGoalForDetail}
+                      areas={areas}
+                      dailySteps={dailySteps}
+                      stepsCacheRef={stepsCacheRef}
+                      stepsCacheVersion={stepsCacheVersion}
+                      animatingSteps={animatingSteps}
+                      loadingSteps={loadingSteps}
+                      handleItemClick={handleItemClick}
+                      handleStepToggle={handleStepToggle}
+                      handleUpdateGoalForDetail={handleUpdateGoalForDetail}
+                      handleDeleteGoalForDetail={handleDeleteGoalForDetail}
+                      setMainPanelSection={setMainPanelSection}
+                      localeCode={localeCode}
+                      selectedDayDate={selectedDayDate}
+                      setStepModalData={setStepModalData}
+                      setShowStepModal={setShowStepModal}
+                      goalDetailTitleValue={goalDetailTitleValue}
+                      setGoalDetailTitleValue={setGoalDetailTitleValue}
+                      editingGoalDetailTitle={editingGoalDetailTitle}
+                      setEditingGoalDetailTitle={setEditingGoalDetailTitle}
+                      goalDetailDescriptionValue={goalDetailDescriptionValue}
+                      setGoalDetailDescriptionValue={setGoalDetailDescriptionValue}
+                      editingGoalDetailDescription={editingGoalDetailDescription}
+                      setEditingGoalDetailDescription={setEditingGoalDetailDescription}
+                      showGoalDetailDatePicker={showGoalDetailDatePicker}
+                      setShowGoalDetailDatePicker={setShowGoalDetailDatePicker}
+                      goalDetailDatePickerPosition={goalDetailDatePickerPosition}
+                      setGoalDetailDatePickerPosition={setGoalDetailDatePickerPosition}
+                      goalDetailDatePickerMonth={goalDetailDatePickerMonth}
+                      setGoalDetailDatePickerMonth={setGoalDetailDatePickerMonth}
+                      selectedGoalDate={selectedGoalDate}
+                      setSelectedGoalDate={setSelectedGoalDate}
+                      showGoalDetailStatusPicker={showGoalDetailStatusPicker}
+                      setShowGoalDetailStatusPicker={setShowGoalDetailStatusPicker}
+                      goalDetailStatusPickerPosition={goalDetailStatusPickerPosition}
+                      setGoalDetailStatusPickerPosition={setGoalDetailStatusPickerPosition}
+                      showGoalDetailAreaPicker={showGoalDetailAreaPicker}
+                      setShowGoalDetailAreaPicker={setShowGoalDetailAreaPicker}
+                      goalDetailAreaPickerPosition={goalDetailAreaPickerPosition}
+                      setGoalDetailAreaPickerPosition={setGoalDetailAreaPickerPosition}
+                      showGoalDetailIconPicker={showGoalDetailIconPicker}
+                      setShowGoalDetailIconPicker={setShowGoalDetailIconPicker}
+                      goalDetailIconPickerPosition={goalDetailIconPickerPosition}
+                      setGoalDetailIconPickerPosition={setGoalDetailIconPickerPosition}
+                      iconSearchQuery={iconSearchQuery}
+                      setIconSearchQuery={setIconSearchQuery}
+                      showDeleteGoalModal={showDeleteGoalModal}
+                      setShowDeleteGoalModal={setShowDeleteGoalModal}
+                      deleteGoalWithSteps={deleteGoalWithSteps}
+                      setDeleteGoalWithSteps={setDeleteGoalWithSteps}
+                      isDeletingGoal={isDeletingGoal}
+                      setIsDeletingGoal={setIsDeletingGoal}
+                      goalIconRef={goalIconRef}
+                      goalTitleRef={goalTitleRef}
+                      goalDescriptionRef={goalDescriptionRef}
+                      goalDateRef={goalDateRef}
+                      goalStatusRef={goalStatusRef}
+                      goalAreaRef={goalAreaRef}
+                    />
+                  )
+                })()
+              ) : (
+                <GoalsManagementView
+                  goals={filteredGoals}
+                  player={player}
+                  userId={userId}
+                  onGoalsUpdate={onGoalsUpdate}
+                  onGoalClick={(goalId: string) => {
+                    setSelectedGoalForDetail(goalId)
+                  }}
+                  dailySteps={dailySteps}
+                  hideHeader={true}
+                />
+              )}
             </div>
           </div>
         )

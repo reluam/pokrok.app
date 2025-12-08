@@ -315,13 +315,13 @@ export function StepsManagementView({
       {!hideHeader && (
         <>
       {/* Filters Row - Mobile: collapsible, Desktop: always visible */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 px-4 py-3 bg-white border-b border-gray-200">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 px-4 py-3 bg-white border-b-2 border-primary-500">
         {/* Mobile: Collapsible filters */}
         <div className="md:hidden flex flex-col gap-3">
           <div className="flex items-center justify-between gap-3">
             <button
               onClick={() => setFiltersExpanded(!filtersExpanded)}
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200"
+              className="btn-playful-base flex items-center gap-2 px-3 py-2 text-sm font-medium text-black font-playful bg-white hover:bg-primary-50"
             >
               <Filter className="w-4 h-4" />
               <span>Filtry</span>
@@ -348,7 +348,7 @@ export function StepsManagementView({
                   })
                 }
               }}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium flex-1"
+              className="btn-playful-base flex items-center justify-center gap-2 px-4 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium flex-1"
             >
               <Plus className="w-4 h-4" />
               {t('steps.add')}
@@ -357,23 +357,23 @@ export function StepsManagementView({
           
           {/* Collapsible filters content */}
           {filtersExpanded && (
-            <div className="flex flex-col gap-2 pt-2 border-t border-gray-200">
+            <div className="flex flex-col gap-2 pt-2 border-t-2 border-primary-500">
           {/* Show Completed Checkbox */}
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
               checked={effectiveShowCompleted}
               onChange={(e) => setShowCompleted(e.target.checked)}
-              className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+              className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
             />
-            <span className="text-sm text-gray-700">{t('steps.filters.showCompleted')}</span>
+            <span className="text-sm text-black font-playful">{t('steps.filters.showCompleted')}</span>
           </label>
           
           {/* Goal Filter */}
           <select
             value={effectiveGoalFilter || ''}
             onChange={(e) => setStepsGoalFilter(e.target.value || null)}
-                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
+                className="w-full px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white"
           >
             <option value="">{t('steps.filters.goal.all')}</option>
             {goals.map((goal: any) => (
@@ -387,12 +387,12 @@ export function StepsManagementView({
             type="date"
             value={effectiveDateFilter || ''}
             onChange={(e) => setStepsDateFilter(e.target.value || null)}
-                  className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
+                  className="flex-1 px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white"
                 />
                 {stepsDateFilter && (
                   <button
                     onClick={() => setStepsDateFilter(null)}
-                    className="px-2 py-1.5 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="btn-playful-base px-2 py-1.5 text-xs text-gray-600 hover:text-primary-600 bg-white hover:bg-primary-50"
                   >
                     {t('common.clear')}
                   </button>
@@ -410,16 +410,16 @@ export function StepsManagementView({
               type="checkbox"
               checked={effectiveShowCompleted}
               onChange={(e) => setShowCompleted(e.target.checked)}
-              className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+              className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
             />
-            <span className="text-sm text-gray-700">{t('steps.filters.showCompleted')}</span>
+            <span className="text-sm text-black font-playful">{t('steps.filters.showCompleted')}</span>
           </label>
           
           {/* Goal Filter */}
           <select
             value={effectiveGoalFilter || ''}
             onChange={(e) => setStepsGoalFilter(e.target.value || null)}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white min-w-[150px]"
+            className="px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white min-w-[150px]"
           >
             <option value="">{t('steps.filters.goal.all')}</option>
             {goals.map((goal: any) => (
@@ -433,7 +433,7 @@ export function StepsManagementView({
               type="date"
               value={effectiveDateFilter || ''}
               onChange={(e) => setStepsDateFilter(e.target.value || null)}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600 bg-white"
+              className="px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white"
             />
           {stepsDateFilter && (
             <button
@@ -462,7 +462,7 @@ export function StepsManagementView({
             })
             }
           }}
-          className="hidden md:flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
+          className="btn-playful-base hidden md:flex items-center gap-2 px-4 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
           {t('steps.add')}
@@ -474,13 +474,13 @@ export function StepsManagementView({
       {/* Steps Table */}
       <div className="flex-1 overflow-y-auto">
         <div className="w-full overflow-x-auto">
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden m-4">
+          <div className="box-playful-highlight overflow-hidden m-4">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 first:pl-6 w-12"></th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700">{t('table.name')}</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 w-40 last:pr-6">{t('table.date')}</th>
+                <tr className="bg-white border-b-2 border-primary-500">
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-black font-playful first:pl-6 w-12"></th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-black font-playful">{t('table.name')}</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-black font-playful w-40 last:pr-6">{t('table.date')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -492,8 +492,8 @@ export function StepsManagementView({
                     <tr
                       key={step.id}
                       onClick={() => handleOpenEditModal(step)}
-                      className={`border-b border-gray-100 hover:bg-orange-50/30 transition-all duration-200 last:border-b-0 cursor-pointer ${
-                        step.completed ? 'bg-orange-50/30 hover:bg-orange-50/50' : 'bg-white'
+                      className={`border-b-2 border-primary-500 hover:bg-primary-50 transition-all duration-200 last:border-b-0 cursor-pointer ${
+                        step.completed ? 'bg-primary-100 hover:bg-primary-200' : 'bg-white'
                       }`}
                     >
                       <td className="px-4 py-2 first:pl-6">
@@ -514,19 +514,19 @@ export function StepsManagementView({
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                               </svg>
                             ) : step.completed ? (
-                              <Check className="w-5 h-5 text-orange-600" strokeWidth={3} />
+                              <Check className="w-5 h-5 text-primary-600" strokeWidth={3} />
                             ) : (
-                              <Check className="w-5 h-5 text-gray-400" strokeWidth={2.5} fill="none" />
+                              <div className="w-5 h-5 border-2 border-primary-500 rounded-playful-sm"></div>
                             )}
                           </button>
                         </div>
                       </td>
                       <td className="px-4 py-2">
-                        <span className={`font-semibold text-sm ${step.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                        <span className={`font-semibold text-sm font-playful ${step.completed ? 'line-through text-gray-500' : 'text-black'}`}>
                           {step.title}
                         </span>
                         {step.description && (
-                          <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{step.description}</p>
+                          <p className="text-xs text-gray-600 mt-0.5 line-clamp-1 font-playful">{step.description}</p>
                         )}
                       </td>
                       <td className="px-4 py-2 last:pr-6">
@@ -538,7 +538,7 @@ export function StepsManagementView({
                             setQuickEditStepId(step.id)
                             setQuickEditStepField('date')
                           }}
-                          className="text-xs text-gray-700 cursor-pointer hover:text-orange-600 transition-colors flex items-center gap-1"
+                          className="text-xs text-gray-600 font-playful cursor-pointer hover:text-primary-600 transition-colors flex items-center gap-1"
                         >
                           <Calendar className="w-3 h-3" />
                           {stepDate ? (
@@ -563,9 +563,9 @@ export function StepsManagementView({
                 })}
                 {filteredSteps.length === 0 && (
                   <tr>
-                    <td colSpan={3} className="px-4 py-8 text-center text-gray-500">
-                      <p className="text-lg">Žádné kroky nejsou nastavené</p>
-                      <p className="text-sm">Klikněte na tlačítko výše pro přidání nového kroku</p>
+                    <td colSpan={3} className="px-4 py-8 text-center text-gray-600">
+                      <p className="text-lg font-playful">Žádné kroky nejsou nastavené</p>
+                      <p className="text-sm font-playful">Klikněte na tlačítko výše pro přidání nového kroku</p>
                     </td>
                   </tr>
                 )}
@@ -592,12 +592,12 @@ export function StepsManagementView({
             }}
           >
             <div 
-              className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              className="box-playful-highlight max-w-2xl w-full max-h-[90vh] overflow-y-auto bg-white"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6 border-b border-gray-200">
+              <div className="p-6 border-b-2 border-primary-500">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-gray-900">
+                  <h2 className="text-2xl font-bold text-black font-playful">
                     {editingStep.id ? t('steps.edit') : t('steps.create')}
                   </h2>
                   <button
@@ -611,35 +611,35 @@ export function StepsManagementView({
                         completed: false
                       })
                     }}
-                    className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 transition-colors"
+                    className="btn-playful-base p-1.5"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-5 h-5 text-black" />
                   </button>
                 </div>
               </div>
 
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-800 mb-2">
-                    {t('steps.title')} <span className="text-orange-500">*</span>
+                  <label className="block text-sm font-semibold text-black font-playful mb-2">
+                    {t('steps.title')} <span className="text-primary-600">*</span>
                   </label>
                   <input
                     type="text"
                     value={editFormData.title}
                     onChange={(e) => setEditFormData({...editFormData, title: e.target.value})}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
+                    className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 transition-all bg-white"
                     placeholder={t('steps.titlePlaceholder')}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-800 mb-2">
+                  <label className="block text-sm font-semibold text-black font-playful mb-2">
                     {t('steps.description')}
                   </label>
                   <textarea
                     value={editFormData.description}
                     onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white resize-none"
+                    className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 transition-all bg-white resize-none"
                     rows={4}
                     placeholder={t('steps.descriptionPlaceholder')}
                   />
@@ -647,25 +647,25 @@ export function StepsManagementView({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">
+                    <label className="block text-sm font-semibold text-black font-playful mb-2">
                       {t('steps.date')}
                     </label>
                     <input
                       type="date"
                       value={editFormData.date}
                       onChange={(e) => setEditFormData({...editFormData, date: e.target.value})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
+                      className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 transition-all bg-white"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2">
+                    <label className="block text-sm font-semibold text-black font-playful mb-2">
                       {t('steps.goal')}
                     </label>
                     <select
                       value={editFormData.goalId}
                       onChange={(e) => setEditFormData({...editFormData, goalId: e.target.value})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition-all bg-white"
+                      className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 transition-all bg-white"
                     >
                       <option value="">{t('steps.noGoal')}</option>
                       {goals.map((goal: any) => (
@@ -682,9 +682,9 @@ export function StepsManagementView({
                         type="checkbox"
                         checked={editFormData.completed}
                         onChange={(e) => setEditFormData({...editFormData, completed: e.target.checked})}
-                        className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                        className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
                       />
-                      <span className="text-sm font-semibold text-gray-800">
+                      <span className="text-sm font-semibold text-black font-playful">
                         {t('steps.completed')}
                       </span>
                     </label>
@@ -692,11 +692,11 @@ export function StepsManagementView({
                 )}
               </div>
 
-              <div className="p-6 border-t border-gray-200 flex items-center justify-between">
+              <div className="p-6 border-t-2 border-primary-500 flex items-center justify-between">
                 {editingStep.id && (
                   <button
                     onClick={handleDeleteStep}
-                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                    className="btn-playful-danger px-4 py-2 text-sm font-medium"
                   >
                     {t('common.delete')}
                   </button>
@@ -713,13 +713,13 @@ export function StepsManagementView({
                         completed: false
                       })
                     }}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                    className="btn-playful-base px-4 py-2 text-gray-600 bg-white hover:bg-primary-50 text-sm font-medium"
                   >
                     {t('common.cancel')}
                   </button>
                   <button
                     onClick={editingStep.id ? handleUpdateStep : handleCreateStep}
-                    className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
+                    className="btn-playful-base px-4 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium"
                   >
                     {t('common.save')}
                   </button>
@@ -744,7 +744,7 @@ export function StepsManagementView({
             }}
           />
           <div 
-            className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-4 min-w-[250px] max-w-[90vw]"
+            className="fixed z-50 box-playful-highlight p-4 min-w-[250px] max-w-[90vw]"
             style={(() => {
               if (typeof window === 'undefined') {
                 return {
@@ -795,7 +795,7 @@ export function StepsManagementView({
               if (quickEditStepField === 'date') {
                 return (
                   <>
-                    <h3 className="text-sm font-semibold text-gray-800 mb-2">
+                    <h3 className="text-sm font-semibold text-black font-playful mb-2">
                       {t('steps.stepDate') || 'Vyberte datum'}
                     </h3>
                     <div className="space-y-2">
@@ -843,12 +843,12 @@ export function StepsManagementView({
                                     e.stopPropagation()
                                     setSelectedDateForStep(date)
                                   }}
-                                  className={`h-7 rounded transition-all text-xs ${
+                                  className={`h-7 rounded-playful-sm transition-all text-xs font-playful border-2 ${
                                     isSelected 
-                                      ? 'bg-orange-600 text-white font-bold' 
+                                      ? 'bg-primary-500 text-white font-bold border-primary-500' 
                                       : isToday
-                                        ? 'bg-orange-100 text-orange-700 font-semibold'
-                                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                                        ? 'bg-primary-100 text-primary-600 font-semibold border-primary-500'
+                                        : 'bg-white text-gray-600 hover:bg-primary-50 border-transparent hover:border-primary-500'
                                   }`}
                                 >
                                   {date.getDate()}
@@ -859,7 +859,7 @@ export function StepsManagementView({
                         )
                       })()}
                       
-                      <div className="flex items-center justify-between mt-2 pt-2 border-t">
+                      <div className="flex items-center justify-between mt-2 pt-2 border-t-2 border-primary-500">
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
@@ -867,13 +867,13 @@ export function StepsManagementView({
                             prevMonth.setMonth(prevMonth.getMonth() - 1)
                             setSelectedDateForStep(prevMonth)
                           }}
-                          className="p-1 hover:bg-gray-100 rounded-lg"
+                          className="btn-playful-base p-1 text-gray-600"
                         >
                           <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                           </svg>
                         </button>
-                        <span className="text-xs font-semibold text-gray-800">
+                        <span className="text-xs font-semibold text-black font-playful">
                           {selectedDateForStep.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
                         </span>
                         <button
@@ -883,7 +883,7 @@ export function StepsManagementView({
                             nextMonth.setMonth(nextMonth.getMonth() + 1)
                             setSelectedDateForStep(nextMonth)
                           }}
-                          className="p-1 hover:bg-gray-100 rounded-lg"
+                          className="btn-playful-base p-1 text-gray-600"
                         >
                           <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -912,7 +912,7 @@ export function StepsManagementView({
                               console.error('Error updating step date:', error)
                             }
                           }}
-                          className="flex-1 px-3 py-1.5 bg-orange-600 text-white text-xs rounded-lg hover:bg-orange-700 transition-colors"
+                          className="btn-playful-base flex-1 px-3 py-1.5 text-primary-600 bg-white hover:bg-primary-50 text-xs"
                         >
                           {t('common.save') || 'Uložit'}
                         </button>
@@ -923,7 +923,7 @@ export function StepsManagementView({
                             setQuickEditStepField(null)
                             setQuickEditStepPosition(null)
                           }}
-                          className="px-3 py-1.5 bg-gray-200 text-gray-700 text-xs rounded-lg hover:bg-gray-300 transition-colors"
+                          className="btn-playful-base px-3 py-1.5 text-gray-600 bg-white hover:bg-primary-50 text-xs"
                         >
                           {t('common.cancel') || 'Zrušit'}
                         </button>
@@ -956,8 +956,8 @@ export function StepsManagementView({
                             console.error('Error updating step goal:', error)
                           }
                         }}
-                        className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
-                          !step.goal_id && !step.goalId ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
+                        className={`w-full text-left px-4 py-3 text-sm hover:bg-primary-50 transition-colors font-playful ${
+                          !step.goal_id && !step.goalId ? 'bg-primary-100 text-primary-600 font-semibold' : 'text-black'
                         }`}
                       >
                         {t('steps.noGoal') || 'Bez cíle'}
@@ -983,8 +983,8 @@ export function StepsManagementView({
                               console.error('Error updating step goal:', error)
                             }
                           }}
-                          className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
-                            (step.goal_id || step.goalId) === goal.id ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
+                          className={`w-full text-left px-4 py-3 text-sm hover:bg-primary-50 transition-colors font-playful ${
+                            (step.goal_id || step.goalId) === goal.id ? 'bg-primary-100 text-primary-600 font-semibold' : 'text-black'
                           }`}
                         >
                           {goal.title}

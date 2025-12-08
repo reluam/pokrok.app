@@ -25,8 +25,8 @@ type HelpCategory = 'getting-started' | 'overview' | 'goals' | 'steps' | 'habits
 function Step({ number, text }: { number: number; text: string }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">{number}</span>
-      <span className="text-sm text-gray-700">{text}</span>
+      <span className="w-5 h-5 bg-primary-500 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 font-playful">{number}</span>
+      <span className="text-sm text-black font-playful">{text}</span>
     </div>
   )
 }
@@ -34,8 +34,8 @@ function Step({ number, text }: { number: number; text: string }) {
 // Compact Tip Component
 function Tip({ text }: { text: string }) {
   return (
-    <li className="flex items-start gap-2 text-sm text-gray-600">
-      <span className="text-orange-500 mt-0.5">•</span>
+    <li className="flex items-start gap-2 text-sm text-gray-600 font-playful font-playful">
+      <span className="text-primary-600 mt-0.5">•</span>
       <span>{text}</span>
     </li>
   )
@@ -135,27 +135,27 @@ export function HelpView({
         return (
           <div className="space-y-6">
             {/* Hero */}
-            <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white">
+            <div className="box-playful-highlight-primary p-6">
               <div className="flex items-center gap-3 mb-3">
-                <Target className="w-8 h-8" />
-                <h2 className="text-2xl font-bold">
+                <Target className="w-8 h-8 text-primary-600" />
+                <h2 className="text-2xl font-bold text-black font-playful text-black font-playful">
                   {tHomepage('hero.title') || 'Životní plánovač pro lidi, kteří chtějí dosáhnout svých cílů'}
                 </h2>
               </div>
-              <p className="text-orange-100 text-base leading-relaxed">
+              <p className="text-gray-600 font-playful text-base leading-relaxed font-playful">
                 {tHomepage('hero.description') || 'Pokrok vám pomůže získat jasnost a smysluplnost v tom, jak dosáhnout toho, co v životě chcete. Rozdělte velké cíle na malé kroky, budujte návyky a sledujte svůj pokrok.'}
               </p>
             </div>
 
             {/* Getting Started - Practical Steps */}
-            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200">
+            <div className="box-playful-highlight p-6">
               <div className="flex items-center gap-3 mb-4">
-                <Rocket className="w-6 h-6 text-orange-600" />
-                <h3 className="text-2xl font-bold text-gray-900">
+                <Rocket className="w-6 h-6 text-primary-600" />
+                <h3 className="text-2xl font-bold text-black font-playful text-black font-playful">
                   {t('gettingStarted.stepsToSuccess') || '4 kroky k úspěchu'}
                 </h3>
               </div>
-              <p className="text-gray-700 mb-6 text-sm">
+              <p className="text-gray-600 font-playful mb-6 text-sm font-playful">
                 {tHomepage('features.clarity.description') || 'Začněte s praktickými kroky. Vytvořte si oblasti, přidejte cíle, rozdělte je na kroky a budujte návyky. Pokrok vám ukáže, na co se soustředit dnes.'}
               </p>
             </div>
@@ -163,14 +163,14 @@ export function HelpView({
             {/* 4 Steps */}
             <div className="space-y-8 mt-6">
               {/* Step 0 - Areas */}
-              <div className="bg-white rounded-xl border border-orange-200 p-6">
+              <div className="box-playful-highlight p-6">
                 <div className="mb-4">
-                  <h4 className="font-semibold text-gray-900 flex items-center gap-2 mb-4">
-                    <LayoutDashboard className="w-5 h-5 text-orange-500" /> {t('gettingStarted.step0.title')}
+                  <h4 className="font-semibold text-black font-playful flex items-center gap-2 mb-4">
+                    <LayoutDashboard className="w-5 h-5 text-primary-600" /> {t('gettingStarted.step0.title')}
                   </h4>
-                  <div className="text-sm text-gray-700 leading-relaxed space-y-2">
+                  <div className="text-sm text-gray-600 font-playful leading-relaxed space-y-2 font-playful">
                     {t.rich('gettingStarted.step0.subtitle', {
-                      strong: (chunks) => <strong className="text-gray-900 font-semibold">{chunks}</strong>
+                      strong: (chunks) => <strong className="text-black font-semibold">{chunks}</strong>
                     })}
                   </div>
                 </div>
@@ -178,7 +178,7 @@ export function HelpView({
                 {/* Example Areas */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   {/* Example Area 1 - Health */}
-                  <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                  <div className="box-playful-highlight p-4 hover:bg-primary-50 transition-colors">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <span 
@@ -187,10 +187,10 @@ export function HelpView({
                         >
                           <Flame className="w-4 h-4 text-white" />
                         </span>
-                        <h3 className="text-lg font-semibold text-gray-900">{locale === 'cs' ? 'Zdraví' : 'Health'}</h3>
+                        <h3 className="text-lg font-semibold text-black font-playful">{locale === 'cs' ? 'Zdraví' : 'Health'}</h3>
                       </div>
                       <div className="flex items-center gap-1">
-                        <button className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-700 opacity-50 cursor-not-allowed">
+                        <button className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-600 font-playful font-playful opacity-50 cursor-not-allowed">
                           <Edit className="w-4 h-4" />
                         </button>
                         <button className="p-1.5 rounded-lg hover:bg-red-100 transition-colors text-gray-500 hover:text-red-600 opacity-50 cursor-not-allowed">
@@ -198,8 +198,8 @@ export function HelpView({
                         </button>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600 mb-3">{locale === 'cs' ? 'Zdravotní cíle a návyky' : 'Health goals and habits'}</p>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <p className="text-sm text-gray-600 font-playful mb-3 font-playful">{locale === 'cs' ? 'Zdravotní cíle a návyky' : 'Health goals and habits'}</p>
+                    <div className="flex items-center gap-4 text-sm text-gray-600 font-playful font-playful">
                       <span>2 {tCommon('goals.title') || 'GOALS'}</span>
                       <span>5 {locale === 'cs' ? 'KROKY' : 'STEPS'}</span>
                       <span>3 {tCommon('habits.title') || 'HABITS'}</span>
@@ -207,7 +207,7 @@ export function HelpView({
                   </div>
 
                   {/* Example Area 2 - Career */}
-                  <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                  <div className="box-playful-highlight p-4 hover:bg-primary-50 transition-colors">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <span 
@@ -216,10 +216,10 @@ export function HelpView({
                         >
                           <Briefcase className="w-4 h-4 text-white" />
                         </span>
-                        <h3 className="text-lg font-semibold text-gray-900">{locale === 'cs' ? 'Kariéra' : 'Career'}</h3>
+                        <h3 className="text-lg font-semibold text-black font-playful">{locale === 'cs' ? 'Kariéra' : 'Career'}</h3>
                       </div>
                       <div className="flex items-center gap-1">
-                        <button className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-700 opacity-50 cursor-not-allowed">
+                        <button className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-600 font-playful font-playful opacity-50 cursor-not-allowed">
                           <Edit className="w-4 h-4" />
                         </button>
                         <button className="p-1.5 rounded-lg hover:bg-red-100 transition-colors text-gray-500 hover:text-red-600 opacity-50 cursor-not-allowed">
@@ -235,7 +235,7 @@ export function HelpView({
                   </div>
 
                   {/* Example Area 3 - Relationships */}
-                  <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                  <div className="box-playful-highlight p-4 hover:bg-primary-50 transition-colors">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <span 
@@ -244,10 +244,10 @@ export function HelpView({
                         >
                           <Heart className="w-4 h-4 text-white" />
                         </span>
-                        <h3 className="text-lg font-semibold text-gray-900">{locale === 'cs' ? 'Vztahy' : 'Relationships'}</h3>
+                        <h3 className="text-lg font-semibold text-black font-playful">{locale === 'cs' ? 'Vztahy' : 'Relationships'}</h3>
                       </div>
                       <div className="flex items-center gap-1">
-                        <button className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-700 opacity-50 cursor-not-allowed">
+                        <button className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-600 font-playful font-playful opacity-50 cursor-not-allowed">
                           <Edit className="w-4 h-4" />
                         </button>
                         <button className="p-1.5 rounded-lg hover:bg-red-100 transition-colors text-gray-500 hover:text-red-600 opacity-50 cursor-not-allowed">
@@ -255,7 +255,7 @@ export function HelpView({
                         </button>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600 mb-3">{locale === 'cs' ? 'Vztahy s rodinou a přáteli' : 'Family and friends'}</p>
+                    <p className="text-sm text-gray-600 font-playful mb-3">{locale === 'cs' ? 'Vztahy s rodinou a přáteli' : 'Family and friends'}</p>
                     <div className="flex items-center gap-4 text-sm text-gray-500">
                       <span>1 {tCommon('goals.title') || 'GOALS'}</span>
                       <span>2 {locale === 'cs' ? 'KROKY' : 'STEPS'}</span>
@@ -264,7 +264,7 @@ export function HelpView({
                   </div>
 
                   {/* Example Area 4 - Personal Growth */}
-                  <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                  <div className="box-playful-highlight p-4 hover:bg-primary-50 transition-colors">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <span 
@@ -273,10 +273,10 @@ export function HelpView({
                         >
                           <TrendingUpIcon className="w-4 h-4 text-white" />
                         </span>
-                        <h3 className="text-lg font-semibold text-gray-900">{locale === 'cs' ? 'Osobní růst' : 'Personal Growth'}</h3>
+                        <h3 className="text-lg font-semibold text-black font-playful">{locale === 'cs' ? 'Osobní růst' : 'Personal Growth'}</h3>
                       </div>
                       <div className="flex items-center gap-1">
-                        <button className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-700 opacity-50 cursor-not-allowed">
+                        <button className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-600 font-playful font-playful opacity-50 cursor-not-allowed">
                           <Edit className="w-4 h-4" />
                         </button>
                         <button className="p-1.5 rounded-lg hover:bg-red-100 transition-colors text-gray-500 hover:text-red-600 opacity-50 cursor-not-allowed">
@@ -294,12 +294,12 @@ export function HelpView({
 
                 <div className="flex gap-2">
                   {onOpenAreasManagement && (
-                    <button onClick={onOpenAreasManagement} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600">
+                    <button onClick={onOpenAreasManagement} className="btn-playful-base flex-1 flex items-center justify-center gap-1 px-3 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium">
                       <Plus className="w-4 h-4" /> {t('gettingStarted.step0.button') || 'Vytvořit oblast'}
                     </button>
                   )}
                   {onNavigateToManagement && (
-                    <button onClick={onNavigateToManagement} className="px-3 py-2 border border-orange-200 text-orange-600 text-sm rounded-lg hover:bg-orange-50">
+                    <button onClick={onNavigateToManagement} className="btn-playful-base px-3 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm">
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   )}
@@ -307,61 +307,61 @@ export function HelpView({
               </div>
 
               {/* Step 1 - Goals */}
-              <div className="bg-white rounded-xl border border-orange-200 p-6">
+              <div className="box-playful-highlight p-6">
                 <div className="mb-4">
-                  <h4 className="font-semibold text-gray-900 flex items-center gap-2 mb-4">
-                    <Target className="w-5 h-5 text-orange-500" /> {t('gettingStarted.step1.title')}
+                  <h4 className="font-semibold text-black font-playful flex items-center gap-2 mb-4">
+                    <Target className="w-5 h-5 text-primary-600" /> {t('gettingStarted.step1.title')}
                   </h4>
-                  <div className="text-sm text-gray-700 leading-relaxed space-y-2">
+                  <div className="text-sm text-gray-600 font-playful leading-relaxed space-y-2 font-playful">
                     {t.rich('gettingStarted.step1.subtitle', {
-                      strong: (chunks) => <strong className="text-gray-900 font-semibold">{chunks}</strong>
+                      strong: (chunks) => <strong className="text-black font-semibold">{chunks}</strong>
                     })}
                   </div>
               </div>
 
                 {/* Example Goal Card */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm mb-4 overflow-hidden">
-                  <div className="p-5 border-b border-gray-100">
+                <div className="box-playful-highlight mb-4 overflow-hidden">
+                  <div className="p-5 border-b-2 border-primary-500">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         <div className="flex-shrink-0">
-                          <Target className="w-6 h-6 text-orange-600" />
+                          <Target className="w-6 h-6 text-primary-600" />
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3 className="text-lg font-semibold text-black font-playful">
                           {t('gettingStarted.step1.example')}
                         </h3>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600 mb-3">
+                    <p className="text-sm text-gray-600 font-playful mb-3 font-playful">
                       {t('gettingStarted.step1.exampleDesc')}
                     </p>
                     <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-green-100 text-green-700">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-playful-sm text-xs font-medium font-playful bg-primary-100 text-primary-600 border-2 border-primary-500">
                         <Target className="w-3.5 h-3.5" />
                         {tCommon('goals.status.active')}
                       </span>
-                      <span className="text-xs text-gray-500">{t('gettingStarted.step1.exampleDeadline')}</span>
+                      <span className="text-xs text-gray-600 font-playful font-playful">{t('gettingStarted.step1.exampleDeadline')}</span>
                     </div>
                   </div>
-                  <div className="px-5 py-3 bg-gray-50">
+                  <div className="px-5 py-3 bg-white">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-gray-600">{t('gettingStarted.step1.exampleProgress')}</span>
-                      <span className="text-xs font-medium text-gray-700">{t('gettingStarted.step1.exampleStepsCount')}</span>
+                      <span className="text-xs text-gray-600 font-playful font-playful">{t('gettingStarted.step1.exampleProgress')}</span>
+                      <span className="text-xs font-medium text-primary-600 font-playful">{t('gettingStarted.step1.exampleStepsCount')}</span>
                     </div>
-                    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-orange-500 rounded-full" style={{ width: '40%' }} />
+                    <div className="w-full h-2 bg-white border-2 border-primary-500 rounded-playful-sm overflow-hidden">
+                      <div className="h-full bg-primary-500 rounded-playful-sm" style={{ width: '40%' }} />
                     </div>
                   </div>
               </div>
 
                 <div className="flex gap-2">
                   {onAddGoal && (
-                    <button onClick={onAddGoal} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600">
+                    <button onClick={onAddGoal} className="btn-playful-base flex-1 flex items-center justify-center gap-1 px-3 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium">
                       <Plus className="w-4 h-4" /> {t('gettingStarted.step1.button')}
                     </button>
                   )}
                   {onNavigateToGoals && (
-                    <button onClick={onNavigateToGoals} className="px-3 py-2 border border-orange-200 text-orange-600 text-sm rounded-lg hover:bg-orange-50">
+                    <button onClick={onNavigateToGoals} className="btn-playful-base px-3 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm">
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   )}
@@ -369,49 +369,49 @@ export function HelpView({
             </div>
 
               {/* Step 2 - Steps */}
-              <div className="bg-white rounded-xl border border-orange-200 p-6">
+              <div className="box-playful-highlight p-6">
                 <div className="mb-4">
-                  <h4 className="font-semibold text-gray-900 flex items-center gap-2 mb-4">
-                    <Footprints className="w-5 h-5 text-orange-500" /> {t('gettingStarted.step2.title')}
+                  <h4 className="font-semibold text-black font-playful flex items-center gap-2 mb-4">
+                    <Footprints className="w-5 h-5 text-primary-600" /> {t('gettingStarted.step2.title')}
                   </h4>
-                  <div className="text-sm text-gray-700 leading-relaxed space-y-2">
+                  <div className="text-sm text-gray-600 font-playful leading-relaxed space-y-2 font-playful">
                     {t.rich('gettingStarted.step2.subtitle', {
-                      strong: (chunks) => <strong className="text-gray-900 font-semibold">{chunks}</strong>
+                      strong: (chunks) => <strong className="text-black font-semibold">{chunks}</strong>
                     })}
               </div>
             </div>
 
                 {/* Example Step Cards */}
                 <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-orange-400 bg-orange-50/30">
-                    <div className="w-6 h-6 rounded-lg border-2 border-orange-400 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                  <div className="box-playful-highlight flex items-center gap-3 p-3 bg-primary-100">
+                    <div className="w-6 h-6 rounded-playful-sm border-2 border-primary-500 bg-primary-500 flex items-center justify-center flex-shrink-0">
                       <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                     </div>
-                    <span className="flex-1 text-sm font-medium text-orange-600">
+                    <span className="flex-1 text-sm font-medium text-primary-600 font-playful">
                       {t('gettingStarted.step2.example1')}
                     </span>
-                    <span className="hidden sm:block w-20 text-xs text-center text-orange-600 capitalize">{t('gettingStarted.step2.today')}</span>
-                    <span className="hidden sm:block w-14 text-xs text-gray-400 text-center">{t('gettingStarted.step2.example1Time')}</span>
+                    <span className="hidden sm:block w-20 text-xs text-center text-primary-600 capitalize font-playful">{t('gettingStarted.step2.today')}</span>
+                    <span className="hidden sm:block w-14 text-xs text-gray-600 font-playful text-center font-playful">{t('gettingStarted.step2.example1Time')}</span>
                   </div>
-                  <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white">
-                    <div className="w-6 h-6 rounded-lg border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                  <div className="box-playful-highlight flex items-center gap-3 p-3 bg-white">
+                    <div className="w-6 h-6 rounded-playful-sm border-2 border-primary-500 flex items-center justify-center flex-shrink-0">
                     </div>
-                    <span className="flex-1 text-sm font-medium text-gray-500">
+                    <span className="flex-1 text-sm font-medium text-black font-playful">
                       {t('gettingStarted.step2.example2')}
                     </span>
-                    <span className="hidden sm:block w-20 text-xs text-center text-gray-500 capitalize">{t('gettingStarted.step2.tomorrow')}</span>
-                    <span className="hidden sm:block w-14 text-xs text-gray-400 text-center">{t('gettingStarted.step2.example2Time')}</span>
+                    <span className="hidden sm:block w-20 text-xs text-center text-gray-600 font-playful capitalize font-playful">{t('gettingStarted.step2.tomorrow')}</span>
+                    <span className="hidden sm:block w-14 text-xs text-gray-600 font-playful text-center font-playful">{t('gettingStarted.step2.example2Time')}</span>
                   </div>
                 </div>
                 
                 <div className="flex gap-2">
                   {onAddStep && (
-                    <button onClick={onAddStep} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600">
+                    <button onClick={onAddStep} className="btn-playful-base flex-1 flex items-center justify-center gap-1 px-3 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium">
                       <Plus className="w-4 h-4" /> {t('gettingStarted.step2.button')}
                     </button>
                   )}
                   {onNavigateToSteps && (
-                    <button onClick={onNavigateToSteps} className="px-3 py-2 border border-orange-200 text-orange-600 text-sm rounded-lg hover:bg-orange-50">
+                    <button onClick={onNavigateToSteps} className="btn-playful-base px-3 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm">
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   )}
@@ -419,20 +419,20 @@ export function HelpView({
               </div>
 
               {/* Step 3 - Habits */}
-              <div className="bg-white rounded-xl border border-orange-200 p-6">
+              <div className="box-playful-highlight p-6">
                 <div className="mb-4">
-                  <h4 className="font-semibold text-gray-900 flex items-center gap-2 mb-4">
-                    <CheckSquare className="w-5 h-5 text-orange-500" /> {t('gettingStarted.step3.title')}
+                  <h4 className="font-semibold text-black font-playful flex items-center gap-2 mb-4">
+                    <CheckSquare className="w-5 h-5 text-primary-600" /> {t('gettingStarted.step3.title')}
                   </h4>
-                  <div className="text-sm text-gray-700 leading-relaxed space-y-2">
+                  <div className="text-sm text-gray-600 font-playful leading-relaxed space-y-2 font-playful">
                     {t.rich('gettingStarted.step3.subtitle', {
-                      strong: (chunks) => <strong className="text-gray-900 font-semibold">{chunks}</strong>
+                      strong: (chunks) => <strong className="text-black font-semibold">{chunks}</strong>
                     })}
                   </div>
                 </div>
                 
                 {/* Example Habit Timeline */}
-                <div className="bg-white rounded-xl border-2 border-gray-200 p-4 mb-4">
+                <div className="box-playful-highlight p-4 mb-4">
                   {/* Header with day names */}
                   <div className="flex items-center gap-1 mb-2 pl-[100px]">
                     {(() => {
@@ -458,37 +458,37 @@ export function HelpView({
                   {/* Habits with boxes */}
                   <div className="space-y-1">
                     <div className="flex items-center gap-1">
-                      <button className="w-[100px] text-left text-[11px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate flex-shrink-0">
+                      <button className="w-[100px] text-left text-[11px] font-medium text-gray-600 font-playful hover:text-primary-600 transition-colors truncate flex-shrink-0 font-playful">
                         {t('gettingStarted.step3.example1')}
                       </button>
                       <div className="flex gap-1">
-                        <div className="w-7 h-7 rounded bg-orange-500 flex items-center justify-center shadow-sm">
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center">
                           <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                         </div>
-                        <div className="w-7 h-7 rounded bg-orange-500 flex items-center justify-center shadow-sm">
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center">
                           <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                         </div>
-                        <div className="w-7 h-7 rounded bg-orange-100"></div>
-                        <div className="w-7 h-7 rounded bg-orange-100"></div>
-                        <div className="w-7 h-7 rounded bg-orange-100"></div>
-                        <div className="w-7 h-7 rounded bg-orange-100"></div>
-                        <div className="w-7 h-7 rounded bg-orange-100"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
-                      <button className="w-[100px] text-left text-[11px] font-medium text-gray-600 hover:text-orange-600 transition-colors truncate flex-shrink-0">
+                      <button className="w-[100px] text-left text-[11px] font-medium text-gray-600 font-playful hover:text-primary-600 transition-colors truncate flex-shrink-0 font-playful">
                         {t('gettingStarted.step3.example2')}
                       </button>
                       <div className="flex gap-1">
-                        <div className="w-7 h-7 rounded bg-orange-500 flex items-center justify-center shadow-sm">
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center">
                           <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                         </div>
-                        <div className="w-7 h-7 rounded bg-orange-100"></div>
-                        <div className="w-7 h-7 rounded bg-orange-100"></div>
-                        <div className="w-7 h-7 rounded bg-orange-100"></div>
-                        <div className="w-7 h-7 rounded bg-orange-100"></div>
-                        <div className="w-7 h-7 rounded bg-orange-100"></div>
-                        <div className="w-7 h-7 rounded bg-orange-100"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
                       </div>
                     </div>
                   </div>
@@ -496,12 +496,12 @@ export function HelpView({
                 
                 <div className="flex gap-2">
                   {onAddHabit && (
-                    <button onClick={onAddHabit} className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600">
+                    <button onClick={onAddHabit} className="btn-playful-base flex-1 flex items-center justify-center gap-1 px-3 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium">
                       <Plus className="w-4 h-4" /> {t('gettingStarted.step3.button')}
                     </button>
                   )}
                   {onNavigateToHabits && (
-                    <button onClick={onNavigateToHabits} className="px-3 py-2 border border-orange-200 text-orange-600 text-sm rounded-lg hover:bg-orange-50">
+                    <button onClick={onNavigateToHabits} className="btn-playful-base px-3 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm">
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   )}
@@ -510,25 +510,25 @@ export function HelpView({
             </div>
 
             {/* What's Next */}
-            <div className="bg-orange-50 rounded-xl p-4 border border-orange-100 mt-6">
-              <h4 className="font-semibold text-gray-900 flex items-center gap-2 mb-2">
-                <TrendingUp className="w-5 h-5 text-orange-500" /> {t('gettingStarted.whatsNext')}
+            <div className="box-playful-highlight p-4 mt-6">
+              <h4 className="font-semibold text-black font-playful flex items-center gap-2 mb-2">
+                <TrendingUp className="w-5 h-5 text-primary-600" /> {t('gettingStarted.whatsNext')}
               </h4>
-              <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+              <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 font-playful font-playful">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-orange-400" />
+                  <Calendar className="w-4 h-4 text-primary-600" />
                   <span>{t('gettingStarted.nextItems.dailyOverview')}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckSquare className="w-4 h-4 text-orange-400" />
+                  <CheckSquare className="w-4 h-4 text-primary-600" />
                   <span>{t('gettingStarted.nextItems.completeSteps')}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Star className="w-4 h-4 text-orange-400" />
+                  <Star className="w-4 h-4 text-primary-600" />
                   <span>{t('gettingStarted.nextItems.focusImportant')}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-orange-400" />
+                  <TrendingUp className="w-4 h-4 text-primary-600" />
                   <span>{t('gettingStarted.nextItems.trackProgress')}</span>
                 </div>
               </div>
@@ -543,24 +543,24 @@ export function HelpView({
         
         return (
           <div className="space-y-6">
-            <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white">
-              <h2 className="text-2xl font-bold mb-2">{t('focusHelp.title')}</h2>
-              <p className="text-orange-100">{t('focusHelp.subtitle')}</p>
+            <div className="box-playful-highlight-primary p-6">
+              <h2 className="text-2xl font-bold text-black font-playful text-black font-playful mb-2">{t('focusHelp.title')}</h2>
+              <p className="text-gray-600 font-playful font-playful">{t('focusHelp.subtitle')}</p>
               </div>
 
             {/* Weekly Focus - Interactive Timeline */}
-            <div className="bg-white rounded-xl border border-orange-200 p-6">
-              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-orange-500" />
+            <div className="box-playful-highlight p-6">
+              <h3 className="font-semibold text-black font-playful mb-4 flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-primary-600" />
                 {isWeekView ? t('focusHelp.weeklyFocus') : t('focusHelp.dailyFocus')}
               </h3>
               
               {/* Timeline */}
-              <div className="bg-white rounded-2xl p-4 shadow-sm border border-orange-100 mb-6">
+              <div className="box-playful-highlight p-4 mb-6">
                 <div className="flex items-center justify-between mb-4">
                   <button
                     onClick={handleFocusPrevWeek}
-                    className="p-2 hover:bg-orange-100 rounded-lg transition-colors text-gray-500 hover:text-orange-600"
+                    className="btn-playful-base p-2 text-gray-600 font-playful"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
@@ -585,12 +585,12 @@ export function HelpView({
                           
                           let dotColor = 'bg-gray-200'
                           if (isToday) {
-                            dotColor = isSelected ? 'bg-orange-500 ring-4 ring-orange-200' : 'bg-orange-500'
+                            dotColor = isSelected ? 'bg-primary-500 ring-4 ring-primary-200' : 'bg-primary-500'
                           } else if (isPast) {
                             if (completionPercentage === 100) {
-                              dotColor = isSelected ? 'bg-orange-600 ring-4 ring-orange-200' : 'bg-orange-600'
+                              dotColor = isSelected ? 'bg-primary-600 ring-4 ring-primary-200' : 'bg-primary-600'
                             } else if (completionPercentage === 0) {
-                              dotColor = isSelected ? 'bg-white ring-4 ring-orange-200' : 'bg-white'
+                              dotColor = isSelected ? 'bg-white ring-4 ring-primary-200' : 'bg-white'
                             } else {
                               dotColor = 'bg-transparent'
                             }
@@ -607,7 +607,7 @@ export function HelpView({
                                   <Check className="w-3 h-3 text-white" strokeWidth={3} />
                                 )}
                                 {isPast && completionPercentage === 0 && (
-                                  <X className="w-6 h-6 text-orange-600" strokeWidth={2.5} />
+                                  <X className="w-6 h-6 text-primary-600 font-playful" strokeWidth={2.5} />
                                 )}
                                 {isPast && completionPercentage > 0 && completionPercentage < 100 && (
                                   <svg className="w-6 h-6 absolute inset-0" viewBox="0 0 24 24">
@@ -628,15 +628,15 @@ export function HelpView({
                                 )}
                               </div>
                               
-                              <span className={`text-xs font-semibold mt-1 uppercase ${isSelected ? 'text-orange-600' : 'text-gray-500'}`}>
+                              <span className={`text-xs font-semibold mt-1 uppercase font-playful ${isSelected ? 'text-primary-600' : 'text-gray-600 font-playful'}`}>
                                 {dayNamesShort[day.getDay()]}
                               </span>
                               
-                              <span className={`text-lg font-bold ${isSelected ? 'text-orange-600' : 'text-gray-900'}`}>
+                              <span className={`text-lg font-bold font-playful ${isSelected ? 'text-primary-600' : 'text-black'}`}>
                                 {day.getDate()}
                               </span>
                               
-                              <span className={`text-[10px] ${isSelected ? 'text-orange-600' : 'text-gray-400'}`}>
+                              <span className={`text-[10px] font-playful ${isSelected ? 'text-primary-600' : 'text-gray-600 font-playful'}`}>
                                 {isPast ? `${completionPercentage === 100 ? 5 : completionPercentage === 75 ? 3 : 0}/5` : '—'}
                               </span>
                             </button>
@@ -649,10 +649,10 @@ export function HelpView({
                   <button
                     onClick={handleFocusNextWeek}
                     disabled={focusWeekStart >= getWeekStart(today)}
-                    className={`p-2 rounded-lg transition-colors ${
+                    className={`btn-playful-base p-2 ${
                       focusWeekStart >= getWeekStart(today)
                         ? 'opacity-50 cursor-not-allowed'
-                        : 'hover:bg-orange-100 text-gray-500 hover:text-orange-600'
+                        : 'text-gray-600 font-playful'
                     }`}
                   >
                     <ChevronRight className="w-5 h-5" />
@@ -664,10 +664,10 @@ export function HelpView({
               {isWeekView ? (
             <div className="space-y-4">
                   {/* Habits Section */}
-                  <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                  <div className="box-playful-highlight p-4">
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
-                      <h4 className="font-semibold text-gray-900">{t('focusHelp.habits')}</h4>
+                      <span className="w-6 h-6 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
+                      <h4 className="font-semibold text-black font-playful">{t('focusHelp.habits')}</h4>
                     </div>
                     <div className="flex items-center gap-1 mb-2 pl-[100px]">
                       {focusWeekDays.map((day) => (
@@ -679,44 +679,44 @@ export function HelpView({
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center gap-1">
-                        <span className="w-[100px] text-left text-[11px] font-medium text-gray-600 flex-shrink-0">
+                        <span className="w-[100px] text-left text-[11px] font-medium text-gray-600 font-playful flex-shrink-0">
                           {t('gettingStarted.step3.example1')}
                         </span>
                         <div className="flex gap-1">
-                          <div className="w-7 h-7 rounded bg-orange-500 flex items-center justify-center shadow-sm">
+                          <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center shadow-sm">
                             <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                           </div>
-                          <div className="w-7 h-7 rounded bg-orange-500 flex items-center justify-center shadow-sm">
+                          <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center shadow-sm">
                             <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                           </div>
-                          <div className="w-7 h-7 rounded bg-orange-100"></div>
-                          <div className="w-7 h-7 rounded bg-orange-100"></div>
-                          <div className="w-7 h-7 rounded bg-orange-100"></div>
-                          <div className="w-7 h-7 rounded bg-orange-100"></div>
-                          <div className="w-7 h-7 rounded bg-orange-100"></div>
+                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
+                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
+                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
+                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
+                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
                         </div>
                       </div>
                     </div>
               </div>
 
                   {/* Steps Section */}
-                  <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                  <div className="box-playful-highlight p-4">
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">2</span>
-                      <h4 className="font-semibold text-gray-900">{t('focusHelp.steps')}</h4>
+                      <span className="w-6 h-6 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-sm font-bold flex-shrink-0">2</span>
+                      <h4 className="font-semibold text-black font-playful">{t('focusHelp.steps')}</h4>
                 </div>
                     <div className="space-y-2">
                       {/* Today's Steps */}
                       <div>
                         <div className="flex items-center gap-2 mb-2">
-                          <span className="w-5 h-5 bg-orange-400 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2a</span>
-                          <span className="text-xs font-medium text-gray-700">{t('focusHelp.todaySteps')}</span>
+                          <span className="w-5 h-5 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-xs font-bold flex-shrink-0">2a</span>
+                          <span className="text-xs font-medium text-gray-600 font-playful font-playful">{t('focusHelp.todaySteps')}</span>
                   </div>
-                        <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-orange-400 bg-orange-50/30 ml-7">
-                          <div className="w-6 h-6 rounded-lg border-2 border-orange-400 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                        <div className="flex items-center gap-3 p-3 box-playful-highlight border-2 border-primary-500 bg-primary-100 ml-7">
+                          <div className="w-6 h-6 rounded-playful-sm border-2 border-primary-500 bg-primary-500 flex items-center justify-center flex-shrink-0">
                             <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                           </div>
-                          <span className="flex-1 text-sm font-medium text-orange-600">
+                          <span className="flex-1 text-sm font-medium text-primary-600 font-playful">
                             {t('gettingStarted.step2.example1')}
                           </span>
                 </div>
@@ -726,9 +726,9 @@ export function HelpView({
                       <div>
                         <div className="flex items-center gap-2 mb-2">
                           <span className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2b</span>
-                          <span className="text-xs font-medium text-gray-700">{t('focusHelp.overdueSteps')}</span>
+                          <span className="text-xs font-medium text-gray-600 font-playful font-playful">{t('focusHelp.overdueSteps')}</span>
                         </div>
-                        <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-red-300 bg-red-50/30 ml-7">
+                        <div className="flex items-center gap-3 p-3 box-playful-highlight border-2 border-red-500 bg-red-50 ml-7">
                           <div className="w-6 h-6 rounded-lg border-2 border-red-400 flex items-center justify-center flex-shrink-0">
                           </div>
                           <span className="flex-1 text-sm font-medium text-red-600">
@@ -741,9 +741,9 @@ export function HelpView({
                       <div>
                         <div className="flex items-center gap-2 mb-2">
                           <span className="w-5 h-5 bg-gray-400 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2c</span>
-                          <span className="text-xs font-medium text-gray-700">{t('focusHelp.futureSteps')}</span>
+                          <span className="text-xs font-medium text-gray-600 font-playful font-playful">{t('focusHelp.futureSteps')}</span>
                         </div>
-                        <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white ml-7">
+                        <div className="flex items-center gap-3 p-3 box-playful-highlight border-2 border-primary-500 bg-white ml-7">
                           <div className="w-6 h-6 rounded-lg border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
                           </div>
                           <span className="flex-1 text-sm font-medium text-gray-500">
@@ -757,24 +757,24 @@ export function HelpView({
               ) : (
                 <div className="space-y-4">
                   {/* Day View - Habits */}
-                  <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                  <div className="box-playful-highlight p-4">
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
-                      <h4 className="font-semibold text-gray-900">{t('focusHelp.habits')}</h4>
+                      <span className="w-6 h-6 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
+                      <h4 className="font-semibold text-black font-playful">{t('focusHelp.habits')}</h4>
                     </div>
                     <div className="flex items-center gap-1 mb-1">
                       <div className="w-[100px] flex-shrink-0" />
-                      <div className="w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded bg-orange-100 text-orange-700 font-semibold">
+                      <div className="w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded-playful-sm bg-primary-100 border-2 border-primary-500 text-primary-600 font-semibold">
                         <span className="uppercase leading-none">{dayNamesShort[focusSelectedDay!.getDay()]}</span>
                         <span className="text-[8px] leading-none">{focusSelectedDay!.getDate()}</span>
                       </div>
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center gap-1">
-                        <span className="w-[100px] text-left text-[11px] font-medium text-gray-600 flex-shrink-0">
+                        <span className="w-[100px] text-left text-[11px] font-medium text-gray-600 font-playful flex-shrink-0">
                           {t('gettingStarted.step3.example1')}
                         </span>
-                        <div className="w-7 h-7 rounded bg-orange-500 flex items-center justify-center shadow-sm">
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center shadow-sm">
                           <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                         </div>
                       </div>
@@ -782,17 +782,17 @@ export function HelpView({
                   </div>
                   
                   {/* Day View - Steps */}
-                  <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                  <div className="box-playful-highlight p-4">
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">2</span>
-                      <h4 className="font-semibold text-gray-900">{t('focusHelp.steps')}</h4>
+                      <span className="w-6 h-6 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-sm font-bold flex-shrink-0">2</span>
+                      <h4 className="font-semibold text-black font-playful">{t('focusHelp.steps')}</h4>
                     </div>
                     <div className="space-y-2">
-                      <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-orange-400 bg-orange-50/30">
-                        <div className="w-6 h-6 rounded-lg border-2 border-orange-400 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                      <div className="flex items-center gap-3 p-3 box-playful-highlight border-2 border-primary-500 bg-primary-100">
+                        <div className="w-6 h-6 rounded-playful-sm border-2 border-primary-500 bg-primary-500 flex items-center justify-center flex-shrink-0">
                           <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                         </div>
-                        <span className="flex-1 text-sm font-medium text-orange-600">
+                        <span className="flex-1 text-sm font-medium text-primary-600 font-playful">
                           {t('gettingStarted.step2.example1')}
                         </span>
                       </div>
@@ -802,24 +802,24 @@ export function HelpView({
               )}
               
               {/* Description below focus */}
-              <div className="mt-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <h4 className="font-semibold text-gray-900 mb-3">{t('focusHelp.descriptionTitle')}</h4>
-                <div className="space-y-3 text-sm text-gray-700">
+              <div className="mt-6 box-playful-highlight p-4">
+                <h4 className="font-semibold text-black font-playful mb-3">{t('focusHelp.descriptionTitle')}</h4>
+                <div className="space-y-3 text-sm text-gray-600 font-playful font-playful">
                   <div className="flex items-start gap-3">
-                    <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
+                    <span className="w-6 h-6 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
                     <div>
                       <p className="font-medium text-gray-900 mb-1">{t('focusHelp.habits')}</p>
                       <p>{t('focusHelp.habitsDescription')}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
+                    <span className="w-6 h-6 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
                     <div>
                       <p className="font-medium text-gray-900 mb-1">{t('focusHelp.steps')}</p>
                       <p className="mb-2">{t('focusHelp.stepsDescription')}</p>
                       <div className="ml-4 space-y-1.5 text-xs">
                         <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 bg-orange-400 text-white rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">2a</span>
+                          <span className="w-5 h-5 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-[10px] font-bold flex-shrink-0">2a</span>
                           <span>{t('focusHelp.todayStepsDescription')}</span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -834,7 +834,7 @@ export function HelpView({
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
+                    <span className="w-6 h-6 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
                     <div>
                       <p className="font-medium text-gray-900 mb-1">{t('focusHelp.timeline')}</p>
                       <p>{t('focusHelp.timelineDescription')}</p>
@@ -849,50 +849,50 @@ export function HelpView({
       case 'goals':
         return (
           <div className="space-y-6">
-            <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white flex items-center justify-between">
+            <div className="box-playful-highlight-primary p-6 flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-black font-playful flex items-center gap-2">
                   <Target className="w-7 h-7" /> {t('goalsHelp.title')}
                 </h2>
-                <p className="text-orange-100 text-sm mt-1">{t('goalsHelp.subtitle')}</p>
+                <p className="text-gray-600 font-playful font-playful text-sm mt-1">{t('goalsHelp.subtitle')}</p>
               </div>
                 {onAddGoal && (
-                <button onClick={onAddGoal} className="flex items-center gap-1 px-4 py-2 bg-white text-orange-600 font-medium rounded-lg hover:bg-orange-50">
+                <button onClick={onAddGoal} className="flex items-center gap-1 px-4 py-2 bg-white text-primary-600 font-playful font-medium rounded-lg hover:bg-primary-50">
                   <Plus className="w-4 h-4" /> {t('goalsHelp.add')}
                   </button>
                 )}
               </div>
 
             {/* What are goals */}
-            <div className="bg-white rounded-xl border border-orange-200 p-4">
-              <h4 className="font-semibold text-gray-900 mb-2">{t('goalsHelp.whatAreGoals')}</h4>
-              <p className="text-sm text-gray-600 mb-3">{t('goalsHelp.whatAreGoalsDesc')}</p>
+            <div className="box-playful-highlight p-4">
+              <h4 className="font-semibold text-black font-playful mb-2">{t('goalsHelp.whatAreGoals')}</h4>
+              <p className="text-sm text-gray-600 font-playful mb-3">{t('goalsHelp.whatAreGoalsDesc')}</p>
               <div className="flex flex-wrap gap-2">
-                <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-orange-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Target className="w-3 h-3" /> {t('goalsHelp.measurable')}
                 </span>
-                <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-orange-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Calendar className="w-3 h-3" /> {t('goalsHelp.withDeadline')}
                 </span>
-                <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-orange-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Star className="w-3 h-3" /> {t('goalsHelp.inFocus')}
                 </span>
               </div>
               </div>
 
             {/* Example Goal Card */}
-            <div className="bg-white rounded-xl border border-orange-200 p-4">
-              <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <Eye className="w-4 h-4 text-orange-500" /> {t('goalsHelp.exampleTitle')}
+            <div className="box-playful-highlight p-4">
+              <h4 className="font-semibold text-black font-playful mb-3 flex items-center gap-2">
+                <Eye className="w-4 h-4 text-primary-600" /> {t('goalsHelp.exampleTitle')}
               </h4>
-              <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+              <div className="box-playful-highlight p-4">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Target className="w-5 h-5 text-orange-600" />
+                  <Target className="w-5 h-5 text-primary-600 font-playful" />
               </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h5 className="font-semibold text-gray-900">{t('goalsHelp.exampleName')}</h5>
+                      <h5 className="font-semibold text-black font-playful">{t('goalsHelp.exampleName')}</h5>
                       <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{t('goalsHelp.active')}</span>
               </div>
                     <p className="text-sm text-gray-500 mt-1">{t('goalsHelp.exampleDesc')}</p>
@@ -909,28 +909,28 @@ export function HelpView({
               </div>
               <div className="mt-3 text-xs text-gray-500 space-y-1">
                 <p><strong className="text-green-600">{t('goalsHelp.active')}</strong> = {t('goalsHelp.activeExplanation').split(' = ')[1]}</p>
-                <p><strong className="text-gray-600">{t('goalsHelp.tableDeadline')}</strong> = {t('goalsHelp.deadlineExplanation').split(' = ')[1]}</p>
+                <p><strong className="text-gray-600 font-playful">{t('goalsHelp.tableDeadline')}</strong> = {t('goalsHelp.deadlineExplanation').split(' = ')[1]}</p>
               </div>
             </div>
 
             {/* Goals Cards Example */}
-            <div className="bg-white rounded-xl border border-orange-200 p-4">
-              <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <Eye className="w-4 h-4 text-orange-500" /> {t('goalsHelp.cardsTitle')}
+            <div className="box-playful-highlight p-4">
+              <h4 className="font-semibold text-black font-playful mb-3 flex items-center gap-2">
+                <Eye className="w-4 h-4 text-primary-600" /> {t('goalsHelp.cardsTitle')}
               </h4>
               <div className="space-y-3">
                 {/* Filter checkboxes example */}
                 <div className="flex gap-3 pb-2 border-b border-gray-100">
                   <label className="flex items-center gap-1.5 text-sm cursor-pointer">
-                    <input type="checkbox" checked className="w-4 h-4 text-orange-600 border-gray-300 rounded" readOnly />
-                    <span className="text-gray-700">{t('goalsHelp.active')}</span>
+                    <input type="checkbox" checked className="w-4 h-4 text-primary-600 font-playful border-gray-300 rounded" readOnly />
+                    <span className="text-gray-600 font-playful font-playful">{t('goalsHelp.active')}</span>
                   </label>
                   <label className="flex items-center gap-1.5 text-sm cursor-pointer">
-                    <input type="checkbox" className="w-4 h-4 text-orange-600 border-gray-300 rounded" readOnly />
+                    <input type="checkbox" className="w-4 h-4 text-primary-600 font-playful border-gray-300 rounded" readOnly />
                     <span className="text-gray-500">{t('goalsHelp.postponed')}</span>
                   </label>
                   <label className="flex items-center gap-1.5 text-sm cursor-pointer">
-                    <input type="checkbox" className="w-4 h-4 text-orange-600 border-gray-300 rounded" readOnly />
+                    <input type="checkbox" className="w-4 h-4 text-primary-600 font-playful border-gray-300 rounded" readOnly />
                     <span className="text-gray-500">{t('goalsHelp.completed')}</span>
                   </label>
                 </div>
@@ -941,11 +941,11 @@ export function HelpView({
                   <div className="bg-white border border-orange-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
                     <div className="flex items-start gap-3">
                       <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Target className="w-5 h-5 text-orange-600" />
+                        <Target className="w-5 h-5 text-primary-600 font-playful" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <h5 className="font-semibold text-gray-900">{t('goalsHelp.tableExample1')}</h5>
+                          <h5 className="font-semibold text-black font-playful">{t('goalsHelp.tableExample1')}</h5>
                           <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{t('goalsHelp.active')}</span>
                         </div>
                         <p className="text-xs text-gray-500 mb-2">Chci vytvořit vlastní webovou aplikaci</p>
@@ -964,11 +964,11 @@ export function HelpView({
                   <div className="bg-white border border-orange-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
                     <div className="flex items-start gap-3">
                       <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Target className="w-5 h-5 text-orange-600" />
+                        <Target className="w-5 h-5 text-primary-600 font-playful" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <h5 className="font-semibold text-gray-900">{t('goalsHelp.tableExample2')}</h5>
+                          <h5 className="font-semibold text-black font-playful">{t('goalsHelp.tableExample2')}</h5>
                           <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{t('goalsHelp.active')}</span>
                         </div>
                         <p className="text-xs text-gray-500 mb-2">Pravidelné cvičení pro zdraví</p>
@@ -992,7 +992,7 @@ export function HelpView({
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
                           <h5 className="font-semibold text-gray-500">{t('goalsHelp.tableExample3')}</h5>
-                          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{t('goalsHelp.postponed')}</span>
+                          <span className="text-xs bg-gray-100 text-gray-600 font-playful px-2 py-0.5 rounded-full">{t('goalsHelp.postponed')}</span>
                         </div>
                         <p className="text-xs text-gray-400 mb-2">Přečíst 12 knih tento rok</p>
                         <div className="flex items-center justify-between text-xs text-gray-300 mb-2">
@@ -1015,8 +1015,8 @@ export function HelpView({
             </div>
 
             {/* How to create */}
-            <div className="bg-white rounded-xl border border-orange-200 p-4">
-              <h4 className="font-semibold text-gray-900 mb-3">{t('goalsHelp.howToCreate')}</h4>
+            <div className="box-playful-highlight p-4">
+              <h4 className="font-semibold text-black font-playful mb-3">{t('goalsHelp.howToCreate')}</h4>
               <div className="space-y-2">
                 <Step number={1} text={t('goalsHelp.howToStep1')} />
                 <Step number={2} text={t('goalsHelp.howToStep2')} />
@@ -1026,12 +1026,12 @@ export function HelpView({
               </div>
               <div className="mt-4 flex gap-2">
                 {onAddGoal && (
-                  <button onClick={onAddGoal} className="flex items-center gap-1 px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600">
+                  <button onClick={onAddGoal} className="flex items-center gap-1 px-4 py-2 btn-playful-base text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium">
                     <Plus className="w-4 h-4" /> {t('goalsHelp.createGoal')}
                   </button>
                 )}
                 {onNavigateToGoals && (
-                  <button onClick={onNavigateToGoals} className="flex items-center gap-1 px-4 py-2 border border-orange-200 text-orange-600 text-sm rounded-lg hover:bg-orange-50">
+                  <button onClick={onNavigateToGoals} className="flex items-center gap-1 px-4 py-2 border border-orange-200 text-primary-600 font-playful text-sm rounded-lg hover:bg-primary-50">
                     <ArrowRight className="w-4 h-4" /> {t('goalsHelp.goToGoals')}
                   </button>
                 )}
@@ -1039,9 +1039,9 @@ export function HelpView({
               </div>
 
             {/* Tips */}
-            <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
-              <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-orange-500" /> {t('goalsHelp.tips')}
+            <div className="box-playful-highlight p-4">
+              <h4 className="font-semibold text-black font-playful mb-2 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary-600" /> {t('goalsHelp.tips')}
               </h4>
               <ul className="space-y-1.5">
                 <Tip text={t('goalsHelp.tip1')} />
@@ -1056,50 +1056,50 @@ export function HelpView({
       case 'steps':
         return (
           <div className="space-y-6">
-            <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white flex items-center justify-between">
+            <div className="box-playful-highlight-primary p-6 flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-black font-playful flex items-center gap-2">
                   <Footprints className="w-7 h-7" /> {t('stepsHelp.title')}
                 </h2>
-                <p className="text-orange-100 text-sm mt-1">{t('stepsHelp.subtitle')}</p>
+                <p className="text-gray-600 font-playful font-playful text-sm mt-1">{t('stepsHelp.subtitle')}</p>
               </div>
                 {onAddStep && (
-                <button onClick={onAddStep} className="flex items-center gap-1 px-4 py-2 bg-white text-orange-600 font-medium rounded-lg hover:bg-orange-50">
+                <button onClick={onAddStep} className="flex items-center gap-1 px-4 py-2 bg-white text-primary-600 font-playful font-medium rounded-lg hover:bg-primary-50">
                   <Plus className="w-4 h-4" /> {t('stepsHelp.add')}
                   </button>
                 )}
             </div>
 
             {/* What are steps */}
-            <div className="bg-white rounded-xl border border-orange-200 p-4">
-              <h4 className="font-semibold text-gray-900 mb-2">{t('stepsHelp.whatAreSteps')}</h4>
-              <p className="text-sm text-gray-600 mb-3">{t('stepsHelp.whatAreStepsDesc')}</p>
+            <div className="box-playful-highlight p-4">
+              <h4 className="font-semibold text-black font-playful mb-2">{t('stepsHelp.whatAreSteps')}</h4>
+              <p className="text-sm text-gray-600 font-playful mb-3">{t('stepsHelp.whatAreStepsDesc')}</p>
               <div className="flex flex-wrap gap-2">
-                <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-orange-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Calendar className="w-3 h-3" /> {t('stepsHelp.scheduled')}
                 </span>
-                <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-orange-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Target className="w-3 h-3" /> {t('stepsHelp.toGoal')}
                 </span>
-                <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-orange-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Clock className="w-3 h-3" /> {t('stepsHelp.timeEstimate')}
                 </span>
               </div>
               </div>
 
             {/* Example Step Card */}
-            <div className="bg-white rounded-xl border border-orange-200 p-4">
-              <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <Eye className="w-4 h-4 text-orange-500" /> {t('stepsHelp.exampleTitle')}
+            <div className="box-playful-highlight p-4">
+              <h4 className="font-semibold text-black font-playful mb-3 flex items-center gap-2">
+                <Eye className="w-4 h-4 text-primary-600" /> {t('stepsHelp.exampleTitle')}
               </h4>
-              <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+              <div className="box-playful-highlight p-4">
                 <div className="flex items-start gap-3">
                   <div className="w-6 h-6 border-2 border-orange-400 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
                     <CheckSquare className="w-4 h-4 text-orange-400" />
                 </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h5 className="font-semibold text-gray-900">{t('stepsHelp.exampleName')}</h5>
+                      <h5 className="font-semibold text-black font-playful">{t('stepsHelp.exampleName')}</h5>
                       <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full flex items-center gap-1">
                         <AlertTriangle className="w-3 h-3" /> {t('stepsHelp.important')}
                       </span>
@@ -1121,15 +1121,15 @@ export function HelpView({
               </div>
               <div className="mt-3 text-xs text-gray-500 space-y-1">
                 <p><strong className="text-red-600">{t('stepsHelp.important')}</strong> = {t('stepsHelp.importantExplanation').split(' = ')[1]}</p>
-                <p><strong className="text-orange-600">{t('stepsHelp.timeEstimate')}</strong> = {t('stepsHelp.timeExplanation').split(' = ')[1]}</p>
-                <p><strong className="text-gray-600">{t('stepsHelp.tableGoal')}</strong> = {t('stepsHelp.goalExplanation').split(' = ')[1]}</p>
+                <p><strong className="text-primary-600 font-playful">{t('stepsHelp.timeEstimate')}</strong> = {t('stepsHelp.timeExplanation').split(' = ')[1]}</p>
+                <p><strong className="text-gray-600 font-playful">{t('stepsHelp.tableGoal')}</strong> = {t('stepsHelp.goalExplanation').split(' = ')[1]}</p>
                 </div>
               </div>
 
             {/* Steps Table Example */}
-            <div className="bg-white rounded-xl border border-orange-200 p-4">
-              <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <Eye className="w-4 h-4 text-orange-500" /> {t('stepsHelp.tableTitle')}
+            <div className="box-playful-highlight p-4">
+              <h4 className="font-semibold text-black font-playful mb-3 flex items-center gap-2">
+                <Eye className="w-4 h-4 text-primary-600" /> {t('stepsHelp.tableTitle')}
               </h4>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -1143,7 +1143,7 @@ export function HelpView({
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="border-b border-orange-50 hover:bg-orange-50 cursor-pointer">
+                    <tr className="border-b border-orange-50 hover:bg-primary-50 cursor-pointer">
                       <td className="py-2 px-2">
                         <div className="w-5 h-5 border-2 border-orange-400 rounded flex items-center justify-center">
                           <CheckSquare className="w-3 h-3 text-orange-400" />
@@ -1157,9 +1157,9 @@ export function HelpView({
                       </td>
                       <td className="py-2 px-2 text-gray-500">{t('stepsHelp.today')}</td>
                       <td className="py-2 px-2 text-gray-500">30 min</td>
-                      <td className="py-2 px-2 text-xs text-orange-600">React</td>
+                      <td className="py-2 px-2 text-xs text-primary-600 font-playful">React</td>
                     </tr>
-                    <tr className="border-b border-orange-50 hover:bg-orange-50 cursor-pointer">
+                    <tr className="border-b border-orange-50 hover:bg-primary-50 cursor-pointer">
                       <td className="py-2 px-2">
                         <div className="w-5 h-5 border-2 border-orange-400 rounded flex items-center justify-center">
                           <CheckSquare className="w-3 h-3 text-orange-400" />
@@ -1170,9 +1170,9 @@ export function HelpView({
                       </td>
                       <td className="py-2 px-2 text-gray-500">{t('stepsHelp.tomorrow')}</td>
                       <td className="py-2 px-2 text-gray-500">2 h</td>
-                      <td className="py-2 px-2 text-xs text-orange-600">React</td>
+                      <td className="py-2 px-2 text-xs text-primary-600 font-playful">React</td>
                     </tr>
-                    <tr className="hover:bg-orange-50 cursor-pointer opacity-60">
+                    <tr className="hover:bg-primary-50 cursor-pointer opacity-60">
                       <td className="py-2 px-2">
                         <div className="w-5 h-5 bg-orange-500 rounded flex items-center justify-center">
                           <CheckSquare className="w-3 h-3 text-white" />
@@ -1196,8 +1196,8 @@ export function HelpView({
               </div>
 
             {/* How to create */}
-            <div className="bg-white rounded-xl border border-orange-200 p-4">
-              <h4 className="font-semibold text-gray-900 mb-3">{t('stepsHelp.howToCreate')}</h4>
+            <div className="box-playful-highlight p-4">
+              <h4 className="font-semibold text-black font-playful mb-3">{t('stepsHelp.howToCreate')}</h4>
               <div className="space-y-2">
                 <Step number={1} text={t('stepsHelp.howToStep1')} />
                 <Step number={2} text={t('stepsHelp.howToStep2')} />
@@ -1207,12 +1207,12 @@ export function HelpView({
               </div>
               <div className="mt-4 flex gap-2">
                 {onAddStep && (
-                  <button onClick={onAddStep} className="flex items-center gap-1 px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600">
+                  <button onClick={onAddStep} className="flex items-center gap-1 px-4 py-2 btn-playful-base text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium">
                     <Plus className="w-4 h-4" /> {t('stepsHelp.createStep')}
                   </button>
                 )}
                 {onNavigateToSteps && (
-                  <button onClick={onNavigateToSteps} className="flex items-center gap-1 px-4 py-2 border border-orange-200 text-orange-600 text-sm rounded-lg hover:bg-orange-50">
+                  <button onClick={onNavigateToSteps} className="flex items-center gap-1 px-4 py-2 border border-orange-200 text-primary-600 font-playful text-sm rounded-lg hover:bg-primary-50">
                     <ArrowRight className="w-4 h-4" /> {t('stepsHelp.goToSteps')}
                   </button>
                 )}
@@ -1220,9 +1220,9 @@ export function HelpView({
             </div>
 
             {/* Tips */}
-            <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
-              <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-orange-500" /> {t('stepsHelp.tips')}
+            <div className="box-playful-highlight p-4">
+              <h4 className="font-semibold text-black font-playful mb-2 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary-600" /> {t('stepsHelp.tips')}
               </h4>
               <ul className="space-y-1.5">
                 <Tip text={t('stepsHelp.tip1')} />
@@ -1237,51 +1237,51 @@ export function HelpView({
       case 'habits':
         return (
           <div className="space-y-6">
-            <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white flex items-center justify-between">
+            <div className="box-playful-highlight-primary p-6 flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-black font-playful flex items-center gap-2">
                   <CheckSquare className="w-7 h-7" /> {t('habitsHelp.title')}
                 </h2>
-                <p className="text-orange-100 text-sm mt-1">{t('habitsHelp.subtitle')}</p>
+                <p className="text-gray-600 font-playful font-playful text-sm mt-1">{t('habitsHelp.subtitle')}</p>
               </div>
                 {onAddHabit && (
-                <button onClick={onAddHabit} className="flex items-center gap-1 px-4 py-2 bg-white text-orange-600 font-medium rounded-lg hover:bg-orange-50">
+                <button onClick={onAddHabit} className="flex items-center gap-1 px-4 py-2 bg-white text-primary-600 font-playful font-medium rounded-lg hover:bg-primary-50">
                   <Plus className="w-4 h-4" /> {t('habitsHelp.add')}
                   </button>
                 )}
             </div>
 
             {/* What are habits */}
-            <div className="bg-white rounded-xl border border-orange-200 p-4">
-              <h4 className="font-semibold text-gray-900 mb-2">{t('habitsHelp.whatAreHabits')}</h4>
-              <p className="text-sm text-gray-600 mb-3">{t('habitsHelp.whatAreHabitsDesc')}</p>
+            <div className="box-playful-highlight p-4">
+              <h4 className="font-semibold text-black font-playful mb-2">{t('habitsHelp.whatAreHabits')}</h4>
+              <p className="text-sm text-gray-600 font-playful mb-3">{t('habitsHelp.whatAreHabitsDesc')}</p>
               <div className="flex flex-wrap gap-2">
-                <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-orange-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Calendar className="w-3 h-3" /> {t('habitsHelp.daily')}
                 </span>
-                <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-orange-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Calendar className="w-3 h-3" /> {t('habitsHelp.weekly')}
                 </span>
-                <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-orange-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Clock className="w-3 h-3" /> {t('habitsHelp.reminder')}
                 </span>
               </div>
             </div>
 
             {/* Example Habit Card */}
-            <div className="bg-white rounded-xl border border-orange-200 p-4">
-              <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <Eye className="w-4 h-4 text-orange-500" /> {t('habitsHelp.exampleTitle')}
+            <div className="box-playful-highlight p-4">
+              <h4 className="font-semibold text-black font-playful mb-3 flex items-center gap-2">
+                <Eye className="w-4 h-4 text-primary-600" /> {t('habitsHelp.exampleTitle')}
               </h4>
-              <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+              <div className="box-playful-highlight p-4">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg flex items-center justify-center flex-shrink-0">
                     <Zap className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h5 className="font-semibold text-gray-900">{t('habitsHelp.exampleName')}</h5>
-                      <span className="text-xs bg-orange-200 text-orange-700 px-2 py-0.5 rounded-full">{t('habitsHelp.daily')}</span>
+                      <h5 className="font-semibold text-black font-playful">{t('habitsHelp.exampleName')}</h5>
+                      <span className="text-xs bg-orange-200 text-primary-600 px-2 py-0.5 rounded-full">{t('habitsHelp.daily')}</span>
                     </div>
                     <p className="text-sm text-gray-500 mt-1">{t('habitsHelp.exampleDesc')}</p>
                     <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
@@ -1291,7 +1291,7 @@ export function HelpView({
               </div>
                     <div className="flex gap-1 mt-2">
                       {days.map((day, i) => (
-                        <span key={day} className={`w-6 h-6 rounded text-[10px] flex items-center justify-center font-medium ${i < 5 ? 'bg-orange-200 text-orange-700' : 'bg-gray-100 text-gray-400'}`}>
+                        <span key={day} className={`w-6 h-6 rounded text-[10px] flex items-center justify-center font-medium ${i < 5 ? 'bg-orange-200 text-primary-600' : 'bg-gray-100 text-gray-400'}`}>
                           {day}
                         </span>
                       ))}
@@ -1300,53 +1300,53 @@ export function HelpView({
                 </div>
               </div>
               <div className="mt-3 text-xs text-gray-500 space-y-1">
-                <p><strong className="text-orange-600">{t('habitsHelp.daily')}</strong> = {t('habitsHelp.dailyExplanation').split(' = ')[1]}</p>
-                <p><strong className="text-orange-600">{t('habitsHelp.reminder')}</strong> = {t('habitsHelp.reminderExplanation').split(' = ')[1]}</p>
-                <p><strong className="text-gray-600">{t('days.mon')}-{t('days.sun')}</strong> = {t('habitsHelp.daysExplanation').split(' = ')[1]}</p>
+                <p><strong className="text-primary-600 font-playful">{t('habitsHelp.daily')}</strong> = {t('habitsHelp.dailyExplanation').split(' = ')[1]}</p>
+                <p><strong className="text-primary-600 font-playful">{t('habitsHelp.reminder')}</strong> = {t('habitsHelp.reminderExplanation').split(' = ')[1]}</p>
+                <p><strong className="text-gray-600 font-playful">{t('days.mon')}-{t('days.sun')}</strong> = {t('habitsHelp.daysExplanation').split(' = ')[1]}</p>
               </div>
               </div>
 
             {/* Habits Timeline Example */}
-            <div className="bg-white rounded-xl border border-orange-200 p-4">
-              <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <Eye className="w-4 h-4 text-orange-500" /> {t('habitsHelp.timelineTitle')}
+            <div className="box-playful-highlight p-4">
+              <h4 className="font-semibold text-black font-playful mb-3 flex items-center gap-2">
+                <Eye className="w-4 h-4 text-primary-600" /> {t('habitsHelp.timelineTitle')}
               </h4>
               
               {/* Statistics example */}
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-orange-500" />
+                  <Calendar className="w-4 h-4 text-primary-600" />
                   <div>
                     <div className="text-xs text-gray-500">Plánováno</div>
-                    <div className="text-sm font-semibold text-gray-900">21</div>
+                    <div className="text-sm font-semibold text-black font-playful">21</div>
                 </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckSquare className="w-4 h-4 text-green-500" />
                   <div>
                     <div className="text-xs text-gray-500">Splněno</div>
-                    <div className="text-sm font-semibold text-gray-900">15</div>
+                    <div className="text-sm font-semibold text-black font-playful">15</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Zap className="w-4 h-4 text-blue-500" />
                   <div>
                     <div className="text-xs text-gray-500">Mimo plán</div>
-                    <div className="text-sm font-semibold text-gray-900">2</div>
+                    <div className="text-sm font-semibold text-black font-playful">2</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-purple-500" />
                   <div>
                     <div className="text-xs text-gray-500">Streak</div>
-                    <div className="text-sm font-semibold text-gray-900">5</div>
+                    <div className="text-sm font-semibold text-black font-playful">5</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Star className="w-4 h-4 text-yellow-500" />
                   <div>
                     <div className="text-xs text-gray-500">Max streak</div>
-                    <div className="text-sm font-semibold text-gray-900">12</div>
+                    <div className="text-sm font-semibold text-black font-playful">12</div>
                   </div>
                 </div>
               </div>
@@ -1399,8 +1399,8 @@ export function HelpView({
             </div>
 
             {/* How to create */}
-            <div className="bg-white rounded-xl border border-orange-200 p-4">
-              <h4 className="font-semibold text-gray-900 mb-3">{t('habitsHelp.howToCreate')}</h4>
+            <div className="box-playful-highlight p-4">
+              <h4 className="font-semibold text-black font-playful mb-3">{t('habitsHelp.howToCreate')}</h4>
               <div className="space-y-2">
                 <Step number={1} text={t('habitsHelp.howToStep1')} />
                 <Step number={2} text={t('habitsHelp.howToStep2')} />
@@ -1410,12 +1410,12 @@ export function HelpView({
               </div>
               <div className="mt-4 flex gap-2">
                 {onAddHabit && (
-                  <button onClick={onAddHabit} className="flex items-center gap-1 px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600">
+                  <button onClick={onAddHabit} className="flex items-center gap-1 px-4 py-2 btn-playful-base text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium">
                     <Plus className="w-4 h-4" /> {t('habitsHelp.createHabit')}
                   </button>
                 )}
                 {onNavigateToHabits && (
-                  <button onClick={onNavigateToHabits} className="flex items-center gap-1 px-4 py-2 border border-orange-200 text-orange-600 text-sm rounded-lg hover:bg-orange-50">
+                  <button onClick={onNavigateToHabits} className="flex items-center gap-1 px-4 py-2 border border-orange-200 text-primary-600 font-playful text-sm rounded-lg hover:bg-primary-50">
                     <ArrowRight className="w-4 h-4" /> {t('habitsHelp.goToHabits')}
                   </button>
                 )}
@@ -1423,9 +1423,9 @@ export function HelpView({
               </div>
 
             {/* Tips */}
-            <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
-              <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-orange-500" /> {t('habitsHelp.tips')}
+            <div className="box-playful-highlight p-4">
+              <h4 className="font-semibold text-black font-playful mb-2 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary-600" /> {t('habitsHelp.tips')}
               </h4>
               <ul className="space-y-1.5">
                 <Tip text={t('habitsHelp.tip1')} />
@@ -1443,12 +1443,12 @@ export function HelpView({
   }
 
   return (
-    <div className="w-full h-full flex bg-gray-50">
+    <div className="w-full h-full flex bg-background">
       {/* Sidebar */}
-      <div className="hidden md:block w-56 border-r border-gray-200 bg-white flex-shrink-0">
+      <div className="hidden md:block w-56 border-r-2 border-primary-500 bg-white flex-shrink-0">
         <div className="p-4">
-          <h2 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <HelpCircle className="w-4 h-4 text-orange-500" />
+          <h2 className="text-sm font-bold text-black font-playful mb-3 flex items-center gap-2">
+            <HelpCircle className="w-4 h-4 text-primary-600" />
             {t('title')}
           </h2>
           <nav className="space-y-1">
@@ -1458,10 +1458,10 @@ export function HelpView({
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-left text-sm ${
+                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-playful-md transition-all text-left text-sm font-playful ${
                     selectedCategory === category.id
-                      ? 'bg-orange-500 text-white'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? 'bg-primary-500 text-black font-semibold'
+                      : 'text-black hover:bg-primary-50'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -1476,23 +1476,23 @@ export function HelpView({
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
         {/* Mobile menu */}
-        <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 p-3">
+        <div className="md:hidden sticky top-0 z-10 bg-white border-b-2 border-primary-500 p-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-gray-900 flex items-center gap-2">
-              <HelpCircle className="w-4 h-4 text-orange-500" />
+            <h2 className="text-sm font-bold text-black font-playful flex items-center gap-2">
+              <HelpCircle className="w-4 h-4 text-primary-600" />
               {t('title')}
             </h2>
             <div className="relative">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-lg hover:bg-gray-100 border border-gray-200"
+                className="btn-playful-base p-2"
               >
-                <Menu className="w-4 h-4 text-gray-600" />
+                <Menu className="w-4 h-4 text-black" />
               </button>
               {mobileMenuOpen && (
                 <>
                   <div className="fixed inset-0 z-[100]" onClick={() => setMobileMenuOpen(false)} />
-                  <div className="absolute right-0 top-10 bg-white border border-gray-200 rounded-xl shadow-xl z-[101] min-w-[180px] overflow-hidden">
+                  <div className="absolute right-0 top-10 box-playful-highlight z-[101] min-w-[180px] overflow-hidden">
                     <nav className="py-1">
                       {categories.map((category) => {
                         const Icon = category.icon
@@ -1503,10 +1503,10 @@ export function HelpView({
                               setSelectedCategory(category.id)
                               setMobileMenuOpen(false)
                             }}
-                            className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left ${
+                            className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left font-playful ${
                               selectedCategory === category.id
-                                ? 'bg-orange-500 text-white'
-                                : 'text-gray-600 hover:bg-gray-100'
+                                ? 'bg-primary-500 text-black font-semibold'
+                                : 'text-black hover:bg-primary-50'
                             }`}
                           >
                             <Icon className="w-4 h-4" />
