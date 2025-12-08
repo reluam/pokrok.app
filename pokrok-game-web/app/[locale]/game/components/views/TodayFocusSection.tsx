@@ -1169,47 +1169,49 @@ export function TodayFocusSection({
         )}
         
         {/* Steps This Week Box */}
-        {allTodaysSteps.length > 0 && (
-          <div className="card-playful-base flex-1 min-w-0">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Target className="w-5 h-5 text-primary-600" />
-                <h3 className="text-lg font-bold text-black font-playful">
-                  {isWeekView ? t('focus.stepsThisWeek') : t('focus.stepsToday')}
-                </h3>
+        <div className="card-playful-base flex-1 min-w-0">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Target className="w-5 h-5 text-primary-600" />
+              <h3 className="text-lg font-bold text-black font-playful">
+                {isWeekView ? t('focus.stepsThisWeek') : t('focus.stepsToday')}
+              </h3>
+              {allTodaysSteps.length > 0 && (
                 <span className="text-sm text-gray-600">
                   {allTodaysSteps.filter(s => s.completed).length}/{allTodaysSteps.length}
                 </span>
-              </div>
-              {onOpenStepModal && (
-                <button
-                  onClick={() => {
-                    // Always use today's date for new steps, not the selected day
-                    const dateToUse = getLocalDateString(new Date())
-                    onOpenStepModal(dateToUse)
-                  }}
-                  className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-primary-50 hover:bg-primary-100"
-                  title={t('focus.addStep')}
-                >
-                  <Plus className="w-4 h-4" />
-                  {t('focus.addStep')}
-                </button>
               )}
             </div>
-            
-            <div className="flex items-center mb-3">
-              <span className="flex-1"></span>
-              {/* Spacer to align with day column */}
-              <span className="w-20 flex-shrink-0"></span>
-              {/* Total time - aligned with time column */}
-              <span className="w-14 text-xs text-gray-500 text-center flex-shrink-0">
-                {allTodaysSteps.filter(s => !s.completed).reduce((sum, s) => sum + (s.estimated_time || 0), 0) > 0 
-                  ? `${allTodaysSteps.filter(s => !s.completed).reduce((sum, s) => sum + (s.estimated_time || 0), 0)} min`
-                  : ''}
-              </span>
-            </div>
-              {allTodaysSteps.length > 0 ? (
-                <div className="space-y-2">
+            {onOpenStepModal && (
+              <button
+                onClick={() => {
+                  // Always use today's date for new steps, not the selected day
+                  const dateToUse = getLocalDateString(new Date())
+                  onOpenStepModal(dateToUse)
+                }}
+                className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-primary-50 hover:bg-primary-100"
+                title={t('focus.addStep')}
+              >
+                <Plus className="w-4 h-4" />
+                {t('focus.addStep')}
+              </button>
+            )}
+          </div>
+          
+          {allTodaysSteps.length > 0 ? (
+            <>
+              <div className="flex items-center mb-3">
+                <span className="flex-1"></span>
+                {/* Spacer to align with day column */}
+                <span className="w-20 flex-shrink-0"></span>
+                {/* Total time - aligned with time column */}
+                <span className="w-14 text-xs text-gray-500 text-center flex-shrink-0">
+                  {allTodaysSteps.filter(s => !s.completed).reduce((sum, s) => sum + (s.estimated_time || 0), 0) > 0 
+                    ? `${allTodaysSteps.filter(s => !s.completed).reduce((sum, s) => sum + (s.estimated_time || 0), 0)} min`
+                    : ''}
+                </span>
+              </div>
+              <div className="space-y-2">
                   {allTodaysSteps
                     .filter(step => !step.completed)
                     .map(step => {
@@ -1408,10 +1410,14 @@ export function TodayFocusSection({
                       )}
                     </>
                   )}
+              </div>
+            </>
+          ) : (
+                <div className="text-center py-8 text-gray-500 font-playful">
+                  <p className="text-sm">{isWeekView ? t('focus.noStepsThisWeek') || 'Žádné kroky tento týden' : t('focus.noStepsToday') || 'Žádné kroky dnes'}</p>
                 </div>
-              ) : null}
+              )}
           </div>
-        )}
       </div>
       
       {/* Overdue Steps and Future Steps - side by side boxes */}

@@ -297,8 +297,18 @@ export function StepsManagementView({
       if (!effectiveShowCompleted && step.completed) {
         return false
       }
-      if (effectiveGoalFilter && (step.goal_id || step.goalId) !== effectiveGoalFilter) {
-        return false
+      if (effectiveGoalFilter) {
+        if (effectiveGoalFilter === 'none') {
+          // Filter for steps without a goal
+          if (step.goal_id || step.goalId) {
+            return false
+          }
+        } else {
+          // Filter for steps with a specific goal
+          if ((step.goal_id || step.goalId) !== effectiveGoalFilter) {
+            return false
+          }
+        }
       }
       if (effectiveDateFilter) {
         const stepDate = step.date ? (step.date.includes('T') ? step.date.split('T')[0] : step.date) : null
@@ -376,6 +386,7 @@ export function StepsManagementView({
                 className="w-full px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white"
           >
             <option value="">{t('steps.filters.goal.all')}</option>
+            <option value="none">{t('steps.filters.goal.withoutGoal') || 'Bez cíle'}</option>
             {goals.map((goal: any) => (
               <option key={goal.id} value={goal.id}>{goal.title}</option>
             ))}
@@ -422,6 +433,7 @@ export function StepsManagementView({
             className="px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white min-w-[150px]"
           >
             <option value="">{t('steps.filters.goal.all')}</option>
+            <option value="none">{t('steps.filters.goal.withoutGoal') || 'Bez cíle'}</option>
             {goals.map((goal: any) => (
               <option key={goal.id} value={goal.id}>{goal.title}</option>
             ))}

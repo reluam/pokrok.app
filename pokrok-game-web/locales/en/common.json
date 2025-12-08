@@ -921,7 +921,8 @@
         "future": "Future"
       },
       "goal": {
-        "all": "All goals"
+        "all": "All goals",
+        "withoutGoal": "Without goal"
       },
       "aspiration": {
         "all": "All aspirations"

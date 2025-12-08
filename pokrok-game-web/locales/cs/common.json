@@ -918,7 +918,8 @@
         "future": "Budoucí"
       },
       "goal": {
-        "all": "Všechny cíle"
+        "all": "Všechny cíle",
+        "withoutGoal": "Bez cíle"
       },
       "aspiration": {
         "all": "Všechny aspirace"
