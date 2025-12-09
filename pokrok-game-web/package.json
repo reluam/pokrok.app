@@ -12,7 +12,7 @@
     "add-indexes": "node scripts/add-performance-indexes.js"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.33.7",
+    "@clerk/nextjs": "^6.36.1",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -24,7 +24,7 @@
     "dotenv": "^17.2.3",
     "lucide-react": "^0.294.0",
     "next": "^16.0.7",
-    "next-intl": "^4.3.12",
+    "next-intl": "^4.5.8",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.48.2"
