@@ -6,7 +6,7 @@ const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dum
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // ✅ SECURITY: Ověření autentizace
@@ -14,7 +14,7 @@ export async function PUT(
     if (authResult instanceof NextResponse) return authResult
     const { dbUser } = authResult
 
-    const workflowId = params.id
+    const { id: workflowId } = await params
     const body = await request.json()
     const { enabled, trigger_time, completed_at } = body
 

@@ -134,6 +134,8 @@ export function PageContent(props: PageContentProps) {
     showDeleteAreaModal,
     setShowDeleteAreaModal,
     setAreaToDelete,
+    deleteAreaWithRelated,
+    setDeleteAreaWithRelated,
     isDeletingArea,
     setIsDeletingArea,
     handleUpdateAreaForDetail,
@@ -423,23 +425,6 @@ export function PageContent(props: PageContentProps) {
             
             return (
               <div className="w-full min-h-full flex flex-col bg-orange-50">
-                {/* Mobile header */}
-                <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <IconComponent className="w-5 h-5" style={{ color: areaColor }} />
-                      <h2 className="text-lg font-bold text-gray-900 truncate">{area.name}</h2>
-                    </div>
-                    <button
-                      onClick={() => setMainPanelSection('overview')}
-                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                      title={t('navigation.backToOverview')}
-                    >
-                      <ChevronLeft className="w-5 h-5 text-gray-700" />
-                    </button>
-                  </div>
-                </div>
-                
                 {/* Area detail content */}
                 <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
                   <div className="p-6">
@@ -731,66 +716,6 @@ export function PageContent(props: PageContentProps) {
                   </>
                 )}
                 
-                {/* Delete area confirmation modal */}
-                {showDeleteAreaModal && (
-                  <>
-                    <div 
-                      className="fixed inset-0 z-40 bg-black/20" 
-                      onClick={() => {
-                        setShowDeleteAreaModal(false)
-                        setAreaToDelete(null)
-                      }}
-                    />
-                    <div 
-                      className="fixed z-50 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-6"
-                      style={{
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: '400px',
-                        maxWidth: '90vw'
-                      }}
-                    >
-                      <h3 className="text-lg font-bold text-gray-900 mb-4">
-                        {t('areas.deleteConfirm') || 'Opravdu chcete smazat tuto oblast?'}
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-6">
-                        {t('areas.deleteConfirmDescription') || 'Cíle, kroky a návyky přiřazené k této oblasti budou odpojeny. Tato akce je nevratná.'}
-                      </p>
-                      
-                      {/* Actions */}
-                      <div className="flex gap-3 justify-end">
-                        <button
-                          onClick={() => {
-                            setShowDeleteAreaModal(false)
-                            setAreaToDelete(null)
-                          }}
-                          disabled={isDeletingArea}
-                          className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {t('common.cancel') || 'Zrušit'}
-                        </button>
-                        <button
-                          onClick={handleDeleteAreaConfirm}
-                          disabled={isDeletingArea}
-                          className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                        >
-                          {isDeletingArea ? (
-                            <>
-                              <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                              {t('common.saving') || 'Mažu...'}
-                            </>
-                          ) : (
-                            t('areas.delete') || 'Smazat'
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
               </div>
             )
           }
@@ -920,15 +845,6 @@ export function PageContent(props: PageContentProps) {
             case 'focus-day':
               return (
                 <div className="w-full min-h-full flex flex-col bg-orange-50">
-                  {/* Mobile header */}
-                  <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-lg font-bold text-gray-900">
-                        {t('navigation.focusDay') || 'Day'}
-                      </h2>
-                                            </div>
-                    </div>
-                  
                   {/* Day View */}
                   <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
                     <DayView
@@ -956,15 +872,6 @@ export function PageContent(props: PageContentProps) {
             case 'focus-week':
                                         return (
                 <div className="w-full min-h-full flex flex-col bg-orange-50">
-                  {/* Mobile header */}
-                  <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-lg font-bold text-gray-900">
-                        {t('navigation.focusWeek') || 'Week'}
-                      </h2>
-                    </div>
-                  </div>
-
                   {/* Week View */}
                   <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
                     <WeekView
@@ -990,15 +897,6 @@ export function PageContent(props: PageContentProps) {
             case 'focus-month':
               return (
                 <div className="w-full min-h-full flex flex-col bg-orange-50">
-                  {/* Mobile header */}
-                  <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-lg font-bold text-gray-900">
-                        {t('navigation.focusMonth') || 'Month'}
-                      </h2>
-                    </div>
-                  </div>
-                  
                   {/* Month View - Placeholder */}
                   <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
                     <MonthView />
@@ -1134,18 +1032,34 @@ export function PageContent(props: PageContentProps) {
               showCreateMenu={showCreateMenu}
               setShowCreateMenu={setShowCreateMenu}
               createMenuButtonRef={createMenuButtonRef}
+              isOnboardingAddMenuStep={props.isOnboardingAddMenuStep}
+              isOnboardingAddMenuGoalStep={props.isOnboardingAddMenuGoalStep}
+              isOnboardingClickGoalStep={props.isOnboardingClickGoalStep}
+              createMenuRef={props.createMenuRef}
+              goalsSectionRef={props.goalsSectionRef}
+              onOnboardingAreaClick={props.onOnboardingAreaClick}
+              onOnboardingGoalClick={props.onOnboardingGoalClick}
+              areaButtonRefs={props.areaButtonRefs}
+              goalButtonRefs={props.goalButtonRefs}
+              onGoalClick={props.onGoalClick}
             />
 
             {/* Right content area */}
             <div className="flex-1 overflow-y-auto bg-orange-50 h-full flex flex-col">
-              {/* Mobile hamburger menu for all sections except overview */}
-              {!mainPanelSection.startsWith('focus-') && !mainPanelSection.startsWith('goal-') && (
+              {/* Mobile hamburger menu for focus-day and other sections (except goal detail pages) */}
+              {!mainPanelSection.startsWith('goal-') && (
                 <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-bold text-gray-900">
-                      {topMenuItems.find(item => item.id === mainPanelSection)?.label || 
-                       sidebarItems.find(item => item.id === mainPanelSection)?.label ||
-                       t('navigation.title')}
+                      {mainPanelSection === 'focus-day'
+                        ? t('navigation.focusDay') || 'Den'
+                        : mainPanelSection === 'focus-week'
+                        ? t('navigation.focusWeek') || 'Týden'
+                        : mainPanelSection === 'focus-month'
+                        ? t('navigation.focusMonth') || 'Měsíc'
+                        : mainPanelSection.startsWith('area-')
+                        ? areas.find((a: any) => `area-${a.id}` === mainPanelSection)?.name || t('navigation.areas')
+                        : t('navigation.title')}
                     </h2>
                     <div className="relative">
                       <button
@@ -1166,84 +1080,82 @@ export function PageContent(props: PageContentProps) {
                           />
                           <div className="fixed right-4 top-16 bg-white border border-gray-200 rounded-lg shadow-lg z-[101] min-w-[200px]">
                             <nav className="py-2">
+                              {/* Focus Day */}
                               <button
                                 onClick={() => {
                                   setMainPanelSection('focus-day')
                                   setMobileMenuOpen(false)
                                 }}
                                 className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                                  mainPanelSection.startsWith('focus-')
+                                  mainPanelSection === 'focus-day'
                                     ? 'bg-orange-600 text-white'
                                     : 'text-gray-700 hover:bg-gray-100'
                                 }`}
                               >
                                 <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
-                                <span className="font-medium">{t('navigation.focus')}</span>
+                                <span className="font-medium">{t('navigation.focusDay') || 'Denní'}</span>
                               </button>
-                              {/* Areas in mobile menu for other sections */}
-                              {(() => {
-                                // Group goals by area
-                                const goalsByArea = areas.reduce((acc: Record<string, { area: any; goals: any[] }>, area: any) => {
-                                  const areaGoals = sortedGoalsForSidebar.filter(g => g.area_id === area.id && g.status === 'active')
-                                  if (areaGoals.length > 0) {
-                                    acc[area.id] = { area, goals: areaGoals }
-                                  }
-                                  return acc
-                                }, {} as Record<string, { area: any; goals: any[] }>)
-                                
-                                // Goals without area
-                                const goalsWithoutArea = sortedGoalsForSidebar.filter(g => !g.area_id && g.status === 'active')
-                                
+                              
+                              {/* Focus Week */}
+                              <button
+                                onClick={() => {
+                                  setMainPanelSection('focus-week')
+                                  setMobileMenuOpen(false)
+                                }}
+                                className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                                  mainPanelSection === 'focus-week'
+                                    ? 'bg-orange-600 text-white'
+                                    : 'text-gray-700 hover:bg-gray-100'
+                                }`}
+                              >
+                                <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
+                                <span className="font-medium">{t('navigation.focusWeek') || 'Týdenní'}</span>
+                              </button>
+                              
+                              {/* Focus Month */}
+                              <button
+                                onClick={() => {
+                                  setMainPanelSection('focus-month')
+                                  setMobileMenuOpen(false)
+                                }}
+                                className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                                  mainPanelSection === 'focus-month'
+                                    ? 'bg-orange-600 text-white'
+                                    : 'text-gray-700 hover:bg-gray-100'
+                                }`}
+                              >
+                                <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
+                                <span className="font-medium">{t('navigation.focusMonth') || 'Měsíční'}</span>
+                              </button>
+                              
+                              {/* Divider */}
+                              {areas.length > 0 && (
+                                <div className="border-t border-gray-200 my-2" />
+                              )}
+                              
+                              {/* Areas in mobile menu */}
+                              {areas.map((area: any) => {
+                                const areaSectionId = `area-${area.id}`
+                                const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
+                                const areaColor = area.color || '#ea580c'
                                 return (
-                                  <>
-                                    {(Object.values(goalsByArea) as Array<{ area: any; goals: any[] }>).map((item: { area: any; goals: any[] }) => {
-                                      const { area, goals: areaGoals } = item
-                                      const areaSectionId = `area-${area.id}`
-                                      const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
-                                      const areaColor = area.color || '#ea580c'
-                                      return (
-                                        <button
-                                          key={area.id}
-                                          onClick={() => {
-                                            setMainPanelSection(areaSectionId)
-                                            setMobileMenuOpen(false)
-                                          }}
-                                          className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                                            mainPanelSection === areaSectionId
-                                              ? 'bg-orange-600 text-white'
-                                              : 'text-gray-700 hover:bg-gray-100'
-                                          }`}
-                                        >
-                                          <IconComponent className={`w-5 h-5 flex-shrink-0 ${mainPanelSection === areaSectionId ? 'text-white' : ''}`} style={mainPanelSection !== areaSectionId ? { color: areaColor } : undefined} />
-                                          <span className="font-medium">{area.name}</span>
-                                        </button>
-                                      )
-                                    })}
-                                    
-                                    {goalsWithoutArea.map((goal) => {
-                                      const goalSectionId = `goal-${goal.id}`
-                                      const IconComponent = getIconComponent(goal.icon)
-                                      return (
-                                        <button
-                                          key={goal.id}
-                                          onClick={() => {
-                                            setMainPanelSection(goalSectionId)
-                                            setMobileMenuOpen(false)
-                                          }}
-                                          className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                                            mainPanelSection === goalSectionId
-                                              ? 'bg-orange-600 text-white'
-                                              : 'text-gray-700 hover:bg-gray-100'
-                                          }`}
-                                        >
-                                          <IconComponent className={`w-5 h-5 flex-shrink-0 ${mainPanelSection === goalSectionId ? 'text-white' : 'text-gray-700'}`} />
-                                          <span className="font-medium">{goal.title}</span>
-                                        </button>
-                                      )
-                                    })}
-                                  </>
+                                  <button
+                                    key={area.id}
+                                    onClick={() => {
+                                      setMainPanelSection(areaSectionId)
+                                      setMobileMenuOpen(false)
+                                    }}
+                                    className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                                      mainPanelSection === areaSectionId
+                                        ? 'bg-orange-600 text-white'
+                                        : 'text-gray-700 hover:bg-gray-100'
+                                    }`}
+                                  >
+                                    <IconComponent className={`w-5 h-5 flex-shrink-0 ${mainPanelSection === areaSectionId ? 'text-white' : ''}`} style={mainPanelSection !== areaSectionId ? { color: areaColor } : undefined} />
+                                    <span className="font-medium">{area.name}</span>
+                                  </button>
                                 )
-                              })()}
+                              })}
                             </nav>
                           </div>
                         </>
@@ -1340,6 +1252,7 @@ export function PageContent(props: PageContentProps) {
               console.log('Player updated:', updatedPlayer)
             }}
             onBack={() => setCurrentPage('main')}
+            onNavigateToMain={() => setCurrentPage('main')}
           />
         );
       }
@@ -1992,6 +1905,91 @@ export function PageContent(props: PageContentProps) {
         );
       }
       })()}
+      
+      {/* Delete area confirmation modal - rendered outside switch to be always available */}
+      {props.showDeleteAreaModal && (
+        <>
+          <div 
+            className="fixed inset-0 z-[100] bg-black/20" 
+            onClick={() => {
+              if (props.setShowDeleteAreaModal) {
+                props.setShowDeleteAreaModal(false)
+              }
+              if (props.setAreaToDelete) {
+                props.setAreaToDelete(null)
+              }
+              if (props.setDeleteAreaWithRelated) {
+                props.setDeleteAreaWithRelated(false)
+              }
+            }}
+          />
+          <div 
+            className="fixed z-[101] bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-6"
+            style={{
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '400px',
+              maxWidth: '90vw'
+            }}
+          >
+            <h3 className="text-lg font-bold text-gray-900 mb-4">
+              {t('areas.deleteConfirm') || 'Opravdu chcete smazat tuto oblast?'}
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              {t('areas.deleteConfirmDescription') || 'Cíle, kroky a návyky přiřazené k této oblasti budou odpojeny. Tato akce je nevratná.'}
+            </p>
+            
+            {/* Checkbox for deleting related items */}
+            <label className="flex items-center gap-2 mb-6 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={props.deleteAreaWithRelated || false}
+                onChange={(e) => {
+                  if (props.setDeleteAreaWithRelated) {
+                    props.setDeleteAreaWithRelated(e.target.checked)
+                  }
+                }}
+                className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+              />
+              <span className="text-sm text-black font-playful">
+                {t('areas.deleteWithRelated') || 'Odstranit i cíle, kroky a návyky přiřazené k této oblasti'}
+              </span>
+            </label>
+            
+            {/* Actions */}
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setShowDeleteAreaModal(false)
+                  setAreaToDelete(null)
+                }}
+                disabled={isDeletingArea}
+                className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {t('common.cancel') || 'Zrušit'}
+              </button>
+              <button
+                onClick={handleDeleteAreaConfirm}
+                disabled={isDeletingArea}
+                className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isDeletingArea ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {t('common.saving') || 'Mažu...'}
+                  </>
+                ) : (
+                  t('areas.delete') || 'Smazat'
+                )}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
           </>
         )
 }

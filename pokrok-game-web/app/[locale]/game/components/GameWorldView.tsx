@@ -16,11 +16,13 @@ interface GameWorldViewProps {
   onGoalsUpdate: (goals: any[]) => void
   onHabitsUpdate: (habits: any[]) => void
   onPlayerUpdate?: (player: any) => void
+  hasCompletedOnboarding?: boolean | null
+  onOnboardingComplete?: () => void
 }
 
 type GameView = 'character' | 'daily-plan' | 'goals' | 'notes' | 'map' | 'habits' | 'statistics' | 'achievements' | 'settings'
 
-export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, onHabitsUpdate, onPlayerUpdate }: GameWorldViewProps) {
+export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, onHabitsUpdate, onPlayerUpdate, hasCompletedOnboarding, onOnboardingComplete }: GameWorldViewProps) {
   const [currentView, setCurrentView] = useState<GameView>('character')
   const [dailySteps, setDailySteps] = useState<any[]>([])
   // Default function if onPlayerUpdate is not provided
@@ -144,6 +146,8 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
             onHabitsUpdate={onHabitsUpdate}
             onGoalsUpdate={onGoalsUpdate}
             onDailyStepsUpdate={handleDailyStepsUpdate}
+            hasCompletedOnboarding={hasCompletedOnboarding}
+            onOnboardingComplete={onOnboardingComplete}
           />
         )
       case 'daily-plan':
@@ -223,6 +227,7 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
         return (
           <JourneyGameView
             player={player}
+            userId={userId}
             goals={goals}
             habits={habits}
             dailySteps={dailySteps}
@@ -236,6 +241,8 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
             onHabitsUpdate={onHabitsUpdate}
             onGoalsUpdate={onGoalsUpdate}
             onDailyStepsUpdate={handleDailyStepsUpdate}
+            hasCompletedOnboarding={hasCompletedOnboarding}
+            onOnboardingComplete={onOnboardingComplete}
           />
         )
     }

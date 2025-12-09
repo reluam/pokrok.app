@@ -11,11 +11,12 @@ interface SettingsViewProps {
   player: any
   onPlayerUpdate: (player: any) => void
   onBack?: () => void
+  onNavigateToMain?: () => void
 }
 
 type SettingsTab = 'user' | 'goals' | 'steps' | 'statistics' | 'workflows' | 'display' | 'danger'
 
-export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewProps) {
+export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain }: SettingsViewProps) {
   const { user } = useUser()
   const { signOut } = useClerk()
   const t = useTranslations()
@@ -89,6 +90,15 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
     dateFormat: 'DD.MM.YYYY' as 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY'
   })
   const [isSavingDisplay, setIsSavingDisplay] = useState(false)
+  
+  // Reset data and delete account state
+  const [showResetDataDialog, setShowResetDataDialog] = useState(false)
+  const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false)
+  const [resetDataConfirmation, setResetDataConfirmation] = useState('')
+  const [deleteAccountConfirmation, setDeleteAccountConfirmation] = useState('')
+  const [isResetting, setIsResetting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isResettingOnboarding, setIsResettingOnboarding] = useState(false)
 
   // Load workflows on component mount
   useEffect(() => {
@@ -355,6 +365,96 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
     }
   }
 
+  const handleResetData = async () => {
+    if (resetDataConfirmation !== t('settings.danger.resetData.confirmText')) {
+      return
+    }
+
+    setIsResetting(true)
+    try {
+      const response = await fetch('/api/account/reset-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      if (response.ok) {
+        setShowResetDataDialog(false)
+        setResetDataConfirmation('')
+        // Reload page to reflect changes
+        window.location.reload()
+      } else {
+        const error = await response.json()
+        alert(error.error || t('settings.danger.resetData.error'))
+      }
+    } catch (error) {
+      console.error('Error resetting data:', error)
+      alert(t('settings.danger.resetData.error'))
+    } finally {
+      setIsResetting(false)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    if (deleteAccountConfirmation !== t('settings.danger.deleteAccount.confirmText')) {
+      return
+    }
+
+    setIsDeleting(true)
+    try {
+      const response = await fetch('/api/account/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      if (response.ok) {
+        // Sign out and redirect to homepage
+        await signOut()
+        router.push('/')
+      } else {
+        const error = await response.json()
+        alert(error.error || t('settings.danger.deleteAccount.error'))
+        setIsDeleting(false)
+      }
+    } catch (error) {
+      console.error('Error deleting account:', error)
+      alert(t('settings.danger.deleteAccount.error'))
+      setIsDeleting(false)
+    }
+  }
+
+  const handleResetOnboarding = async () => {
+    setIsResettingOnboarding(true)
+    try {
+      const response = await fetch('/api/user/onboarding', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hasCompletedOnboarding: false })
+      })
+
+      if (response.ok) {
+        // Redirect to main panel to show onboarding
+        if (onNavigateToMain) {
+          onNavigateToMain()
+          // Reload page to refresh onboarding status
+          setTimeout(() => {
+            window.location.reload()
+          }, 200)
+        } else {
+          // Fallback: use router if onNavigateToMain is not available
+          router.push(`/${locale}/game`)
+        }
+      } else {
+        const error = await response.json()
+        alert(error.error || t('settings.user.onboarding.error'))
+      }
+    } catch (error) {
+      console.error('Error resetting onboarding:', error)
+      alert(t('settings.user.onboarding.error'))
+    } finally {
+      setIsResettingOnboarding(false)
+    }
+  }
+
   const tabs = [
     { id: 'user' as SettingsTab, label: t('settings.tabs.user'), icon: User },
     { id: 'goals' as SettingsTab, label: t('settings.tabs.goals'), icon: Target },
@@ -440,6 +540,23 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
                   {isSavingLocale && (
                     <p className="text-sm text-primary-600 mt-2 font-playful">{t('common.loading')}</p>
                   )}
+                      </div>
+                      
+                      {/* Onboarding Reset */}
+                      <div className="mt-6">
+                        <h4 className="text-lg font-bold text-black font-playful mb-4">🎓 {t('settings.user.onboarding.title')}</h4>
+                        <div className="box-playful-highlight p-4 border-2 border-primary-500">
+                          <p className="text-sm text-gray-600 mb-3 font-playful">
+                            {t('settings.user.onboarding.description')}
+                          </p>
+                          <button
+                            onClick={handleResetOnboarding}
+                            disabled={isResettingOnboarding}
+                            className="btn-playful-primary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {isResettingOnboarding ? t('common.loading') : t('settings.user.onboarding.button')}
+                          </button>
+                        </div>
                       </div>
                         </div>
             </div>
@@ -710,32 +827,118 @@ export function SettingsView({ player, onPlayerUpdate, onBack }: SettingsViewPro
                 </div>
 
                 <div className="box-playful-highlight p-4 border-2 border-red-500">
-                  <h5 className="font-bold text-red-600 mb-2 font-playful">🗑️ {t('settings.danger.deleteAccount.title')}</h5>
-                  <p className="text-sm text-gray-600 mb-3 font-playful">
-                    {t('settings.danger.deleteAccount.description')}
-                  </p>
-                  <button
-                    disabled
-                    className="btn-playful-base px-4 py-2 bg-gray-200 text-gray-500 cursor-not-allowed"
-                  >
-                    {t('settings.danger.deleteAccount.button')}
-                  </button>
-                </div>
-
-                <div className="box-playful-highlight p-4 border-2 border-red-500">
                   <h5 className="font-bold text-red-600 mb-2 font-playful">🔄 {t('settings.danger.resetData.title')}</h5>
                   <p className="text-sm text-gray-600 mb-3 font-playful">
                     {t('settings.danger.resetData.description')}
                   </p>
                   <button
-                    disabled
-                    className="btn-playful-base px-4 py-2 bg-gray-200 text-gray-500 cursor-not-allowed"
+                    onClick={() => setShowResetDataDialog(true)}
+                    className="btn-playful-danger px-4 py-2"
                   >
                     {t('settings.danger.resetData.button')}
                   </button>
                 </div>
+
+                <div className="box-playful-highlight p-4 border-2 border-red-500">
+                  <h5 className="font-bold text-red-600 mb-2 font-playful">🗑️ {t('settings.danger.deleteAccount.title')}</h5>
+                  <p className="text-sm text-gray-600 mb-3 font-playful">
+                    {t('settings.danger.deleteAccount.description')}
+                  </p>
+                  <button
+                    onClick={() => setShowDeleteAccountDialog(true)}
+                    className="btn-playful-danger px-4 py-2"
+                  >
+                    {t('settings.danger.deleteAccount.button')}
+                  </button>
+                </div>
               </div>
             </div>
+
+            {/* Reset Data Confirmation Dialog */}
+            {showResetDataDialog && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="bg-white p-6 max-w-md w-full mx-4 border-2 border-red-500 rounded-playful-md">
+                  <h3 className="text-xl font-bold text-red-600 mb-4 font-playful">
+                    {t('settings.danger.resetData.dialogTitle')}
+                  </h3>
+                  <p className="text-sm text-gray-700 mb-4 font-playful">
+                    {t('settings.danger.resetData.dialogWarning')}
+                  </p>
+                  <p className="text-sm font-bold text-gray-800 mb-2 font-playful">
+                    {t('settings.danger.resetData.confirmPrompt')}
+                  </p>
+                  <input
+                    type="text"
+                    value={resetDataConfirmation}
+                    onChange={(e) => setResetDataConfirmation(e.target.value)}
+                    placeholder={t('settings.danger.resetData.confirmPlaceholder')}
+                    className="w-full p-3 border-2 border-primary-500 rounded-playful-md font-playful mb-4 bg-white"
+                  />
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        setShowResetDataDialog(false)
+                        setResetDataConfirmation('')
+                      }}
+                      className="btn-playful-base px-4 py-2 flex-1"
+                      disabled={isResetting}
+                    >
+                      {t('common.cancel')}
+                    </button>
+                    <button
+                      onClick={handleResetData}
+                      disabled={resetDataConfirmation !== t('settings.danger.resetData.confirmText') || isResetting}
+                      className="btn-playful-danger px-4 py-2 flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isResetting ? t('common.loading') : t('settings.danger.resetData.button')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Delete Account Confirmation Dialog */}
+            {showDeleteAccountDialog && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="bg-white p-6 max-w-md w-full mx-4 border-2 border-red-500 rounded-playful-md">
+                  <h3 className="text-xl font-bold text-red-600 mb-4 font-playful">
+                    {t('settings.danger.deleteAccount.dialogTitle')}
+                  </h3>
+                  <p className="text-sm text-gray-700 mb-4 font-playful">
+                    {t('settings.danger.deleteAccount.dialogWarning')}
+                  </p>
+                  <p className="text-sm font-bold text-gray-800 mb-2 font-playful">
+                    {t('settings.danger.deleteAccount.confirmPrompt')}
+                  </p>
+                  <input
+                    type="text"
+                    value={deleteAccountConfirmation}
+                    onChange={(e) => setDeleteAccountConfirmation(e.target.value)}
+                    placeholder={t('settings.danger.deleteAccount.confirmPlaceholder')}
+                    className="w-full p-3 border-2 border-primary-500 rounded-playful-md font-playful mb-4 bg-white"
+                  />
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        setShowDeleteAccountDialog(false)
+                        setDeleteAccountConfirmation('')
+                      }}
+                      className="btn-playful-base px-4 py-2 flex-1"
+                      disabled={isDeleting}
+                    >
+                      {t('common.cancel')}
+                    </button>
+                    <button
+                      onClick={handleDeleteAccount}
+                      disabled={deleteAccountConfirmation !== t('settings.danger.deleteAccount.confirmText') || isDeleting}
+                      className="btn-playful-danger px-4 py-2 flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isDeleting ? t('common.loading') : t('settings.danger.deleteAccount.button')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )
 

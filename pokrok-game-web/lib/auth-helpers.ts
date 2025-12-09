@@ -1,6 +1,6 @@
-import { auth } from '@clerk/nextjs/server'
+import { auth, currentUser } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { getUserByClerkId, User } from '@/lib/cesta-db'
+import { getUserByClerkId, createUser, User } from '@/lib/cesta-db'
 import { neon } from '@neondatabase/serverless'
 
 const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
@@ -12,6 +12,7 @@ export interface AuthContext {
 
 /**
  * Ověří autentizaci a vrátí kontext uživatele
+ * Automaticky vytvoří uživatele v databázi, pokud je autentizovaný přes Clerk, ale v databázi neexistuje
  * Vrátí NextResponse s chybou, pokud autentizace selže
  */
 export async function requireAuth(request: NextRequest): Promise<AuthContext | NextResponse> {
@@ -21,9 +22,28 @@ export async function requireAuth(request: NextRequest): Promise<AuthContext | N
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const dbUser = await getUserByClerkId(clerkUserId)
+  let dbUser = await getUserByClerkId(clerkUserId)
+  
+  // Pokud uživatel neexistuje v databázi, ale je autentizovaný přes Clerk, vytvořit ho automaticky
   if (!dbUser) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    try {
+      const clerkUser = await currentUser()
+      if (!clerkUser) {
+        return NextResponse.json({ error: 'User not found in Clerk' }, { status: 404 })
+      }
+
+      // Získat email a jméno z Clerk
+      const email = clerkUser.emailAddresses[0]?.emailAddress || `${clerkUserId}@example.com`
+      const firstName = clerkUser.firstName || ''
+      const lastName = clerkUser.lastName || ''
+      const name = [firstName, lastName].filter(Boolean).join(' ') || email.split('@')[0] || 'User'
+
+      // Vytvořit uživatele v databázi
+      dbUser = await createUser(clerkUserId, email, name)
+    } catch (error) {
+      console.error('Error creating user automatically:', error)
+      return NextResponse.json({ error: 'Failed to create user' }, { status: 500 })
+    }
   }
 
   return { clerkUserId, dbUser }

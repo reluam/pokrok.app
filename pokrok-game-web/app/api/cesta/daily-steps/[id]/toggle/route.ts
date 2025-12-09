@@ -6,7 +6,7 @@ import { getUserByClerkId, toggleDailyStep, getUpdatedGoalAfterStepCompletion, u
 export const dynamic = 'force-dynamic'
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth()
@@ -22,7 +22,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    const stepId = params.id
+    const { id: stepId } = await params
 
     if (!stepId) {
       return NextResponse.json({ error: 'Step ID is required' }, { status: 400 })

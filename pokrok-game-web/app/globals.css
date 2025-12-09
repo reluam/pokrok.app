@@ -1,10 +1,10 @@
+/* Import Playful Design System Styles - must be at the top */
+@import '../styles/animations.css';
+@import '../styles/patterns.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import Playful Design System Styles */
-@import '../styles/animations.css';
-@import '../styles/patterns.css';
 
 /* Pixel Art Styling (Legacy - keep for backward compatibility) */
 .pixel-art {

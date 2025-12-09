@@ -15,7 +15,12 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    await updateUserOnboardingStatus(dbUser.id, true)
+    const body = await request.json().catch(() => ({}))
+    const hasCompletedOnboarding = body.hasCompletedOnboarding !== undefined 
+      ? body.hasCompletedOnboarding 
+      : true
+
+    await updateUserOnboardingStatus(dbUser.id, hasCompletedOnboarding)
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error updating onboarding status:', error)

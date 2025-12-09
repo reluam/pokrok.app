@@ -973,7 +973,7 @@ export function GoalDetailPage({
             }}
           />
           <div 
-            className="fixed z-50 box-playful-highlight p-6"
+            className="fixed z-50 bg-white border-2 border-primary-500 rounded-playful-lg shadow-2xl p-6"
             style={{
               top: '50%',
               left: '50%',

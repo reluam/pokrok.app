@@ -289,7 +289,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { id } = body
+    const { id, deleteRelated } = body
     
     if (!id) {
       return NextResponse.json({ error: 'Area ID is required' }, { status: 400 })
@@ -306,6 +306,53 @@ export async function DELETE(request: NextRequest) {
     
     if (existingArea[0].user_id !== dbUser.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    }
+
+    if (deleteRelated) {
+      // Delete all related goals, steps, and habits
+      // Delete steps associated with goals in this area
+      await sql`
+        DELETE FROM daily_steps 
+        WHERE goal_id IN (
+          SELECT id FROM goals WHERE area_id = ${id} AND user_id = ${dbUser.id}
+        )
+      `
+      
+      // Delete goals in this area
+      await sql`
+        DELETE FROM goals 
+        WHERE area_id = ${id} AND user_id = ${dbUser.id}
+      `
+      
+      // Delete habits in this area
+      await sql`
+        DELETE FROM habits 
+        WHERE area_id = ${id} AND user_id = ${dbUser.id}
+      `
+    } else {
+      // If deleteRelated is false, remove the area_id reference (set to NULL) for all related items
+      // Unlink goals from this area
+      await sql`
+        UPDATE goals 
+        SET area_id = NULL 
+        WHERE area_id = ${id} AND user_id = ${dbUser.id}
+      `
+      
+      // Unlink habits from this area
+      await sql`
+        UPDATE habits 
+        SET area_id = NULL 
+        WHERE area_id = ${id} AND user_id = ${dbUser.id}
+      `
+      
+      // For steps: only unlink if they have area_id directly set (not through goals)
+      // Steps can have either area_id OR goal_id, not both
+      // We only unlink steps that have area_id set directly (not through a goal)
+      await sql`
+        UPDATE daily_steps 
+        SET area_id = NULL 
+        WHERE area_id = ${id} AND user_id = ${dbUser.id}
+      `
     }
 
     const result = await sql`

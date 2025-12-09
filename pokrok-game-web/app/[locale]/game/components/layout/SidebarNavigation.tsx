@@ -27,6 +27,16 @@ interface SidebarNavigationProps {
   showCreateMenu: boolean
   setShowCreateMenu: (show: boolean) => void
   createMenuButtonRef: React.RefObject<HTMLButtonElement>
+  isOnboardingAddMenuStep?: boolean
+  isOnboardingAddMenuGoalStep?: boolean
+  isOnboardingClickGoalStep?: boolean
+  createMenuRef?: React.RefObject<HTMLDivElement>
+  goalsSectionRef?: React.RefObject<HTMLDivElement>
+  onOnboardingAreaClick?: () => void
+  onOnboardingGoalClick?: () => void
+  areaButtonRefs?: Map<string, React.RefObject<HTMLButtonElement>>
+  goalButtonRefs?: Map<string, React.RefObject<HTMLButtonElement>>
+  onGoalClick?: (goalId: string) => void
 }
 
 export function SidebarNavigation({
@@ -51,6 +61,16 @@ export function SidebarNavigation({
   showCreateMenu,
   setShowCreateMenu,
   createMenuButtonRef,
+  isOnboardingAddMenuStep = false,
+  isOnboardingAddMenuGoalStep = false,
+  isOnboardingClickGoalStep = false,
+  createMenuRef,
+  goalsSectionRef,
+  onOnboardingAreaClick,
+  onOnboardingGoalClick,
+  areaButtonRefs,
+  goalButtonRefs,
+  onGoalClick
 }: SidebarNavigationProps) {
   const t = useTranslations()
   
@@ -171,9 +191,10 @@ export function SidebarNavigation({
                   const areaColor = area.color || '#ea580c'
                   
                   return (
-                    <div key={area.id} className="space-y-1.5">
+                      <div key={area.id} className="space-y-1.5">
                       <div className="flex items-center gap-1.5">
                         <button
+                          ref={areaButtonRefs?.get(area.id)}
                           onClick={() => {
                             setMainPanelSection(`area-${area.id}`)
                             // useEffect will automatically expand this area and collapse others
@@ -234,8 +255,13 @@ export function SidebarNavigation({
                         const isPausedExpanded = expandedGoalSections.has(pausedSectionKey)
                         const isCompletedExpanded = expandedGoalSections.has(completedSectionKey)
                         
+                        const isAreaSelected = mainPanelSection === `area-${area.id}`
                         return (
-                          <div className="pl-4 space-y-1 border-l-2" style={{ borderColor: areaColor }}>
+                          <div 
+                            ref={isOnboardingClickGoalStep && isAreaSelected ? goalsSectionRef : undefined}
+                            className={`pl-4 space-y-1 border-l-2 ${isOnboardingClickGoalStep && isAreaSelected ? 'bg-primary-100 border-2 border-primary-500 rounded-playful-sm p-2' : ''}`}
+                            style={isOnboardingClickGoalStep && isAreaSelected ? undefined : { borderColor: areaColor }}
+                          >
                             {/* Active goals - always visible */}
                             {activeGoals.map((goal) => {
                               const goalSectionId = `goal-${goal.id}`
@@ -244,7 +270,14 @@ export function SidebarNavigation({
                               return (
                                 <button
                                   key={goal.id}
-                                  onClick={() => setMainPanelSection(goalSectionId)}
+                                  ref={goalButtonRefs?.get(goal.id)}
+                                  onClick={() => {
+                                    if (onGoalClick) {
+                                      onGoalClick(goal.id)
+                                    } else {
+                                      setMainPanelSection(goalSectionId)
+                                    }
+                                  }}
                                   className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left ${
                                     isSelected ? 'active' : ''
                                   }`}
@@ -285,7 +318,14 @@ export function SidebarNavigation({
                                       return (
                                         <button
                                           key={goal.id}
-                                          onClick={() => setMainPanelSection(goalSectionId)}
+                                          ref={goalButtonRefs?.get(goal.id)}
+                                          onClick={() => {
+                                            if (onGoalClick) {
+                                              onGoalClick(goal.id)
+                                            } else {
+                                              setMainPanelSection(goalSectionId)
+                                            }
+                                          }}
                                           className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left ${
                                             isSelected ? 'active' : ''
                                           }`}
@@ -330,7 +370,14 @@ export function SidebarNavigation({
                                       return (
                                         <button
                                           key={goal.id}
-                                          onClick={() => setMainPanelSection(goalSectionId)}
+                                          ref={goalButtonRefs?.get(goal.id)}
+                                          onClick={() => {
+                                            if (onGoalClick) {
+                                              onGoalClick(goal.id)
+                                            } else {
+                                              setMainPanelSection(goalSectionId)
+                                            }
+                                          }}
                                           className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left ${
                                             isSelected ? 'active' : ''
                                           }`}
@@ -356,7 +403,10 @@ export function SidebarNavigation({
                 
                 {/* Goals without area */}
                 {goalsWithoutArea.length > 0 && (
-                  <div className="space-y-1.5">
+                  <div 
+                    ref={isOnboardingClickGoalStep && !mainPanelSection.startsWith('area-') ? goalsSectionRef : undefined}
+                    className={`space-y-1.5 ${isOnboardingClickGoalStep && !mainPanelSection.startsWith('area-') ? 'bg-primary-100 border-2 border-primary-500 rounded-playful-sm p-2' : ''}`}
+                  >
                     {goalsWithoutArea.map((goal) => {
                       const goalSectionId = `goal-${goal.id}`
                       const isSelected = mainPanelSection === goalSectionId
@@ -364,7 +414,14 @@ export function SidebarNavigation({
                       return (
                         <button
                           key={goal.id}
-                          onClick={() => setMainPanelSection(goalSectionId)}
+                          ref={goalButtonRefs?.get(goal.id)}
+                          onClick={() => {
+                            if (onGoalClick) {
+                              onGoalClick(goal.id)
+                            } else {
+                              setMainPanelSection(goalSectionId)
+                            }
+                          }}
                           className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
                             isSelected ? 'active' : ''
                           }`}
@@ -435,12 +492,19 @@ export function SidebarNavigation({
                             return (
                               <button
                                 key={goal.id}
-                                onClick={() => setMainPanelSection(goalSectionId)}
-                                className={`btn-playful-nav w-10 h-10 flex items-center justify-center ${
-                                  isSelected ? 'active' : ''
-                                }`}
-                                title={goal.title}
-                              >
+                          ref={goalButtonRefs?.get(goal.id)}
+                          onClick={() => {
+                            if (onGoalClick) {
+                              onGoalClick(goal.id)
+                            } else {
+                              setMainPanelSection(goalSectionId)
+                            }
+                          }}
+                          className={`btn-playful-nav w-10 h-10 flex items-center justify-center ${
+                            isSelected ? 'active' : ''
+                          }`}
+                          title={goal.title}
+                        >
                                 <GoalIconComponent className={`w-4 h-4`} style={!isSelected ? { color: areaColor } : undefined} />
                               </button>
                             )
@@ -459,12 +523,19 @@ export function SidebarNavigation({
                   return (
                     <button
                       key={goal.id}
-                      onClick={() => setMainPanelSection(goalSectionId)}
-                      className={`btn-playful-nav w-10 h-10 flex items-center justify-center ${
-                        isSelected ? 'active' : ''
-                      }`}
-                      title={goal.title}
-                    >
+                          ref={goalButtonRefs?.get(goal.id)}
+                          onClick={() => {
+                            if (onGoalClick) {
+                              onGoalClick(goal.id)
+                            } else {
+                              setMainPanelSection(goalSectionId)
+                            }
+                          }}
+                          className={`btn-playful-nav w-10 h-10 flex items-center justify-center ${
+                            isSelected ? 'active' : ''
+                          }`}
+                          title={goal.title}
+                        >
                       <IconComponent className="w-4 h-4" />
                     </button>
                   )
@@ -495,47 +566,111 @@ export function SidebarNavigation({
           <>
             <div 
               className="fixed inset-0 z-40" 
-              onClick={() => setShowCreateMenu(false)}
+              onClick={() => {
+                // Don't close menu during onboarding steps
+                if (!isOnboardingAddMenuStep && !isOnboardingAddMenuGoalStep) {
+                  setShowCreateMenu(false)
+                }
+              }}
             />
             <div 
+              ref={createMenuRef}
               className={`absolute ${sidebarCollapsed ? 'left-14 bottom-12' : 'left-4 bottom-20'} z-50 bg-white border-2 border-primary-500 rounded-playful-md min-w-[160px]`}
+              onClick={(e) => e.stopPropagation()}
             >
+                {/* Goals button - disabled in add-menu-open step */}
+                {isOnboardingAddMenuStep && !isOnboardingAddMenuGoalStep ? (
+                  // Disabled version in onboarding area step
+                  <div className="w-full text-left px-4 py-2.5 text-sm opacity-30 cursor-not-allowed text-gray-400 flex items-center gap-2 border-b border-primary-200">
+                    <Target className="w-4 h-4" />
+                    <span>{t('navigation.goals')}</span>
+                  </div>
+                ) : (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      // In onboarding goal step, this click should trigger the next onboarding step, not open the external modal
+                      if (isOnboardingAddMenuGoalStep && onOnboardingGoalClick) {
+                        onOnboardingGoalClick() // Call the onboarding-specific handler
+                        setShowCreateMenu(false)
+                      } else {
+                        handleCreateGoal()
+                        setShowCreateMenu(false)
+                      }
+                    }}
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors font-medium flex items-center gap-2 border-b border-primary-200 first:rounded-t-playful-md last:rounded-b-playful-md last:border-b-0 ${
+                      isOnboardingAddMenuGoalStep
+                        ? 'bg-primary-100 border-2 border-primary-500 font-bold text-primary-700 hover:bg-primary-200'
+                        : 'hover:bg-primary-50 text-black'
+                    }`}
+                  >
+                    <Target className="w-4 h-4" />
+                    <span>{t('navigation.goals')}</span>
+                  </button>
+                )}
+                
+                {/* Steps button */}
+                {(isOnboardingAddMenuStep || isOnboardingAddMenuGoalStep) ? (
+                  // Disabled version in onboarding
+                  <div className="w-full text-left px-4 py-2.5 text-sm opacity-30 cursor-not-allowed text-gray-400 flex items-center gap-2 border-b border-primary-200">
+                    <Footprints className="w-4 h-4" />
+                    <span>{t('navigation.steps')}</span>
+                  </div>
+                ) : (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleOpenStepModal()
+                      setShowCreateMenu(false)
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-sm transition-colors font-medium flex items-center gap-2 border-b border-primary-200 first:rounded-t-playful-md last:rounded-b-playful-md last:border-b-0 hover:bg-primary-50 text-black"
+                  >
+                    <Footprints className="w-4 h-4" />
+                    <span>{t('navigation.steps')}</span>
+                  </button>
+                )}
+                
+                {/* Habits button */}
+                {(isOnboardingAddMenuStep || isOnboardingAddMenuGoalStep) ? (
+                  // Disabled version in onboarding
+                  <div className="w-full text-left px-4 py-2.5 text-sm opacity-30 cursor-not-allowed text-gray-400 flex items-center gap-2 border-b border-primary-200">
+                    <CheckSquare className="w-4 h-4" />
+                    <span>{t('navigation.habits')}</span>
+                  </div>
+                ) : (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleOpenHabitModal(null)
+                      setShowCreateMenu(false)
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-sm transition-colors font-medium flex items-center gap-2 border-b border-primary-200 first:rounded-t-playful-md last:rounded-b-playful-md last:border-b-0 hover:bg-primary-50 text-black"
+                  >
+                    <CheckSquare className="w-4 h-4" />
+                    <span>{t('navigation.habits')}</span>
+                  </button>
+                )}
               <button
-                onClick={() => {
-                  handleCreateGoal()
-                  setShowCreateMenu(false)
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (isOnboardingAddMenuStep && onOnboardingAreaClick) {
+                    // In onboarding, use the onboarding area creation flow
+                    onOnboardingAreaClick()
+                    setShowCreateMenu(false)
+                  } else {
+                    // Normal flow - open area edit modal
+                    handleOpenAreaEditModal()
+                    setShowCreateMenu(false)
+                  }
                 }}
-                className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary-50 transition-colors font-medium flex items-center gap-2 text-black border-b border-primary-200 first:rounded-t-playful-md last:rounded-b-playful-md last:border-b-0"
-              >
-                <Target className="w-4 h-4" />
-                <span>{t('navigation.goals')}</span>
-              </button>
-              <button
-                onClick={() => {
-                  handleOpenStepModal()
-                  setShowCreateMenu(false)
-                }}
-                className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary-50 transition-colors font-medium flex items-center gap-2 text-black border-b border-primary-200 first:rounded-t-playful-md last:rounded-b-playful-md last:border-b-0"
-              >
-                <Footprints className="w-4 h-4" />
-                <span>{t('navigation.steps')}</span>
-              </button>
-              <button
-                onClick={() => {
-                  handleOpenHabitModal(null)
-                  setShowCreateMenu(false)
-                }}
-                className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary-50 transition-colors font-medium flex items-center gap-2 text-black border-b border-primary-200 first:rounded-t-playful-md last:rounded-b-playful-md last:border-b-0"
-              >
-                <CheckSquare className="w-4 h-4" />
-                <span>{t('navigation.habits')}</span>
-              </button>
-              <button
-                onClick={() => {
-                  handleOpenAreaEditModal()
-                  setShowCreateMenu(false)
-                }}
-                className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary-50 transition-colors font-medium flex items-center gap-2 text-black border-b border-primary-200 first:rounded-t-playful-md last:rounded-b-playful-md last:border-b-0"
+                disabled={isOnboardingAddMenuGoalStep}
+                className={`w-full text-left px-4 py-2.5 text-sm transition-colors font-medium flex items-center gap-2 ${
+                  isOnboardingAddMenuStep
+                    ? 'bg-primary-100 border-2 border-primary-500 font-bold text-primary-700 hover:bg-primary-200'
+                    : isOnboardingAddMenuGoalStep
+                      ? 'opacity-30 cursor-not-allowed text-gray-400 pointer-events-none'
+                      : 'hover:bg-primary-50 text-black border-b border-primary-200 first:rounded-t-playful-md last:rounded-b-playful-md last:border-b-0'
+                }`}
               >
                 <LayoutDashboard className="w-4 h-4" />
                 <span>{t('areas.title') || 'Oblast'}</span>

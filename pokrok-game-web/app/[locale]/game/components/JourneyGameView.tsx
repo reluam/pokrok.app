@@ -45,6 +45,7 @@ import { DeleteHabitModal } from './modals/DeleteHabitModal'
 import { HabitModal } from './modals/HabitModal'
 import { StepModal } from './modals/StepModal'
 import { DeleteStepModal } from './modals/DeleteStepModal'
+import { OnboardingTutorial } from './OnboardingTutorial'
 
 interface JourneyGameViewProps {
   player?: any
@@ -62,6 +63,8 @@ interface JourneyGameViewProps {
   onHabitsUpdate?: (habits: any[]) => void
   onGoalsUpdate?: (goals: any[]) => void
   onDailyStepsUpdate?: (steps: any[]) => void
+  hasCompletedOnboarding?: boolean | null
+  onOnboardingComplete?: () => void
 }
 
 export function JourneyGameView({ 
@@ -79,7 +82,9 @@ export function JourneyGameView({
   onNavigateToSettings,
   onHabitsUpdate,
   onGoalsUpdate,
-  onDailyStepsUpdate
+  onDailyStepsUpdate,
+  hasCompletedOnboarding,
+  onOnboardingComplete
 }: JourneyGameViewProps) {
   const t = useTranslations()
   const locale = useLocale()
@@ -450,15 +455,80 @@ export function JourneyGameView({
   const [isDeletingGoal, setIsDeletingGoal] = useState(false)
   const [showDeleteAreaModal, setShowDeleteAreaModal] = useState(false)
   const [areaToDelete, setAreaToDelete] = useState<string | null>(null)
+  const [deleteAreaWithRelated, setDeleteAreaWithRelated] = useState(false)
   const [showDeleteHabitModal, setShowDeleteHabitModal] = useState(false)
   const [habitToDelete, setHabitToDelete] = useState<string | null>(null)
   const [isDeletingHabit, setIsDeletingHabit] = useState(false)
   const [isDeletingArea, setIsDeletingArea] = useState(false)
   const [showCreateMenu, setShowCreateMenu] = useState(false)
   const createMenuButtonRef = useRef<HTMLButtonElement>(null)
+  const createMenuRef = useRef<HTMLDivElement>(null)
   
-  // Areas state
+  // Onboarding state
+  const [isOnboardingActive, setIsOnboardingActive] = useState(false)
+  const [onboardingStep, setOnboardingStep] = useState<string>('intro')
+  const areaButtonRefs = useRef<Map<string, React.RefObject<HTMLButtonElement>>>(new Map())
+  const goalButtonRefs = useRef<Map<string, React.RefObject<HTMLButtonElement>>>(new Map())
+  const goalsSectionRef = useRef<HTMLDivElement>(null)
+  
+  // Areas state - must be declared before useEffect that uses it
   const [areas, setAreas] = useState<any[]>([])
+  
+  // Initialize onboarding
+  useEffect(() => {
+    if (hasCompletedOnboarding === false) {
+      setIsOnboardingActive(true)
+      // Ensure we're on focus-day
+      setMainPanelSection('focus-day')
+    } else if (hasCompletedOnboarding === true) {
+      setIsOnboardingActive(false)
+    }
+  }, [hasCompletedOnboarding])
+
+  // Reload onboarding status when navigating to main page
+  useEffect(() => {
+    if (currentPage === 'main') {
+      const reloadOnboardingStatus = async () => {
+        try {
+          const response = await fetch('/api/game/init')
+          if (response.ok) {
+            const gameData = await response.json()
+            // Update onboarding status if it changed
+            if (gameData.user.has_completed_onboarding === false && !isOnboardingActive) {
+              setIsOnboardingActive(true)
+              setMainPanelSection('focus-day')
+            }
+          }
+        } catch (error) {
+          console.error('Error reloading onboarding status:', error)
+        }
+      }
+      // Small delay to ensure page is rendered
+      const timeout = setTimeout(reloadOnboardingStatus, 100)
+      return () => clearTimeout(timeout)
+    }
+  }, [currentPage, isOnboardingActive])
+  
+  // Get selected area ID from mainPanelSection
+  const selectedAreaId = mainPanelSection.startsWith('area-') ? mainPanelSection.replace('area-', '') : null
+  
+  // Create refs for areas
+  useEffect(() => {
+    areas.forEach(area => {
+      if (!areaButtonRefs.current.has(area.id)) {
+        areaButtonRefs.current.set(area.id, { current: null } as React.RefObject<HTMLButtonElement>)
+      }
+    })
+  }, [areas])
+
+  // Create refs for goals
+  useEffect(() => {
+    goals.forEach(goal => {
+      if (!goalButtonRefs.current.has(goal.id)) {
+        goalButtonRefs.current.set(goal.id, { current: null } as React.RefObject<HTMLButtonElement>)
+      }
+    })
+  }, [goals])
   const [showGoalDetailAreaPicker, setShowGoalDetailAreaPicker] = useState(false)
   const [showAreasManagementModal, setShowAreasManagementModal] = useState(false)
   const [editingArea, setEditingArea] = useState<any | null>(null)
@@ -1610,6 +1680,7 @@ export function JourneyGameView({
 
   const handleDeleteArea = (areaId: string) => {
     setAreaToDelete(areaId)
+    setDeleteAreaWithRelated(false) // Reset checkbox when opening modal
     setShowDeleteAreaModal(true)
   }
 
@@ -1623,7 +1694,10 @@ export function JourneyGameView({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id: areaToDelete }),
+        body: JSON.stringify({ 
+          id: areaToDelete,
+          deleteRelated: deleteAreaWithRelated
+        }),
       })
 
       if (response.ok) {
@@ -1641,6 +1715,30 @@ export function JourneyGameView({
         
         setShowDeleteAreaModal(false)
         setAreaToDelete(null)
+        const wasRelatedDeleted = deleteAreaWithRelated
+        setDeleteAreaWithRelated(false)
+        
+        // Reload goals, steps, and habits (either deleted or unlinked)
+        const goalsResponse = await fetch('/api/goals')
+        if (goalsResponse.ok && onGoalsUpdate) {
+          const goalsData = await goalsResponse.json()
+          // API returns array directly, not wrapped in { goals: [...] }
+          onGoalsUpdate(Array.isArray(goalsData) ? goalsData : (goalsData.goals || []))
+        }
+        
+        const stepsResponse = await fetch('/api/daily-steps')
+        if (stepsResponse.ok && onDailyStepsUpdate) {
+          const stepsData = await stepsResponse.json()
+          // API returns array directly, not wrapped in { steps: [...] }
+          onDailyStepsUpdate(Array.isArray(stepsData) ? stepsData : (stepsData.steps || []))
+        }
+        
+        const habitsResponse = await fetch('/api/habits')
+        if (habitsResponse.ok && onHabitsUpdate) {
+          const habitsData = await habitsResponse.json()
+          // API returns array directly, not wrapped in { habits: [...] }
+          onHabitsUpdate(Array.isArray(habitsData) ? habitsData : (habitsData.habits || []))
+        }
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
         alert(t('areas.deleteError') || `Nepodařilo se smazat oblast: ${errorData.error || 'Neznámá chyba'}`)
@@ -3322,8 +3420,12 @@ export function JourneyGameView({
           handleOpenAreasManagementModal={handleOpenAreasManagementModal}
           handleOpenAreaEditModal={handleOpenAreaEditModal}
           handleDeleteArea={handleDeleteArea}
+          handleDeleteAreaConfirm={handleDeleteAreaConfirm}
           showDeleteAreaModal={showDeleteAreaModal}
+          setShowDeleteAreaModal={setShowDeleteAreaModal}
           setAreaToDelete={setAreaToDelete}
+          deleteAreaWithRelated={deleteAreaWithRelated}
+          setDeleteAreaWithRelated={setDeleteAreaWithRelated}
           isDeletingArea={isDeletingArea}
           setIsDeletingArea={setIsDeletingArea}
           handleUpdateAreaForDetail={handleUpdateAreaForDetail}
@@ -3407,6 +3509,37 @@ export function JourneyGameView({
           setSidebarCollapsed={setSidebarCollapsed}
           mobileMenuOpen={mobileMenuOpen}
           setMobileMenuOpen={setMobileMenuOpen}
+          isOnboardingAddMenuStep={onboardingStep === 'add-menu-open'}
+          isOnboardingAddMenuGoalStep={onboardingStep === 'add-menu-goal'}
+          isOnboardingClickGoalStep={onboardingStep === 'click-goal'}
+          createMenuRef={createMenuRef}
+          goalsSectionRef={goalsSectionRef}
+          onOnboardingAreaClick={() => {
+            // When user clicks Area in onboarding menu, move to create-area step
+            setOnboardingStep('create-area')
+          }}
+          onOnboardingGoalClick={() => {
+            // Navigate to goals page and set onboarding step to create-goal
+            setCurrentPage('goals')
+            setOnboardingStep('create-goal')
+            // Wait a bit for page to render, then create goal
+            setTimeout(() => {
+              handleCreateGoal()
+              // After creating goal, navigate back to main page to see sidebar
+              setTimeout(() => {
+                setCurrentPage('main')
+              }, 500)
+            }, 100)
+          }}
+          areaButtonRefs={areaButtonRefs.current}
+          goalButtonRefs={goalButtonRefs.current}
+          onGoalClick={(goalId: string) => {
+            if (isOnboardingActive && onboardingStep === 'click-goal') {
+              // During onboarding, move to next step
+              setOnboardingStep('habits-info')
+            }
+            setMainPanelSection(`goal-${goalId}`)
+          }}
         />
       </div>
 
@@ -3561,6 +3694,118 @@ export function JourneyGameView({
           setHabitToDelete(null)
         }}
         onConfirm={handleConfirmDeleteHabit}
+      />
+
+      {/* Onboarding Tutorial */}
+      <OnboardingTutorial
+        isActive={isOnboardingActive}
+        onComplete={() => {
+          setIsOnboardingActive(false)
+          if (onOnboardingComplete) {
+            onOnboardingComplete()
+          }
+        }}
+        onSkip={() => {
+          setIsOnboardingActive(false)
+          if (onOnboardingComplete) {
+            onOnboardingComplete()
+          }
+        }}
+        areas={areas}
+        goals={goals}
+        habits={habits}
+        dailySteps={dailySteps}
+        selectedAreaId={selectedAreaId}
+        onAreaClick={(areaId) => {
+          setMainPanelSection(`area-${areaId}`)
+        }}
+        onCreateMenuOpen={() => {
+          setShowCreateMenu(true)
+        }}
+        onCreateArea={async (areaData: { name: string; description: string | null; color: string; icon: string }) => {
+          try {
+            const response = await fetch('/api/cesta/areas', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(areaData)
+            })
+            if (!response.ok) {
+              const error = await response.json()
+              throw new Error(error.error || 'Failed to create area')
+            }
+            const newArea = await response.json()
+            setAreas(prevAreas => [...prevAreas, newArea.area]) // Add new area to state
+            return true
+          } catch (error) {
+            console.error('Error creating area from onboarding:', error)
+            alert('Nepodařilo se vytvořit oblast. Zkuste to prosím znovu.')
+            return false
+          }
+        }}
+        onCreateGoal={async (goalData: { title: string; description: string | null; areaId: string | null }) => {
+          try {
+            const response = await fetch('/api/goals', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                title: goalData.title,
+                description: goalData.description,
+                areaId: goalData.areaId
+              })
+            })
+            if (!response.ok) {
+              const error = await response.json()
+              throw new Error(error.error || 'Failed to create goal')
+            }
+            const newGoal = await response.json()
+            // If goal has area, make sure the area is selected and expanded
+            if (goalData.areaId) {
+              setMainPanelSection(`area-${goalData.areaId}`)
+              setExpandedAreas(new Set([goalData.areaId]))
+            } else {
+              // If goal has no area, navigate to main page to see goals without area
+              setMainPanelSection('focus-day')
+            }
+            // Reload goals to update the list
+            const goalsResponse = await fetch('/api/goals')
+            if (goalsResponse.ok && onGoalsUpdate) {
+              const goalsData = await goalsResponse.json()
+              onGoalsUpdate(Array.isArray(goalsData) ? goalsData : (goalsData.goals || []))
+            }
+            return true
+          } catch (error) {
+            console.error('Error creating goal from onboarding:', error)
+            alert('Nepodařilo se vytvořit cíl. Zkuste to prosím znovu.')
+            return false
+          }
+        }}
+        onCreateStep={() => {
+          handleOpenStepModal()
+        }}
+        createMenuButtonRef={createMenuButtonRef}
+        areaButtonRefs={areaButtonRefs.current}
+        showCreateMenu={showCreateMenu}
+        onStepChange={(step) => setOnboardingStep(step)}
+        createMenuRef={createMenuRef}
+        showAreaEditModal={showAreaEditModal}
+        onAreaCreated={(newArea) => {
+          // Add the new area to the areas list
+          setAreas(prevAreas => [...prevAreas, newArea])
+        }}
+        onAreaButtonClick={() => {
+          // When user clicks Area button in onboarding menu, move to create-area step
+          setOnboardingStep('create-area')
+        }}
+        onGoalClick={(goalId) => {
+          if (isOnboardingActive && onboardingStep === 'click-goal') {
+            // During onboarding, move to complete step
+            setOnboardingStep('complete')
+          }
+          setMainPanelSection(`goal-${goalId}`)
+        }}
+        goalButtonRefs={goalButtonRefs.current}
+        goalsSectionRef={goalsSectionRef}
+        externalStep={onboardingStep as any}
       />
 
     </div>

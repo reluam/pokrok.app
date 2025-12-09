@@ -6,9 +6,10 @@ interface SettingsPageProps {
   player?: any
   onPlayerUpdate?: (updatedPlayer: any) => void
   onBack?: () => void
+  onNavigateToMain?: () => void
 }
 
-export function SettingsPage({ player, onPlayerUpdate, onBack }: SettingsPageProps) {
+export function SettingsPage({ player, onPlayerUpdate, onBack, onNavigateToMain }: SettingsPageProps) {
   const handlePlayerUpdate = (updatedPlayer: any) => {
     // Update player in parent component if needed
     if (onPlayerUpdate) {
@@ -29,7 +30,7 @@ export function SettingsPage({ player, onPlayerUpdate, onBack }: SettingsPagePro
       player={player} 
       onPlayerUpdate={handlePlayerUpdate}
       onBack={handleBack}
+      onNavigateToMain={onNavigateToMain}
     />
   )
 }
-

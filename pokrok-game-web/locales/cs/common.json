@@ -449,6 +449,12 @@
             "title": "Jazyk",
             "label": "Preferovaný jazyk",
             "description": "Toto nastavení se použije na všech zařízeních (web, mobilní aplikace). Změna se projeví po obnovení stránky."
+          },
+          "onboarding": {
+            "title": "Tutoriál",
+            "description": "Zapněte tutoriál znovu, pokud chcete znovu projít úvodní průvodce aplikací.",
+            "button": "Zapnout tutoriál znovu",
+            "error": "Nepodařilo se resetovat tutoriál. Zkuste to prosím znovu."
           }
         },
     "areas": {
@@ -546,12 +552,24 @@
       "deleteAccount": {
         "title": "Smazat účet",
         "description": "Trvale smaže váš účet a všechna data. Tato akce je nevratná!",
-        "button": "Smazat účet (zatím nedostupné)"
+        "button": "Smazat účet",
+        "dialogTitle": "Smazat účet",
+        "dialogWarning": "Tato akce je nevratná! Smaže se váš účet v Clerku i ve všech našich databázích. Všechna vaše data budou trvale odstraněna.",
+        "confirmPrompt": "Pro potvrzení napište:",
+        "confirmText": "smazat účet",
+        "confirmPlaceholder": "smazat účet",
+        "error": "Nepodařilo se smazat účet. Zkuste to prosím znovu."
       },
       "resetData": {
         "title": "Resetovat všechna data",
-        "description": "Smaže všechny cíle, návyky, kroky a statistiky. Postava zůstane zachována.",
-        "button": "Resetovat data"
+        "description": "Smaže všechny Oblasti, Cíle, Kroky a Návyky a všechna nastavení vrátí do defaultu. Postava zůstane zachována.",
+        "button": "Resetovat všechna data",
+        "dialogTitle": "Resetovat všechna data",
+        "dialogWarning": "Tato akce je nevratná! Smažou se všechny vaše Oblasti, Cíle, Kroky, Návyky a všechna nastavení se vrátí do výchozího stavu. Postava zůstane zachována.",
+        "confirmPrompt": "Pro potvrzení napište:",
+        "confirmText": "smazat data",
+        "confirmPlaceholder": "smazat data",
+        "error": "Nepodařilo se resetovat data. Zkuste to prosím znovu."
       }
     }
   },
@@ -1268,6 +1286,7 @@
     "iconTooLong": "Název ikony je příliš dlouhý. Maximální délka je 50 znaků. Aktuální délka: {length} znaků. Prosím vyberte kratší ikonu.",
     "deleteConfirm": "Opravdu chcete smazat tuto oblast?",
     "deleteConfirmDescription": "Cíle, kroky a návyky přiřazené k této oblasti budou odpojeny. Tato akce je nevratná.",
+    "deleteWithRelated": "Odstranit i cíle, kroky a návyky přiřazené k této oblasti",
     "manage": "Spravovat oblasti",
     "areaGoals": "Cíle v oblasti",
     "areaSteps": "Kroky v oblasti",
@@ -1288,6 +1307,83 @@
     "addFirst": "Vytvořit první oblast",
     "deleteConfirm": "Opravdu chcete smazat tuto oblast? Cíle, kroky a návyky přiřazené k této oblasti budou odpojeny.",
     "deleteError": "Nepodařilo se smazat oblast"
+  },
+  "onboarding": {
+    "skip": "Přeskočit",
+    "next": "Další",
+    "intro": {
+      "title": "Vítejte v Pokroku!",
+      "description": "Pokrok vám pomáhá organizovat váš život pomocí čtyř hlavních stavebních prvků:",
+      "areas": {
+        "title": "Oblasti",
+        "description": "Organizujte své cíle, kroky a návyky do oblastí (např. Zdraví, Kariéra, Vztahy)"
+      },
+      "goals": {
+        "title": "Cíle",
+        "description": "Dlouhodobé cíle, které chcete dosáhnout. Rozdělte je na menší kroky."
+      },
+      "steps": {
+        "title": "Kroky",
+        "description": "Konkrétní akce, které vedou k dosažení vašich cílů. Plánujte je na konkrétní dny."
+      },
+      "habits": {
+        "title": "Návyky",
+        "description": "Opakující se rutiny, které budujete dlouhodobě. Přiřaďte je do oblastí."
+      }
+    },
+    "addButton": {
+      "title": "Tlačítko Add",
+      "description": "Tlačítkem Add vlevo dole můžete přidat Oblast, Cíl, Krok nebo Návyk.",
+      "instruction": "👉 Klikněte na tlačítko Add dole vlevo"
+    },
+    "addMenuOpen": {
+      "title": "Vytvořte první oblast",
+      "description": "V menu vidíte všechny možnosti. Pro začátek vytvoříme oblast.",
+      "instruction": "👉 Klikněte na 'Oblast' v menu"
+    },
+    "addMenuGoal": {
+      "title": "Vytvořte první cíl",
+      "description": "Nyní klikněte na 'Cíl' v menu, abyste vytvořili svůj první cíl v této nové oblasti.",
+      "instruction": "👉 Klikněte na 'Cíl'"
+    },
+    "createArea": {
+      "title": "Vytvořte první oblast",
+      "description": "Vytvořte si první oblast (např. Zdraví, Kariéra, Vztahy). Po uložení budete vyzváni kliknout na ni v navigaci."
+    },
+    "clickArea": {
+      "title": "Klikněte na oblast",
+      "description": "Klikněte na právě vytvořenou oblast v navigačním menu vlevo. Poté budete moci vytvářet cíle, kroky a návyky přímo v této oblasti."
+    },
+    "createGoal": {
+      "title": "Vytvořte cíl",
+      "description": "Nyní vytvořte cíl v této oblasti. Stejným způsobem si můžete vytvořit další oblasti, cíle a kroky pro jednotlivé cíle nebo oblasti."
+    },
+    "clickGoal": {
+      "title": "Cíl vytvořen",
+      "description": "Váš cíl byl vytvořen. Najdete ho vlevo v navigačním menu v oblasti, nebo dole pod oblastmi, pokud není přiřazen k žádné oblasti. V cílech můžete dále vytvářet kroky."
+    },
+    "habitsInfo": {
+      "title": "Návyky",
+      "description": "Návyky jsou nekonečné opakující se rutiny, které také můžete přiřadit do oblasti. Používejte je pro dlouhodobé budování dobrých návyků."
+    },
+    "complete": {
+      "title": "Tutoriál dokončen!",
+      "description": "Pokud budete kdykoliv tápat, můžete kliknout nahoře v menu na Nápovědu, kde najdete veškeré informace a kde také můžete tutoriál zapnout znovu.",
+      "button": "Dokončit tutoriál"
+    },
+    "mobile": {
+      "createArea": {
+        "instruction": "Klikněte na tlačítko \"+\" vlevo dole a vyberte \"Oblast\" pro vytvoření vaší první oblasti."
+      },
+      "afterArea": {
+        "title": "Oblast vytvořena",
+        "description": "Skvělé! Nyní můžete vytvořit cíle, kroky a návyky v této oblasti. Klikněte na oblast v navigačním menu vlevo, pak na tlačítko \"+\" a vyberte \"Cíl\"."
+      },
+      "afterGoal": {
+        "title": "Cíl vytvořen",
+        "description": "Výborně! Cíle najdete v navigačním menu vlevo. V cílech můžete vytvářet kroky, které vás dovedou k jejich dosažení."
+      }
+    }
   }
 }
 

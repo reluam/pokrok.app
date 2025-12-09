@@ -20,6 +20,7 @@ export default function GamePage() {
   const [goals, setGoals] = useState<any[]>([])
   const [habits, setHabits] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null)
 
           // Load user data - optimized single API call
           useEffect(() => {
@@ -80,6 +81,14 @@ export default function GamePage() {
                   setPlayer(gameData.player || null)
                   setGoals(gameData.goals || [])
                   setHabits(gameData.habits || [])
+                  setHasCompletedOnboarding(gameData.user.has_completed_onboarding || false)
+                  
+                  // If onboarding not completed, ensure we're on focus-day
+                  if (!gameData.user.has_completed_onboarding) {
+                    if (typeof window !== 'undefined') {
+                      localStorage.setItem('journeyGame_mainPanelSection', 'focus-day')
+                    }
+                  }
                 }
               } catch (error) {
                 console.error('Error loading game data:', error)
@@ -124,10 +133,7 @@ export default function GamePage() {
     return null
   }
 
-  // Onboarding removed - users go directly to playing
-  // No setup handlers needed anymore
-
-  // Render the game world directly - no onboarding
+  // Render the game world with onboarding support
   return (
     <div className="min-h-screen bg-white">
       <GameWorldView 
@@ -138,6 +144,8 @@ export default function GamePage() {
         onGoalsUpdate={setGoals}
         onHabitsUpdate={setHabits}
         onPlayerUpdate={setPlayer}
+        hasCompletedOnboarding={hasCompletedOnboarding}
+        onOnboardingComplete={() => setHasCompletedOnboarding(true)}
       />
     </div>
   )
