@@ -17,8 +17,6 @@ interface SidebarNavigationProps {
   setExpandedAreas: (areas: Set<string>) => void
   expandedGoalSections: Set<string>
   setExpandedGoalSections: (sections: Set<string>) => void
-  expandedFocus?: boolean
-  setExpandedFocus?: (expanded: boolean) => void
   handleOpenAreasManagementModal: () => void
   handleCreateGoal: () => void
   handleOpenStepModal: () => void
@@ -51,8 +49,6 @@ export function SidebarNavigation({
   setExpandedAreas,
   expandedGoalSections,
   setExpandedGoalSections,
-  expandedFocus = false,
-  setExpandedFocus,
   handleOpenAreasManagementModal,
   handleCreateGoal,
   handleOpenStepModal,
@@ -74,12 +70,7 @@ export function SidebarNavigation({
 }: SidebarNavigationProps) {
   const t = useTranslations()
   
-  // Auto-expand Focus if any focus section is selected
-  React.useEffect(() => {
-    if (mainPanelSection.startsWith('focus-') && !expandedFocus && setExpandedFocus) {
-      setExpandedFocus(true)
-    }
-  }, [mainPanelSection, expandedFocus, setExpandedFocus])
+  // Auto-expand logic removed - Focus items are always visible
 
   return (
     <div className={`hidden md:flex ${sidebarCollapsed ? 'w-14' : 'w-64'} border-r-4 border-primary-500 bg-white flex-shrink-0 transition-all duration-300 relative h-full flex flex-col`}>
@@ -88,58 +79,36 @@ export function SidebarNavigation({
           <h2 className="text-lg font-bold text-black mb-4 font-playful">{t('navigation.title')}</h2>
         )}
         <nav className={`${sidebarCollapsed ? 'space-y-2 flex flex-col items-center' : 'space-y-2'}`}>
-          {/* Focus section - expandable with Day, Week, Month */}
+          {/* Focus section - Day, Week, Month (always visible, not expandable) */}
           {!sidebarCollapsed ? (
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <button
-                onClick={() => {
-                  if (setExpandedFocus) {
-                    setExpandedFocus(!expandedFocus)
-                  }
-                }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 transition-all rounded-playful-md bg-transparent text-black hover:bg-primary-50`}
+                onClick={() => setMainPanelSection('focus-day')}
+                className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
+                  mainPanelSection === 'focus-day' ? 'active' : ''
+                }`}
               >
-                <Calendar className="w-5 h-5 flex-shrink-0" />
-                <span className="font-semibold flex-1 text-left">{t('navigation.focus') || 'Focus'}</span>
-                {expandedFocus ? (
-                  <ChevronUp className="w-4 h-4 flex-shrink-0" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 flex-shrink-0" />
-                )}
+                <CalendarDays className="w-4 h-4 flex-shrink-0" />
+                <span className="font-medium text-sm">{t('navigation.focusDay') || 'Den'}</span>
               </button>
-              
-              {/* Focus sub-items */}
-              {expandedFocus && (
-                <div className="ml-6 space-y-1.5">
-                  <button
-                    onClick={() => setMainPanelSection('focus-day')}
-                    className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                      mainPanelSection === 'focus-day' ? 'active' : ''
-                    }`}
-                  >
-                    <CalendarDays className="w-4 h-4 flex-shrink-0" />
-                    <span className="font-medium text-sm">{t('navigation.focusDay') || 'Day'}</span>
-                  </button>
-                  <button
-                    onClick={() => setMainPanelSection('focus-week')}
-                    className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                      mainPanelSection === 'focus-week' ? 'active' : ''
-                    }`}
-                  >
-                    <CalendarRange className="w-4 h-4 flex-shrink-0" />
-                    <span className="font-medium text-sm">{t('navigation.focusWeek') || 'Week'}</span>
-                  </button>
-                  <button
-                    onClick={() => setMainPanelSection('focus-month')}
-                    className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                      mainPanelSection === 'focus-month' ? 'active' : ''
-                    }`}
-                  >
-                    <Calendar className="w-4 h-4 flex-shrink-0" />
-                    <span className="font-medium text-sm">{t('navigation.focusMonth') || 'Month'}</span>
-                  </button>
-                </div>
-              )}
+              <button
+                onClick={() => setMainPanelSection('focus-week')}
+                className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
+                  mainPanelSection === 'focus-week' ? 'active' : ''
+                }`}
+              >
+                <CalendarRange className="w-4 h-4 flex-shrink-0" />
+                <span className="font-medium text-sm">{t('navigation.focusWeek') || 'Týden'}</span>
+              </button>
+              <button
+                onClick={() => setMainPanelSection('focus-month')}
+                className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
+                  mainPanelSection === 'focus-month' ? 'active' : ''
+                }`}
+              >
+                <Calendar className="w-4 h-4 flex-shrink-0" />
+                <span className="font-medium text-sm">{t('navigation.focusMonth') || 'Měsíc'}</span>
+              </button>
             </div>
           ) : (
             // Collapsed sidebar - show only Focus icon

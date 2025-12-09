@@ -126,8 +126,6 @@ export function PageContent(props: PageContentProps) {
     setExpandedAreas,
     expandedGoalSections,
     setExpandedGoalSections,
-    expandedFocus,
-    setExpandedFocus,
     handleOpenAreasManagementModal,
     handleOpenAreaEditModal,
     handleDeleteArea,
@@ -1022,8 +1020,6 @@ export function PageContent(props: PageContentProps) {
               setExpandedAreas={setExpandedAreas}
               expandedGoalSections={expandedGoalSections}
               setExpandedGoalSections={setExpandedGoalSections}
-              expandedFocus={expandedFocus}
-              setExpandedFocus={setExpandedFocus}
               handleOpenAreasManagementModal={handleOpenAreasManagementModal}
               handleCreateGoal={handleCreateGoal}
               handleOpenStepModal={handleOpenStepModal}

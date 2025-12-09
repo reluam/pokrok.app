@@ -329,7 +329,6 @@ export function JourneyGameView({
   // State for expanded goal status sections (paused/completed) per area
   const [expandedGoalSections, setExpandedGoalSections] = useState<Set<string>>(new Set()) // Format: "areaId-paused" or "areaId-completed"
   // State for expanded Focus section in sidebar
-  const [expandedFocus, setExpandedFocus] = useState<boolean>(true) // Default to expanded
   const [pendingWorkflow, setPendingWorkflow] = useState<any>(null)
   
   // Auto-expand/collapse areas based on current page
@@ -3415,8 +3414,6 @@ export function JourneyGameView({
           setExpandedAreas={setExpandedAreas}
           expandedGoalSections={expandedGoalSections}
           setExpandedGoalSections={setExpandedGoalSections}
-          expandedFocus={expandedFocus}
-          setExpandedFocus={setExpandedFocus}
           handleOpenAreasManagementModal={handleOpenAreasManagementModal}
           handleOpenAreaEditModal={handleOpenAreaEditModal}
           handleDeleteArea={handleDeleteArea}
