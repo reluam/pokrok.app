@@ -839,7 +839,7 @@ export function TodayFocusSection({
                                 const isScheduled = isHabitScheduledForDay(habit, day)
                                 const isCompleted = isHabitCompletedForDay(habit, day)
                                 const isSelected = weekSelectedDayDate && getLocalDateString(weekSelectedDayDate) === dateStr
-                                const isLoading = loadingHabits.has(habit.id)
+                                const isLoading = loadingHabits.has(`${habit.id}-${dateStr}`)
                                 const today = new Date()
                                 today.setHours(0, 0, 0, 0)
                                 const isFuture = day > today
@@ -1105,9 +1105,11 @@ export function TodayFocusSection({
                       })()
                       // Check loading state for this specific habit-day combination
                       const isLoading = loadingHabits.has(`${habit.id}-${displayDateStr}`)
+                      // In day view (not week view), always allow toggling habits regardless of date
+                      // Only check isFuture in week view
                       const today = new Date()
                       today.setHours(0, 0, 0, 0)
-                      const isFuture = selectedDayDate > today
+                      const isFuture = isWeekView ? (selectedDayDate > today) : false
                     
                     return (
                         <div key={habit.id} className="flex items-center gap-1">
@@ -1124,7 +1126,7 @@ export function TodayFocusSection({
                               handleHabitToggle(habit.id, displayDateStr)
                             }
                           }}
-                            disabled={isLoading}
+                            disabled={isLoading || isFuture}
                             className={`w-7 h-7 rounded-playful-sm flex items-center justify-center transition-all flex-shrink-0 border-2 ${
                               isCompleted
                                 ? 'box-playful-highlight bg-primary-100 border-primary-500 cursor-pointer hover:bg-primary-200'

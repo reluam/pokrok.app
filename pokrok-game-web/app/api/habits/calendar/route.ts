@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { neon } from '@neondatabase/serverless'
+import { invalidateHabitsCache } from '@/lib/cesta-db'
 
 const sql = neon(process.env.DATABASE_URL!)
 
@@ -64,7 +65,34 @@ export async function POST(request: NextRequest) {
       console.log('Insert/update completed')
     }
 
-    return NextResponse.json({ success: true })
+    // Invalidate habits cache BEFORE fetching fresh data
+    invalidateHabitsCache(dbUserId)
+    
+    // Small delay to ensure database transaction is committed
+    await new Promise(resolve => setTimeout(resolve, 50))
+    
+    // Fetch fresh data directly from database (bypassing cache)
+    const { getHabitsByUserId } = await import('@/lib/cesta-db')
+    // Force fresh fetch by passing forceFresh=true
+    const updatedHabits = await getHabitsByUserId(dbUserId, true)
+    const updatedHabit = updatedHabits.find((h: any) => h.id === habitId)
+    
+    if (!updatedHabit) {
+      return NextResponse.json({ error: 'Habit not found after update' }, { status: 404 })
+    }
+
+    // Add completed_today for compatibility
+    const today = new Date().toISOString().split('T')[0]
+    const habitsWithToday = updatedHabits.map((habit: any) => ({
+      ...habit,
+      completed_today: habit.habit_completions?.[today] === true
+    }))
+
+    return NextResponse.json({ 
+      success: true,
+      habit: updatedHabit,
+      habits: habitsWithToday // Return all habits with completed_today
+    })
   } catch (error) {
     console.error('Error updating habit calendar:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

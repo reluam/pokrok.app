@@ -11,7 +11,7 @@ const MAX_CACHE_SIZE = 1000 // Prevent memory leaks
 
 // Cache for getHabitsByUserId (optimized TTL for better performance)
 const habitsCache = new Map<string, { habits: any[], timestamp: number }>()
-const HABITS_CACHE_TTL = 30000 // 30 seconds - balance between freshness and performance
+const HABITS_CACHE_TTL = 5000 // 5 seconds - short TTL to ensure fresh data after updates
 
 // Cache for getGoalsByUserId (optimized TTL for better performance)
 const goalsCache = new Map<string, { goals: any[], timestamp: number }>()
@@ -3696,13 +3696,19 @@ export async function updateHabit(habitId: string, updates: Partial<Omit<Habit, 
   }
 }
 
-export async function getHabitsByUserId(userId: string): Promise<Habit[]> {
+export async function getHabitsByUserId(userId: string, forceFresh: boolean = false): Promise<Habit[]> {
   try {
-    // Check cache first
-    cleanupHabitsCache()
-    const cached = habitsCache.get(userId)
-    if (cached && (Date.now() - cached.timestamp) < HABITS_CACHE_TTL) {
-      return cached.habits as Habit[]
+    // If forceFresh is true, skip cache entirely
+    if (!forceFresh) {
+      // Check cache first
+      cleanupHabitsCache()
+      const cached = habitsCache.get(userId)
+      if (cached && (Date.now() - cached.timestamp) < HABITS_CACHE_TTL) {
+        return cached.habits as Habit[]
+      }
+    } else {
+      // Force fresh - invalidate cache
+      habitsCache.delete(userId)
     }
 
     const result = await sql`

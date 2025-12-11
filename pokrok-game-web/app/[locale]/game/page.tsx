@@ -115,14 +115,19 @@ export default function GamePage() {
   }, [isLoaded, isSignedIn, router, locale])
 
   // Show loading while checking auth and loading data
-  if (!isLoaded || isLoading) {
+  // Check if data is loaded (goals, habits should be arrays, not undefined)
+  const isDataLoaded = goals !== undefined && habits !== undefined && !isLoading
+  
+  if (!isLoaded || !isDataLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-orange-50">
         <div className="text-center">
           <div className="mb-6">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
           </div>
-          <h1 className="text-2xl font-bold text-orange-600">{t('common.loading')}</h1>
+          <h1 className="text-2xl font-bold text-orange-600">
+            {isLoaded && isLoading ? t('common.loadingData') : t('common.loading')}
+          </h1>
         </div>
       </div>
     )

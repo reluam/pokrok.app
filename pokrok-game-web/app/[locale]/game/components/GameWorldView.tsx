@@ -7,6 +7,8 @@ import { GoalsManagementView } from './GoalsManagementView'
 import { StatisticsView } from './StatisticsView'
 import { AchievementsView } from './AchievementsView'
 import { SettingsView } from './SettingsView'
+import { LoadingSpinner } from './ui/LoadingSpinner'
+import { useTranslations } from 'next-intl'
 
 interface GameWorldViewProps {
   player?: any
@@ -25,6 +27,7 @@ type GameView = 'character' | 'daily-plan' | 'goals' | 'notes' | 'map' | 'habits
 export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, onHabitsUpdate, onPlayerUpdate, hasCompletedOnboarding, onOnboardingComplete }: GameWorldViewProps) {
   const [currentView, setCurrentView] = useState<GameView>('character')
   const [dailySteps, setDailySteps] = useState<any[]>([])
+  const [isLoadingSteps, setIsLoadingSteps] = useState(true)
   // Default function if onPlayerUpdate is not provided
   const handlePlayerUpdate = onPlayerUpdate || (() => {})
 
@@ -34,9 +37,11 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
       // Use userId prop if available, otherwise fallback to player?.user_id
       const currentUserId = userId || player?.user_id
       if (!currentUserId) {
+        setIsLoadingSteps(false)
         return
       }
 
+      setIsLoadingSteps(true)
       try {
         // Calculate date range: 7 days ago to 14 days ahead
         const today = new Date()
@@ -58,6 +63,8 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
         }
       } catch (error) {
         console.error('Error loading daily steps:', error)
+      } finally {
+        setIsLoadingSteps(false)
       }
     }
 

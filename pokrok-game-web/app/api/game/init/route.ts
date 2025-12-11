@@ -13,10 +13,11 @@ export async function GET(request: NextRequest) {
     const { dbUser } = authResult
 
     // Load all game data in parallel
+    // Force fresh habits data to ensure latest completions are loaded
     const [player, goals, habits] = await Promise.all([
       getPlayerByUserId(dbUser.id).catch(() => null), // Player is optional
       getGoalsByUserId(dbUser.id).catch(() => []),
-      getHabitsByUserId(dbUser.id).catch(() => [])
+      getHabitsByUserId(dbUser.id, true).catch(() => []) // Force fresh data on page load
     ])
 
     // Add completed_today for habits compatibility

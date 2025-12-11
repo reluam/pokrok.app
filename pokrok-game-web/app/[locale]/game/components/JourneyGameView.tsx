@@ -46,6 +46,7 @@ import { HabitModal } from './modals/HabitModal'
 import { StepModal } from './modals/StepModal'
 import { DeleteStepModal } from './modals/DeleteStepModal'
 import { OnboardingTutorial } from './OnboardingTutorial'
+import { LoadingSpinner } from './ui/LoadingSpinner'
 
 interface JourneyGameViewProps {
   player?: any
@@ -697,40 +698,36 @@ export function JourneyGameView({
     // Create loading key for this specific habit-day combination
     const loadingKey = `${habitId}-${date}`
     
-    // Add to loading set
-    setLoadingHabits(prev => new Set(prev).add(loadingKey))
+    // Prevent duplicate requests - check both ref and state
+    if (loadingHabitsRef.current.has(loadingKey) || loadingHabits.has(loadingKey)) {
+      return
+    }
+    
+    // Find the habit in current habits array to get actual current state
+    const habit = habits.find((h: any) => h.id === habitId)
+    if (!habit) {
+      console.error('Habit not found:', habitId)
+      return
+    }
+    
+    // Get actual current completion state from habit_completions
+    const habitCompletions = habit.habit_completions || {}
+    const isCurrentlyCompleted = habitCompletions[date] === true
+    
+    // Simple toggle: if completed, uncomplete; if not completed, complete
+    const newState = !isCurrentlyCompleted
+    
+    // Set loading state IMMEDIATELY and synchronously
+    loadingHabitsRef.current.add(loadingKey)
+    setLoadingHabits(prev => {
+      if (prev.has(loadingKey)) return prev
+      const newSet = new Set(prev)
+      newSet.add(loadingKey)
+      return newSet
+    })
     
     try {
-      let newState: boolean | null = null
-      
-      // Determine new state based on current state and whether habit is scheduled for this day
-      if (currentState === 'completed') {
-        if (isScheduled) {
-          newState = false // Scheduled + completed -> missed
-        } else {
-          newState = null // Not scheduled + completed -> not scheduled (remove completion)
-        }
-      } else if (currentState === 'missed') {
-        newState = true // Missed -> completed
-      } else if (currentState === 'planned') {
-        newState = true // Planned -> completed
-      } else if (currentState === 'not-scheduled') {
-        newState = true // Not scheduled -> completed
-      } else if (currentState === 'today') {
-        // For today, cycle between completed and original state
-        const habitCompletions = (habitModalData || selectedItem)?.habit_completions || {}
-        const isCompletedToday = habitCompletions[date] === true
-        if (isCompletedToday) {
-          newState = null // Completed today -> back to original state (planned/not-scheduled)
-        } else {
-          newState = true // Not completed today -> completed
-        }
-      } else {
-        newState = true // Default to completed
-      }
-      
-      console.log('Calendar toggle:', { habitId, date, currentState, newState })
-      
+      // Send API request
       const response = await fetch('/api/habits/calendar', {
         method: 'POST',
         headers: {
@@ -743,18 +740,49 @@ export function JourneyGameView({
         }),
       })
       
-      console.log('Calendar response:', response.status, response.ok)
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`)
+      }
       
-      if (response.ok) {
-        // Update the habit in state via callback
+      const result = await response.json()
+      
+      // Use habits returned from API if available (avoids cache issues)
+      if (result.habits && Array.isArray(result.habits)) {
+        // API returned all habits directly - use them
         if (onHabitsUpdate) {
-          // Refresh habits from server
-          const habitsResponse = await fetch('/api/habits')
+          onHabitsUpdate(result.habits)
+        }
+        
+        // Update habit modal data if it's the same habit
+        if (habitModalData && habitModalData.id === habitId) {
+          const freshHabit = result.habits.find((h: any) => h.id === habitId)
+          if (freshHabit) {
+            setHabitModalData(freshHabit)
+          }
+        }
+        
+        // Update selected item if it's the same habit
+        if (selectedItem && selectedItem.id === habitId) {
+          const freshHabit = result.habits.find((h: any) => h.id === habitId)
+          if (freshHabit) {
+            setSelectedItem({
+              ...selectedItem,
+              habit_completions: freshHabit.habit_completions || {}
+            })
+          }
+        }
+      } else {
+        // Fallback: Refresh ALL habits from server with cache-busting
+        if (onHabitsUpdate) {
+          const cacheBuster = Date.now()
+          const habitsResponse = await fetch(`/api/habits?t=${cacheBuster}`, {
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache'
+            }
+          })
           if (habitsResponse.ok) {
             const updatedHabits = await habitsResponse.json()
-            console.log('Debug - updated habits from server:', updatedHabits)
-            console.log('Debug - Studená sprcha from server:', updatedHabits.find((h: any) => h.name === 'Studená sprcha'))
-            console.log('Debug - Studená sprcha habit_completions from server:', updatedHabits.find((h: any) => h.name === 'Studená sprcha')?.habit_completions)
             onHabitsUpdate(updatedHabits)
             
             // Update habit modal data if it's the same habit
@@ -764,30 +792,45 @@ export function JourneyGameView({
                 setHabitModalData(freshHabit)
               }
             }
+            
+            // Update selected item if it's the same habit
+            if (selectedItem && selectedItem.id === habitId) {
+              const freshHabit = updatedHabits.find((h: any) => h.id === habitId)
+              if (freshHabit) {
+                setSelectedItem({
+                  ...selectedItem,
+                  habit_completions: freshHabit.habit_completions || {}
+                })
+              }
+            }
           }
         }
-        
-        // Update selected item if it's the same habit
-        if (selectedItem && selectedItem.id === habitId) {
-          const updatedCompletions = {
-            ...selectedItem.habit_completions,
-            [date]: newState
-          }
-          setSelectedItem({
-            ...selectedItem,
-            habit_completions: updatedCompletions
-          })
-        }
-        
-      } else {
-        const errorText = await response.text()
-        console.error('Failed to update habit calendar:', response.status, errorText)
       }
     } catch (error) {
       console.error('Error updating habit calendar:', error)
+      // On error, refresh habits anyway to get current state (with cache-busting)
+      if (onHabitsUpdate) {
+        try {
+          const cacheBuster = Date.now()
+          const habitsResponse = await fetch(`/api/habits?t=${cacheBuster}`, {
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache'
+            }
+          })
+          if (habitsResponse.ok) {
+            const updatedHabits = await habitsResponse.json()
+            onHabitsUpdate(updatedHabits)
+          }
+        } catch (fetchError) {
+          console.error('Error fetching habits after error:', fetchError)
+        }
+      }
     } finally {
-      // Remove from loading set
+      // ALWAYS remove from loading set - use both ref and state
+      loadingHabitsRef.current.delete(loadingKey)
       setLoadingHabits(prev => {
+        if (!prev.has(loadingKey)) return prev
         const newSet = new Set(prev)
         newSet.delete(loadingKey)
         return newSet
@@ -1133,6 +1176,8 @@ export function JourneyGameView({
   const [loadingSteps, setLoadingSteps] = useState<Set<string>>(new Set())
   const [animatingSteps, setAnimatingSteps] = useState<Set<string>>(new Set()) // Steps currently animating completion
   const [loadingHabits, setLoadingHabits] = useState<Set<string>>(new Set())
+  // Use ref for synchronous loading check to prevent race conditions
+  const loadingHabitsRef = useRef<Set<string>>(new Set())
   
   // State for habit detail page timeline (per habit ID)
   const [habitTimelineOffsets, setHabitTimelineOffsets] = useState<Record<string, number>>({})
@@ -2071,59 +2116,148 @@ export function JourneyGameView({
   // SortableGoal has been extracted to ./journey/SortableGoal.tsx
 
   const handleHabitToggle = async (habitId: string, date?: string) => {
-      // Use provided date or default to today
-      const dateToUse = date || (() => {
+    // Use provided date or default to today
+    const dateToUse = date || (() => {
       const now = new Date()
-        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-      })()
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    })()
     
-    // Create loading key: use habitId-date for specific dates, habitId for today (when no date provided)
-    const loadingKey = date ? `${habitId}-${dateToUse}` : habitId
+    // Create loading key: always use habitId-date format for consistency
+    const loadingKey = `${habitId}-${dateToUse}`
     
-    // Add to loading set
-    setLoadingHabits(prev => new Set(prev).add(loadingKey))
+    // Prevent duplicate requests - check both ref and state
+    if (loadingHabitsRef.current.has(loadingKey) || loadingHabits.has(loadingKey)) {
+      return
+    }
+    
+    // Find the habit in current habits array to get actual current state
+    const habit = habits.find((h: any) => h.id === habitId)
+    if (!habit) {
+      console.error('Habit not found:', habitId)
+      return
+    }
+    
+    // Get actual current completion state from habit_completions
+    const habitCompletions = habit.habit_completions || {}
+    const isCurrentlyCompleted = habitCompletions[dateToUse] === true
+    
+    // Simple toggle: if completed, uncomplete; if not completed, complete
+    const newState = !isCurrentlyCompleted
+    
+    // Set loading state IMMEDIATELY and synchronously
+    loadingHabitsRef.current.add(loadingKey)
+    setLoadingHabits(prev => {
+      if (prev.has(loadingKey)) return prev
+      const newSet = new Set(prev)
+      newSet.add(loadingKey)
+      return newSet
+    })
     
     try {
-      const response = await fetch('/api/habits/toggle', {
+      // Send API request using calendar endpoint (same as handleHabitCalendarToggle)
+      const response = await fetch('/api/habits/calendar', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ habitId, date: dateToUse }),
+        body: JSON.stringify({
+          habitId,
+          date: dateToUse,
+          completed: newState
+        }),
       })
-
-      if (response.ok) {
-        const result = await response.json()
-        
-        // Update habits in parent component
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`)
+      }
+      
+      const result = await response.json()
+      
+      // Use habits returned from API if available (avoids cache issues)
+      if (result.habits && Array.isArray(result.habits)) {
+        // API returned all habits directly - use them (cache already invalidated)
         if (onHabitsUpdate) {
-          // Refresh habits from server to get updated habit_completions
-          const habitsResponse = await fetch('/api/habits')
-          if (habitsResponse.ok) {
-            const updatedHabits = await habitsResponse.json()
-            onHabitsUpdate(updatedHabits)
+          onHabitsUpdate(result.habits)
+        }
+        
+        // Update habit modal data if it's the same habit
+        if (habitModalData && habitModalData.id === habitId) {
+          const freshHabit = result.habits.find((h: any) => h.id === habitId)
+          if (freshHabit) {
+            setHabitModalData(freshHabit)
           }
         }
         
         // Update selected item if it's the same habit
         if (selectedItem && selectedItem.id === habitId) {
-          const updatedCompletions = {
-            ...selectedItem.habit_completions,
-            [dateToUse]: result.completed
+          const freshHabit = result.habits.find((h: any) => h.id === habitId)
+          if (freshHabit) {
+            setSelectedItem({
+              ...selectedItem,
+              habit_completions: freshHabit.habit_completions || {}
+            })
           }
-          setSelectedItem({
-            ...selectedItem,
-            habit_completions: updatedCompletions
-          })
         }
       } else {
-        console.error('Failed to toggle habit')
+        // Fallback: Refresh ALL habits from server with cache-busting
+        if (onHabitsUpdate) {
+          const cacheBuster = Date.now()
+          const habitsResponse = await fetch(`/api/habits?t=${cacheBuster}`, {
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache'
+            }
+          })
+          if (habitsResponse.ok) {
+            const updatedHabits = await habitsResponse.json()
+            onHabitsUpdate(updatedHabits)
+            
+            // Update habit modal data if it's the same habit
+            if (habitModalData && habitModalData.id === habitId) {
+              const freshHabit = updatedHabits.find((h: any) => h.id === habitId)
+              if (freshHabit) {
+                setHabitModalData(freshHabit)
+              }
+            }
+            
+            // Update selected item if it's the same habit
+            if (selectedItem && selectedItem.id === habitId) {
+              const freshHabit = updatedHabits.find((h: any) => h.id === habitId)
+              if (freshHabit) {
+                setSelectedItem({
+                  ...selectedItem,
+                  habit_completions: freshHabit.habit_completions || {}
+                })
+              }
+            }
+          }
+        }
       }
     } catch (error) {
-      console.error('Error toggling habit:', error);
+      console.error('Error updating habit:', error)
+      // On error, refresh habits anyway to get current state (with cache-busting)
+      if (onHabitsUpdate) {
+        try {
+          const cacheBuster = Date.now()
+          const habitsResponse = await fetch(`/api/habits?t=${cacheBuster}`, {
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache'
+            }
+          })
+          if (habitsResponse.ok) {
+            const updatedHabits = await habitsResponse.json()
+            onHabitsUpdate(updatedHabits)
+          }
+        } catch (fetchError) {
+          console.error('Error fetching habits after error:', fetchError)
+        }
+      }
     } finally {
-      // Remove from loading set
+      // ALWAYS remove from loading set - use both ref and state
+      loadingHabitsRef.current.delete(loadingKey)
       setLoadingHabits(prev => {
+        if (!prev.has(loadingKey)) return prev
         const newSet = new Set(prev)
         newSet.delete(loadingKey)
         return newSet
@@ -3804,7 +3938,6 @@ export function JourneyGameView({
         goalsSectionRef={goalsSectionRef}
         externalStep={onboardingStep as any}
       />
-
     </div>
   )
 }

@@ -12,6 +12,7 @@
     "add": "Add",
     "back": "Back",
     "loading": "Loading...",
+    "loadingData": "Loading data...",
     "noDate": "No date",
     "noDeadline": "No deadline",
     "noTitle": "No title",
@@ -1398,6 +1399,18 @@
         "description": "Excellent! You can find goals in the left navigation menu. In goals, you can create steps that will lead you to achieving them."
       }
     }
+  },
+  "monthView": {
+    "overall": "Overall",
+    "perfect": "Perfect",
+    "partial": "Partial",
+    "failed": "Failed",
+    "days": "days",
+    "allCompleted": "All completed",
+    "nothingCompleted": "Nothing completed",
+    "noActivity": "No activity",
+    "legend": "Legend",
+    "viewDay": "View day overview"
   }
 }
 

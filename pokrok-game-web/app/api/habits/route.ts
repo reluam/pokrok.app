@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth, verifyEntityOwnership } from '@/lib/auth-helpers'
-import { createHabit, getHabitsByUserId, updateHabit, deleteHabit } from '@/lib/cesta-db'
+import { createHabit, getHabitsByUserId, updateHabit, deleteHabit, invalidateHabitsCache } from '@/lib/cesta-db'
 import { neon } from '@neondatabase/serverless'
 
 const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
@@ -12,8 +12,14 @@ export async function GET(request: NextRequest) {
     if (authResult instanceof NextResponse) return authResult
     const { dbUser } = authResult
 
+    // Check if cache-busting parameter is present - if so, force fresh data
+    const { searchParams } = new URL(request.url)
+    const forceRefresh = searchParams.has('t')
+    
+    // Always use forceFresh when cache-busting parameter is present
     // Use the existing function that properly loads habit_completions
-    const habits = await getHabitsByUserId(dbUser.id)
+    // With short TTL (5 seconds), cache will auto-expire quickly after updates
+    const habits = await getHabitsByUserId(dbUser.id, forceRefresh)
     
     // Add completed_today for compatibility
     const today = new Date().toISOString().split('T')[0]

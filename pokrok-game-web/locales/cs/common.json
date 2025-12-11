@@ -12,6 +12,7 @@
     "add": "Přidat",
     "back": "Zpět",
     "loading": "Načítání...",
+    "loadingData": "Načítám data...",
     "noDate": "Bez data",
     "noDeadline": "Bez termínu",
     "noTitle": "Bez názvu",
@@ -1384,6 +1385,18 @@
         "description": "Výborně! Cíle najdete v navigačním menu vlevo. V cílech můžete vytvářet kroky, které vás dovedou k jejich dosažení."
       }
     }
+  },
+  "monthView": {
+    "overall": "Celkově",
+    "perfect": "Perfektní",
+    "partial": "Částečné",
+    "failed": "Neúspěšné",
+    "days": "dní",
+    "allCompleted": "Vše dokončeno",
+    "nothingCompleted": "Nic nedokončeno",
+    "noActivity": "Bez aktivity",
+    "legend": "Legenda",
+    "viewDay": "Zobrazit denní přehled"
   }
 }
 
