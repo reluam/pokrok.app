@@ -899,7 +899,7 @@ export function PageContent(props: PageContentProps) {
                   {/* Month View */}
                   <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
                     <MonthView
-                      key={`month-${habits.length}-${dailySteps.length}-${habits.reduce((acc: string, h: any) => acc + (h.habit_completions ? Object.keys(h.habit_completions).length : 0), '')}-${dailySteps.filter((s: any) => s.completed).length}`}
+                      key={`month-${habits.length}-${dailySteps.length}-${habits.reduce((acc: string, h: any) => acc + (h.habit_completions ? Object.keys(h.habit_completions).filter(k => h.habit_completions[k] === true).join(',') : ''), '')}-${dailySteps.filter((s: any) => s.completed).length}`}
                       goals={goals}
                       habits={habits}
                       dailySteps={dailySteps}

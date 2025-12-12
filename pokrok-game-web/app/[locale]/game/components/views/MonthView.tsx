@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, Check, X, Target, Footprints, CheckSquare, TrendingUp } from 'lucide-react'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { getLocalDateString } from '../utils/dateHelpers'
@@ -53,7 +53,28 @@ export function MonthView({
     return date
   })
   
-  const [selectedDay, setSelectedDay] = useState<Date | null>(null)
+  // Use selectedDayDate from props if available, otherwise use local state
+  const [localSelectedDay, setLocalSelectedDay] = useState<Date | null>(null)
+  
+  // Always prefer prop over local state, but keep local state as fallback
+  const selectedDay = selectedDayDate !== undefined ? selectedDayDate : localSelectedDay
+  
+  const setSelectedDay = (date: Date | null) => {
+    if (setSelectedDayDate) {
+      // Use prop setter if available
+      setSelectedDayDate(date as Date)
+    } else {
+      // Use local state as fallback
+      setLocalSelectedDay(date)
+    }
+  }
+  
+  // Sync local state with prop when prop changes (for persistence across re-mounts)
+  useEffect(() => {
+    if (selectedDayDate) {
+      setLocalSelectedDay(selectedDayDate)
+    }
+  }, [selectedDayDate])
   
   // Get all days in the month
   const monthDays = useMemo(() => {
@@ -181,7 +202,7 @@ export function MonthView({
       activeDays,
       totalDays
     }
-  }, [currentMonth, dailySteps, habits, today])
+  }, [currentMonth, dailySteps, habits, today, getDayStats])
   
   const handlePrevMonth = () => {
     const newMonth = new Date(currentMonth)
