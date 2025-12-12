@@ -2,7 +2,10 @@
 
 import { useTranslations } from 'next-intl'
 import { useState, useMemo, useCallback } from 'react'
-import { ChevronLeft, ChevronRight, Check, X, Target, Footprints, CheckSquare, TrendingUp, Calendar } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, X, Target, Footprints, CheckSquare, TrendingUp } from 'lucide-react'
+import { isHabitScheduledForDay } from '../utils/habitHelpers'
+import { getLocalDateString } from '../utils/dateHelpers'
+import { TodayFocusSection } from './TodayFocusSection'
 
 interface MonthViewProps {
   goals?: any[]
@@ -12,6 +15,12 @@ interface MonthViewProps {
   setSelectedDayDate?: (date: Date) => void
   setMainPanelSection?: (section: string) => void
   player?: any
+  handleHabitToggle?: (habitId: string, date?: string) => Promise<void>
+  handleStepToggle?: (stepId: string, completed: boolean) => Promise<void>
+  handleItemClick?: (item: any, type: 'step' | 'habit' | 'goal' | 'stat') => void
+  loadingHabits?: Set<string>
+  loadingSteps?: Set<string>
+  animatingSteps?: Set<string>
 }
 
 export function MonthView({
@@ -21,7 +30,13 @@ export function MonthView({
   selectedDayDate,
   setSelectedDayDate,
   setMainPanelSection,
-  player
+  player,
+  handleHabitToggle,
+  handleStepToggle,
+  handleItemClick,
+  loadingHabits = new Set(),
+  loadingSteps = new Set(),
+  animatingSteps = new Set()
 }: MonthViewProps) {
   const t = useTranslations()
   
@@ -72,27 +87,21 @@ export function MonthView({
   
   // Get day stats
   const getDayStats = useCallback((date: Date) => {
-    const dateStr = date.toISOString().split('T')[0]
+    const dateStr = getLocalDateString(date)
     
     // Get steps for this day
     const daySteps = dailySteps.filter((step: any) => {
-      const stepDate = step.date ? new Date(step.date).toISOString().split('T')[0] : null
+      if (!step.date) return false
+      const stepDate = getLocalDateString(new Date(step.date))
       return stepDate === dateStr
     })
     
     const completedSteps = daySteps.filter((step: any) => step.completed).length
     const totalSteps = daySteps.length
     
-    // Get habits for this day - check if they're scheduled
-    const dayOfWeek = date.getDay()
-    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-    const dayName = dayNames[dayOfWeek]
-    
+    // Get habits for this day - use the same helper function as WeekView and DayView
     const scheduledHabits = habits.filter((habit: any) => {
-      if (habit.frequency === 'daily') return true
-      if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
-      if (habit.always_show) return true
-      return false
+      return isHabitScheduledForDay(habit, date)
     })
     
     const completedHabits = scheduledHabits.filter((habit: any) => {
@@ -111,7 +120,7 @@ export function MonthView({
     }
   }, [dailySteps, habits])
   
-  // Calculate month statistics
+  // Calculate month statistics - force recalculation when habits or dailySteps change
   const monthStats = useMemo(() => {
     const year = currentMonth.getFullYear()
     const month = currentMonth.getMonth()
@@ -202,25 +211,18 @@ export function MonthView({
   const selectedDayData = useMemo(() => {
     if (!selectedDay) return null
     
-    const dateStr = selectedDay.toISOString().split('T')[0]
+    const dateStr = getLocalDateString(selectedDay)
     
     // Get steps for this day
     const daySteps = dailySteps.filter((step: any) => {
-      const stepDate = step.date ? new Date(step.date).toISOString().split('T')[0] : null
+      if (!step.date) return false
+      const stepDate = getLocalDateString(new Date(step.date))
       return stepDate === dateStr
     })
     
-    // Get habits for this day - check if they're scheduled and completed
-    const dayOfWeek = selectedDay.getDay()
-    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-    const dayName = dayNames[dayOfWeek]
-    
+    // Get habits for this day - use the same helper function as WeekView and DayView
     const dayHabits = habits.filter((habit: any) => {
-      // Check if habit is scheduled for this day
-      if (habit.frequency === 'daily') return true
-      if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
-      if (habit.always_show) return true
-      return false
+      return isHabitScheduledForDay(habit, selectedDay)
     }).map((habit: any) => {
       const isCompleted = habit.habit_completions && habit.habit_completions[dateStr] === true
       return {
@@ -257,6 +259,36 @@ export function MonthView({
     return 'partial'
   }
   
+  // Get stats for display (month or selected day)
+  const displayStats = useMemo(() => {
+    if (selectedDayData) {
+      return {
+        completionRate: selectedDayData.stats.completionRate,
+        totalCompleted: selectedDayData.stats.totalCompleted,
+        totalItems: selectedDayData.stats.totalItems,
+        completedSteps: selectedDayData.stats.steps.completed,
+        totalSteps: selectedDayData.stats.steps.total,
+        completedHabits: selectedDayData.stats.habits.completed,
+        totalHabits: selectedDayData.stats.habits.total,
+        perfectDays: selectedDayData.stats.completionRate === 100 ? 1 : 0,
+        partialDays: selectedDayData.stats.completionRate > 0 && selectedDayData.stats.completionRate < 100 ? 1 : 0,
+        failedDays: selectedDayData.stats.completionRate === 0 && selectedDayData.stats.totalItems > 0 ? 1 : 0
+      }
+    }
+    return monthStats
+  }, [selectedDayData, monthStats])
+
+  // Filter steps for selected day (only today's steps, no future or delayed)
+  const filteredStepsForDay = useMemo(() => {
+    if (!selectedDayData) return []
+    const dateStr = selectedDayData.dateStr
+    return dailySteps.filter((step: any) => {
+      if (!step.date) return false
+      const stepDate = step.date ? new Date(step.date).toISOString().split('T')[0] : null
+      return stepDate === dateStr
+    })
+  }, [selectedDayData, dailySteps])
+
   return (
     <div className="w-full h-full flex flex-col p-4 sm:p-6 lg:p-8 bg-orange-50 overflow-y-auto">
       {/* Header with month navigation */}
@@ -280,21 +312,24 @@ export function MonthView({
             </button>
           </div>
         </div>
-        
-        {/* Compact month summary */}
-        <div className="bg-white border-4 border-primary-500 rounded-playful-lg p-4 mb-4">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      </div>
+      
+      {/* Layout: Stats on left, Calendar on right */}
+      <div className="flex flex-col lg:flex-row gap-4 mb-4">
+        {/* Statistics box - left side */}
+        <div className="bg-white border-4 border-primary-500 rounded-playful-lg p-4 flex-shrink-0 lg:w-80">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-3">
             {/* Overall completion */}
-            <div className="col-span-2 sm:col-span-1">
+            <div className="col-span-2 sm:col-span-4 lg:col-span-2">
               <div className="flex items-center gap-2 mb-1">
                 <TrendingUp className="w-4 h-4 text-primary-600" />
-                <span className="text-xs font-semibold text-gray-600">{t('monthView.overall') || 'Celkově'}</span>
+                <span className="text-xs font-semibold text-gray-600">{selectedDayData ? t('common.completed') || 'Dokončeno' : t('monthView.overall') || 'Celkově'}</span>
               </div>
               <div className="text-2xl font-bold text-black">
-                {monthStats.completionRate}%
+                {displayStats.completionRate}%
               </div>
               <div className="text-xs text-gray-500">
-                {monthStats.totalCompleted}/{monthStats.totalItems}
+                {displayStats.totalCompleted}/{displayStats.totalItems}
               </div>
             </div>
             
@@ -305,10 +340,10 @@ export function MonthView({
                 <span className="text-xs font-semibold text-gray-600">{t('monthView.perfect') || 'Perfektní'}</span>
               </div>
               <div className="text-2xl font-bold text-green-600">
-                {monthStats.perfectDays}
+                {displayStats.perfectDays}
               </div>
               <div className="text-xs text-gray-500">
-                {t('monthView.days') || 'dní'}
+                {selectedDayData ? '' : t('monthView.days') || 'dní'}
               </div>
             </div>
             
@@ -319,10 +354,10 @@ export function MonthView({
                 <span className="text-xs font-semibold text-gray-600">{t('monthView.partial') || 'Částečné'}</span>
               </div>
               <div className="text-2xl font-bold text-orange-600">
-                {monthStats.partialDays}
+                {displayStats.partialDays}
               </div>
               <div className="text-xs text-gray-500">
-                {t('monthView.days') || 'dní'}
+                {selectedDayData ? '' : t('monthView.days') || 'dní'}
               </div>
             </div>
             
@@ -333,10 +368,10 @@ export function MonthView({
                 <span className="text-xs font-semibold text-gray-600">{t('monthView.failed') || 'Neúspěšné'}</span>
               </div>
               <div className="text-2xl font-bold text-red-600">
-                {monthStats.failedDays}
+                {displayStats.failedDays}
               </div>
               <div className="text-xs text-gray-500">
-                {t('monthView.days') || 'dní'}
+                {selectedDayData ? '' : t('monthView.days') || 'dní'}
               </div>
             </div>
           </div>
@@ -349,11 +384,11 @@ export function MonthView({
                 <span className="text-xs font-semibold text-gray-600">{t('navigation.steps') || 'Kroky'}</span>
               </div>
               <div className="text-lg font-bold text-black">
-                {monthStats.completedSteps}/{monthStats.totalSteps}
+                {displayStats.completedSteps}/{displayStats.totalSteps}
               </div>
-              {monthStats.totalSteps > 0 && (
+              {displayStats.totalSteps > 0 && (
                 <div className="text-xs text-gray-500">
-                  {Math.round((monthStats.completedSteps / monthStats.totalSteps) * 100)}%
+                  {Math.round((displayStats.completedSteps / displayStats.totalSteps) * 100)}%
                 </div>
               )}
             </div>
@@ -364,20 +399,19 @@ export function MonthView({
                 <span className="text-xs font-semibold text-gray-600">{t('navigation.habits') || 'Návyky'}</span>
               </div>
               <div className="text-lg font-bold text-black">
-                {monthStats.completedHabits}/{monthStats.totalHabits}
+                {displayStats.completedHabits}/{displayStats.totalHabits}
               </div>
-              {monthStats.totalHabits > 0 && (
+              {displayStats.totalHabits > 0 && (
                 <div className="text-xs text-gray-500">
-                  {Math.round((monthStats.completedHabits / monthStats.totalHabits) * 100)}%
+                  {Math.round((displayStats.completedHabits / displayStats.totalHabits) * 100)}%
                 </div>
               )}
             </div>
           </div>
         </div>
-      </div>
       
-      {/* Compact calendar grid */}
-      <div className="bg-white border-4 border-primary-500 rounded-playful-lg p-3 sm:p-4">
+        {/* Compact calendar grid - right side */}
+        <div className="bg-white border-4 border-primary-500 rounded-playful-lg p-3 sm:p-4 flex-1">
         {/* Day names header */}
         <div className="grid grid-cols-7 gap-1.5 mb-2">
           {dayNames.map((dayName) => (
@@ -406,31 +440,38 @@ export function MonthView({
             // Determine day appearance based on status
             let dayClasses = ''
             let indicatorColor = ''
+            let textColor = 'text-gray-700'
             
             switch (status) {
               case 'perfect':
-                dayClasses = 'bg-green-500 border-2 border-green-700'
-                indicatorColor = 'bg-green-700'
+                dayClasses = 'bg-primary-500 border-2 border-primary-700'
+                indicatorColor = 'bg-primary-700'
+                textColor = 'text-white'
                 break
               case 'partial':
                 dayClasses = 'bg-orange-200 border-2 border-orange-500'
                 indicatorColor = 'bg-orange-500'
+                textColor = 'text-gray-700'
                 break
               case 'failed':
                 dayClasses = 'bg-red-100 border-2 border-red-500'
                 indicatorColor = 'bg-red-500'
+                textColor = 'text-gray-700'
                 break
               case 'no-activity':
                 dayClasses = 'bg-gray-100 border-2 border-gray-300'
                 indicatorColor = 'bg-gray-400'
+                textColor = 'text-gray-700'
                 break
               case 'today':
                 dayClasses = 'bg-primary-200 border-4 border-primary-500'
                 indicatorColor = 'bg-primary-500'
+                textColor = 'text-black'
                 break
               case 'future':
                 dayClasses = 'bg-gray-50 border-2 border-gray-200'
                 indicatorColor = 'bg-gray-300'
+                textColor = 'text-gray-500'
                 break
             }
             
@@ -438,16 +479,16 @@ export function MonthView({
               <button
                 key={date.toISOString()}
                 onClick={() => !isFuture && handleDayClick(date)}
-                className={`aspect-square ${dayClasses} rounded-playful-sm p-1.5 flex flex-col items-center justify-center transition-all hover:scale-105 ${isFuture ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${selectedDay && date.toISOString() === selectedDay.toISOString() ? 'ring-4 ring-primary-400 ring-offset-2' : ''}`}
+                className={`h-12 sm:h-14 md:h-16 ${dayClasses} rounded-playful-sm p-1.5 flex flex-col items-center justify-center transition-all hover:scale-105 ${isFuture ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${selectedDay && date.toISOString() === selectedDay.toISOString() ? 'ring-4 ring-primary-400 ring-offset-2' : ''}`}
                 disabled={isFuture}
                 title={isFuture ? '' : `${date.getDate()}. ${date.getMonth() + 1}. - ${stats.totalItems > 0 ? `${stats.steps.completed + stats.habits.completed}/${stats.totalItems} dokončeno` : 'Bez aktivity'}`}
               >
                 {/* Day number */}
-                <div className={`text-sm font-bold ${status === 'perfect' ? 'text-white' : status === 'today' ? 'text-black' : 'text-gray-700'} mb-0.5`}>
+                <div className={`text-sm font-bold ${textColor} mb-0.5`}>
                   {date.getDate()}
                 </div>
                 
-                {/* Compact indicator */}
+                {/* Compact indicator or percentage */}
                 {!isFuture && stats.totalItems > 0 && (
                   <div className="flex items-center gap-0.5">
                     {status === 'perfect' ? (
@@ -455,196 +496,48 @@ export function MonthView({
                     ) : status === 'failed' ? (
                       <X className="w-3 h-3 text-red-600" strokeWidth={3} />
                     ) : (
-                      <div className={`w-2 h-2 rounded-full ${indicatorColor}`} />
+                      <div className="text-[8px] font-bold text-gray-700">
+                        {stats.completionRate}%
+                      </div>
                     )}
-                  </div>
-                )}
-                
-                {/* Small completion rate for partial days */}
-                {status === 'partial' && (
-                  <div className="text-[8px] font-bold text-gray-700 mt-0.5">
-                    {stats.completionRate}%
                   </div>
                 )}
               </button>
             )
           })}
         </div>
+        </div>
       </div>
       
-      {/* Selected day detail */}
+      {/* Selected day detail - display habits and steps without box */}
       {selectedDayData && (
-        <div className="mt-4 bg-white border-4 border-primary-500 rounded-playful-lg p-4 sm:p-6">
-          {/* Day header */}
-          <div className="mb-4 pb-4 border-b-2 border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-bold text-black font-playful mb-1">
-                  {selectedDayData.date.toLocaleDateString('cs-CZ', { 
-                    weekday: 'long', 
-                    day: 'numeric', 
-                    month: 'long', 
-                    year: 'numeric' 
-                  })}
-                </h3>
-                <div className="text-sm text-gray-600">
-                  {selectedDayData.stats.completionRate}% {t('common.completed') || 'dokončeno'} • {selectedDayData.stats.totalCompleted}/{selectedDayData.stats.totalItems}
-                </div>
-              </div>
-              <button
-                onClick={() => setSelectedDay(null)}
-                className="w-8 h-8 flex items-center justify-center border-2 border-gray-300 rounded-playful-sm hover:bg-gray-100 transition-colors"
-              >
-                <X className="w-4 h-4 text-gray-600" />
-              </button>
-            </div>
-          </div>
-          
-          {/* Day statistics */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            <div className="bg-primary-50 border-2 border-primary-300 rounded-playful-md p-3">
-              <div className="flex items-center gap-2 mb-1">
-                <Footprints className="w-4 h-4 text-primary-600" />
-                <span className="text-xs font-semibold text-gray-700">{t('navigation.steps') || 'Kroky'}</span>
-              </div>
-              <div className="text-lg font-bold text-black">
-                {selectedDayData.stats.steps.completed}/{selectedDayData.stats.steps.total}
-              </div>
-              {selectedDayData.stats.steps.total > 0 && (
-                <div className="text-xs text-gray-600">
-                  {Math.round((selectedDayData.stats.steps.completed / selectedDayData.stats.steps.total) * 100)}%
-                </div>
-              )}
-            </div>
-            
-            <div className="bg-primary-50 border-2 border-primary-300 rounded-playful-md p-3">
-              <div className="flex items-center gap-2 mb-1">
-                <CheckSquare className="w-4 h-4 text-primary-600" />
-                <span className="text-xs font-semibold text-gray-700">{t('navigation.habits') || 'Návyky'}</span>
-              </div>
-              <div className="text-lg font-bold text-black">
-                {selectedDayData.stats.habits.completed}/{selectedDayData.stats.habits.total}
-              </div>
-              {selectedDayData.stats.habits.total > 0 && (
-                <div className="text-xs text-gray-600">
-                  {Math.round((selectedDayData.stats.habits.completed / selectedDayData.stats.habits.total) * 100)}%
-                </div>
-              )}
-            </div>
-          </div>
-          
-          {/* Steps list */}
-          {selectedDayData.steps.length > 0 && (
-            <div className="mb-6">
-              <h4 className="text-sm font-bold text-black mb-3 flex items-center gap-2">
-                <Footprints className="w-4 h-4" />
-                {t('navigation.steps') || 'Kroky'} ({selectedDayData.steps.length})
-              </h4>
-              <div className="space-y-2">
-                {selectedDayData.steps.map((step: any) => {
-                  const goal = goals.find((g: any) => g.id === step.goal_id)
-                  return (
-                    <div
-                      key={step.id}
-                      className={`flex items-start gap-3 p-3 rounded-playful-sm border-2 ${
-                        step.completed
-                          ? 'bg-green-50 border-green-300'
-                          : 'bg-gray-50 border-gray-300'
-                      }`}
-                    >
-                      <div className="mt-0.5">
-                        {step.completed ? (
-                          <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
-                        ) : (
-                          <div className="w-5 h-5 border-2 border-gray-400 rounded-sm" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold text-black">
-                          {step.title || step.name || t('common.unnamed') || 'Bez názvu'}
-                        </div>
-                        {goal && (
-                          <div className="text-xs text-gray-600 mt-0.5">
-                            {t('common.goal') || 'Cíl'}: {goal.title || goal.name}
-                          </div>
-                        )}
-                        {step.description && (
-                          <div className="text-xs text-gray-500 mt-1 line-clamp-2">
-                            {step.description}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-          
-          {/* Habits list */}
-          {selectedDayData.habits.length > 0 && (
-            <div>
-              <h4 className="text-sm font-bold text-black mb-3 flex items-center gap-2">
-                <CheckSquare className="w-4 h-4" />
-                {t('navigation.habits') || 'Návyky'} ({selectedDayData.habits.length})
-              </h4>
-              <div className="space-y-2">
-                {selectedDayData.habits.map((habit: any) => (
-                  <div
-                    key={habit.id}
-                    className={`flex items-start gap-3 p-3 rounded-playful-sm border-2 ${
-                      habit.isCompleted
-                        ? 'bg-green-50 border-green-300'
-                        : 'bg-gray-50 border-gray-300'
-                    }`}
-                  >
-                    <div className="mt-0.5">
-                      {habit.isCompleted ? (
-                        <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
-                      ) : (
-                        <div className="w-5 h-5 border-2 border-gray-400 rounded-sm" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold text-black">
-                        {habit.title || habit.name || t('common.unnamed') || 'Bez názvu'}
-                      </div>
-                      {habit.description && (
-                        <div className="text-xs text-gray-500 mt-1 line-clamp-2">
-                          {habit.description}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {/* Empty state */}
-          {selectedDayData.steps.length === 0 && selectedDayData.habits.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">{t('monthView.noActivity') || 'Bez aktivity'}</p>
-            </div>
-          )}
-          
-          {/* Navigate to day view button */}
-          <div className="mt-6 pt-4 border-t-2 border-gray-200">
+        <div className="mt-4">
+          {/* Close button */}
+          <div className="flex justify-end mb-2">
             <button
-              onClick={() => {
-                if (setSelectedDayDate) {
-                  setSelectedDayDate(selectedDayData.date)
-                }
-                if (setMainPanelSection) {
-                  setMainPanelSection('focus-day')
-                }
-              }}
-              className="w-full py-2 px-4 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-playful-md transition-colors"
+              onClick={() => setSelectedDay(null)}
+              className="w-8 h-8 flex items-center justify-center border-2 border-gray-300 rounded-playful-sm hover:bg-gray-100 transition-colors bg-white"
             >
-              {t('monthView.viewDay') || 'Zobrazit denní přehled'}
+              <X className="w-4 h-4 text-gray-600" />
             </button>
           </div>
+          
+          {/* Use TodayFocusSection for consistent display - only today's steps */}
+          <TodayFocusSection
+            goals={goals}
+            dailySteps={filteredStepsForDay}
+            habits={habits}
+            selectedDayDate={selectedDayData.date}
+            handleStepToggle={handleStepToggle || (async () => {})}
+            handleHabitToggle={handleHabitToggle}
+            handleItemClick={handleItemClick || (() => {})}
+            loadingSteps={loadingSteps}
+            animatingSteps={animatingSteps}
+            loadingHabits={loadingHabits}
+            player={player}
+            todaySteps={filteredStepsForDay}
+            isWeekView={false}
+          />
         </div>
       )}
       

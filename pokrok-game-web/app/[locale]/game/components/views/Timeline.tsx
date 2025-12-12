@@ -138,7 +138,7 @@ export function Timeline({
           <div className="absolute left-0 right-0 h-0.5 bg-gray-200 rounded-full"></div>
           
           {/* Dot */}
-          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-0">
             <div className={`w-4 h-4 rounded-full border-2 border-white shadow-sm transition-all ${
               isToday ? 'bg-orange-500 ring-4 ring-orange-100' : 'bg-gray-400'
             }`} />
@@ -183,7 +183,7 @@ export function Timeline({
                 <button
                   key={dateStr}
                   onClick={() => onDateClick?.(date)}
-                  className="group flex flex-col items-center relative z-10 focus:outline-none min-w-[40px]"
+                  className="group flex flex-col items-center relative z-0 focus:outline-none min-w-[40px]"
                 >
                   {/* Dot (circle) on the line */}
                   <div className={`w-4 h-4 rounded-full border-2 border-white shadow-sm transition-all duration-200 mb-3 ${

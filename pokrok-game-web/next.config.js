@@ -7,6 +7,16 @@ const nextConfig = {
   images: {
     domains: ['cdn.sanity.io'],
   },
+  // Improve hot reload stability
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      config.watchOptions = {
+        poll: 1000,
+        aggregateTimeout: 300,
+      }
+    }
+    return config
+  },
 }
 
 module.exports = withNextIntl(nextConfig)

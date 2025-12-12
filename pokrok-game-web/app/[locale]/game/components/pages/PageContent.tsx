@@ -896,9 +896,24 @@ export function PageContent(props: PageContentProps) {
             case 'focus-month':
               return (
                 <div className="w-full min-h-full flex flex-col bg-orange-50">
-                  {/* Month View - Placeholder */}
+                  {/* Month View */}
                   <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
-                    <MonthView />
+                    <MonthView
+                      key={`month-${habits.length}-${dailySteps.length}-${habits.reduce((acc: string, h: any) => acc + (h.habit_completions ? Object.keys(h.habit_completions).length : 0), '')}-${dailySteps.filter((s: any) => s.completed).length}`}
+                      goals={goals}
+                      habits={habits}
+                      dailySteps={dailySteps}
+                      selectedDayDate={selectedDayDate}
+                      setSelectedDayDate={setSelectedDayDate}
+                      setMainPanelSection={setMainPanelSection}
+                      player={player}
+                      handleHabitToggle={handleHabitToggle}
+                      handleStepToggle={handleToggleStepCompleted}
+                      handleItemClick={handleItemClick}
+                      loadingHabits={loadingHabits}
+                      loadingSteps={loadingSteps}
+                      animatingSteps={animatingSteps}
+                    />
                   </div>
                 </div>
               )
@@ -1075,7 +1090,7 @@ export function PageContent(props: PageContentProps) {
                             className="fixed inset-0 z-[100]" 
                             onClick={() => setMobileMenuOpen(false)}
                           />
-                          <div className="fixed right-4 top-16 bg-white border border-gray-200 rounded-lg shadow-lg z-[101] min-w-[200px]">
+                          <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-[101] min-w-[200px]">
                             <nav className="py-2">
                               {/* Focus Day */}
                               <button

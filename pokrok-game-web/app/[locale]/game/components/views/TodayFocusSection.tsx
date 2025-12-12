@@ -4,7 +4,7 @@ import { useMemo, useEffect, useRef, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
-import { Check, Target, ArrowRight, ChevronDown, ChevronUp, Plus } from 'lucide-react'
+import { Check, Target, ArrowRight, ChevronDown, ChevronUp, Plus, CheckSquare } from 'lucide-react'
 import { getIconEmoji, getIconComponent } from '@/lib/icon-utils'
 
 interface TodayFocusSectionProps {
@@ -1085,17 +1085,8 @@ export function TodayFocusSection({
               </h4>
               {todaysHabits.length > 0 ? (
                 <div>
-                  {/* Header with day name */}
-                  <div className="flex items-center gap-1 mb-1">
-                    <div className="w-[100px] flex-shrink-0" />
-                    <div className="w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded-playful-sm border-2 bg-primary-100 text-primary-700 font-semibold border-primary-500">
-                      <span className="uppercase leading-none">{dayNamesShort[selectedDayDate.getDay()]}</span>
-                      <span className="text-[8px] leading-none">{selectedDayDate.getDate()}</span>
-                    </div>
-                  </div>
-                  
                   {/* Habits */}
-                  <div className="space-y-1">
+                  <div className="grid grid-cols-1 gap-3">
                   {todaysHabits.map((habit) => {
                     const isCompleted = habit.habit_completions && habit.habit_completions[displayDateStr] === true
                       const isScheduled = (() => {
@@ -1110,43 +1101,99 @@ export function TodayFocusSection({
                       const today = new Date()
                       today.setHours(0, 0, 0, 0)
                       const isFuture = isWeekView ? (selectedDayDate > today) : false
+                      
+                      const HabitIcon = habit.icon ? getIconComponent(habit.icon) : CheckSquare
+                      const iconEmoji = habit.icon ? getIconEmoji(habit.icon) : null
                     
                     return (
-                        <div key={habit.id} className="flex items-center gap-1">
-                      <button
-                            onClick={() => handleItemClick(habit, 'habit')}
-                            className="w-[100px] text-left text-[11px] font-medium text-black hover:text-primary-600 transition-colors truncate flex-shrink-0"
-                            title={habit.name}
-                          >
-                            {habit.name}
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (handleHabitToggle && !isLoading && !isFuture) {
-                              handleHabitToggle(habit.id, displayDateStr)
+                        <div 
+                          key={habit.id} 
+                          className={`group relative flex items-start gap-3 p-4 rounded-playful-md border-2 transition-all cursor-pointer ${
+                            isCompleted
+                              ? 'bg-white border-primary-400'
+                              : 'bg-white border-gray-300 hover:border-primary-400'
+                          }`}
+                          style={{
+                            boxShadow: isCompleted 
+                              ? '0 2px 8px rgba(249, 115, 22, 0.2) !important'
+                              : '0 2px 8px rgba(249, 115, 22, 0.15) !important'
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isCompleted) {
+                              e.currentTarget.style.setProperty('box-shadow', '0 2px 8px rgba(249, 115, 22, 0.25)', 'important')
                             }
                           }}
-                            disabled={isLoading || isFuture}
-                            className={`w-7 h-7 rounded-playful-sm flex items-center justify-center transition-all flex-shrink-0 border-2 ${
-                              isCompleted
-                                ? 'box-playful-highlight bg-primary-100 border-primary-500 cursor-pointer hover:bg-primary-200'
-                                : isFuture
-                                  ? 'bg-white border-gray-300 cursor-not-allowed opacity-50'
-                                  : !isScheduled 
-                                    ? 'bg-white border-gray-300 hover:border-primary-500 cursor-pointer' 
-                                    : 'box-playful-highlight bg-white border-primary-500 hover:bg-primary-50 cursor-pointer'
-                            }`}
-                            title={isCompleted ? 'Splněno' : 'Klikni pro splnění'}
-                          >
-                            {isLoading ? (
-                              <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                          ) : isCompleted ? (
-                            <Check className="w-4 h-4 text-primary-600" strokeWidth={3} />
-                          ) : null}
-                      </button>
+                          onMouseLeave={(e) => {
+                            if (!isCompleted) {
+                              e.currentTarget.style.setProperty('box-shadow', '0 2px 8px rgba(249, 115, 22, 0.15)', 'important')
+                            }
+                          }}
+                          onClick={() => handleItemClick(habit, 'habit')}
+                        >
+                          {/* Icon */}
+                          <div className={`flex-shrink-0 w-10 h-10 rounded-playful-sm flex items-center justify-center border-2 ${
+                            isCompleted
+                              ? 'bg-primary-500 border-primary-600'
+                              : 'bg-primary-50 border-primary-300 group-hover:bg-primary-100 group-hover:border-primary-400'
+                          } transition-colors`}>
+                            {iconEmoji ? (
+                              <span className="text-lg">{iconEmoji}</span>
+                            ) : (
+                              <HabitIcon className={`w-5 h-5 ${
+                                isCompleted ? 'text-white' : 'text-primary-600'
+                              }`} />
+                            )}
+                          </div>
+                          
+                          {/* Content */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <div className={`text-sm font-bold ${
+                                  isCompleted ? 'text-primary-800 line-through' : 'text-black'
+                                }`}>
+                                  {habit.name}
+                                </div>
+                                {habit.description && (
+                                  <div className={`text-xs mt-1 line-clamp-2 ${
+                                    isCompleted ? 'text-primary-600' : 'text-gray-600'
+                                  }`}>
+                                    {habit.description}
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {/* Completion checkbox - same style as HabitsPage */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  if (handleHabitToggle && !isLoading && !isFuture) {
+                                    handleHabitToggle(habit.id, displayDateStr)
+                                  }
+                                }}
+                                disabled={isLoading || isFuture}
+                                className={`flex-shrink-0 w-8 h-8 rounded-playful-sm flex items-center justify-center transition-all border-2 ${
+                                  isCompleted
+                                    ? 'bg-primary-100 border-primary-500 hover:bg-primary-200 cursor-pointer'
+                                    : isFuture
+                                      ? 'bg-white border-gray-400 cursor-not-allowed opacity-50'
+                                      : !isScheduled 
+                                        ? 'bg-white border-gray-400 hover:bg-gray-50 cursor-pointer' 
+                                        : 'bg-white border-primary-500 hover:bg-primary-50 cursor-pointer'
+                                }`}
+                                title={isCompleted ? 'Splněno' : 'Klikni pro splnění'}
+                              >
+                                {isLoading ? (
+                                  <svg className="animate-spin h-3 w-3 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                ) : isCompleted ? (
+                                  <Check className="w-4 h-4 text-primary-600" strokeWidth={3} />
+                                ) : null}
+                              </button>
+                            </div>
+                          </div>
                         </div>
                     )
                   })}

@@ -434,7 +434,7 @@ export function HelpView({
                 {/* Example Habit Timeline */}
                 <div className="box-playful-highlight p-4 mb-4">
                   {/* Header with day names */}
-                  <div className="flex items-center gap-1 mb-2 pl-[100px]">
+                  <div className="flex items-center gap-1 mb-2 sm:pl-[100px]">
                     {(() => {
                       const days = [
                         t('days.mon'),
@@ -447,7 +447,7 @@ export function HelpView({
                       ]
                       const startDate = 15 // Fixed start date for example
                       return days.map((day, idx) => (
-                        <div key={idx} className="w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded text-gray-400">
+                        <div key={idx} className="w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded text-gray-400 flex-shrink-0">
                           <span className="uppercase leading-none">{day}</span>
                           <span className="text-[8px] leading-none">{startDate + idx}</span>
                         </div>
@@ -456,39 +456,39 @@ export function HelpView({
                   </div>
                   
                   {/* Habits with boxes */}
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1">
-                      <button className="w-[100px] text-left text-[11px] font-medium text-gray-600 font-playful hover:text-primary-600 transition-colors truncate flex-shrink-0 font-playful">
+                  <div className="space-y-3 sm:space-y-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-1">
+                      <button className="text-left text-[11px] font-medium text-gray-600 font-playful hover:text-primary-600 transition-colors font-playful sm:w-[100px] sm:flex-shrink-0">
                         {t('gettingStarted.step3.example1')}
                       </button>
                       <div className="flex gap-1">
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center">
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center flex-shrink-0">
                           <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                         </div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center">
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center flex-shrink-0">
                           <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                         </div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <button className="w-[100px] text-left text-[11px] font-medium text-gray-600 font-playful hover:text-primary-600 transition-colors truncate flex-shrink-0 font-playful">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-1">
+                      <button className="text-left text-[11px] font-medium text-gray-600 font-playful hover:text-primary-600 transition-colors font-playful sm:w-[100px] sm:flex-shrink-0">
                         {t('gettingStarted.step3.example2')}
                       </button>
                       <div className="flex gap-1">
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center">
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center flex-shrink-0">
                           <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                         </div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
+                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
                       </div>
                     </div>
                   </div>
@@ -669,31 +669,31 @@ export function HelpView({
                       <span className="w-6 h-6 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
                       <h4 className="font-semibold text-black font-playful">{t('focusHelp.habits')}</h4>
                     </div>
-                    <div className="flex items-center gap-1 mb-2 pl-[100px]">
+                    <div className="flex items-center gap-1 mb-2 sm:pl-[100px]">
                       {focusWeekDays.map((day) => (
-                        <div key={getLocalDateString(day)} className="w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded text-gray-400">
+                        <div key={getLocalDateString(day)} className="w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded text-gray-400 flex-shrink-0">
                           <span className="uppercase leading-none">{dayNamesShort[day.getDay()]}</span>
                           <span className="text-[8px] leading-none">{day.getDate()}</span>
                         </div>
                       ))}
                     </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-1">
-                        <span className="w-[100px] text-left text-[11px] font-medium text-gray-600 font-playful flex-shrink-0">
+                    <div className="space-y-3 sm:space-y-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-1">
+                        <span className="text-left text-[11px] font-medium text-gray-600 font-playful sm:w-[100px] sm:flex-shrink-0">
                           {t('gettingStarted.step3.example1')}
                         </span>
                         <div className="flex gap-1">
-                          <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center shadow-sm">
+                          <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center shadow-sm flex-shrink-0">
                             <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                           </div>
-                          <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center shadow-sm">
+                          <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center shadow-sm flex-shrink-0">
                             <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                           </div>
-                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
-                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
-                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
-                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
-                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500"></div>
+                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
+                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
+                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
+                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
+                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
                         </div>
                       </div>
                     </div>

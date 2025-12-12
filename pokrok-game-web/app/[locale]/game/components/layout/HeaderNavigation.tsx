@@ -32,7 +32,7 @@ export function HeaderNavigation({
     <>
       {/* Header */}
       <div className="relative overflow-visible w-full bg-white border-b-4 border-primary-500" style={{
-        zIndex: 100
+        zIndex: 200
       }}>
         <div className="relative z-10 py-3 px-4 sm:px-6">
           {/* Single Row: Section Name and Menu */}
@@ -218,7 +218,7 @@ export function HeaderNavigation({
                       className="fixed inset-0 z-[100]" 
                       onClick={() => setMobileTopMenuOpen(false)}
                     />
-                    <div className="fixed right-4 top-16 box-playful-highlight z-[101] min-w-[200px]">
+                    <div className="fixed right-4 top-16 box-playful-highlight bg-white z-[201] min-w-[200px]">
                       <nav className="py-2">
                         {/* Main Panel button */}
                         <button

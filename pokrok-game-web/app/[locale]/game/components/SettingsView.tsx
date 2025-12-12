@@ -5,7 +5,7 @@ import { useUser, useClerk } from '@clerk/nextjs'
 import { useTranslations, useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { locales, type Locale } from '@/i18n/config'
-import { User, Target, Footprints, BarChart3, Workflow, Eye, UserCircle, Menu } from 'lucide-react'
+import { User, Target, Footprints, BarChart3, Eye, UserCircle, Menu } from 'lucide-react'
 
 interface SettingsViewProps {
   player: any
@@ -14,7 +14,7 @@ interface SettingsViewProps {
   onNavigateToMain?: () => void
 }
 
-type SettingsTab = 'user' | 'goals' | 'steps' | 'statistics' | 'workflows' | 'display' | 'danger'
+type SettingsTab = 'user' | 'goals' | 'steps' | 'statistics' | 'display' | 'danger'
 
 export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain }: SettingsViewProps) {
   const { user } = useUser()
@@ -31,7 +31,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
     if (typeof window !== 'undefined') {
       try {
         const savedTab = localStorage.getItem('settingsView_activeTab')
-        if (savedTab && ['user', 'goals', 'steps', 'statistics', 'workflows', 'display', 'danger'].includes(savedTab)) {
+        if (savedTab && ['user', 'goals', 'steps', 'statistics', 'display', 'danger'].includes(savedTab)) {
           return savedTab as SettingsTab
         }
       } catch (error) {
@@ -80,10 +80,6 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
     dataRetentionDays: 365
   })
   
-  // Workflows state
-  const [workflows, setWorkflows] = useState<any[]>([])
-  const [loadingWorkflows, setLoadingWorkflows] = useState(false)
-  
   // Display settings state
   const [displaySettings, setDisplaySettings] = useState({
     defaultView: 'day' as 'day' | 'week' | 'month' | 'year',
@@ -99,26 +95,6 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
   const [isResetting, setIsResetting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isResettingOnboarding, setIsResettingOnboarding] = useState(false)
-
-  // Load workflows on component mount
-  useEffect(() => {
-    const loadWorkflows = async () => {
-      if (!player?.user_id) return
-      setLoadingWorkflows(true)
-      try {
-        const response = await fetch(`/api/workflows?userId=${player.user_id}`)
-        if (response.ok) {
-          const workflowsData = await response.json()
-          setWorkflows(workflowsData)
-        }
-      } catch (error) {
-        console.error('Error loading workflows:', error)
-      } finally {
-        setLoadingWorkflows(false)
-      }
-    }
-    loadWorkflows()
-  }, [player])
 
   // Load user's preferred locale
   useEffect(() => {
@@ -232,82 +208,6 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
       console.error('Error updating locale:', error)
       setIsSavingLocale(false)
     }
-  }
-
-  // Workflows handlers
-  const handleToggleWorkflow = async (workflowId: string, enabled: boolean) => {
-    try {
-      const response = await fetch(`/api/workflows/${workflowId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enabled })
-      })
-      if (response.ok) {
-        setWorkflows(prev => prev.map(w => 
-          w.id === workflowId ? { ...w, enabled } : w
-        ))
-      }
-    } catch (error) {
-      console.error('Error toggling workflow:', error)
-    }
-  }
-
-  const handleToggleBuiltInWorkflow = async (type: string) => {
-    const existing = workflows.find(w => w.type === type)
-    const enabled = existing ? !existing.enabled : true
-    
-    try {
-      if (existing) {
-        await handleToggleWorkflow(existing.id, enabled)
-      } else {
-        // Create new workflow
-        const response = await fetch('/api/workflows', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: player?.user_id,
-            type,
-            name: type === 'daily_review' ? 'Pohled za dneškem' : 'Workflow',
-            description: type === 'daily_review' 
-              ? 'Reflexe nad uplynulým dnem'
-              : 'Workflow description',
-            trigger_time: '18:00',
-            enabled
-          })
-        })
-        if (response.ok) {
-          const newWorkflow = await response.json()
-          setWorkflows(prev => [...prev, newWorkflow])
-        }
-      }
-    } catch (error) {
-      console.error('Error toggling built-in workflow:', error)
-    }
-  }
-
-  const handleWorkflowTimeChange = async (type: string, time: string) => {
-    const workflow = workflows.find(w => w.type === type)
-    if (!workflow) return
-    
-    try {
-      const response = await fetch(`/api/workflows/${workflow.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trigger_time: time })
-      })
-      if (response.ok) {
-        setWorkflows(prev => prev.map(w => 
-          w.id === workflow.id ? { ...w, trigger_time: time } : w
-        ))
-      }
-    } catch (error) {
-      console.error('Error updating workflow time:', error)
-    }
-  }
-
-  const handleConfigureWorkflow = (workflow: any) => {
-    // TODO: Open configuration modal
-    console.log('Configure workflow:', workflow)
   }
 
   const handleSaveChanges = async () => {
@@ -460,7 +360,6 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
     { id: 'goals' as SettingsTab, label: t('settings.tabs.goals'), icon: Target },
     { id: 'steps' as SettingsTab, label: t('settings.tabs.steps'), icon: Footprints },
     { id: 'statistics' as SettingsTab, label: t('settings.tabs.statistics'), icon: BarChart3 },
-    { id: 'workflows' as SettingsTab, label: t('settings.tabs.workflows'), icon: Workflow },
     { id: 'display' as SettingsTab, label: 'Zobrazení', icon: Eye },
     { id: 'danger' as SettingsTab, label: t('settings.tabs.danger'), icon: UserCircle }
   ]
@@ -668,110 +567,6 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
                       className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
                     />
                   <span className="text-sm text-black font-playful">{t('settings.statistics.showAchievements')}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-
-      case 'workflows':
-        return (
-          <div>
-            <p className="text-gray-600 mb-6 font-playful">
-              {t('settings.workflows.description')}
-            </p>
-            
-            <div className="space-y-4">
-              {loadingWorkflows ? (
-                <div className="text-center py-8">
-                  <div className="text-primary-600 font-playful">{t('settings.workflows.loading')}</div>
-                </div>
-              ) : workflows.length === 0 ? (
-                <div className="box-playful-highlight p-6 text-center">
-                  <p className="text-gray-600 mb-4 font-playful">{t('settings.workflows.noWorkflows')}</p>
-                </div>
-              ) : (
-                workflows.map((workflow) => (
-                  <div
-                    key={workflow.id}
-                    className="box-playful-highlight p-6 hover:bg-primary-50 transition-colors"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h4 className="text-lg font-bold text-black mb-2 font-playful">{workflow.name}</h4>
-                        <p className="text-gray-600 text-sm mb-4 font-playful">{workflow.description}</p>
-                        <div className="flex items-center gap-4 text-sm text-gray-600 font-playful">
-                          <span>🕐 {t('settings.workflows.time')}: {workflow.trigger_time || t('settings.workflows.notSet')}</span>
-                          <span className={`px-2 py-1 rounded-playful-sm border-2 ${
-                            workflow.enabled 
-                              ? 'bg-primary-100 text-primary-600 border-primary-500' 
-                              : 'bg-white text-gray-600 border-gray-300'
-                          }`}>
-                            {workflow.enabled ? t('settings.workflows.active') : t('settings.workflows.inactive')}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleToggleWorkflow(workflow.id, !workflow.enabled)}
-                          className={`btn-playful-base px-4 py-2 font-medium text-sm ${
-                            workflow.enabled
-                              ? 'text-gray-600 bg-white hover:bg-primary-50'
-                              : 'text-primary-600 bg-white hover:bg-primary-50'
-                          }`}
-                        >
-                          {workflow.enabled ? t('settings.workflows.stop') : t('settings.workflows.start')}
-                        </button>
-                        <button
-                          onClick={() => handleConfigureWorkflow(workflow)}
-                          className="btn-playful-base px-4 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm"
-                        >
-                          {t('settings.workflows.configure')}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-              
-              {/* Built-in Workflows */}
-              <div className="mt-8">
-                <h4 className="text-lg font-bold text-black mb-4 font-playful">{t('settings.workflows.availableWorkflows')}</h4>
-                
-                {/* Pohled za dneškem */}
-                <div className="box-playful-highlight-primary p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h5 className="text-lg font-bold text-black mb-2 font-playful">🌅 {t('settings.workflows.dailyReview.name')}</h5>
-                      <p className="text-gray-600 text-sm mb-4 font-playful">
-                        {t('settings.workflows.dailyReview.description')}
-                      </p>
-                      <div className="flex items-center gap-4 text-sm font-playful">
-                        <div className="flex items-center gap-2">
-                          <label className="text-black">{t('settings.workflows.time')}:</label>
-                          <input
-                            type="time"
-                            value={workflows.find(w => w.type === 'daily_review')?.trigger_time || '18:00'}
-                            onChange={(e) => handleWorkflowTimeChange('daily_review', e.target.value)}
-                            className="px-3 py-1 border-2 border-primary-500 rounded-playful-md font-playful bg-white"
-                          />
-                        </div>
-                        <span className="px-2 py-1 bg-primary-100 text-primary-600 rounded-playful-sm border-2 border-primary-500 text-xs">
-                          +10 XP za dokončení
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handleToggleBuiltInWorkflow('daily_review')}
-                      className={`btn-playful-base px-4 py-2 font-medium text-sm ${
-                        workflows.find(w => w.type === 'daily_review')?.enabled
-                          ? 'text-black bg-primary-500 hover:bg-primary-600'
-                          : 'text-gray-600 bg-white hover:bg-primary-50'
-                      }`}
-                    >
-                      {workflows.find(w => w.type === 'daily_review')?.enabled ? t('settings.workflows.deactivate') : t('settings.workflows.activate')}
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -1000,7 +795,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
                     className="fixed inset-0 z-[100]" 
                     onClick={() => setMobileMenuOpen(false)}
                   />
-                  <div className="fixed right-4 top-16 box-playful-highlight z-[101] min-w-[200px]">
+                  <div className="fixed right-4 top-16 box-playful-highlight bg-white z-[101] min-w-[200px]">
                     <nav className="py-2">
                       {tabs.map((tab) => {
                         const Icon = tab.icon
