@@ -787,7 +787,7 @@ export function TodayFocusSection({
                 className="btn-playful-base px-4 py-2 text-sm font-semibold text-black bg-primary-50 hover:bg-primary-100"
               >
                 <Plus className="w-4 h-4" />
-                Přidat návyk
+                {t('habits.addHabit')}
               </button>
             )}
           </div>
@@ -1068,7 +1068,7 @@ export function TodayFocusSection({
                         onClick={() => onNavigateToHabits()}
                         className="text-xs text-primary-600 hover:text-primary-700 font-semibold underline"
                       >
-                        Přidat návyk
+                        {t('habits.addHabit')}
                       </button>
                     )}
                   </div>
