@@ -317,92 +317,92 @@ export function MonthView({
       {/* Layout: Stats on left, Calendar on right */}
       <div className="flex flex-col lg:flex-row gap-4 mb-4">
         {/* Statistics box - left side */}
-        <div className="bg-white border-4 border-primary-500 rounded-playful-lg p-4 flex-shrink-0 lg:w-80">
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-3">
+        <div className="bg-white border-4 border-primary-500 rounded-playful-lg p-2 sm:p-4 flex-shrink-0 lg:w-80">
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
             {/* Overall completion */}
-            <div className="col-span-2 sm:col-span-4 lg:col-span-2">
-              <div className="flex items-center gap-2 mb-1">
-                <TrendingUp className="w-4 h-4 text-primary-600" />
-                <span className="text-xs font-semibold text-gray-600">{selectedDayData ? t('common.completed') || 'Dokončeno' : t('monthView.overall') || 'Celkově'}</span>
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
+                <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-primary-600" />
+                <span className="text-[9px] sm:text-[10px] font-semibold text-gray-600">{selectedDayData ? t('common.completed') || 'Dokončeno' : t('monthView.overall') || 'Celkově'}</span>
               </div>
-              <div className="text-2xl font-bold text-black">
+              <div className="text-lg sm:text-xl font-bold text-black">
                 {displayStats.completionRate}%
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-[9px] sm:text-[10px] text-gray-500">
                 {displayStats.totalCompleted}/{displayStats.totalItems}
               </div>
             </div>
             
             {/* Perfect days */}
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Check className="w-4 h-4 text-green-600" />
-                <span className="text-xs font-semibold text-gray-600">{t('monthView.perfect') || 'Perfektní'}</span>
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
+                <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
+                <span className="text-[9px] sm:text-[10px] font-semibold text-gray-600">{t('monthView.perfect') || 'Perfektní'}</span>
               </div>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-lg sm:text-xl font-bold text-green-600">
                 {displayStats.perfectDays}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-[9px] sm:text-[10px] text-gray-500">
                 {selectedDayData ? '' : t('monthView.days') || 'dní'}
               </div>
             </div>
             
             {/* Partial days */}
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Target className="w-4 h-4 text-orange-600" />
-                <span className="text-xs font-semibold text-gray-600">{t('monthView.partial') || 'Částečné'}</span>
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
+                <Target className="w-3 h-3 sm:w-4 sm:h-4 text-orange-600" />
+                <span className="text-[9px] sm:text-[10px] font-semibold text-gray-600">{t('monthView.partial') || 'Částečné'}</span>
               </div>
-              <div className="text-2xl font-bold text-orange-600">
+              <div className="text-lg sm:text-xl font-bold text-orange-600">
                 {displayStats.partialDays}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-[9px] sm:text-[10px] text-gray-500">
                 {selectedDayData ? '' : t('monthView.days') || 'dní'}
               </div>
             </div>
             
             {/* Failed days */}
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <X className="w-4 h-4 text-red-600" />
-                <span className="text-xs font-semibold text-gray-600">{t('monthView.failed') || 'Neúspěšné'}</span>
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
+                <X className="w-3 h-3 sm:w-4 sm:h-4 text-red-600" />
+                <span className="text-[9px] sm:text-[10px] font-semibold text-gray-600">{t('monthView.failed') || 'Neúspěšné'}</span>
               </div>
-              <div className="text-2xl font-bold text-red-600">
+              <div className="text-lg sm:text-xl font-bold text-red-600">
                 {displayStats.failedDays}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-[9px] sm:text-[10px] text-gray-500">
                 {selectedDayData ? '' : t('monthView.days') || 'dní'}
               </div>
             </div>
           </div>
           
           {/* Breakdown by type */}
-          <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t-2 border-gray-200">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Footprints className="w-4 h-4 text-primary-600" />
-                <span className="text-xs font-semibold text-gray-600">{t('navigation.steps') || 'Kroky'}</span>
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 mt-2 sm:mt-4 pt-2 sm:pt-4 border-t-2 border-gray-200">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 sm:gap-2 mb-0.5 sm:mb-1">
+                <Footprints className="w-3 h-3 sm:w-4 sm:h-4 text-primary-600" />
+                <span className="text-[10px] sm:text-xs font-semibold text-gray-600">{t('navigation.steps') || 'Kroky'}</span>
               </div>
-              <div className="text-lg font-bold text-black">
+              <div className="text-base sm:text-lg font-bold text-black">
                 {displayStats.completedSteps}/{displayStats.totalSteps}
               </div>
               {displayStats.totalSteps > 0 && (
-                <div className="text-xs text-gray-500">
+                <div className="text-[10px] sm:text-xs text-gray-500">
                   {Math.round((displayStats.completedSteps / displayStats.totalSteps) * 100)}%
                 </div>
               )}
             </div>
             
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <CheckSquare className="w-4 h-4 text-primary-600" />
-                <span className="text-xs font-semibold text-gray-600">{t('navigation.habits') || 'Návyky'}</span>
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 sm:gap-2 mb-0.5 sm:mb-1">
+                <CheckSquare className="w-3 h-3 sm:w-4 sm:h-4 text-primary-600" />
+                <span className="text-[10px] sm:text-xs font-semibold text-gray-600">{t('navigation.habits') || 'Návyky'}</span>
               </div>
-              <div className="text-lg font-bold text-black">
+              <div className="text-base sm:text-lg font-bold text-black">
                 {displayStats.completedHabits}/{displayStats.totalHabits}
               </div>
               {displayStats.totalHabits > 0 && (
-                <div className="text-xs text-gray-500">
+                <div className="text-[10px] sm:text-xs text-gray-500">
                   {Math.round((displayStats.completedHabits / displayStats.totalHabits) * 100)}%
                 </div>
               )}
