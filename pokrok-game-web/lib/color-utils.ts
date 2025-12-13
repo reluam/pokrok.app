@@ -22,7 +22,7 @@ export interface ColorPalette {
 // Predefined color palettes with proper shade generation
 export const colorPalettes: ColorPalette[] = [
   {
-    name: 'Oranžová',
+    name: 'Oranžová sytá',
     value: '#E8871E',
     bg: '#FFFAF5',
     shades: {
@@ -39,24 +39,24 @@ export const colorPalettes: ColorPalette[] = [
     }
   },
   {
-    name: 'Zelená',
-    value: '#10B981',
-    bg: '#ECFDF5',
+    name: 'Oranžová světlá',
+    value: '#FFB366',
+    bg: '#FFF8F0',
     shades: {
-      50: '#ecfdf5',
-      100: '#d1fae5',
-      200: '#a7f3d0',
-      300: '#6ee7b7',
-      400: '#34d399',
-      500: '#10b981',
-      600: '#059669',
-      700: '#047857',
-      800: '#065f46',
-      900: '#064e3b',
+      50: '#fff8f0',
+      100: '#ffeed6',
+      200: '#ffdcb3',
+      300: '#ffc880',
+      400: '#ffb366',
+      500: '#ffb366',
+      600: '#ff9f33',
+      700: '#ff8b00',
+      800: '#cc6f00',
+      900: '#995300',
     }
   },
   {
-    name: 'Fialová',
+    name: 'Fialová sytá',
     value: '#8B5CF6',
     bg: '#F5F3FF',
     shades: {
@@ -73,7 +73,41 @@ export const colorPalettes: ColorPalette[] = [
     }
   },
   {
-    name: 'Růžová',
+    name: 'Fialová světlá',
+    value: '#C4A5F5',
+    bg: '#F9F5FF',
+    shades: {
+      50: '#f9f5ff',
+      100: '#f3edff',
+      200: '#e9d9ff',
+      300: '#d9bfff',
+      400: '#c4a5f5',
+      500: '#c4a5f5',
+      600: '#b08ae8',
+      700: '#9c6fd9',
+      800: '#8855c7',
+      900: '#743cb5',
+    }
+  },
+  {
+    name: 'Růžová sytá',
+    value: '#FF6B9D',
+    bg: '#FFF0F5',
+    shades: {
+      50: '#fff0f5',
+      100: '#ffe0eb',
+      200: '#ffc7d9',
+      300: '#ffa3c2',
+      400: '#ff6b9d',
+      500: '#ff6b9d',
+      600: '#ff4d7a',
+      700: '#ff2e57',
+      800: '#cc1f45',
+      900: '#991033',
+    }
+  },
+  {
+    name: 'Růžová světlá',
     value: '#FFB3BA',
     bg: '#FFF5F5',
     shades: {
@@ -90,7 +124,7 @@ export const colorPalettes: ColorPalette[] = [
     }
   },
   {
-    name: 'Teal',
+    name: 'Teal sytá',
     value: '#14B8A6',
     bg: '#F0FDFA',
     shades: {
@@ -104,6 +138,23 @@ export const colorPalettes: ColorPalette[] = [
       700: '#0f766e',
       800: '#115e59',
       900: '#134e4a',
+    }
+  },
+  {
+    name: 'Teal světlá',
+    value: '#7DD3C0',
+    bg: '#F0FDFA',
+    shades: {
+      50: '#f0fdfa',
+      100: '#e0faf6',
+      200: '#c8f5ed',
+      300: '#a8ede0',
+      400: '#7dd3c0',
+      500: '#7dd3c0',
+      600: '#6bb8a8',
+      700: '#5a9d90',
+      800: '#4a8278',
+      900: '#3a6760',
     }
   }
 ]

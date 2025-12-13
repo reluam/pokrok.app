@@ -145,16 +145,19 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
     if (!player?.user_id) return
     setIsSavingDisplay(true)
     try {
+      const requestBody: any = {}
+      if (newView) requestBody.default_view = newView
+      if (newDateFormat) requestBody.date_format = newDateFormat
+      if (newPrimaryColor) requestBody.primary_color = newPrimaryColor
+      
       const response = await fetch('/api/cesta/user-settings', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...(newView && { default_view: newView }),
-          ...(newDateFormat && { date_format: newDateFormat }),
-          ...(newPrimaryColor && { primary_color: newPrimaryColor })
-        })
+        body: JSON.stringify(requestBody)
       })
+      
       if (response.ok) {
+        const data = await response.json()
         if (newView) {
           setDisplaySettings(prev => ({ ...prev, defaultView: newView }))
         }
@@ -165,12 +168,17 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
           setDisplaySettings(prev => ({ ...prev, primaryColor: newPrimaryColor }))
           // Apply color theme immediately
           applyColorTheme(newPrimaryColor)
+          // Also save to localStorage as backup
+          localStorage.setItem('app-primary-color', newPrimaryColor)
         }
       } else {
-        console.error('Failed to save display settings')
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        console.error('Failed to save display settings:', errorData)
+        alert(`Chyba při ukládání nastavení: ${errorData.error || 'Neznámá chyba'}`)
       }
     } catch (error) {
       console.error('Error saving display settings:', error)
+      alert(`Chyba při ukládání nastavení: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
     } finally {
       setIsSavingDisplay(false)
     }
