@@ -6,6 +6,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Suppress Speed Insights errors when blocked by content blockers */
+@layer base {
+  /* This will be handled by inline script in layout */
+}
+
 /* Pixel Art Styling (Legacy - keep for backward compatibility) */
 .pixel-art {
   font-family: 'Press Start 2P', monospace;

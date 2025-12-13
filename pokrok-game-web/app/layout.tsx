@@ -33,6 +33,23 @@ export default function RootLayout({
     >
       <html>
         <head>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                // Suppress Speed Insights errors when blocked by content blockers
+                (function() {
+                  const originalError = console.error;
+                  console.error = function(...args) {
+                    const message = args[0]?.toString() || '';
+                    if (message.includes('speed-insights') || message.includes('_vercel') || message.includes('ERR_BLOCKED_BY_CONTENT_BLOCKER')) {
+                      return; // Silently ignore Speed Insights errors
+                    }
+                    originalError.apply(console, args);
+                  };
+                })();
+              `,
+            }}
+          />
         </head>
         <body className={`${inter.variable} ${pressStart2P.variable} antialiased`}>
           {children}
