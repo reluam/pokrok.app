@@ -6,6 +6,7 @@ import { Check, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { TodayFocusSection } from './TodayFocusSection'
+import { getIconComponent } from '@/lib/icon-utils'
 
 interface WeekViewProps {
   player?: any
@@ -274,7 +275,7 @@ export function WeekView({
   }, [displayData.steps, displayedStepIds])
   
   return (
-    <div className="w-full h-full flex flex-col p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 overflow-y-auto bg-background">
+    <div className="w-full h-full flex flex-col p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 overflow-y-auto bg-primary-50">
       {/* Header with date/week */}
       <div className="flex items-center justify-center gap-3 flex-wrap">
         <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-black capitalize font-playful">
@@ -420,6 +421,79 @@ export function WeekView({
                           {stats.completed}/{stats.total}
                         </span>
                       )}
+                      
+                      {/* Compact habit icons and checkboxes */}
+                      {(() => {
+                        // Get habits scheduled for this day
+                        const dayHabits = habits.filter(habit => isHabitScheduledForDay(habit, day))
+                        
+                        if (dayHabits.length === 0) return null
+                        
+                        return (
+                          <div className="flex flex-col items-center gap-0.5 sm:gap-1 mt-1.5">
+                            {/* Icons row */}
+                            <div className="flex items-center justify-center gap-0.5 sm:gap-1 flex-wrap max-w-full">
+                              {dayHabits.slice(0, 4).map((habit) => {
+                                const IconComponent = getIconComponent(habit.icon || 'Target')
+                                return (
+                                  <div
+                                    key={habit.id}
+                                    className="flex-shrink-0 w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center"
+                                    title={habit.name}
+                                  >
+                                    <IconComponent className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
+                                  </div>
+                                )
+                              })}
+                              {dayHabits.length > 4 && (
+                                <span className="text-[8px] sm:text-[10px] text-gray-500 ml-0.5">
+                                  +{dayHabits.length - 4}
+                                </span>
+                              )}
+                            </div>
+                            
+                            {/* Checkboxes row */}
+                            <div className="flex items-center justify-center gap-0.5 sm:gap-1 flex-wrap max-w-full">
+                              {dayHabits.slice(0, 4).map((habit) => {
+                                const habitDateStr = getLocalDateString(day)
+                                const isHabitCompleted = habit.habit_completions && habit.habit_completions[habitDateStr] === true
+                                const isHabitLoading = loadingHabits.has(`${habit.id}-${habitDateStr}`)
+                                const isHabitFuture = day > today
+                                
+                                return (
+                                  <button
+                                    key={habit.id}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      if (handleHabitToggle && !isHabitLoading && !isHabitFuture) {
+                                        handleHabitToggle(habit.id, habitDateStr)
+                                      }
+                                    }}
+                                    disabled={isHabitLoading || isHabitFuture}
+                                    className={`flex-shrink-0 w-3 h-3 sm:w-4 sm:h-4 rounded-sm flex items-center justify-center transition-all border ${
+                                      isHabitCompleted
+                                        ? 'bg-primary-500 border-primary-600'
+                                        : isHabitFuture
+                                        ? 'bg-gray-200 border-gray-300 opacity-50'
+                                        : 'bg-white border-primary-400 hover:bg-primary-50'
+                                    }`}
+                                    title={isHabitFuture ? (t('focus.futureDay') || 'Budoucí den') : habit.name}
+                                  >
+                                    {isHabitLoading ? (
+                                      <svg className="animate-spin h-2 w-2 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                      </svg>
+                                    ) : isHabitCompleted ? (
+                                      <Check className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-white" strokeWidth={3} />
+                                    ) : null}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )
+                      })()}
                     </button>
                   )
                 })}

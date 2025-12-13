@@ -1161,6 +1161,7 @@ export function JourneyGameView({
   const [editingHabitDifficulty, setEditingHabitDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
   const [editingHabitReminderTime, setEditingHabitReminderTime] = useState<string>('')
   const [editingHabitNotificationEnabled, setEditingHabitNotificationEnabled] = useState<boolean>(false)
+  const [editingHabitIcon, setEditingHabitIcon] = useState<string>('Target')
 
   // Goal editing states
   const [goalTitle, setGoalTitle] = useState('')
@@ -1469,6 +1470,7 @@ export function JourneyGameView({
     setEditingHabitDifficulty(habit?.difficulty || 'medium')
     setEditingHabitReminderTime(habit?.reminder_time || '')
     setEditingHabitNotificationEnabled(habit?.notification_enabled || false)
+    setEditingHabitIcon(habit?.icon || 'Target')
     
     // Parse monthly frequency selections
     if (habit?.frequency === 'monthly' && habit?.selected_days) {
@@ -1523,6 +1525,11 @@ export function JourneyGameView({
       alert('Název návyku je povinný')
       return
     }
+    
+    if (!editingHabitIcon) {
+      alert('Ikona je povinná')
+      return
+    }
 
 
     setHabitModalSaving(true)
@@ -1545,7 +1552,8 @@ export function JourneyGameView({
           xpReward: editingHabitXpReward,
           category: editingHabitCategory,
           difficulty: editingHabitDifficulty,
-          areaId: editingHabitAreaId || null
+          areaId: editingHabitAreaId || null,
+          icon: editingHabitIcon
         }),
       })
 
@@ -1559,10 +1567,10 @@ export function JourneyGameView({
             onHabitsUpdate([...habits, updatedHabit])
           } else {
             // Update existing habit
-          const updatedHabits = habits.map(habit => 
-            habit.id === updatedHabit.id ? updatedHabit : habit
-          )
-          onHabitsUpdate(updatedHabits)
+            const updatedHabits = habits.map(habit => 
+              habit.id === updatedHabit.id ? updatedHabit : habit
+            )
+            onHabitsUpdate(updatedHabits)
           }
         }
         
@@ -1571,6 +1579,7 @@ export function JourneyGameView({
         setHabitModalData(null)
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
+        console.error('Error updating habit:', { status: response.status, error: errorData, habitId: habitModalData?.id })
         alert(`Chyba při ${isNewHabit ? 'vytváření' : 'aktualizaci'} návyku: ${errorData.error || 'Nepodařilo se uložit návyk'}`)
       }
     } catch (error) {
@@ -3781,6 +3790,8 @@ export function JourneyGameView({
         setEditingHabitMonthWeek={setEditingHabitMonthWeek}
         editingHabitMonthDay={editingHabitMonthDay}
         setEditingHabitMonthDay={setEditingHabitMonthDay}
+        editingHabitIcon={editingHabitIcon}
+        setEditingHabitIcon={setEditingHabitIcon}
       />
 
       {/* Areas Management Modal */}

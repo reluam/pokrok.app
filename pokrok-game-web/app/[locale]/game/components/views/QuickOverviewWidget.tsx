@@ -93,10 +93,10 @@ export function QuickOverviewWidget({
         {/* Progress */}
         <div className="flex flex-col items-center">
           <div className="flex items-center gap-2 w-full">
-            <div className="text-lg font-bold text-orange-600 flex-shrink-0">{progressPercentage}%</div>
-            <div className="flex-1 bg-orange-200 rounded-full h-2 min-w-[60px]">
+            <div className="text-lg font-bold text-primary-600 flex-shrink-0">{progressPercentage}%</div>
+            <div className="flex-1 bg-primary-200 rounded-full h-2 min-w-[60px]">
               <div
-                className="bg-orange-500 h-2 rounded-full transition-all"
+                className="bg-primary-500 h-2 rounded-full transition-all"
                 style={{ width: `${Math.min(progressPercentage, 100)}%` }}
               />
             </div>
@@ -106,8 +106,8 @@ export function QuickOverviewWidget({
         
         {/* Streak */}
         <div className="flex flex-col items-center">
-          <div className="flex items-center gap-1.5 text-lg font-bold text-orange-600">
-            <Flame className="w-4 h-4 text-orange-500" />
+          <div className="flex items-center gap-1.5 text-lg font-bold text-primary-600">
+            <Flame className="w-4 h-4 text-primary-500" />
             <span>{streak}</span>
           </div>
           <div className="text-[10px] text-gray-600 font-medium mt-1">Streak</div>
@@ -115,8 +115,8 @@ export function QuickOverviewWidget({
         
         {/* Completed Tasks */}
         <div className="flex flex-col items-center">
-          <div className="flex items-center gap-1.5 text-lg font-bold text-orange-600">
-            <CheckCircle className="w-4 h-4 text-orange-500" />
+          <div className="flex items-center gap-1.5 text-lg font-bold text-primary-600">
+            <CheckCircle className="w-4 h-4 text-primary-500" />
             <span>{completedTasks}</span>
             <span className="text-xs text-gray-500 font-normal">/{totalTasks}</span>
           </div>

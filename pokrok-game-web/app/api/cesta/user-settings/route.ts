@@ -46,7 +46,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { daily_steps_count, workflow, filters, default_view, date_format } = body
+    const { daily_steps_count, workflow, filters, default_view, date_format, primary_color } = body
 
     // Update user settings
     const updatedSettings = await createOrUpdateUserSettings(
@@ -56,7 +56,8 @@ export async function PATCH(request: NextRequest) {
       undefined, // dailyResetHour - not used in iOS app
       filters,
       default_view,
-      date_format
+      date_format,
+      primary_color
     )
 
     return NextResponse.json({ settings: updatedSettings })

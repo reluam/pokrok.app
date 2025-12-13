@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     const { dbUser } = authResult
 
     const body = await request.json()
-    const { name, description, frequency, streak, maxStreak, category, difficulty, isCustom, reminderTime, notificationEnabled, selectedDays, alwaysShow, xpReward, aspirationId, areaId, order } = body
+    const { name, description, frequency, streak, maxStreak, category, difficulty, isCustom, reminderTime, notificationEnabled, selectedDays, alwaysShow, xpReward, aspirationId, areaId, icon, order } = body
     
     // ✅ SECURITY: Ověření vlastnictví areaId, pokud je poskytnut
     if (areaId) {
@@ -55,6 +55,10 @@ export async function POST(request: NextRequest) {
     
     if (!name) {
       return NextResponse.json({ error: 'Name is required' }, { status: 400 })
+    }
+    
+    if (!icon) {
+      return NextResponse.json({ error: 'Icon is required' }, { status: 400 })
     }
 
     // Get max order for this user to put new habit at the end
@@ -82,6 +86,7 @@ export async function POST(request: NextRequest) {
       xp_reward: xpReward || 1,
       aspiration_id: aspirationId || null,
       area_id: areaId || null,
+      icon: icon || null,
       order: order !== undefined ? order : maxOrder + 1,
       habit_completions: {}
     }
@@ -107,7 +112,9 @@ export async function PUT(request: NextRequest) {
     const { dbUser } = authResult
 
     const body = await request.json()
-    const { habitId, name, description, frequency, category, difficulty, reminderTime, notificationEnabled, selectedDays, alwaysShow, xpReward, aspirationId, areaId, order } = body
+    const { habitId, name, description, frequency, category, difficulty, reminderTime, notificationEnabled, selectedDays, alwaysShow, xpReward, aspirationId, areaId, icon, order } = body
+    
+    console.log('PUT /api/habits - Received body:', { habitId, hasIcon: icon !== undefined, icon })
     
     if (!habitId) {
       return NextResponse.json({ error: 'Habit ID is required' }, { status: 400 })
@@ -116,6 +123,7 @@ export async function PUT(request: NextRequest) {
     // ✅ SECURITY: Ověření vlastnictví habit
     const habitOwned = await verifyEntityOwnership(habitId, 'habits', dbUser)
     if (!habitOwned) {
+      console.log('PUT /api/habits - Habit ownership verification failed:', { habitId, userId: dbUser.id })
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     
@@ -139,7 +147,8 @@ export async function PUT(request: NextRequest) {
       always_show: alwaysShow,
       xp_reward: xpReward,
       aspiration_id: aspirationId,
-      area_id: areaId !== undefined ? areaId : undefined
+      area_id: areaId !== undefined ? areaId : undefined,
+      icon: icon !== undefined ? icon : undefined
     }
     
     // Add order if provided
@@ -147,11 +156,14 @@ export async function PUT(request: NextRequest) {
       updates.order = order
     }
 
+    console.log('PUT /api/habits - Calling updateHabit with:', { habitId, updates })
     const habit = await updateHabit(habitId, updates)
     if (!habit) {
+      console.error('PUT /api/habits - updateHabit returned null:', { habitId, updates })
       return NextResponse.json({ error: 'Habit not found' }, { status: 404 })
     }
     
+    console.log('PUT /api/habits - Successfully updated habit:', { habitId, habitName: habit.name })
     return NextResponse.json(habit)
   } catch (error) {
     console.error('Error updating habit:', error)

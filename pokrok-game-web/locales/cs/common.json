@@ -28,7 +28,8 @@
     "noResults": "Žádné výsledky",
     "previous": "Předchozí",
     "next": "Další",
-    "select": "Vybrat"
+    "select": "Vybrat",
+    "completed": "Dokončeno"
   },
   "homepage": {
     "tagline": "Aplikace pro plánování života",
@@ -660,7 +661,9 @@
     "noOverdueSteps": "Žádné zpožděné kroky",
     "futureSteps": "Budoucí kroky",
     "noFutureSteps": "Žádné budoucí kroky",
-    "today": "Dnes"
+    "today": "Dnes",
+    "futureDay": "Budoucí den",
+    "clickToComplete": "Klikni pro splnění"
   },
   "daysShort": {
     "sun": "NE",

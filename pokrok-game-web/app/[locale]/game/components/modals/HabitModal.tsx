@@ -4,7 +4,7 @@ import React from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations } from 'next-intl'
 import { X, Trash2, Plus, Loader2 } from 'lucide-react'
-import { getIconComponent } from '@/lib/icon-utils'
+import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
 import { PlayfulButton } from '@/components/design-system/Button/PlayfulButton'
 
 interface HabitModalProps {
@@ -43,6 +43,8 @@ interface HabitModalProps {
   setEditingHabitMonthWeek: (week: string) => void
   editingHabitMonthDay: string
   setEditingHabitMonthDay: (day: string) => void
+  editingHabitIcon: string
+  setEditingHabitIcon: (icon: string) => void
 }
 
 export function HabitModal({
@@ -80,8 +82,11 @@ export function HabitModal({
   setEditingHabitMonthWeek,
   editingHabitMonthDay,
   setEditingHabitMonthDay,
+  editingHabitIcon,
+  setEditingHabitIcon,
 }: HabitModalProps) {
   const t = useTranslations()
+  const [showIconPicker, setShowIconPicker] = React.useState(false)
 
   if (!show || typeof window === 'undefined') return null
 
@@ -141,6 +146,55 @@ export function HabitModal({
                 rows={3}
                 placeholder={t('habits.descriptionPlaceholder') || 'Habit description'}
               />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-black mb-1.5 font-playful">
+                {t('habits.iconLabel') || 'Ikona'} <span className="text-primary-600">*</span>
+              </label>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowIconPicker(!showIconPicker)}
+                  className="w-full px-2 py-1.5 text-sm border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-2">
+                    {(() => {
+                      const IconComponent = getIconComponent(editingHabitIcon)
+                      return <IconComponent className="w-4 h-4 text-primary-600" />
+                    })()}
+                    <span>{editingHabitIcon || t('habits.selectIcon') || 'Vyberte ikonu'}</span>
+                  </div>
+                  <span className="text-gray-400">{showIconPicker ? '▲' : '▼'}</span>
+                </button>
+                {showIconPicker && (
+                  <div className="absolute z-10 mt-1 p-3 border-2 border-primary-500 rounded-playful-sm bg-white max-h-64 overflow-y-auto shadow-lg">
+                    <div className="grid grid-cols-6 gap-2">
+                      {AVAILABLE_ICONS.map((icon) => {
+                        const IconComp = getIconComponent(icon.name)
+                        return (
+                          <button
+                            key={icon.name}
+                            type="button"
+                            onClick={() => {
+                              setEditingHabitIcon(icon.name)
+                              setShowIconPicker(false)
+                            }}
+                            className={`p-2 rounded-playful-sm hover:bg-primary-50 transition-colors border-2 ${
+                              editingHabitIcon === icon.name 
+                                ? 'bg-primary-100 border-primary-500' 
+                                : 'border-transparent hover:border-primary-500'
+                            }`}
+                            title={icon.label}
+                          >
+                            <IconComp className={`w-5 h-5 mx-auto ${editingHabitIcon === icon.name ? 'text-primary-600' : 'text-black'}`} />
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div>

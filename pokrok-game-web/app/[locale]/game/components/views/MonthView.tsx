@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Check, X, Target, Footprints, CheckSquare, T
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { getLocalDateString } from '../utils/dateHelpers'
 import { TodayFocusSection } from './TodayFocusSection'
+import { getIconComponent } from '@/lib/icon-utils'
 
 interface MonthViewProps {
   goals?: any[]
@@ -311,7 +312,7 @@ export function MonthView({
   }, [selectedDayData, dailySteps])
 
   return (
-    <div className="w-full h-full flex flex-col p-4 sm:p-6 lg:p-8 bg-orange-50 overflow-y-auto">
+    <div className="w-full h-full flex flex-col p-4 sm:p-6 lg:p-8 bg-primary-50 overflow-y-auto">
       {/* Header with month navigation */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-4">
@@ -338,10 +339,10 @@ export function MonthView({
       {/* Layout: Stats on left, Calendar on right */}
       <div className="flex flex-col lg:flex-row gap-4 mb-4">
         {/* Statistics box - left side */}
-        <div className="bg-white border-4 border-primary-500 rounded-playful-lg p-2 sm:p-4 flex-shrink-0 lg:w-80">
-          <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
+        <div className="bg-white border-4 border-primary-500 rounded-playful-lg p-2 sm:p-4 flex-shrink-0">
+          <div className="flex flex-wrap lg:flex-col gap-2 sm:gap-3">
             {/* Overall completion */}
-            <div className="text-center">
+            <div className="text-center flex-1 min-w-[60px]">
               <div className="flex items-center justify-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
                 <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-primary-600" />
                 <span className="text-[9px] sm:text-[10px] font-semibold text-gray-600">{selectedDayData ? t('common.completed') || 'Dokončeno' : t('monthView.overall') || 'Celkově'}</span>
@@ -349,13 +350,32 @@ export function MonthView({
               <div className="text-lg sm:text-xl font-bold text-black">
                 {displayStats.completionRate}%
               </div>
-              <div className="text-[9px] sm:text-[10px] text-gray-500">
-                {displayStats.totalCompleted}/{displayStats.totalItems}
+            </div>
+            
+            {/* Steps */}
+            <div className="text-center flex-1 min-w-[60px]">
+              <div className="flex items-center justify-center gap-1 sm:gap-2 mb-0.5 sm:mb-1">
+                <Footprints className="w-3 h-3 sm:w-4 sm:h-4 text-primary-600" />
+                <span className="text-[10px] sm:text-xs font-semibold text-gray-600">{t('navigation.steps') || 'Kroky'}</span>
+              </div>
+              <div className="text-base sm:text-lg font-bold text-black">
+                {displayStats.completedSteps}/{displayStats.totalSteps}
+              </div>
+            </div>
+            
+            {/* Habits */}
+            <div className="text-center flex-1 min-w-[60px] lg:pb-2 lg:border-b lg:border-gray-200">
+              <div className="flex items-center justify-center gap-1 sm:gap-2 mb-0.5 sm:mb-1">
+                <CheckSquare className="w-3 h-3 sm:w-4 sm:h-4 text-primary-600" />
+                <span className="text-[10px] sm:text-xs font-semibold text-gray-600">{t('navigation.habits') || 'Návyky'}</span>
+              </div>
+              <div className="text-base sm:text-lg font-bold text-black">
+                {displayStats.completedHabits}/{displayStats.totalHabits}
               </div>
             </div>
             
             {/* Perfect days */}
-            <div className="text-center">
+            <div className="text-center flex-1 min-w-[60px] lg:pt-2">
               <div className="flex items-center justify-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
                 <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
                 <span className="text-[9px] sm:text-[10px] font-semibold text-gray-600">{t('monthView.perfect') || 'Perfektní'}</span>
@@ -369,12 +389,12 @@ export function MonthView({
             </div>
             
             {/* Partial days */}
-            <div className="text-center">
+            <div className="text-center flex-1 min-w-[60px]">
               <div className="flex items-center justify-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
-                <Target className="w-3 h-3 sm:w-4 sm:h-4 text-orange-600" />
+                <Target className="w-3 h-3 sm:w-4 sm:h-4 text-primary-600" />
                 <span className="text-[9px] sm:text-[10px] font-semibold text-gray-600">{t('monthView.partial') || 'Částečné'}</span>
               </div>
-              <div className="text-lg sm:text-xl font-bold text-orange-600">
+              <div className="text-lg sm:text-xl font-bold text-primary-600">
                 {displayStats.partialDays}
               </div>
               <div className="text-[9px] sm:text-[10px] text-gray-500">
@@ -383,7 +403,7 @@ export function MonthView({
             </div>
             
             {/* Failed days */}
-            <div className="text-center">
+            <div className="text-center flex-1 min-w-[60px]">
               <div className="flex items-center justify-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
                 <X className="w-3 h-3 sm:w-4 sm:h-4 text-red-600" />
                 <span className="text-[9px] sm:text-[10px] font-semibold text-gray-600">{t('monthView.failed') || 'Neúspěšné'}</span>
@@ -394,39 +414,6 @@ export function MonthView({
               <div className="text-[9px] sm:text-[10px] text-gray-500">
                 {selectedDayData ? '' : t('monthView.days') || 'dní'}
               </div>
-            </div>
-          </div>
-          
-          {/* Breakdown by type */}
-          <div className="grid grid-cols-2 gap-2 sm:gap-3 mt-2 sm:mt-4 pt-2 sm:pt-4 border-t-2 border-gray-200">
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-1 sm:gap-2 mb-0.5 sm:mb-1">
-                <Footprints className="w-3 h-3 sm:w-4 sm:h-4 text-primary-600" />
-                <span className="text-[10px] sm:text-xs font-semibold text-gray-600">{t('navigation.steps') || 'Kroky'}</span>
-              </div>
-              <div className="text-base sm:text-lg font-bold text-black">
-                {displayStats.completedSteps}/{displayStats.totalSteps}
-              </div>
-              {displayStats.totalSteps > 0 && (
-                <div className="text-[10px] sm:text-xs text-gray-500">
-                  {Math.round((displayStats.completedSteps / displayStats.totalSteps) * 100)}%
-                </div>
-              )}
-            </div>
-            
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-1 sm:gap-2 mb-0.5 sm:mb-1">
-                <CheckSquare className="w-3 h-3 sm:w-4 sm:h-4 text-primary-600" />
-                <span className="text-[10px] sm:text-xs font-semibold text-gray-600">{t('navigation.habits') || 'Návyky'}</span>
-              </div>
-              <div className="text-base sm:text-lg font-bold text-black">
-                {displayStats.completedHabits}/{displayStats.totalHabits}
-              </div>
-              {displayStats.totalHabits > 0 && (
-                <div className="text-[10px] sm:text-xs text-gray-500">
-                  {Math.round((displayStats.completedHabits / displayStats.totalHabits) * 100)}%
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -470,8 +457,8 @@ export function MonthView({
                 textColor = 'text-white'
                 break
               case 'partial':
-                dayClasses = 'bg-orange-200 border-2 border-orange-500'
-                indicatorColor = 'bg-orange-500'
+                dayClasses = 'bg-primary-200 border-2 border-primary-500'
+                indicatorColor = 'bg-primary-500'
                 textColor = 'text-gray-700'
                 break
               case 'failed':
@@ -543,6 +530,63 @@ export function MonthView({
             </button>
           </div>
           
+          {/* Habits in a row - only icon, name and checkbox */}
+          {selectedDayData.habits && selectedDayData.habits.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {selectedDayData.habits.map((habit: any) => {
+                const dateStr = getLocalDateString(selectedDayData.date)
+                const isCompleted = habit.habit_completions && habit.habit_completions[dateStr] === true
+                const isLoading = loadingHabits.has(`${habit.id}-${dateStr}`)
+                const IconComponent = getIconComponent(habit.icon || 'Target')
+                
+                return (
+                  <div
+                    key={habit.id}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-playful-md border-2 transition-all bg-white cursor-pointer hover:border-primary-300"
+                    style={{
+                      borderColor: isCompleted ? 'var(--color-primary-500)' : '#d1d5db',
+                      boxShadow: isCompleted 
+                        ? '0 2px 8px rgba(249, 115, 22, 0.2) !important'
+                        : '0 2px 8px rgba(249, 115, 22, 0.15) !important'
+                    }}
+                    onClick={() => handleItemClick && handleItemClick(habit, 'habit')}
+                  >
+                    <IconComponent className={`w-4 h-4 flex-shrink-0 ${isCompleted ? 'text-primary-600' : 'text-gray-600'}`} />
+                    <span className={`text-xs font-medium whitespace-nowrap ${
+                      isCompleted ? 'text-primary-800 line-through' : 'text-black'
+                    }`}>
+                      {habit.name}
+                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        if (handleHabitToggle && !isLoading) {
+                          handleHabitToggle(habit.id, dateStr)
+                        }
+                      }}
+                      disabled={isLoading}
+                      className={`flex-shrink-0 w-6 h-6 rounded-playful-sm flex items-center justify-center transition-all border-2 ${
+                        isCompleted
+                          ? 'bg-primary-100 border-primary-500 hover:bg-primary-200 cursor-pointer'
+                          : 'bg-white border-primary-500 hover:bg-primary-50 cursor-pointer'
+                      }`}
+                      title={isCompleted ? t('common.completed') || 'Splněno' : t('focus.clickToComplete') || 'Klikni pro splnění'}
+                    >
+                      {isLoading ? (
+                        <svg className="animate-spin h-3 w-3 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      ) : isCompleted ? (
+                        <Check className="w-3 h-3 text-primary-600" strokeWidth={3} />
+                      ) : null}
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+          
           {/* Use TodayFocusSection for consistent display - only today's steps */}
           <TodayFocusSection
             goals={goals}
@@ -572,7 +616,7 @@ export function MonthView({
             <span className="text-gray-700">{t('monthView.allCompleted') || 'Vše dokončeno'}</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-orange-200 border-2 border-orange-500 rounded-playful-sm" />
+            <div className="w-4 h-4 bg-primary-200 border-2 border-primary-500 rounded-playful-sm" />
             <span className="text-gray-700">{t('monthView.partial') || 'Částečně'}</span>
           </div>
           <div className="flex items-center gap-2">

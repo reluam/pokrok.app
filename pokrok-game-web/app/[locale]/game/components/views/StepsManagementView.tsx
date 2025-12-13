@@ -321,7 +321,7 @@ export function StepsManagementView({
   }, [sortedSteps, effectiveShowCompleted, effectiveGoalFilter, effectiveDateFilter])
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="w-full h-full flex flex-col bg-primary-50">
       {!hideHeader && (
         <>
       {/* Filters Row - Mobile: collapsible, Desktop: always visible */}

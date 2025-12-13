@@ -208,7 +208,7 @@ export function GoalsManagementView({
   }
 
   return (
-    <div className="w-full h-full flex flex-col bg-background">
+    <div className="w-full h-full flex flex-col bg-primary-50">
       {!hideHeader && (
         <>
           {/* Header */}
@@ -311,7 +311,7 @@ export function GoalsManagementView({
                 <div
                   key={goal.id}
                   onClick={() => handleGoalClick(goal.id)}
-                  className={`box-playful-highlight cursor-pointer overflow-hidden group transition-all ${
+                  className={`box-playful-highlight bg-white cursor-pointer overflow-hidden group transition-all ${
                     isPaused
                       ? 'opacity-60 hover:opacity-80'
                       : ''

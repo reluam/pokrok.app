@@ -140,7 +140,7 @@ export function Timeline({
           {/* Dot */}
           <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-0">
             <div className={`w-4 h-4 rounded-full border-2 border-white shadow-sm transition-all ${
-              isToday ? 'bg-orange-500 ring-4 ring-orange-100' : 'bg-gray-400'
+              isToday ? 'bg-primary-500 ring-4 ring-primary-100' : 'bg-gray-400'
             }`} />
           </div>
         </div>
@@ -156,7 +156,7 @@ export function Timeline({
         {onPrevClick && (
           <button 
             onClick={onPrevClick}
-            className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-orange-600 transition-colors"
+            className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-primary-600 transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -188,22 +188,22 @@ export function Timeline({
                   {/* Dot (circle) on the line */}
                   <div className={`w-4 h-4 rounded-full border-2 border-white shadow-sm transition-all duration-200 mb-3 ${
                     isSelected
-                      ? 'bg-orange-600 scale-125 ring-4 ring-orange-100'
+                      ? 'bg-primary-600 scale-125 ring-4 ring-primary-100'
                       : isToday
-                        ? 'bg-orange-500 ring-2 ring-orange-50'
+                        ? 'bg-primary-500 ring-2 ring-primary-50'
                         : stat.completionPercentage === 100
                           ? 'bg-green-500'
                           : stat.completionPercentage > 0
-                            ? 'bg-orange-200' // Jemnější oranžová pro částečný pokrok v minulosti
+                            ? 'bg-primary-200' // Jemnější oranžová pro částečný pokrok v minulosti
                             : 'bg-gray-300 group-hover:bg-gray-400'
                   }`} />
                   
                   {/* Date label below the line */}
                   <div className={`flex flex-col items-center transition-colors duration-200 ${
                     isSelected
-                      ? 'text-orange-800'
+                      ? 'text-primary-800'
                       : isToday
-                        ? 'text-orange-600'
+                        ? 'text-primary-600'
                         : 'text-gray-500 group-hover:text-gray-700'
                   }`}>
                     <span className="text-[10px] uppercase tracking-wider font-semibold mb-0.5">{dayName}</span>
@@ -213,7 +213,7 @@ export function Timeline({
                   {/* Optional: Progress dots below date if needed, or keep clean */}
                   {stat.totalTasks > 0 && (
                     <div className={`mt-1 text-[9px] font-medium ${
-                       isSelected ? 'text-orange-600' : 'text-gray-400'
+                       isSelected ? 'text-primary-600' : 'text-gray-400'
                     }`}>
                       {stat.completedTasks}/{stat.totalTasks}
                     </div>
@@ -228,7 +228,7 @@ export function Timeline({
         {onNextClick && (
           <button 
             onClick={onNextClick}
-            className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-orange-600 transition-colors"
+            className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-primary-600 transition-colors"
           >
             <ChevronRight className="w-5 h-5" />
           </button>

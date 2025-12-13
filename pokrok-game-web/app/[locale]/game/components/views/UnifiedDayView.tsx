@@ -287,7 +287,7 @@ export function UnifiedDayView({
   }, [])
   
   return (
-    <div className="w-full h-full flex flex-col p-6 space-y-4 overflow-y-auto bg-orange-50/30">
+    <div className="w-full h-full flex flex-col p-6 space-y-4 overflow-y-auto bg-primary-50/30">
       {/* Header with date/week */}
       <div className="flex items-center justify-center gap-2">
         <h1 className="text-2xl font-bold text-gray-800 capitalize">
@@ -296,7 +296,7 @@ export function UnifiedDayView({
         {!isCurrentWeek && (
           <button
             onClick={handleGoToCurrentWeek}
-            className="px-3 py-1 text-xs font-medium text-orange-600 bg-orange-100 hover:bg-orange-200 rounded-full transition-colors"
+            className="px-3 py-1 text-xs font-medium text-primary-600 bg-primary-100 hover:bg-primary-200 rounded-full transition-colors"
           >
             {t('focus.today')}
           </button>
@@ -304,12 +304,12 @@ export function UnifiedDayView({
       </div>
       
       {/* Timeline */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-orange-100 relative z-0">
+      <div className="bg-white rounded-2xl p-4 shadow-sm border border-primary-100 relative z-0">
         <div className="flex items-center justify-between">
           {/* Prev button */}
           <button
             onClick={handlePrevWeek}
-            className="p-2 hover:bg-orange-100 rounded-lg transition-colors text-gray-500 hover:text-orange-600"
+            className="p-2 hover:bg-primary-100 rounded-lg transition-colors text-gray-500 hover:text-primary-600"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -344,10 +344,10 @@ export function UnifiedDayView({
                   
                   if (isToday) {
                     // Today - always orange dot, but text only colored when selected
-                    dotColor = isSelected ? 'bg-orange-500 ring-4 ring-orange-200' : 'bg-orange-500'
-                    textColor = isSelected ? 'text-orange-600' : 'text-gray-500'
-                    dayNumberColor = isSelected ? 'text-orange-600' : 'text-gray-900'
-                    fractionColor = isSelected ? 'text-orange-600' : 'text-gray-400'
+                    dotColor = isSelected ? 'bg-primary-500 ring-4 ring-primary-200' : 'bg-primary-500'
+                    textColor = isSelected ? 'text-primary-600' : 'text-gray-500'
+                    dayNumberColor = isSelected ? 'text-primary-600' : 'text-gray-900'
+                    fractionColor = isSelected ? 'text-primary-600' : 'text-gray-400'
                   } else if (isFuture) {
                     // Future days - always gray
                     dotColor = 'bg-gray-200'
@@ -359,22 +359,22 @@ export function UnifiedDayView({
                     if (stats.total > 0) {
                       if (completionPercentage === 100) {
                         // 100% - primary full with checkmark
-                        dotColor = isSelected ? 'bg-orange-600 ring-4 ring-orange-200' : 'bg-orange-600'
-                        textColor = isSelected ? 'text-orange-600' : 'text-gray-500'
-                        dayNumberColor = isSelected ? 'text-orange-600' : 'text-gray-900'
-                        fractionColor = isSelected ? 'text-orange-600' : 'text-gray-400'
+                        dotColor = isSelected ? 'bg-primary-600 ring-4 ring-primary-200' : 'bg-primary-600'
+                        textColor = isSelected ? 'text-primary-600' : 'text-gray-500'
+                        dayNumberColor = isSelected ? 'text-primary-600' : 'text-gray-900'
+                        fractionColor = isSelected ? 'text-primary-600' : 'text-gray-400'
                       } else if (completionPercentage === 0) {
                         // 0% - white background with X mark in primary color
-                        dotColor = isSelected ? 'bg-white ring-4 ring-orange-200' : 'bg-white'
-                        textColor = isSelected ? 'text-orange-600' : 'text-gray-500'
-                        dayNumberColor = isSelected ? 'text-orange-600' : 'text-gray-900'
-                        fractionColor = isSelected ? 'text-orange-600' : 'text-gray-400'
+                        dotColor = isSelected ? 'bg-white ring-4 ring-primary-200' : 'bg-white'
+                        textColor = isSelected ? 'text-primary-600' : 'text-gray-500'
+                        dayNumberColor = isSelected ? 'text-primary-600' : 'text-gray-900'
+                        fractionColor = isSelected ? 'text-primary-600' : 'text-gray-400'
                       } else {
                         // 1-99% - pie chart (will be rendered separately)
                         dotColor = 'bg-transparent' // Transparent background for pie chart
-                        textColor = isSelected ? 'text-orange-600' : 'text-gray-500'
-                        dayNumberColor = isSelected ? 'text-orange-600' : 'text-gray-900'
-                        fractionColor = isSelected ? 'text-orange-600' : 'text-gray-400'
+                        textColor = isSelected ? 'text-primary-600' : 'text-gray-500'
+                        dayNumberColor = isSelected ? 'text-primary-600' : 'text-gray-900'
+                        fractionColor = isSelected ? 'text-primary-600' : 'text-gray-400'
                       }
                     } else {
                       // Past with no tasks - gray
@@ -399,7 +399,7 @@ export function UnifiedDayView({
                               <Check className="w-3 h-3 text-white" strokeWidth={3} />
                             )}
                             {completionPercentage === 0 && (
-                              <X className="w-6 h-6 text-orange-600" strokeWidth={2.5} />
+                              <X className="w-6 h-6 text-primary-600" strokeWidth={2.5} />
                             )}
                             {completionPercentage > 0 && completionPercentage < 100 && (() => {
                               const radius = 10
@@ -426,7 +426,7 @@ export function UnifiedDayView({
                                     cy="12"
                                     r={radius}
                                     fill="none"
-                                    stroke="#ea580c"
+                                    stroke="var(--color-primary-500, #E8871E)"
                                     strokeWidth="4"
                                     strokeDasharray={`${completedLength} ${remainingLength}`}
                                     strokeDashoffset={0}
@@ -464,7 +464,7 @@ export function UnifiedDayView({
           {/* Next button */}
           <button
             onClick={handleNextWeek}
-            className="p-2 hover:bg-orange-100 rounded-lg transition-colors text-gray-500 hover:text-orange-600"
+            className="p-2 hover:bg-primary-100 rounded-lg transition-colors text-gray-500 hover:text-primary-600"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -477,10 +477,10 @@ export function UnifiedDayView({
           {/* Progress */}
           <div className="flex flex-col items-center">
             <div className="flex items-center gap-2">
-              <span className="text-xl font-bold text-orange-500">{displayStats.progress}%</span>
-              <div className="w-24 h-1.5 bg-orange-100 rounded-full overflow-hidden">
+              <span className="text-xl font-bold text-primary-500">{displayStats.progress}%</span>
+              <div className="w-24 h-1.5 bg-primary-100 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-orange-500 rounded-full transition-all"
+                  className="h-full bg-primary-500 rounded-full transition-all"
                   style={{ width: `${displayStats.progress}%` }}
                 />
               </div>
@@ -491,7 +491,7 @@ export function UnifiedDayView({
           {/* Completed */}
           <div className="flex flex-col items-center">
             <div className="flex items-center gap-1">
-              <CheckCircle2 className="w-4 h-4 text-orange-500" />
+              <CheckCircle2 className="w-4 h-4 text-primary-500" />
               <span className="text-xl font-bold text-gray-800">{displayStats.completedTasks}</span>
               <span className="text-xs text-gray-400">/{displayStats.totalTasks}</span>
             </div>

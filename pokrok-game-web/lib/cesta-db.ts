@@ -324,6 +324,7 @@ export interface Habit {
   xp_reward: number
   aspiration_id?: string
   area_id?: string
+  icon: string | null
   created_at: Date
   updated_at: Date
 }
@@ -336,6 +337,7 @@ export interface UserSettings {
   daily_reset_hour: number
   default_view?: 'day' | 'week' | 'month' | 'year'
   date_format?: 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY'
+  primary_color?: string
   filters?: {
     showToday: boolean
     showOverdue: boolean
@@ -440,6 +442,7 @@ export async function initializeCestaDatabase() {
         xp_reward INTEGER DEFAULT 0,
         aspiration_id VARCHAR(255) REFERENCES aspirations(id) ON DELETE SET NULL,
         area_id VARCHAR(255) REFERENCES areas(id) ON DELETE SET NULL,
+        icon VARCHAR(50),
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
@@ -3179,7 +3182,8 @@ export async function createOrUpdateUserSettings(
   dailyResetHour?: number,
   filters?: UserSettings['filters'],
   defaultView?: 'day' | 'week' | 'month' | 'year',
-  dateFormat?: 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY'
+  dateFormat?: 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY',
+  primaryColor?: string
 ): Promise<UserSettings> {
   try {
     // Ensure default_view column exists (migration on-the-fly)
@@ -3198,6 +3202,14 @@ export async function createOrUpdateUserSettings(
       console.log('Note: date_format column check:', migrationError instanceof Error ? migrationError.message : 'unknown')
     }
     
+    // Ensure primary_color column exists (migration on-the-fly)
+    try {
+      await sql`ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS primary_color VARCHAR(7)`
+    } catch (migrationError) {
+      // Column might already exist, continue
+      console.log('Note: primary_color column check:', migrationError instanceof Error ? migrationError.message : 'unknown')
+    }
+    
     // Get existing settings to preserve values not being updated
     const existingSettings = await getUserSettings(userId)
     
@@ -3206,6 +3218,7 @@ export async function createOrUpdateUserSettings(
     const finalDailyResetHour = dailyResetHour !== undefined ? dailyResetHour : (existingSettings?.daily_reset_hour ?? 0)
     const finalDefaultView = defaultView !== undefined ? defaultView : (existingSettings?.default_view ?? 'day')
     const finalDateFormat = dateFormat !== undefined ? dateFormat : (existingSettings?.date_format ?? 'DD.MM.YYYY')
+    const finalPrimaryColor = primaryColor !== undefined ? primaryColor : existingSettings?.primary_color ?? null
     const finalFilters = filters !== undefined ? filters : (existingSettings?.filters ?? {
       showToday: true,
       showOverdue: true,
@@ -3216,8 +3229,8 @@ export async function createOrUpdateUserSettings(
     })
     
     const settings = await sql`
-      INSERT INTO user_settings (id, user_id, daily_steps_count, workflow, daily_reset_hour, filters, default_view, date_format)
-      VALUES (${crypto.randomUUID()}, ${userId}, ${finalDailyStepsCount}, ${finalWorkflow}, ${finalDailyResetHour}, ${JSON.stringify(finalFilters)}, ${finalDefaultView}, ${finalDateFormat})
+      INSERT INTO user_settings (id, user_id, daily_steps_count, workflow, daily_reset_hour, filters, default_view, date_format, primary_color)
+      VALUES (${crypto.randomUUID()}, ${userId}, ${finalDailyStepsCount}, ${finalWorkflow}, ${finalDailyResetHour}, ${JSON.stringify(finalFilters)}, ${finalDefaultView}, ${finalDateFormat}, ${finalPrimaryColor})
       ON CONFLICT (user_id) 
       DO UPDATE SET 
         daily_steps_count = ${finalDailyStepsCount},
@@ -3226,6 +3239,7 @@ export async function createOrUpdateUserSettings(
         filters = ${JSON.stringify(finalFilters)},
         default_view = ${finalDefaultView},
         date_format = ${finalDateFormat},
+        primary_color = ${finalPrimaryColor},
         updated_at = NOW()
       RETURNING *
     `
@@ -3630,11 +3644,11 @@ export async function createHabit(habitData: Omit<Habit, 'id' | 'created_at' | '
     const result = await sql`
       INSERT INTO habits (
         id, user_id, name, description, frequency, streak, 
-        max_streak, category, difficulty, is_custom, reminder_time, notification_enabled, selected_days, always_show, xp_reward, aspiration_id, area_id, "order"
+        max_streak, category, difficulty, is_custom, reminder_time, notification_enabled, selected_days, always_show, xp_reward, aspiration_id, area_id, icon, "order"
       ) VALUES (
         ${id}, ${habitData.user_id}, ${habitData.name}, ${habitData.description}, 
         ${habitData.frequency}, ${habitData.streak}, ${habitData.max_streak}, 
-        ${habitData.category}, ${habitData.difficulty}, ${habitData.is_custom}, ${habitData.reminder_time}, ${(habitData as any).notification_enabled || false}, ${habitData.selected_days}, ${habitData.always_show}, ${habitData.xp_reward}, ${habitData.aspiration_id || null}, ${habitData.area_id || null}, ${(habitData as any).order || 0}
+        ${habitData.category}, ${habitData.difficulty}, ${habitData.is_custom}, ${habitData.reminder_time}, ${(habitData as any).notification_enabled || false}, ${habitData.selected_days}, ${habitData.always_show}, ${habitData.xp_reward}, ${habitData.aspiration_id || null}, ${habitData.area_id || null}, ${habitData.icon || null}, ${(habitData as any).order || 0}
       ) RETURNING *
     `
     
@@ -3654,12 +3668,30 @@ export async function createHabit(habitData: Omit<Habit, 'id' | 'created_at' | '
 
 export async function updateHabit(habitId: string, updates: Partial<Omit<Habit, 'id' | 'user_id' | 'created_at' | 'updated_at'>>): Promise<Habit | null> {
   try {
+    // Check if icon column exists, if not add it
+    try {
+      const iconColumnCheck = await sql`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'habits' AND column_name = 'icon'
+      `
+      if (iconColumnCheck.length === 0) {
+        console.log('updateHabit: Adding icon column to habits table')
+        await sql`ALTER TABLE habits ADD COLUMN IF NOT EXISTS icon VARCHAR(50)`
+      }
+    } catch (columnError) {
+      console.warn('updateHabit: Could not check/add icon column:', columnError)
+    }
+    
     // Get user_id first to invalidate cache
     const habit = await sql`SELECT user_id FROM habits WHERE id = ${habitId} LIMIT 1`
     if (habit.length === 0) {
+      console.error('updateHabit: Habit not found:', habitId)
       return null
     }
     const userId = habit[0].user_id
+    
+    console.log('updateHabit: Updating habit:', { habitId, updates })
     
     const result = await sql`
       UPDATE habits 
@@ -3676,13 +3708,17 @@ export async function updateHabit(habitId: string, updates: Partial<Omit<Habit, 
         xp_reward = COALESCE(${updates.xp_reward}, xp_reward),
         aspiration_id = ${updates.aspiration_id !== undefined ? updates.aspiration_id : null},
         area_id = ${updates.area_id !== undefined ? updates.area_id : null},
+        icon = ${updates.icon !== undefined ? updates.icon : sql`icon`},
         "order" = COALESCE(${(updates as any).order}, "order"),
         updated_at = NOW()
       WHERE id = ${habitId}
       RETURNING *
     `
     
+    console.log('updateHabit: Update result:', { habitId, resultLength: result.length })
+    
     if (result.length === 0) {
+      console.error('updateHabit: UPDATE returned no rows:', { habitId })
       return null
     }
     
@@ -3692,6 +3728,7 @@ export async function updateHabit(habitId: string, updates: Partial<Omit<Habit, 
     return result[0] as Habit
   } catch (error) {
     console.error('Error updating habit:', error)
+    console.error('Error details:', { habitId, updates, errorMessage: error instanceof Error ? error.message : String(error) })
     return null
   }
 }

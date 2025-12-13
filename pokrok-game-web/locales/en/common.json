@@ -28,7 +28,8 @@
     "noResults": "No results",
     "previous": "Previous",
     "next": "Next",
-    "select": "Select"
+    "select": "Select",
+    "completed": "Completed"
   },
   "homepage": {
     "tagline": "Life planning app",
@@ -664,7 +665,9 @@
     "noOverdueSteps": "No overdue steps",
     "futureSteps": "Future Steps",
     "noFutureSteps": "No future steps",
-    "today": "Today"
+    "today": "Today",
+    "futureDay": "Future day",
+    "clickToComplete": "Click to complete"
   },
   "daysShort": {
     "sun": "SU",

@@ -394,12 +394,12 @@ export function PageContent(props: PageContentProps) {
             
             if (!area) {
               return (
-                <div className="w-full min-h-full flex items-center justify-center bg-orange-50">
+                <div className="w-full min-h-full flex items-center justify-center bg-primary-50">
                   <div className="text-center">
                     <p className="text-gray-500">{t('navigation.areaNotFound') || 'Oblast nenalezena'}</p>
                     <button
                       onClick={() => setMainPanelSection('overview')}
-                      className="mt-4 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+                      className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
                     >
                       {t('navigation.backToOverview')}
                     </button>
@@ -423,7 +423,7 @@ export function PageContent(props: PageContentProps) {
             const areaColor = area.color || '#ea580c'
             
             return (
-              <div className="w-full min-h-full flex flex-col bg-orange-50">
+              <div className="w-full min-h-full flex flex-col bg-primary-50">
                 {/* Area detail content */}
                 <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
                   <div className="p-6">
@@ -472,7 +472,7 @@ export function PageContent(props: PageContentProps) {
                                     setEditingAreaDetailTitle(false)
                                   }
                                 }}
-                                className="text-xl font-bold text-gray-900 bg-transparent border-2 border-orange-500 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-orange-500 w-full"
+                                className="text-xl font-bold text-gray-900 bg-transparent border-2 border-primary-500 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500 w-full"
                                 autoFocus
                               />
                             ) : (
@@ -482,7 +482,7 @@ export function PageContent(props: PageContentProps) {
                                   setAreaDetailTitleValue(area.name)
                                   setEditingAreaDetailTitle(true)
                                 }}
-                                className="text-xl font-bold text-gray-900 cursor-pointer hover:text-orange-600 transition-colors truncate"
+                                className="text-xl font-bold text-gray-900 cursor-pointer hover:text-primary-600 transition-colors truncate"
                               >
                                 {area.name}
                               </h1>
@@ -603,7 +603,7 @@ export function PageContent(props: PageContentProps) {
                             value={iconSearchQuery}
                             onChange={(e) => setIconSearchQuery(e.target.value)}
                             placeholder={t('common.search') || 'Hledat...'}
-                            className="w-full pl-9 pr-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                            className="w-full pl-9 pr-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                             autoFocus
                           />
                         </div>
@@ -637,12 +637,12 @@ export function PageContent(props: PageContentProps) {
                                   }}
                                   className={`p-2 rounded-lg transition-all hover:bg-gray-100 ${
                                     isSelected 
-                                      ? 'bg-orange-50 border-2 border-orange-500' 
+                                      ? 'bg-primary-50 border-2 border-primary-500' 
                                       : 'border-2 border-transparent hover:border-gray-300'
                                   }`}
                                   title={icon.label}
                                 >
-                                  <IconComponent className={`w-5 h-5 mx-auto ${isSelected ? 'text-orange-600' : 'text-gray-700'}`} />
+                                  <IconComponent className={`w-5 h-5 mx-auto ${isSelected ? 'text-primary-600' : 'text-gray-700'}`} />
                                 </button>
                               )
                             })
@@ -702,7 +702,7 @@ export function PageContent(props: PageContentProps) {
                               }}
                               className={`w-12 h-12 rounded-lg border-2 transition-all hover:scale-110 ${
                                 areaColor === color.value 
-                                  ? 'border-gray-800 ring-2 ring-offset-2 ring-orange-400' 
+                                  ? 'border-gray-800 ring-2 ring-offset-2 ring-primary-400' 
                                   : 'border-gray-300 hover:border-gray-400'
                               }`}
                               style={{ backgroundColor: color.value }}
@@ -726,12 +726,12 @@ export function PageContent(props: PageContentProps) {
             
             if (!habit) {
               return (
-                <div className="w-full min-h-full flex items-center justify-center bg-orange-50">
+                <div className="w-full min-h-full flex items-center justify-center bg-primary-50">
                   <div className="text-center">
                     <p className="text-gray-500">{t('navigation.habitNotFound')}</p>
                     <button
                       onClick={() => setMainPanelSection('overview')}
-                      className="mt-4 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+                      className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
                     >
                       {t('navigation.backToOverview')}
                     </button>
@@ -761,12 +761,12 @@ export function PageContent(props: PageContentProps) {
             
             if (!goal) {
               return (
-                <div className="w-full min-h-full flex items-center justify-center bg-orange-50">
+                <div className="w-full min-h-full flex items-center justify-center bg-primary-50">
                   <div className="text-center">
                     <p className="text-gray-500">{t('navigation.goalNotFound')}</p>
                     <button
                       onClick={() => setMainPanelSection('overview')}
-                      className="mt-4 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+                      className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
                     >
                       {t('navigation.backToOverview')}
                     </button>
@@ -843,7 +843,7 @@ export function PageContent(props: PageContentProps) {
           switch (mainPanelSection) {
             case 'focus-day':
               return (
-                <div className="w-full min-h-full flex flex-col bg-orange-50">
+                <div className="w-full min-h-full flex flex-col bg-primary-50">
                   {/* Day View */}
                   <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
                     <DayView
@@ -870,7 +870,7 @@ export function PageContent(props: PageContentProps) {
                                               )
             case 'focus-week':
                                         return (
-                <div className="w-full min-h-full flex flex-col bg-orange-50">
+                <div className="w-full min-h-full flex flex-col bg-primary-50">
                   {/* Week View */}
                   <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
                     <WeekView
@@ -895,7 +895,7 @@ export function PageContent(props: PageContentProps) {
               )
             case 'focus-month':
               return (
-                <div className="w-full min-h-full flex flex-col bg-orange-50">
+                <div className="w-full min-h-full flex flex-col bg-primary-50">
                   {/* Month View */}
                   <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
                     <MonthView
@@ -919,7 +919,7 @@ export function PageContent(props: PageContentProps) {
               )
             case 'goals':
               return (
-                <div className="min-h-full bg-orange-50">
+                <div className="min-h-full bg-primary-50">
                   <GoalsManagementView
                     goals={goals}
                     onGoalsUpdate={onGoalsUpdate}
@@ -985,7 +985,7 @@ export function PageContent(props: PageContentProps) {
               )
             case 'steps':
               return (
-                <div className="min-h-full bg-orange-50">
+                <div className="min-h-full bg-primary-50">
                   <StepsManagementView
                     dailySteps={dailySteps}
                     goals={goals}
@@ -1004,6 +1004,9 @@ export function PageContent(props: PageContentProps) {
               )
             case 'habits':
               return (
+                <div className="w-full min-h-full flex flex-col bg-primary-50">
+                  <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
+                    <div className="p-6">
                 <HabitsPage
                   habits={habits}
                   selectedHabitId={selectedHabitId}
@@ -1015,6 +1018,9 @@ export function PageContent(props: PageContentProps) {
                   handleOpenHabitModal={handleOpenHabitModal}
                   loadingHabits={loadingHabits}
                 />
+                    </div>
+                  </div>
+                </div>
               )
             default:
               return null
@@ -1057,7 +1063,7 @@ export function PageContent(props: PageContentProps) {
             />
 
             {/* Right content area */}
-            <div className="flex-1 overflow-y-auto bg-orange-50 h-full flex flex-col">
+            <div className="flex-1 overflow-y-auto bg-primary-50 h-full flex flex-col">
               {/* Mobile hamburger menu for focus-day and other sections (except goal detail pages) */}
               {!mainPanelSection.startsWith('goal-') && (
                 <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
@@ -1100,7 +1106,7 @@ export function PageContent(props: PageContentProps) {
                                 }}
                                 className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
                                   mainPanelSection === 'focus-day'
-                                    ? 'bg-orange-600 text-white'
+                                    ? 'bg-primary-600 text-white'
                                     : 'text-gray-700 hover:bg-gray-100'
                                 }`}
                               >
@@ -1116,7 +1122,7 @@ export function PageContent(props: PageContentProps) {
                                 }}
                                 className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
                                   mainPanelSection === 'focus-week'
-                                    ? 'bg-orange-600 text-white'
+                                    ? 'bg-primary-600 text-white'
                                     : 'text-gray-700 hover:bg-gray-100'
                                 }`}
                               >
@@ -1125,49 +1131,49 @@ export function PageContent(props: PageContentProps) {
                               </button>
                               
                               {/* Focus Month */}
-                              <button
-                                onClick={() => {
+                                        <button
+                                          onClick={() => {
                                   setMainPanelSection('focus-month')
-                                  setMobileMenuOpen(false)
-                                }}
-                                className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                                            setMobileMenuOpen(false)
+                                          }}
+                                          className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
                                   mainPanelSection === 'focus-month'
-                                    ? 'bg-orange-600 text-white'
-                                    : 'text-gray-700 hover:bg-gray-100'
-                                }`}
-                              >
+                                    ? 'bg-primary-600 text-white'
+                                              : 'text-gray-700 hover:bg-gray-100'
+                                          }`}
+                                        >
                                 <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
                                 <span className="font-medium">{t('navigation.focusMonth') || 'Měsíční'}</span>
-                              </button>
+                                        </button>
                               
                               {/* Divider */}
                               {areas.length > 0 && (
                                 <div className="border-t border-gray-200 my-2" />
                               )}
-                              
+                                    
                               {/* Areas in mobile menu */}
                               {areas.map((area: any) => {
                                 const areaSectionId = `area-${area.id}`
                                 const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
                                 const areaColor = area.color || '#ea580c'
-                                return (
-                                  <button
+                                      return (
+                                        <button
                                     key={area.id}
-                                    onClick={() => {
+                                          onClick={() => {
                                       setMainPanelSection(areaSectionId)
-                                      setMobileMenuOpen(false)
-                                    }}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                                            setMobileMenuOpen(false)
+                                          }}
+                                          className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
                                       mainPanelSection === areaSectionId
-                                        ? 'bg-orange-600 text-white'
-                                        : 'text-gray-700 hover:bg-gray-100'
-                                    }`}
-                                  >
+                                        ? 'bg-primary-600 text-white'
+                                              : 'text-gray-700 hover:bg-gray-100'
+                                          }`}
+                                        >
                                     <IconComponent className={`w-5 h-5 flex-shrink-0 ${mainPanelSection === areaSectionId ? 'text-white' : ''}`} style={mainPanelSection !== areaSectionId ? { color: areaColor } : undefined} />
                                     <span className="font-medium">{area.name}</span>
-                                  </button>
-                                )
-                              })}
+                                        </button>
+                                      )
+                                    })}
                             </nav>
                           </div>
                         </>
@@ -1215,26 +1221,26 @@ export function PageContent(props: PageContentProps) {
 
       case 'statistics': {
         return (
-          <div className="bg-white bg-opacity-95 rounded-2xl p-8 border border-orange-200 shadow-xl backdrop-blur-sm" style={{
+          <div className="bg-white bg-opacity-95 rounded-2xl p-8 border border-primary-200 shadow-xl backdrop-blur-sm" style={{
             boxShadow: '0 12px 24px rgba(251, 146, 60, 0.15), 0 4px 8px rgba(0, 0, 0, 0.05)'
           }}>
-            <h2 className="text-2xl font-bold text-orange-800 mb-6" style={{ letterSpacing: '1px' }}>STATISTIKY</h2>
+            <h2 className="text-2xl font-bold text-primary-800 mb-6" style={{ letterSpacing: '1px' }}>STATISTIKY</h2>
             <div className="grid grid-cols-2 gap-6">
               <div className="p-4 rounded-xl bg-gray-50 border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Pokrok</h3>
-                <p className="text-3xl font-bold text-orange-600">{Math.round(progressPercentage)}%</p>
+                <p className="text-3xl font-bold text-primary-600">{Math.round(progressPercentage)}%</p>
               </div>
               <div className="p-4 rounded-xl bg-gray-50 border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Cíle</h3>
-                <p className="text-3xl font-bold text-orange-600">{completedGoals}/{goals.length}</p>
+                <p className="text-3xl font-bold text-primary-600">{completedGoals}/{goals.length}</p>
               </div>
               <div className="p-4 rounded-xl bg-gray-50 border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Návyky</h3>
-                <p className="text-3xl font-bold text-orange-600">{activeHabits}</p>
+                <p className="text-3xl font-bold text-primary-600">{activeHabits}</p>
               </div>
               <div className="p-4 rounded-xl bg-gray-50 border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Energie</h3>
-                <p className="text-3xl font-bold text-orange-600">{player?.energy || 100}%</p>
+                <p className="text-3xl font-bold text-primary-600">{player?.energy || 100}%</p>
               </div>
             </div>
           </div>
@@ -1243,10 +1249,10 @@ export function PageContent(props: PageContentProps) {
 
       case 'achievements': {
         return (
-          <div className="bg-white bg-opacity-95 rounded-2xl p-8 border border-orange-200 shadow-xl backdrop-blur-sm" style={{
+          <div className="bg-white bg-opacity-95 rounded-2xl p-8 border border-primary-200 shadow-xl backdrop-blur-sm" style={{
             boxShadow: '0 12px 24px rgba(251, 146, 60, 0.15), 0 4px 8px rgba(0, 0, 0, 0.05)'
           }}>
-            <h2 className="text-2xl font-bold text-orange-800 mb-6" style={{ letterSpacing: '1px' }}>ÚSPĚCHY</h2>
+            <h2 className="text-2xl font-bold text-primary-800 mb-6" style={{ letterSpacing: '1px' }}>ÚSPĚCHY</h2>
             <div className="text-center text-gray-500 py-8">
               <p className="text-lg">Systém úspěchů</p>
               <p className="text-sm">Funkce bude brzy dostupná</p>
@@ -1770,8 +1776,8 @@ export function PageContent(props: PageContentProps) {
             {/* Hidden measurement containers */}
             <div style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', zIndex: -1 }}>
               <div ref={habitsRef} style={{ width: '288px' }}>
-                <div className="bg-white bg-opacity-95 rounded-2xl p-6 border border-orange-200 shadow-xl backdrop-blur-sm">
-                  <h4 className="text-base font-bold text-orange-800 mb-4">{t('sections.habits')}</h4>
+                <div className="bg-white bg-opacity-95 rounded-2xl p-6 border border-primary-200 shadow-xl backdrop-blur-sm">
+                  <h4 className="text-base font-bold text-primary-800 mb-4">{t('sections.habits')}</h4>
                   <div className="space-y-3">
                     {(() => {
                       const now = new Date()
@@ -1813,8 +1819,8 @@ export function PageContent(props: PageContentProps) {
               </div>
               
               <div ref={stepsRef} style={{ width: '288px' }}>
-                <div className="bg-white bg-opacity-95 rounded-2xl p-6 text-gray-800 backdrop-blur-sm border border-orange-200 shadow-xl">
-                  <h3 className="text-base font-bold mb-4 text-orange-800">{t('sections.steps')}</h3>
+                <div className="bg-white bg-opacity-95 rounded-2xl p-6 text-gray-800 backdrop-blur-sm border border-primary-200 shadow-xl">
+                  <h3 className="text-base font-bold mb-4 text-primary-800">{t('sections.steps')}</h3>
                   <div className="space-y-3">
                     {dailySteps.slice(0, 5).map((step: any) => (
                       <div key={step.id} className="p-3 rounded-xl border text-sm">

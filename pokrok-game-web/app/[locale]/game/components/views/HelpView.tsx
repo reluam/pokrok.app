@@ -868,13 +868,13 @@ export function HelpView({
               <h4 className="font-semibold text-black font-playful mb-2">{t('goalsHelp.whatAreGoals')}</h4>
               <p className="text-sm text-gray-600 font-playful mb-3">{t('goalsHelp.whatAreGoalsDesc')}</p>
               <div className="flex flex-wrap gap-2">
-                <span className="text-xs bg-orange-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Target className="w-3 h-3" /> {t('goalsHelp.measurable')}
                 </span>
-                <span className="text-xs bg-orange-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Calendar className="w-3 h-3" /> {t('goalsHelp.withDeadline')}
                 </span>
-                <span className="text-xs bg-orange-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Star className="w-3 h-3" /> {t('goalsHelp.inFocus')}
                 </span>
               </div>
@@ -887,7 +887,7 @@ export function HelpView({
               </h4>
               <div className="box-playful-highlight p-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Target className="w-5 h-5 text-primary-600 font-playful" />
               </div>
                   <div className="flex-1 min-w-0">
@@ -938,9 +938,9 @@ export function HelpView({
                 {/* Goal cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {/* Active goal card */}
-                  <div className="bg-white border border-orange-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="bg-white border border-primary-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
                         <Target className="w-5 h-5 text-primary-600 font-playful" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -954,16 +954,16 @@ export function HelpView({
                           <span>3 kroky</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-1.5">
-                          <div className="bg-orange-600 h-1.5 rounded-full" style={{ width: '33%' }}></div>
+                          <div className="bg-primary-600 h-1.5 rounded-full" style={{ width: '33%' }}></div>
                         </div>
                       </div>
                     </div>
                   </div>
                   
                   {/* Active goal card 2 */}
-                  <div className="bg-white border border-orange-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="bg-white border border-primary-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
                         <Target className="w-5 h-5 text-primary-600 font-playful" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -977,7 +977,7 @@ export function HelpView({
                           <span>5 kroků</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-1.5">
-                          <div className="bg-orange-600 h-1.5 rounded-full" style={{ width: '60%' }}></div>
+                          <div className="bg-primary-600 h-1.5 rounded-full" style={{ width: '60%' }}></div>
                         </div>
                       </div>
                     </div>
@@ -1031,7 +1031,7 @@ export function HelpView({
                   </button>
                 )}
                 {onNavigateToGoals && (
-                  <button onClick={onNavigateToGoals} className="flex items-center gap-1 px-4 py-2 border border-orange-200 text-primary-600 font-playful text-sm rounded-lg hover:bg-primary-50">
+                  <button onClick={onNavigateToGoals} className="flex items-center gap-1 px-4 py-2 border border-primary-200 text-primary-600 font-playful text-sm rounded-lg hover:bg-primary-50">
                     <ArrowRight className="w-4 h-4" /> {t('goalsHelp.goToGoals')}
                   </button>
                 )}
@@ -1075,13 +1075,13 @@ export function HelpView({
               <h4 className="font-semibold text-black font-playful mb-2">{t('stepsHelp.whatAreSteps')}</h4>
               <p className="text-sm text-gray-600 font-playful mb-3">{t('stepsHelp.whatAreStepsDesc')}</p>
               <div className="flex flex-wrap gap-2">
-                <span className="text-xs bg-orange-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Calendar className="w-3 h-3" /> {t('stepsHelp.scheduled')}
                 </span>
-                <span className="text-xs bg-orange-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Target className="w-3 h-3" /> {t('stepsHelp.toGoal')}
                 </span>
-                <span className="text-xs bg-orange-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Clock className="w-3 h-3" /> {t('stepsHelp.timeEstimate')}
                 </span>
               </div>
@@ -1094,8 +1094,8 @@ export function HelpView({
               </h4>
               <div className="box-playful-highlight p-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 border-2 border-orange-400 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <CheckSquare className="w-4 h-4 text-orange-400" />
+                  <div className="w-6 h-6 border-2 border-primary-400 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <CheckSquare className="w-4 h-4 text-primary-400" />
                 </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -1134,7 +1134,7 @@ export function HelpView({
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-orange-100">
+                    <tr className="border-b border-primary-100">
                       <th className="text-left py-2 px-2 text-xs font-medium text-gray-500 w-8"></th>
                       <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('stepsHelp.tableName')}</th>
                       <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">{t('stepsHelp.tableDate')}</th>
@@ -1143,10 +1143,10 @@ export function HelpView({
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="border-b border-orange-50 hover:bg-primary-50 cursor-pointer">
+                    <tr className="border-b border-primary-50 hover:bg-primary-50 cursor-pointer">
                       <td className="py-2 px-2">
-                        <div className="w-5 h-5 border-2 border-orange-400 rounded flex items-center justify-center">
-                          <CheckSquare className="w-3 h-3 text-orange-400" />
+                        <div className="w-5 h-5 border-2 border-primary-400 rounded flex items-center justify-center">
+                          <CheckSquare className="w-3 h-3 text-primary-400" />
                         </div>
                       </td>
                       <td className="py-2 px-2">
@@ -1159,10 +1159,10 @@ export function HelpView({
                       <td className="py-2 px-2 text-gray-500">30 min</td>
                       <td className="py-2 px-2 text-xs text-primary-600 font-playful">React</td>
                     </tr>
-                    <tr className="border-b border-orange-50 hover:bg-primary-50 cursor-pointer">
+                    <tr className="border-b border-primary-50 hover:bg-primary-50 cursor-pointer">
                       <td className="py-2 px-2">
-                        <div className="w-5 h-5 border-2 border-orange-400 rounded flex items-center justify-center">
-                          <CheckSquare className="w-3 h-3 text-orange-400" />
+                        <div className="w-5 h-5 border-2 border-primary-400 rounded flex items-center justify-center">
+                          <CheckSquare className="w-3 h-3 text-primary-400" />
                         </div>
                       </td>
                       <td className="py-2 px-2">
@@ -1174,7 +1174,7 @@ export function HelpView({
                     </tr>
                     <tr className="hover:bg-primary-50 cursor-pointer opacity-60">
                       <td className="py-2 px-2">
-                        <div className="w-5 h-5 bg-orange-500 rounded flex items-center justify-center">
+                        <div className="w-5 h-5 bg-primary-500 rounded flex items-center justify-center">
                           <CheckSquare className="w-3 h-3 text-white" />
                         </div>
                       </td>
@@ -1212,7 +1212,7 @@ export function HelpView({
                   </button>
                 )}
                 {onNavigateToSteps && (
-                  <button onClick={onNavigateToSteps} className="flex items-center gap-1 px-4 py-2 border border-orange-200 text-primary-600 font-playful text-sm rounded-lg hover:bg-primary-50">
+                  <button onClick={onNavigateToSteps} className="flex items-center gap-1 px-4 py-2 border border-primary-200 text-primary-600 font-playful text-sm rounded-lg hover:bg-primary-50">
                     <ArrowRight className="w-4 h-4" /> {t('stepsHelp.goToSteps')}
                   </button>
                 )}
@@ -1256,13 +1256,13 @@ export function HelpView({
               <h4 className="font-semibold text-black font-playful mb-2">{t('habitsHelp.whatAreHabits')}</h4>
               <p className="text-sm text-gray-600 font-playful mb-3">{t('habitsHelp.whatAreHabitsDesc')}</p>
               <div className="flex flex-wrap gap-2">
-                <span className="text-xs bg-orange-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Calendar className="w-3 h-3" /> {t('habitsHelp.daily')}
                 </span>
-                <span className="text-xs bg-orange-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Calendar className="w-3 h-3" /> {t('habitsHelp.weekly')}
                 </span>
-                <span className="text-xs bg-orange-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Clock className="w-3 h-3" /> {t('habitsHelp.reminder')}
                 </span>
               </div>
@@ -1275,13 +1275,13 @@ export function HelpView({
               </h4>
               <div className="box-playful-highlight p-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-500 rounded-lg flex items-center justify-center flex-shrink-0">
                     <Zap className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h5 className="font-semibold text-black font-playful">{t('habitsHelp.exampleName')}</h5>
-                      <span className="text-xs bg-orange-200 text-primary-600 px-2 py-0.5 rounded-full">{t('habitsHelp.daily')}</span>
+                      <span className="text-xs bg-primary-200 text-primary-600 px-2 py-0.5 rounded-full">{t('habitsHelp.daily')}</span>
                     </div>
                     <p className="text-sm text-gray-500 mt-1">{t('habitsHelp.exampleDesc')}</p>
                     <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
@@ -1291,7 +1291,7 @@ export function HelpView({
               </div>
                     <div className="flex gap-1 mt-2">
                       {days.map((day, i) => (
-                        <span key={day} className={`w-6 h-6 rounded text-[10px] flex items-center justify-center font-medium ${i < 5 ? 'bg-orange-200 text-primary-600' : 'bg-gray-100 text-gray-400'}`}>
+                        <span key={day} className={`w-6 h-6 rounded text-[10px] flex items-center justify-center font-medium ${i < 5 ? 'bg-primary-200 text-primary-600' : 'bg-gray-100 text-gray-400'}`}>
                           {day}
                         </span>
                       ))}
@@ -1364,7 +1364,7 @@ export function HelpView({
                     </div>
                     <div className="flex gap-1 flex-1">
                       {[true, true, true, false, false, false, false].map((done, i) => (
-                        <div key={i} className={`w-8 h-8 rounded flex items-center justify-center ${done ? 'bg-orange-500' : 'bg-gray-200'}`}>
+                        <div key={i} className={`w-8 h-8 rounded flex items-center justify-center ${done ? 'bg-primary-500' : 'bg-gray-200'}`}>
                           {done && <CheckSquare className="w-4 h-4 text-white" />}
                         </div>
                       ))}
@@ -1381,7 +1381,7 @@ export function HelpView({
                     </div>
                     <div className="flex gap-1 flex-1">
                       {[true, false, true, false, false, false, false].map((done, i) => (
-                        <div key={i} className={`w-8 h-8 rounded flex items-center justify-center ${done ? 'bg-orange-500' : 'bg-gray-200'}`}>
+                        <div key={i} className={`w-8 h-8 rounded flex items-center justify-center ${done ? 'bg-primary-500' : 'bg-gray-200'}`}>
                           {done && <CheckSquare className="w-4 h-4 text-white" />}
                         </div>
                       ))}
@@ -1415,7 +1415,7 @@ export function HelpView({
                   </button>
                 )}
                 {onNavigateToHabits && (
-                  <button onClick={onNavigateToHabits} className="flex items-center gap-1 px-4 py-2 border border-orange-200 text-primary-600 font-playful text-sm rounded-lg hover:bg-primary-50">
+                  <button onClick={onNavigateToHabits} className="flex items-center gap-1 px-4 py-2 border border-primary-200 text-primary-600 font-playful text-sm rounded-lg hover:bg-primary-50">
                     <ArrowRight className="w-4 h-4" /> {t('habitsHelp.goToHabits')}
                   </button>
                 )}

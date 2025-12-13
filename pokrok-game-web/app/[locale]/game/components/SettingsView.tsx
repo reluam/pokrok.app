@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { locales, type Locale } from '@/i18n/config'
 import { User, Target, Footprints, BarChart3, Eye, UserCircle, Menu } from 'lucide-react'
+import { colorPalettes, applyColorTheme } from '@/lib/color-utils'
 
 interface SettingsViewProps {
   player: any
@@ -83,10 +84,11 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
   // Display settings state
   const [displaySettings, setDisplaySettings] = useState({
     defaultView: 'day' as 'day' | 'week' | 'month' | 'year',
-    dateFormat: 'DD.MM.YYYY' as 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY'
+    dateFormat: 'DD.MM.YYYY' as 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY',
+    primaryColor: '#E8871E' as string
   })
   const [isSavingDisplay, setIsSavingDisplay] = useState(false)
-  
+
   // Reset data and delete account state
   const [showResetDataDialog, setShowResetDataDialog] = useState(false)
   const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false)
@@ -122,10 +124,14 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
         const response = await fetch('/api/cesta/user-settings')
         if (response.ok) {
           const data = await response.json()
+          const primaryColor = data.settings?.primary_color || '#E8871E'
           setDisplaySettings({
             defaultView: data.settings?.default_view || 'day',
-            dateFormat: data.settings?.date_format || 'DD.MM.YYYY'
+            dateFormat: data.settings?.date_format || 'DD.MM.YYYY',
+            primaryColor
           })
+          // Apply color theme on load
+          applyColorTheme(primaryColor)
         }
       } catch (error) {
         console.error('Error loading display settings:', error)
@@ -135,7 +141,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
   }, [player?.user_id])
 
   // Handler for saving display settings
-  const handleSaveDisplaySettings = async (newView?: 'day' | 'week' | 'month' | 'year', newDateFormat?: 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY') => {
+  const handleSaveDisplaySettings = async (newView?: 'day' | 'week' | 'month' | 'year', newDateFormat?: 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY', newPrimaryColor?: string) => {
     if (!player?.user_id) return
     setIsSavingDisplay(true)
     try {
@@ -144,7 +150,8 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...(newView && { default_view: newView }),
-          ...(newDateFormat && { date_format: newDateFormat })
+          ...(newDateFormat && { date_format: newDateFormat }),
+          ...(newPrimaryColor && { primary_color: newPrimaryColor })
         })
       })
       if (response.ok) {
@@ -153,6 +160,11 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
         }
         if (newDateFormat) {
           setDisplaySettings(prev => ({ ...prev, dateFormat: newDateFormat }))
+        }
+        if (newPrimaryColor) {
+          setDisplaySettings(prev => ({ ...prev, primaryColor: newPrimaryColor }))
+          // Apply color theme immediately
+          applyColorTheme(newPrimaryColor)
         }
       } else {
         console.error('Failed to save display settings')
@@ -577,6 +589,40 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
         return (
           <div>
             <div className="space-y-6">
+              {/* Primary Color */}
+              <div>
+                <h4 className="text-lg font-bold text-black mb-4 font-playful">🎨 Hlavní barva</h4>
+                <div className="box-playful-highlight p-4">
+                  <label className="block text-sm font-bold text-black mb-3 font-playful">
+                    Vyberte si hlavní barvu aplikace
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {colorPalettes.map((palette) => (
+                        <button
+                        key={palette.value}
+                        onClick={() => handleSaveDisplaySettings(undefined, undefined, palette.value)}
+                        disabled={isSavingDisplay}
+                        className={`flex flex-col items-center gap-1.5 px-3 py-2 rounded-playful-md border-2 transition-all flex-1 min-w-0 ${
+                          displaySettings.primaryColor === palette.value
+                            ? 'border-primary-500 ring-2 ring-primary-200 bg-primary-50'
+                            : 'border-gray-300 hover:border-primary-300 bg-white'
+                        } disabled:opacity-50`}
+                        >
+                        <div
+                          className="w-full h-8 rounded-playful-sm"
+                          style={{ backgroundColor: palette.value }}
+                        />
+                        <p className="text-[10px] font-medium text-gray-700 font-playful text-center leading-tight">{palette.name}</p>
+                        </button>
+                    ))}
+                      </div>
+                  <p className="text-xs text-gray-600 mt-3 font-playful">
+                    Hlavní barva se použije pro tlačítka, akcenty a zvýraznění v aplikaci
+                  </p>
+                        </div>
+                      </div>
+              
+              {/* Date Format */}
             <div>
                 <h4 className="text-lg font-bold text-black mb-4 font-playful">📅 Formát data</h4>
               <div className="box-playful-highlight p-4">
@@ -647,7 +693,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
                   </button>
                 </div>
               </div>
-            </div>
+                </div>
 
             {/* Reset Data Confirmation Dialog */}
             {showResetDataDialog && (
@@ -670,7 +716,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
                     className="w-full p-3 border-2 border-primary-500 rounded-playful-md font-playful mb-4 bg-white"
                   />
                   <div className="flex gap-3">
-                    <button
+                  <button
                       onClick={() => {
                         setShowResetDataDialog(false)
                         setResetDataConfirmation('')
@@ -684,12 +730,12 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
                       onClick={handleResetData}
                       disabled={resetDataConfirmation !== t('settings.danger.resetData.confirmText') || isResetting}
                       className="btn-playful-danger px-4 py-2 flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
+                  >
                       {isResetting ? t('common.loading') : t('settings.danger.resetData.button')}
-                    </button>
-                  </div>
+                  </button>
                 </div>
               </div>
+            </div>
             )}
 
             {/* Delete Account Confirmation Dialog */}

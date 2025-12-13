@@ -82,33 +82,33 @@ export function SidebarNavigation({
           {/* Focus section - Day, Week, Month (always visible, not expandable) */}
           {!sidebarCollapsed ? (
             <div className="space-y-1.5">
-              <button
-                onClick={() => setMainPanelSection('focus-day')}
-                className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                  mainPanelSection === 'focus-day' ? 'active' : ''
-                }`}
-              >
-                <CalendarDays className="w-4 h-4 flex-shrink-0" />
+                  <button
+                    onClick={() => setMainPanelSection('focus-day')}
+                    className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
+                      mainPanelSection === 'focus-day' ? 'active' : ''
+                    }`}
+                  >
+                    <CalendarDays className="w-4 h-4 flex-shrink-0" />
                 <span className="font-medium text-sm">{t('navigation.focusDay') || 'Den'}</span>
-              </button>
-              <button
-                onClick={() => setMainPanelSection('focus-week')}
-                className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                  mainPanelSection === 'focus-week' ? 'active' : ''
-                }`}
-              >
-                <CalendarRange className="w-4 h-4 flex-shrink-0" />
+                  </button>
+                  <button
+                    onClick={() => setMainPanelSection('focus-week')}
+                    className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
+                      mainPanelSection === 'focus-week' ? 'active' : ''
+                    }`}
+                  >
+                    <CalendarRange className="w-4 h-4 flex-shrink-0" />
                 <span className="font-medium text-sm">{t('navigation.focusWeek') || 'Týden'}</span>
-              </button>
-              <button
-                onClick={() => setMainPanelSection('focus-month')}
-                className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                  mainPanelSection === 'focus-month' ? 'active' : ''
-                }`}
-              >
-                <Calendar className="w-4 h-4 flex-shrink-0" />
+                  </button>
+                  <button
+                    onClick={() => setMainPanelSection('focus-month')}
+                    className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
+                      mainPanelSection === 'focus-month' ? 'active' : ''
+                    }`}
+                  >
+                    <Calendar className="w-4 h-4 flex-shrink-0" />
                 <span className="font-medium text-sm">{t('navigation.focusMonth') || 'Měsíc'}</span>
-              </button>
+                  </button>
             </div>
           ) : (
             // Collapsed sidebar - show only Focus icon
@@ -160,7 +160,7 @@ export function SidebarNavigation({
                   const areaColor = area.color || '#ea580c'
                   
                   return (
-                      <div key={area.id} className="space-y-1.5">
+                    <div key={area.id} className="space-y-1.5">
                       <div className="flex items-center gap-1.5">
                         <button
                           ref={areaButtonRefs?.get(area.id)}
@@ -469,11 +469,11 @@ export function SidebarNavigation({
                               setMainPanelSection(goalSectionId)
                             }
                           }}
-                          className={`btn-playful-nav w-10 h-10 flex items-center justify-center ${
-                            isSelected ? 'active' : ''
-                          }`}
-                          title={goal.title}
-                        >
+                                className={`btn-playful-nav w-10 h-10 flex items-center justify-center ${
+                                  isSelected ? 'active' : ''
+                                }`}
+                                title={goal.title}
+                              >
                                 <GoalIconComponent className={`w-4 h-4`} style={!isSelected ? { color: areaColor } : undefined} />
                               </button>
                             )
@@ -500,11 +500,11 @@ export function SidebarNavigation({
                               setMainPanelSection(goalSectionId)
                             }
                           }}
-                          className={`btn-playful-nav w-10 h-10 flex items-center justify-center ${
-                            isSelected ? 'active' : ''
-                          }`}
-                          title={goal.title}
-                        >
+                      className={`btn-playful-nav w-10 h-10 flex items-center justify-center ${
+                        isSelected ? 'active' : ''
+                      }`}
+                      title={goal.title}
+                    >
                       <IconComponent className="w-4 h-4" />
                     </button>
                   )
@@ -555,7 +555,7 @@ export function SidebarNavigation({
                     <span>{t('navigation.goals')}</span>
                   </div>
                 ) : (
-                  <button
+              <button
                     onClick={(e) => {
                       e.stopPropagation()
                       // In onboarding goal step, this click should trigger the next onboarding step, not open the external modal
@@ -563,19 +563,19 @@ export function SidebarNavigation({
                         onOnboardingGoalClick() // Call the onboarding-specific handler
                         setShowCreateMenu(false)
                       } else {
-                        handleCreateGoal()
-                        setShowCreateMenu(false)
+                  handleCreateGoal()
+                  setShowCreateMenu(false)
                       }
-                    }}
+                }}
                     className={`w-full text-left px-4 py-2.5 text-sm transition-colors font-medium flex items-center gap-2 border-b border-primary-200 first:rounded-t-playful-md last:rounded-b-playful-md last:border-b-0 ${
                       isOnboardingAddMenuGoalStep
                         ? 'bg-primary-100 border-2 border-primary-500 font-bold text-primary-700 hover:bg-primary-200'
                         : 'hover:bg-primary-50 text-black'
                     }`}
-                  >
-                    <Target className="w-4 h-4" />
-                    <span>{t('navigation.goals')}</span>
-                  </button>
+              >
+                <Target className="w-4 h-4" />
+                <span>{t('navigation.goals')}</span>
+              </button>
                 )}
                 
                 {/* Steps button */}
@@ -586,17 +586,17 @@ export function SidebarNavigation({
                     <span>{t('navigation.steps')}</span>
                   </div>
                 ) : (
-                  <button
+              <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      handleOpenStepModal()
-                      setShowCreateMenu(false)
-                    }}
+                  handleOpenStepModal()
+                  setShowCreateMenu(false)
+                }}
                     className="w-full text-left px-4 py-2.5 text-sm transition-colors font-medium flex items-center gap-2 border-b border-primary-200 first:rounded-t-playful-md last:rounded-b-playful-md last:border-b-0 hover:bg-primary-50 text-black"
-                  >
-                    <Footprints className="w-4 h-4" />
-                    <span>{t('navigation.steps')}</span>
-                  </button>
+              >
+                <Footprints className="w-4 h-4" />
+                <span>{t('navigation.steps')}</span>
+              </button>
                 )}
                 
                 {/* Habits button */}
@@ -607,17 +607,17 @@ export function SidebarNavigation({
                     <span>{t('navigation.habits')}</span>
                   </div>
                 ) : (
-                  <button
+              <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      handleOpenHabitModal(null)
-                      setShowCreateMenu(false)
-                    }}
+                  handleOpenHabitModal(null)
+                  setShowCreateMenu(false)
+                }}
                     className="w-full text-left px-4 py-2.5 text-sm transition-colors font-medium flex items-center gap-2 border-b border-primary-200 first:rounded-t-playful-md last:rounded-b-playful-md last:border-b-0 hover:bg-primary-50 text-black"
-                  >
-                    <CheckSquare className="w-4 h-4" />
-                    <span>{t('navigation.habits')}</span>
-                  </button>
+              >
+                <CheckSquare className="w-4 h-4" />
+                <span>{t('navigation.habits')}</span>
+              </button>
                 )}
               <button
                 onClick={(e) => {
@@ -628,8 +628,8 @@ export function SidebarNavigation({
                     setShowCreateMenu(false)
                   } else {
                     // Normal flow - open area edit modal
-                    handleOpenAreaEditModal()
-                    setShowCreateMenu(false)
+                  handleOpenAreaEditModal()
+                  setShowCreateMenu(false)
                   }
                 }}
                 disabled={isOnboardingAddMenuGoalStep}

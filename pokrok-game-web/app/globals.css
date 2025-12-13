@@ -108,22 +108,22 @@
   .btn-playful-primary {
     @apply btn-playful-base;
     background-color: #FFFFFF; /* White background */
-    color: #E8871E; /* Primary orange text */
+    color: var(--color-primary-500, #E8871E); /* Primary color text */
   }
   
   .btn-playful-primary:hover {
-    background-color: #fef3e7; /* primary-50 - light orange on hover */
+    background-color: var(--color-primary-50, #fef3e7); /* primary-50 - light color on hover */
   }
   
   /* Secondary - Light background */
   .btn-playful-secondary {
     @apply btn-playful-base;
-    background-color: #FFFAF5; /* background color */
+    background-color: var(--color-background, #FFFAF5); /* background color */
     color: #000000; /* High contrast black text */
   }
   
   .btn-playful-secondary:hover {
-    background-color: #fef3e7; /* primary-50 - slightly warmer */
+    background-color: var(--color-primary-50, #fef3e7); /* primary-50 - slightly warmer */
   }
   
   /* Outline - Transparent with border */
@@ -134,7 +134,7 @@
   }
   
   .btn-playful-outline:hover {
-    background-color: #FFFAF5; /* Light background on hover */
+    background-color: var(--color-background, #FFFAF5); /* Light background on hover */
   }
   
   /* Navigation/Menu button - no border, underline when active */
@@ -149,20 +149,20 @@
   }
   
   .btn-playful-nav:hover {
-    background-color: #fef3e7; /* primary-50 */
+    background-color: var(--color-primary-50, #fef3e7); /* primary-50 */
   }
   
   .btn-playful-nav.active {
     background-color: transparent;
     color: #000000; /* Black text for contrast */
     text-decoration: underline;
-    text-decoration-color: #E8871E; /* Primary orange underline */
+    text-decoration-color: var(--color-primary-500, #E8871E); /* Primary color underline */
     text-decoration-thickness: 2px;
     text-underline-offset: 4px;
   }
   
   .btn-playful-nav.active:hover {
-    background-color: #fef3e7; /* primary-50 */
+    background-color: var(--color-primary-50, #fef3e7); /* primary-50 */
   }
   
   .btn-playful-nav.active:active {
@@ -175,15 +175,15 @@
     @apply p-4 sm:p-6;
     @apply transition-colors duration-200;
     @apply relative;
-    border-color: #E8871E; /* Primary orange border */
+    border-color: var(--color-primary-500, #E8871E); /* Primary color border */
     background-color: #FFFFFF; /* White background */
     /* Primary "shadow" effect - offset box behind */
-    box-shadow: 3px 3px 0 0 #E8871E;
+    box-shadow: 3px 3px 0 0 var(--color-primary-500, #E8871E);
   }
   
   .card-playful-primary {
     @apply card-playful-base;
-    background-color: #FFFAF5; /* Project background color */
+    background-color: var(--color-background, #FFFAF5); /* Project background color */
   }
   
   .card-playful-white {
@@ -195,15 +195,15 @@
   .box-playful-highlight {
     @apply border-2 rounded-playful-lg;
     @apply relative;
-    border-color: #E8871E; /* Primary orange border */
+    border-color: var(--color-primary-500, #E8871E); /* Primary color border */
     /* Primary "shadow" effect - offset box behind */
-    box-shadow: 3px 3px 0 0 #E8871E;
+    box-shadow: 3px 3px 0 0 var(--color-primary-500, #E8871E);
     /* Background can be set via Tailwind classes */
   }
   
   .box-playful-highlight-primary {
     @apply box-playful-highlight;
-    background-color: #FFFAF5; /* Light background */
+    background-color: var(--color-background, #FFFAF5); /* Light background */
   }
   
   /* Gray pressed variant for not planned items */
@@ -220,7 +220,7 @@
   .box-playful-pressed {
     @apply border-2 rounded-playful-lg;
     @apply relative;
-    border-color: #E8871E; /* Primary orange border */
+    border-color: var(--color-primary-500, #E8871E); /* Primary color border */
     background-color: #FFFFFF; /* White background */
     /* No shadow - flat appearance */
     box-shadow: none;

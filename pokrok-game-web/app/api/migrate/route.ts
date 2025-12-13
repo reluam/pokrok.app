@@ -329,6 +329,31 @@ async function runMigrations() {
       `
     }
     
+    // Add icon column to habits table if it doesn't exist
+    const iconColumnExists = await sql`
+      SELECT EXISTS (
+        SELECT FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'habits' 
+        AND column_name = 'icon'
+      )
+    `
+    
+    if (!iconColumnExists[0]?.exists) {
+      await sql`
+        ALTER TABLE habits ADD COLUMN icon VARCHAR(50)
+      `
+      
+      // Set random icons for existing habits
+      const iconNames = ['Target', 'Heart', 'Star', 'Trophy', 'Dumbbell', 'BookOpen', 'Coffee', 'Music', 'Camera', 'Plane', 'Car', 'Home', 'Briefcase', 'GraduationCap', 'Utensils', 'ShoppingBag', 'Paintbrush', 'Gamepad2', 'TreePine', 'Mountain', 'Waves', 'Sun', 'Moon', 'Sparkles', 'Key', 'Lock', 'Shield', 'Compass', 'Map', 'Globe', 'Flag', 'Gift', 'Crown', 'Gem', 'Medal', 'Award', 'Zap', 'Smile', 'ThumbsUp', 'Rainbow', 'Droplets', 'Leaf', 'Flower2', 'Bird', 'Fish', 'Cat', 'Dog', 'Rabbit', 'Bot', 'Ghost', 'Skull', 'Cake', 'Cookie', 'Pizza', 'Apple', 'Banana', 'Cherry', 'Grape', 'Carrot', 'Activity', 'HeartPulse', 'Stethoscope', 'Pill', 'Cpu', 'Smartphone', 'Laptop', 'Code', 'Monitor', 'Wifi', 'DollarSign', 'TrendingUp', 'Banknote', 'CreditCard', 'Wallet', 'Coins', 'Building', 'Users', 'LayoutDashboard']
+      
+      const habits = await sql`SELECT id FROM habits WHERE icon IS NULL`
+      for (const habit of habits) {
+        const randomIcon = iconNames[Math.floor(Math.random() * iconNames.length)]
+        await sql`UPDATE habits SET icon = ${randomIcon} WHERE id = ${habit.id}`
+      }
+    }
+    
     return { success: true, message: 'Migration completed successfully' }
   } catch (error: any) {
     console.error('Migration error:', error)

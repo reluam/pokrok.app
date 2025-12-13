@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
 // Database operations moved to API routes
 import { GameWorldView } from './components/GameWorldView'
+import { applyColorTheme } from '@/lib/color-utils'
 
 // Force dynamic rendering - this page requires user authentication
 export const dynamic = 'force-dynamic'
@@ -31,6 +32,20 @@ export default function GamePage() {
               }
 
               try {
+                // Load primary color from user settings first
+                try {
+                  const settingsResponse = await fetch('/api/cesta/user-settings')
+                  if (settingsResponse.ok) {
+                    const settingsData = await settingsResponse.json()
+                    const primaryColor = settingsData.settings?.primary_color || '#E8871E'
+                    applyColorTheme(primaryColor)
+                  }
+                } catch (error) {
+                  console.error('Error loading primary color:', error)
+                  // Fallback to default
+                  applyColorTheme('#E8871E')
+                }
+                
                 // Try to load all game data in one request
                 const gameDataResponse = await fetch('/api/game/init')
                 
@@ -120,12 +135,12 @@ export default function GamePage() {
   
   if (!isLoaded || !isDataLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-orange-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-50">
         <div className="text-center">
           <div className="mb-6">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"></div>
           </div>
-          <h1 className="text-2xl font-bold text-orange-600">
+          <h1 className="text-2xl font-bold text-primary-600">
             {isLoaded && isLoading ? t('common.loadingData') : t('common.loading')}
           </h1>
         </div>
