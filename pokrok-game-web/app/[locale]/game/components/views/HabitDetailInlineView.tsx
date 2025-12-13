@@ -42,6 +42,7 @@ export function HabitDetailInlineView({
   // HabitModal editing state
   const [editingHabitName, setEditingHabitName] = useState(habit?.name || '')
   const [editingHabitDescription, setEditingHabitDescription] = useState(habit?.description || '')
+  const [editingHabitIcon, setEditingHabitIcon] = useState(habit?.icon || 'Target')
   const [editingHabitFrequency, setEditingHabitFrequency] = useState<'daily' | 'weekly' | 'monthly'>(habit?.frequency || 'daily')
   const [editingHabitSelectedDays, setEditingHabitSelectedDays] = useState<string[]>(habit?.selected_days || [])
   const [editingHabitMonthlyType, setEditingHabitMonthlyType] = useState<'specificDays' | 'weekdayInMonth'>('specificDays')
@@ -60,6 +61,7 @@ export function HabitDetailInlineView({
     setLocalHabit(habit)
     setEditingHabitName(habit?.name || '')
     setEditingHabitDescription(habit?.description || '')
+    setEditingHabitIcon(habit?.icon || 'Target')
     setEditingHabitFrequency(habit?.frequency || 'daily')
     setEditingHabitSelectedDays(habit?.selected_days || [])
     setEditingHabitAlwaysShow(habit?.always_show || false)
@@ -226,6 +228,7 @@ export function HabitDetailInlineView({
           habitId: habit.id,
           name: editingHabitName.trim(),
           description: editingHabitDescription.trim(),
+          icon: editingHabitIcon,
           frequency: editingHabitFrequency,
           selectedDays: editingHabitSelectedDays,
           always_show: editingHabitAlwaysShow,
@@ -496,6 +499,8 @@ export function HabitDetailInlineView({
         setEditingHabitName={setEditingHabitName}
         editingHabitDescription={editingHabitDescription}
         setEditingHabitDescription={setEditingHabitDescription}
+        editingHabitIcon={editingHabitIcon}
+        setEditingHabitIcon={setEditingHabitIcon}
         editingHabitFrequency={editingHabitFrequency}
         setEditingHabitFrequency={setEditingHabitFrequency}
         editingHabitSelectedDays={editingHabitSelectedDays}
