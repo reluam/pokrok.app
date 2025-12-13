@@ -667,7 +667,8 @@
     "noFutureSteps": "No future steps",
     "today": "Today",
     "futureDay": "Future day",
-    "clickToComplete": "Click to complete"
+    "clickToComplete": "Click to complete",
+    "clickAgainToDeselect": "Click again to deselect"
   },
   "daysShort": {
     "sun": "SU",

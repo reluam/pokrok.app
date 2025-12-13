@@ -663,7 +663,8 @@
     "noFutureSteps": "Žádné budoucí kroky",
     "today": "Dnes",
     "futureDay": "Budoucí den",
-    "clickToComplete": "Klikni pro splnění"
+    "clickToComplete": "Klikni pro splnění",
+    "clickAgainToDeselect": "Klikni znovu pro zrušení výběru"
   },
   "daysShort": {
     "sun": "NE",
