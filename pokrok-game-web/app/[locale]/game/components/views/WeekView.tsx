@@ -182,13 +182,17 @@ export function WeekView({
   
   // Format header text
   const headerText = useMemo(() => {
+    // If a day is selected, show that day's date
+    if (selectedDayDate) {
+      return selectedDayDate.toLocaleDateString(localeCode, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    }
     // Week range - "1. - 7. December 2025"
     const startDay = currentWeekStart.getDate()
     const endDay = weekEndDate.getDate()
     const month = weekEndDate.toLocaleDateString(localeCode, { month: 'long' })
     const year = weekEndDate.getFullYear()
     return `${startDay}. - ${endDay}. ${month} ${year}`
-  }, [currentWeekStart, weekEndDate, localeCode])
+  }, [currentWeekStart, weekEndDate, localeCode, selectedDayDate])
   
   // Check if we're in current week
   const currentWeekStartDate = getWeekStart(new Date())
@@ -287,10 +291,20 @@ export function WeekView({
     <div className="w-full h-full flex flex-col p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 overflow-y-auto bg-primary-50">
       {/* Header with date/week */}
       <div className="flex items-center justify-center gap-3 flex-wrap">
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-black capitalize font-playful">
-          {headerText}
-        </h1>
-        {!isCurrentWeek && (
+        <div className="flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-black capitalize font-playful">
+            {headerText}
+          </h1>
+          {selectedDayDate && (
+            <span 
+              onClick={() => setSelectedDayDate(null)}
+              className="text-xs sm:text-sm text-gray-600 cursor-pointer hover:text-gray-800 transition-colors"
+            >
+              {t('focus.clickAgainToDeselect') || 'Klikni znovu pro zrušení výběru'}
+            </span>
+          )}
+        </div>
+        {!isCurrentWeek && !selectedDayDate && (
           <button
             onClick={handleGoToCurrentWeek}
             className="btn-playful-base px-3 py-1.5 text-xs sm:text-sm font-semibold text-black bg-primary-50 hover:bg-primary-100"
@@ -522,18 +536,6 @@ export function WeekView({
             <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-black" />
           </button>
         </div>
-        
-        {/* Selected Day Info */}
-        {selectedDayDate && (
-          <div className="mt-4 box-playful-highlight-primary p-4">
-            <h4 className="text-base sm:text-lg font-bold text-black mb-2 font-playful">
-              {selectedDayDate.toLocaleDateString(localeCode, { weekday: 'long', day: 'numeric', month: 'long' })}
-            </h4>
-            <p className="text-sm text-black">
-              {t('focus.clickAgainToDeselect') || 'Klikni znovu pro zrušení výběru'}
-            </p>
-          </div>
-        )}
       </div>
       
       {/* Content based on selection */}
