@@ -142,7 +142,10 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
 
   // Handler for saving display settings
   const handleSaveDisplaySettings = async (newView?: 'day' | 'week' | 'month' | 'year', newDateFormat?: 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY', newPrimaryColor?: string) => {
-    if (!player?.user_id) return
+    console.log('handleSaveDisplaySettings called', { newView, newDateFormat, newPrimaryColor, player: player?.id || player?.user_id, hasPlayer: !!player, user: user?.id })
+    
+    // API endpoint uses Clerk auth, so we don't need to check player.user_id
+    // The API will get the user ID from the auth token
     setIsSavingDisplay(true)
     try {
       const requestBody: any = {}
@@ -150,14 +153,19 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
       if (newDateFormat) requestBody.date_format = newDateFormat
       if (newPrimaryColor) requestBody.primary_color = newPrimaryColor
       
+      console.log('Saving display settings:', requestBody)
+      
       const response = await fetch('/api/cesta/user-settings', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
       })
       
+      console.log('Response status:', response.status, response.ok)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('Settings saved successfully:', data)
         if (newView) {
           setDisplaySettings(prev => ({ ...prev, defaultView: newView }))
         }
@@ -173,7 +181,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
         }
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-        console.error('Failed to save display settings:', errorData)
+        console.error('Failed to save display settings:', errorData, response.status)
         alert(`Chyba při ukládání nastavení: ${errorData.error || 'Neznámá chyba'}`)
       }
     } catch (error) {
