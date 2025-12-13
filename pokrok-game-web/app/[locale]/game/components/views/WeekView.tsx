@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { Check, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Check, X, ChevronLeft, ChevronRight, Footprints } from 'lucide-react'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { TodayFocusSection } from './TodayFocusSection'
@@ -71,7 +71,7 @@ export function WeekView({
     t('daysShort.thu'), t('daysShort.fri'), t('daysShort.sat')
   ]
   
-  // Calculate stats for a specific day
+  // Calculate stats for a specific day - habits and steps together
   const getDayStats = useCallback((date: Date) => {
     const dateStr = getLocalDateString(date)
     
@@ -83,6 +83,7 @@ export function WeekView({
     const completedHabits = dayHabits.filter(h => 
       h.habit_completions && h.habit_completions[dateStr] === true
     ).length
+    const totalHabits = dayHabits.length
     
     // Steps for this day
     const daySteps = dailySteps.filter(step => {
@@ -91,13 +92,21 @@ export function WeekView({
     })
     
     const completedSteps = daySteps.filter(s => s.completed).length
-    const totalTasks = dayHabits.length + daySteps.length
+    const totalSteps = daySteps.length
+    
+    // Total tasks (habits + steps)
+    const totalTasks = totalHabits + totalSteps
     const completedTasks = completedHabits + completedSteps
     
     return {
       total: totalTasks,
       completed: completedTasks,
-      isComplete: totalTasks > 0 && completedTasks === totalTasks
+      isComplete: totalTasks > 0 && completedTasks === totalTasks,
+      // Also return separate counts for display
+      totalSteps,
+      completedSteps,
+      totalHabits,
+      completedHabits
     }
   }, [habits, dailySteps])
   
@@ -346,7 +355,7 @@ export function WeekView({
                     dayNumberColor = 'text-gray-700'
                     fractionColor = 'text-gray-400'
                   } else if (isPast) {
-                    // Past days - color based on completion percentage
+                    // Past days - always show percentage (even if 0 steps)
                     if (stats.total > 0) {
                       if (completionPercentage === 100) {
                         // 100% - primary full with checkmark
@@ -371,12 +380,12 @@ export function WeekView({
                         fractionColor = isSelected ? 'text-primary-600' : 'text-gray-500'
                       }
                     } else {
-                      // Past with no tasks - gray
-                      dotBg = 'bg-gray-300'
-                      dotBorder = 'border-4 border-gray-400'
-                      textColor = 'text-gray-500'
-                      dayNumberColor = 'text-gray-700'
-                      fractionColor = 'text-gray-400'
+                      // Past with no tasks - show 0% with white background and primary border
+                      dotBg = 'bg-white'
+                      dotBorder = isSelected ? 'border-4 border-primary-700' : 'border-4 border-primary-500'
+                      textColor = isSelected ? 'text-primary-600' : 'text-black'
+                      dayNumberColor = isSelected ? 'text-primary-600' : 'text-black'
+                      fractionColor = isSelected ? 'text-primary-600' : 'text-gray-500'
                     }
                   }
                   
@@ -388,18 +397,21 @@ export function WeekView({
                     >
                       {/* Dot */}
                       <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all relative z-10 ${dotBg} ${dotBorder}`}>
-                        {isPast && stats.total > 0 && (
+                        {isPast && (
                           <>
-                            {completionPercentage === 100 && (
+                            {stats.total > 0 && completionPercentage === 100 && (
                               <Check className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={3} />
                             )}
-                            {completionPercentage === 0 && (
+                            {stats.total > 0 && completionPercentage === 0 && (
                               <X className="w-6 h-6 sm:w-7 sm:h-7 text-primary-600" strokeWidth={3} />
                             )}
-                            {completionPercentage > 0 && completionPercentage < 100 && (
+                            {stats.total > 0 && completionPercentage > 0 && completionPercentage < 100 && (
                               <div className="text-xs sm:text-sm font-bold text-primary-600">
                                 {completionPercentage}%
                               </div>
+                            )}
+                            {stats.total === 0 && (
+                              <X className="w-6 h-6 sm:w-7 sm:h-7 text-primary-600" strokeWidth={3} />
                             )}
                           </>
                         )}
@@ -415,12 +427,13 @@ export function WeekView({
                         {day.getDate()}
                       </span>
                       
-                      {/* Tasks count */}
-                      {stats.total > 0 && (
+                      {/* Steps count - always show (only steps, not habits) */}
+                      <div className="flex items-center gap-1 justify-center">
+                        <Footprints className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-primary-600" />
                         <span className={`text-[10px] sm:text-xs ${fractionColor}`}>
-                          {stats.completed}/{stats.total}
+                          {stats.completedSteps}/{stats.totalSteps}
                         </span>
-                      )}
+                      </div>
                       
                       {/* Compact habit icons and checkboxes */}
                       {(() => {
