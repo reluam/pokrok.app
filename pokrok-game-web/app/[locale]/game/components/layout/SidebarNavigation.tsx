@@ -209,15 +209,6 @@ export function SidebarNavigation({
                         const pausedGoals = areaGoals.filter(g => g.status === 'paused')
                         const completedGoals = areaGoals.filter(g => g.status === 'completed')
                         
-                        console.log('[Desktop Sidebar - Area Goals]', {
-                          areaId: area.id,
-                          areaName: area.name,
-                          totalGoals: areaGoals.length,
-                          active: activeGoals.length,
-                          paused: pausedGoals.length,
-                          completed: completedGoals.length,
-                          allGoalStatuses: areaGoals.map(g => ({ id: g.id, status: g.status, title: g.title }))
-                        })
                         
                         const pausedSectionKey = `${area.id}-paused`
                         const completedSectionKey = `${area.id}-completed`
@@ -235,7 +226,7 @@ export function SidebarNavigation({
                             {activeGoals.map((goal) => {
                               const goalSectionId = `goal-${goal.id}`
                               const isSelected = mainPanelSection === goalSectionId
-                              const GoalIconComponent = getIconComponent(goal.icon)
+                              const progressPercentage = Math.round(goal.progress_percentage || 0)
                               return (
                                 <button
                                   key={goal.id}
@@ -252,7 +243,9 @@ export function SidebarNavigation({
                                   }`}
                                   title={goal.title}
                                 >
-                                  <GoalIconComponent className={`w-3.5 h-3.5 flex-shrink-0`} style={!isSelected ? { color: areaColor } : undefined} />
+                                  <span className={`text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right ${isSelected ? 'text-primary-600' : ''}`} style={!isSelected ? { color: areaColor } : undefined}>
+                                    {progressPercentage}%
+                                  </span>
                                   <span className="font-medium text-xs truncate flex-1">
                                     {goal.title}
                                   </span>
@@ -283,7 +276,7 @@ export function SidebarNavigation({
                                     {pausedGoals.map((goal) => {
                                       const goalSectionId = `goal-${goal.id}`
                                       const isSelected = mainPanelSection === goalSectionId
-                                      const GoalIconComponent = getIconComponent(goal.icon)
+                                      const progressPercentage = Math.round(goal.progress_percentage || 0)
                                       return (
                                         <button
                                           key={goal.id}
@@ -300,7 +293,9 @@ export function SidebarNavigation({
                                           }`}
                                           title={goal.title}
                                         >
-                                          <GoalIconComponent className={`w-3.5 h-3.5 flex-shrink-0`} style={!isSelected ? { color: areaColor } : undefined} />
+                                          <span className={`text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right ${isSelected ? 'text-primary-600' : ''}`} style={!isSelected ? { color: areaColor } : undefined}>
+                                            {progressPercentage}%
+                                          </span>
                                           <span className="font-medium text-xs truncate flex-1">
                                             {goal.title}
                                           </span>
@@ -335,7 +330,7 @@ export function SidebarNavigation({
                                     {completedGoals.map((goal) => {
                                       const goalSectionId = `goal-${goal.id}`
                                       const isSelected = mainPanelSection === goalSectionId
-                                      const GoalIconComponent = getIconComponent(goal.icon)
+                                      const progressPercentage = Math.round(goal.progress_percentage || 0)
                                       return (
                                         <button
                                           key={goal.id}
@@ -352,7 +347,9 @@ export function SidebarNavigation({
                                           }`}
                                           title={goal.title}
                                         >
-                                          <GoalIconComponent className={`w-3.5 h-3.5 flex-shrink-0`} style={!isSelected ? { color: areaColor } : undefined} />
+                                          <span className={`text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right ${isSelected ? 'text-primary-600' : ''}`} style={!isSelected ? { color: areaColor } : undefined}>
+                                            {progressPercentage}%
+                                          </span>
                                           <span className="font-medium text-xs truncate flex-1">
                                             {goal.title}
                                           </span>
@@ -379,7 +376,7 @@ export function SidebarNavigation({
                     {goalsWithoutArea.map((goal) => {
                       const goalSectionId = `goal-${goal.id}`
                       const isSelected = mainPanelSection === goalSectionId
-                      const IconComponent = getIconComponent(goal.icon)
+                      const progressPercentage = Math.round(goal.progress_percentage || 0)
                       return (
                         <button
                           key={goal.id}
@@ -391,13 +388,15 @@ export function SidebarNavigation({
                               setMainPanelSection(goalSectionId)
                             }
                           }}
-                          className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
+                          className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left ${
                             isSelected ? 'active' : ''
                           }`}
                           title={goal.title}
                         >
-                          <IconComponent className="w-4 h-4 flex-shrink-0" />
-                          <span className="font-semibold text-sm truncate flex-1">
+                          <span className={`text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right ${isSelected ? 'text-primary-600' : 'text-gray-600'}`}>
+                            {progressPercentage}%
+                          </span>
+                          <span className="font-medium text-xs truncate flex-1">
                             {goal.title}
                           </span>
                         </button>

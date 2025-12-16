@@ -160,10 +160,7 @@
   .btn-playful-nav.active {
     background-color: transparent;
     color: #000000; /* Black text for contrast */
-    text-decoration: underline;
-    text-decoration-color: var(--color-primary-500, #E8871E); /* Primary color underline */
-    text-decoration-thickness: 2px;
-    text-underline-offset: 4px;
+    border-bottom: 2px solid var(--color-primary-500, #E8871E); /* Primary color underline across full width */
   }
   
   .btn-playful-nav.active:hover {

@@ -790,18 +790,18 @@ export function JourneyGameView({
               const freshHabit = updatedHabits.find((h: any) => h.id === habitId)
               if (freshHabit) {
                 setHabitModalData(freshHabit)
-              }
-            }
-            
-            // Update selected item if it's the same habit
-            if (selectedItem && selectedItem.id === habitId) {
+          }
+        }
+        
+        // Update selected item if it's the same habit
+        if (selectedItem && selectedItem.id === habitId) {
               const freshHabit = updatedHabits.find((h: any) => h.id === habitId)
               if (freshHabit) {
-                setSelectedItem({
-                  ...selectedItem,
+          setSelectedItem({
+            ...selectedItem,
                   habit_completions: freshHabit.habit_completions || {}
-                })
-              }
+          })
+        }
             }
           }
         }
@@ -900,7 +900,8 @@ export function JourneyGameView({
       })
 
       if (response.ok) {
-        const updatedStep = await response.json()
+        const responseData = await response.json()
+        const updatedStep = responseData.goal ? responseData : responseData // Handle both formats
         // Update the step in dailySteps array
         const updatedSteps = dailySteps.map(step => 
           step.id === updatedStep.id ? updatedStep : step
@@ -911,6 +912,11 @@ export function JourneyGameView({
         // Update selected item if it's the same step
         if (selectedItem && selectedItem.id === stepId) {
           setSelectedItem(updatedStep)
+        }
+        // Update goal if it was returned in response
+        if (responseData.goal && onGoalsUpdate) {
+          const updatedGoals = goals.map(g => g.id === responseData.goal.id ? responseData.goal : g)
+          onGoalsUpdate(updatedGoals)
         }
             // Update cache for the goal to force re-render
             if (updatedStep.goal_id) {
@@ -1567,10 +1573,10 @@ export function JourneyGameView({
             onHabitsUpdate([...habits, updatedHabit])
           } else {
             // Update existing habit
-            const updatedHabits = habits.map(habit => 
-              habit.id === updatedHabit.id ? updatedHabit : habit
-            )
-            onHabitsUpdate(updatedHabits)
+          const updatedHabits = habits.map(habit => 
+            habit.id === updatedHabit.id ? updatedHabit : habit
+          )
+          onHabitsUpdate(updatedHabits)
           }
         }
         
@@ -2125,11 +2131,11 @@ export function JourneyGameView({
   // SortableGoal has been extracted to ./journey/SortableGoal.tsx
 
   const handleHabitToggle = async (habitId: string, date?: string) => {
-    // Use provided date or default to today
-    const dateToUse = date || (() => {
+      // Use provided date or default to today
+      const dateToUse = date || (() => {
       const now = new Date()
-      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-    })()
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+      })()
     
     // Create loading key: always use habitId-date format for consistency
     const loadingKey = `${habitId}-${dateToUse}`
@@ -2175,13 +2181,13 @@ export function JourneyGameView({
           completed: newState
         }),
       })
-      
+
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`)
       }
       
-      const result = await response.json()
-      
+        const result = await response.json()
+        
       // Use habits returned from API if available (avoids cache issues)
       if (result.habits && Array.isArray(result.habits)) {
         // API returned all habits directly - use them (cache already invalidated)
@@ -2226,18 +2232,18 @@ export function JourneyGameView({
               const freshHabit = updatedHabits.find((h: any) => h.id === habitId)
               if (freshHabit) {
                 setHabitModalData(freshHabit)
-              }
-            }
-            
-            // Update selected item if it's the same habit
-            if (selectedItem && selectedItem.id === habitId) {
+          }
+        }
+        
+        // Update selected item if it's the same habit
+        if (selectedItem && selectedItem.id === habitId) {
               const freshHabit = updatedHabits.find((h: any) => h.id === habitId)
               if (freshHabit) {
-                setSelectedItem({
-                  ...selectedItem,
+          setSelectedItem({
+            ...selectedItem,
                   habit_completions: freshHabit.habit_completions || {}
-                })
-              }
+          })
+        }
             }
           }
         }
@@ -2330,10 +2336,23 @@ export function JourneyGameView({
 
       if (response.ok) {
         const updatedGoal = await response.json()
-        // Update goals in parent component
+        // Reload all goals from API to get fresh data (including updated progress)
+        // Use cache busting to ensure fresh data
         if (onGoalsUpdate) {
-          const updatedGoals = goals.map(g => g.id === goalId ? updatedGoal : g)
-          onGoalsUpdate(updatedGoals)
+          const goalsResponse = await fetch(`/api/goals?t=${Date.now()}`, {
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache'
+            }
+          })
+          if (goalsResponse.ok) {
+            const goalsData = await goalsResponse.json()
+            onGoalsUpdate(goalsData.goals || goalsData || [])
+          } else {
+            // Fallback: update local state if API reload fails
+            const updatedGoals = goals.map(g => g.id === goalId ? updatedGoal : g)
+            onGoalsUpdate(updatedGoals)
+          }
         }
         // Update selectedItem to reflect changes if it's the same goal
         if (selectedItem && selectedItem.id === goalId) {
@@ -3448,10 +3467,9 @@ export function JourneyGameView({
   // renderPageContent has been extracted to ./pages/PageContent.tsx
 
   return (
-    <div className="bg-white h-screen w-full flex flex-col overflow-hidden" style={{
+    <div className="bg-primary-50 h-screen w-full flex flex-col overflow-hidden" style={{
       fontFamily: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       fontSize: '14px',
-      background: 'linear-gradient(135deg, #FFFAF5 0%, #fef3e7 50%, #fde4c4 100%)',
       boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.04)'
     }}>
       <HeaderNavigation

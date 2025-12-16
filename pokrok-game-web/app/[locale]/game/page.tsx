@@ -141,7 +141,7 @@ export default function GamePage() {
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"></div>
           </div>
           <h1 className="text-2xl font-bold text-primary-600">
-            {isLoaded && isLoading ? t('common.loadingData') : t('common.loading')}
+            {t('common.loadingData')}
           </h1>
         </div>
       </div>
@@ -155,7 +155,7 @@ export default function GamePage() {
 
   // Render the game world with onboarding support
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-primary-50">
       <GameWorldView 
         player={player} 
         userId={userId}

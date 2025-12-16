@@ -15,7 +15,7 @@ const HABITS_CACHE_TTL = 5000 // 5 seconds - short TTL to ensure fresh data afte
 
 // Cache for getGoalsByUserId (optimized TTL for better performance)
 const goalsCache = new Map<string, { goals: any[], timestamp: number }>()
-const GOALS_CACHE_TTL = 30000 // 30 seconds - balance between freshness and performance
+const GOALS_CACHE_TTL = 0 // Disable cache for immediate updates
 
 function cleanupCache() {
   const now = Date.now()
@@ -136,6 +136,7 @@ export interface Goal {
   progress_target?: number
   progress_current?: number
   progress_unit?: string
+  progress_calculation_type?: 'metrics' | 'metrics_and_steps'
   icon?: string
   area_id?: string
   aspiration_id?: string
@@ -197,6 +198,8 @@ export interface GoalMetric {
   unit: string
   target_value: number
   current_value: number
+  initial_value: number
+  incremental_value: number
   created_at: Date
   updated_at: Date
 }
@@ -573,10 +576,39 @@ export async function initializeCestaDatabase() {
         unit VARCHAR(50) NOT NULL,
         target_value DECIMAL(10,2) NOT NULL,
         current_value DECIMAL(10,2) DEFAULT 0,
+        incremental_value DECIMAL(10,2) DEFAULT 1,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
     `
+    
+    // Ensure incremental_value column exists (for existing tables)
+    try {
+      const columnCheck = await sql`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'goal_metrics' AND column_name = 'incremental_value'
+      `
+      if (columnCheck.length === 0) {
+        await sql`ALTER TABLE goal_metrics ADD COLUMN incremental_value DECIMAL(10,2) DEFAULT 1`
+      }
+    } catch (e: any) {
+      console.warn('Could not ensure incremental_value column exists:', e?.message)
+    }
+    
+    // Ensure initial_value column exists (for existing tables)
+    try {
+      const columnCheck = await sql`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'goal_metrics' AND column_name = 'initial_value'
+      `
+      if (columnCheck.length === 0) {
+        await sql`ALTER TABLE goal_metrics ADD COLUMN initial_value DECIMAL(10,2) DEFAULT 0`
+      }
+    } catch (e: any) {
+      console.warn('Could not ensure initial_value column exists:', e?.message)
+    }
 
 
     // Create automations table
@@ -1591,6 +1623,18 @@ export async function updateDailyStepDate(stepId: string, newDate: Date): Promis
   }
 }
 
+export async function getGoalById(goalId: string): Promise<Goal | null> {
+  try {
+    const goal = await sql`
+      SELECT * FROM goals WHERE id = ${goalId}
+    `
+    return goal[0] as Goal || null
+  } catch (error) {
+    console.error('Error fetching goal:', error)
+    return null
+  }
+}
+
 export async function getUpdatedGoalAfterStepCompletion(goalId: string): Promise<Goal> {
   try {
     const goal = await sql`
@@ -2440,19 +2484,132 @@ export async function updateUserOnboardingStatus(userId: string, hasCompletedOnb
 // Goal Metrics functions
 export async function createGoalMetric(metricData: Omit<GoalMetric, 'id' | 'created_at' | 'updated_at'>): Promise<GoalMetric> {
   try {
+    console.log('createGoalMetric called with:', {
+      user_id: metricData.user_id,
+      goal_id: metricData.goal_id,
+      name: metricData.name,
+      type: metricData.type,
+      unit: metricData.unit,
+      target_value: metricData.target_value,
+      current_value: metricData.current_value,
+      incremental_value: metricData.incremental_value
+    })
+    
+    // Check if table exists, if not create it
+    try {
+      const tableCheck = await sql`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public' 
+          AND table_name = 'goal_metrics'
+        )
+      `
+      
+      if (!tableCheck[0]?.exists) {
+        console.log('goal_metrics table does not exist, creating it...')
+        await sql`
+          CREATE TABLE goal_metrics (
+            id VARCHAR(255) PRIMARY KEY,
+            user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            goal_id VARCHAR(255) NOT NULL REFERENCES goals(id) ON DELETE CASCADE,
+            name VARCHAR(255) NOT NULL,
+            description TEXT,
+            type VARCHAR(20) NOT NULL CHECK (type IN ('number', 'currency', 'percentage', 'distance', 'time', 'custom')),
+            unit VARCHAR(50) NOT NULL,
+            target_value DECIMAL(10,2) NOT NULL,
+            current_value DECIMAL(10,2) DEFAULT 0,
+            incremental_value DECIMAL(10,2) DEFAULT 1,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+          )
+        `
+        console.log('goal_metrics table created successfully')
+      } else {
+        // Table exists, check if incremental_value column exists
+        try {
+          const columnCheck = await sql`
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'goal_metrics' AND column_name = 'incremental_value'
+          `
+          
+          if (columnCheck.length === 0) {
+            console.log('Adding incremental_value column to goal_metrics table...')
+            await sql`ALTER TABLE goal_metrics ADD COLUMN incremental_value DECIMAL(10,2) DEFAULT 1`
+            console.log('incremental_value column added successfully')
+          } else {
+            console.log('incremental_value column already exists')
+          }
+        } catch (migrationError: any) {
+          console.warn('Could not check/add incremental_value column:', migrationError?.message)
+          // Continue anyway, will try without the column
+        }
+      }
+    } catch (tableError: any) {
+      console.error('Error checking/creating goal_metrics table:', tableError)
+      throw tableError
+    }
+    
     const id = crypto.randomUUID()
-    const metric = await sql`
-      INSERT INTO goal_metrics (
-        id, user_id, goal_id, name, description, type, unit, target_value, current_value
-      ) VALUES (
-        ${id}, ${metricData.user_id}, ${metricData.goal_id}, ${metricData.name}, 
-        ${metricData.description || null}, ${metricData.type}, ${metricData.unit}, 
-        ${metricData.target_value}, ${metricData.current_value}
-      ) RETURNING *
-    `
-    return metric[0] as GoalMetric
-  } catch (error) {
+    console.log('Generated metric ID:', id)
+    
+    // Try with incremental_value first
+    try {
+      console.log('Attempting INSERT with incremental_value...')
+      const metric = await sql`
+        INSERT INTO goal_metrics (
+          id, user_id, goal_id, name, description, type, unit, target_value, current_value, initial_value, incremental_value
+        ) VALUES (
+          ${id}, ${metricData.user_id}, ${metricData.goal_id}, ${metricData.name}, 
+          ${metricData.description || null}, ${metricData.type}, ${metricData.unit}, 
+          ${metricData.target_value}, ${metricData.current_value}, ${metricData.initial_value ?? 0}, ${metricData.incremental_value || 1}
+        ) RETURNING *
+      `
+      console.log('INSERT successful, metric created:', metric[0])
+      return metric[0] as GoalMetric
+    } catch (insertError: any) {
+      console.error('INSERT with incremental_value failed:', {
+        message: insertError?.message,
+        code: insertError?.code,
+        detail: insertError?.detail
+      })
+      
+      // If insert fails and error mentions incremental_value, try without it
+      if (insertError?.message?.includes('incremental_value') || insertError?.code === '42703') {
+        console.warn('Insert with incremental_value failed, trying without it:', insertError?.message)
+        try {
+          const metric = await sql`
+            INSERT INTO goal_metrics (
+              id, user_id, goal_id, name, description, type, unit, target_value, current_value, initial_value
+            ) VALUES (
+              ${id}, ${metricData.user_id}, ${metricData.goal_id}, ${metricData.name}, 
+              ${metricData.description || null}, ${metricData.type}, ${metricData.unit}, 
+              ${metricData.target_value}, ${metricData.current_value}, ${metricData.initial_value ?? 0}
+            ) RETURNING *
+          `
+          const result = metric[0] as any
+          console.log('INSERT without incremental_value successful')
+          return { ...result, incremental_value: metricData.incremental_value || 1, initial_value: metricData.initial_value ?? 0 } as GoalMetric
+        } catch (fallbackError: any) {
+          console.error('Fallback INSERT also failed:', {
+            message: fallbackError?.message,
+            code: fallbackError?.code,
+            detail: fallbackError?.detail
+          })
+          throw fallbackError
+        }
+      }
+      throw insertError
+    }
+  } catch (error: any) {
     console.error('Error creating goal metric:', error)
+    console.error('Error details:', {
+      message: error?.message,
+      code: error?.code,
+      detail: error?.detail,
+      hint: error?.hint,
+      stack: error?.stack
+    })
     throw error
   }
 }
@@ -2473,15 +2630,36 @@ export async function getGoalMetricsByGoalId(goalId: string): Promise<GoalMetric
 
 export async function updateGoalMetric(metricId: string, updates: Partial<Omit<GoalMetric, 'id' | 'user_id' | 'goal_id' | 'created_at'>>): Promise<GoalMetric> {
   try {
+    // Check if initial_value column exists, if not add it
+    try {
+      const columnCheck = await sql`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'goal_metrics' AND column_name = 'initial_value'
+      `
+      if (columnCheck.length === 0) {
+        console.log('Adding initial_value column to goal_metrics table...')
+        await sql`ALTER TABLE goal_metrics ADD COLUMN initial_value DECIMAL(10,2) DEFAULT 0`
+        console.log('initial_value column added successfully')
+      }
+    } catch (e: any) {
+      console.warn('Could not check/add initial_value column:', e?.message)
+      // Continue anyway, will try to update without it if column doesn't exist
+    }
+    
+    // Build UPDATE query - COALESCE will use existing value if new value is NULL
+    // We pass NULL for undefined values so COALESCE preserves the existing value
     const metric = await sql`
       UPDATE goal_metrics 
       SET 
-        name = COALESCE(${updates.name}, name),
-        description = COALESCE(${updates.description}, description),
-        type = COALESCE(${updates.type}, type),
-        unit = COALESCE(${updates.unit}, unit),
-        target_value = COALESCE(${updates.target_value}, target_value),
-        current_value = COALESCE(${updates.current_value}, current_value),
+        name = COALESCE(${updates.name ?? null}, name),
+        description = COALESCE(${updates.description ?? null}, description),
+        type = COALESCE(${updates.type ?? null}, type),
+        unit = COALESCE(${updates.unit ?? null}, unit),
+        target_value = COALESCE(${updates.target_value ?? null}, target_value),
+        current_value = COALESCE(${updates.current_value ?? null}, current_value),
+        initial_value = COALESCE(${updates.initial_value ?? null}, initial_value),
+        incremental_value = COALESCE(${updates.incremental_value ?? null}, incremental_value),
         updated_at = NOW()
       WHERE id = ${metricId}
       RETURNING *
@@ -2509,12 +2687,20 @@ export async function deleteGoalMetric(metricId: string): Promise<void> {
 export async function updateGoalProgressFromGoalMetrics(goalId: string) {
   try {
     // Calculate progress based on goal metrics
+    // Progress is calculated from initial_value to target_value
     const result = await sql`
       WITH metric_progress AS (
         SELECT 
           CASE 
-            WHEN target_value > 0 AND current_value IS NOT NULL THEN
-              LEAST((current_value / target_value) * 100, 100)
+            -- If target == initial, check if current >= target (100%) or < target (0%)
+            WHEN COALESCE(target_value, 0) = COALESCE(initial_value, 0) THEN
+              CASE WHEN current_value >= target_value THEN 100 ELSE 0 END
+            -- If range > 0 (going up), progress = (current - initial) / (target - initial) * 100
+            WHEN COALESCE(target_value, 0) > COALESCE(initial_value, 0) THEN
+              LEAST(GREATEST(((current_value - COALESCE(initial_value, 0)) / (target_value - COALESCE(initial_value, 0))) * 100, 0), 100)
+            -- If range < 0 (going down, e.g., 100 to 0), progress = (initial - current) / (initial - target) * 100
+            WHEN COALESCE(target_value, 0) < COALESCE(initial_value, 0) THEN
+              LEAST(GREATEST(((COALESCE(initial_value, 0) - current_value) / (COALESCE(initial_value, 0) - target_value)) * 100, 0), 100)
             ELSE 0
           END as progress
         FROM goal_metrics
@@ -2540,13 +2726,21 @@ export async function updateGoalProgressFromGoalMetrics(goalId: string) {
 
 export async function updateGoalProgressCombined(goalId: string) {
   try {
-    // Calculate progress based on new formula: 50% metrics + 50% steps
+    // Calculate progress as average of all metrics and steps combined
+    // Each metric contributes its progress percentage, and steps contribute overall completion percentage
     const result = await sql`
       WITH metric_progress AS (
         SELECT 
           CASE 
-            WHEN target_value > 0 AND current_value IS NOT NULL THEN
-              LEAST((current_value / target_value) * 100, 100)
+            -- If target == initial, check if current >= target (100%) or < target (0%)
+            WHEN COALESCE(target_value, 0) = COALESCE(initial_value, 0) THEN
+              CASE WHEN current_value >= target_value THEN 100 ELSE 0 END
+            -- If range > 0 (going up), progress = (current - initial) / (target - initial) * 100
+            WHEN COALESCE(target_value, 0) > COALESCE(initial_value, 0) THEN
+              LEAST(GREATEST(((current_value - COALESCE(initial_value, 0)) / (target_value - COALESCE(initial_value, 0))) * 100, 0), 100)
+            -- If range < 0 (going down, e.g., 100 to 0), progress = (initial - current) / (initial - target) * 100
+            WHEN COALESCE(target_value, 0) < COALESCE(initial_value, 0) THEN
+              LEAST(GREATEST(((COALESCE(initial_value, 0) - current_value) / (COALESCE(initial_value, 0) - target_value)) * 100, 0), 100)
             ELSE 0
           END as progress
         FROM goal_metrics
@@ -2562,20 +2756,19 @@ export async function updateGoalProgressCombined(goalId: string) {
         FROM daily_steps 
         WHERE goal_id = ${goalId}
       ),
+      all_progress_values AS (
+        -- Collect all metric progress values
+        SELECT progress FROM metric_progress
+        UNION ALL
+        -- Add step progress as a single value (if steps exist) - steps have same weight as one metric
+        SELECT progress FROM step_progress WHERE (SELECT COUNT(*) FROM daily_steps WHERE goal_id = ${goalId}) > 0
+      ),
       combined_progress AS (
         SELECT 
           CASE 
-            WHEN (SELECT COUNT(*) FROM goal_metrics WHERE goal_id = ${goalId}) > 0 
-                 AND (SELECT COUNT(*) FROM daily_steps WHERE goal_id = ${goalId}) > 0 THEN
-              -- Both metrics and steps exist: 50% metrics + 50% steps
-              ((SELECT AVG(progress) FROM metric_progress) * 0.5) + 
-              ((SELECT progress FROM step_progress) * 0.5)
-            WHEN (SELECT COUNT(*) FROM goal_metrics WHERE goal_id = ${goalId}) > 0 THEN
-              -- Only metrics exist: 100% metrics
-              (SELECT AVG(progress) FROM metric_progress)
-            WHEN (SELECT COUNT(*) FROM daily_steps WHERE goal_id = ${goalId}) > 0 THEN
-              -- Only steps exist: 100% steps
-              (SELECT progress FROM step_progress)
+            WHEN (SELECT COUNT(*) FROM all_progress_values) > 0 THEN
+              -- Average of all progress values (each metric + steps as one value)
+              (SELECT AVG(progress) FROM all_progress_values)
             ELSE 0
           END as final_progress
       )
@@ -2587,9 +2780,11 @@ export async function updateGoalProgressCombined(goalId: string) {
         ),
         updated_at = NOW()
       WHERE id = ${goalId}
+      RETURNING progress_percentage
     `
 
-    console.log(`Updated goal ${goalId} progress using combined formula (50% metrics + 50% steps)`)
+    const updatedProgress = result[0]?.progress_percentage
+    console.log(`Updated goal ${goalId} progress using combined formula (average of all metrics and steps): ${updatedProgress}%`)
     return result
   } catch (error) {
     console.error('Error updating goal progress with combined formula:', error)

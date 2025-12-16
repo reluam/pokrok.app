@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createDailyStep, getDailyStepsByUserId, updateDailyStepFields } from '@/lib/cesta-db'
+import { createDailyStep, getDailyStepsByUserId, updateDailyStepFields, updateGoalProgressCombined, getGoalById } from '@/lib/cesta-db'
 import { requireAuth, verifyEntityOwnership, verifyOwnership } from '@/lib/auth-helpers'
 import { neon } from '@neondatabase/serverless'
 
@@ -352,11 +352,36 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ error: 'Step not found' }, { status: 404 })
       }
       
-      const normalizedResult = {
-        ...result[0],
-        date: normalizeDateFromDB(result[0].date)
+      const updatedStep = result[0]
+      
+      // Update goal progress if step has a goal_id
+      let updatedGoal = null
+      if (updatedStep.goal_id) {
+        try {
+          const goal = await getGoalById(updatedStep.goal_id)
+          if (goal) {
+            if (goal.progress_calculation_type === 'metrics') {
+              // Only update from metrics, not steps
+            } else {
+              await updateGoalProgressCombined(updatedStep.goal_id)
+              updatedGoal = await getGoalById(updatedStep.goal_id)
+            }
+          }
+        } catch (progressError: any) {
+          console.error('Error updating goal progress after step completion:', progressError)
+          // Don't fail the request if progress update fails
+        }
       }
-      return NextResponse.json(normalizedResult)
+      
+      const normalizedResult = {
+        ...updatedStep,
+        date: normalizeDateFromDB(updatedStep.date)
+      }
+      
+      return NextResponse.json({
+        ...normalizedResult,
+        goal: updatedGoal
+      })
     } else if (isDateOnly) {
       // This is a date-only update (from drag & drop)
       // Use SQL DATE() function to ensure date-only storage

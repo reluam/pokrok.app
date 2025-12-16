@@ -20,7 +20,13 @@ export async function GET(request: NextRequest) {
     // Použít dbUser.id místo userId z query parametru
     const targetUserId = userId || dbUser.id
     const goals = await getGoalsByUserId(targetUserId)
-    return NextResponse.json(goals)
+    return NextResponse.json(goals, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
   } catch (error) {
     console.error('Error fetching goals:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

@@ -2,9 +2,10 @@
 
 import React from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { ChevronLeft, ChevronRight, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Check, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Check, Plus, Edit, Pencil, Minus } from 'lucide-react'
 import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
+import { MetricModal } from '../modals/MetricModal'
 
 interface GoalDetailPageProps {
   goal: any
@@ -73,6 +74,29 @@ interface GoalDetailPageProps {
   goalDateRef: React.RefObject<HTMLSpanElement>
   goalStatusRef: React.RefObject<HTMLButtonElement>
   goalAreaRef: React.RefObject<HTMLButtonElement>
+  // Metrics
+  metrics: any[]
+  loadingMetrics: Set<string>
+  handleMetricIncrement: (metricId: string, goalId: string) => Promise<void>
+  handleMetricCreate: (goalId: string, metricData: any) => Promise<void>
+  handleMetricUpdate: (metricId: string, goalId: string, metricData: any) => Promise<void>
+  handleMetricDelete: (metricId: string, goalId: string) => Promise<void>
+  showMetricModal: boolean
+  setShowMetricModal: (show: boolean) => void
+  metricModalData: any
+  setMetricModalData: (data: any) => void
+  editingMetricName: string
+  setEditingMetricName: (name: string) => void
+  editingMetricCurrentValue: number
+  setEditingMetricCurrentValue: (value: number) => void
+  editingMetricTargetValue: number
+  setEditingMetricTargetValue: (value: number) => void
+  editingMetricInitialValue: number
+  setEditingMetricInitialValue: (value: number) => void
+  editingMetricIncrementalValue: number
+  setEditingMetricIncrementalValue: (value: number) => void
+  editingMetricUnit: string
+  setEditingMetricUnit: (unit: string) => void
 }
 
 export function GoalDetailPage({
@@ -135,7 +159,33 @@ export function GoalDetailPage({
   goalDateRef,
   goalStatusRef,
   goalAreaRef,
+  // Metrics
+  metrics,
+  loadingMetrics,
+  handleMetricIncrement,
+  handleMetricCreate,
+  handleMetricUpdate,
+  handleMetricDelete,
+  showMetricModal,
+  setShowMetricModal,
+  metricModalData,
+  setMetricModalData,
+  editingMetricName,
+  setEditingMetricName,
+  editingMetricCurrentValue,
+  setEditingMetricCurrentValue,
+  editingMetricTargetValue,
+  setEditingMetricTargetValue,
+  editingMetricInitialValue,
+  setEditingMetricInitialValue,
+  editingMetricIncrementalValue,
+  setEditingMetricIncrementalValue,
+  editingMetricUnit,
+  setEditingMetricUnit,
 }: GoalDetailPageProps) {
+  // State for inline editing of current values
+  const [editingCurrentValueForMetric, setEditingCurrentValueForMetric] = React.useState<Record<string, boolean>>({})
+  const [editingCurrentValue, setEditingCurrentValue] = React.useState<Record<string, number>>({})
   const t = useTranslations()
 
   // Goal detail page - similar to overview but focused on this goal
@@ -182,6 +232,54 @@ export function GoalDetailPage({
   const totalSteps = goalSteps.length
   const completedSteps = goalSteps.filter(s => s.completed).length
   const remainingSteps = totalSteps - completedSteps
+
+  // Calculate progress locally based on current metrics and steps
+  const calculateLocalProgress = React.useMemo(() => {
+    // Calculate metric progress (same logic as server)
+    const metricProgresses = metrics.map((metric: any) => {
+      const currentValue = parseFloat(metric.current_value || 0)
+      const targetValue = parseFloat(metric.target_value || 0)
+      const initialValue = parseFloat(metric.initial_value || 0)
+      
+      // If target == initial, check if current >= target (100%) or < target (0%)
+      if (targetValue === initialValue) {
+        return currentValue >= targetValue ? 100 : 0
+      }
+      
+      // If range > 0 (going up), progress = (current - initial) / (target - initial) * 100
+      if (targetValue > initialValue) {
+        const range = targetValue - initialValue
+        const progress = ((currentValue - initialValue) / range) * 100
+        return Math.min(Math.max(progress, 0), 100)
+      }
+      
+      // If range < 0 (going down, e.g., 100 to 0), progress = (initial - current) / (initial - target) * 100
+      if (targetValue < initialValue) {
+        const range = initialValue - targetValue
+        const progress = ((initialValue - currentValue) / range) * 100
+        return Math.min(Math.max(progress, 0), 100)
+      }
+      
+      return 0
+    })
+    
+    // Calculate step progress
+    const stepProgress = totalSteps > 0 
+      ? (completedSteps / totalSteps) * 100 
+      : 0
+    
+    // Average of all metrics + steps (steps have same weight as one metric)
+    const allProgresses = [...metricProgresses, stepProgress]
+    if (allProgresses.length === 0) return 0
+    
+    const sum = allProgresses.reduce((acc, p) => acc + p, 0)
+    return sum / allProgresses.length
+  }, [metrics, totalSteps, completedSteps])
+
+  // Use calculated progress if available, otherwise fall back to goal.progress_percentage
+  const displayProgress = calculateLocalProgress !== null && calculateLocalProgress !== undefined 
+    ? calculateLocalProgress 
+    : (goal.progress_percentage || 0)
 
   // Handle title save
   const handleTitleSave = async () => {
@@ -244,7 +342,7 @@ export function GoalDetailPage({
   }
 
   return (
-    <div className="w-full min-h-full flex flex-col bg-background">
+    <div className="w-full h-full flex flex-col bg-background">
       {/* Mobile header */}
       <div className="md:hidden sticky top-0 z-10 bg-white border-b-2 border-primary-500 px-4 py-3">
         <div className="flex items-center justify-between">
@@ -266,7 +364,7 @@ export function GoalDetailPage({
       </div>
       
       {/* Goal detail content */}
-      <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
+      <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
         <div className="p-6">
           {/* Goal header */}
           <div className="mb-6">
@@ -466,18 +564,19 @@ export function GoalDetailPage({
             
             {/* Goal information - modern inline style */}
             <div className="mb-8 space-y-6">
-              {/* Progress bar - calculated from steps */}
-              <div>
+              {/* Progress bar - calculated from metrics and steps combined */}
+              <div key={`progress-${goal.id}-${Math.round(displayProgress)}`}>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-lg font-medium text-black font-playful">{t('details.goal.progress')}</span>
                   <span className="text-2xl font-bold text-primary-600 font-playful">
-                    {totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0}%
+                    {Math.round(displayProgress)}%
                   </span>
                 </div>
                 <div className="w-full bg-white border-2 border-primary-500 rounded-playful-sm h-3 overflow-hidden">
                   <div 
+                    key={`progress-bar-${goal.id}-${Math.round(displayProgress)}`}
                     className="bg-primary-500 h-full rounded-playful-sm transition-all duration-300"
-                    style={{ width: `${totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0}%` }}
+                    style={{ width: `${Math.round(displayProgress)}%` }}
                   />
                 </div>
               </div>
@@ -503,6 +602,291 @@ export function GoalDetailPage({
               </div>
             </div>
           </div>
+          
+          {/* Metrics Section - above Steps */}
+          {(() => {
+            const totalMetrics = metrics?.length || 0
+            const completedMetrics = metrics?.filter(m => m.current_value >= m.target_value).length || 0
+            const remainingMetrics = totalMetrics - completedMetrics
+            const completedPercentage = totalMetrics > 0 ? Math.round((completedMetrics / totalMetrics) * 100) : 0
+            const remainingPercentage = totalMetrics > 0 ? Math.round((remainingMetrics / totalMetrics) * 100) : 0
+            
+            // Render metric card
+            const renderMetricCard = (metric: any) => {
+              // Ensure values are numbers for comparison
+              const currentValue = typeof metric.current_value === 'number' 
+                ? metric.current_value 
+                : parseFloat(metric.current_value) || 0
+              const targetValue = typeof metric.target_value === 'number'
+                ? metric.target_value
+                : parseFloat(metric.target_value) || 0
+              const initialValue = typeof metric.initial_value === 'number'
+                ? metric.initial_value
+                : parseFloat(metric.initial_value) || 0
+              
+              // Calculate progress: 0% at initial_value, 100% at target_value
+              // If current_value > target_value, cap at 100%
+              // If target_value == initial_value, progress is always 100% (or 0% if current < initial)
+              const range = targetValue - initialValue
+              let progress = 0
+              if (range === 0) {
+                // If target equals initial, show 100% if current >= target, otherwise 0%
+                progress = currentValue >= targetValue ? 100 : 0
+              } else if (range > 0) {
+                // Normal case: progress from initial to target
+                progress = Math.min(Math.max(((currentValue - initialValue) / range) * 100, 0), 100)
+              } else {
+                // Reverse case: going from higher initial to lower target (e.g., 100 to 0)
+                progress = Math.min(Math.max(((initialValue - currentValue) / Math.abs(range)) * 100, 0), 100)
+              }
+              // Show progress if there's a range (target != initial) OR if target is 0 and initial > 0 (going to zero)
+              const hasTarget = targetValue !== initialValue || (targetValue === 0 && initialValue > 0)
+              const isLoading = loadingMetrics.has(metric.id)
+              // Check completion: if going from higher to lower (e.g., 100 to 0), completed when current <= target
+              // Otherwise, completed when current >= target
+              const isCompleted = hasTarget && (
+                (initialValue > targetValue && currentValue <= targetValue) ||
+                (initialValue <= targetValue && currentValue >= targetValue)
+              )
+              
+              const isEditingCurrentValue = editingCurrentValueForMetric[metric.id] || false
+              const editingValue = editingCurrentValue[metric.id] !== undefined 
+                ? editingCurrentValue[metric.id] 
+                : currentValue
+              
+              const handleCurrentValueSave = async () => {
+                const newValue = parseFloat(editingValue.toString()) || 0
+                await handleMetricUpdate(metric.id, goalId, {
+                  name: metric.name,
+                  currentValue: newValue,
+                  targetValue: metric.target_value,
+                  initialValue: metric.initial_value ?? 0,
+                  incrementalValue: metric.incremental_value,
+                  unit: metric.unit
+                })
+                setEditingCurrentValueForMetric(prev => {
+                  const newState = { ...prev }
+                  delete newState[metric.id]
+                  return newState
+                })
+                setEditingCurrentValue(prev => {
+                  const newState = { ...prev }
+                  delete newState[metric.id]
+                  return newState
+                })
+              }
+              
+              const handleCurrentValueCancel = () => {
+                setEditingCurrentValueForMetric(prev => {
+                  const newState = { ...prev }
+                  delete newState[metric.id]
+                  return newState
+                })
+                setEditingCurrentValue(prev => {
+                  const newState = { ...prev }
+                  delete newState[metric.id]
+                  return newState
+                })
+              }
+              
+              const handleStartEditing = () => {
+                setEditingCurrentValueForMetric(prev => ({ ...prev, [metric.id]: true }))
+                setEditingCurrentValue(prev => ({ ...prev, [metric.id]: currentValue }))
+              }
+              
+              return (
+                <div
+                  key={metric.id}
+                  onClick={() => {
+                    const currentValue = typeof metric.current_value === 'number' 
+                      ? metric.current_value 
+                      : parseFloat(metric.current_value) || 0
+                    setMetricModalData({
+                      id: metric.id,
+                      name: metric.name,
+                      currentValue: currentValue,
+                      targetValue: metric.target_value,
+                      incrementalValue: metric.incremental_value,
+                      unit: metric.unit
+                    })
+                    setEditingMetricName(metric.name)
+                    setEditingMetricCurrentValue(currentValue)
+                    setEditingMetricTargetValue(metric.target_value)
+                    setEditingMetricInitialValue(metric.initial_value ?? 0)
+                    setEditingMetricIncrementalValue(metric.incremental_value)
+                    setEditingMetricUnit(metric.unit)
+                    setShowMetricModal(true)
+                  }}
+                  className={`box-playful-highlight flex items-start gap-3 p-4 cursor-pointer transition-all duration-300 ${
+                    isCompleted
+                      ? 'bg-primary-100 opacity-75'
+                      : 'bg-white hover:bg-primary-50'
+                  }`}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`font-medium text-sm font-playful ${
+                        isCompleted 
+                          ? 'line-through text-gray-400' 
+                          : 'text-black'
+                      }`}>
+                        {metric.name}
+                      </span>
+                    </div>
+                    <div className="mb-2">
+                      <div className="flex items-center justify-between mb-1 text-xs text-gray-600 font-playful">
+                        <div className="flex items-center gap-2">
+                          {hasTarget ? (
+                            <>
+                              {isEditingCurrentValue ? (
+                                <div 
+                                  className="flex items-center gap-1"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    value={editingValue}
+                                    onChange={(e) => setEditingCurrentValue(prev => ({ ...prev, [metric.id]: parseFloat(e.target.value) || 0 }))}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') {
+                                        handleCurrentValueSave()
+                                      } else if (e.key === 'Escape') {
+                                        handleCurrentValueCancel()
+                                      }
+                                    }}
+                                    onBlur={handleCurrentValueSave}
+                                    onClick={(e) => e.stopPropagation()}
+                                    onFocus={(e) => e.stopPropagation()}
+                                    autoFocus
+                                    className="w-20 px-2 py-1 text-xs border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-black"
+                                  />
+                                  <span>{metric.unit}</span>
+                                </div>
+                              ) : (
+                                <div 
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleStartEditing()
+                                  }}
+                                  className="flex items-center gap-1 cursor-pointer hover:text-primary-600 transition-colors"
+                                  title={t('common.metrics.currentValue') || 'Klikněte pro úpravu'}
+                                >
+                                  <Pencil className="w-3 h-3 text-gray-400" />
+                                  <span className="hover:underline">{currentValue.toFixed(2)} {metric.unit}</span>
+                                </div>
+                              )}
+                              <span> / {targetValue.toFixed(2)} {metric.unit}</span>
+                            </>
+                          ) : (
+                            <div 
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleStartEditing()
+                              }}
+                              className="flex items-center gap-1 cursor-pointer hover:text-primary-600 transition-colors"
+                              title={t('common.metrics.currentValue') || 'Klikněte pro úpravu'}
+                            >
+                              <Pencil className="w-3 h-3 text-gray-400" />
+                              <span className="hover:underline">{t('common.metrics.remains') || 'Remains'}: {currentValue.toFixed(2)} {metric.unit}</span>
+                            </div>
+                          )}
+                        </div>
+                        {hasTarget && (
+                          <span className="text-primary-600 font-semibold">{Math.round(progress)}%</span>
+                        )}
+                      </div>
+                      {hasTarget && (
+                        <div className="w-full bg-white border-2 border-primary-500 rounded-playful-sm h-2 overflow-hidden">
+                          <div 
+                            className="bg-primary-500 h-full rounded-playful-sm transition-all duration-300"
+                            style={{ width: `${progress}%` }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-gray-500 font-playful">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          if (!isLoading) {
+                            handleMetricIncrement(metric.id, goalId)
+                          }
+                        }}
+                        disabled={isLoading}
+                        className={`w-5 h-5 rounded-playful-sm border-2 flex items-center justify-center transition-all flex-shrink-0 ${
+                          isCompleted
+                            ? 'bg-primary-500 border-primary-500'
+                            : 'border-primary-500 hover:bg-primary-100'
+                        }`}
+                      >
+                        {isLoading ? (
+                          <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        ) : (hasTarget && currentValue >= targetValue) ? (
+                          <Minus className="w-3 h-3 text-primary-600" strokeWidth={3} />
+                        ) : (
+                          <Plus className="w-3 h-3 text-primary-600" strokeWidth={3} />
+                        )}
+                      </button>
+                      <span>{t('common.metrics.addValue')}: +{metric.incremental_value} {metric.unit}</span>
+                    </div>
+                  </div>
+                </div>
+              )
+            }
+            
+            return (
+              <div className="box-playful-highlight p-6 mb-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-black font-playful">{t('common.metrics.title')}</h2>
+                  <button
+                    onClick={() => {
+                    setMetricModalData({ id: null, name: '', currentValue: 0, targetValue: 0, initialValue: 0, incrementalValue: 1, unit: '' })
+                    setEditingMetricName('')
+                    setEditingMetricCurrentValue(0)
+                    setEditingMetricTargetValue(0)
+                    setEditingMetricInitialValue(0)
+                    setEditingMetricIncrementalValue(1)
+                    setEditingMetricUnit('')
+                      setShowMetricModal(true)
+                    }}
+                    className="btn-playful-base w-8 h-8 flex items-center justify-center text-primary-600 bg-white hover:bg-primary-50"
+                    title={t('common.metrics.create')}
+                  >
+                    <Plus className="w-5 h-5" strokeWidth={2.5} />
+                  </button>
+                </div>
+                
+                {totalMetrics > 0 ? (
+                  <div className="space-y-3">
+                    {metrics.map(renderMetricCard)}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-400">
+                    <p className="text-sm">{t('common.metrics.noMetrics') || 'No metrics yet'}</p>
+                    <button
+                      onClick={() => {
+                    setMetricModalData({ id: null, name: '', currentValue: 0, targetValue: 0, initialValue: 0, incrementalValue: 1, unit: '' })
+                    setEditingMetricName('')
+                    setEditingMetricCurrentValue(0)
+                    setEditingMetricTargetValue(0)
+                    setEditingMetricInitialValue(0)
+                    setEditingMetricIncrementalValue(1)
+                    setEditingMetricUnit('')
+                        setShowMetricModal(true)
+                      }}
+                      className="mt-4 btn-playful-base px-4 py-2 text-sm"
+                    >
+                      {t('common.metrics.create')}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )
+          })()}
           
           {/* Steps Overview - Card-based layout */}
           {(() => {
@@ -719,7 +1103,7 @@ export function GoalDetailPage({
             onClick={() => setShowGoalDetailDatePicker(false)}
           />
           <div 
-            className="fixed z-50 box-playful-highlight p-4 date-picker"
+            className="fixed z-50 box-playful-highlight bg-white p-4 date-picker"
             style={{ 
               top: `${goalDetailDatePickerPosition.top}px`,
               left: `${goalDetailDatePickerPosition.left}px`,
@@ -869,7 +1253,7 @@ export function GoalDetailPage({
             onClick={() => setShowGoalDetailStatusPicker(false)}
           />
           <div 
-            className="fixed z-50 box-playful-highlight min-w-[160px]"
+            className="fixed z-50 box-playful-highlight bg-white min-w-[160px]"
             style={{
               top: `${goalDetailStatusPickerPosition.top}px`,
               left: `${goalDetailStatusPickerPosition.left}px`
@@ -919,7 +1303,7 @@ export function GoalDetailPage({
             onClick={() => setShowGoalDetailAreaPicker(false)}
           />
           <div 
-            className="fixed z-50 box-playful-highlight min-w-[200px] max-h-64 overflow-y-auto"
+            className="fixed z-50 box-playful-highlight bg-white min-w-[200px] max-h-64 overflow-y-auto"
             style={{
               top: `${goalDetailAreaPickerPosition.top}px`,
               left: `${goalDetailAreaPickerPosition.left}px`
@@ -1046,7 +1430,7 @@ export function GoalDetailPage({
             onClick={() => setShowGoalDetailIconPicker(false)}
           />
           <div 
-            className="fixed z-50 box-playful-highlight"
+            className="fixed z-50 box-playful-highlight bg-white"
             style={{
               top: `${goalDetailIconPickerPosition.top}px`,
               left: `${goalDetailIconPickerPosition.left}px`,
@@ -1124,6 +1508,58 @@ export function GoalDetailPage({
           </div>
         </>
       )}
+      
+      {/* Metric Modal */}
+      <MetricModal
+        show={showMetricModal}
+        metricModalData={metricModalData}
+        onClose={() => {
+          setShowMetricModal(false)
+          setMetricModalData({ id: null, name: '', currentValue: 0, targetValue: 0, initialValue: 0, incrementalValue: 1, unit: '' })
+          setEditingMetricCurrentValue(0)
+          setEditingMetricInitialValue(0)
+        }}
+        onSave={async () => {
+          if (metricModalData.id) {
+            await handleMetricUpdate(metricModalData.id, goalId, {
+              name: editingMetricName,
+              currentValue: editingMetricCurrentValue,
+              targetValue: editingMetricTargetValue,
+              initialValue: editingMetricInitialValue,
+              incrementalValue: editingMetricIncrementalValue,
+              unit: editingMetricUnit
+            })
+          } else {
+            await handleMetricCreate(goalId, {
+              name: editingMetricName,
+              currentValue: editingMetricCurrentValue,
+              targetValue: editingMetricTargetValue,
+              initialValue: editingMetricInitialValue,
+              incrementalValue: editingMetricIncrementalValue,
+              unit: editingMetricUnit,
+              type: 'number'
+            })
+          }
+          setShowMetricModal(false)
+        }}
+        onDelete={metricModalData.id ? async () => {
+          await handleMetricDelete(metricModalData.id, goalId)
+          setShowMetricModal(false)
+        } : undefined}
+        isSaving={false}
+        editingMetricName={editingMetricName}
+        setEditingMetricName={setEditingMetricName}
+        editingMetricCurrentValue={editingMetricCurrentValue}
+        setEditingMetricCurrentValue={setEditingMetricCurrentValue}
+        editingMetricTargetValue={editingMetricTargetValue}
+        setEditingMetricTargetValue={setEditingMetricTargetValue}
+        editingMetricInitialValue={editingMetricInitialValue}
+        setEditingMetricInitialValue={setEditingMetricInitialValue}
+        editingMetricIncrementalValue={editingMetricIncrementalValue}
+        setEditingMetricIncrementalValue={setEditingMetricIncrementalValue}
+        editingMetricUnit={editingMetricUnit}
+        setEditingMetricUnit={setEditingMetricUnit}
+      />
     </div>
   )
 }

@@ -229,7 +229,7 @@ export function HabitsPage({
   }
   
   return (
-    <div className="w-full min-h-full flex flex-col">
+    <div className="w-full min-h-full flex flex-col bg-primary-50 p-6">
       {/* Statistics section */}
       <div className="mb-6">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
