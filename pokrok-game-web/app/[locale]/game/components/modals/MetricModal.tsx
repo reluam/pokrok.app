@@ -174,15 +174,14 @@ export function MetricModal({
           <div className="p-6 border-t-2 border-primary-500 flex items-center justify-between">
             <div>
               {metricModalData.id && onDelete && (
-                <PlayfulButton
-                  variant="danger"
+                <button
                   onClick={onDelete}
                   disabled={isSaving}
-                  className="flex items-center gap-2"
+                  className="btn-playful-outline flex items-center gap-2 text-red-600 border-red-500 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Trash2 className="w-4 h-4" />
                   {t('common.delete')}
-                </PlayfulButton>
+                </button>
               )}
             </div>
             <div className="flex items-center gap-3">
