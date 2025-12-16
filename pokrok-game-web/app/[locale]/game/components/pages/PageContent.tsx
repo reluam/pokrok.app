@@ -374,7 +374,7 @@ export function PageContent(props: PageContentProps) {
         }))
         // Update goal if it was returned in response
         if (data.goal && onGoalsUpdate) {
-          const updatedGoals = goals.map(g => g.id === goalId ? data.goal : g)
+          const updatedGoals = goals.map((g: any) => g.id === goalId ? data.goal : g)
           onGoalsUpdate(updatedGoals)
         } else if (onGoalsUpdate) {
           // Fallback: reload all goals from API
@@ -440,7 +440,7 @@ export function PageContent(props: PageContentProps) {
         }
         // Update goal if it was returned in response
         if (data.goal && onGoalsUpdate) {
-          const updatedGoals = goals.map(g => g.id === goalId ? data.goal : g)
+          const updatedGoals = goals.map((g: any) => g.id === goalId ? data.goal : g)
           onGoalsUpdate(updatedGoals)
         } else if (onGoalsUpdate) {
           // Fallback: reload all goals from API
@@ -494,7 +494,7 @@ export function PageContent(props: PageContentProps) {
         }))
         // Update goal if it was returned in response
         if (data.goal && onGoalsUpdate) {
-          const updatedGoals = goals.map(g => g.id === goalId ? data.goal : g)
+          const updatedGoals = goals.map((g: any) => g.id === goalId ? data.goal : g)
           onGoalsUpdate(updatedGoals)
           // Return updated goal for immediate use
           return data.goal
@@ -534,7 +534,7 @@ export function PageContent(props: PageContentProps) {
         }))
         // Update goal if it was returned in response
         if (data.goal && onGoalsUpdate) {
-          const updatedGoals = goals.map(g => g.id === goalId ? data.goal : g)
+          const updatedGoals = goals.map((g: any) => g.id === goalId ? data.goal : g)
           onGoalsUpdate(updatedGoals)
         } else if (onGoalsUpdate) {
           // Fallback: reload all goals from API
@@ -1756,6 +1756,8 @@ export function PageContent(props: PageContentProps) {
                       setEditingMetricCurrentValue={setEditingMetricCurrentValue}
                       editingMetricTargetValue={editingMetricTargetValue}
                       setEditingMetricTargetValue={setEditingMetricTargetValue}
+                      editingMetricInitialValue={editingMetricInitialValue}
+                      setEditingMetricInitialValue={setEditingMetricInitialValue}
                       editingMetricIncrementalValue={editingMetricIncrementalValue}
                       setEditingMetricIncrementalValue={setEditingMetricIncrementalValue}
                       editingMetricUnit={editingMetricUnit}
