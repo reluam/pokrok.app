@@ -87,7 +87,9 @@ export async function POST(request: NextRequest) {
             type: metricData.type,
             unit: metricData.unit,
             target_value: metricData.targetValue,
-            current_value: metricData.currentValue
+            current_value: metricData.currentValue || 0,
+            initial_value: metricData.initialValue || 0,
+            incremental_value: metricData.incrementalValue || 1
           })
           createdMetrics.push(metric)
           console.log('✅ Goal metric created:', metric.id)
