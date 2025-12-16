@@ -29,7 +29,36 @@
     "previous": "Previous",
     "next": "Next",
     "select": "Select",
-    "completed": "Completed"
+    "completed": "Completed",
+    "steps": "Steps",
+    "addStep": "Add step",
+    "metrics": {
+      "title": "Metrics",
+      "create": "Create metric",
+      "edit": "Edit metric",
+      "name": "Metric name",
+      "namePlaceholder": "e.g. Books sold",
+      "targetValue": "Target value",
+      "initialValue": "Initial value",
+      "incrementalValue": "Incremental value",
+      "unit": "Unit",
+      "unitPlaceholder": "e.g. pcs, kg, km",
+      "addValue": "Add value",
+      "currentValue": "Current value",
+      "remains": "Remains",
+      "target": "Target",
+      "progress": "Progress",
+      "noMetrics": "No metrics yet"
+    },
+    "milestones": "Milestones",
+    "addMilestone": "Add milestone",
+    "noMilestones": "No milestones",
+    "milestoneTitle": "Milestone title",
+    "milestoneNumber": "Milestone",
+    "stepNumber": "Step",
+    "saveChanges": "Save changes",
+    "delete": "Delete",
+    "noCompletedSteps": "No completed steps"
   },
   "homepage": {
     "tagline": "Life planning app",
@@ -210,6 +239,7 @@
     "cancelButton": "CANCEL",
     "noGoals": "No goals set",
     "noGoalsDescription": "Click the button below to add a new goal",
+    "noCompletedSteps": "No completed steps",
     "categoryLabel": "Category",
     "deadlineLabel": "Deadline",
     "noDeadline": "No deadline",
@@ -252,18 +282,7 @@
       "aspiration": {
         "all": "All aspirations"
       }
-    },
-    "steps": "Steps",
-    "addStep": "Add step",
-    "milestones": "Milestones",
-    "addMilestone": "Add milestone",
-    "noMilestones": "No milestones",
-    "milestoneTitle": "Milestone title",
-    "milestoneNumber": "Milestone",
-    "stepNumber": "Step",
-    "saveChanges": "Save changes",
-    "delete": "Delete",
-    "noCompletedSteps": "No completed steps"
+    }
   },
   "habits": {
     "title": "HABITS",
