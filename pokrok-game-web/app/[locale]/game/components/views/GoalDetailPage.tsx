@@ -205,6 +205,27 @@ export function GoalDetailPage({
   // Use cache version in dependency to force re-render when cache updates
   const goalSteps = Array.from(uniqueStepsMap.values())
 
+  // Format number helper - formats numbers with thousand separators and removes unnecessary decimals
+  const formatNumber = (value: number): string => {
+    // Check if the number has meaningful decimal places
+    const hasDecimals = value % 1 !== 0
+    
+    let formatted: string
+    if (hasDecimals) {
+      // For numbers with decimals, format to 2 decimal places then remove trailing zeros
+      formatted = value.toFixed(2).replace(/\.?0+$/, '')
+    } else {
+      // For whole numbers, use integer format
+      formatted = value.toString()
+    }
+    
+    // Add thousand separators (space)
+    // Split by decimal point, format integer part, then rejoin
+    const parts = formatted.split('.')
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    return parts.join('.')
+  }
+
   // Format date helper with month in genitive case
   const formatDateBeautiful = (date: string | Date): string => {
     if (!date) return '-'
@@ -773,10 +794,10 @@ export function GoalDetailPage({
                                   title={t('common.metrics.currentValue') || 'Klikněte pro úpravu'}
                                 >
                                   <Pencil className="w-3 h-3 text-gray-400" />
-                                  <span className="hover:underline">{currentValue.toFixed(2)} {metric.unit}</span>
+                                  <span className="hover:underline">{formatNumber(currentValue)} {metric.unit}</span>
                                 </div>
                               )}
-                              <span> / {targetValue.toFixed(2)} {metric.unit}</span>
+                              <span> / {formatNumber(targetValue)} {metric.unit}</span>
                             </>
                           ) : (
                             <div 
@@ -788,7 +809,7 @@ export function GoalDetailPage({
                               title={t('common.metrics.currentValue') || 'Klikněte pro úpravu'}
                             >
                               <Pencil className="w-3 h-3 text-gray-400" />
-                              <span className="hover:underline">{t('common.metrics.remains') || 'Remains'}: {currentValue.toFixed(2)} {metric.unit}</span>
+                              <span className="hover:underline">{t('common.metrics.remains') || 'Remains'}: {formatNumber(currentValue)} {metric.unit}</span>
                             </div>
                           )}
                         </div>
@@ -805,34 +826,6 @@ export function GoalDetailPage({
                         </div>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-500 font-playful">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          if (!isLoading) {
-                            handleMetricIncrement(metric.id, goalId)
-                          }
-                        }}
-                        disabled={isLoading}
-                        className={`w-5 h-5 rounded-playful-sm border-2 flex items-center justify-center transition-all flex-shrink-0 ${
-                          isCompleted
-                            ? 'bg-primary-500 border-primary-500'
-                            : 'border-primary-500 hover:bg-primary-100'
-                        }`}
-                      >
-                        {isLoading ? (
-                          <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                        ) : (hasTarget && currentValue >= targetValue) ? (
-                          <Minus className="w-3 h-3 text-primary-600" strokeWidth={3} />
-                        ) : (
-                          <Plus className="w-3 h-3 text-primary-600" strokeWidth={3} />
-                        )}
-                      </button>
-                      <span>{t('common.metrics.addValue')}: +{metric.incremental_value} {metric.unit}</span>
-                    </div>
                   </div>
                 </div>
               )
@@ -840,7 +833,7 @@ export function GoalDetailPage({
             
             return (
               <div className="box-playful-highlight p-6 mb-6">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-between">
                   <h2 className="text-xl font-bold text-black font-playful">{t('common.metrics.title')}</h2>
                   <button
                     onClick={() => {
@@ -860,28 +853,9 @@ export function GoalDetailPage({
                   </button>
                 </div>
                 
-                {totalMetrics > 0 ? (
-                  <div className="space-y-3">
+                {totalMetrics > 0 && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-6">
                     {metrics.map(renderMetricCard)}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-400">
-                    <p className="text-sm">{t('common.metrics.noMetrics') || 'No metrics yet'}</p>
-                    <button
-                      onClick={() => {
-                    setMetricModalData({ id: null, name: '', currentValue: 0, targetValue: 0, initialValue: 0, incrementalValue: 1, unit: '' })
-                    setEditingMetricName('')
-                    setEditingMetricCurrentValue(0)
-                    setEditingMetricTargetValue(0)
-                    setEditingMetricInitialValue(0)
-                    setEditingMetricIncrementalValue(1)
-                    setEditingMetricUnit('')
-                        setShowMetricModal(true)
-                      }}
-                      className="mt-4 btn-playful-base px-4 py-2 text-sm"
-                    >
-                      {t('common.metrics.create')}
-                    </button>
                   </div>
                 )}
               </div>

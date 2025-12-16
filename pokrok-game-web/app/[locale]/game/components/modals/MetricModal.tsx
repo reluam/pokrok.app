@@ -127,33 +127,18 @@ export function MetricModal({
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-black mb-2 font-playful">
-                    {t('common.metrics.incrementalValue')} <span className="text-primary-600">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={editingMetricIncrementalValue}
-                    onChange={(e) => setEditingMetricIncrementalValue(parseFloat(e.target.value) || 1)}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
-                    placeholder="1"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-black mb-2 font-playful">
-                    {t('common.metrics.currentValue')}
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={editingMetricCurrentValue}
-                    onChange={(e) => setEditingMetricCurrentValue(parseFloat(e.target.value) || 0)}
-                    className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
-                    placeholder="0"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-semibold text-black mb-2 font-playful">
+                  {t('common.metrics.currentValue')}
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={editingMetricCurrentValue}
+                  onChange={(e) => setEditingMetricCurrentValue(parseFloat(e.target.value) || 0)}
+                  className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
+                  placeholder="0"
+                />
               </div>
 
               <div>
