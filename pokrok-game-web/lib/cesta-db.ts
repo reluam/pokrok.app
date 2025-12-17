@@ -1104,7 +1104,7 @@ async function checkAndUpdateGoalStatus(goal: Goal): Promise<Goal | null> {
     const startDate = new Date(goal.start_date)
     startDate.setHours(0, 0, 0, 0)
 
-    let newStatus: string | undefined = undefined
+    let newStatus: 'active' | 'paused' | undefined = undefined
 
     // If start_date is in the future, set to 'paused'
     if (startDate > today) {
