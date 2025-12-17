@@ -422,7 +422,7 @@ export function OnboardingTutorial({
                 <span className="w-24 text-sm font-medium text-gray-700 truncate">{habit.name}</span>
                 <div className="flex gap-1">
                   {['2025-01-13', '2025-01-14', '2025-01-15', '2025-01-16', '2025-01-17', '2025-01-18', '2025-01-19'].map((date) => {
-                    const isCompleted = habit.habit_completions[date] === true
+                    const isCompleted = (habit.habit_completions as Record<string, boolean>)[date] === true
                     return (
                       <div
                         key={date}
