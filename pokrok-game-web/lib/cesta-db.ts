@@ -1967,31 +1967,6 @@ export async function updateGoalById(goalId: string, updates: Partial<Goal>): Pr
         if (typeof updates.start_date === 'string' && updates.start_date.match(/^\d{4}-\d{2}-\d{2}$/)) {
           // Already in YYYY-MM-DD format, use directly
           dateString = updates.start_date
-          
-          // Automatically update status based on start_date if status is not explicitly being changed
-          if (updates.status === undefined) {
-            const today = new Date()
-            today.setHours(0, 0, 0, 0)
-            const startDateObj = new Date(dateString)
-            startDateObj.setHours(0, 0, 0, 0)
-            
-            // Get current goal status to check if it's completed
-            const currentGoal = await sql`SELECT status FROM goals WHERE id = ${goalId}`
-            const currentStatus = Array.isArray(currentGoal) && currentGoal.length > 0 ? currentGoal[0].status : null
-            
-            // Only auto-update if goal is not completed
-            if (currentStatus !== 'completed') {
-              if (startDateObj > today) {
-                // Start date is in the future - set to paused
-                setParts.push(`status = $${values.length + 1}`)
-                values.push('paused')
-              } else if (startDateObj <= today && currentStatus === 'paused') {
-                // Start date is today or in the past, and goal is paused - set to active
-                setParts.push(`status = $${values.length + 1}`)
-                values.push('active')
-              }
-            }
-          }
         } else if (updates.start_date instanceof Date) {
           // Date object - use UTC components to preserve the date
           const year = updates.start_date.getUTCFullYear()
