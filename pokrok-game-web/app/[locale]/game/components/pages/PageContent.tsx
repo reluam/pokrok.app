@@ -845,6 +845,7 @@ export function PageContent(props: PageContentProps) {
                         onNavigateToSteps={onNavigateToSteps}
                         onStepDateChange={handleStepDateChange}
                         onStepTimeChange={handleStepTimeChange}
+                        onDailyStepsUpdate={onDailyStepsUpdate}
                       />
                     </div>
                   </div>
@@ -900,12 +901,17 @@ export function PageContent(props: PageContentProps) {
                                 console.warn(`Icon component not found for: ${icon.name}`)
                                 return null
                               }
+                              const currentAreaId = areaId // Capture areaId in closure
                               return (
                                 <button
                                   key={icon.name}
                                   type="button"
                                   onClick={async () => {
-                                    await handleUpdateAreaForDetail(areaId, { icon: icon.name })
+                                    if (!handleUpdateAreaForDetail) {
+                                      console.error('handleUpdateAreaForDetail is not defined')
+                                      return
+                                    }
+                                    await handleUpdateAreaForDetail(currentAreaId, { icon: icon.name })
                                     setShowAreaDetailIconPicker(false)
                                     setIconSearchQuery('')
                                   }}

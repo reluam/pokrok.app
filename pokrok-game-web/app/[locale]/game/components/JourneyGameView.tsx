@@ -3875,7 +3875,7 @@ export function JourneyGameView({
       {/* Onboarding Tutorial */}
       <OnboardingTutorial
         isActive={isOnboardingActive}
-        onComplete={() => {
+        onComplete={async () => {
           setIsOnboardingActive(false)
           if (onOnboardingComplete) {
             onOnboardingComplete()
@@ -3887,101 +3887,6 @@ export function JourneyGameView({
             onOnboardingComplete()
           }
         }}
-        areas={areas}
-        goals={goals}
-        habits={habits}
-        dailySteps={dailySteps}
-        selectedAreaId={selectedAreaId}
-        onAreaClick={(areaId) => {
-          setMainPanelSection(`area-${areaId}`)
-        }}
-        onCreateMenuOpen={() => {
-          setShowCreateMenu(true)
-        }}
-        onCreateArea={async (areaData: { name: string; description: string | null; color: string; icon: string }) => {
-          try {
-            const response = await fetch('/api/cesta/areas', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(areaData)
-            })
-            if (!response.ok) {
-              const error = await response.json()
-              throw new Error(error.error || 'Failed to create area')
-            }
-            const newArea = await response.json()
-            setAreas(prevAreas => [...prevAreas, newArea.area]) // Add new area to state
-            return true
-          } catch (error) {
-            console.error('Error creating area from onboarding:', error)
-            alert('Nepodařilo se vytvořit oblast. Zkuste to prosím znovu.')
-            return false
-          }
-        }}
-        onCreateGoal={async (goalData: { title: string; description: string | null; areaId: string | null }) => {
-          try {
-            const response = await fetch('/api/goals', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                title: goalData.title,
-                description: goalData.description,
-                areaId: goalData.areaId
-              })
-            })
-            if (!response.ok) {
-              const error = await response.json()
-              throw new Error(error.error || 'Failed to create goal')
-            }
-            const newGoal = await response.json()
-            // If goal has area, make sure the area is selected and expanded
-            if (goalData.areaId) {
-              setMainPanelSection(`area-${goalData.areaId}`)
-              setExpandedAreas(new Set([goalData.areaId]))
-            } else {
-              // If goal has no area, navigate to main page to see goals without area
-              setMainPanelSection('focus-day')
-            }
-            // Reload goals to update the list
-            const goalsResponse = await fetch('/api/goals')
-            if (goalsResponse.ok && onGoalsUpdate) {
-              const goalsData = await goalsResponse.json()
-              onGoalsUpdate(Array.isArray(goalsData) ? goalsData : (goalsData.goals || []))
-            }
-            return true
-          } catch (error) {
-            console.error('Error creating goal from onboarding:', error)
-            alert('Nepodařilo se vytvořit cíl. Zkuste to prosím znovu.')
-            return false
-          }
-        }}
-        onCreateStep={() => {
-          handleOpenStepModal()
-        }}
-        createMenuButtonRef={createMenuButtonRef}
-        areaButtonRefs={areaButtonRefs.current}
-        showCreateMenu={showCreateMenu}
-        onStepChange={(step) => setOnboardingStep(step)}
-        createMenuRef={createMenuRef}
-        showAreaEditModal={showAreaEditModal}
-        onAreaCreated={(newArea) => {
-          // Add the new area to the areas list
-          setAreas(prevAreas => [...prevAreas, newArea])
-        }}
-        onAreaButtonClick={() => {
-          // When user clicks Area button in onboarding menu, move to create-area step
-          setOnboardingStep('create-area')
-        }}
-        onGoalClick={(goalId) => {
-          if (isOnboardingActive && onboardingStep === 'click-goal') {
-            // During onboarding, move to complete step
-            setOnboardingStep('complete')
-          }
-          setMainPanelSection(`goal-${goalId}`)
-        }}
-        goalButtonRefs={goalButtonRefs.current}
-        goalsSectionRef={goalsSectionRef}
-        externalStep={onboardingStep as any}
       />
     </div>
   )

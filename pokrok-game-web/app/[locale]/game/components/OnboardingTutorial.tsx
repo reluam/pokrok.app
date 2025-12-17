@@ -1,444 +1,546 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useTranslations } from 'next-intl'
-import { X, ArrowRight, ArrowDown, ArrowDownLeft, ArrowLeft, Target, Footprints, CheckSquare, LayoutDashboard, HelpCircle, Plus, ChevronDown } from 'lucide-react'
-import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
+import { useTranslations, useLocale } from 'next-intl'
+import { X, ArrowRight, ArrowLeft, Target, Footprints, CheckSquare, LayoutDashboard, Calendar, TrendingUp, CheckCircle2, Plus, CalendarDays, CalendarRange, CalendarCheck, ChevronDown } from 'lucide-react'
+import { getIconComponent } from '@/lib/icon-utils'
 
 interface OnboardingTutorialProps {
   isActive: boolean
   onComplete: () => void
   onSkip: () => void
-  areas: any[]
-  goals: any[]
-  habits: any[]
-  dailySteps: any[]
-  selectedAreaId: string | null
-  onAreaClick?: (areaId: string) => void
-  onCreateMenuOpen?: () => void
-  onCreateArea?: (areaData: { name: string; description: string | null; color: string; icon: string }) => Promise<boolean>
-  onCreateGoal?: (goalData: { title: string; description: string | null; areaId: string | null }) => Promise<boolean>
-  onCreateStep?: () => void
-  createMenuButtonRef?: React.RefObject<HTMLButtonElement>
-  areaButtonRefs?: Map<string, React.RefObject<HTMLButtonElement>>
-  showCreateMenu?: boolean
-  onStepChange?: (step: OnboardingStep) => void
-  createMenuRef?: React.RefObject<HTMLDivElement>
-  showAreaEditModal?: boolean
-  onAreaCreated?: (area: any) => void
-  onAreaButtonClick?: () => void
-  onGoalClick?: (goalId: string) => void
-  goalButtonRefs?: Map<string, React.RefObject<HTMLButtonElement>>
-  goalsSectionRef?: React.RefObject<HTMLDivElement>
-  externalStep?: OnboardingStep
 }
 
-type OnboardingStep = 
-  | 'intro'
-  | 'add-button'
-  | 'add-menu-open'
-  | 'create-area'
-  | 'click-area'
-  | 'add-menu-goal'
-  | 'create-goal'
-  | 'click-goal'
-  | 'complete'
+// Mock data functions - returns localized data based on locale
+const getMockAreas = (locale: string) => {
+  if (locale === 'en') {
+    return [
+      { id: '1', name: 'Health', color: '#10b981', icon: 'Heart', description: 'Physical and mental health care' },
+      { id: '2', name: 'Career', color: '#3b82f6', icon: 'Briefcase', description: 'Professional growth and development' },
+      { id: '3', name: 'Finance', color: '#f59e0b', icon: 'Wallet', description: 'Financial planning and management' }
+    ]
+  }
+  return [
+    { id: '1', name: 'Zdraví', color: '#10b981', icon: 'Heart', description: 'Péče o fyzické a duševní zdraví' },
+    { id: '2', name: 'Kariéra', color: '#3b82f6', icon: 'Briefcase', description: 'Profesní růst a rozvoj' },
+    { id: '3', name: 'Finance', color: '#f59e0b', icon: 'Wallet', description: 'Finanční plánování a správa' }
+  ]
+}
+
+const getMockGoals = (locale: string) => {
+  if (locale === 'en') {
+    return [
+      { id: '1', title: 'Learn React', description: 'Master the basics of React framework', area_id: '2', status: 'active', progress_percentage: 45, icon: 'Code' },
+      { id: '2', title: 'Exercise regularly', description: 'Exercise 3x a week for 3 months', area_id: '1', status: 'active', progress_percentage: 67, icon: 'Dumbbell' },
+      { id: '3', title: 'Save $2,000', description: 'Gradually save for a new computer', area_id: '3', status: 'active', progress_percentage: 30, icon: 'PiggyBank' }
+    ]
+  }
+  return [
+    { id: '1', title: 'Naučit se React', description: 'Zvládnout základy React frameworku', area_id: '2', status: 'active', progress_percentage: 45, icon: 'Code' },
+    { id: '2', title: 'Pravidelně cvičit', description: 'Cvičit 3x týdně po dobu 3 měsíců', area_id: '1', status: 'active', progress_percentage: 67, icon: 'Dumbbell' },
+    { id: '3', title: 'Ušetřit 50 000 Kč', description: 'Postupně ušetřit na nový počítač', area_id: '3', status: 'active', progress_percentage: 30, icon: 'PiggyBank' }
+  ]
+}
+
+const getMockSteps = (locale: string) => {
+  if (locale === 'en') {
+    return [
+      { id: '1', title: 'Complete React tutorial', date: '2025-01-15', completed: true, estimated_time: 60, goal_id: '1' },
+      { id: '2', title: 'Create first component', date: '2025-01-16', completed: false, estimated_time: 45, goal_id: '1' },
+      { id: '3', title: 'Go to the gym', date: '2025-01-15', completed: true, estimated_time: 90, goal_id: '2' },
+      { id: '4', title: 'Set up automatic transfer', date: '2025-01-20', completed: false, estimated_time: 15, goal_id: '3' }
+    ]
+  }
+  return [
+    { id: '1', title: 'Projít React tutorial', date: '2025-01-15', completed: true, estimated_time: 60, goal_id: '1' },
+    { id: '2', title: 'Vytvořit první komponentu', date: '2025-01-16', completed: false, estimated_time: 45, goal_id: '1' },
+    { id: '3', title: 'Jít do posilovny', date: '2025-01-15', completed: true, estimated_time: 90, goal_id: '2' },
+    { id: '4', title: 'Nastavit automatický převod', date: '2025-01-20', completed: false, estimated_time: 15, goal_id: '3' }
+  ]
+}
+
+const getMockHabits = (locale: string) => {
+  if (locale === 'en') {
+    return [
+      { id: '1', name: 'Morning workout', frequency: 'daily', area_id: '1', habit_completions: { '2025-01-15': true, '2025-01-14': true, '2025-01-13': false } },
+      { id: '2', name: 'Read 30 minutes', frequency: 'daily', area_id: '1', habit_completions: { '2025-01-15': true, '2025-01-14': true, '2025-01-13': true } },
+      { id: '3', name: 'Meditation', frequency: 'daily', area_id: '1', habit_completions: { '2025-01-15': false, '2025-01-14': true, '2025-01-13': true } }
+    ]
+  }
+  return [
+    { id: '1', name: 'Ranní cvičení', frequency: 'daily', area_id: '1', habit_completions: { '2025-01-15': true, '2025-01-14': true, '2025-01-13': false } },
+    { id: '2', name: 'Čtení 30 minut', frequency: 'daily', area_id: '1', habit_completions: { '2025-01-15': true, '2025-01-14': true, '2025-01-13': true } },
+    { id: '3', name: 'Meditace', frequency: 'daily', area_id: '1', habit_completions: { '2025-01-15': false, '2025-01-14': true, '2025-01-13': true } }
+  ]
+}
 
 export function OnboardingTutorial({
   isActive,
   onComplete,
-  onSkip,
-  areas,
-  goals,
-  habits,
-  dailySteps,
-  selectedAreaId,
-  onAreaClick,
-  onCreateMenuOpen,
-  onCreateArea,
-  onCreateGoal,
-  onCreateStep,
-  createMenuButtonRef,
-  areaButtonRefs,
-  showCreateMenu,
-  onStepChange,
-  createMenuRef,
-  showAreaEditModal,
-  onAreaCreated,
-  onAreaButtonClick,
-  onGoalClick,
-  goalButtonRefs,
-  goalsSectionRef,
-  externalStep
+  onSkip
 }: OnboardingTutorialProps) {
   const t = useTranslations()
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>('intro')
-  const [highlightedElement, setHighlightedElement] = useState<HTMLElement | null>(null)
-  const [modalElement, setModalElement] = useState<HTMLElement | null>(null)
-  const [overlayRegions, setOverlayRegions] = useState<Array<{ top: number; left: number; width: number; height: number }>>([])
-  const [isMobile, setIsMobile] = useState(false)
+  const locale = useLocale()
+  const [currentSlide, setCurrentSlide] = useState(0)
   
-  // Detect mobile viewport
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768) // md breakpoint
+  // Get localized mock data
+  const mockAreas = getMockAreas(locale)
+  const mockGoals = getMockGoals(locale)
+  const mockSteps = getMockSteps(locale)
+  const mockHabits = getMockHabits(locale)
+
+  const slides = [
+    {
+      title: t('onboarding.intro.title') || 'Co je Pokrok?',
+      description: t('onboarding.intro.description') || 'Pokrok není jen další aplikace pro produktivitu. Je to nástroj pro organizaci vašeho života a dosahování smysluplných cílů, které vám přinášejí skutečnou hodnotu a naplnění.',
+      icon: Target,
+      content: (
+        <div className="space-y-4">
+          <div className="p-6 bg-gradient-to-br from-primary-50 to-primary-100 rounded-lg border-2 border-primary-300">
+            <p className="text-gray-700 text-base leading-relaxed mb-4">
+              {t('onboarding.intro.detailed') || 'Pokrok vám pomáhá získat jasnost v tom, co je pro vás v životě skutečně důležité. Umožňuje vám organizovat vaše cíle, rozdělit je na dosažitelné kroky a sledovat, jak se posouváte směrem k životu, jaký chcete žít.'}
+            </p>
+            <div className="mt-4 p-4 bg-white rounded-lg border border-primary-200">
+              <p className="text-sm text-gray-700 font-medium">
+                {t('onboarding.intro.philosophy') || 'Zaměřujeme se na smysluplnost, ne jen na produktivitu. Každý cíl, krok a návyk by měl mít svůj důvod a přispívat k životu, jaký chcete mít.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: t('onboarding.creating.title') || 'Co vše se dá tvořit?',
+      description: t('onboarding.creating.description') || 'V Pokroku můžete vytvářet čtyři hlavní typy stavebních prvků, které vám pomohou organizovat váš život.',
+      icon: Plus,
+      content: (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
+              <LayoutDashboard className="w-8 h-8 text-primary-600 mb-2" />
+              <h4 className="font-bold text-sm mb-1">{t('onboarding.creating.areas') || 'Oblasti'}</h4>
+              <p className="text-xs text-gray-600">{t('onboarding.creating.areasDesc') || 'Organizujte své cíle, kroky a návyky do oblastí'}</p>
+            </div>
+            <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
+              <Target className="w-8 h-8 text-primary-600 mb-2" />
+              <h4 className="font-bold text-sm mb-1">{t('onboarding.creating.goals') || 'Cíle'}</h4>
+              <p className="text-xs text-gray-600">{t('onboarding.creating.goalsDesc') || 'Dlouhodobé cíle, které chcete dosáhnout'}</p>
+            </div>
+            <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
+              <Footprints className="w-8 h-8 text-primary-600 mb-2" />
+              <h4 className="font-bold text-sm mb-1">{t('onboarding.creating.steps') || 'Kroky'}</h4>
+              <p className="text-xs text-gray-600">{t('onboarding.creating.stepsDesc') || 'Konkrétní akce vedoucí k vašim cílům'}</p>
+            </div>
+            <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
+              <CheckSquare className="w-8 h-8 text-primary-600 mb-2" />
+              <h4 className="font-bold text-sm mb-1">{t('onboarding.creating.habits') || 'Návyky'}</h4>
+              <p className="text-xs text-gray-600">{t('onboarding.creating.habitsDesc') || 'Opakující se rutiny, které budujete dlouhodobě'}</p>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: t('onboarding.plusButton.title') || 'Plus tlačítko v navigaci',
+      description: t('onboarding.plusButton.description') || 'Na levé straně hlavního panelu najdete Plus tlačítko. Přes něj můžete každý den vytvářet nové building blocky - oblasti, cíle, kroky a návyky.',
+      icon: Plus,
+      content: (
+        <div className="space-y-4">
+          {/* Mock sidebar */}
+          <div className="flex gap-4">
+            {/* Sidebar mock */}
+            <div className="w-64 bg-white border-r-4 border-primary-500 flex flex-col" style={{ minHeight: '400px' }}>
+              {/* Navigation items */}
+              <div className="p-4 flex-1">
+                <h2 className="text-lg font-bold text-black mb-4 font-playful">{t('navigation.title') || 'Navigace'}</h2>
+                <div className="space-y-1.5">
+                  <div className="px-3 py-2 text-sm text-gray-600 border-l-2 border-transparent">
+                    <CalendarDays className="w-4 h-4 inline mr-2" />
+                    {t('navigation.focusDay') || 'Den'}
+                  </div>
+                  <div className="px-3 py-2 text-sm text-gray-600 border-l-2 border-transparent">
+                    <CalendarRange className="w-4 h-4 inline mr-2" />
+                    {t('navigation.focusWeek') || 'Týden'}
+                  </div>
+                  <div className="px-3 py-2 text-sm text-gray-600 border-l-2 border-transparent">
+                    <Calendar className="w-4 h-4 inline mr-2" />
+                    {t('navigation.focusMonth') || 'Měsíc'}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Plus button at bottom */}
+              <div className="p-4 border-t-2 border-primary-500 relative">
+                {/* Dropdown menu (shown as open) - positioned above button */}
+                <div className="absolute left-4 bottom-full mb-2 z-50 bg-white border-2 border-primary-500 rounded-playful-md min-w-[160px] shadow-lg">
+                  <button className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary-50 flex items-center gap-2 border-b border-primary-200">
+                    <LayoutDashboard className="w-4 h-4 text-primary-600" />
+                    <span>{t('onboarding.plusButton.createArea') || 'Vytvořit oblast'}</span>
+                  </button>
+                  <button className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary-50 flex items-center gap-2 border-b border-primary-200">
+                    <Target className="w-4 h-4 text-primary-600" />
+                    <span>{t('onboarding.plusButton.createGoal') || 'Vytvořit cíl'}</span>
+                  </button>
+                  <button className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary-50 flex items-center gap-2 border-b border-primary-200">
+                    <Footprints className="w-4 h-4 text-primary-600" />
+                    <span>{t('onboarding.plusButton.createStep') || 'Vytvořit krok'}</span>
+                  </button>
+                  <button className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary-50 flex items-center gap-2">
+                    <CheckSquare className="w-4 h-4 text-primary-600" />
+                    <span>{t('onboarding.plusButton.createHabit') || 'Vytvořit návyk'}</span>
+                  </button>
+                </div>
+                
+                <button className="w-full px-4 py-2.5 flex items-center justify-center gap-2 bg-white text-primary-600 rounded-playful-md hover:bg-primary-50 transition-colors border-2 border-primary-500 font-semibold">
+                  <Plus className="w-5 h-5" strokeWidth={2} />
+                  <span>{t('common.add') || 'Vytvořit'}</span>
+                </button>
+              </div>
+            </div>
+            
+            {/* Main content area mock */}
+            <div className="flex-1 bg-primary-50 p-6">
+              <p className="text-sm text-gray-600">
+                {t('onboarding.plusButton.mainContent') || 'Hlavní panel aplikace'}
+              </p>
+            </div>
+          </div>
+          
+          <div className="p-3 bg-primary-50 rounded-lg border border-primary-200">
+            <p className="text-xs text-gray-700">
+              {t('onboarding.plusButton.hint') || 'Plus tlačítko najdete na spodku levého navigačního panelu. Po kliknutí se zobrazí menu s možnostmi pro vytváření.'}
+            </p>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: t('onboarding.areas.title') || 'Oblasti',
+      description: t('onboarding.areas.description') || 'Oblasti si vytváříte sami a ideálně to mají být větší životní oblasti nebo rozsáhlejší projekty. Shlukují cíle, kroky a návyky do logických skupin. Každá oblast má vlastní zobrazení a filtry, které vám pomohou soustředit se na konkrétní část vašeho života.',
+      icon: LayoutDashboard,
+      content: (
+        <div className="space-y-3">
+          <div className="p-3 bg-primary-50 rounded-lg border border-primary-200 mb-3">
+            <p className="text-xs text-gray-700 font-medium mb-1">
+              {t('onboarding.areas.createYourself') || 'Oblasti si vytváříte sami'}
+            </p>
+            <p className="text-xs text-gray-600">
+              {t('onboarding.areas.examples') || 'Ideálně to mají být větší životní oblasti (např. Zdraví, Kariéra, Vztahy) nebo rozsáhlejší projekty (např. Nový byt, Vlastní firma).'}
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            {mockAreas.map((area) => {
+              const IconComponent = getIconComponent(area.icon)
+              return (
+                <div key={area.id} className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: `${area.color}20` }}>
+                      {IconComponent && <IconComponent className="w-5 h-5" style={{ color: area.color }} />}
+                    </div>
+                    <h4 className="font-bold text-sm">{area.name}</h4>
+                  </div>
+                  <p className="text-xs text-gray-600 mb-2">{area.description}</p>
+                  <div className="text-xs text-gray-500">
+                    {t('onboarding.areas.contains') || 'Obsahuje cíle, kroky a návyky'}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          <div className="p-3 bg-primary-50 rounded-lg border border-primary-200">
+            <p className="text-xs text-gray-700">
+              {t('onboarding.areas.function') || 'Oblasti umožňují filtrovat a zobrazit pouze relevantní obsah pro danou oblast vašeho života.'}
+            </p>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: t('onboarding.goals.title') || 'Cíle',
+      description: t('onboarding.goals.description') || 'Cíle jsou smysluplné výsledky, které chcete dosáhnout. Nejsou to jen úkoly - jsou to cesty k životu, jaký chcete žít. Ke každému cíli můžete přidat kroky a metriky, díky čemuž vidíte, jak se blížíte k jeho dosažení.',
+      icon: Target,
+      content: (
+        <div className="space-y-4">
+          {/* Mock Goal Detail Page - scaled down */}
+          <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm scale-90 origin-top">
+            {(() => {
+              const goal = mockGoals[0]
+              const IconComponent = getIconComponent(goal.icon)
+              const area = mockAreas.find(a => a.id === goal.area_id)
+              const areaColor = area?.color || '#ea580c'
+              
+              return (
+                <div className="space-y-4">
+                  {/* Header */}
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-3 flex-1">
+                      {IconComponent && (
+                        <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${areaColor}20` }}>
+                          <IconComponent className="w-7 h-7" style={{ color: areaColor }} />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-black font-playful mb-1">{goal.title}</h3>
+                        <p className="text-sm text-gray-600 font-playful">{goal.description}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Area and Status buttons */}
+                    <div className="flex items-center gap-2">
+                      <button className="btn-playful-base flex items-center gap-1.5 px-2.5 py-1 text-xs text-primary-600 bg-white hover:bg-primary-50">
+                        {IconComponent && <IconComponent className="w-3.5 h-3.5" style={{ color: areaColor }} />}
+                        <span className="font-medium">{area?.name || 'Oblast'}</span>
+                        <ChevronDown className="w-2.5 h-2.5" />
+                      </button>
+                      <button className="btn-playful-base flex items-center gap-1.5 px-2.5 py-1 text-xs bg-primary-100 text-primary-600">
+                        <Target className="w-3.5 h-3.5" />
+                        <span className="font-medium">{t('goals.status.active') || 'Aktivní'}</span>
+                        <ChevronDown className="w-2.5 h-2.5" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Dates */}
+                  <div className="flex items-center gap-4 text-xs">
+                    <div className="flex flex-col">
+                      <span className="text-gray-500 font-playful mb-0.5">{t('goals.startDate') || 'Datum začátku'}</span>
+                      <span className="text-gray-600 font-medium font-playful">
+                        {locale === 'en' ? 'January 15, 2025' : '15. ledna 2025'}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-gray-500 font-playful mb-0.5">{t('common.endDate') || 'Cílové datum'}</span>
+                      <span className="text-gray-600 font-medium font-playful">
+                        {locale === 'en' ? 'June 30, 2025' : '30. června 2025'}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Progress bar */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-black font-playful">{t('details.goal.progress') || 'Pokrok'}</span>
+                      <span className="text-xl font-bold text-primary-600 font-playful">
+                        {goal.progress_percentage}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-white border-2 border-primary-500 rounded-playful-sm h-2.5 overflow-hidden">
+                      <div 
+                        className="bg-primary-500 h-full rounded-playful-sm transition-all"
+                        style={{ width: `${goal.progress_percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Steps statistics */}
+                  <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-sm text-gray-600 font-medium font-playful">{t('details.goal.totalSteps') || 'Celkem kroků'}:</span>
+                      <span className="text-xl font-bold text-black font-playful">10</span>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-sm text-gray-600 font-medium font-playful">{t('details.goal.completedSteps') || 'Dokončeno'}:</span>
+                      <span className="text-xl font-bold text-primary-600 font-playful">5</span>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-sm text-gray-600 font-medium font-playful">{t('details.goal.remainingSteps') || 'Zbývá'}:</span>
+                      <span className="text-xl font-bold text-primary-600 font-playful">5</span>
+                    </div>
+                  </div>
+                  
+                  {/* Info text */}
+                  <p className="text-xs text-gray-600 pt-2 border-t border-gray-200">
+                    {t('onboarding.goals.detail') || 'V detailu cíle můžete přidávat kroky, nastavovat metriky a sledovat pokrok v čase. Každý krok vás přibližuje k životu, jaký chcete žít.'}
+                  </p>
+                </div>
+              )
+            })()}
+          </div>
+        </div>
+      )
+    },
+    {
+      title: t('onboarding.steps.title') || 'Kroky',
+      description: t('onboarding.steps.description') || 'Kroky slouží dvojímu účelu: jsou to jednotlivé kroky vedoucí k dosažení cíle, ale zároveň také To-Do úkoly, které můžete plánovat na konkrétní dny.',
+      icon: Footprints,
+      content: (
+        <div className="space-y-3">
+          <div className="p-3 bg-primary-50 rounded-lg border border-primary-200">
+            <p className="text-xs text-gray-700 mb-2">
+              {t('onboarding.steps.function') || 'Kroky můžete přiřadit k cílům a naplánovat je na konkrétní datum. Každý krok může mít odhadovaný čas a může být označen jako splněný.'}
+            </p>
+          </div>
+          {mockSteps.map((step) => (
+            <div key={step.id} className={`p-3 bg-white rounded-lg border-2 ${step.completed ? 'border-green-500 bg-green-50' : 'border-primary-500'} shadow-sm`}>
+              <div className="flex items-center gap-3">
+                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${step.completed ? 'bg-green-500 border-green-500' : 'border-primary-500'}`}>
+                  {step.completed && <CheckCircle2 className="w-3 h-3 text-white" />}
+                </div>
+                <div className="flex-1">
+                  <span className={`text-sm font-medium ${step.completed ? 'line-through text-gray-500' : 'text-black'}`}>
+                    {step.title}
+                  </span>
+                  <div className="text-xs text-gray-500 mt-0.5">
+                    {t('onboarding.steps.date') || 'Datum:'} {step.date}
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500">
+                  {step.estimated_time} min
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )
+    },
+    {
+      title: t('onboarding.habits.title') || 'Návyky',
+      description: t('onboarding.habits.description') || 'Návyky jsou opakovatelné akce, které můžete vázat k oblasti. V tabulce plnění vidíte, jak často jste návyk dodržovali.',
+      icon: CheckSquare,
+      content: (
+        <div className="space-y-4">
+          <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
+            <div className="mb-3">
+              <h4 className="text-sm font-bold mb-2">{t('onboarding.habits.tableTitle') || 'Tabulka plnění návyků'}</h4>
+              <div className="flex items-center gap-2 mb-2 text-xs text-gray-600">
+                <span className="w-24">{t('onboarding.habits.habitName') || 'Návyk'}</span>
+                <div className="flex gap-1">
+                  {(locale === 'en' 
+                    ? ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']
+                    : ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne']
+                  ).map((day) => (
+                    <div key={day} className="w-8 h-8 flex items-center justify-center text-xs font-medium text-gray-500">
+                      {day}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            {mockHabits.slice(0, 2).map((habit) => (
+              <div key={habit.id} className="flex items-center gap-2 mb-2">
+                <span className="w-24 text-sm font-medium text-gray-700 truncate">{habit.name}</span>
+                <div className="flex gap-1">
+                  {['2025-01-13', '2025-01-14', '2025-01-15', '2025-01-16', '2025-01-17', '2025-01-18', '2025-01-19'].map((date) => {
+                    const isCompleted = habit.habit_completions[date] === true
+                    return (
+                      <div
+                        key={date}
+                        className={`w-8 h-8 rounded border-2 flex items-center justify-center ${
+                          isCompleted ? 'bg-primary-500 border-primary-500' : 'bg-gray-100 border-gray-300'
+                        }`}
+                      >
+                        {isCompleted && <CheckCircle2 className="w-4 h-4 text-white" />}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="p-3 bg-primary-50 rounded-lg border border-primary-200">
+            <p className="text-xs text-gray-700">
+              {t('onboarding.habits.function') || 'Návyky můžete vázat k oblasti a nastavit jejich frekvenci (denně, týdně, nebo vlastní dny).'}
+            </p>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: t('onboarding.views.title') || 'Úrovně zobrazení',
+      description: t('onboarding.views.description') || 'Pokrok nabízí čtyři různé úrovně zobrazení, každá vhodná pro jiný účel. Jednotlivé views najdete v navigation menu vlevo na hlavním panelu.',
+      icon: Calendar,
+      content: (
+        <div className="space-y-3">
+          <div className="p-3 bg-primary-50 rounded-lg border border-primary-200 mb-3">
+            <p className="text-xs text-gray-700">
+              {t('onboarding.views.location') || 'Jednotlivé views najdete v navigation menu vlevo na hlavním panelu.'}
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <CalendarDays className="w-5 h-5 text-primary-600" />
+                <h4 className="font-bold text-sm">{t('onboarding.views.daily') || 'Denní'}</h4>
+              </div>
+              <p className="text-xs text-gray-600">
+                {t('onboarding.views.dailyDesc') || 'Ideální pro každodenní práci a rutiny. Zobrazuje kroky a návyky pro konkrétní den.'}
+              </p>
+            </div>
+            <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <CalendarRange className="w-5 h-5 text-primary-600" />
+                <h4 className="font-bold text-sm">{t('onboarding.views.weekly') || 'Týdenní'}</h4>
+              </div>
+              <p className="text-xs text-gray-600">
+                {t('onboarding.views.weeklyDesc') || 'Přehled jednotlivých kroků v týdnu. Umožňuje plánovat a organizovat úkoly na celý týden.'}
+              </p>
+            </div>
+            <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar className="w-5 h-5 text-primary-600" />
+                <h4 className="font-bold text-sm">{t('onboarding.views.monthly') || 'Měsíční'}</h4>
+              </div>
+              <p className="text-xs text-gray-600">
+                {t('onboarding.views.monthlyDesc') || 'Slouží k většímu overview. Zobrazuje kalendář s kroky a návyky pro celý měsíc.'}
+              </p>
+            </div>
+            <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <CalendarCheck className="w-5 h-5 text-primary-600" />
+                <h4 className="font-bold text-sm">{t('onboarding.views.yearly') || 'Roční'}</h4>
+              </div>
+              <p className="text-xs text-gray-600">
+                {t('onboarding.views.yearlyDesc') || 'Přehled posunu v jednotlivých cílech. Zobrazuje timeline s progress bary pro všechny cíle.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: t('onboarding.complete.title') || 'Tutoriál dokončen!',
+      description: t('onboarding.complete.description') || 'Nyní víte, jak používat Pokrok. Začněte vytvářet své oblasti, cíle, kroky a návyky a posouvejte se směrem k životu plnému smyslu a naplnění!',
+      icon: CheckCircle2,
+      content: (
+        <div className="text-center py-8">
+          <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
+          <p className="text-gray-700 text-lg mb-4">
+            {t('onboarding.complete.message') || 'Vše je připraveno! Můžete začít používat aplikaci.'}
+          </p>
+        </div>
+      )
     }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-  const [areaName, setAreaName] = useState('')
-  const [areaDescription, setAreaDescription] = useState('')
-  const [areaColor, setAreaColor] = useState('#ea580c')
-  const [areaIcon, setAreaIcon] = useState('LayoutDashboard')
-  const [showAreaIconPicker, setShowAreaIconPicker] = useState(false)
-  const [isSavingArea, setIsSavingArea] = useState(false)
-  const isSavingAreaRef = useRef(false)
-  const initialGoalsCountRef = useRef(0)
-  
-  const arrowRef = useRef<HTMLDivElement>(null)
-  const modalRef = useRef<HTMLDivElement>(null)
-  const lastNotifiedStepRef = useRef<OnboardingStep | null>(null)
-  const isInternalChangeRef = useRef(false)
-
-  // Use ref to store onStepChange to avoid recreating callback
-  const onStepChangeRef = useRef(onStepChange)
-  useEffect(() => {
-    onStepChangeRef.current = onStepChange
-  }, [onStepChange])
-
-  // Stable callback for step changes
-  const notifyStepChange = useCallback((step: OnboardingStep) => {
-    if (onStepChangeRef.current && step !== lastNotifiedStepRef.current && !isInternalChangeRef.current) {
-      lastNotifiedStepRef.current = step
-      onStepChangeRef.current(step)
-    }
-  }, []) // Empty deps - use ref instead
-
-  // Sync with external step changes (when parent component changes onboardingStep)
-  // Only sync if externalStep is explicitly set and different from currentStep
-  // This allows parent to control the step (e.g., when clicking Area button)
-  useEffect(() => {
-    if (externalStep && externalStep !== currentStep) {
-      // This is an external change (from parent), so mark it as internal to prevent notification loop
-      isInternalChangeRef.current = true
-      setCurrentStep(externalStep)
-      lastNotifiedStepRef.current = externalStep
-      setTimeout(() => {
-        isInternalChangeRef.current = false
-      }, 0)
-    }
-  }, [externalStep]) // Only depend on externalStep, not currentStep, to avoid loops
-
-  // Watch for area creation - when area is created, move to next step
-  // This is now handled directly in handleSaveArea after successful creation
-  // We removed the automatic useEffect to prevent premature step switching
-  // The step transition is now controlled explicitly in handleSaveArea
-
-  // Watch for goal creation - when a goal is created, move to next step
-  useEffect(() => {
-    if (currentStep === 'create-goal') {
-      // Initialize the count when entering this step
-      if (initialGoalsCountRef.current === 0) {
-        initialGoalsCountRef.current = goals.length
-      }
-      
-      // Check if a new goal was created (goals array increased)
-      if (goals.length > initialGoalsCountRef.current) {
-        // A new goal was created, move to click-goal step
-        setTimeout(() => {
-          isInternalChangeRef.current = true
-          setCurrentStep('click-goal')
-          notifyStepChange('click-goal')
-          initialGoalsCountRef.current = 0 // Reset for next time
-          setTimeout(() => {
-            isInternalChangeRef.current = false
-          }, 100)
-        }, 1000)
-      }
-    } else {
-      // Reset when leaving the step
-      initialGoalsCountRef.current = 0
-    }
-  }, [goals.length, currentStep, notifyStepChange])
-
-  // Watch for menu opening in add-button step
-  useEffect(() => {
-    if (currentStep === 'add-button' && showCreateMenu) {
-      // Notify parent first, before setting internal change flag
-      notifyStepChange('add-menu-open')
-      // Then update internal state
-      isInternalChangeRef.current = true
-      setCurrentStep('add-menu-open')
-      setTimeout(() => {
-        isInternalChangeRef.current = false
-      }, 100)
-    }
-  }, [showCreateMenu, currentStep, notifyStepChange])
-
-  // Notify parent of step changes (but only if it's different from external step to avoid loops)
-  // Skip notification if externalStep is set and matches currentStep (to avoid loops)
-  useEffect(() => {
-    // Only notify if:
-    // 1. We're not in the middle of an internal change (to prevent loops)
-    // 2. externalStep is not set (initial state), OR
-    // 3. externalStep is different from currentStep (user action changed step internally)
-    if (!isInternalChangeRef.current && (!externalStep || externalStep !== currentStep)) {
-      notifyStepChange(currentStep)
-    }
-  }, [currentStep, externalStep, notifyStepChange])
-
-  // Watch for area selection
-  useEffect(() => {
-    if (currentStep === 'click-area' && selectedAreaId && areas.some(a => a.id === selectedAreaId)) {
-      // Wait a bit for UI to update, then move to add-menu-goal step
-      setTimeout(() => {
-        setCurrentStep('add-menu-goal')
-        notifyStepChange('add-menu-goal')
-        // Open the create menu
-        if (onCreateMenuOpen) {
-          onCreateMenuOpen()
-        }
-      }, 1000)
-    }
-  }, [selectedAreaId, areas, currentStep, notifyStepChange, onCreateMenuOpen])
-
-  // Track modal element
-  useEffect(() => {
-    if (modalRef.current) {
-      setModalElement(modalRef.current)
-    }
-  }, [currentStep])
-
-  // Calculate and update overlay regions - skip on mobile
-  useEffect(() => {
-    if (isMobile || !isActive) {
-      setOverlayRegions([])
-      return
-    }
-
-    const calculateRegions = () => {
-      const viewportWidth = window.innerWidth
-      const viewportHeight = window.innerHeight
-      const excludeRects: Array<{ left: number; top: number; right: number; bottom: number }> = []
-      
-      // Always exclude modal
-      if (modalElement) {
-        const rect = modalElement.getBoundingClientRect()
-        const padding = 20
-        excludeRects.push({
-          left: Math.max(0, rect.left - padding),
-          top: Math.max(0, rect.top - padding),
-          right: Math.min(viewportWidth, rect.right + padding),
-          bottom: Math.min(viewportHeight, rect.bottom + padding)
-        })
-      }
-      
-      // Exclude highlighted element if it exists
-      // In add-menu-open and add-menu-goal steps, we want to highlight the menu
-      // In click-area step, we want to highlight the area button in the sidebar
-      // In click-goal step, we want to highlight the goals section
-      if (highlightedElement && currentStep !== 'intro' && currentStep !== 'complete' && currentStep !== 'add-menu-open' && currentStep !== 'add-menu-goal' && currentStep !== 'create-area' && currentStep !== 'create-goal' && currentStep !== 'click-goal') {
-        const rect = highlightedElement.getBoundingClientRect()
-        let padding = 8 // Default padding
-        if (currentStep === 'click-area') {
-          padding = 8 // Padding for area button
-        }
-        excludeRects.push({
-          left: Math.max(0, rect.left - padding),
-          top: Math.max(0, rect.top - padding),
-          right: Math.min(viewportWidth, rect.right + padding),
-          bottom: Math.min(viewportHeight, rect.bottom + padding)
-        })
-      }
-      
-      // Special handling for add-menu-open and add-menu-goal steps - exclude the entire menu
-      if ((currentStep === 'add-menu-open' || currentStep === 'add-menu-goal') && highlightedElement) {
-        const rect = highlightedElement.getBoundingClientRect()
-        const padding = 20 // More padding for menu
-        excludeRects.push({
-          left: Math.max(0, rect.left - padding),
-          top: Math.max(0, rect.top - padding),
-          right: Math.min(viewportWidth, rect.right + padding),
-          bottom: Math.min(viewportHeight, rect.bottom + padding)
-        })
-      }
-      
-      // Special handling for click-goal step - exclude the entire goals section
-      if (currentStep === 'click-goal' && highlightedElement) {
-        const rect = highlightedElement.getBoundingClientRect()
-        const padding = 20 // More padding for goals section
-        excludeRects.push({
-          left: Math.max(0, rect.left - padding),
-          top: Math.max(0, rect.top - padding),
-          right: Math.min(viewportWidth, rect.right + padding),
-          bottom: Math.min(viewportHeight, rect.bottom + padding)
-        })
-      }
-
-      // If no exclusions, show full overlay
-      if (excludeRects.length === 0) {
-        setOverlayRegions([{ top: 0, left: 0, width: viewportWidth, height: viewportHeight }])
-        return
-      }
-
-      // Find bounding box of all exclusions
-      const minLeft = Math.min(...excludeRects.map(r => r.left))
-      const maxRight = Math.max(...excludeRects.map(r => r.right))
-      const minTop = Math.min(...excludeRects.map(r => r.top))
-      const maxBottom = Math.max(...excludeRects.map(r => r.bottom))
-
-      const regions: Array<{ top: number; left: number; width: number; height: number }> = []
-      
-      // Top region
-      if (minTop > 0) {
-        regions.push({ top: 0, left: 0, width: viewportWidth, height: minTop })
-      }
-      // Bottom region
-      if (maxBottom < viewportHeight) {
-        regions.push({ top: maxBottom, left: 0, width: viewportWidth, height: viewportHeight - maxBottom })
-      }
-      // Left region
-      if (minLeft > 0) {
-        regions.push({ top: minTop, left: 0, width: minLeft, height: Math.max(0, maxBottom - minTop) })
-      }
-      // Right region
-      if (maxRight < viewportWidth) {
-        regions.push({ top: minTop, left: maxRight, width: viewportWidth - maxRight, height: Math.max(0, maxBottom - minTop) })
-      }
-
-      setOverlayRegions(regions)
-    }
-
-    // Small delay to ensure modal is rendered
-    const timeout = setTimeout(calculateRegions, 50)
-    calculateRegions()
-    
-    const interval = setInterval(calculateRegions, 100)
-    window.addEventListener('resize', calculateRegions)
-    window.addEventListener('scroll', calculateRegions, true)
-
-    return () => {
-      clearTimeout(timeout)
-      clearInterval(interval)
-      window.removeEventListener('resize', calculateRegions)
-      window.removeEventListener('scroll', calculateRegions, true)
-    }
-  }, [isActive, currentStep, highlightedElement, modalElement])
-
-  // Position arrow and highlight element - skip on mobile
-  useEffect(() => {
-    if (isMobile || !isActive || currentStep === 'intro' || currentStep === 'complete') {
-      setHighlightedElement(null)
-      return
-    }
-
-    const updateHighlight = () => {
-      let element: HTMLElement | null = null
-
-      if (currentStep === 'add-button' && createMenuButtonRef?.current) {
-        element = createMenuButtonRef.current
-      } else if (currentStep === 'add-menu-open' && createMenuRef?.current) {
-        // Highlight the entire menu in add-menu-open step
-        element = createMenuRef.current
-      } else if (currentStep === 'add-menu-goal' && createMenuRef?.current) {
-        // Highlight the entire menu in add-menu-goal step
-        element = createMenuRef.current
-      } else if (currentStep === 'click-area' && areas.length > 0 && areaButtonRefs) {
-        const firstArea = areas[0]
-        const areaRef = areaButtonRefs.get(firstArea.id)
-        if (areaRef?.current) {
-          element = areaRef.current
-        }
-      } else if (currentStep === 'click-goal' && goalsSectionRef?.current) {
-        // Highlight the entire goals section (either in area or below areas)
-        element = goalsSectionRef.current
-      }
-
-      if (element) {
-        setHighlightedElement(element)
-        const rect = element.getBoundingClientRect()
-        if (arrowRef.current) {
-          arrowRef.current.style.top = `${rect.top + rect.height / 2}px`
-          arrowRef.current.style.left = `${rect.left - 60}px`
-        }
-      } else {
-        setHighlightedElement(null)
-      }
-    }
-
-    updateHighlight()
-    const interval = setInterval(updateHighlight, 100) // Update frequently for smooth tracking
-    window.addEventListener('resize', updateHighlight)
-    window.addEventListener('scroll', updateHighlight, true)
-
-    return () => {
-      clearInterval(interval)
-      window.removeEventListener('resize', updateHighlight)
-      window.removeEventListener('scroll', updateHighlight, true)
-    }
-  }, [currentStep, isActive, createMenuButtonRef, areas, areaButtonRefs, goals, goalButtonRefs, selectedAreaId])
-
-  // Don't show onboarding on mobile devices
-  if (!isActive || isMobile) return null
+  ]
 
   const handleNext = () => {
-    if (currentStep === 'intro') {
-      isInternalChangeRef.current = true
-      setCurrentStep('add-button')
-      notifyStepChange('add-button')
-      setTimeout(() => {
-        isInternalChangeRef.current = false
-      }, 0)
-    } else if (isMobile && (currentStep === 'add-button' || currentStep === 'add-menu-open' || currentStep === 'create-area')) {
-      // Simplified flow for mobile - just go through informational steps
-      if (currentStep === 'add-button' || currentStep === 'add-menu-open' || currentStep === 'create-area') {
-        isInternalChangeRef.current = true
-        setCurrentStep('click-area')
-        notifyStepChange('click-area')
-        setTimeout(() => {
-          isInternalChangeRef.current = false
-        }, 0)
-      } else if (currentStep === 'click-area' || currentStep === 'add-menu-goal') {
-        isInternalChangeRef.current = true
-        setCurrentStep('create-goal')
-        notifyStepChange('create-goal')
-        setTimeout(() => {
-          isInternalChangeRef.current = false
-        }, 0)
-      } else if (currentStep === 'create-goal' || currentStep === 'click-goal') {
-        isInternalChangeRef.current = true
-        setCurrentStep('complete')
-        notifyStepChange('complete')
-        setTimeout(() => {
-          isInternalChangeRef.current = false
-        }, 0)
-      }
-    } else if (currentStep === 'add-button') {
-      // User should click Add button - wait for them
-      // The menu opening is detected by the useEffect watching showCreateMenu
-    } else if (currentStep === 'create-area') {
-      // User should create area - wait for them
-      // onCreateArea is called in handleSaveArea when user saves the form
-    } else if (currentStep === 'click-area') {
-      // User should click area - wait for them
-    } else if (currentStep === 'add-menu-goal') {
-      // User should click Goal button - wait for them
-      // This is handled by the click handler in SidebarNavigation
-    } else if (currentStep === 'create-goal') {
-      // User should create goal - wait for them
-      // This step is handled by direct user interaction with the form
-    } else if (currentStep === 'click-goal') {
-      // User can either click the goal or click Next to skip to complete
-      isInternalChangeRef.current = true
-      setCurrentStep('complete')
-      notifyStepChange('complete')
-      setTimeout(() => {
-        isInternalChangeRef.current = false
-      }, 0)
-    } else if (currentStep === 'complete') {
+    if (currentSlide < slides.length - 1) {
+      setCurrentSlide(currentSlide + 1)
+    } else {
       handleComplete()
+    }
+  }
+
+  const handlePrevious = () => {
+    if (currentSlide > 0) {
+      setCurrentSlide(currentSlide - 1)
+    }
+  }
+
+  const handleComplete = async () => {
+    try {
+      const response = await fetch('/api/user/onboarding', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      if (response.ok) {
+        onComplete()
+      } else {
+        onComplete()
+      }
+    } catch (error) {
+      console.error('Error completing onboarding:', error)
+      onComplete()
     }
   }
 
@@ -446,847 +548,93 @@ export function OnboardingTutorial({
     handleComplete()
   }
 
-  const handleComplete = async () => {
-    try {
-      await fetch('/api/user/onboarding', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ hasCompletedOnboarding: true })
-      })
-      onComplete()
-    } catch (error) {
-      console.error('Error completing onboarding:', error)
-      onComplete() // Complete anyway
-    }
-  }
+  if (!isActive) return null
 
-
-  const handleSaveArea = async () => {
-    if (!areaName.trim()) {
-      alert(t('areas.nameRequired') || 'Název oblasti je povinný')
-      return
-    }
-
-    setIsSavingArea(true)
-    isSavingAreaRef.current = true
-    try {
-      // Use the onCreateArea callback if available (from JourneyGameView)
-      if (onCreateArea) {
-        const success = await onCreateArea({
-          name: areaName.trim(),
-          description: areaDescription.trim() || null,
-          color: areaColor,
-          icon: areaIcon
-        })
-
-        if (success) {
-          // Reset form
-          setAreaName('')
-          setAreaDescription('')
-          setAreaColor('#ea580c')
-          setAreaIcon('LayoutDashboard')
-
-          // Move to next step immediately after successful creation
-          isInternalChangeRef.current = true
-          setCurrentStep('click-area')
-          notifyStepChange('click-area')
-          setTimeout(() => {
-            isInternalChangeRef.current = false
-            isSavingAreaRef.current = false
-          }, 100)
-        } else {
-          isSavingAreaRef.current = false
-          throw new Error('Failed to create area via callback')
-        }
-      } else {
-        // Fallback: direct API call if callback is not available
-        const response = await fetch('/api/cesta/areas', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: areaName.trim(),
-            description: areaDescription.trim() || null,
-            color: areaColor,
-            icon: areaIcon
-          })
-        })
-
-        if (!response.ok) {
-          const error = await response.json()
-          throw new Error(error.error || 'Failed to create area')
-        }
-
-        const data = await response.json()
-        const createdArea = data.area
-        
-        // Notify parent component about the new area
-        if (onAreaCreated && createdArea) {
-          onAreaCreated(createdArea)
-        }
-
-        // Reset form
-        setAreaName('')
-        setAreaDescription('')
-        setAreaColor('#ea580c')
-        setAreaIcon('LayoutDashboard')
-
-        // Move to next step immediately after successful creation
-        isInternalChangeRef.current = true
-        setCurrentStep('click-area')
-        notifyStepChange('click-area')
-        setTimeout(() => {
-          isInternalChangeRef.current = false
-          isSavingAreaRef.current = false
-        }, 100)
-      }
-    } catch (error) {
-      console.error('Error creating area:', error)
-      isSavingAreaRef.current = false
-      alert(t('areas.createError') || 'Nepodařilo se vytvořit oblast. Zkuste to prosím znovu.')
-    } finally {
-      setIsSavingArea(false)
-    }
-  }
-
-  // Simplified mobile version - just informational modals
-  const renderMobileModal = () => {
-    switch (currentStep) {
-      case 'intro':
-        return (
-          <div className="bg-white p-6 max-w-md w-full mx-4 border-4 border-primary-500 rounded-playful-lg shadow-2xl">
-            <h2 className="text-2xl font-bold text-primary-600 mb-4 font-playful">
-              {t('onboarding.intro.title')}
-            </h2>
-            <p className="text-base text-gray-700 mb-4 font-playful">
-              {t('onboarding.intro.description')}
-            </p>
-            <div className="space-y-3 mb-6">
-              <div className="p-3 bg-primary-50 rounded-playful-md border-2 border-primary-200">
-                <LayoutDashboard className="w-6 h-6 text-primary-600 mb-2" />
-                <h3 className="font-bold text-primary-700 mb-1 text-sm font-playful">{t('onboarding.intro.areas.title')}</h3>
-                <p className="text-xs text-gray-600 font-playful">{t('onboarding.intro.areas.description')}</p>
-              </div>
-              <div className="p-3 bg-primary-50 rounded-playful-md border-2 border-primary-200">
-                <Target className="w-6 h-6 text-primary-600 mb-2" />
-                <h3 className="font-bold text-primary-700 mb-1 text-sm font-playful">{t('onboarding.intro.goals.title')}</h3>
-                <p className="text-xs text-gray-600 font-playful">{t('onboarding.intro.goals.description')}</p>
-              </div>
-              <div className="p-3 bg-primary-50 rounded-playful-md border-2 border-primary-200">
-                <Footprints className="w-6 h-6 text-primary-600 mb-2" />
-                <h3 className="font-bold text-primary-700 mb-1 text-sm font-playful">{t('onboarding.intro.steps.title')}</h3>
-                <p className="text-xs text-gray-600 font-playful">{t('onboarding.intro.steps.description')}</p>
-              </div>
-              <div className="p-3 bg-primary-50 rounded-playful-md border-2 border-primary-200">
-                <CheckSquare className="w-6 h-6 text-primary-600 mb-2" />
-                <h3 className="font-bold text-primary-700 mb-1 text-sm font-playful">{t('onboarding.intro.habits.title')}</h3>
-                <p className="text-xs text-gray-600 font-playful">{t('onboarding.intro.habits.description')}</p>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={handleSkip}
-                className="btn-playful-base px-4 py-2 flex-1 text-sm"
-              >
-                {t('onboarding.skip')}
-              </button>
-              <button
-                onClick={handleNext}
-                className="btn-playful-primary px-4 py-2 flex-1 text-sm flex items-center justify-center gap-2"
-              >
-                {t('onboarding.next')}
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )
-      
-      case 'add-button':
-      case 'add-menu-open':
-      case 'create-area':
-        return (
-          <div className="bg-white p-6 max-w-md w-full mx-4 border-4 border-primary-500 rounded-playful-lg shadow-2xl">
-            <h3 className="text-xl font-bold text-primary-600 mb-4 font-playful">
-              {t('onboarding.createArea.title')}
-            </h3>
-            <p className="text-gray-700 mb-4 font-playful text-sm">
-              {t('onboarding.createArea.description')}
-            </p>
-            <p className="text-gray-600 mb-4 font-playful text-sm">
-              {t('onboarding.mobile.createArea.instruction') || 'Klikněte na tlačítko "+" vlevo dole a vyberte "Oblast" pro vytvoření vaší první oblasti.'}
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={handleSkip}
-                className="btn-playful-base px-4 py-2 flex-1 text-sm"
-              >
-                {t('onboarding.skip')}
-              </button>
-              <button
-                onClick={handleNext}
-                className="btn-playful-primary px-4 py-2 flex-1 text-sm"
-              >
-                {t('onboarding.next')}
-              </button>
-            </div>
-          </div>
-        )
-      
-      case 'click-area':
-      case 'add-menu-goal':
-        return (
-          <div className="bg-white p-6 max-w-md w-full mx-4 border-4 border-primary-500 rounded-playful-lg shadow-2xl">
-            <h3 className="text-xl font-bold text-primary-600 mb-4 font-playful">
-              {t('onboarding.mobile.afterArea.title') || 'Oblast vytvořena'}
-            </h3>
-            <p className="text-gray-700 mb-4 font-playful text-sm">
-              {t('onboarding.mobile.afterArea.description') || 'Skvělé! Nyní můžete vytvořit cíle, kroky a návyky v této oblasti. Klikněte na oblast v navigačním menu vlevo, pak na tlačítko "+" a vyberte "Cíl".'}
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={handleSkip}
-                className="btn-playful-base px-4 py-2 flex-1 text-sm"
-              >
-                {t('onboarding.skip')}
-              </button>
-              <button
-                onClick={handleNext}
-                className="btn-playful-primary px-4 py-2 flex-1 text-sm"
-              >
-                {t('onboarding.next')}
-              </button>
-            </div>
-          </div>
-        )
-      
-      case 'create-goal':
-      case 'click-goal':
-        return (
-          <div className="bg-white p-6 max-w-md w-full mx-4 border-4 border-primary-500 rounded-playful-lg shadow-2xl">
-            <h3 className="text-xl font-bold text-primary-600 mb-4 font-playful">
-              {t('onboarding.mobile.afterGoal.title') || 'Cíl vytvořen'}
-            </h3>
-            <p className="text-gray-700 mb-4 font-playful text-sm">
-              {t('onboarding.mobile.afterGoal.description') || 'Výborně! Cíle najdete v navigačním menu vlevo. V cílech můžete vytvářet kroky, které vás dovedou k jejich dosažení.'}
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={handleSkip}
-                className="btn-playful-base px-4 py-2 flex-1 text-sm"
-              >
-                {t('onboarding.skip')}
-              </button>
-              <button
-                onClick={handleNext}
-                className="btn-playful-primary px-4 py-2 flex-1 text-sm"
-              >
-                {t('onboarding.next')}
-              </button>
-            </div>
-          </div>
-        )
-      
-      case 'complete':
-        return (
-          <div className="bg-white p-6 max-w-md w-full mx-4 border-4 border-primary-500 rounded-playful-lg shadow-2xl">
-            <h3 className="text-xl font-bold text-primary-600 mb-4 font-playful">
-              {t('onboarding.complete.title')}
-            </h3>
-            <p className="text-gray-700 mb-4 font-playful text-sm">
-              {t('onboarding.complete.description')}
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={handleComplete}
-                className="btn-playful-primary px-6 py-3 flex-1 text-sm flex items-center justify-center gap-2"
-              >
-                {t('onboarding.complete.button')}
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )
-      
-      default:
-        return null
-    }
-  }
-
-  const renderModal = () => {
-    // Use mobile version for mobile devices
-    if (isMobile) {
-      return renderMobileModal()
-    }
-    
-    switch (currentStep) {
-      case 'intro':
-        return (
-          <div className="bg-white p-8 max-w-2xl w-full mx-4 border-4 border-primary-500 rounded-playful-lg shadow-2xl">
-            <h2 className="text-3xl font-bold text-primary-600 mb-6 font-playful">
-              {t('onboarding.intro.title')}
-            </h2>
-            <div className="space-y-4 mb-6">
-              <p className="text-lg text-gray-700 font-playful">
-                {t('onboarding.intro.description')}
-              </p>
-              <div className="grid grid-cols-2 gap-4 mt-6">
-                <div className="p-4 bg-primary-50 rounded-playful-md border-2 border-primary-200">
-                  <LayoutDashboard className="w-8 h-8 text-primary-600 mb-2" />
-                  <h3 className="font-bold text-primary-700 mb-1 font-playful">{t('onboarding.intro.areas.title')}</h3>
-                  <p className="text-sm text-gray-600 font-playful">{t('onboarding.intro.areas.description')}</p>
-                </div>
-                <div className="p-4 bg-primary-50 rounded-playful-md border-2 border-primary-200">
-                  <Target className="w-8 h-8 text-primary-600 mb-2" />
-                  <h3 className="font-bold text-primary-700 mb-1 font-playful">{t('onboarding.intro.goals.title')}</h3>
-                  <p className="text-sm text-gray-600 font-playful">{t('onboarding.intro.goals.description')}</p>
-                </div>
-                <div className="p-4 bg-primary-50 rounded-playful-md border-2 border-primary-200">
-                  <Footprints className="w-8 h-8 text-primary-600 mb-2" />
-                  <h3 className="font-bold text-primary-700 mb-1 font-playful">{t('onboarding.intro.steps.title')}</h3>
-                  <p className="text-sm text-gray-600 font-playful">{t('onboarding.intro.steps.description')}</p>
-                </div>
-                <div className="p-4 bg-primary-50 rounded-playful-md border-2 border-primary-200">
-                  <CheckSquare className="w-8 h-8 text-primary-600 mb-2" />
-                  <h3 className="font-bold text-primary-700 mb-1 font-playful">{t('onboarding.intro.habits.title')}</h3>
-                  <p className="text-sm text-gray-600 font-playful">{t('onboarding.intro.habits.description')}</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={handleSkip}
-                className="btn-playful-base px-6 py-3 flex-1"
-              >
-                {t('onboarding.skip')}
-              </button>
-              <button
-                onClick={handleNext}
-                className="btn-playful-primary px-6 py-3 flex-1 flex items-center justify-center gap-2"
-              >
-                {t('onboarding.next')}
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        )
-
-      case 'add-button':
-        return (
-          <div className="bg-white p-6 max-w-md w-full mx-4 border-4 border-primary-500 rounded-playful-lg shadow-2xl relative">
-            <h3 className="text-xl font-bold text-primary-600 mb-4 font-playful">
-              {t('onboarding.addButton.title')}
-            </h3>
-            <p className="text-gray-700 mb-4 font-playful">
-              {t('onboarding.addButton.description')}
-            </p>
-            <p className="text-lg font-bold text-primary-600 mb-4 font-playful text-center">
-              {t('onboarding.addButton.instruction')}
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={handleSkip}
-                className="btn-playful-base px-4 py-2 flex-1"
-              >
-                {t('onboarding.skip')}
-              </button>
-            </div>
-          </div>
-        )
-
-      case 'add-menu-open':
-        return (
-          <div className="bg-white p-6 max-w-md w-full mx-4 border-4 border-primary-500 rounded-playful-lg shadow-2xl relative">
-            <h3 className="text-xl font-bold text-primary-600 mb-4 font-playful">
-              {t('onboarding.addMenuOpen.title')}
-            </h3>
-            <p className="text-gray-700 mb-4 font-playful">
-              {t('onboarding.addMenuOpen.description')}
-            </p>
-            <p className="text-lg font-bold text-primary-600 mb-4 font-playful text-center">
-              {t('onboarding.addMenuOpen.instruction')}
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={handleSkip}
-                className="btn-playful-base px-4 py-2 flex-1"
-              >
-                {t('onboarding.skip')}
-              </button>
-            </div>
-          </div>
-        )
-
-      case 'create-area':
-        return (
-          <div className="bg-white p-6 max-w-md w-full mx-4 border-4 border-primary-500 rounded-playful-lg shadow-2xl">
-            <h3 className="text-xl font-bold text-primary-600 mb-4 font-playful">
-              {t('onboarding.createArea.title')}
-            </h3>
-            <p className="text-gray-700 mb-4 font-playful">
-              {t('onboarding.createArea.description')}
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={handleSkip}
-                className="btn-playful-base px-4 py-2 flex-1"
-              >
-                {t('onboarding.skip')}
-              </button>
-            </div>
-          </div>
-        )
-
-      case 'click-area':
-        return (
-          <div className="bg-white p-6 max-w-md w-full mx-4 border-4 border-primary-500 rounded-playful-lg shadow-2xl">
-            <h3 className="text-xl font-bold text-primary-600 mb-4 font-playful">
-              {t('onboarding.clickArea.title')}
-            </h3>
-            <p className="text-gray-700 mb-4 font-playful">
-              {t('onboarding.clickArea.description')}
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={handleSkip}
-                className="btn-playful-base px-4 py-2 flex-1"
-              >
-                {t('onboarding.skip')}
-              </button>
-            </div>
-          </div>
-        )
-
-      case 'add-menu-goal':
-        return (
-          <div className="bg-white p-6 max-w-md w-full mx-4 border-4 border-primary-500 rounded-playful-lg shadow-2xl relative">
-            <h3 className="text-xl font-bold text-primary-600 mb-4 font-playful">
-              {t('onboarding.addMenuGoal.title') || 'Vytvořte první cíl'}
-            </h3>
-            <p className="text-gray-700 mb-4 font-playful">
-              {t('onboarding.addMenuGoal.description') || 'Nyní klikněte na "Cíl" v menu, abyste vytvořili svůj první cíl v této oblasti.'}
-            </p>
-            <p className="text-lg font-bold text-primary-600 mb-4 font-playful text-center">
-              {t('onboarding.addMenuGoal.instruction') || '👉 Klikněte na "Cíl"'}
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={handleSkip}
-                className="btn-playful-base px-4 py-2 flex-1"
-              >
-                {t('onboarding.skip')}
-              </button>
-            </div>
-          </div>
-        )
-
-      case 'create-goal':
-        return (
-          <div className="bg-white p-6 max-w-md w-full mx-4 border-4 border-primary-500 rounded-playful-lg shadow-2xl">
-            <h3 className="text-xl font-bold text-primary-600 mb-4 font-playful">
-              {t('onboarding.createGoal.title')}
-            </h3>
-            <p className="text-gray-700 mb-4 font-playful">
-              {t('onboarding.createGoal.description')}
-            </p>
-            <p className="text-sm text-gray-600 mb-4 font-playful">
-              {t('onboarding.createGoal.instruction') || 'Vytvořte cíl na stránce pro cíle. Po vytvoření se tutoriál automaticky pokračuje.'}
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={handleSkip}
-                className="btn-playful-base px-4 py-2 flex-1"
-              >
-                {t('onboarding.skip')}
-              </button>
-            </div>
-          </div>
-        )
-
-      case 'click-goal':
-        return (
-          <div className="bg-white p-6 max-w-md w-full mx-4 border-4 border-primary-500 rounded-playful-lg shadow-2xl relative">
-            <h3 className="text-xl font-bold text-primary-600 mb-4 font-playful">
-              {t('onboarding.clickGoal.title')}
-            </h3>
-            <p className="text-gray-700 mb-4 font-playful">
-              {t('onboarding.clickGoal.description')}
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={handleSkip}
-                className="btn-playful-base px-4 py-2 flex-1"
-              >
-                {t('onboarding.skip')}
-              </button>
-              <button
-                onClick={handleNext}
-                className="btn-playful-primary px-4 py-2 flex-1"
-              >
-                {t('onboarding.next')}
-              </button>
-            </div>
-          </div>
-        )
-
-      case 'complete':
-        return (
-          <div className="bg-white p-6 max-w-md w-full mx-4 border-4 border-primary-500 rounded-playful-lg shadow-2xl">
-            <h3 className="text-xl font-bold text-primary-600 mb-4 font-playful">
-              {t('onboarding.complete.title')}
-            </h3>
-            <p className="text-gray-700 mb-4 font-playful">
-              {t('onboarding.complete.description')}
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={handleComplete}
-                className="btn-playful-primary px-6 py-3 flex-1 flex items-center justify-center gap-2"
-              >
-                {t('onboarding.complete.button')}
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        )
-
-      default:
-        return null
-    }
-  }
-
-  // Calculate overlay clip-path to exclude highlighted element and modal
-  const getOverlayClipPath = () => {
-    if (currentStep === 'intro' || currentStep === 'complete') {
-      return undefined // No overlay for intro/complete
-    }
-
-    const holes: Array<{ left: number; top: number; right: number; bottom: number }> = []
-    
-    // Add hole for highlighted element
-    if (highlightedElement) {
-      const rect = highlightedElement.getBoundingClientRect()
-      holes.push({
-        left: rect.left,
-        top: rect.top,
-        right: rect.right,
-        bottom: rect.bottom
-      })
-    }
-    
-    // Add hole for modal
-    if (modalElement) {
-      const rect = modalElement.getBoundingClientRect()
-      // Add some padding around modal
-      const padding = 20
-      holes.push({
-        left: rect.left - padding,
-        top: rect.top - padding,
-        right: rect.right + padding,
-        bottom: rect.bottom + padding
-      })
-    }
-
-    if (holes.length === 0) {
-      return undefined
-    }
-
-    // Create clip-path that excludes all holes
-    const paths: string[] = []
-    
-    // Start with full screen
-    paths.push('polygon(0% 0%, 0% 100%, 100% 100%, 100% 0%)')
-    
-    // Subtract each hole
-    holes.forEach(hole => {
-      const left = (hole.left / window.innerWidth) * 100
-      const right = (hole.right / window.innerWidth) * 100
-      const top = (hole.top / window.innerHeight) * 100
-      const bottom = (hole.bottom / window.innerHeight) * 100
-      
-      paths.push(`polygon(
-        ${left}% ${top}%,
-        ${right}% ${top}%,
-        ${right}% ${bottom}%,
-        ${left}% ${bottom}%
-      )`)
-    })
-
-    // Use CSS clip-path with evenodd fill rule to create holes
-    // For better browser support, we'll use a simpler approach with multiple overlays
-    return undefined // We'll use a different approach
-  }
-
-  // Don't show overlay on mobile - just show simple modals
-  const shouldShowOverlay = !isMobile && isActive && currentStep !== 'complete' && currentStep !== 'create-area' && currentStep !== 'create-goal'
+  const currentSlideData = slides[currentSlide]
+  const Icon = currentSlideData.icon
+  const isLastSlide = currentSlide === slides.length - 1
 
   return createPortal(
-    <>
-      {shouldShowOverlay && overlayRegions.map((region, i) => (
-        <div
-          key={i}
-          className="fixed z-[9998] bg-black bg-opacity-60 pointer-events-auto"
-          style={{
-            top: region.top,
-            left: region.left,
-            width: region.width,
-            height: region.height,
-          }}
-        />
-      ))}
-      {highlightedElement && shouldShowOverlay && (
-        <>
-          <div
-            className="fixed z-[10001] pointer-events-none border-4 border-primary-500 rounded-playful-md animate-pulse"
-            style={{
-              top: highlightedElement.getBoundingClientRect().top + window.scrollY,
-              left: highlightedElement.getBoundingClientRect().left + window.scrollX,
-              width: highlightedElement.getBoundingClientRect().width,
-              height: highlightedElement.getBoundingClientRect().height,
-              boxShadow: '0 0 0 4px rgba(232, 135, 30, 0.3), 0 0 20px rgba(232, 135, 30, 0.5)',
-            }}
-          />
-          {/* Arrow pointing down-left between modal and highlighted element - only show for add-button step */}
-          {currentStep === 'add-button' && modalElement && highlightedElement && (() => {
-            const modalRect = modalElement.getBoundingClientRect()
-            const elementRect = highlightedElement.getBoundingClientRect()
-            
-            // Position arrow between modal and button, closer to button
-            const spacing = 20 // Space between modal and button
-            const arrowX = elementRect.left + elementRect.width / 2 - 24 // Center horizontally on button, offset for arrow size
-            const arrowY = modalRect.bottom + spacing / 2 // Middle of the gap
-            
-            return (
-              <div
-                className="fixed z-[10001] pointer-events-none"
-                style={{
-                  top: arrowY + window.scrollY,
-                  left: arrowX + window.scrollX,
-                  transform: 'translate(-50%, -50%)',
-                }}
-              >
-                <ArrowDownLeft className="w-12 h-12 text-primary-500 animate-pulse" />
-              </div>
-            )
-          })()}
-          {/* Arrow pointing left from modal to area - only show for click-area step */}
-          {currentStep === 'click-area' && modalElement && highlightedElement && (() => {
-            const modalRect = modalElement.getBoundingClientRect()
-            const elementRect = highlightedElement.getBoundingClientRect()
-            
-            // Position arrow between modal (left edge) and area (right edge), vertically centered
-            const spacing = 20 // Space between modal and area
-            const arrowX = modalRect.left - spacing / 2 // Middle of the gap, closer to modal
-            const arrowY = (modalRect.top + modalRect.bottom) / 2 // Vertically centered on modal
-            
-            return (
-              <div
-                className="fixed z-[10001] pointer-events-none"
-                style={{
-                  top: arrowY + window.scrollY,
-                  left: arrowX + window.scrollX,
-                  transform: 'translate(-50%, -50%)',
-                }}
-              >
-                <ArrowLeft className="w-12 h-12 text-primary-500 animate-pulse" />
-              </div>
-            )
-          })()}
-        </>
-      )}
-
-      {/* Show area creation form in create-area step - only on desktop */}
-      {!isMobile && currentStep === 'create-area' && (
-        <div className="fixed inset-0 z-[10002] flex items-center justify-center p-4">
-          <div
-            className="bg-white rounded-playful-lg shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto border-4 border-primary-500"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-primary-600 mb-4 font-playful">
-                {t('onboarding.createArea.title')}
-              </h2>
-              <p className="text-gray-700 mb-4 font-playful">
-                {t('onboarding.createArea.description')}
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b-2 border-primary-200 bg-gradient-to-r from-primary-50 to-white">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
+              <Icon className="w-6 h-6 text-primary-600" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 font-playful">{currentSlideData.title}</h2>
+              <p className="text-sm text-gray-500 font-playful">
+                {t('onboarding.step') || 'Krok'} {currentSlide + 1} {t('common.of') || 'z'} {slides.length}
               </p>
-              
-              {/* Name */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1 font-playful">
-                  {t('areas.name') || 'Název'} *
-                </label>
-                <input
-                  type="text"
-                  value={areaName}
-                  onChange={(e) => setAreaName(e.target.value)}
-                  className="w-full px-3 py-2 border-2 border-primary-300 rounded-playful-md focus:outline-none focus:ring-2 focus:ring-primary-500 font-playful"
-                  placeholder={t('areas.namePlaceholder') || 'Název oblasti'}
-                  autoFocus
-                />
-              </div>
-
-              {/* Description */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1 font-playful">
-                  {t('areas.description') || 'Popis'}
-                </label>
-                <textarea
-                  value={areaDescription}
-                  onChange={(e) => setAreaDescription(e.target.value)}
-                  className="w-full px-3 py-2 border-2 border-primary-300 rounded-playful-md focus:outline-none focus:ring-2 focus:ring-primary-500 font-playful"
-                  rows={3}
-                  placeholder={t('areas.descriptionPlaceholder') || 'Popis oblasti'}
-                />
-              </div>
-
-              {/* Color */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2 font-playful">
-                  {t('areas.color') || 'Barva'}
-                </label>
-                <div className="grid grid-cols-4 gap-3">
-                  {[
-                    { value: '#ea580c', name: 'Oranžová' },
-                    { value: '#3B82F6', name: 'Modrá' },
-                    { value: '#10B981', name: 'Zelená' },
-                    { value: '#8B5CF6', name: 'Fialová' },
-                    { value: '#EC4899', name: 'Růžová' },
-                    { value: '#EF4444', name: 'Červená' },
-                    { value: '#F59E0B', name: 'Amber' },
-                    { value: '#6366F1', name: 'Indigo' }
-                  ].map((color) => (
-                    <button
-                      key={color.value}
-                      type="button"
-                      onClick={() => setAreaColor(color.value)}
-                      className={`w-12 h-12 rounded-playful-md border-2 transition-all hover:scale-110 ${
-                        areaColor === color.value 
-                          ? 'border-gray-800 ring-2 ring-offset-2 ring-primary-400' 
-                          : 'border-gray-300 hover:border-gray-400'
-                      }`}
-                      style={{ backgroundColor: color.value }}
-                      title={color.name}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Icon */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2 font-playful">
-                  {t('areas.icon') || 'Ikona'}
-                </label>
-                <button
-                  onClick={() => setShowAreaIconPicker(!showAreaIconPicker)}
-                  className="w-full flex items-center justify-between px-3 py-2 border-2 border-primary-300 rounded-playful-md hover:bg-primary-50 font-playful"
-                >
-                  <div className="flex items-center gap-2">
-                    {(() => {
-                      const IconComp = getIconComponent(areaIcon)
-                      return <IconComp className="w-5 h-5" style={{ color: areaColor }} />
-                    })()}
-                    <span>{AVAILABLE_ICONS.find(i => i.name === areaIcon)?.label || areaIcon}</span>
-                  </div>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${showAreaIconPicker ? 'rotate-180' : ''}`} />
-                </button>
-                {showAreaIconPicker && (
-                  <div className="mt-2 border-2 border-primary-300 rounded-playful-md p-3 max-h-48 overflow-y-auto">
-                    <div className="grid grid-cols-4 gap-2">
-                      {AVAILABLE_ICONS.map((icon) => {
-                        const IconComp = getIconComponent(icon.name)
-                        return (
-                          <button
-                            key={icon.name}
-                            type="button"
-                            onClick={() => {
-                              setAreaIcon(icon.name)
-                              setShowAreaIconPicker(false)
-                            }}
-                            className={`p-2 rounded-playful-md hover:bg-primary-50 transition-colors ${
-                              areaIcon === icon.name ? 'bg-primary-100 border-2 border-primary-500' : ''
-                            }`}
-                            title={icon.label}
-                          >
-                            <IconComp className="w-5 h-5 mx-auto" style={{ color: areaColor }} />
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Buttons */}
-              <div className="flex gap-3">
-                <button
-                  onClick={handleSkip}
-                  className="btn-playful-base px-4 py-2 flex-1"
-                  disabled={isSavingArea}
-                >
-                  {t('onboarding.skip')}
-                </button>
-                <button
-                  onClick={handleSaveArea}
-                  disabled={isSavingArea || !areaName.trim()}
-                  className="btn-playful-primary px-4 py-2 flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSavingArea ? (t('common.saving') || 'Ukládání...') : (t('common.save') || 'Uložit')}
-                </button>
-              </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Show regular modal for other steps */}
-      {currentStep !== 'create-area' && currentStep !== 'create-goal' && (
-        <div 
-          className="fixed inset-0 z-[10002] pointer-events-none"
-          style={(currentStep === 'add-button' || currentStep === 'add-menu-open') && highlightedElement ? {
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            paddingBottom: '80px', // Space for the Add button
-            paddingLeft: '20px',
-            paddingRight: '20px',
-          } : currentStep === 'click-goal' && highlightedElement ? {
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            paddingLeft: '280px', // Space for sidebar
-            paddingRight: '20px',
-          } : {
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <div 
-            ref={modalRef} 
-            className="pointer-events-auto"
-            style={isMobile ? {
-              maxWidth: '90%',
-              width: '100%',
-              margin: '0 auto',
-            } : (currentStep === 'add-button' || currentStep === 'add-menu-open') && highlightedElement ? {
-              maxWidth: '28rem',
-              width: '100%',
-              marginBottom: '20px', // Space between modal and button
-            } : currentStep === 'click-goal' && highlightedElement ? {
-              maxWidth: '28rem',
-              width: '100%',
-              marginLeft: '20px',
-            } : {
-              maxWidth: '28rem',
-              width: '100%',
-              margin: '0 1rem',
-            }}
+          <button
+            onClick={handleSkip}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            title={t('onboarding.skip') || 'Přeskočit'}
           >
-            {renderModal()}
+            <X className="w-5 h-5 text-gray-500" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6">
+          <p className="text-gray-700 text-lg mb-6 font-playful">{currentSlideData.description}</p>
+          
+          {/* Mock component preview */}
+          <div className="bg-gray-50 rounded-lg p-6 border-2 border-gray-200">
+            {currentSlideData.content}
           </div>
         </div>
-      )}
-    </>,
+
+        {/* Footer with navigation */}
+        <div className="flex items-center justify-between p-6 border-t-2 border-primary-200 bg-gray-50">
+          <button
+            onClick={handlePrevious}
+            disabled={currentSlide === 0}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors font-playful ${
+              currentSlide === 0
+                ? 'text-gray-400 cursor-not-allowed'
+                : 'text-gray-700 hover:bg-gray-200 border-2 border-gray-300'
+            }`}
+          >
+            <ArrowLeft className="w-4 h-4 inline mr-1" />
+            {t('common.previous') || 'Zpět'}
+          </button>
+
+          {/* Progress dots */}
+          <div className="flex items-center gap-2">
+            {slides.map((_, index) => (
+              <div
+                key={index}
+                className={`h-2 rounded-full transition-all ${
+                  index === currentSlide ? 'bg-primary-500 w-8' : 'bg-gray-300 w-2'
+                }`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={handleNext}
+            className="px-6 py-2 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg transition-colors flex items-center gap-2 font-playful border-2 border-primary-600"
+          >
+            {isLastSlide ? (
+              <>
+                {t('onboarding.complete.button') || 'Dokončit'}
+                <CheckCircle2 className="w-4 h-4" />
+              </>
+            ) : (
+              <>
+                {t('common.next') || 'Další'}
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>,
     document.body
   )
 }
-

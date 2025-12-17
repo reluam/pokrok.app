@@ -178,24 +178,98 @@ export function YearView({
     return totalProportion > 0 ? Math.round((total / totalProportion)) : 0
   }, [goalsEndingFutureYears])
   
-  // Calculate statistics
+  // Calculate statistics and insights
   const stats = useMemo(() => {
     const yearStart = new Date(displayYear, 0, 1)
     const yearEnd = new Date(displayYear, 11, 31, 23, 59, 59)
     
     // Completed habits
     let completedHabits = 0
-  habits.forEach(habit => {
-    if (habit.habit_completions) {
-      Object.keys(habit.habit_completions).forEach(dateStr => {
-        if (habit.habit_completions[dateStr] === true) {
-          const habitDate = new Date(dateStr)
+    const habitCompletionsByHabit: Record<string, number> = {}
+    
+    habits.forEach(habit => {
+      habitCompletionsByHabit[habit.id] = 0
+      if (habit.habit_completions) {
+        Object.keys(habit.habit_completions).forEach(dateStr => {
+          if (habit.habit_completions[dateStr] === true) {
+            const habitDate = new Date(dateStr)
             if (habitDate >= yearStart && habitDate <= yearEnd) {
               completedHabits++
+              habitCompletionsByHabit[habit.id] = (habitCompletionsByHabit[habit.id] || 0) + 1
             }
           }
         })
       }
+    })
+    
+    // Find most and least completed habits
+    const habitStats = Object.entries(habitCompletionsByHabit)
+      .map(([habitId, count]) => {
+        const habit = habits.find(h => h.id === habitId)
+        return { habit, count }
+      })
+      .filter(h => h.habit)
+      .sort((a, b) => b.count - a.count)
+    
+    const mostCompletedHabit = habitStats.length > 0 && habitStats[0].count > 0 ? habitStats[0] : null
+    const leastCompletedHabit = habitStats.length > 0 && habitStats[habitStats.length - 1].count > 0 
+      ? habitStats[habitStats.length - 1] 
+      : null
+    
+    // Steps by area
+    const stepsByArea: Record<string, { total: number; completed: number }> = {}
+    let totalSteps = 0
+    let totalCompletedSteps = 0
+    
+    dailySteps.forEach(step => {
+      if (step.date) {
+        const stepDate = normalizeDate(step.date)
+        const stepDateObj = new Date(stepDate)
+        if (stepDateObj >= yearStart && stepDateObj <= yearEnd) {
+          totalSteps++
+          const areaId = step.area_id || 'no-area'
+          if (!stepsByArea[areaId]) {
+            stepsByArea[areaId] = { total: 0, completed: 0 }
+          }
+          stepsByArea[areaId].total++
+          if (step.completed) {
+            totalCompletedSteps++
+            stepsByArea[areaId].completed++
+          }
+        }
+      }
+    })
+    
+    // Find area with highest completion rate
+    const areaStats = Object.entries(stepsByArea)
+      .map(([areaId, stats]) => {
+        const area = areas.find(a => a.id === areaId)
+        const completionRate = stats.total > 0 ? (stats.completed / stats.total) * 100 : 0
+        return { area, areaId, completionRate, ...stats }
+      })
+      .filter(a => a.total > 0)
+      .sort((a, b) => b.completionRate - a.completionRate)
+    
+    const topArea = areaStats.length > 0 ? areaStats[0] : null
+    
+    // Goals with no progress
+    const goalsWithNoProgress = goals.filter(goal => {
+      if (goal.status !== 'active') return false
+      if (!goal.target_date) return false
+      const targetDate = new Date(goal.target_date)
+      return targetDate >= yearStart && targetDate <= yearEnd && (goal.progress_percentage || 0) === 0
+    })
+    
+    // Areas with no activity
+    const areasWithNoActivity = areas.filter(area => {
+      const areaGoals = goals.filter(g => g.area_id === area.id && g.status === 'active')
+      const areaSteps = dailySteps.filter(s => {
+        if (!s.date) return false
+        const stepDate = normalizeDate(s.date)
+        const stepDateObj = new Date(stepDate)
+        return stepDateObj >= yearStart && stepDateObj <= yearEnd && s.area_id === area.id
+      })
+      return areaGoals.length === 0 && areaSteps.length === 0
     })
     
     // Goals completed in target and after target
@@ -221,16 +295,15 @@ export function YearView({
     let stepsCompletedInTarget = 0
     let stepsCompletedAfterTarget = 0
     
-  dailySteps.forEach(step => {
+    dailySteps.forEach(step => {
       if (step.completed && step.completed_at && step.date) {
-      const stepDate = normalizeDate(step.date)
-      const stepDateObj = new Date(stepDate)
+        const stepDate = normalizeDate(step.date)
+        const stepDateObj = new Date(stepDate)
         stepDateObj.setHours(0, 0, 0, 0)
         const completedAt = new Date(step.completed_at)
         completedAt.setHours(0, 0, 0, 0)
         
         if (completedAt >= yearStart && completedAt <= yearEnd) {
-          // Step completed on or before planned date
           if (completedAt <= stepDateObj) {
             stepsCompletedInTarget++
           } else {
@@ -245,9 +318,16 @@ export function YearView({
       goalsCompletedInTarget,
       goalsCompletedAfterTarget,
       stepsCompletedInTarget,
-      stepsCompletedAfterTarget
+      stepsCompletedAfterTarget,
+      mostCompletedHabit,
+      leastCompletedHabit,
+      topArea,
+      totalSteps,
+      totalCompletedSteps,
+      goalsWithNoProgress,
+      areasWithNoActivity
     }
-  }, [habits, goals, dailySteps, displayYear])
+  }, [habits, goals, dailySteps, displayYear, areas])
   
   return (
     <div className="w-full h-full flex flex-col bg-background overflow-y-auto">
@@ -468,8 +548,9 @@ export function YearView({
                       <div key={goal.id} className="relative">
                 <div className="flex items-center gap-4">
                   <span 
-                    className="text-sm font-semibold text-gray-800 font-playful flex-shrink-0 min-w-[200px] cursor-pointer hover:text-primary-600 transition-colors"
+                    className="text-sm font-semibold text-gray-800 font-playful flex-shrink-0 min-w-[200px] max-w-[200px] cursor-pointer hover:text-primary-600 transition-colors truncate"
                     onClick={() => handleItemClick(goal, 'goal')}
+                    title={goal.title}
                   >
                     {goal.title}
                       </span>
@@ -552,50 +633,97 @@ export function YearView({
                     </div>
                 </div>
       
-      {/* Main Progress Section */}
+      {/* Insights Section */}
       <div className="p-6 bg-white border-b-2 border-primary-500">
         <h3 className="text-xl font-bold text-black font-playful mb-4">
-          {t('details.goal.progress') || 'Roční progress'}
+          {t('yearView.insights') || 'Poznatky z roku'}
         </h3>
         
-        {/* Steps ending this year */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700 font-playful">
-              {t('steps.endingThisYear') || 'Kroky končící v tomto roce'} ({stepsEndingThisYear.length})
-            </span>
-            <span className="text-lg font-bold text-primary-600 font-playful">
-              {avgProgressThisYear}%
-            </span>
-              </div>
-          <div className="w-full bg-gray-200 border-2 border-primary-500 rounded-playful-sm h-4 overflow-hidden">
-            <div
-              className="bg-primary-500 h-full rounded-playful-sm transition-all duration-300"
-              style={{ width: `${avgProgressThisYear}%` }}
-            />
-          </div>
-        </div>
-        
-        {/* Goals ending in future years */}
-        {goalsEndingFutureYears.length > 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700 font-playful">
-                {t('goals.endingFutureYears') || 'Cíle končící v následujících letech'} ({goalsEndingFutureYears.length})
-              </span>
-              <span className="text-lg font-bold text-primary-600 font-playful">
-                {avgProgressFutureYears}%
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 border-2 border-primary-500 rounded-playful-sm h-4 overflow-hidden">
-              <div
-                className="bg-primary-500 h-full rounded-playful-sm transition-all duration-300"
-                style={{ width: `${avgProgressFutureYears}%` }}
-              />
-            </div>
-                  </div>
+        <div className="space-y-4">
+          {/* Top area by completion rate */}
+          {stats.topArea && stats.topArea.total > 0 && (
+            <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border border-green-200">
+              <p className="text-sm text-gray-700 font-playful">
+                <span className="font-bold text-green-700">
+                  {Math.round(stats.topArea.completionRate)}%
+                </span>{' '}
+                {t('yearView.stepsFromArea') || 'splněných kroků bylo z oblasti'}{' '}
+                <span className="font-semibold text-green-800">
+                  {stats.topArea.area?.name || t('goals.noArea') || 'Bez oblasti'}
+                </span>
+                {stats.topArea.total > 0 && (
+                  <> ({stats.topArea.completed} / {stats.topArea.total})</>
                 )}
-              </div>
+              </p>
+            </div>
+          )}
+          
+          {/* Most completed habit */}
+          {stats.mostCompletedHabit && (
+            <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+              <p className="text-sm text-gray-700 font-playful">
+                <span className="font-semibold text-blue-800">
+                  {stats.mostCompletedHabit.habit?.name || t('habits.habit')}
+                </span>{' '}
+                {t('yearView.mostCompletedHabit') || 'byl nejvíce dodržovaný návyk'} ({stats.mostCompletedHabit.count} {t('yearView.completions') || 'splnění'})
+              </p>
+            </div>
+          )}
+          
+          {/* Least completed habit */}
+          {stats.leastCompletedHabit && stats.leastCompletedHabit.habit?.id !== stats.mostCompletedHabit?.habit?.id && (
+            <div className="p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border border-orange-200">
+              <p className="text-sm text-gray-700 font-playful">
+                <span className="font-semibold text-orange-800">
+                  {stats.leastCompletedHabit.habit?.name || t('habits.habit')}
+                </span>{' '}
+                {t('yearView.leastCompletedHabit') || 'byl nejméně dodržovaný návyk'} ({stats.leastCompletedHabit.count} {t('yearView.completions') || 'splnění'})
+              </p>
+            </div>
+          )}
+          
+          {/* Goals with no progress */}
+          {stats.goalsWithNoProgress.length > 0 && (
+            <div className="p-4 bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-lg border border-yellow-200">
+              <p className="text-sm text-gray-700 font-playful">
+                <span className="font-semibold text-yellow-800">
+                  {stats.goalsWithNoProgress.length}
+                </span>{' '}
+                {stats.goalsWithNoProgress.length === 1 
+                  ? (t('yearView.goalNoProgress') || 'cíl ještě nemá žádný pokrok')
+                  : (t('yearView.goalsNoProgress') || 'cílů ještě nemá žádný pokrok')
+                }
+              </p>
+            </div>
+          )}
+          
+          {/* Areas with no activity */}
+          {stats.areasWithNoActivity.length > 0 && (
+            <div className="p-4 bg-gradient-to-r from-red-50 to-red-100 rounded-lg border border-red-200">
+              <p className="text-sm text-gray-700 font-playful">
+                <span className="font-semibold text-red-800">
+                  {stats.areasWithNoActivity.length}
+                </span>{' '}
+                {stats.areasWithNoActivity.length === 1
+                  ? (t('yearView.areaNoActivity') || 'oblast nemá žádnou aktivitu')
+                  : (t('yearView.areasNoActivity') || 'oblastí nemá žádnou aktivitu')
+                }
+                {': '}
+                {stats.areasWithNoActivity.map(a => a.name).join(', ')}
+              </p>
+            </div>
+          )}
+          
+          {/* Empty state */}
+          {!stats.topArea && !stats.mostCompletedHabit && stats.goalsWithNoProgress.length === 0 && stats.areasWithNoActivity.length === 0 && (
+            <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <p className="text-sm text-gray-500 font-playful text-center">
+                {t('yearView.noInsights') || 'Zatím nemáme dostatek dat pro poznatky. Pokračujte v práci na svých cílech!'}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
               
       {/* Statistics */}
       <div className="p-6 bg-white">

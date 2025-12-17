@@ -30,6 +30,7 @@
     "next": "Next",
     "select": "Select",
     "completed": "Completed",
+    "of": "of",
     "steps": "Steps",
     "step": "step",
     "addStep": "Add step",
@@ -321,6 +322,7 @@
     "categoryLabel": "Category",
     "difficultyLabel": "Difficulty",
     "frequencyLabel": "Frequency",
+    "iconLabel": "Icon",
     "createdAt": "Created",
     "custom": "Custom",
     "frequency": "Frequency",
@@ -1369,25 +1371,83 @@
   "onboarding": {
     "skip": "Skip",
     "next": "Next",
+    "step": "Step",
     "intro": {
-      "title": "Welcome to Pokrok!",
-      "description": "Pokrok helps you organize your life using four main building blocks:",
-      "areas": {
-        "title": "Areas",
-        "description": "Organize your goals, steps and habits into areas (e.g. Health, Career, Relationships)"
-      },
-      "goals": {
-        "title": "Goals",
-        "description": "Long-term goals you want to achieve. Break them down into smaller steps."
-      },
-      "steps": {
-        "title": "Steps",
-        "description": "Concrete actions that lead to achieving your goals. Plan them for specific days."
-      },
-      "habits": {
-        "title": "Habits",
-        "description": "Repeating routines you build long-term. Assign them to areas."
-      }
+      "title": "What is Pokrok?",
+      "description": "Pokrok is not just another productivity app. It's a tool for organizing your life and achieving meaningful goals that bring you real value and fulfillment.",
+      "detailed": "Pokrok helps you gain clarity about what truly matters to you in life. It allows you to organize your goals, break them down into achievable steps, and track how you're moving toward the life you want to live.",
+      "philosophy": "We focus on meaning, not just productivity. Every goal, step, and habit should have its purpose and contribute to the life you want to have."
+    },
+    "creating": {
+      "title": "What can you create?",
+      "description": "In Pokrok, you can create four main types of building blocks that will help you organize your life.",
+      "areas": "Areas",
+      "areasDesc": "Organize your goals, steps and habits into areas",
+      "goals": "Goals",
+      "goalsDesc": "Long-term goals you want to achieve",
+      "steps": "Steps",
+      "stepsDesc": "Concrete actions leading to your goals",
+      "habits": "Habits",
+      "habitsDesc": "Repeating routines you build long-term"
+    },
+    "plusButton": {
+      "title": "Plus button in navigation",
+      "description": "On the left side of the main panel, you'll find the Plus button. Through it, you can create new building blocks mentioned earlier, that will help you organize your life and achieve meaningful goals - areas, goals, steps, and habits.",
+      "menuTitle": "Create menu",
+      "menuDesc": "Click the Plus button to see options",
+      "createArea": "Create area",
+      "createGoal": "Create goal",
+      "createStep": "Create step",
+      "createHabit": "Create habit",
+      "mainContent": "Main application panel",
+      "hint": "The Plus button is located at the bottom of the left navigation panel. After clicking, a menu with creation options will appear."
+    },
+    "areas": {
+      "title": "Areas",
+      "description": "You create areas yourself, and ideally they should be larger life areas or extensive projects. They group goals, steps, and habits into logical groups. Each area has its own view and filters that help you focus on a specific part of your life.",
+      "createYourself": "You create areas yourself",
+      "examples": "Ideally, they should be larger life areas (e.g., Health, Career, Relationships) or extensive projects (e.g., New Apartment, Own Business).",
+      "contains": "Contains goals, steps, and habits",
+      "function": "Areas allow you to filter and display only relevant content for a specific area of your life."
+    },
+    "goals": {
+      "title": "Goals",
+      "description": "Goals are meaningful outcomes you want to achieve. They're not just tasks - they're paths to the life you want to live. For each goal, you can add steps and metrics, allowing you to see how you're approaching achievement.",
+      "steps": "Steps: 5/10",
+      "metrics": "Metrics: 2",
+      "detail": "In the goal detail, you can add steps, set metrics, and track progress over time. Each step brings you closer to the life you want to live."
+    },
+    "steps": {
+      "title": "Steps",
+      "description": "Steps serve a dual purpose: they are individual steps leading to goal achievement, but also To-Do tasks that you can schedule for specific days.",
+      "function": "You can assign steps to goals and schedule them for specific dates. Each step can have an estimated time and can be marked as completed.",
+      "date": "Date:"
+    },
+    "habits": {
+      "title": "Habits",
+      "description": "Habits are repeatable actions that you can link to an area. In the completion table, you can see how often you've maintained the habit.",
+      "tableTitle": "Habit completion table",
+      "habitName": "Habit",
+      "function": "You can link habits to an area and set their frequency (daily, weekly, or custom days)."
+    },
+    "views": {
+      "title": "View levels",
+      "description": "Pokrok offers four different view levels, each suitable for a different purpose. You can find individual views in the navigation menu on the left side of the main panel.",
+      "location": "You can find individual views in the navigation menu on the left side of the main panel.",
+      "daily": "Daily",
+      "dailyDesc": "Ideal for daily work and routines. Displays steps and habits for a specific day.",
+      "weekly": "Weekly",
+      "weeklyDesc": "Overview of individual steps in the week. Allows you to plan and organize tasks for the entire week.",
+      "monthly": "Monthly",
+      "monthlyDesc": "Serves for a larger overview. Displays a calendar with steps and habits for the entire month.",
+      "yearly": "Yearly",
+      "yearlyDesc": "Overview of progress in individual goals. Displays a timeline with progress bars for all goals."
+    },
+    "complete": {
+      "title": "Tutorial Complete!",
+      "description": "Now you know how to use Pokrok. Start creating your areas, goals, steps and habits and move toward a life full of meaning and fulfillment!",
+      "message": "Everything is ready! You can start using the app.",
+      "button": "Complete"
     },
     "addButton": {
       "title": "Add Button",
@@ -1454,6 +1514,18 @@
     "noActivity": "No activity",
     "legend": "Legend",
     "viewDay": "View day overview"
+  },
+  "yearView": {
+    "insights": "Year Insights",
+    "stepsFromArea": "of completed steps were from area",
+    "mostCompletedHabit": "was the most completed habit",
+    "leastCompletedHabit": "was the least completed habit",
+    "completions": "completions",
+    "goalNoProgress": "goal has no progress yet",
+    "goalsNoProgress": "goals have no progress yet",
+    "areaNoActivity": "area has no activity",
+    "areasNoActivity": "areas have no activity",
+    "noInsights": "We don't have enough data for insights yet. Keep working on your goals!"
   }
 }
 

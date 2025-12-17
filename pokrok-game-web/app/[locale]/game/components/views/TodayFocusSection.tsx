@@ -4,7 +4,7 @@ import { useMemo, useEffect, useRef, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
-import { Check, Target, ArrowRight, ChevronDown, ChevronUp, Plus, CheckSquare } from 'lucide-react'
+import { Check, Target, ArrowRight, ChevronDown, ChevronUp, Plus, CheckSquare, Trash2 } from 'lucide-react'
 import { getIconEmoji, getIconComponent } from '@/lib/icon-utils'
 
 interface TodayFocusSectionProps {
@@ -29,6 +29,8 @@ interface TodayFocusSectionProps {
   onNavigateToSteps?: () => void
   onStepDateChange?: (stepId: string, newDate: string) => Promise<void>
   onStepTimeChange?: (stepId: string, minutes: number) => Promise<void>
+  onDeleteStep?: (stepId: string) => Promise<void>
+  onDailyStepsUpdate?: (steps: any[]) => void
 }
 
 export function TodayFocusSection({
@@ -52,7 +54,9 @@ export function TodayFocusSection({
   onNavigateToHabits,
   onNavigateToSteps,
   onStepDateChange,
-  onStepTimeChange
+  onStepTimeChange,
+  onDeleteStep,
+  onDailyStepsUpdate
 }: TodayFocusSectionProps) {
   const t = useTranslations()
   const locale = useLocale()
@@ -623,6 +627,35 @@ export function TodayFocusSection({
     return { overdueStepsList, futureStepsList }
   }, [dailySteps, isWeekView, weekStart, weekEnd, displayDate])
   
+  // Handle step deletion
+  const handleDeleteStep = async (stepId: string) => {
+    if (!confirm(t('steps.deleteConfirmText') || 'Opravdu chcete smazat tento krok?')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/daily-steps?stepId=${stepId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        // Call onDeleteStep if provided (for parent component to handle)
+        if (onDeleteStep) {
+          await onDeleteStep(stepId)
+        }
+        // Also update dailySteps by removing the deleted step
+        if (onDailyStepsUpdate) {
+          onDailyStepsUpdate(dailySteps.filter(s => s.id !== stepId))
+        }
+      } else {
+        alert(t('steps.deleteError') || 'Nepodařilo se smazat krok')
+      }
+    } catch (error) {
+      console.error('Error deleting step:', error)
+      alert(t('steps.deleteError') || 'Chyba při mazání kroku')
+    }
+  }
+
   // Render step function
   const renderOtherStep = useMemo(() => {
     const actualToday = new Date()
@@ -709,20 +742,31 @@ export function TodayFocusSection({
             {isOverdue && !step.completed && '❗'}
             {stepDateFormatted || '-'}
           </button>
-          <button 
-            onClick={(e) => openTimePicker(e, step)}
-            className={`hidden sm:block w-14 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
-              isOverdue && !step.completed ? 'text-red-600 hover:bg-red-100 border-red-300' : 'text-gray-600 hover:bg-gray-100 border-gray-300'
-            }`}
-          >
-            {step.estimated_time ? `${step.estimated_time} min` : '-'}
-          </button>
+          {isOverdue && !step.completed ? (
+            <button 
+              onClick={(e) => {
+                e.stopPropagation()
+                handleDeleteStep(step.id)
+              }}
+              className="hidden sm:block w-14 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-red-600 hover:bg-red-100 border-red-300"
+              title={t('steps.deleteStep') || 'Smazat krok'}
+            >
+              <Trash2 className="w-3.5 h-3.5 mx-auto" />
+            </button>
+          ) : (
+            <button 
+              onClick={(e) => openTimePicker(e, step)}
+              className="hidden sm:block w-14 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-gray-600 hover:bg-gray-100 border-gray-300"
+            >
+              {step.estimated_time ? `${step.estimated_time} min` : '-'}
+            </button>
+          )}
         </div>
       )
     }
     StepComponent.displayName = 'StepComponent'
     return StepComponent
-  }, [animatingSteps, loadingSteps, handleStepToggle, handleItemClick, formatStepDate, openDatePicker, openTimePicker])
+  }, [animatingSteps, loadingSteps, handleStepToggle, handleItemClick, formatStepDate, openDatePicker, openTimePicker, handleDeleteStep, t, onDailyStepsUpdate, onDeleteStep, dailySteps])
   
   // Only show empty state if there are no steps AND no habits
   // Don't hide habits just because there are no steps
@@ -1113,7 +1157,7 @@ export function TodayFocusSection({
             }}
           />
           <div 
-            className="fixed z-50 box-playful-highlight p-4"
+            className="fixed z-50 box-playful-highlight p-4 bg-white"
             style={{
               top: `${Math.min(datePickerPosition.top, window.innerHeight - 380)}px`,
               left: `${Math.min(Math.max(datePickerPosition.left - 100, 10), window.innerWidth - 250)}px`,
@@ -1248,7 +1292,7 @@ export function TodayFocusSection({
             }}
           />
           <div 
-            className="fixed z-50 box-playful-highlight p-4"
+            className="fixed z-50 box-playful-highlight p-4 bg-white"
             style={{
               top: `${timePickerPosition.top}px`,
               left: `${timePickerPosition.left}px`,

@@ -23,6 +23,7 @@ interface UnifiedDayViewProps {
   onNavigateToSteps?: () => void
   onStepDateChange?: (stepId: string, newDate: string) => Promise<void>
   onStepTimeChange?: (stepId: string, minutes: number) => Promise<void>
+  onDailyStepsUpdate?: (steps: any[]) => void
 }
 
 export function UnifiedDayView({
@@ -40,7 +41,8 @@ export function UnifiedDayView({
   onNavigateToHabits,
   onNavigateToSteps,
   onStepDateChange,
-  onStepTimeChange
+  onStepTimeChange,
+  onDailyStepsUpdate
 }: UnifiedDayViewProps) {
   const t = useTranslations()
   const locale = useLocale()
@@ -523,6 +525,7 @@ export function UnifiedDayView({
         onNavigateToSteps={onNavigateToSteps}
         onStepDateChange={onStepDateChange}
         onStepTimeChange={onStepTimeChange}
+        onDailyStepsUpdate={onDailyStepsUpdate}
       />
     </div>
   )

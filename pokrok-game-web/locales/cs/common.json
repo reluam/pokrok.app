@@ -29,7 +29,8 @@
     "previous": "Předchozí",
     "next": "Další",
     "select": "Vybrat",
-    "completed": "Dokončeno"
+    "completed": "Dokončeno",
+    "of": "z"
   },
   "homepage": {
     "tagline": "Aplikace pro plánování života",
@@ -316,6 +317,7 @@
     "categoryLabel": "Kategorie",
     "difficultyLabel": "Obtížnost",
     "frequencyLabel": "Frekvence",
+    "iconLabel": "Ikona",
     "nameLabel": "Název",
     "namePlaceholder": "Název návyku",
     "descriptionLabel": "Popis",
@@ -1350,25 +1352,83 @@
   "onboarding": {
     "skip": "Přeskočit",
     "next": "Další",
+    "step": "Krok",
     "intro": {
-      "title": "Vítejte v Pokroku!",
-      "description": "Pokrok vám pomáhá organizovat váš život pomocí čtyř hlavních stavebních prvků:",
-      "areas": {
-        "title": "Oblasti",
-        "description": "Organizujte své cíle, kroky a návyky do oblastí (např. Zdraví, Kariéra, Vztahy)"
-      },
-      "goals": {
-        "title": "Cíle",
-        "description": "Dlouhodobé cíle, které chcete dosáhnout. Rozdělte je na menší kroky."
-      },
-      "steps": {
-        "title": "Kroky",
-        "description": "Konkrétní akce, které vedou k dosažení vašich cílů. Plánujte je na konkrétní dny."
-      },
-      "habits": {
-        "title": "Návyky",
-        "description": "Opakující se rutiny, které budujete dlouhodobě. Přiřaďte je do oblastí."
-      }
+      "title": "Co je Pokrok?",
+      "description": "Pokrok není jen další aplikace pro produktivitu. Je to nástroj pro organizaci vašeho života a dosahování smysluplných cílů, které vám přinášejí skutečnou hodnotu a naplnění.",
+      "detailed": "Pokrok vám pomáhá získat jasnost v tom, co je pro vás v životě skutečně důležité. Umožňuje vám organizovat vaše cíle, rozdělit je na dosažitelné kroky a sledovat, jak se posouváte směrem k životu, jaký chcete žít.",
+      "philosophy": "Zaměřujeme se na smysluplnost, ne jen na produktivitu. Každý cíl, krok a návyk by měl mít svůj důvod a přispívat k životu, jaký chcete mít."
+    },
+    "creating": {
+      "title": "Co vše se dá tvořit?",
+      "description": "V Pokroku můžete vytvářet čtyři hlavní typy stavebních prvků, které vám pomohou organizovat váš život.",
+      "areas": "Oblasti",
+      "areasDesc": "Organizujte své cíle, kroky a návyky do oblastí",
+      "goals": "Cíle",
+      "goalsDesc": "Dlouhodobé cíle, které chcete dosáhnout",
+      "steps": "Kroky",
+      "stepsDesc": "Konkrétní akce vedoucí k vašim cílům",
+      "habits": "Návyky",
+      "habitsDesc": "Opakující se rutiny, které budujete dlouhodobě"
+    },
+    "plusButton": {
+      "title": "Plus tlačítko v navigaci",
+      "description": "Na levé straně hlavního panelu najdete Plus tlačítko. Přes něj můžete každý den vytvářet nové building blocky - oblasti, cíle, kroky a návyky.",
+      "menuTitle": "Menu pro vytváření",
+      "menuDesc": "Klikněte na Plus tlačítko pro zobrazení možností",
+      "createArea": "Vytvořit oblast",
+      "createGoal": "Vytvořit cíl",
+      "createStep": "Vytvořit krok",
+      "createHabit": "Vytvořit návyk",
+      "mainContent": "Hlavní panel aplikace",
+      "hint": "Plus tlačítko najdete na spodku levého navigačního panelu. Po kliknutí se zobrazí menu s možnostmi pro vytváření."
+    },
+    "areas": {
+      "title": "Oblasti",
+      "description": "Oblasti si vytváříte sami a ideálně to mají být větší životní oblasti nebo rozsáhlejší projekty. Shlukují cíle, kroky a návyky do logických skupin. Každá oblast má vlastní zobrazení a filtry, které vám pomohou soustředit se na konkrétní část vašeho života.",
+      "createYourself": "Oblasti si vytváříte sami",
+      "examples": "Ideálně to mají být větší životní oblasti (např. Zdraví, Kariéra, Vztahy) nebo rozsáhlejší projekty (např. Nový byt, Vlastní firma).",
+      "contains": "Obsahuje cíle, kroky a návyky",
+      "function": "Oblasti umožňují filtrovat a zobrazit pouze relevantní obsah pro danou oblast vašeho života."
+    },
+    "goals": {
+      "title": "Cíle",
+      "description": "Cíle jsou smysluplné výsledky, které chcete dosáhnout. Nejsou to jen úkoly - jsou to cesty k životu, jaký chcete žít. Ke každému cíli můžete přidat kroky a metriky, díky čemuž vidíte, jak se blížíte k jeho dosažení.",
+      "steps": "Kroky: 5/10",
+      "metrics": "Metriky: 2",
+      "detail": "V detailu cíle můžete přidávat kroky, nastavovat metriky a sledovat pokrok v čase. Každý krok vás přibližuje k životu, jaký chcete žít."
+    },
+    "steps": {
+      "title": "Kroky",
+      "description": "Kroky slouží dvojímu účelu: jsou to jednotlivé kroky vedoucí k dosažení cíle, ale zároveň také To-Do úkoly, které můžete plánovat na konkrétní dny.",
+      "function": "Kroky můžete přiřadit k cílům a naplánovat je na konkrétní datum. Každý krok může mít odhadovaný čas a může být označen jako splněný.",
+      "date": "Datum:"
+    },
+    "habits": {
+      "title": "Návyky",
+      "description": "Návyky jsou opakovatelné akce, které můžete vázat k oblasti. V tabulce plnění vidíte, jak často jste návyk dodržovali.",
+      "tableTitle": "Tabulka plnění návyků",
+      "habitName": "Návyk",
+      "function": "Návyky můžete vázat k oblasti a nastavit jejich frekvenci (denně, týdně, nebo vlastní dny)."
+    },
+    "views": {
+      "title": "Úrovně zobrazení",
+      "description": "Pokrok nabízí čtyři různé úrovně zobrazení, každá vhodná pro jiný účel. Jednotlivé views najdete v navigation menu vlevo na hlavním panelu.",
+      "location": "Jednotlivé views najdete v navigation menu vlevo na hlavním panelu.",
+      "daily": "Denní",
+      "dailyDesc": "Ideální pro každodenní práci a rutiny. Zobrazuje kroky a návyky pro konkrétní den.",
+      "weekly": "Týdenní",
+      "weeklyDesc": "Přehled jednotlivých kroků v týdnu. Umožňuje plánovat a organizovat úkoly na celý týden.",
+      "monthly": "Měsíční",
+      "monthlyDesc": "Slouží k většímu overview. Zobrazuje kalendář s kroky a návyky pro celý měsíc.",
+      "yearly": "Roční",
+      "yearlyDesc": "Přehled posunu v jednotlivých cílech. Zobrazuje timeline s progress bary pro všechny cíle."
+    },
+    "complete": {
+      "title": "Tutoriál dokončen!",
+      "description": "Nyní víte, jak používat Pokrok. Začněte vytvářet své oblasti, cíle, kroky a návyky a posouvejte se směrem k životu plnému smyslu a naplnění!",
+      "message": "Vše je připraveno! Můžete začít používat aplikaci.",
+      "button": "Dokončit"
     },
     "addButton": {
       "title": "Tlačítko Add",
@@ -1435,6 +1495,18 @@
     "noActivity": "Bez aktivity",
     "legend": "Legenda",
     "viewDay": "Zobrazit denní přehled"
+  },
+  "yearView": {
+    "insights": "Poznatky z roku",
+    "stepsFromArea": "splněných kroků bylo z oblasti",
+    "mostCompletedHabit": "byl nejvíce dodržovaný návyk",
+    "leastCompletedHabit": "byl nejméně dodržovaný návyk",
+    "completions": "splnění",
+    "goalNoProgress": "cíl ještě nemá žádný pokrok",
+    "goalsNoProgress": "cílů ještě nemá žádný pokrok",
+    "areaNoActivity": "oblast nemá žádnou aktivitu",
+    "areasNoActivity": "oblastí nemá žádnou aktivitu",
+    "noInsights": "Zatím nemáme dostatek dat pro poznatky. Pokračujte v práci na svých cílech!"
   }
 }
 
