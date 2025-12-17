@@ -3,6 +3,7 @@
 import { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Calendar, Target, CheckCircle, Moon, ChevronDown, Edit, X, Trash2 } from 'lucide-react'
+import { normalizeDate } from '../utils/dateHelpers'
 
 interface GoalEditingFormProps {
   goal: any
@@ -34,6 +35,7 @@ export function GoalEditingForm({
     title: goal.title,
     description: goal.description || '',
     target_date: goal.target_date ? new Date(goal.target_date).toISOString().split('T')[0] : '',
+    start_date: goal.start_date ? new Date(goal.start_date).toISOString().split('T')[0] : '',
     status: goal.status || 'active'
   })
   
@@ -41,6 +43,7 @@ export function GoalEditingForm({
     title: goal.title,
     description: goal.description || '',
     target_date: goal.target_date ? new Date(goal.target_date).toISOString().split('T')[0] : '',
+    start_date: goal.start_date ? new Date(goal.start_date).toISOString().split('T')[0] : '',
     status: goal.status || 'active',
     steps: [] as Array<{ id: string; title: string; description?: string; date?: string; completed?: boolean; isEditing?: boolean }>
   })
@@ -53,6 +56,7 @@ export function GoalEditingForm({
       formData.title !== original.title ||
       formData.description !== original.description ||
       formData.target_date !== original.target_date ||
+      formData.start_date !== original.start_date ||
       formData.status !== original.status
     )
   }, [formData])
@@ -305,10 +309,12 @@ export function GoalEditingForm({
   const handleSubmit = async () => {
     if (!hasUnsavedChanges) return
     
+    // Use normalizeDate helper to ensure consistent YYYY-MM-DD format
     const updates = {
       title: formData.title,
       description: formData.description,
       target_date: formData.target_date ? new Date(formData.target_date).toISOString() : null,
+      start_date: formData.start_date ? normalizeDate(formData.start_date) : null,
       status: formData.status
     }
     await onUpdate(goal.id, updates)
@@ -318,6 +324,7 @@ export function GoalEditingForm({
       title: formData.title,
       description: formData.description,
       target_date: formData.target_date,
+      start_date: formData.start_date,
       status: formData.status
     }
     
@@ -452,7 +459,37 @@ export function GoalEditingForm({
               {t('goals.settings')}
             </label>
             <div className="flex items-center gap-3 flex-wrap">
-              {/* Date Picker Icon */}
+              {/* Start Date Picker */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    const input = document.createElement('input')
+                    input.type = 'date'
+                    input.value = formData.start_date || ''
+                    input.onchange = (e: any) => {
+                      setFormData({...formData, start_date: e.target.value})
+                    }
+                    input.click()
+                  }}
+                  className={`flex items-center gap-2 px-4 py-2.5 text-sm border-2 rounded-xl transition-all shadow-sm hover:shadow-md ${
+                    formData.start_date 
+                      ? 'border-blue-300 bg-blue-50 text-blue-700' 
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300'
+                  }`}
+                  title={t('goals.startDate') || 'Datum startu'}
+                >
+                  <Calendar className="w-4 h-4" />
+                  <span className="font-medium">
+                    {formData.start_date 
+                      ? new Date(formData.start_date).toLocaleDateString(localeCode, { day: '2-digit', month: '2-digit', year: 'numeric' })
+                      : (t('goals.startDate') || 'Datum startu')}
+                  </span>
+                </button>
+              </div>
+              
+              {/* Target Date Picker Icon */}
               <div className="relative">
                 <button
                   ref={setDatePickerButtonRef}

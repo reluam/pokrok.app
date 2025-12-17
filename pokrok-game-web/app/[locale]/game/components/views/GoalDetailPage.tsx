@@ -43,6 +43,16 @@ interface GoalDetailPageProps {
   setGoalDetailDatePickerMonth: (month: Date) => void
   selectedGoalDate: Date | null
   setSelectedGoalDate: (date: Date | null) => void
+  // Start date picker
+  showGoalDetailStartDatePicker: boolean
+  setShowGoalDetailStartDatePicker: (show: boolean) => void
+  goalDetailStartDatePickerPosition: { top: number; left: number } | null
+  setGoalDetailStartDatePickerPosition: (pos: { top: number; left: number } | null) => void
+  goalDetailStartDatePickerMonth: Date
+  setGoalDetailStartDatePickerMonth: (month: Date) => void
+  selectedGoalStartDate: Date | null
+  setSelectedGoalStartDate: (date: Date | null) => void
+  goalStartDateRef: React.RefObject<HTMLSpanElement>
   // Status picker
   showGoalDetailStatusPicker: boolean
   setShowGoalDetailStatusPicker: (show: boolean) => void
@@ -133,6 +143,14 @@ export function GoalDetailPage({
   setGoalDetailDatePickerMonth,
   selectedGoalDate,
   setSelectedGoalDate,
+  showGoalDetailStartDatePicker,
+  setShowGoalDetailStartDatePicker,
+  goalDetailStartDatePickerPosition,
+  setGoalDetailStartDatePickerPosition,
+  goalDetailStartDatePickerMonth,
+  setGoalDetailStartDatePickerMonth,
+  selectedGoalStartDate,
+  setSelectedGoalStartDate,
   showGoalDetailStatusPicker,
   setShowGoalDetailStatusPicker,
   goalDetailStatusPickerPosition,
@@ -157,6 +175,7 @@ export function GoalDetailPage({
   goalTitleRef,
   goalDescriptionRef,
   goalDateRef,
+  goalStartDateRef,
   goalStatusRef,
   goalAreaRef,
   // Metrics
@@ -186,6 +205,8 @@ export function GoalDetailPage({
   // State for inline editing of current values
   const [editingCurrentValueForMetric, setEditingCurrentValueForMetric] = React.useState<Record<string, boolean>>({})
   const [editingCurrentValue, setEditingCurrentValue] = React.useState<Record<string, number>>({})
+  const [metricsExpanded, setMetricsExpanded] = React.useState(false)
+  const [stepsExpanded, setStepsExpanded] = React.useState(false)
   const t = useTranslations()
 
   // Goal detail page - similar to overview but focused on this goal
@@ -335,10 +356,11 @@ export function GoalDetailPage({
       const initialDate = goal.target_date ? new Date(goal.target_date) : new Date()
       setGoalDetailDatePickerMonth(initialDate)
       setSelectedGoalDate(goal.target_date ? new Date(goal.target_date) : null)
-      setGoalDetailDatePickerPosition({ 
+      const position = { 
         top: Math.min(rect.bottom + 5, window.innerHeight - 380),
         left: Math.min(Math.max(rect.left - 100, 10), window.innerWidth - 250)
-      })
+      }
+      setGoalDetailDatePickerPosition(position)
       setShowGoalDetailDatePicker(true)
     }
   }
@@ -354,6 +376,38 @@ export function GoalDetailPage({
     const newDate = selectedGoalDate ? selectedGoalDate.toISOString() : null
     await handleUpdateGoalForDetail(goalId, { target_date: newDate })
     setShowGoalDetailDatePicker(false)
+  }
+
+  // Handle start date click
+  const handleGoalStartDateClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+    if (goalStartDateRef.current) {
+      const rect = goalStartDateRef.current.getBoundingClientRect()
+      // Initialize month to current goal start date or today
+      const initialDate = goal.start_date ? new Date(goal.start_date) : new Date()
+      setGoalDetailStartDatePickerMonth(initialDate)
+      setSelectedGoalStartDate(goal.start_date ? new Date(goal.start_date) : null)
+      setGoalDetailStartDatePickerPosition({ 
+        top: Math.min(rect.bottom + 5, window.innerHeight - 380),
+        left: Math.min(Math.max(rect.left - 100, 10), window.innerWidth - 250)
+      })
+      setShowGoalDetailStartDatePicker(true)
+    }
+  }
+
+  // Handle start date selection from calendar
+  const handleGoalStartDateSelect = (date: Date) => {
+    setSelectedGoalStartDate(date)
+  }
+
+  // Handle start date save
+  const handleGoalStartDateSave = async () => {
+    // If selectedGoalStartDate is null, we're clearing the date
+    // Use normalizeDate to ensure consistent date format (YYYY-MM-DD)
+    const newDate = selectedGoalStartDate ? normalizeDate(selectedGoalStartDate) : null
+    await handleUpdateGoalForDetail(goalId, { start_date: newDate })
+    setShowGoalDetailStartDatePicker(false)
   }
 
   // Handle area selection
@@ -436,29 +490,40 @@ export function GoalDetailPage({
                     {goal.title}
                   </h1>
                 )}
-                <span 
-                  ref={goalDateRef}
-                  onClick={handleGoalDateClick}
-                  className="text-lg font-medium font-playful cursor-pointer hover:text-primary-600 transition-colors text-gray-600"
-                >
-                  {goal.status === 'completed' && goal.updated_at
-                    ? (
-                        <span className="text-gray-500">
-                          {formatDateBeautiful(goal.updated_at)}
-                        </span>
-                      )
-                    : goal.target_date
-                    ? (
-                        <span className="text-gray-500">
-                          {formatDateBeautiful(goal.target_date)}
-                        </span>
-                      )
-                    : (
-                        <span className="text-gray-400 italic">
-                          {t('goals.addDate') || 'Přidat datum'}
-                        </span>
-                      )}
-                </span>
+                <div className="flex items-center gap-3">
+                  {/* Start Date */}
+                  <div className="flex flex-col">
+                    <span className="text-xs text-gray-500 font-playful mb-0.5">
+                      {t('goals.startDate') || 'Datum startu'}
+                    </span>
+                    <span 
+                      ref={goalStartDateRef}
+                      onClick={handleGoalStartDateClick}
+                      className="text-sm font-medium font-playful cursor-pointer hover:text-primary-600 transition-colors text-gray-600"
+                    >
+                      {goal.start_date
+                        ? formatDateBeautiful(goal.start_date)
+                        : <span className="text-gray-400 italic">{t('goals.addDate') || 'Přidat datum'}</span>}
+                    </span>
+                  </div>
+                  {/* Target Date */}
+                  <div className="flex flex-col">
+                    <span className="text-xs text-gray-500 font-playful mb-0.5">
+                      {t('common.endDate') || 'Cílové datum'}
+                    </span>
+                    <span 
+                      ref={goalDateRef}
+                      onClick={handleGoalDateClick}
+                      className="text-sm font-medium font-playful cursor-pointer hover:text-primary-600 transition-colors text-gray-600"
+                    >
+                      {goal.status === 'completed' && goal.updated_at
+                        ? formatDateBeautiful(goal.updated_at)
+                        : goal.target_date
+                        ? formatDateBeautiful(goal.target_date)
+                        : <span className="text-gray-400 italic">{t('goals.addDate') || 'Přidat datum'}</span>}
+                    </span>
+                  </div>
+                </div>
               </div>
               {/* Area picker, Status picker and Delete button - aligned to the right */}
               <div className="flex items-center gap-2 ml-auto">
@@ -831,19 +896,75 @@ export function GoalDetailPage({
               )
             }
             
+            // Calculate average progress from all metrics
+            const averageProgress = React.useMemo(() => {
+              if (totalMetrics === 0) return 0
+              
+              const progresses = metrics.map((metric: any) => {
+                const currentValue = typeof metric.current_value === 'number' 
+                  ? metric.current_value 
+                  : parseFloat(metric.current_value) || 0
+                const targetValue = typeof metric.target_value === 'number'
+                  ? metric.target_value
+                  : parseFloat(metric.target_value) || 0
+                const initialValue = typeof metric.initial_value === 'number'
+                  ? metric.initial_value
+                  : parseFloat(metric.initial_value) || 0
+                
+                const range = targetValue - initialValue
+                if (range === 0) {
+                  return currentValue >= targetValue ? 100 : 0
+                } else if (range > 0) {
+                  return Math.min(Math.max(((currentValue - initialValue) / range) * 100, 0), 100)
+                } else {
+                  return Math.min(Math.max(((initialValue - currentValue) / Math.abs(range)) * 100, 0), 100)
+                }
+              })
+              
+              const sum = progresses.reduce((acc, p) => acc + p, 0)
+              return sum / progresses.length
+            }, [metrics, totalMetrics])
+            
             return (
               <div className="box-playful-highlight p-6 mb-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-black font-playful">{t('common.metrics.title')}</h2>
+                  <div 
+                    className="flex items-center gap-2 flex-1 cursor-pointer"
+                    onClick={() => setMetricsExpanded(!metricsExpanded)}
+                  >
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setMetricsExpanded(!metricsExpanded)
+                      }}
+                      className="btn-playful-base w-6 h-6 flex items-center justify-center text-primary-600 bg-white hover:bg-primary-50"
+                      title={metricsExpanded ? 'Sbalit metriky' : 'Rozbalit metriky'}
+                    >
+                      {metricsExpanded ? (
+                        <ChevronDown className="w-4 h-4" strokeWidth={2.5} />
+                      ) : (
+                        <ChevronRight className="w-4 h-4" strokeWidth={2.5} />
+                      )}
+                    </button>
+                    <h2 className="text-xl font-bold text-black font-playful">
+                      {t('common.metrics.title')}
+                    </h2>
+                    {totalMetrics > 0 && (
+                      <span className="text-sm text-gray-600 font-playful">
+                        {Math.round(averageProgress)}% ({totalMetrics} {totalMetrics === 1 ? t('common.metrics.metric') : t('common.metrics.metrics')})
+                      </span>
+                    )}
+                  </div>
                   <button
-                    onClick={() => {
-                    setMetricModalData({ id: null, name: '', currentValue: 0, targetValue: 0, initialValue: 0, incrementalValue: 1, unit: '' })
-                    setEditingMetricName('')
-                    setEditingMetricCurrentValue(0)
-                    setEditingMetricTargetValue(0)
-                    setEditingMetricInitialValue(0)
-                    setEditingMetricIncrementalValue(1)
-                    setEditingMetricUnit('')
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setMetricModalData({ id: null, name: '', currentValue: 0, targetValue: 0, initialValue: 0, incrementalValue: 1, unit: '' })
+                      setEditingMetricName('')
+                      setEditingMetricCurrentValue(0)
+                      setEditingMetricTargetValue(0)
+                      setEditingMetricInitialValue(0)
+                      setEditingMetricIncrementalValue(1)
+                      setEditingMetricUnit('')
                       setShowMetricModal(true)
                     }}
                     className="btn-playful-base w-8 h-8 flex items-center justify-center text-primary-600 bg-white hover:bg-primary-50"
@@ -853,7 +974,7 @@ export function GoalDetailPage({
                   </button>
                 </div>
                 
-                {totalMetrics > 0 && (
+                {totalMetrics > 0 && metricsExpanded && (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-6">
                     {metrics.map(renderMetricCard)}
                   </div>
@@ -885,6 +1006,7 @@ export function GoalDetailPage({
             const doneCount = doneSteps.length
             const remainingPercentage = totalSteps > 0 ? Math.round((remainingCount / totalSteps) * 100) : 0
             const donePercentage = totalSteps > 0 ? Math.round((doneCount / totalSteps) * 100) : 0
+            const averageProgress = donePercentage // Progress kroků je procento dokončených
             
             // Render step card
             const renderStepCard = (step: any) => {
@@ -985,11 +1107,38 @@ export function GoalDetailPage({
             }
             
             return (
-              <div className="box-playful-highlight p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-black font-playful">{t('sections.steps')}</h2>
+              <div className="box-playful-highlight p-6 mb-6">
+                <div className="flex items-center justify-between">
+                  <div 
+                    className="flex items-center gap-2 flex-1 cursor-pointer"
+                    onClick={() => setStepsExpanded(!stepsExpanded)}
+                  >
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setStepsExpanded(!stepsExpanded)
+                      }}
+                      className="btn-playful-base w-6 h-6 flex items-center justify-center text-primary-600 bg-white hover:bg-primary-50"
+                      title={stepsExpanded ? 'Sbalit kroky' : 'Rozbalit kroky'}
+                    >
+                      {stepsExpanded ? (
+                        <ChevronDown className="w-4 h-4" strokeWidth={2.5} />
+                      ) : (
+                        <ChevronRight className="w-4 h-4" strokeWidth={2.5} />
+                      )}
+                    </button>
+                    <h2 className="text-xl font-bold text-black font-playful">
+                      {t('common.steps')}
+                    </h2>
+                    {totalSteps > 0 && (
+                      <span className="text-sm text-gray-600 font-playful">
+                        {Math.round(averageProgress)}% ({totalSteps} {totalSteps === 1 ? t('common.step') : t('common.steps')}, {remainingCount} {t('common.remaining')})
+                      </span>
+                    )}
+                  </div>
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation()
                       const defaultDate = getLocalDateString(selectedDayDate)
                       setStepModalData({
                         id: null,
@@ -1016,7 +1165,8 @@ export function GoalDetailPage({
                 </div>
                 
                 {/* Two Column Layout */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {stepsExpanded && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                   {/* Remaining Column */}
                   <div className="flex flex-col">
                     <div className="mb-4 pb-3 border-b-2 border-primary-500">
@@ -1063,6 +1213,7 @@ export function GoalDetailPage({
                     </div>
                   </div>
                 </div>
+                )}
               </div>
             )
           })()}
@@ -1211,6 +1362,156 @@ export function GoalDetailPage({
                   setSelectedGoalDate(goal.target_date ? new Date(goal.target_date) : null)
                 }}
                 className="btn-playful-base px-3 py-1.5 text-xs font-medium text-gray-600 bg-white hover:bg-primary-50"
+              >
+                {t('common.cancel')}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+      
+      {/* Start Date Picker Modal */}
+      {showGoalDetailStartDatePicker && goalDetailStartDatePickerPosition && (
+        <>
+          <div 
+            className="fixed inset-0 z-40" 
+            onClick={() => setShowGoalDetailStartDatePicker(false)}
+          />
+          <div 
+            className="fixed z-50 box-playful-highlight bg-white p-4 date-picker"
+            style={{ 
+              top: `${goalDetailStartDatePickerPosition.top}px`,
+              left: `${goalDetailStartDatePickerPosition.left}px`,
+              width: '230px'
+            }}
+          >
+            <div className="text-sm font-bold text-black font-playful mb-3">{t('common.newDate')}</div>
+            
+            {/* Day names */}
+            <div className="grid grid-cols-7 gap-0.5 mb-1">
+              {localeCode === 'cs-CZ' 
+                ? ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(day => (
+                    <div key={day} className="text-center text-xs text-gray-400 font-medium py-1">
+                      {day}
+                    </div>
+                  ))
+                : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(day => (
+                    <div key={day} className="text-center text-xs text-gray-400 font-medium py-1">
+                      {day}
+                    </div>
+                  ))
+              }
+            </div>
+            
+            {/* Calendar days */}
+            <div className="grid grid-cols-7 gap-0.5 mb-3">
+              {(() => {
+                const year = goalDetailStartDatePickerMonth.getFullYear()
+                const month = goalDetailStartDatePickerMonth.getMonth()
+                const firstDay = new Date(year, month, 1)
+                const lastDay = new Date(year, month + 1, 0)
+                const startDay = (firstDay.getDay() + 6) % 7 // Monday = 0
+                const days: (Date | null)[] = []
+                
+                // Empty cells before first day
+                for (let i = 0; i < startDay; i++) {
+                  days.push(null)
+                }
+                
+                // Days of month
+                for (let d = 1; d <= lastDay.getDate(); d++) {
+                  days.push(new Date(year, month, d))
+                }
+                
+                const today = new Date()
+                today.setHours(0, 0, 0, 0)
+                const selectedDateNormalized = selectedGoalStartDate ? (() => {
+                  const d = new Date(selectedGoalStartDate)
+                  d.setHours(0, 0, 0, 0)
+                  return d
+                })() : null
+                
+                return days.map((day, i) => {
+                  if (!day) {
+                    return <div key={`empty-${i}`} className="w-7 h-7" />
+                  }
+                  
+                  const dayNormalized = new Date(day)
+                  dayNormalized.setHours(0, 0, 0, 0)
+                  const isToday = dayNormalized.getTime() === today.getTime()
+                  const isSelected = selectedDateNormalized && dayNormalized.getTime() === selectedDateNormalized.getTime()
+                  
+                  return (
+                    <button
+                      key={day.getTime()}
+                      onClick={() => handleGoalStartDateSelect(day)}
+                      className={`w-7 h-7 rounded-playful-sm text-xs font-medium font-playful transition-colors border-2 ${
+                        isSelected
+                          ? 'bg-primary-500 text-white border-primary-500'
+                          : isToday
+                            ? 'bg-primary-100 text-primary-600 font-bold border-primary-500'
+                            : 'hover:bg-primary-50 text-gray-600 border-transparent hover:border-primary-500'
+                      }`}
+                    >
+                      {day.getDate()}
+                    </button>
+                  )
+                })
+              })()}
+            </div>
+            
+            {/* Month navigation */}
+            <div className="flex items-center justify-between mb-3">
+              <button
+                onClick={() => {
+                  const newMonth = new Date(goalDetailStartDatePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() - 1)
+                  setGoalDetailStartDatePickerMonth(newMonth)
+                }}
+                className="btn-playful-base p-1 text-gray-600"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <span className="text-xs font-medium text-black font-playful">
+                {goalDetailStartDatePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
+              </span>
+              <button
+                onClick={() => {
+                  const newMonth = new Date(goalDetailStartDatePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() + 1)
+                  setGoalDetailStartDatePickerMonth(newMonth)
+                }}
+                className="btn-playful-base p-1 text-gray-600"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+            
+            {/* Actions */}
+            <div className="flex gap-2">
+              <button
+                onClick={handleGoalStartDateSave}
+                className="btn-playful-base flex-1 px-3 py-1.5 text-xs font-medium text-primary-600 bg-white hover:bg-primary-50"
+              >
+                {t('common.save')}
+              </button>
+              {goal.start_date && (
+                <button
+                  onClick={async () => {
+                    await handleUpdateGoalForDetail(goalId, { start_date: null })
+                    setShowGoalDetailStartDatePicker(false)
+                  }}
+                  className="btn-playful-base px-3 py-1.5 text-xs font-medium text-gray-600 bg-white hover:bg-gray-50"
+                >
+                  {t('common.delete')}
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  setShowGoalDetailStartDatePicker(false)
+                  setSelectedGoalStartDate(goal.start_date ? new Date(goal.start_date) : null)
+                }}
+                className="btn-playful-base px-3 py-1.5 text-xs font-medium text-gray-600 bg-white hover:bg-gray-50"
               >
                 {t('common.cancel')}
               </button>

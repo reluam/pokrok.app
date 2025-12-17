@@ -1,6 +1,8 @@
 'use client'
 
-import { useLocale } from 'next-intl'
+import React, { useMemo, useState, useEffect } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { normalizeDate } from '../utils/dateHelpers'
 
 interface YearViewProps {
@@ -9,11 +11,9 @@ interface YearViewProps {
   dailySteps: any[]
   selectedYear: number
   setSelectedYear: (year: number) => void
-  setShowDatePickerModal: (show: boolean) => void
   handleItemClick: (item: any, type: 'step' | 'habit' | 'goal' | 'stat') => void
-  expandedAreas: Set<string | null>
-  setExpandedAreas: (setter: (prev: Set<string | null>) => Set<string | null>) => void
   player?: any
+  areas?: any[]
 }
 
 export function YearView({
@@ -22,355 +22,632 @@ export function YearView({
   dailySteps,
   selectedYear,
   setSelectedYear,
-  setShowDatePickerModal,
   handleItemClick,
-  expandedAreas,
-  setExpandedAreas,
-  player
+  player,
+  areas = []
 }: YearViewProps) {
+  const t = useTranslations()
   const locale = useLocale()
   const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
   
-  const displayYear = selectedYear
   const currentYear = new Date().getFullYear()
-  const isCurrentYear = displayYear === currentYear
-  const yearStart = new Date(displayYear, 0, 1) // January 1st
-  const yearEnd = new Date(displayYear, 11, 31) // December 31st
+  const currentMonth = new Date().getMonth() // 0-11
+  const displayYear = selectedYear || currentYear
   
-  // Filter goals for selected year
-  const yearGoals = goals.filter(goal => {
-    if (!goal.target_date) return goal.status === 'active'
+  // Responsive state - detect if we should show quarters instead of months
+  const [showQuarters, setShowQuarters] = useState(false)
+  
+  useEffect(() => {
+    const checkWidth = () => {
+      // Check if container is too narrow for 12 months
+      // Assuming each month needs ~60px, we need at least 720px for 12 months
+      // Plus 200px for goal titles = 920px minimum
+      const minWidthForMonths = 920
+      const availableWidth = window.innerWidth - 400 // Account for sidebars and padding
+      setShowQuarters(availableWidth < minWidthForMonths)
+    }
+    
+    checkWidth()
+    window.addEventListener('resize', checkWidth)
+    return () => window.removeEventListener('resize', checkWidth)
+  }, [])
+  
+  // Month names
+  const monthNames = localeCode === 'cs-CZ' 
+    ? ['Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen', 'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec']
+    : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  
+  const monthNamesShort = localeCode === 'cs-CZ'
+    ? ['Led', 'Úno', 'Bře', 'Dub', 'Kvě', 'Čer', 'Čvc', 'Srp', 'Zář', 'Říj', 'Lis', 'Pro']
+    : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  
+  // Quarter names
+  const quarterNames = ['Q1', 'Q2', 'Q3', 'Q4']
+  
+  // Calculate goals for each month - active goals that have target_date in this month or are active during this month
+  const monthlyGoalsData = useMemo(() => {
+    const yearStart = new Date(displayYear, 0, 1)
+    const yearEnd = new Date(displayYear, 11, 31, 23, 59, 59)
+    
+    return monthNames.map((_, monthIndex) => {
+      const monthStart = new Date(displayYear, monthIndex, 1)
+      const monthEnd = new Date(displayYear, monthIndex + 1, 0, 23, 59, 59)
+      
+      // Get active goals for this month
+      const monthGoals = goals.filter(goal => {
+        if (goal.status !== 'active') return false
+        
+        // Goals without target_date are active all year
+        if (!goal.target_date) return true
+        
     const targetDate = new Date(goal.target_date)
-    return targetDate >= yearStart && targetDate <= yearEnd
-  })
+        const goalStart = goal.start_date ? new Date(goal.start_date) : (goal.created_at ? new Date(goal.created_at) : yearStart)
+        
+        // Goal is active if:
+        // 1. Goal starts before or during this month AND
+        // 2. Goal ends during or after this month
+        return goalStart <= monthEnd && targetDate >= monthStart
+      })
+      
+      // Calculate average progress for these goals
+      let totalProgress = 0
+      let goalsWithProgress = 0
+      
+      monthGoals.forEach(goal => {
+        if (goal.progress_percentage !== undefined && goal.progress_percentage !== null) {
+          totalProgress += goal.progress_percentage
+          goalsWithProgress++
+        }
+      })
+      
+      const avgProgress = goalsWithProgress > 0 ? totalProgress / goalsWithProgress : 0
+      
+      return {
+        monthIndex,
+        monthName: monthNamesShort[monthIndex],
+        fullMonthName: monthNames[monthIndex],
+        goalsCount: monthGoals.length,
+        avgProgress: Math.round(avgProgress)
+      }
+    })
+  }, [goals, displayYear, monthNames, monthNamesShort])
   
-  // Calculate statistics for the selected year
-  const statsYearStart = new Date(displayYear, 0, 1)
-  const statsYearEnd = new Date(displayYear, 11, 31)
-  
-  // Navigation functions
-  const goToPreviousYear = () => {
-    setSelectedYear(displayYear - 1)
-  }
-  
-  const goToNextYear = () => {
-    setSelectedYear(displayYear + 1)
-  }
-  
-  const goToCurrentYear = () => {
-    setSelectedYear(currentYear)
-  }
-  
-  // Calculate completed steps in selected year
-  const completedStepsInYear = dailySteps.filter(step => {
-    if (!step.completed || !step.date) return false
-    const stepDate = normalizeDate(step.date)
-    const stepDateObj = new Date(stepDate)
-    return stepDateObj >= statsYearStart && stepDateObj <= statsYearEnd
-  }).length
-  
-  // Calculate total steps in selected year
-  const totalStepsInYear = dailySteps.filter(step => {
+  // Calculate steps ending in this year - only steps ending this year count for progress
+  const stepsEndingThisYear = useMemo(() => {
+    const yearStart = new Date(displayYear, 0, 1)
+    const yearEnd = new Date(displayYear, 11, 31, 23, 59, 59)
+    
+    // Filter steps that end this year (date is within this year)
+    return dailySteps.filter(step => {
     if (!step.date) return false
     const stepDate = normalizeDate(step.date)
     const stepDateObj = new Date(stepDate)
-    return stepDateObj >= statsYearStart && stepDateObj <= statsYearEnd
-  }).length
+      return stepDateObj >= yearStart && stepDateObj <= yearEnd
+    })
+  }, [dailySteps, displayYear])
   
-  // Calculate completed habits in selected year
-  let completedHabitsInYear = 0
+  // Calculate progress for steps ending this year
+  const stepsProgressThisYear = useMemo(() => {
+    if (stepsEndingThisYear.length === 0) return 0
+    const completed = stepsEndingThisYear.filter(step => step.completed).length
+    return Math.round((completed / stepsEndingThisYear.length) * 100)
+  }, [stepsEndingThisYear])
+  
+  // Calculate goals ending in future years (proportional)
+  const goalsEndingFutureYears = useMemo(() => {
+    const yearStart = new Date(displayYear, 0, 1)
+    const yearEnd = new Date(displayYear, 11, 31, 23, 59, 59)
+    
+    return goals.filter(goal => {
+      if (goal.status !== 'active' || !goal.target_date) return false
+      const targetDate = new Date(goal.target_date)
+      
+      // Goal ends after this year
+      if (targetDate > yearEnd) {
+        // Check if goal starts before or during this year
+        const goalStart = goal.start_date ? new Date(goal.start_date) : (goal.created_at ? new Date(goal.created_at) : yearStart)
+        return goalStart <= yearEnd
+      }
+      
+      return false
+    }).map(goal => {
+      const targetDate = new Date(goal.target_date)
+      const goalStart = goal.start_date ? new Date(goal.start_date) : (goal.created_at ? new Date(goal.created_at) : yearStart)
+      const totalDuration = targetDate.getTime() - goalStart.getTime()
+      const yearDuration = yearEnd.getTime() - Math.max(goalStart.getTime(), yearStart.getTime())
+      const proportion = totalDuration > 0 ? yearDuration / totalDuration : 0
+      
+      return {
+        ...goal,
+        proportion: Math.max(0, Math.min(1, proportion))
+      }
+    })
+  }, [goals, displayYear])
+  
+  // Use steps progress instead of goals progress
+  const avgProgressThisYear = stepsProgressThisYear
+  
+  // Calculate average progress for goals ending in future years (weighted by proportion)
+  const avgProgressFutureYears = useMemo(() => {
+    if (goalsEndingFutureYears.length === 0) return 0
+    const total = goalsEndingFutureYears.reduce((sum, goal) => {
+      const progress = goal.progress_percentage || 0
+      return sum + (progress * goal.proportion)
+    }, 0)
+    const totalProportion = goalsEndingFutureYears.reduce((sum, goal) => sum + goal.proportion, 0)
+    return totalProportion > 0 ? Math.round((total / totalProportion)) : 0
+  }, [goalsEndingFutureYears])
+  
+  // Calculate statistics
+  const stats = useMemo(() => {
+    const yearStart = new Date(displayYear, 0, 1)
+    const yearEnd = new Date(displayYear, 11, 31, 23, 59, 59)
+    
+    // Completed habits
+    let completedHabits = 0
   habits.forEach(habit => {
     if (habit.habit_completions) {
       Object.keys(habit.habit_completions).forEach(dateStr => {
         if (habit.habit_completions[dateStr] === true) {
           const habitDate = new Date(dateStr)
-          if (habitDate >= statsYearStart && habitDate <= statsYearEnd) {
-            completedHabitsInYear++
+            if (habitDate >= yearStart && habitDate <= yearEnd) {
+              completedHabits++
+            }
+          }
+        })
+      }
+    })
+    
+    // Goals completed in target and after target
+    let goalsCompletedInTarget = 0
+    let goalsCompletedAfterTarget = 0
+    
+    goals.forEach(goal => {
+      if (goal.status === 'completed' && goal.target_date) {
+        const targetDate = new Date(goal.target_date)
+        const completedAt = goal.completed_at ? new Date(goal.completed_at) : null
+        
+        if (completedAt && completedAt >= yearStart && completedAt <= yearEnd) {
+          if (completedAt <= targetDate) {
+            goalsCompletedInTarget++
+          } else {
+            goalsCompletedAfterTarget++
           }
         }
-      })
-    }
-  })
-  
-  // Calculate completed goals for selected year
-  const completedGoals = yearGoals.filter(goal => goal.status === 'completed' || goal.completed).length
-  const activeGoals = yearGoals.filter(goal => goal.status === 'active').length
-  
-  // Calculate total XP earned in selected year
-  let totalXpInYear = 0
+      }
+    })
+    
+    // Steps completed in target and after target
+    let stepsCompletedInTarget = 0
+    let stepsCompletedAfterTarget = 0
+    
   dailySteps.forEach(step => {
-    if (step.completed && step.xp_reward && step.date) {
+      if (step.completed && step.completed_at && step.date) {
       const stepDate = normalizeDate(step.date)
       const stepDateObj = new Date(stepDate)
-      if (stepDateObj >= statsYearStart && stepDateObj <= statsYearEnd) {
-        totalXpInYear += step.xp_reward || 0
-      }
-    }
-  })
-  habits.forEach(habit => {
-    if (habit.habit_completions && habit.xp_reward) {
-      Object.keys(habit.habit_completions).forEach(dateStr => {
-        if (habit.habit_completions[dateStr] === true) {
-          const habitDate = new Date(dateStr)
-          if (habitDate >= statsYearStart && habitDate <= statsYearEnd) {
-            totalXpInYear += habit.xp_reward || 0
+        stepDateObj.setHours(0, 0, 0, 0)
+        const completedAt = new Date(step.completed_at)
+        completedAt.setHours(0, 0, 0, 0)
+        
+        if (completedAt >= yearStart && completedAt <= yearEnd) {
+          // Step completed on or before planned date
+          if (completedAt <= stepDateObj) {
+            stepsCompletedInTarget++
+          } else {
+            stepsCompletedAfterTarget++
           }
         }
-      })
+      }
+    })
+    
+    return {
+      completedHabits,
+      goalsCompletedInTarget,
+      goalsCompletedAfterTarget,
+      stepsCompletedInTarget,
+      stepsCompletedAfterTarget
     }
-  })
-  
-  // Group all goals together (no area categorization)
-  const goalsByArea = yearGoals.length > 0 ? [{
-    area: { id: null, name: 'Všechny cíle', color: '#9CA3AF', icon: null },
-    goals: yearGoals
-  }] : []
+  }, [habits, goals, dailySteps, displayYear])
   
   return (
-    <div className="w-full h-full flex flex-col p-6 overflow-y-auto">
-      {/* Header with navigation */}
-      <div className="mb-6 flex-shrink-0">
-        <div className="flex items-center justify-between mb-3">
+    <div className="w-full h-full flex flex-col bg-background overflow-y-auto">
+      {/* Roadmap Timeline */}
+      <div className="p-6 border-b-2 border-primary-500 bg-gradient-to-br from-white to-primary-50">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
           <button
-            onClick={goToPreviousYear}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center"
-            title="Předchozí rok"
-          >
-            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          
-          <div className="flex items-center gap-3 flex-1 justify-center">
-            <button
-              onClick={() => setShowDatePickerModal(true)}
-              className="cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => setSelectedYear(displayYear - 1)}
+              className="p-2 rounded-playful-sm bg-white border-2 border-primary-300 hover:bg-primary-50 hover:border-primary-500 transition-colors"
+              title={t('common.previousYear') || 'Předchozí rok'}
             >
-              <h2 className="text-3xl font-bold text-gray-900">Roční přehled {displayYear}</h2>
+              <ChevronLeft className="w-5 h-5 text-primary-600" />
+          </button>
+            <h2 className="text-3xl font-bold text-black font-playful min-w-[120px] text-center">
+              {displayYear}
+            </h2>
+            <button
+              onClick={() => setSelectedYear(displayYear + 1)}
+              className="p-2 rounded-playful-sm bg-white border-2 border-primary-300 hover:bg-primary-50 hover:border-primary-500 transition-colors"
+              title={t('common.nextYear') || 'Následující rok'}
+            >
+              <ChevronRight className="w-5 h-5 text-primary-600" />
             </button>
-            {!isCurrentYear && (
+          </div>
+          {displayYear !== currentYear && (
               <button
-                onClick={goToCurrentYear}
-                className="px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors"
-                title="Přejít na aktuální rok"
+              onClick={() => setSelectedYear(currentYear)}
+              className="px-4 py-2 bg-primary-500 text-white rounded-playful-sm hover:bg-primary-600 transition-colors font-playful text-sm"
               >
-                {currentYear}
+              {t('common.backToCurrent') || 'Zpět na aktuální rok'}
               </button>
             )}
           </div>
           
-          <button
-            onClick={goToNextYear}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center"
-            title="Následující rok"
-          >
-            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+        {/* Month labels timeline with vertical lines - aligned with progress bars */}
+        <div className="relative mb-4">
+          {/* Container for month labels - same structure as goals section */}
+          <div className="flex items-center gap-4">
+            {/* Spacer matching goal title width */}
+            <div className="flex-shrink-0 min-w-[200px]"></div>
+            {/* Month labels container - same width as progress bars */}
+            <div className="flex-1 relative">
+              {showQuarters ? (
+                /* Quarter labels */
+                <div className="flex relative">
+                  {quarterNames.map((quarterName, index) => {
+                    const quarterStartMonth = index * 3
+                    const isCurrentQuarter = displayYear === currentYear && 
+                      currentMonth >= quarterStartMonth && currentMonth < quarterStartMonth + 3
+                    return (
+                      <div
+                        key={index}
+                        className="flex-1 relative"
+                      >
+                        <div className={`text-center text-xs font-playful ${
+                          isCurrentQuarter ? 'font-bold text-primary-600' : 'text-gray-500'
+                        }`}>
+                          {quarterName}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                /* Month labels */
+                <div className="flex relative">
+                  {monthNamesShort.map((monthName, index) => {
+                    const isCurrentMonth = displayYear === currentYear && index === currentMonth
+                    return (
+                      <div
+                        key={index}
+                        className="flex-1 relative"
+                      >
+                        <div className={`text-center text-xs font-playful ${
+                          isCurrentMonth ? 'font-bold text-primary-600' : 'text-gray-500'
+                        }`}>
+                          {monthName}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-        <p className="text-gray-600 text-center">Přehled cílů a statistik za rok {displayYear}</p>
       </div>
       
-      {/* Two Column Layout - Goals and Statistics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1">
-        {/* Left Column - Goals */}
-        <div className="flex flex-col bg-white rounded-xl p-6 border border-orange-200 shadow-sm">
-          <h3 className="text-xl font-bold text-orange-800 mb-4">CÍLE</h3>
-          <div className="space-y-4 overflow-y-auto flex-1">
-            {goalsByArea.map(({ area, goals: areaGoals }) => {
-              const areaKey = area.id || 'other'
-              const isExpanded = expandedAreas.has(areaKey)
+      {/* Goals Roadmap */}
+      <div className="p-6 bg-white border-b-2 border-primary-500 -mt-4">
+        <h3 className="text-xl font-bold text-black font-playful mb-6">
+          {t('goals.title') || 'Cíle'}
+        </h3>
+        <div className="space-y-8">
+          {(() => {
+            // Group goals by area
+            // Filter: only show goals that end in this year or later (not goals that ended in previous years)
+            const yearStart = new Date(displayYear, 0, 1)
+            const yearEnd = new Date(displayYear, 11, 31, 23, 59, 59)
+            
+            const activeGoals = goals.filter(goal => {
+              if (goal.status !== 'active') return false
               
-              // Sort goals by target date
-              const sortedGoals = [...areaGoals].sort((a, b) => {
-                const dateA = a.target_date ? new Date(a.target_date).getTime() : Infinity
-                const dateB = b.target_date ? new Date(b.target_date).getTime() : Infinity
-                if (dateA === Infinity && dateB === Infinity) return 0
-                if (dateA === Infinity) return 1
-                if (dateB === Infinity) return -1
-                return dateA - dateB
-              })
+              // Goals without target_date are shown in all years (ongoing goals)
+              if (!goal.target_date) return true
               
-              const goalsToShow = isExpanded ? sortedGoals : sortedGoals.slice(0, 3)
+              // Goal must end in this year or later (not in previous years)
+              const targetDate = new Date(goal.target_date)
+              return targetDate >= yearStart
+            })
+            
+            const goalsByArea = activeGoals.reduce((acc, goal) => {
+              const areaId = goal.area_id || 'no-area'
+              const areaName = goal.area_id 
+                ? (areas.find(area => area.id === goal.area_id)?.name || t('goals.unknownArea') || 'Neznámá oblast')
+                : (t('goals.noArea') || 'Bez oblasti')
               
-              const toggleArea = () => {
-                setExpandedAreas(prev => {
-                  const newSet = new Set(prev)
-                  if (newSet.has(areaKey)) {
-                    newSet.delete(areaKey)
-                  } else {
-                    newSet.add(areaKey)
-                  }
-                  return newSet
-                })
+              if (!acc[areaId]) {
+                acc[areaId] = {
+                  areaId,
+                  areaName,
+                  areaColor: goal.area_id 
+                    ? (areas.find(area => area.id === goal.area_id)?.color || '#ea580c')
+                    : '#ea580c',
+                  goals: []
+                }
               }
-              
-              return (
-                <div key={areaKey} className="bg-gray-100 rounded-lg border border-gray-200">
+              acc[areaId].goals.push(goal)
+              return acc
+            }, {} as Record<string, { areaId: string; areaName: string; areaColor: string; goals: any[] }>)
+            
+            // Sort areas: areas with goals first, then "no area"
+            const sortedAreas = (Object.values(goalsByArea) as Array<{ areaId: string; areaName: string; areaColor: string; goals: any[] }>).sort((a, b) => {
+              if (a.areaId === 'no-area') return 1
+              if (b.areaId === 'no-area') return -1
+              return a.areaName.localeCompare(b.areaName)
+            })
+            
+            return sortedAreas.map((areaGroup) => (
+              <div key={areaGroup.areaId} className="space-y-4">
+                {/* Area header */}
+                <div className="flex items-center gap-3">
                   <div 
-                    className="flex items-center justify-between cursor-pointer p-3 hover:bg-gray-150 transition-colors"
-                    onClick={toggleArea}
+                    className="w-4 h-4 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: areaGroup.areaColor }}
+                  />
+                  <h4 className="text-lg font-semibold text-gray-700 font-playful">
+                    {areaGroup.areaName}
+                  </h4>
+                  <span className="text-sm text-gray-500 font-playful">
+                    ({areaGroup.goals.length} {areaGroup.goals.length === 1 ? (t('goals.goal') || 'cíl') : (t('goals.goals') || 'cílů')})
+                  </span>
+                </div>
+                
+                {/* Goals in this area */}
+                <div className="space-y-4 pl-7">
+                  {areaGroup.goals.map((goal: any) => {
+                    const yearStart = new Date(displayYear, 0, 1)
+                    const yearEnd = new Date(displayYear, 11, 31, 23, 59, 59)
+                    
+                    // Calculate start and end dates - FIX: always use target_date if it exists
+                    const goalStart = goal.start_date 
+                      ? new Date(goal.start_date) 
+                      : (goal.created_at ? new Date(goal.created_at) : yearStart)
+                    const goalEnd = goal.target_date 
+                      ? new Date(goal.target_date) 
+                      : yearEnd
+            
+                    // Clamp to year bounds
+                    const barStart = goalStart < yearStart ? yearStart : goalStart
+                    const barEnd = goalEnd > yearEnd ? yearEnd : goalEnd
+                    
+                    // Calculate position - either by months or quarters
+                    const calculatePosition = (date: Date) => {
+                      if (showQuarters) {
+                        // Calculate position in quarters (0-4 quarters = 0-100%)
+                        const month = date.getMonth()
+                        const day = date.getDate()
+                        const daysInMonth = new Date(date.getFullYear(), month + 1, 0).getDate()
+                        const monthProgress = (day - 1) / daysInMonth // 0-1, where 0 is start of month
+                        const quarter = Math.floor(month / 3)
+                        const monthInQuarter = month % 3
+                        const quarterProgress = (monthInQuarter + monthProgress) / 3 // 0-1 within quarter
+                        return quarter + quarterProgress
+                      } else {
+                        // Calculate position in months (0-12 months = 0-100%)
+                        const month = date.getMonth()
+                        const day = date.getDate()
+                        const daysInMonth = new Date(date.getFullYear(), month + 1, 0).getDate()
+                        const monthProgress = (day - 1) / daysInMonth // 0-1, where 0 is start of month
+                        return month + monthProgress
+                      }
+                    }
+                    
+                    const startPos = calculatePosition(barStart)
+                    const endPos = calculatePosition(barEnd)
+                    
+                    // Convert to percentage (0-4 quarters or 0-12 months = 0-100%)
+                    const divisor = showQuarters ? 4 : 12
+                    const startPercent = (startPos / divisor) * 100
+                    const endPercent = (endPos / divisor) * 100
+                    const barWidth = endPercent - startPercent
+                    
+                    const progress = goal.progress_percentage || 0
+                    
+                    // Get goal color from area group
+                    const goalColor = areaGroup.areaColor
+                      
+                    return (
+                      <div key={goal.id} className="relative">
+                <div className="flex items-center gap-4">
+                  <span 
+                    className="text-sm font-semibold text-gray-800 font-playful flex-shrink-0 min-w-[200px] cursor-pointer hover:text-primary-600 transition-colors"
+                    onClick={() => handleItemClick(goal, 'goal')}
                   >
-                    <div className="flex items-center gap-2">
-                      <span 
-                        className="w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0"
-                        style={{ backgroundColor: area.color }}
-                      >
-                        <span className="text-white text-xs">{area.icon}</span>
+                    {goal.title}
                       </span>
-                      <span className="text-base font-bold text-gray-800">{area.name}</span>
-                      <span className="text-sm text-gray-500">({areaGoals.length})</span>
-                    </div>
-                    {isExpanded ? (
-                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    ) : (
-                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    )}
-                  </div>
-                  
-                  {goalsToShow.length > 0 && (
-                    <div className="p-3 space-y-2">
-                      {goalsToShow.map((goal) => {
-                        const goalProgress = goal.steps ? (goal.steps.filter((step: any) => step.completed).length / Math.max(goal.steps.length, 1)) * 100 : 0
-                        const areaIcon = null
-                        
+                  <div className="flex-1 relative h-10 bg-gray-100 rounded-lg overflow-hidden border border-gray-300">
+                    {/* Month/Quarter boundary lines - aligned with labels */}
+                    {showQuarters ? (
+                      // Quarter boundary lines
+                      quarterNames.map((_, index: number) => {
+                        if (index === 0) return null // Skip first line (left edge)
                         return (
-                          <div 
-                            key={goal.id} 
-                            className="bg-white rounded-lg p-3 cursor-pointer hover:opacity-80 transition-opacity"
-                            onClick={() => handleItemClick(goal, 'goal')}
-                          >
-                            <div className="flex gap-3">
-                              <div className="flex-shrink-0">
-                                <span 
-                                  className="w-10 h-10 rounded-full flex items-center justify-center"
-                                  style={{ backgroundColor: '#FB923C' }}
-                                >
-                                  <span className="text-white text-lg">{areaIcon}</span>
+                          <div
+                            key={index}
+                            className="absolute top-0 bottom-0 w-px bg-gray-300"
+                            style={{ left: `${(index / 4) * 100}%` }}
+                          />
+                        )
+                      })
+                    ) : (
+                      // Month boundary lines
+                      monthNamesShort.map((_, index: number) => {
+                        if (index === 0) return null // Skip first line (left edge)
+                        return (
+                          <div
+                            key={index}
+                            className="absolute top-0 bottom-0 w-px bg-gray-300"
+                            style={{ left: `${(index / 12) * 100}%` }}
+                          />
+                        )
+                      })
+                    )}
+                    
+                    {/* Goal progress bar background */}
+                    <div
+                      className="absolute h-full rounded-lg transition-all duration-300 opacity-60"
+                      style={{ 
+                        left: `${startPercent}%`,
+                        width: `${barWidth}%`,
+                        backgroundColor: goalColor
+                      }}
+                    />
+                    
+                    {/* Goal progress fill */}
+                    <div
+                      className="absolute h-full rounded-lg transition-all duration-300"
+                      style={{ 
+                        left: `${startPercent}%`,
+                        width: `${(barWidth * progress) / 100}%`,
+                        backgroundColor: goalColor
+                      }}
+                    />
+                    
+                    {/* Progress percentage text */}
+                    {barWidth > 8 && (
+                      <div 
+                        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                        style={{
+                          left: `${startPercent}%`,
+                          width: `${barWidth}%`
+                        }}
+                      >
+                        <span className="text-xs font-bold text-white font-playful drop-shadow-md">
+                          {progress}%
                                 </span>
                               </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-start justify-between mb-2">
-                                  <span className="text-sm font-medium text-gray-800">{goal.title}</span>
-                                  {goal.target_date && (
-                                    <span className="text-xs text-orange-600 ml-2 whitespace-nowrap">
-                                      {new Date(goal.target_date).toLocaleDateString(localeCode, { day: 'numeric', month: 'short' })}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <div className="flex-1 bg-gray-200 rounded-full h-2">
-                                    <div 
-                                      className="bg-orange-500 h-2 rounded-full transition-all duration-300"
-                                      style={{ width: `${goalProgress}%` }}
-                                    ></div>
-                                  </div>
-                                  <span className="text-xs text-gray-500 whitespace-nowrap">{Math.round(goalProgress)}%</span>
-                                </div>
+                    )}
                               </div>
                             </div>
                           </div>
                         )
                       })}
-                      {!isExpanded && sortedGoals.length > 3 && (
-                        <div className="text-xs text-gray-500 text-center pt-1">
-                          +{sortedGoals.length - 3} dalších
+                </div>
+              </div>
+            ))
+          })()}
+          {goals.filter(goal => goal.status === 'active').length === 0 && (
+            <div className="text-center text-gray-400 py-8 font-playful">
+              {t('goals.noGoals') || 'Žádné aktivní cíle'}
                         </div>
                       )}
                     </div>
-                  )}
                 </div>
-              )
-            })}
-            {goalsByArea.length === 0 && (
-              <div className="text-gray-400 text-center py-8">
-                Žádné cíle pro tento rok
+      
+      {/* Main Progress Section */}
+      <div className="p-6 bg-white border-b-2 border-primary-500">
+        <h3 className="text-xl font-bold text-black font-playful mb-4">
+          {t('details.goal.progress') || 'Roční progress'}
+        </h3>
+        
+        {/* Steps ending this year */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-700 font-playful">
+              {t('steps.endingThisYear') || 'Kroky končící v tomto roce'} ({stepsEndingThisYear.length})
+            </span>
+            <span className="text-lg font-bold text-primary-600 font-playful">
+              {avgProgressThisYear}%
+            </span>
               </div>
-            )}
+          <div className="w-full bg-gray-200 border-2 border-primary-500 rounded-playful-sm h-4 overflow-hidden">
+            <div
+              className="bg-primary-500 h-full rounded-playful-sm transition-all duration-300"
+              style={{ width: `${avgProgressThisYear}%` }}
+            />
           </div>
         </div>
         
-        {/* Right Column - Statistics */}
-        <div className="flex flex-col bg-white rounded-xl p-6 border border-orange-200 shadow-sm">
-          <h3 className="text-xl font-bold text-orange-800 mb-4">STATISTIKY ZA ROK {displayYear}</h3>
-          <div className="space-y-6 flex-1">
-            {/* Overall Stats */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
-                <div className="text-2xl font-bold text-orange-600">{completedStepsInYear}</div>
-                <div className="text-sm text-gray-600 mt-1">Dokončené kroky</div>
-                {totalStepsInYear > 0 && (
-                  <div className="text-xs text-gray-500 mt-1">
-                    z {totalStepsInYear} celkem ({Math.round((completedStepsInYear / totalStepsInYear) * 100)}%)
+        {/* Goals ending in future years */}
+        {goalsEndingFutureYears.length > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-700 font-playful">
+                {t('goals.endingFutureYears') || 'Cíle končící v následujících letech'} ({goalsEndingFutureYears.length})
+              </span>
+              <span className="text-lg font-bold text-primary-600 font-playful">
+                {avgProgressFutureYears}%
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 border-2 border-primary-500 rounded-playful-sm h-4 overflow-hidden">
+              <div
+                className="bg-primary-500 h-full rounded-playful-sm transition-all duration-300"
+                style={{ width: `${avgProgressFutureYears}%` }}
+              />
+            </div>
                   </div>
                 )}
               </div>
               
-              <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
-                <div className="text-2xl font-bold text-orange-600">{completedHabitsInYear}</div>
-                <div className="text-sm text-gray-600 mt-1">Dokončené návyky</div>
+      {/* Statistics */}
+      <div className="p-6 bg-white">
+        <h3 className="text-xl font-bold text-black font-playful mb-4">
+          {t('common.statistics') || 'Statistiky'}
+        </h3>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* Completed Habits */}
+          <div className="box-playful-highlight p-4">
+            <div className="text-sm text-gray-600 font-playful mb-1">
+              {t('habits.completed') || 'Splněné návyky'}
+            </div>
+            <div className="text-2xl font-bold text-primary-600 font-playful">
+              {stats.completedHabits}
               </div>
             </div>
             
-            {/* Goals Stats */}
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <h4 className="text-sm font-bold text-gray-700 mb-3">CÍLE</h4>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Celkem cílů:</span>
-                  <span className="font-bold text-gray-900">{yearGoals.length}</span>
+          {/* Goals completed in target */}
+          <div className="box-playful-highlight p-4">
+            <div className="text-sm text-gray-600 font-playful mb-1">
+              {t('goals.completedInTarget') || 'Cíle splněné v targetu'}
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Dokončené:</span>
-                  <span className="font-bold text-green-600">{completedGoals}</span>
+            <div className="text-2xl font-bold text-green-600 font-playful">
+              {stats.goalsCompletedInTarget}
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Aktivní:</span>
-                  <span className="font-bold text-blue-600">{activeGoals}</span>
                 </div>
-                {yearGoals.length > 0 && (
-                  <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-                    <span className="text-sm text-gray-600">Úspěšnost:</span>
-                    <span className="font-bold text-purple-600">
-                      {Math.round((completedGoals / yearGoals.length) * 100)}%
-                    </span>
+          
+          {/* Goals completed after target */}
+          <div className="box-playful-highlight p-4">
+            <div className="text-sm text-gray-600 font-playful mb-1">
+              {t('goals.completedAfterTarget') || 'Cíle splněné po targetu'}
                   </div>
-                )}
+            <div className="text-2xl font-bold text-orange-600 font-playful">
+              {stats.goalsCompletedAfterTarget}
               </div>
             </div>
             
-            {/* XP Stats */}
-            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200">
-              <h4 className="text-sm font-bold text-orange-800 mb-2">XP ZÍSKÁNO</h4>
-              <div className="text-3xl font-bold text-orange-600">{totalXpInYear.toLocaleString(localeCode)}</div>
-              <div className="text-xs text-gray-600 mt-1">Celkem za rok {displayYear}</div>
+          {/* Steps completed in target */}
+          <div className="box-playful-highlight p-4">
+            <div className="text-sm text-gray-600 font-playful mb-1">
+              {t('steps.completedInTarget') || 'Kroky splněné v targetu'}
             </div>
-            
-            {/* Player Stats */}
-            {player && (
-              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <h4 className="text-sm font-bold text-gray-700 mb-3">TVAŘ HRÁČE</h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Level:</span>
-                    <span className="font-bold text-gray-900">{player.level || 1}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">XP:</span>
-                    <span className="font-bold text-gray-900">{(player.experience || 0).toLocaleString(localeCode)}</span>
+            <div className="text-2xl font-bold text-green-600 font-playful">
+              {stats.stepsCompletedInTarget}
                   </div>
                 </div>
+          
+          {/* Steps completed after target */}
+          <div className="box-playful-highlight p-4">
+            <div className="text-sm text-gray-600 font-playful mb-1">
+              {t('steps.completedAfterTarget') || 'Kroky splněné po targetu'}
+            </div>
+            <div className="text-2xl font-bold text-orange-600 font-playful">
+              {stats.stepsCompletedAfterTarget}
               </div>
-            )}
           </div>
         </div>
       </div>
     </div>
   )
 }
-

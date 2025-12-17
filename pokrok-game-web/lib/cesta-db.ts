@@ -127,6 +127,7 @@ export interface Goal {
   title: string
   description?: string
   target_date?: string | Date
+  start_date?: string | Date
   status: 'active' | 'completed' | 'paused' | 'cancelled'
   priority: 'meaningful' | 'nice-to-have'
   category: 'short-term' | 'medium-term' | 'long-term'
@@ -1186,14 +1187,49 @@ export async function getInspirationValues(): Promise<Value[]> {
 export async function createGoal(goalData: Partial<Goal>): Promise<Goal> {
   const id = crypto.randomUUID()
   
+  // Set start_date to today if goal is active and start_date is not provided
+  // But only if start_date is not explicitly provided in goalData
+  const status = goalData.status || 'active'
+  let startDate: string | null = null
+  
+  if (goalData.start_date !== undefined && goalData.start_date !== null) {
+    // start_date was explicitly provided - normalize it to YYYY-MM-DD string
+    if (typeof goalData.start_date === 'string' && goalData.start_date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      // Already YYYY-MM-DD format
+      startDate = goalData.start_date
+    } else if (typeof goalData.start_date === 'string' && goalData.start_date.includes('T')) {
+      // ISO string - extract date part
+      startDate = goalData.start_date.split('T')[0]
+    } else {
+      // Date object or other format
+      const dateObj = goalData.start_date instanceof Date 
+        ? goalData.start_date 
+        : new Date(goalData.start_date)
+      if (!isNaN(dateObj.getTime())) {
+        // Use UTC components to preserve the date
+        const year = dateObj.getUTCFullYear()
+        const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0')
+        const day = String(dateObj.getUTCDate()).padStart(2, '0')
+        startDate = `${year}-${month}-${day}`
+      }
+    }
+  } else if (status === 'active') {
+    // No start_date provided and goal is active - set to today
+    const today = new Date()
+    const year = today.getUTCFullYear()
+    const month = String(today.getUTCMonth() + 1).padStart(2, '0')
+    const day = String(today.getUTCDate()).padStart(2, '0')
+    startDate = `${year}-${month}-${day}`
+  }
+  
   const goal = await sql`
     INSERT INTO goals (
-      id, user_id, title, description, target_date, status, priority, 
+      id, user_id, title, description, target_date, start_date, status, priority, 
       category, goal_type, progress_percentage, progress_type, 
       progress_target, progress_current, progress_unit, area_id, aspiration_id
     ) VALUES (
       ${id}, ${goalData.user_id}, ${goalData.title}, ${goalData.description || null}, 
-      ${goalData.target_date || null}, ${goalData.status || 'active'}, 
+      ${goalData.target_date || null}, ${startDate}, ${status}, 
       ${goalData.priority || 'meaningful'}, ${goalData.category || 'medium-term'}, 
       ${goalData.goal_type || 'outcome'}, ${goalData.progress_percentage || 0}, 
       ${goalData.progress_type || 'percentage'}, ${goalData.progress_target || null}, 
@@ -1767,6 +1803,20 @@ export async function updateGoalById(goalId: string, updates: Partial<Goal>): Pr
       console.log('Note: Focus columns may already exist')
     }
     
+    // Ensure start_date column exists
+    try {
+      await sql`ALTER TABLE goals ADD COLUMN IF NOT EXISTS start_date DATE DEFAULT NULL`
+    } catch (e) {
+      console.log('Note: start_date column may already exist')
+    }
+    
+    // Ensure start_date column exists
+    try {
+      await sql`ALTER TABLE goals ADD COLUMN IF NOT EXISTS start_date DATE DEFAULT NULL`
+    } catch (e) {
+      console.log('Note: start_date column may already exist')
+    }
+    
     // Build dynamic update query to only update provided fields
     const setParts: string[] = []
     const values: any[] = []
@@ -1806,6 +1856,53 @@ export async function updateGoalById(goalId: string, updates: Partial<Goal>): Pr
     if (updates.status !== undefined) {
       setParts.push(`status = $${values.length + 1}`)
       values.push(updates.status)
+      
+      // If status is being set to 'active' and start_date is not set, set it to today
+      if (updates.status === 'active') {
+        // Check if start_date is already set - if not, set it to today
+        const currentGoal = await sql`SELECT start_date FROM goals WHERE id = ${goalId}`
+        if (Array.isArray(currentGoal) && currentGoal.length > 0 && !currentGoal[0].start_date) {
+          setParts.push(`start_date = CURRENT_DATE`)
+        }
+      }
+    }
+    if (updates.start_date !== undefined) {
+      if (updates.start_date === null) {
+        setParts.push('start_date = NULL')
+      } else {
+        // start_date should already be a YYYY-MM-DD string from the API
+        // If it's a Date object, convert to YYYY-MM-DD using UTC to avoid timezone issues
+        let dateString: string
+        if (typeof updates.start_date === 'string' && updates.start_date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          // Already in YYYY-MM-DD format, use directly
+          dateString = updates.start_date
+        } else if (updates.start_date instanceof Date) {
+          // Date object - use UTC components to preserve the date
+          const year = updates.start_date.getUTCFullYear()
+          const month = String(updates.start_date.getUTCMonth() + 1).padStart(2, '0')
+          const day = String(updates.start_date.getUTCDate()).padStart(2, '0')
+          dateString = `${year}-${month}-${day}`
+        } else {
+          // Try to parse as string and extract date part
+          const dateValue = new Date(updates.start_date)
+          if (!isNaN(dateValue.getTime())) {
+            // If it's an ISO string with timezone, use UTC components
+            if (typeof updates.start_date === 'string' && updates.start_date.includes('T') && updates.start_date.includes('Z')) {
+              const year = dateValue.getUTCFullYear()
+              const month = String(dateValue.getUTCMonth() + 1).padStart(2, '0')
+              const day = String(dateValue.getUTCDate()).padStart(2, '0')
+              dateString = `${year}-${month}-${day}`
+            } else {
+              // Extract date part from ISO string or use local date
+              dateString = dateValue.toISOString().split('T')[0]
+            }
+          } else {
+            throw new Error(`Invalid start_date format: ${updates.start_date}`)
+          }
+        }
+        setParts.push(`start_date = $${values.length + 1}`)
+        values.push(dateString)
+      }
     }
     if (updates.icon !== undefined) {
       if (updates.icon === null) {

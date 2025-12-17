@@ -191,7 +191,14 @@
   },
   "goals": {
     "title": "CÍLE",
+    "goal": "cíl",
+    "goals": "cílů",
     "add": "Přidat cíl",
+    "endingThisYear": "Cíle končící v tomto roce",
+    "endingFutureYears": "Cíle končící v následujících letech",
+    "completedInTarget": "Splněné v targetu",
+    "completedAfterTarget": "Splněné po targetu",
+    "startDate": "Datum startu",
     "addGoal": "Přidat cíl",
     "create": "Vytvořit cíl",
     "edit": "Upravit cíl",
@@ -255,9 +262,13 @@
       }
     },
     "steps": "Kroky",
+    "step": "krok",
     "addStep": "Přidat krok",
+    "remaining": "zbývá",
     "metrics": {
       "title": "Metriky",
+      "metric": "metrika",
+      "metrics": "metriky",
       "create": "Vytvořit metriku",
       "edit": "Upravit metriku",
       "name": "Název metriky",
@@ -287,6 +298,7 @@
     "title": "NÁVYKY",
     "add": "Přidat návyk",
     "addHabit": "Přidat návyk",
+    "completed": "Splněné návyky",
     "create": "Vytvořit návyk",
     "edit": "Upravit návyk",
     "cancelAdd": "Zrušit",
@@ -617,6 +629,7 @@
     "focusDay": "Den",
     "focusWeek": "Týden",
     "focusMonth": "Měsíc",
+    "focusYear": "Rok",
     "goals": "Cíle",
     "steps": "Kroky",
     "habits": "Návyky",
@@ -945,6 +958,9 @@
   "steps": {
     "title": "KROKY",
     "addStep": "Přidat krok",
+    "endingThisYear": "Kroky končící v tomto roce",
+    "completedInTarget": "Splněné v targetu",
+    "completedAfterTarget": "Splněné po targetu",
     "filters": {
       "showCompleted": "Zobrazit dokončené",
       "status": {
