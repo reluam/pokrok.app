@@ -185,6 +185,7 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
             player={player}
             goals={goals}
             habits={habits}
+            dailySteps={dailySteps}
             onBack={handleBackToCharacter}
           />
         )

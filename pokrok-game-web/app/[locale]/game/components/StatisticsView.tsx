@@ -6,6 +6,7 @@ interface StatisticsViewProps {
   player: any
   goals: any[]
   habits: any[]
+  dailySteps?: any[]
   onBack?: () => void
 }
 
@@ -13,11 +14,14 @@ export function StatisticsView({
   player, 
   goals, 
   habits,
+  dailySteps = [],
   onBack
 }: StatisticsViewProps) {
   const t = useTranslations()
   const completedGoals = goals.filter(goal => goal.status === 'completed' || goal.completed).length
   const activeGoals = goals.filter(goal => goal.status !== 'completed' && !goal.completed).length
+  const completedHabits = habits.filter(habit => habit.status === 'completed' || habit.completed).length
+  const completedSteps = dailySteps.filter(step => step.completed).length
   const totalHabitStreak = habits.reduce((sum, habit) => sum + (habit.streak || habit.current_streak || 0), 0)
   const maxHabitStreak = Math.max(...habits.map(habit => habit.max_streak || habit.maxStreak || 0), 0)
   
@@ -77,6 +81,22 @@ export function StatisticsView({
         <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-4 text-white">
           <div className="text-2xl font-bold">{currentDay}</div>
           <div className="text-sm opacity-90">{t('statistics.gameDay')}</div>
+        </div>
+      </div>
+
+      {/* Completed Items Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 text-white">
+          <div className="text-2xl font-bold">{completedHabits}</div>
+          <div className="text-sm opacity-90">{t('statistics.completedHabits') || 'Dokončené návyky'}</div>
+        </div>
+        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white">
+          <div className="text-2xl font-bold">{completedSteps}</div>
+          <div className="text-sm opacity-90">{t('statistics.completedSteps') || 'Dokončené kroky'}</div>
+        </div>
+        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-4 text-white">
+          <div className="text-2xl font-bold">{completedGoals}</div>
+          <div className="text-sm opacity-90">{t('statistics.completedGoals') || 'Dokončené cíle'}</div>
         </div>
       </div>
 

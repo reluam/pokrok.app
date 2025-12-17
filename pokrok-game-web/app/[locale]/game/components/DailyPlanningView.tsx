@@ -558,6 +558,7 @@ export function DailyPlanningView({
             player={player}
             goals={goals}
             habits={habits}
+            dailySteps={dailySteps}
           />
         )
       case 'achievements':

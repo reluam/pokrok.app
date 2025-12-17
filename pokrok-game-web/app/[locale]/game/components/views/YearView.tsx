@@ -352,6 +352,13 @@ export function YearView({
             const activeGoals = goals.filter(goal => {
               if (goal.status !== 'active') return false
               
+              // Check if goal has start_date in the future - don't show it before its start date
+              if (goal.start_date) {
+                const startDate = new Date(goal.start_date)
+                // If start date is after the end of this year, don't show it
+                if (startDate > yearEnd) return false
+              }
+              
               // Goals without target_date are shown in all years (ongoing goals)
               if (!goal.target_date) return true
               

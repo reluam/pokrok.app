@@ -1061,6 +1061,11 @@ export async function getGoalsByUserId(userId: string): Promise<Goal[]> {
     `
     const goalsArray = goals as Goal[]
     
+    // Check and update goal statuses based on start_date (async, don't wait)
+    checkAndUpdateGoalsStatus(userId).catch(err => {
+      console.error('Error updating goal statuses:', err)
+    })
+    
     // Cache the result
     if (goalsCache.size < MAX_CACHE_SIZE) {
       goalsCache.set(userId, { goals: goalsArray, timestamp: Date.now() })
@@ -1076,6 +1081,76 @@ export async function getGoalsByUserId(userId: string): Promise<Goal[]> {
 // Function to invalidate goals cache for a user (call after goal updates)
 export function invalidateGoalsCache(userId: string): void {
   goalsCache.delete(userId)
+}
+
+// Function to check and update goal status based on start_date
+// If start_date is in the future, set status to 'paused'
+// If start_date is today or in the past, and status is 'paused', set to 'active'
+async function checkAndUpdateGoalStatus(goal: Goal): Promise<Goal | null> {
+  try {
+    // Only check goals that are not completed
+    if (goal.status === 'completed') {
+      return goal
+    }
+
+    // If goal has no start_date, don't change status
+    if (!goal.start_date) {
+      return goal
+    }
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    const startDate = new Date(goal.start_date)
+    startDate.setHours(0, 0, 0, 0)
+
+    let newStatus: string | undefined = undefined
+
+    // If start_date is in the future, set to 'paused'
+    if (startDate > today) {
+      if (goal.status !== 'paused') {
+        newStatus = 'paused'
+      }
+    }
+    // If start_date is today or in the past, and status is 'paused', set to 'active'
+    else if (startDate <= today && goal.status === 'paused') {
+      newStatus = 'active'
+    }
+
+    // Update status if needed
+    if (newStatus) {
+      const updated = await updateGoalById(goal.id, { status: newStatus })
+      return updated
+    }
+
+    return goal
+  } catch (error) {
+    console.error('Error checking goal status:', error)
+    return goal
+  }
+}
+
+// Function to check and update all goals for a user based on start_date
+export async function checkAndUpdateGoalsStatus(userId: string): Promise<void> {
+  try {
+    const goals = await sql`
+      SELECT g.*, a.name as area_name
+      FROM goals g
+      LEFT JOIN areas a ON g.area_id = a.id
+      WHERE g.user_id = ${userId}
+      AND g.status != 'completed'
+      AND g.start_date IS NOT NULL
+    `
+    
+    // Update goals in parallel (but limit concurrency to avoid overwhelming the database)
+    const updatePromises = (goals as Goal[]).map(goal => checkAndUpdateGoalStatus(goal))
+    await Promise.all(updatePromises)
+    
+    // Invalidate cache after updates
+    invalidateGoalsCache(userId)
+  } catch (error) {
+    console.error('Error checking goals status:', error)
+  }
 }
 
 // MARK: - Aspiration Functions (REMOVED)
@@ -1189,7 +1264,7 @@ export async function createGoal(goalData: Partial<Goal>): Promise<Goal> {
   
   // Set start_date to today if goal is active and start_date is not provided
   // But only if start_date is not explicitly provided in goalData
-  const status = goalData.status || 'active'
+  let status = goalData.status || 'active'
   let startDate: string | null = null
   
   if (goalData.start_date !== undefined && goalData.start_date !== null) {
@@ -1220,6 +1295,22 @@ export async function createGoal(goalData: Partial<Goal>): Promise<Goal> {
     const month = String(today.getUTCMonth() + 1).padStart(2, '0')
     const day = String(today.getUTCDate()).padStart(2, '0')
     startDate = `${year}-${month}-${day}`
+  }
+  
+  // Automatically set status to 'paused' if start_date is in the future
+  // Only if status wasn't explicitly set to something else (like 'completed')
+  if (startDate && status !== 'completed') {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const startDateObj = new Date(startDate)
+    startDateObj.setHours(0, 0, 0, 0)
+    
+    if (startDateObj > today) {
+      status = 'paused'
+    } else if (startDateObj <= today && status === 'paused') {
+      // If start_date is today or in the past, and status is paused, set to active
+      status = 'active'
+    }
   }
   
   const goal = await sql`
@@ -1876,6 +1967,31 @@ export async function updateGoalById(goalId: string, updates: Partial<Goal>): Pr
         if (typeof updates.start_date === 'string' && updates.start_date.match(/^\d{4}-\d{2}-\d{2}$/)) {
           // Already in YYYY-MM-DD format, use directly
           dateString = updates.start_date
+          
+          // Automatically update status based on start_date if status is not explicitly being changed
+          if (updates.status === undefined) {
+            const today = new Date()
+            today.setHours(0, 0, 0, 0)
+            const startDateObj = new Date(dateString)
+            startDateObj.setHours(0, 0, 0, 0)
+            
+            // Get current goal status to check if it's completed
+            const currentGoal = await sql`SELECT status FROM goals WHERE id = ${goalId}`
+            const currentStatus = Array.isArray(currentGoal) && currentGoal.length > 0 ? currentGoal[0].status : null
+            
+            // Only auto-update if goal is not completed
+            if (currentStatus !== 'completed') {
+              if (startDateObj > today) {
+                // Start date is in the future - set to paused
+                setParts.push(`status = $${values.length + 1}`)
+                values.push('paused')
+              } else if (startDateObj <= today && currentStatus === 'paused') {
+                // Start date is today or in the past, and goal is paused - set to active
+                setParts.push(`status = $${values.length + 1}`)
+                values.push('active')
+              }
+            }
+          }
         } else if (updates.start_date instanceof Date) {
           // Date object - use UTC components to preserve the date
           const year = updates.start_date.getUTCFullYear()
@@ -1900,6 +2016,32 @@ export async function updateGoalById(goalId: string, updates: Partial<Goal>): Pr
             throw new Error(`Invalid start_date format: ${updates.start_date}`)
           }
         }
+        
+        // Automatically update status based on start_date if status is not explicitly being changed
+        if (updates.status === undefined) {
+          const today = new Date()
+          today.setHours(0, 0, 0, 0)
+          const startDateObj = new Date(dateString)
+          startDateObj.setHours(0, 0, 0, 0)
+          
+          // Get current goal status to check if it's completed
+          const currentGoal = await sql`SELECT status FROM goals WHERE id = ${goalId}`
+          const currentStatus = Array.isArray(currentGoal) && currentGoal.length > 0 ? currentGoal[0].status : null
+          
+          // Only auto-update if goal is not completed
+          if (currentStatus !== 'completed') {
+            if (startDateObj > today) {
+              // Start date is in the future - set to paused
+              setParts.push(`status = $${values.length + 1}`)
+              values.push('paused')
+            } else if (startDateObj <= today && currentStatus === 'paused') {
+              // Start date is today or in the past, and goal is paused - set to active
+              setParts.push(`status = $${values.length + 1}`)
+              values.push('active')
+            }
+          }
+        }
+        
         setParts.push(`start_date = $${values.length + 1}`)
         values.push(dateString)
       }
