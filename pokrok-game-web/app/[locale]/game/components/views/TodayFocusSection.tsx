@@ -4,7 +4,7 @@ import { useMemo, useEffect, useRef, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
-import { Check, Target, ArrowRight, ChevronDown, ChevronUp, Plus, CheckSquare, Trash2 } from 'lucide-react'
+import { Check, Target, ArrowRight, ChevronDown, ChevronUp, Plus, CheckSquare, Trash2, Footprints } from 'lucide-react'
 import { getIconEmoji, getIconComponent } from '@/lib/icon-utils'
 
 interface TodayFocusSectionProps {
@@ -629,7 +629,9 @@ export function TodayFocusSection({
   
   // Handle step deletion
   const handleDeleteStep = async (stepId: string) => {
-    if (!confirm(t('steps.deleteConfirmText') || 'Opravdu chcete smazat tento krok?')) {
+    const step = dailySteps.find(s => s.id === stepId)
+    const stepTitle = step?.title || t('steps.step') || 'krok'
+    if (!confirm(t('steps.deleteConfirmText', { stepTitle }) || `Opravdu chcete smazat krok "${stepTitle}"?`)) {
       return
     }
 
@@ -846,7 +848,7 @@ export function TodayFocusSection({
       <div className="card-playful-base w-full">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Target className="w-5 h-5 text-primary-600" />
+              <Footprints className="w-5 h-5 text-primary-600" />
               <h3 className="text-lg font-bold text-black font-playful">
                 {isWeekView ? t('focus.stepsThisWeek') : t('focus.stepsToday')}
               </h3>
@@ -1101,7 +1103,7 @@ export function TodayFocusSection({
             <div className="card-playful-base flex-1 min-w-0">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <Target className="w-5 h-5 text-red-600" />
+                  <Footprints className="w-5 h-5 text-red-600" />
                   <h3 className="text-lg font-bold text-black font-playful">
                     {t('focus.overdueSteps')}
                   </h3>
@@ -1125,7 +1127,7 @@ export function TodayFocusSection({
             <div className="card-playful-base flex-1 min-w-0">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <Target className="w-5 h-5 text-gray-600" />
+                  <Footprints className="w-5 h-5 text-gray-600" />
                   <h3 className="text-lg font-bold text-black font-playful">
                     {t('focus.futureSteps')}
                   </h3>

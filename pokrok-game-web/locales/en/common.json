@@ -1484,11 +1484,6 @@
       "title": "Habits",
       "description": "Habits are infinite repeating routines that you can also assign to an area. Use them for long-term building of good habits."
     },
-    "complete": {
-      "title": "Tutorial completed!",
-      "description": "If you ever get stuck, you can click on Help in the menu at the top, where you will find all the information and where you can also turn on the tutorial again.",
-      "button": "Complete tutorial"
-    },
     "mobile": {
       "createArea": {
         "instruction": "Click on the \"+\" button at the bottom left and select \"Area\" to create your first area."
