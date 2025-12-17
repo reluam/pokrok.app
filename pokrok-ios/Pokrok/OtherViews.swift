@@ -2,6 +2,184 @@ import SwiftUI
 import Clerk
 import WidgetKit
 
+// MARK: - Combined Date Picker Component with Steps and Habits Progress
+struct CombinedDatePicker: View {
+    @ObservedObject private var dateManager = DateSelectionManager.shared
+    var completedSteps: Int
+    var totalSteps: Int
+    var completedHabits: Int
+    var totalHabits: Int
+    
+    private var selectedDate: Date {
+        dateManager.selectedDate
+    }
+    
+    private var combinedCompleted: Int {
+        completedSteps + completedHabits
+    }
+    
+    private var combinedTotal: Int {
+        totalSteps + totalHabits
+    }
+    
+    private var combinedProgress: Double {
+        guard combinedTotal > 0 else { return 0 }
+        return min(Double(combinedCompleted) / Double(combinedTotal), 1.0)
+    }
+    
+    private let calendar = Calendar.current
+    
+    private var dayName: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "cs_CZ")
+        formatter.dateFormat = "EEEE"
+        return formatter.string(from: selectedDate).capitalized
+    }
+    
+    private var monthName: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "cs_CZ")
+        formatter.dateFormat = "MMMM"
+        return formatter.string(from: selectedDate)
+    }
+    
+    private var dayNumber: Int {
+        calendar.component(.day, from: selectedDate)
+    }
+    
+    private var isToday: Bool {
+        calendar.isDate(selectedDate, inSameDayAs: Date())
+    }
+    
+    private var isPast: Bool {
+        let today = calendar.startOfDay(for: Date())
+        let selectedDay = calendar.startOfDay(for: selectedDate)
+        return selectedDay < today
+    }
+    
+    private var isFuture: Bool {
+        let today = calendar.startOfDay(for: Date())
+        let selectedDay = calendar.startOfDay(for: selectedDate)
+        return selectedDay > today
+    }
+    
+    private var cardBackgroundColor: Color {
+        if isToday {
+            return DesignSystem.Colors.dynamicPrimaryLight
+        } else {
+            return DesignSystem.Colors.dynamicPrimaryLight
+                .mix(with: DesignSystem.Colors.surface, by: 0.5)
+        }
+    }
+    
+    var body: some View {
+        VStack(spacing: DesignSystem.Spacing.xs) {
+            // Custom card with better background color control for contrast
+            HStack(alignment: .center, spacing: DesignSystem.Spacing.md) {
+                // Left arrow button
+                Button(action: {
+                    if let prevDate = calendar.date(byAdding: .day, value: -1, to: selectedDate) {
+                        dateManager.selectedDate = prevDate
+                    }
+                }) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(isToday ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.textTertiary)
+                        .frame(width: 24, height: 24)
+                }
+                
+                // Two columns: Date info and Progress info
+                HStack(alignment: .center, spacing: DesignSystem.Spacing.md) {
+                    // Left column: Day name and day number
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                        // Day name (e.g., "Pondělí")
+                        Text(dayName)
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                        
+                        // Day number (e.g., "24")
+                        Text("\(dayNumber)")
+                            .font(DesignSystem.Typography.title1)
+                            .fontWeight(.bold)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                    }
+                    
+                    Spacer()
+                    
+                    // Right column: Progress bar and percentage with steps and habits count
+                    VStack(alignment: .trailing, spacing: DesignSystem.Spacing.xs) {
+                        // Progress bar - using full primary color (same as border)
+                        GeometryReader { geometry in
+                            ZStack(alignment: .leading) {
+                                // Background
+                                RoundedRectangle(cornerRadius: 3)
+                                    .fill(DesignSystem.Colors.surfaceSecondary)
+                                    .frame(height: 6)
+                                
+                                // Progress - using full primary color
+                                RoundedRectangle(cornerRadius: 3)
+                                    .fill(DesignSystem.Colors.dynamicPrimary)
+                                    .frame(width: geometry.size.width * combinedProgress, height: 6)
+                                    .animation(.easeInOut(duration: 0.3), value: combinedProgress)
+                                
+                                // Outline - using full primary color (same as fill)
+                                RoundedRectangle(cornerRadius: 3)
+                                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                                    .frame(height: 6)
+                            }
+                        }
+                        .frame(height: 6)
+                        
+                        // Percentage and fraction with steps and habits breakdown
+                        let percentage = Int(combinedProgress * 100)
+                        Text("\(percentage)% (\(combinedCompleted)/\(combinedTotal))")
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                    }
+                }
+                
+                // Right arrow button
+                Button(action: {
+                    if let nextDate = calendar.date(byAdding: .day, value: 1, to: selectedDate) {
+                        dateManager.selectedDate = nextDate
+                    }
+                }) {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(isToday ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.textTertiary)
+                        .frame(width: 24, height: 24)
+                }
+            }
+            .padding(DesignSystem.Spacing.sm)
+            .background(cardBackgroundColor)
+            .overlay(
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+            )
+            .cornerRadius(DesignSystem.CornerRadius.lg)
+            .background(
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                    .fill(DesignSystem.Shadows.card)
+                    .offset(
+                        x: DesignSystem.Shadows.cardOffsetX,
+                        y: DesignSystem.Shadows.cardOffsetY
+                    )
+            )
+            
+            // "Přejít na dnešek" link (only if not today)
+            if !isToday {
+                Button(action: {
+                    dateManager.selectedDate = Date()
+                }) {
+                    Text("Přejít na dnešek")
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                }
+            }
+        }
+    }
+}
+
 struct GoalsView: View {
     @StateObject private var apiManager = APIManager.shared
     @State private var goals: [Goal] = []
@@ -14,6 +192,8 @@ struct GoalsView: View {
         NavigationView {
             if isLoading {
                 LoadingView(message: "Načítám cíle...")
+                    .transition(.opacity)
+                    .animation(.easeInOut, value: isLoading)
             } else {
                 ScrollView {
                     LazyVStack(spacing: DesignSystem.Spacing.lg) {
@@ -63,7 +243,7 @@ struct GoalsView: View {
     
     // MARK: - Header Section
     private var headerSection: some View {
-        ModernCard {
+        PlayfulCard(variant: .pink) {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                 HStack {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
@@ -78,20 +258,14 @@ struct GoalsView: View {
                     
                     Spacer()
                     
-                    Button(action: {
+                    PlayfulButton(
+                        variant: .pink,
+                        size: .sm,
+                        title: "Přidat cíl",
+                        action: {
                         showAddGoalModal = true
-                    }) {
-                        Text("Přidat cíl")
-                            .font(DesignSystem.Typography.caption)
-                            .fontWeight(.medium)
-                            .foregroundColor(DesignSystem.Colors.primary)
-                            .padding(.horizontal, DesignSystem.Spacing.md)
-                            .padding(.vertical, DesignSystem.Spacing.sm)
-                            .background(
-                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                                    .fill(DesignSystem.Colors.primary.opacity(0.1))
+                        }
                             )
-                    }
                 }
             }
             .padding(DesignSystem.Spacing.md)
@@ -148,7 +322,7 @@ struct GoalsView: View {
                 GridItem(.flexible())
             ], spacing: DesignSystem.Spacing.md) {
                 ForEach(sortedGoals(goals), id: \.id) { goal in
-                    ModernGoalCard(
+                    PlayfulGoalCard(
                         goal: goal,
                         onTap: {
                             // TODO: Navigate to goal detail
@@ -222,12 +396,19 @@ struct GoalsView: View {
 
 struct StepsView: View {
     @StateObject private var apiManager = APIManager.shared
+    @ObservedObject private var dateManager = DateSelectionManager.shared
+    @ObservedObject private var stepsDataProvider = StepsDataProvider.shared
     @State private var dailySteps: [DailyStep] = []
+    @State private var goals: [Goal] = []
     @State private var isLoading = true
     @State private var errorMessage = ""
     @State private var showError = false
     @State private var showAddStepModal = false
     @State private var selectedStep: DailyStep?
+    
+    private var selectedDate: Date {
+        dateManager.selectedDate
+    }
     
     var body: some View {
         NavigationView {
@@ -236,18 +417,27 @@ struct StepsView: View {
             } else {
                 ScrollView {
                     LazyVStack(spacing: DesignSystem.Spacing.lg) {
-                        // Header with Add Button
-                        headerSection
+                        // Combined Date Picker with Steps and Habits Progress
+                        CombinedDatePicker(
+                            completedSteps: stepsForSelectedDate.filter { $0.completed }.count,
+                            totalSteps: stepsForSelectedDate.count,
+                            completedHabits: HabitsDataProvider.shared.getCompletedHabitsCount(for: selectedDate),
+                            totalHabits: HabitsDataProvider.shared.getTotalHabitsCount(for: selectedDate)
+                        )
+                            .padding(.top, DesignSystem.Spacing.md)
                         
-                        // Future Steps Only
-                        futureStepsSection
+                        // Steps for selected date
+                        stepsForSelectedDateSection
+                        
+                        // Overdue steps for selected date
+                        overdueStepsSection
                         
                         // Empty State
-                        if futureSteps.isEmpty {
+                        if stepsForSelectedDate.isEmpty && overdueStepsForSelectedDate.isEmpty {
                             EmptyStateView(
                                 icon: "calendar",
-                                title: "Zatím nemáte žádné budoucí kroky",
-                                subtitle: "Přidejte svůj první budoucí krok",
+                                title: "Zatím nemáte žádné kroky pro tento den",
+                                subtitle: "Přidejte svůj první krok",
                                 actionTitle: "Přidat první krok"
                             ) {
                                 showAddStepModal = true
@@ -258,18 +448,30 @@ struct StepsView: View {
                         Spacer(minLength: 100)
                     }
                     .padding(.horizontal, DesignSystem.Spacing.md)
-                    .padding(.top, DesignSystem.Spacing.md)
                 }
                 .background(DesignSystem.Colors.background)
             }
         }
         .navigationTitle("Kroky")
         .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    showAddStepModal = true
+                }) {
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                }
+            }
+        }
         .onAppear {
             loadSteps()
         }
+        .onChange(of: selectedDate) { _, _ in
+            // Optional: reload if needed when date changes
+        }
             .sheet(isPresented: $showAddStepModal) {
-                AddStepModal(onStepAdded: {
+            AddStepModal(initialDate: selectedDate, onStepAdded: {
                     loadSteps()
                 })
             }
@@ -280,54 +482,54 @@ struct StepsView: View {
         }
     }
     
-    // MARK: - Header Section
-    private var headerSection: some View {
-        ModernCard {
-            VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                HStack {
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text("Budoucí kroky")
-                            .font(DesignSystem.Typography.title2)
+    // MARK: - Steps for Selected Date Section
+    private var stepsForSelectedDateSection: some View {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+            if !stepsForSelectedDate.isEmpty {
+                Text("Kroky")
+                    .font(DesignSystem.Typography.headline)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
                         
-                        Text("\(futureSteps.count) budoucích kroků")
-                            .font(DesignSystem.Typography.caption)
-                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                    }
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        showAddStepModal = true
-                    }) {
-                        Text("Přidat krok")
-                            .font(DesignSystem.Typography.caption)
-                            .fontWeight(.medium)
-                            .foregroundColor(DesignSystem.Colors.primary)
-                            .padding(.horizontal, DesignSystem.Spacing.md)
-                            .padding(.vertical, DesignSystem.Spacing.sm)
-                            .background(
-                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                                    .fill(DesignSystem.Colors.primary.opacity(0.1))
+                LazyVStack(spacing: DesignSystem.Spacing.sm) {
+                    ForEach(sortedSteps(stepsForSelectedDate), id: \.id) { step in
+                        let goal = goals.first { $0.id == step.goalId }
+                        let calendar = Calendar.current
+                        let today = calendar.startOfDay(for: Date())
+                        let stepDate = calendar.startOfDay(for: step.date)
+                        let isFuture = stepDate > today
+                        
+                        PlayfulStepCard(
+                            step: step,
+                            goalTitle: goal?.title,
+                            isOverdue: false,
+                            isFuture: isFuture,
+                            onToggle: {
+                                toggleStepCompletion(stepId: step.id, completed: !step.completed)
+                            }
                             )
                     }
                 }
             }
-            .padding(DesignSystem.Spacing.md)
         }
     }
     
-    // MARK: - Future Steps Section
-    private var futureStepsSection: some View {
+    // MARK: - Overdue Steps Section
+    private var overdueStepsSection: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-            if !futureSteps.isEmpty {
+            if !overdueStepsForSelectedDate.isEmpty {
+                Text("Zpožděné kroky")
+                    .font(DesignSystem.Typography.headline)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                
                 LazyVStack(spacing: DesignSystem.Spacing.sm) {
-                    ForEach(sortedSteps(futureSteps), id: \.id) { step in
-                        ModernStepCard(
+                    ForEach(sortedSteps(overdueStepsForSelectedDate), id: \.id) { step in
+                        let goal = goals.first { $0.id == step.goalId }
+                        
+                        PlayfulStepCard(
                             step: step,
-                            goalTitle: nil, // TODO: Get goal title
-                            isOverdue: false,
-                            isFuture: true,
+                            goalTitle: goal?.title,
+                            isOverdue: true,
+                            isFuture: false,
                             onToggle: {
                                 toggleStepCompletion(stepId: step.id, completed: !step.completed)
                             }
@@ -351,9 +553,10 @@ struct StepsView: View {
             
             LazyVStack(spacing: DesignSystem.Spacing.sm) {
                 ForEach(sortedSteps(steps), id: \.id) { step in
-                    ModernStepCard(
+                    let goal = goals.first { $0.id == step.goalId }
+                    PlayfulStepCard(
                         step: step,
-                        goalTitle: nil, // TODO: Get goal title
+                        goalTitle: goal?.title,
                         isOverdue: title == "Zpožděné kroky",
                         isFuture: title == "Budoucí kroky",
                         onToggle: {
@@ -367,13 +570,34 @@ struct StepsView: View {
     
     // MARK: - Computed Properties
     
-    private var futureSteps: [DailyStep] {
-        let today = Calendar.current.startOfDay(for: Date())
+    private var progressPercentageValue: Double {
+        let completedSteps = stepsForSelectedDate.filter { $0.completed }.count
+        let totalSteps = stepsForSelectedDate.count
+        guard totalSteps > 0 else { return 0 }
+        return min(Double(completedSteps) / Double(totalSteps), 1.0)
+    }
+    
+    private var stepsForSelectedDate: [DailyStep] {
+        let calendar = Calendar.current
+        let selectedStartOfDay = calendar.startOfDay(for: selectedDate)
+        
         return dailySteps.filter { step in
-            !step.completed && Calendar.current.startOfDay(for: step.date) > today
+            let stepStartOfDay = calendar.startOfDay(for: step.date)
+            return calendar.isDate(stepStartOfDay, inSameDayAs: selectedStartOfDay)
         }
     }
     
+    private var overdueStepsForSelectedDate: [DailyStep] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let selectedStartOfDay = calendar.startOfDay(for: selectedDate)
+        
+        return dailySteps.filter { step in
+            let stepStartOfDay = calendar.startOfDay(for: step.date)
+            // Overdue steps are those that were due on or before selected date but not completed and before today
+            return !step.completed && stepStartOfDay <= selectedStartOfDay && stepStartOfDay < today
+        }
+    }
     
     private func sortedSteps(_ steps: [DailyStep]) -> [DailyStep] {
         steps.sorted { $0.date < $1.date }
@@ -389,11 +613,18 @@ struct StepsView: View {
                 let startDate = calendar.date(byAdding: .day, value: -30, to: today) ?? today
                 let endDate = calendar.date(byAdding: .day, value: 30, to: today) ?? today
                 
-                let fetchedSteps = try await apiManager.fetchSteps(startDate: startDate, endDate: endDate)
+                async let stepsTask = apiManager.fetchSteps(startDate: startDate, endDate: endDate)
+                async let goalsTask = apiManager.fetchGoals()
+                
+                let fetchedSteps = try await stepsTask
+                let fetchedGoals = try await goalsTask
                 
                 await MainActor.run {
                     self.dailySteps = fetchedSteps
+                    self.goals = fetchedGoals
                     self.isLoading = false
+                    // Update shared data provider
+                    StepsDataProvider.shared.dailySteps = fetchedSteps
                 }
             } catch {
                 await MainActor.run {
@@ -431,13 +662,128 @@ struct StepsView: View {
     }
 }
 
+// MARK: - Steps Data Provider
+// Helper class to share steps data between StepsView and HabitsView for CombinedDatePicker
+class StepsDataProvider: ObservableObject {
+    static let shared = StepsDataProvider()
+    
+    @Published var dailySteps: [DailyStep] = []
+    
+    private init() {}
+    
+    func getCompletedStepsCount(for date: Date) -> Int {
+        let calendar = Calendar.current
+        let selectedStartOfDay = calendar.startOfDay(for: date)
+        
+        let stepsForDate = dailySteps.filter { step in
+            let stepStartOfDay = calendar.startOfDay(for: step.date)
+            return calendar.isDate(stepStartOfDay, inSameDayAs: selectedStartOfDay)
+        }
+        
+        return stepsForDate.filter { $0.completed }.count
+    }
+    
+    func getTotalStepsCount(for date: Date) -> Int {
+        let calendar = Calendar.current
+        let selectedStartOfDay = calendar.startOfDay(for: date)
+        
+        return dailySteps.filter { step in
+            let stepStartOfDay = calendar.startOfDay(for: step.date)
+            return calendar.isDate(stepStartOfDay, inSameDayAs: selectedStartOfDay)
+        }.count
+    }
+}
+
+// MARK: - Habits Data Provider
+// Helper class to share habits data between StepsView and HabitsView for CombinedDatePicker
+class HabitsDataProvider: ObservableObject {
+    static let shared = HabitsDataProvider()
+    
+    @Published var habits: [Habit] = []
+    
+    private init() {}
+    
+    func getCompletedHabitsCount(for date: Date) -> Int {
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: date)
+        let csDayNames = ["", "neděle", "pondělí", "úterý", "středa", "čtvrtek", "pátek", "sobota"]
+        let enDayNames = ["", "sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+        let dayCsName = csDayNames[weekday].lowercased()
+        let dayEnName = enDayNames[weekday].lowercased()
+        
+        let dateStr = formatDateString(date)
+        
+        let habitsForDate = habits.filter { habit in
+            if habit.alwaysShow {
+                return true
+            }
+            switch habit.frequency {
+            case "daily":
+                return true
+            case "weekly", "custom":
+                if let selectedDays = habit.selectedDays, !selectedDays.isEmpty {
+                    let normalizedSelectedDays = selectedDays.map { $0.lowercased() }
+                    return normalizedSelectedDays.contains(dayCsName) || normalizedSelectedDays.contains(dayEnName)
+                }
+                return false
+            default:
+                return false
+            }
+        }
+        
+        return habitsForDate.filter { habit in
+            habit.habitCompletions?[dateStr] == true
+        }.count
+    }
+    
+    func getTotalHabitsCount(for date: Date) -> Int {
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: date)
+        let csDayNames = ["", "neděle", "pondělí", "úterý", "středa", "čtvrtek", "pátek", "sobota"]
+        let enDayNames = ["", "sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+        let dayCsName = csDayNames[weekday].lowercased()
+        let dayEnName = enDayNames[weekday].lowercased()
+        
+        return habits.filter { habit in
+            if habit.alwaysShow {
+                return true
+            }
+            switch habit.frequency {
+            case "daily":
+                return true
+            case "weekly", "custom":
+                if let selectedDays = habit.selectedDays, !selectedDays.isEmpty {
+                    let normalizedSelectedDays = selectedDays.map { $0.lowercased() }
+                    return normalizedSelectedDays.contains(dayCsName) || normalizedSelectedDays.contains(dayEnName)
+                }
+                return false
+            default:
+                return false
+            }
+        }.count
+    }
+    
+    private func formatDateString(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
+    }
+}
+
 // MARK: - Habits View
 struct HabitsView: View {
     @StateObject private var apiManager = APIManager.shared
+    @ObservedObject private var dateManager = DateSelectionManager.shared
+    @ObservedObject private var habitsDataProvider = HabitsDataProvider.shared
     @State private var habits: [Habit] = []
     @State private var isLoading = true
     @State private var errorMessage = ""
     @State private var showError = false
+    @State private var loadingHabits: Set<String> = []
+    
+    private var selectedDate: Date {
+        dateManager.selectedDate
+    }
     
     var body: some View {
         NavigationView {
@@ -446,47 +792,32 @@ struct HabitsView: View {
             } else {
                 ScrollView {
                     LazyVStack(spacing: DesignSystem.Spacing.lg) {
-                        // Header
-                        ModernCard {
-                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                                HStack {
-                                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                                        Text("Moje návyky")
-                                            .font(DesignSystem.Typography.title2)
-                                            .foregroundColor(DesignSystem.Colors.textPrimary)
-                                        
-                                        Text("\(habits.count) návyků celkem")
-                                            .font(DesignSystem.Typography.caption)
-                                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                                    }
-                                    
-                                    Spacer()
-                                }
-                            }
-                            .padding(DesignSystem.Spacing.md)
-                        }
+                        // Combined Date Picker with Steps and Habits Progress
+                        CombinedDatePicker(
+                            completedSteps: StepsDataProvider.shared.getCompletedStepsCount(for: selectedDate),
+                            totalSteps: StepsDataProvider.shared.getTotalStepsCount(for: selectedDate),
+                            completedHabits: completedHabitsForSelectedDate,
+                            totalHabits: habitsForSelectedDate.count
+                        )
+                            .padding(.top, DesignSystem.Spacing.md)
                         
-                        // Habits List
-                        if habits.isEmpty {
+                        // Habits for selected date
+                        habitsForSelectedDateSection
+                        
+                        // Empty State
+                        if habitsForSelectedDate.isEmpty {
                             EmptyStateView(
                                 icon: "repeat.circle",
-                                title: "Zatím nemáte žádné návyky",
+                                title: "Zatím nemáte žádné návyky pro tento den",
                                 subtitle: "Návyky vám pomohou budovat pravidelné rutiny",
                                 actionTitle: nil
                             ) {}
-                        } else {
-                            LazyVStack(spacing: DesignSystem.Spacing.sm) {
-                                ForEach(habits, id: \.id) { habit in
-                                    HabitCardView(habit: habit)
-                                }
-                            }
                         }
                         
                         // Bottom padding for tab bar
                         Spacer(minLength: 100)
                     }
                     .padding(.horizontal, DesignSystem.Spacing.md)
-                    .padding(.top, DesignSystem.Spacing.md)
                 }
                 .background(DesignSystem.Colors.background)
             }
@@ -496,10 +827,133 @@ struct HabitsView: View {
         .onAppear {
             loadHabits()
         }
+        .onChange(of: selectedDate) { _, _ in
+            // Optional: reload if needed when date changes
+        }
         .alert("Chyba", isPresented: $showError) {
             Button("OK") { }
         } message: {
             Text(errorMessage)
+        }
+    }
+    
+    // MARK: - Habits for Selected Date Section
+    private var habitsForSelectedDateSection: some View {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+            if !habitsForSelectedDate.isEmpty {
+                Text("Návyky")
+                    .font(DesignSystem.Typography.headline)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                
+                LazyVStack(spacing: DesignSystem.Spacing.sm) {
+                    ForEach(habitsForSelectedDate, id: \.id) { habit in
+                        PlayfulHabitCard(
+                            habit: habit,
+                            isCompleted: isHabitCompleted(habit),
+                            onToggle: {
+                                if !loadingHabits.contains(habit.id) && !isSelectedDateFuture {
+                                    toggleHabitCompletion(habit: habit)
+                                }
+                            }
+                        )
+                        .disabled(loadingHabits.contains(habit.id) || isSelectedDateFuture)
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Computed Properties
+    
+    private var isSelectedDateFuture: Bool {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let selectedDay = calendar.startOfDay(for: selectedDate)
+        return selectedDay > today
+    }
+    
+    private var completedHabitsForSelectedDate: Int {
+        habitsForSelectedDate.filter { isHabitCompleted($0) }.count
+    }
+    
+    private var habitsProgressPercentageValue: Double {
+        let total = habitsForSelectedDate.count
+        guard total > 0 else { return 0 }
+        return min(Double(completedHabitsForSelectedDate) / Double(total), 1.0)
+    }
+    
+    private var habitsForSelectedDate: [Habit] {
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: selectedDate)
+        // Convert weekday to day names in both formats
+        // Calendar.component(.weekday) returns 1=Sunday, 2=Monday, etc.
+        let csDayNames = ["", "neděle", "pondělí", "úterý", "středa", "čtvrtek", "pátek", "sobota"]
+        let enDayNames = ["", "sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+        
+        let dayCsName = csDayNames[weekday].lowercased()
+        let dayEnName = enDayNames[weekday].lowercased()
+        
+        return habits.filter { habit in
+            // Check if habit is scheduled for this day
+            if habit.alwaysShow {
+                return true
+            }
+            
+            switch habit.frequency {
+            case "daily":
+                return true
+            case "weekly", "custom":
+                if let selectedDays = habit.selectedDays, !selectedDays.isEmpty {
+                    let normalizedSelectedDays = selectedDays.map { $0.lowercased() }
+                    return normalizedSelectedDays.contains(dayCsName) || normalizedSelectedDays.contains(dayEnName)
+                }
+                return false
+            default:
+                return false
+            }
+        }
+    }
+    
+    private func isHabitCompleted(_ habit: Habit) -> Bool {
+        let dateStr = formatDateString(selectedDate)
+        return habit.habitCompletions?[dateStr] == true
+    }
+    
+    private func formatDateString(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
+    }
+    
+    // MARK: - Actions
+    private func toggleHabitCompletion(habit: Habit) {
+        // Prevent completing habits for future dates
+        guard !isSelectedDateFuture else {
+            return
+        }
+        
+        let dateStr = formatDateString(selectedDate)
+        loadingHabits.insert(habit.id)
+        
+        Task {
+            do {
+                let updatedHabit = try await apiManager.toggleHabitCompletion(habitId: habit.id, date: dateStr)
+                
+                await MainActor.run {
+                    if let index = habits.firstIndex(where: { $0.id == habit.id }) {
+                        habits[index] = updatedHabit
+                    }
+                    loadingHabits.remove(habit.id)
+                    // Update shared data provider
+                    HabitsDataProvider.shared.habits = habits
+                }
+            } catch {
+                await MainActor.run {
+                    errorMessage = error.localizedDescription
+                    showError = true
+                    loadingHabits.remove(habit.id)
+                }
+            }
         }
     }
     
@@ -511,6 +965,8 @@ struct HabitsView: View {
                 await MainActor.run {
                     self.habits = fetchedHabits
                     self.isLoading = false
+                    // Update shared data provider
+                    HabitsDataProvider.shared.habits = fetchedHabits
                 }
             } catch {
                 await MainActor.run {
@@ -523,12 +979,44 @@ struct HabitsView: View {
     }
 }
 
+// MARK: - Statistics Card Component
+struct StatCard: View {
+    let icon: String
+    let title: String
+    let value: String
+    
+    var body: some View {
+        PlayfulCard(variant: .pink) {
+            HStack(spacing: DesignSystem.Spacing.md) {
+                Image(systemName: icon)
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                    .frame(width: 24, height: 24)
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(DesignSystem.Typography.caption2)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                    
+                    Text(value)
+                        .font(DesignSystem.Typography.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                }
+                
+                Spacer()
+            }
+            .padding(DesignSystem.Spacing.md)
+        }
+    }
+}
+
 // MARK: - Habit Card View
 struct HabitCardView: View {
     let habit: Habit
     
     var body: some View {
-        ModernCard {
+        PlayfulCard(variant: .purple) {
             HStack(spacing: DesignSystem.Spacing.md) {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                     Text(habit.name)
@@ -541,9 +1029,25 @@ struct HabitCardView: View {
                             .foregroundColor(DesignSystem.Colors.textSecondary)
                         
                         if habit.streak > 0 {
-                            Text("🔥 \(habit.streak)")
+                            HStack(spacing: 4) {
+                                Image(systemName: "flame.fill")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(DesignSystem.Colors.Playful.yellow)
+                                Text("\(habit.streak)")
                                 .font(DesignSystem.Typography.caption)
-                                .foregroundColor(DesignSystem.Colors.primary)
+                                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                            }
+                        }
+                        
+                        if habit.maxStreak > 0 {
+                            HStack(spacing: 4) {
+                                Image(systemName: "trophy.fill")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(DesignSystem.Colors.Playful.yellow)
+                                Text("Max: \(habit.maxStreak)")
+                                    .font(DesignSystem.Typography.caption2)
+                                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                            }
                         }
                     }
                 }
@@ -576,7 +1080,12 @@ struct SettingsView: View {
     @State private var showWidgetSettings = false
     @State private var userSettings: UserSettings?
     @State private var isLoadingSettings = true
-    @State private var showWorkflowSettings = false
+    @State private var showColorSettings = false
+    @State private var showAddAspirationModal = false
+    @State private var showEditAspirationModal = false
+    @State private var selectedAspiration: Aspiration?
+    @State private var aspirations: [Aspiration] = []
+    @State private var isLoadingAspirations = false
     @State private var errorMessage = ""
     @State private var showError = false
     
@@ -590,8 +1099,8 @@ struct SettingsView: View {
                     // Settings Options
                     settingsOptionsSection
                     
-                    // Workflow Settings
-                    workflowSettingsSection
+                    // Areas Management Section
+                    areasManagementSection
                     
                     // Sign Out Section
                     if clerk.user != nil {
@@ -608,19 +1117,41 @@ struct SettingsView: View {
         }
         .navigationTitle("Nastavení")
         .navigationBarTitleDisplayMode(.large)
+        .task {
+            await loadAspirations()
+        }
         .onAppear {
             loadUserSettings()
         }
         .sheet(isPresented: $showWidgetSettings) {
             SimpleWidgetSettingsView()
         }
-        .sheet(isPresented: $showWorkflowSettings) {
-            WorkflowSettingsView(
+        .sheet(isPresented: $showColorSettings) {
+            ColorSettingsView(
                 userSettings: $userSettings,
                 onSave: { settings in
                     saveUserSettings(settings)
                 }
             )
+        }
+        .sheet(isPresented: $showAddAspirationModal) {
+            AddAspirationModal(onAspirationAdded: {
+                Task {
+                    await loadAspirations()
+                }
+            })
+        }
+        .sheet(isPresented: $showEditAspirationModal) {
+            if let aspiration = selectedAspiration {
+                EditAspirationModal(
+                    aspiration: aspiration,
+                    onAspirationUpdated: {
+                        Task {
+                            await loadAspirations()
+                        }
+                    }
+                )
+            }
         }
         .alert("Chyba", isPresented: $showError) {
             Button("OK") { }
@@ -697,11 +1228,11 @@ struct SettingsView: View {
             )
             
             ModernSettingsRow(
-                icon: "gear.badge",
-                title: "Workflow",
-                subtitle: userSettings?.workflow == "daily_planning" ? "Denní plánování" : "Všechny kroky",
+                icon: "paintpalette.fill",
+                title: "Barva aplikace",
+                subtitle: "Změnit primární barvu",
                 action: {
-                    showWorkflowSettings = true
+                    showColorSettings = true
                 }
             )
             
@@ -720,6 +1251,77 @@ struct SettingsView: View {
                     showWidgetSettings = true
                 }
             )
+        }
+    }
+    
+    // MARK: - Areas Management Section
+    private var areasManagementSection: some View {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+            PlayfulCard(variant: .pink) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                            Text("Oblasti")
+                                .font(DesignSystem.Typography.title3)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
+                            
+                            Text("\(aspirations.count) oblastí")
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
+                        }
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            showAddAspirationModal = true
+                        }) {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.system(size: 24))
+                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                        }
+                    }
+                    
+                    if isLoadingAspirations {
+                        HStack {
+                            Spacer()
+                            ProgressView()
+                                .padding(.vertical, DesignSystem.Spacing.md)
+                            Spacer()
+                        }
+                    } else if aspirations.isEmpty {
+                        VStack(spacing: DesignSystem.Spacing.sm) {
+                            Text("Zatím nemáte žádné oblasti")
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
+                            
+                            PlayfulButton(
+                                variant: .pink,
+                                title: "Přidat první oblast",
+                                action: {
+                                    showAddAspirationModal = true
+                                }
+                            )
+                        }
+                        .padding(.vertical, DesignSystem.Spacing.sm)
+                    } else {
+                        VStack(spacing: DesignSystem.Spacing.sm) {
+                            ForEach(aspirations, id: \.id) { aspiration in
+                                AreaSettingsRow(
+                                    aspiration: aspiration,
+                                    onEdit: {
+                                        selectedAspiration = aspiration
+                                        showEditAspirationModal = true
+                                    },
+                                    onDelete: {
+                                        deleteAspiration(aspirationId: aspiration.id)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+                .padding(DesignSystem.Spacing.md)
+            }
         }
     }
     
@@ -747,6 +1349,337 @@ struct SettingsView: View {
                 .padding(DesignSystem.Spacing.md)
             }
             .buttonStyle(PlainButtonStyle())
+        }
+    }
+    
+    // MARK: - Helper Methods
+    private func loadUserSettings() {
+        Task {
+            do {
+                let settings = try await apiManager.fetchUserSettings()
+                await MainActor.run {
+                    self.userSettings = settings
+                    self.isLoadingSettings = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = error.localizedDescription
+                    self.showError = true
+                    self.isLoadingSettings = false
+                }
+            }
+        }
+    }
+    
+    private func saveUserSettings(_ settings: UserSettings) {
+        Task {
+            do {
+                let updatedSettings = try await apiManager.updateUserSettings(
+                    dailyStepsCount: settings.dailyStepsCount,
+                    workflow: settings.workflow,
+                    filters: settings.filters,
+                    primaryColor: settings.primaryColor
+                )
+                await MainActor.run {
+                    self.userSettings = updatedSettings
+                    // Aktualizovat singleton pro okamžité použití napříč aplikací
+                    UserSettingsManager.shared.updateSettings(updatedSettings)
+                }
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = error.localizedDescription
+                    self.showError = true
+                }
+            }
+        }
+    }
+    
+    private func loadAspirations() async {
+        await MainActor.run {
+            isLoadingAspirations = true
+        }
+        
+        do {
+            let fetchedAspirations = try await apiManager.fetchAspirations()
+            await MainActor.run {
+                self.aspirations = fetchedAspirations
+                self.isLoadingAspirations = false
+            }
+        } catch {
+            await MainActor.run {
+                self.errorMessage = error.localizedDescription
+                self.showError = true
+                self.isLoadingAspirations = false
+            }
+        }
+    }
+    
+    private func deleteAspiration(aspirationId: String) {
+        Task {
+            do {
+                try await apiManager.deleteAspiration(aspirationId: aspirationId)
+                await loadAspirations()
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = error.localizedDescription
+                    self.showError = true
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Area Settings Row Component
+struct AreaSettingsRow: View {
+    let aspiration: Aspiration
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+    
+    var body: some View {
+        HStack(spacing: DesignSystem.Spacing.md) {
+            // Color indicator
+            Circle()
+                .fill(Color(hex: aspiration.color))
+                .frame(width: 12, height: 12)
+            
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                Text(aspiration.title)
+                    .font(DesignSystem.Typography.body)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                
+                if let description = aspiration.description, !description.isEmpty {
+                    Text(description)
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                        .lineLimit(1)
+                }
+            }
+            
+            Spacer()
+            
+            // Edit button
+            Button(action: onEdit) {
+                Image(systemName: "pencil")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                    .frame(width: 32, height: 32)
+            }
+            
+            // Delete button
+            Button(action: onDelete) {
+                Image(systemName: "trash")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(DesignSystem.Colors.error)
+                    .frame(width: 32, height: 32)
+            }
+        }
+        .padding(DesignSystem.Spacing.sm)
+        .background(DesignSystem.Colors.surfaceSecondary)
+        .cornerRadius(DesignSystem.CornerRadius.sm)
+    }
+}
+
+// MARK: - Edit Aspiration Modal
+struct EditAspirationModal: View {
+    @Environment(\.dismiss) private var dismiss
+    @StateObject private var apiManager = APIManager.shared
+    let aspiration: Aspiration
+    let onAspirationUpdated: () -> Void
+    
+    @State private var aspirationTitle: String
+    @State private var aspirationDescription: String
+    @State private var selectedColor: String
+    @State private var isLoading = false
+    @State private var errorMessage = ""
+    @State private var showError = false
+    @State private var showDeleteConfirmation = false
+    
+    private let colors = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899"]
+    
+    init(aspiration: Aspiration, onAspirationUpdated: @escaping () -> Void) {
+        self.aspiration = aspiration
+        self.onAspirationUpdated = onAspirationUpdated
+        _aspirationTitle = State(initialValue: aspiration.title)
+        _aspirationDescription = State(initialValue: aspiration.description ?? "")
+        _selectedColor = State(initialValue: aspiration.color)
+    }
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: DesignSystem.Spacing.lg) {
+                    titleField
+                    descriptionField
+                    colorPicker
+                    saveButton
+                    deleteButton
+                }
+                .padding(DesignSystem.Spacing.lg)
+            }
+            .background(DesignSystem.Colors.background)
+            .navigationTitle("Upravit oblast")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Zrušit") {
+                        dismiss()
+                    }
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                }
+            }
+            .alert("Smazat oblast?", isPresented: $showDeleteConfirmation) {
+                Button("Zrušit", role: .cancel) { }
+                Button("Smazat", role: .destructive) {
+                    deleteAspiration()
+                }
+            } message: {
+                Text("Opravdu chcete smazat tuto oblast? Tato akce je nevratná.")
+            }
+            .alert("Chyba", isPresented: $showError) {
+                Button("OK") { }
+            } message: {
+                Text(errorMessage)
+            }
+        }
+    }
+    
+    private var titleField: some View {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+            HStack {
+                Text("Název aspirace")
+                    .font(DesignSystem.Typography.headline)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                Text("*")
+                    .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+            }
+            PlayfulInput(
+                text: $aspirationTitle,
+                placeholder: "Např. Být tím nejlepším člověkem, jakým můžu být"
+            )
+        }
+    }
+    
+    private var descriptionField: some View {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+            Text("Popis (volitelné)")
+                .font(DesignSystem.Typography.headline)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
+            TextField("Popište svou aspiraci podrobněji...", text: $aspirationDescription, axis: .vertical)
+                .font(DesignSystem.Typography.body)
+                .padding(DesignSystem.Spacing.md)
+                .frame(minHeight: 100, alignment: .top)
+                .background(DesignSystem.Colors.surface)
+                .cornerRadius(DesignSystem.CornerRadius.md)
+                .overlay(
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                        .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                )
+                .lineLimit(4...8)
+        }
+    }
+    
+    private var colorPicker: some View {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+            Text("Barva")
+                .font(DesignSystem.Typography.headline)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
+            
+            HStack(spacing: DesignSystem.Spacing.md) {
+                ForEach(colors, id: \.self) { color in
+                    Button(action: {
+                        selectedColor = color
+                    }) {
+                        Circle()
+                            .fill(Color(hex: color))
+                            .frame(width: 40, height: 40)
+                            .overlay(
+                                Circle()
+                                    .stroke(selectedColor == color ? DesignSystem.Colors.dynamicPrimary : Color.clear, lineWidth: 3)
+                            )
+                    }
+                }
+            }
+        }
+    }
+    
+    private var saveButton: some View {
+        PlayfulButton(
+            variant: .pink,
+            title: "Uložit změny",
+            isLoading: isLoading,
+            action: {
+                updateAspiration()
+            }
+        )
+        .disabled(aspirationTitle.isEmpty || isLoading)
+    }
+    
+    private var deleteButton: some View {
+        Button(action: {
+            showDeleteConfirmation = true
+        }) {
+            Text("Smazat oblast")
+                .font(DesignSystem.Typography.headline)
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(DesignSystem.Spacing.md)
+                .background(DesignSystem.Colors.error)
+                .cornerRadius(DesignSystem.CornerRadius.md)
+                .overlay(
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                        .stroke(DesignSystem.Colors.outline, lineWidth: 2)
+                )
+        }
+    }
+    
+    private func updateAspiration() {
+        isLoading = true
+        
+        Task {
+            do {
+                _ = try await apiManager.updateAspiration(
+                    aspirationId: aspiration.id,
+                    title: aspirationTitle,
+                    description: aspirationDescription.isEmpty ? nil : aspirationDescription,
+                    color: selectedColor,
+                    icon: nil
+                )
+                
+                await MainActor.run {
+                    isLoading = false
+                    onAspirationUpdated()
+                    dismiss()
+                }
+            } catch {
+                await MainActor.run {
+                    isLoading = false
+                    errorMessage = error.localizedDescription
+                    showError = true
+                }
+            }
+        }
+    }
+    
+    private func deleteAspiration() {
+        isLoading = true
+        
+        Task {
+            do {
+                try await apiManager.deleteAspiration(aspirationId: aspiration.id)
+                
+                await MainActor.run {
+                    isLoading = false
+                    onAspirationUpdated()
+                    dismiss()
+                }
+            } catch {
+                await MainActor.run {
+                    isLoading = false
+                    errorMessage = error.localizedDescription
+                    showError = true
+                }
+            }
         }
     }
 }
@@ -913,18 +1846,31 @@ struct AddGoalModal: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                         Text("Název cíle")
-                            .font(.headline)
-                        TextField("Např. Naučit se španělsky", text: $goalTitle)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .font(DesignSystem.Typography.headline)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                        PlayfulInput(
+                            text: $goalTitle,
+                            placeholder: "Např. Naučit se španělsky",
+                            variant: .pink
+                        )
                     }
                     
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                         Text("Popis (volitelné)")
-                            .font(.headline)
+                            .font(DesignSystem.Typography.headline)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
                         TextField("Popište svůj cíl podrobněji...", text: $goalDescription, axis: .vertical)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .font(DesignSystem.Typography.body)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                            .padding(DesignSystem.Spacing.md)
+                            .background(DesignSystem.Colors.Playful.purpleLight)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                                    .stroke(DesignSystem.Colors.outline, lineWidth: 3)
+                            )
+                            .cornerRadius(DesignSystem.CornerRadius.md)
                             .lineLimit(3...6)
                     }
                     
@@ -986,10 +1932,16 @@ struct AddGoalModal: View {
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Přidat") {
+                    PlayfulButton(
+                        variant: .pink,
+                        size: .sm,
+                        title: "Přidat",
+                        isLoading: isLoading,
+                        isDisabled: goalTitle.isEmpty,
+                        action: {
                         addGoal()
                     }
-                    .disabled(goalTitle.isEmpty || isLoading)
+                    )
                 }
             }
             .alert("Chyba", isPresented: $showError) {
@@ -1004,7 +1956,9 @@ struct AddGoalModal: View {
     }
     
     private func loadAspirations() async {
-        isLoadingAspirations = true
+        await MainActor.run {
+            isLoadingAspirations = true
+        }
         do {
             let fetchedAspirations = try await apiManager.fetchAspirations()
             await MainActor.run {
@@ -1083,14 +2037,10 @@ struct AddStepModal: View {
                             Text("*")
                                 .foregroundColor(DesignSystem.Colors.primary)
                         }
-                        TextField("Např. Pravidelně šetřit", text: $stepTitle)
-                            .font(DesignSystem.Typography.body)
-                            .padding(DesignSystem.Spacing.md)
-                            .background(DesignSystem.Colors.surface)
-                            .cornerRadius(DesignSystem.CornerRadius.md)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                                    .stroke(DesignSystem.Colors.textTertiary.opacity(0.3), lineWidth: 1)
+                        PlayfulInput(
+                            text: $stepTitle,
+                            placeholder: "Např. Pravidelně šetřit",
+                            variant: .purple
                             )
                     }
                     
@@ -1101,14 +2051,15 @@ struct AddStepModal: View {
                             .foregroundColor(DesignSystem.Colors.textPrimary)
                         TextField("Popište krok podrobněji...", text: $stepDescription, axis: .vertical)
                             .font(DesignSystem.Typography.body)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
                             .padding(DesignSystem.Spacing.md)
                             .frame(minHeight: 100, alignment: .top)
-                            .background(DesignSystem.Colors.surface)
-                            .cornerRadius(DesignSystem.CornerRadius.md)
+                            .background(DesignSystem.Colors.Playful.yellowGreenLight)
                             .overlay(
                                 RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                                    .stroke(DesignSystem.Colors.textTertiary.opacity(0.3), lineWidth: 1)
+                                    .stroke(DesignSystem.Colors.outline, lineWidth: 3)
                             )
+                            .cornerRadius(DesignSystem.CornerRadius.md)
                             .lineLimit(4...8)
                     }
                     
@@ -1157,27 +2108,16 @@ struct AddStepModal: View {
                     }
                     
                     // Add Button
-                    Button(action: {
+                    PlayfulButton(
+                        variant: .purple,
+                        size: .md,
+                        title: "Přidat krok",
+                        isLoading: isLoading,
+                        isDisabled: stepTitle.isEmpty,
+                        action: {
                         addStep()
-                    }) {
-                        HStack {
-                            if isLoading {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                    .scaleEffect(0.8)
-                            } else {
-                                Text("Přidat krok")
-                                    .font(DesignSystem.Typography.headline)
-                                    .fontWeight(.semibold)
-                            }
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding(DesignSystem.Spacing.md)
-                        .background(stepTitle.isEmpty || isLoading ? DesignSystem.Colors.textTertiary : DesignSystem.Colors.primary)
-                        .foregroundColor(.white)
-                        .cornerRadius(DesignSystem.CornerRadius.md)
-                    }
-                    .disabled(stepTitle.isEmpty || isLoading)
+                    )
                     .padding(.top, DesignSystem.Spacing.md)
                 }
                 .padding(DesignSystem.Spacing.lg)
@@ -1248,384 +2188,14 @@ struct AddStepModal: View {
 
 // MARK: - Detail Views
 
-struct StepDetailView: View {
-    let step: DailyStep
-    @Environment(\.dismiss) private var dismiss
-    @StateObject private var apiManager = APIManager.shared
-    @State private var isLoading = false
-    @State private var errorMessage = ""
-    @State private var showError = false
-    
-    var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    // Step Title
-                    Text(step.title)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .padding(.horizontal)
-                    
-                    // Step Description
-                    if let description = step.description, !description.isEmpty {
-                        Text(description)
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal)
-                    }
-                    
-                    // Date Section
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Datum")
-                            .font(.headline)
-                            .padding(.horizontal)
-                        
-                        Text(step.date, style: .date)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal)
-                    }
-                    
-                    // Status Section
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Status")
-                            .font(.headline)
-                            .padding(.horizontal)
-                        
-                        HStack {
-                            Image(systemName: step.completed ? "checkmark.circle.fill" : "circle")
-                                .foregroundColor(step.completed ? .green : .gray)
-                            
-                            Text(step.completed ? "Dokončeno" : "Nedokončeno")
-                                .font(.subheadline)
-                                .foregroundColor(step.completed ? .green : .orange)
-                        }
-                        .padding(.horizontal)
-                    }
-                    
-                    Spacer()
-                }
-            }
-            .navigationTitle("Detail kroku")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Zavřít") {
-                        dismiss()
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(step.completed ? "Označit jako nedokončené" : "Označit jako dokončené") {
-                        toggleCompletion()
-                    }
-                    .disabled(isLoading)
-                }
-            }
-            .alert("Chyba", isPresented: $showError) {
-                Button("OK") { }
-            } message: {
-                Text(errorMessage)
-            }
-        }
-    }
-    
-    private func toggleCompletion() {
-        isLoading = true
-        
-        Task {
-            do {
-                _ = try await apiManager.updateStepCompletion(stepId: step.id, completed: !step.completed, currentStep: step)
-                
-                await MainActor.run {
-                    isLoading = false
-                    dismiss()
-                }
-            } catch {
-                await MainActor.run {
-                    isLoading = false
-                    errorMessage = error.localizedDescription
-                    showError = true
-                }
-            }
-        }
-    }
-}
-
-struct GoalDetailView: View {
-    let goal: Goal
-    @Environment(\.dismiss) private var dismiss
-    @StateObject private var apiManager = APIManager.shared
-    @State private var isLoading = false
-    @State private var errorMessage = ""
-    @State private var showError = false
-    @State private var showEditAspiration = false
-    @State private var aspirations: [Aspiration] = []
-    @State private var selectedAspirationId: String? = nil
-    @State private var isLoadingAspirations = false
-    
-    var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    // Goal Title
-                    Text(goal.title)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .padding(.horizontal)
-                    
-                    // Goal Description
-                    if let description = goal.description, !description.isEmpty {
-                        Text(description)
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal)
-                    }
-                    
-                    // Aspiration Section
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Aspirace")
-                            .font(.headline)
-                            .padding(.horizontal)
-                        
-                        if showEditAspiration {
-                            if isLoadingAspirations {
-                                ProgressView()
-                                    .frame(maxWidth: .infinity, alignment: .center)
-                                    .padding()
-                            } else if aspirations.isEmpty {
-                                Text("Žádné aspirace")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                    .padding(.horizontal)
-                            } else {
-                                Picker("Aspirace", selection: $selectedAspirationId) {
-                                    Text("Bez aspirace").tag(nil as String?)
-                                    ForEach(aspirations, id: \.id) { aspiration in
-                                        Text(aspiration.title).tag(aspiration.id as String?)
-                                    }
-                                }
-                                .pickerStyle(.menu)
-                                .padding(.horizontal)
-                                
-                                HStack {
-                                    Button("Zrušit") {
-                                        selectedAspirationId = goal.aspirationId
-                                        showEditAspiration = false
-                                    }
-                                    .foregroundColor(.secondary)
-                                    
-                                    Spacer()
-                                    
-                                    Button("Uložit") {
-                                        saveAspiration()
-                                    }
-                                    .foregroundColor(.blue)
-                                    .disabled(isLoading)
-                                }
-                                .padding(.horizontal)
-                            }
-                        } else {
-                            HStack {
-                                if let aspirationId = goal.aspirationId,
-                                   let aspiration = aspirations.first(where: { $0.id == aspirationId }) {
-                                    HStack {
-                                        Circle()
-                                            .fill(colorFromHex(aspiration.color))
-                                            .frame(width: 12, height: 12)
-                                        Text(aspiration.title)
-                                            .font(.subheadline)
-                                    }
-                                    .foregroundColor(.secondary)
-                                } else {
-                                    Text("Bez aspirace")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                }
-                                
-                                Spacer()
-                                
-                                Button("Změnit") {
-                                    selectedAspirationId = goal.aspirationId
-                                    Task {
-                                        await loadAspirations()
-                                    }
-                                    showEditAspiration = true
-                                }
-                                .font(.subheadline)
-                                .foregroundColor(.blue)
-                            }
-                            .padding(.horizontal)
-                        }
-                    }
-                    
-                    // Progress Section
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Pokrok")
-                            .font(.headline)
-                            .padding(.horizontal)
-                        
-                        ProgressView(value: Double(goal.progressPercentage) / 100)
-                            .progressViewStyle(LinearProgressViewStyle(tint: .purple))
-                            .padding(.horizontal)
-                        
-                        Text("\(goal.progressPercentage)% dokončeno")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal)
-                    }
-                    
-                    // Target Date
-                    if let targetDate = goal.targetDate {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Cílové datum")
-                                .font(.headline)
-                                .padding(.horizontal)
-                            
-                            Text(targetDate, style: .date)
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                                .padding(.horizontal)
-                        }
-                    }
-                    
-                    // Status
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Status")
-                            .font(.headline)
-                            .padding(.horizontal)
-                        
-                        Text(goal.status == "completed" ? "Dokončeno" : "V průběhu")
-                            .font(.subheadline)
-                            .foregroundColor(goal.status == "completed" ? .green : .orange)
-                            .padding(.horizontal)
-                    }
-                    
-                    Spacer()
-                }
-            }
-            .navigationTitle("Detail cíle")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Zavřít") {
-                        dismiss()
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    if goal.status != "completed" {
-                        Button("Dokončit") {
-                            completeGoal()
-                        }
-                        .disabled(isLoading)
-                    }
-                }
-            }
-            .alert("Chyba", isPresented: $showError) {
-                Button("OK") { }
-            } message: {
-                Text(errorMessage)
-            }
-            .task {
-                await loadAspirations()
-            }
-        }
-    }
-    
-    private func loadAspirations() async {
-        isLoadingAspirations = true
-        do {
-            let fetchedAspirations = try await apiManager.fetchAspirations()
-            await MainActor.run {
-                self.aspirations = fetchedAspirations
-                self.isLoadingAspirations = false
-            }
-        } catch {
-            await MainActor.run {
-                self.isLoadingAspirations = false
-            }
-        }
-    }
-    
-    private func saveAspiration() {
-        isLoading = true
-        
-        Task {
-            do {
-                _ = try await apiManager.updateGoal(
-                    goalId: goal.id,
-                    title: nil,
-                    description: nil,
-                    targetDate: nil,
-                    aspirationId: selectedAspirationId
-                )
-                
-                await MainActor.run {
-                    isLoading = false
-                    showEditAspiration = false
-                    dismiss()
-                }
-            } catch {
-                await MainActor.run {
-                    isLoading = false
-                    errorMessage = error.localizedDescription
-                    showError = true
-                }
-            }
-        }
-    }
-    
-    private func completeGoal() {
-        isLoading = true
-        
-        Task {
-            // TODO: Implement goal completion in APIManager
-            
-            await MainActor.run {
-                isLoading = false
-                dismiss()
-            }
-        }
-    }
-    
-    private func colorFromHex(_ hex: String) -> Color {
-        var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
-        hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
-        
-        var rgb: UInt64 = 0
-        
-        Scanner(string: hexSanitized).scanHexInt64(&rgb)
-        
-        let red = Double((rgb & 0xFF0000) >> 16) / 255.0
-        let green = Double((rgb & 0x00FF00) >> 8) / 255.0
-        let blue = Double(rgb & 0x0000FF) / 255.0
-        
-        return Color(red: red, green: green, blue: blue)
-    }
-}
+// StepDetailView and GoalDetailView are now in separate files (StepDetailView.swift and GoalDetailView.swift)
 
 #Preview {
         GoalsView()
 }
 
 // MARK: - Widget Settings
-enum WidgetType: String, CaseIterable {
-    case todaySteps = "today_steps"
-    case futureSteps = "future_steps"
-    case inspiration = "inspiration"
-    
-    var displayName: String {
-        switch self {
-        case .todaySteps:
-            return "Dnešní kroky"
-        case .futureSteps:
-            return "Dnešní a budoucí"
-        case .inspiration:
-            return "Inspirace"
-        }
-    }
-}
+// WidgetType is now defined in Models.swift
 
 struct SimpleWidgetSettingsView: View {
     @State private var selectedWidgetType: WidgetType = .todaySteps
@@ -1712,134 +2282,64 @@ struct SimpleWidgetSettingsView: View {
     }
 }
 
-// MARK: - Workflow Settings Section
-extension SettingsView {
-    private var workflowSettingsSection: some View {
-        VStack(spacing: DesignSystem.Spacing.sm) {
-            Text("Workflow nastavení")
-                .font(DesignSystem.Typography.headline)
-                .foregroundColor(DesignSystem.Colors.textPrimary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            ModernCard {
-                VStack(spacing: DesignSystem.Spacing.md) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                            Text("Aktuální workflow")
-                                .font(DesignSystem.Typography.body)
-                                .fontWeight(.medium)
-                                .foregroundColor(DesignSystem.Colors.textPrimary)
-                            
-                            Text(userSettings?.workflow == "daily_planning" ? "Denní plánování" : "Všechny kroky")
-                                .font(DesignSystem.Typography.caption)
-                                .foregroundColor(DesignSystem.Colors.textSecondary)
-                        }
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            showWorkflowSettings = true
-                        }) {
-                            Text("Změnit")
-                                .font(DesignSystem.Typography.caption)
-                                .fontWeight(.medium)
-                                .foregroundColor(DesignSystem.Colors.primary)
-                        }
-                    }
-                    
-                    if let settings = userSettings {
-                        HStack {
-                            Text("Denní kroky: \(settings.dailyStepsCount)")
-                                .font(DesignSystem.Typography.caption)
-                                .foregroundColor(DesignSystem.Colors.textSecondary)
-                            
-                            Spacer()
-                        }
-                    }
-                }
-                .padding(DesignSystem.Spacing.md)
-            }
-        }
-    }
-    
-    // MARK: - Helper Methods
-    private func loadUserSettings() {
-        Task {
-            do {
-                let settings = try await apiManager.fetchUserSettings()
-                await MainActor.run {
-                    self.userSettings = settings
-                    self.isLoadingSettings = false
-                }
-            } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                    self.showError = true
-                    self.isLoadingSettings = false
-                }
-            }
-        }
-    }
-    
-    private func saveUserSettings(_ settings: UserSettings) {
-        Task {
-            do {
-                let updatedSettings = try await apiManager.updateUserSettings(
-                    dailyStepsCount: settings.dailyStepsCount,
-                    workflow: settings.workflow,
-                    filters: settings.filters
-                )
-                await MainActor.run {
-                    self.userSettings = updatedSettings
-                }
-            } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                    self.showError = true
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Workflow Settings View
-struct WorkflowSettingsView: View {
+// MARK: - Color Settings View
+struct ColorSettingsView: View {
     @Binding var userSettings: UserSettings?
     let onSave: (UserSettings) -> Void
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var apiManager = APIManager.shared
+    @ObservedObject private var settingsManager = UserSettingsManager.shared
     
-    @State private var selectedWorkflow: String = "daily_planning"
-    @State private var dailyStepsCount: Int = 3
+    @State private var selectedColor: String = "#E8871E"
     @State private var isSaving = false
+    @State private var errorMessage = ""
+    @State private var showError = false
+    
+    // Color palettes from web app (matching web app exactly)
+    private let colorPalettes: [(name: String, value: String)] = [
+        ("Oranžová sytá", "#E8871E"),
+        ("Oranžová světlá", "#FFB366"),
+        ("Fialová sytá", "#8B5CF6"),
+        ("Fialová světlá", "#C4A5F5"),
+        ("Růžová sytá", "#FF6B9D"),
+        ("Růžová světlá", "#FFB3BA"),
+        ("Teal sytá", "#14B8A6"),
+        ("Teal světlá", "#7DD3C0")
+    ]
     
     var body: some View {
         NavigationView {
-            Form {
-                Section("Typ workflow") {
-                    Picker("Workflow", selection: $selectedWorkflow) {
-                        Text("Denní plánování").tag("daily_planning")
-                        Text("Všechny kroky").tag("no_workflow")
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                }
-                
-                if selectedWorkflow == "daily_planning" {
-                    Section("Denní plánování") {
-                        Stepper("Počet denních kroků: \(dailyStepsCount)", value: $dailyStepsCount, in: 1...10)
-                    }
-                }
-                
-                Section {
-                    Text("Denní plánování zobrazuje pouze kroky naplánované na dnešní den s možností plánování.")
-                        .font(DesignSystem.Typography.caption)
+            ScrollView {
+                VStack(spacing: DesignSystem.Spacing.lg) {
+                    Text("Vyberte primární barvu aplikace")
+                        .font(DesignSystem.Typography.body)
                         .foregroundColor(DesignSystem.Colors.textSecondary)
+                        .padding(.top, DesignSystem.Spacing.md)
                     
-                    Text("Všechny kroky zobrazuje všechny kroky s možností filtrování a řazení.")
-                        .font(DesignSystem.Typography.caption)
-                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                    LazyVGrid(columns: [
+                        GridItem(.flexible()),
+                        GridItem(.flexible()),
+                        GridItem(.flexible()),
+                        GridItem(.flexible())
+                    ], spacing: DesignSystem.Spacing.md) {
+                        ForEach(colorPalettes, id: \.value) { palette in
+                            ColorOptionView(
+                                name: palette.name,
+                                color: Color(hex: palette.value),
+                                isSelected: selectedColor == palette.value,
+                                onTap: {
+                                    selectedColor = palette.value
+                                }
+                            )
+                        }
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.md)
+                    
+                    Spacer(minLength: 100)
                 }
             }
-            .navigationTitle("Workflow nastavení")
+            .background(DesignSystem.Colors.background)
+            .navigationTitle("Barva aplikace")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -1849,37 +2349,99 @@ struct WorkflowSettingsView: View {
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Uložit") {
-                        saveSettings()
-                    }
-                    .disabled(isSaving)
+                    PlayfulButton(
+                        variant: .pink,
+                        size: .sm,
+                        title: "Uložit",
+                        isLoading: isSaving,
+                        action: {
+                            saveSettings()
+                        }
+                    )
                 }
             }
         }
+        .alert("Chyba", isPresented: $showError) {
+            Button("OK") { }
+        } message: {
+            Text(errorMessage)
+        }
         .onAppear {
             if let settings = userSettings {
-                selectedWorkflow = settings.workflow
-                dailyStepsCount = settings.dailyStepsCount
+                selectedColor = settings.primaryColor ?? "#E8871E"
             }
         }
     }
     
     private func saveSettings() {
-        guard let currentSettings = userSettings else { return }
+        guard userSettings != nil else { return }
         
         isSaving = true
         
-        let updatedSettings = UserSettings(
-            id: currentSettings.id,
-            userId: currentSettings.userId,
-            dailyStepsCount: dailyStepsCount,
-            workflow: selectedWorkflow,
-            filters: currentSettings.filters,
-            createdAt: currentSettings.createdAt,
-            updatedAt: Date()
-        )
-        
-        onSave(updatedSettings)
-        dismiss()
+        Task {
+            do {
+                // Voláme API přímo z ColorSettingsView
+                let updatedSettings = try await APIManager.shared.updateUserSettings(
+                    dailyStepsCount: nil,
+                    workflow: nil,
+                    filters: nil,
+                    primaryColor: selectedColor
+                )
+                
+                await MainActor.run {
+                    // Aktualizovat singleton pro okamžité použití napříč aplikací (musí být první, aby notifikoval změny)
+                    UserSettingsManager.shared.updateSettings(updatedSettings)
+                    // Aktualizovat local state
+                    userSettings = updatedSettings
+                    // Zavolat onSave callback
+                    onSave(updatedSettings)
+                    isSaving = false
+                    dismiss()
+                }
+            } catch {
+                await MainActor.run {
+                    isSaving = false
+                    errorMessage = error.localizedDescription
+                    showError = true
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Color Option View
+struct ColorOptionView: View {
+    let name: String
+    let color: Color
+    let isSelected: Bool
+    let onTap: () -> Void
+    
+    var body: some View {
+        Button(action: onTap) {
+            VStack(spacing: DesignSystem.Spacing.sm) {
+                Circle()
+                    .fill(color)
+                    .frame(width: 60, height: 60)
+                    .overlay(
+                        Circle()
+                            .stroke(DesignSystem.Colors.outline, lineWidth: isSelected ? 4 : 2)
+                    )
+                    .overlay(
+                        Group {
+                            if isSelected {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(.white)
+                            }
+                        }
+                    )
+                
+                Text(name)
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+            }
+            .padding(DesignSystem.Spacing.sm)
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }

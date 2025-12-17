@@ -10,6 +10,7 @@ import { UnifiedDayView } from '../views/UnifiedDayView'
 import { DayView } from '../views/DayView'
 import { WeekView } from '../views/WeekView'
 import { MonthView } from '../views/MonthView'
+import { YearView } from '../views/YearView'
 import { SettingsPage } from '../SettingsPage'
 import { HelpView } from '../views/HelpView'
 import { GoalEditingForm } from '../journey/GoalEditingForm'
@@ -178,6 +179,14 @@ export function PageContent(props: PageContentProps) {
     setGoalDetailDatePickerMonth,
     selectedGoalDate,
     setSelectedGoalDate,
+    showGoalDetailStartDatePicker,
+    setShowGoalDetailStartDatePicker,
+    goalDetailStartDatePickerPosition,
+    setGoalDetailStartDatePickerPosition,
+    goalDetailStartDatePickerMonth,
+    setGoalDetailStartDatePickerMonth,
+    selectedGoalStartDate,
+    setSelectedGoalStartDate,
     showGoalDetailStatusPicker,
     setShowGoalDetailStatusPicker,
     goalDetailStatusPickerPosition,
@@ -200,10 +209,13 @@ export function PageContent(props: PageContentProps) {
     goalTitleRef,
     goalDescriptionRef,
     goalDateRef,
+    goalStartDateRef,
     goalStatusRef,
     goalAreaRef,
     selectedDayDate,
     setSelectedDayDate,
+    selectedYear,
+    setSelectedYear,
     setShowDatePickerModal,
     setSelectedItemType,
     setStepModalData,
@@ -1094,6 +1106,14 @@ export function PageContent(props: PageContentProps) {
                 setGoalDetailDatePickerMonth={setGoalDetailDatePickerMonth}
                 selectedGoalDate={selectedGoalDate}
                 setSelectedGoalDate={setSelectedGoalDate}
+                showGoalDetailStartDatePicker={showGoalDetailStartDatePicker}
+                setShowGoalDetailStartDatePicker={setShowGoalDetailStartDatePicker}
+                goalDetailStartDatePickerPosition={goalDetailStartDatePickerPosition}
+                setGoalDetailStartDatePickerPosition={setGoalDetailStartDatePickerPosition}
+                goalDetailStartDatePickerMonth={goalDetailStartDatePickerMonth}
+                setGoalDetailStartDatePickerMonth={setGoalDetailStartDatePickerMonth}
+                selectedGoalStartDate={selectedGoalStartDate}
+                setSelectedGoalStartDate={setSelectedGoalStartDate}
                 showGoalDetailStatusPicker={showGoalDetailStatusPicker}
                 setShowGoalDetailStatusPicker={setShowGoalDetailStatusPicker}
                 goalDetailStatusPickerPosition={goalDetailStatusPickerPosition}
@@ -1118,6 +1138,7 @@ export function PageContent(props: PageContentProps) {
                 goalTitleRef={goalTitleRef}
                 goalDescriptionRef={goalDescriptionRef}
                 goalDateRef={goalDateRef}
+                goalStartDateRef={goalStartDateRef}
                 goalStatusRef={goalStatusRef}
                 goalAreaRef={goalAreaRef}
               />
@@ -1197,6 +1218,24 @@ export function PageContent(props: PageContentProps) {
                       loadingHabits={loadingHabits}
                       loadingSteps={loadingSteps}
                       animatingSteps={animatingSteps}
+                    />
+                  </div>
+                </div>
+              )
+            case 'focus-year':
+              return (
+                <div className="w-full min-h-full flex flex-col bg-primary-50">
+                  {/* Year View */}
+                  <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
+                    <YearView
+                      goals={goals}
+                      habits={habits}
+                      dailySteps={dailySteps}
+                      selectedYear={selectedYear || new Date().getFullYear()}
+                      setSelectedYear={setSelectedYear}
+                      handleItemClick={handleItemClick}
+                      player={player}
+                      areas={areas}
                     />
                   </div>
                 </div>
@@ -1776,9 +1815,17 @@ export function PageContent(props: PageContentProps) {
                       setGoalDetailDatePickerPosition={setGoalDetailDatePickerPosition}
                       goalDetailDatePickerMonth={goalDetailDatePickerMonth}
                       setGoalDetailDatePickerMonth={setGoalDetailDatePickerMonth}
-                      selectedGoalDate={selectedGoalDate}
-                      setSelectedGoalDate={setSelectedGoalDate}
-                      showGoalDetailStatusPicker={showGoalDetailStatusPicker}
+                selectedGoalDate={selectedGoalDate}
+                setSelectedGoalDate={setSelectedGoalDate}
+                showGoalDetailStartDatePicker={showGoalDetailStartDatePicker}
+                setShowGoalDetailStartDatePicker={setShowGoalDetailStartDatePicker}
+                goalDetailStartDatePickerPosition={goalDetailStartDatePickerPosition}
+                setGoalDetailStartDatePickerPosition={setGoalDetailStartDatePickerPosition}
+                goalDetailStartDatePickerMonth={goalDetailStartDatePickerMonth}
+                setGoalDetailStartDatePickerMonth={setGoalDetailStartDatePickerMonth}
+                selectedGoalStartDate={selectedGoalStartDate}
+                setSelectedGoalStartDate={setSelectedGoalStartDate}
+                showGoalDetailStatusPicker={showGoalDetailStatusPicker}
                       setShowGoalDetailStatusPicker={setShowGoalDetailStatusPicker}
                       goalDetailStatusPickerPosition={goalDetailStatusPickerPosition}
                       setGoalDetailStatusPickerPosition={setGoalDetailStatusPickerPosition}
@@ -1802,6 +1849,7 @@ export function PageContent(props: PageContentProps) {
                       goalTitleRef={goalTitleRef}
                       goalDescriptionRef={goalDescriptionRef}
                       goalDateRef={goalDateRef}
+                      goalStartDateRef={goalStartDateRef}
                       goalStatusRef={goalStatusRef}
                       goalAreaRef={goalAreaRef}
                     />

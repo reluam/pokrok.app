@@ -222,9 +222,12 @@ struct GoalDetailView: View {
             id: "1",
             title: "Příklad cíle",
             description: "Toto je popis příkladového cíle",
+            targetDate: Calendar.current.date(byAdding: .day, value: 30, to: Date()),
+            priority: "medium_term",
             status: "active",
             progressPercentage: 75,
-            targetDate: Calendar.current.date(byAdding: .day, value: 30, to: Date()),
+            icon: nil,
+            aspirationId: nil,
             createdAt: Date(),
             updatedAt: Date()
         )

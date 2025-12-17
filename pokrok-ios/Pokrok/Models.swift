@@ -1,4 +1,39 @@
 import Foundation
+import SwiftUI
+
+// MARK: - Widget Type
+enum WidgetType: String, CaseIterable {
+    case todaySteps = "today_steps"
+    case futureSteps = "future_steps"
+    case todayHabits = "today_habits"
+    case inspiration = "inspiration"
+    
+    var displayName: String {
+        switch self {
+        case .todaySteps:
+            return "Dnešní kroky"
+        case .futureSteps:
+            return "Dnešní a budoucí"
+        case .todayHabits:
+            return "Dnešní návyky"
+        case .inspiration:
+            return "Inspirace"
+        }
+    }
+    
+    var description: String {
+        switch self {
+        case .todaySteps:
+            return "Zobrazuje dnešní kroky a zpožděné úkoly"
+        case .futureSteps:
+            return "Zobrazuje dnešní i budoucí kroky"
+        case .todayHabits:
+            return "Zobrazuje dnešní návyky a jejich stav"
+        case .inspiration:
+            return "Zobrazuje náhodné inspirace a aktivity"
+        }
+    }
+}
 
 // MARK: - Request Models
 
@@ -143,6 +178,7 @@ struct UserSettings: Codable {
     let dailyStepsCount: Int
     let workflow: String // 'daily_planning' or 'no_workflow'
     let filters: FilterSettings?
+    let primaryColor: String? // Hex color code (e.g. "#E8871E")
     let createdAt: Date?
     let updatedAt: Date?
     
@@ -152,6 +188,7 @@ struct UserSettings: Codable {
         case dailyStepsCount = "daily_steps_count"
         case workflow
         case filters
+        case primaryColor = "primary_color"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }
@@ -179,6 +216,62 @@ struct FilterSettings: Codable {
 // MARK: - User Settings API Response Models
 struct UserSettingsResponse: Codable {
     let settings: UserSettings
+}
+
+// MARK: - User Settings Manager
+// Singleton ObservableObject pro sdílení UserSettings napříč aplikací
+
+class UserSettingsManager: ObservableObject {
+    static let shared = UserSettingsManager()
+    
+    @Published var settings: UserSettings?
+    @Published var isLoading = false
+    
+    private let apiManager = APIManager.shared
+    
+    private init() {
+        // Private initializer pro singleton
+    }
+    
+    // Primary color z UserSettings nebo default
+    var primaryColor: Color {
+        if let colorHex = settings?.primaryColor {
+            return Color(hex: colorHex)
+        }
+        return Color(hex: "#E8871E") // Default oranžová
+    }
+    
+    // Primary color hex string
+    var primaryColorHex: String {
+        return settings?.primaryColor ?? "#E8871E"
+    }
+    
+    // Načíst settings z API
+    func loadSettings() {
+        guard !isLoading else { return }
+        
+        isLoading = true
+        Task {
+            do {
+                let fetchedSettings = try await apiManager.fetchUserSettings()
+                await MainActor.run {
+                    self.settings = fetchedSettings
+                    self.isLoading = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.isLoading = false
+                    print("Error loading user settings: \(error)")
+                }
+            }
+        }
+    }
+    
+    // Aktualizovat settings
+    func updateSettings(_ newSettings: UserSettings) {
+        // @Published automaticky notifikuje změny při změně settings
+        settings = newSettings
+    }
 }
 
 // MARK: - Daily Planning Model

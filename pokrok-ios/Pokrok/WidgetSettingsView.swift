@@ -113,10 +113,10 @@ struct WidgetTypeCard: View {
             .padding(DesignSystem.Spacing.md)
             .background(
                 RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                    .fill(isSelected ? DesignSystem.Colors.primary.opacity(0.05) : DesignSystem.Colors.surfacePrimary)
+                    .fill(isSelected ? DesignSystem.Colors.primary.opacity(0.05) : DesignSystem.Colors.surface)
                     .overlay(
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                            .stroke(isSelected ? DesignSystem.Colors.primary : DesignSystem.Colors.border, lineWidth: 1)
+                            .stroke(isSelected ? DesignSystem.Colors.primary : DesignSystem.Colors.outline.opacity(0.2), lineWidth: 1)
                     )
             )
         }
@@ -129,6 +129,8 @@ struct WidgetTypeCard: View {
             return "calendar.badge.checkmark"
         case .futureSteps:
             return "calendar.badge.clock"
+        case .todayHabits:
+            return "repeat.circle.fill"
         case .inspiration:
             return "lightbulb.fill"
         }

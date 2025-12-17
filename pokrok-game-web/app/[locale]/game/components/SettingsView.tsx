@@ -159,7 +159,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
-      })
+        })
       
       console.log('Response status:', response.status, response.ok)
       

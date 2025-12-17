@@ -354,6 +354,30 @@ async function runMigrations() {
       }
     }
     
+    // Add incremental_value to goal_metrics table
+    const goalMetricsColumns = await sql`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'goal_metrics'
+    `
+    const goalMetricsColumnNames = goalMetricsColumns.map((row: any) => row.column_name)
+    
+    if (!goalMetricsColumnNames.includes('incremental_value')) {
+      await sql`ALTER TABLE goal_metrics ADD COLUMN incremental_value DECIMAL(10,2) DEFAULT 1`
+    }
+    
+    // Add progress_calculation_type to goals table
+    const goalsColumns = await sql`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'goals'
+    `
+    const goalsColumnNames = goalsColumns.map((row: any) => row.column_name)
+    
+    if (!goalsColumnNames.includes('progress_calculation_type')) {
+      await sql`ALTER TABLE goals ADD COLUMN progress_calculation_type VARCHAR(20) DEFAULT 'metrics_and_steps' CHECK (progress_calculation_type IN ('metrics', 'metrics_and_steps'))`
+    }
+    
     return { success: true, message: 'Migration completed successfully' }
   } catch (error: any) {
     console.error('Migration error:', error)

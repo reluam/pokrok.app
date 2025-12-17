@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Target, Plus, Footprints, CheckSquare, Settings, Calendar, CalendarRange, CalendarDays } from 'lucide-react'
+import { LayoutDashboard, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Target, Plus, Footprints, CheckSquare, Settings, Calendar, CalendarRange, CalendarDays, CalendarCheck } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
 
 interface SidebarNavigationProps {
@@ -108,6 +108,15 @@ export function SidebarNavigation({
                   >
                     <Calendar className="w-4 h-4 flex-shrink-0" />
                 <span className="font-medium text-sm">{t('navigation.focusMonth') || 'Měsíc'}</span>
+                  </button>
+                  <button
+                    onClick={() => setMainPanelSection('focus-year')}
+                    className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
+                      mainPanelSection === 'focus-year' ? 'active' : ''
+                    }`}
+                  >
+                    <CalendarCheck className="w-4 h-4 flex-shrink-0" />
+                <span className="font-medium text-sm">{t('navigation.focusYear') || 'Rok'}</span>
                   </button>
             </div>
           ) : (

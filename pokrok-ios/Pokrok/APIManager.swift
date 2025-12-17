@@ -1014,7 +1014,7 @@ class APIManager: ObservableObject {
         return userSettingsResponse.settings
     }
     
-    func updateUserSettings(dailyStepsCount: Int? = nil, workflow: String? = nil, filters: FilterSettings? = nil) async throws -> UserSettings {
+    func updateUserSettings(dailyStepsCount: Int? = nil, workflow: String? = nil, filters: FilterSettings? = nil, primaryColor: String? = nil) async throws -> UserSettings {
         guard let url = URL(string: "\(baseURL)/cesta/user-settings") else {
             throw APIError.invalidURL
         }
@@ -1043,6 +1043,9 @@ class APIManager: ObservableObject {
                 "showWithoutGoal": filters.showWithoutGoal,
                 "sortBy": filters.sortBy
             ]
+        }
+        if let primaryColor = primaryColor {
+            requestBody["primary_color"] = primaryColor
         }
         
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)

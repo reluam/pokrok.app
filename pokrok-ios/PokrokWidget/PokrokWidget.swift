@@ -2,25 +2,7 @@ import WidgetKit
 import SwiftUI
 import AppIntents
 
-enum WidgetType: String, CaseIterable {
-    case todaySteps = "today_steps"
-    case futureSteps = "future_steps"
-    case todayHabits = "today_habits"
-    case inspiration = "inspiration"
-    
-    var displayName: String {
-        switch self {
-        case .todaySteps:
-            return "Dnešní kroky"
-        case .futureSteps:
-            return "Dnešní a budoucí"
-        case .todayHabits:
-            return "Dnešní návyky"
-        case .inspiration:
-            return "Inspirace"
-        }
-    }
-}
+// WidgetType is now defined in SharedModels.swift
 
 struct Provider: AppIntentTimelineProvider {
     typealias Entry = SimpleEntry
@@ -328,7 +310,7 @@ struct PokrokWidget: Widget {
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: kind, intent: SelectWidgetTypeIntent.self, provider: Provider()) { entry in
             PokrokWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+                .containerBackground(.fill, for: .widget)
         }
         .configurationDisplayName("Pokrok")
         .description("Sledujte své kroky, návyky a najděte inspiraci")

@@ -1,152 +1,285 @@
 import SwiftUI
 import Clerk
 
+enum Tab: String, CaseIterable {
+    case steps = "Kroky"
+    case habits = "Návyky"
+    case goals = "Cíle"
+    case settings = "Nastavení"
+    
+    var icon: String {
+        switch self {
+        case .steps: return "checkmark.circle.fill"
+        case .habits: return "repeat.circle.fill"
+        case .goals: return "flag.fill"
+        case .settings: return "gear"
+        }
+    }
+}
+
 struct ContentView: View {
     @Environment(\.clerk) private var clerk
-    @State private var showAddMenu = false
+    @ObservedObject private var settingsManager = UserSettingsManager.shared
+    @State private var selectedTab: Tab = .steps
+    @State private var showAddAspirationModal = false
     @State private var showAddGoalModal = false
     @State private var showAddStepModal = false
     @State private var showAddHabitModal = false
+    @State private var showAddMenu = false
     
     var body: some View {
         Group {
             if clerk.user != nil {
                 // Main app content for authenticated users
-                ZStack(alignment: .bottom) {
-                    TabView {
-                        DashboardView()
-                            .tabItem {
-                                Image(systemName: "house.fill")
-                                Text("Domů")
-                            }
-                        
-                        GoalsView()
-                            .tabItem {
-                                Image(systemName: "flag.fill")
-                                Text("Cíle")
-                            }
-                        
-                        StepsView()
-                            .tabItem {
-                                Image(systemName: "checkmark.circle.fill")
-                                Text("Kroky")
-                            }
-                        
-                        HabitsView()
-                            .tabItem {
-                                Image(systemName: "repeat.circle.fill")
-                                Text("Návyky")
-                            }
-                        
-                        SettingsView()
-                            .tabItem {
-                                Image(systemName: "gear")
-                                Text("Nastavení")
-                            }
+                ZStack {
+                    // Main content
+                    Group {
+                        switch selectedTab {
+                        case .steps:
+                            StepsView()
+                        case .habits:
+                            HabitsView()
+                        case .goals:
+                            GoalsView()
+                        case .settings:
+                            SettingsView()
+                        }
                     }
-                    .accentColor(.orange)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     
-                    // Floating half-circle plus button emerging from tab bar
+                    // Custom Playful Tab Bar
                     VStack {
                         Spacer()
-                        Button(action: {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                showAddMenu.toggle()
-                            }
-                        }) {
-                            ZStack {
-                                // Invisible tap area above the button
-                                Rectangle()
-                                    .fill(Color.clear)
-                                    .frame(width: 90, height: 70)
-                                    .offset(y: -10)
-                                
-                                // 4/5 circle (clip bottom 1/5)
-                                Circle()
-                                    .fill(DesignSystem.Colors.primary)
-                                    .frame(width: 70, height: 70)
-                                    .shadow(color: DesignSystem.Colors.primary.opacity(0.4), radius: 8, x: 0, y: -2)
-                                    .clipShape(
-                                        Rectangle()
-                                            .offset(y: -14) // Clip bottom 1/5 (70 * 0.2 = 14)
-                                    )
-                                
-                                Image(systemName: showAddMenu ? "xmark" : "plus")
-                                    .font(.system(size: 24, weight: .semibold))
-                                    .foregroundColor(.white)
-                                    .rotationEffect(.degrees(showAddMenu ? 45 : 0))
-                                    .offset(y: -4)
-                            }
-                            .frame(width: 90, height: 56)
-                            .contentShape(Rectangle())
-                        }
+                        PlayfulTabBar(selectedTab: $selectedTab, showAddMenu: $showAddMenu)
                     }
-                    .ignoresSafeArea(.container, edges: .bottom)
-                    .padding(.bottom, 40)
-                    
-                    // Add Menu Overlay
-                    if showAddMenu {
-                        Color.black.opacity(0.4)
-                            .ignoresSafeArea()
-                            .onTapGesture {
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                    showAddMenu = false
-                                }
-                            }
-                        
-                        VStack(spacing: 16) {
-                            Spacer()
-                            
-                            // Menu Options
-                            VStack(spacing: 12) {
-                                AddMenuButton(
-                                    icon: "flag.fill",
-                                    title: "Cíl",
-                                    color: DesignSystem.Colors.longTerm
-                                ) {
-                                    showAddMenu = false
-                                    showAddGoalModal = true
-                                }
-                                
-                                AddMenuButton(
-                                    icon: "checkmark.circle.fill",
-                                    title: "Krok",
-                                    color: DesignSystem.Colors.primary
-                                ) {
-                                    showAddMenu = false
-                                    showAddStepModal = true
-                                }
-                                
-                                AddMenuButton(
-                                    icon: "repeat.circle.fill",
-                                    title: "Návyk",
-                                    color: DesignSystem.Colors.mediumTerm
-                                ) {
-                                    showAddMenu = false
-                                    showAddHabitModal = true
-                                }
-                            }
-                            .padding(.horizontal, 40)
-                            .padding(.bottom, 120)
-                        }
-                        .transition(.opacity.combined(with: .move(edge: .bottom)))
-                    }
+                    .ignoresSafeArea(.keyboard, edges: .bottom)
+                }
+                .background(DesignSystem.Colors.background)
+                .sheet(isPresented: $showAddAspirationModal) {
+                    AddAspirationModal(onAspirationAdded: {})
                 }
                 .sheet(isPresented: $showAddGoalModal) {
                     AddGoalModal(onGoalAdded: {})
                 }
                 .sheet(isPresented: $showAddStepModal) {
-                    AddStepModal(onStepAdded: {})
+                    AddStepModal(initialDate: Date(), onStepAdded: {})
                 }
                 .sheet(isPresented: $showAddHabitModal) {
                     AddHabitModal(onHabitAdded: {})
+                }
+                .sheet(isPresented: $showAddMenu) {
+                    AddMenuSheet(
+                        showAddAspirationModal: $showAddAspirationModal,
+                        showAddGoalModal: $showAddGoalModal,
+                        showAddStepModal: $showAddStepModal,
+                        showAddHabitModal: $showAddHabitModal
+                    )
                 }
             } else {
                 // Authentication screen for unauthenticated users
                 AuthView()
             }
         }
-        .onAppear {
+    }
+}
+
+// MARK: - Playful Tab Bar
+struct PlayfulTabBar: View {
+    @Binding var selectedTab: Tab
+    @Binding var showAddMenu: Bool
+    @ObservedObject private var settingsManager = UserSettingsManager.shared
+    
+    var body: some View {
+        HStack(spacing: 0, alignment: .center) {
+            // First two tabs (Kroky, Návyky)
+            ForEach([Tab.steps, Tab.habits], id: \.self) { tab in
+                TabBarButton(
+                    tab: tab,
+                    isSelected: selectedTab == tab,
+                    action: {
+                        selectedTab = tab
+                    }
+                )
+                .frame(maxWidth: .infinity)
+            }
+            
+            // Central Add Button
+            Button(action: {
+                showAddMenu = true
+            }) {
+                Circle()
+                    .fill(DesignSystem.Colors.dynamicPrimary)
+                    .frame(width: 56, height: 56)
+                    .overlay(
+                        Circle()
+                            .stroke(DesignSystem.Colors.outline, lineWidth: 2)
+                    )
+                    .overlay(
+                        Image(systemName: "plus")
+                            .font(.system(size: 24, weight: .bold))
+                            .foregroundColor(.white)
+                    )
+            }
+            .buttonStyle(PlainButtonStyle())
+            .padding(.horizontal, DesignSystem.Spacing.xs)
+            
+            // Last two tabs (Cíle, Nastavení)
+            ForEach([Tab.goals, Tab.settings], id: \.self) { tab in
+                TabBarButton(
+                    tab: tab,
+                    isSelected: selectedTab == tab,
+                    action: {
+                        selectedTab = tab
+                    }
+                )
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .frame(height: 56)
+        .padding(.horizontal, DesignSystem.Spacing.sm)
+        .padding(.vertical, DesignSystem.Spacing.sm)
+        .padding(.bottom, DesignSystem.Spacing.sm)
+        .background(
+            // Main tab bar background
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                .fill(DesignSystem.Colors.surface)
+                .overlay(
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                        .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                )
+                .background(
+                    // Offset shadow for playful effect
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                        .fill(DesignSystem.Shadows.card)
+                        .offset(
+                            x: DesignSystem.Shadows.cardOffsetX,
+                            y: DesignSystem.Shadows.cardOffsetY
+                        )
+                )
+        )
+        .padding(.horizontal, DesignSystem.Spacing.md)
+    }
+}
+
+// MARK: - Tab Bar Button
+struct TabBarButton: View {
+    let tab: Tab
+    let isSelected: Bool
+    let action: () -> Void
+    @ObservedObject private var settingsManager = UserSettingsManager.shared
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: DesignSystem.Spacing.xs) {
+                Image(systemName: tab.icon)
+                    .font(.system(size: 20, weight: isSelected ? .semibold : .regular))
+                    .foregroundColor(isSelected ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.textSecondary)
+                
+                Text(tab.rawValue)
+                    .font(DesignSystem.Typography.caption2)
+                    .foregroundColor(isSelected ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.textSecondary)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Add Menu Sheet
+struct AddMenuSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @Binding var showAddAspirationModal: Bool
+    @Binding var showAddGoalModal: Bool
+    @Binding var showAddStepModal: Bool
+    @Binding var showAddHabitModal: Bool
+    @ObservedObject private var settingsManager = UserSettingsManager.shared
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: DesignSystem.Spacing.lg) {
+                    // Header
+                    VStack(spacing: DesignSystem.Spacing.sm) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 48, weight: .medium))
+                            .foregroundColor(settingsManager.primaryColor)
+                        
+                        Text("Přidat nový")
+                            .font(DesignSystem.Typography.title2)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                        
+                        Text("Vyberte, co chcete přidat")
+                            .font(DesignSystem.Typography.body)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                    }
+                    .padding(.top, DesignSystem.Spacing.xl)
+                    
+                    // Menu options
+                    VStack(spacing: DesignSystem.Spacing.md) {
+                        AddMenuButton(
+                            icon: "folder.fill",
+                            title: "Oblast",
+                            color: DesignSystem.Colors.Playful.purple
+                        ) {
+                            dismiss()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                showAddAspirationModal = true
+                            }
+                        }
+                        
+                        AddMenuButton(
+                            icon: "flag.fill",
+                            title: "Cíl",
+                            color: DesignSystem.Colors.Playful.yellowGreen
+                        ) {
+                            dismiss()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                showAddGoalModal = true
+                            }
+                        }
+                        
+                        AddMenuButton(
+                            icon: "checkmark.circle.fill",
+                            title: "Krok",
+                            color: settingsManager.primaryColor
+                        ) {
+                            dismiss()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                showAddStepModal = true
+                            }
+                        }
+                        
+                        AddMenuButton(
+                            icon: "repeat.circle.fill",
+                            title: "Návyk",
+                            color: DesignSystem.Colors.Playful.yellow
+                        ) {
+                            dismiss()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                showAddHabitModal = true
+                            }
+                        }
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.md)
+                    .padding(.top, DesignSystem.Spacing.lg)
+                    
+                    // Bottom padding
+                    Spacer(minLength: 100)
+                }
+                .padding(.top, DesignSystem.Spacing.md)
+            }
+            .background(DesignSystem.Colors.background)
+            .navigationTitle("Přidat")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Zrušit") {
+                        dismiss()
+                    }
+                    .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                }
+            }
         }
     }
 }
@@ -157,14 +290,27 @@ struct AddMenuButton: View {
     let title: String
     let color: Color
     let action: () -> Void
+    @ObservedObject private var settingsManager = UserSettingsManager.shared
     
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 16) {
+            HStack(spacing: DesignSystem.Spacing.md) {
                 ZStack {
                     Circle()
-                        .fill(color.opacity(0.2))
+                        .fill(color.mix(with: DesignSystem.Colors.surface, by: 0.85))
                         .frame(width: 48, height: 48)
+                        .overlay(
+                            Circle()
+                                .stroke(settingsManager.primaryColor, lineWidth: 2)
+                        )
+                        .background(
+                            Circle()
+                                .fill(DesignSystem.Shadows.card)
+                                .offset(
+                                    x: DesignSystem.Shadows.cardOffsetX,
+                                    y: DesignSystem.Shadows.cardOffsetY
+                                )
+                        )
                     
                     Image(systemName: icon)
                         .font(.system(size: 20, weight: .semibold))
@@ -181,10 +327,23 @@ struct AddMenuButton: View {
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(DesignSystem.Colors.textTertiary)
             }
-            .padding(16)
+            .padding(DesignSystem.Spacing.md)
             .background(
                 RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
                     .fill(DesignSystem.Colors.surface)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                            .stroke(settingsManager.primaryColor, lineWidth: 2)
+                    )
+                    .background(
+                        // Offset shadow effect matching playful design
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                            .fill(DesignSystem.Shadows.card)
+                            .offset(
+                                x: DesignSystem.Shadows.cardOffsetX,
+                                y: DesignSystem.Shadows.cardOffsetY
+                            )
+                    )
             )
         }
         .buttonStyle(PlainButtonStyle())

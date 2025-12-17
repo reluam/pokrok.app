@@ -143,10 +143,20 @@ struct AuthView: View {
         
         Task {
             do {
+                guard clerk.client != nil else {
+                    await MainActor.run {
+                        errorMessage = "Clerk není inicializován"
+                        showError = true
+                        isLoading = false
+                    }
+                    return
+                }
+                
                 if isSignUp {
-                    try await clerk.signUp.create(.init(emailAddress: email, password: password))
+                    _ = try await SignUp.create(strategy: .standard(emailAddress: email, password: password))
                 } else {
-                    try await clerk.signIn.create(.init(identifier: email, password: password))
+                    let signIn = try await SignIn.create(strategy: .identifier(email))
+                    _ = try await signIn.attemptFirstFactor(strategy: .password(password: password))
                 }
             } catch {
                 await MainActor.run {
@@ -167,7 +177,8 @@ struct AuthView: View {
         
         Task {
             do {
-                try await clerk.signIn.create(.init(strategy: .google))
+                _ = try await SignIn.create(strategy: .oauth(provider: .google))
+                    .authenticateWithRedirect()
             } catch {
                 await MainActor.run {
                     errorMessage = error.localizedDescription
@@ -187,7 +198,8 @@ struct AuthView: View {
         
         Task {
             do {
-                try await clerk.signIn.create(.init(strategy: .apple))
+                _ = try await SignIn.create(strategy: .oauth(provider: .apple))
+                    .authenticateWithRedirect()
             } catch {
                 await MainActor.run {
                     errorMessage = error.localizedDescription

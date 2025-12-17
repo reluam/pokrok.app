@@ -11,9 +11,13 @@ struct PokrokApp: App {
         WindowGroup {
             ContentView()
                 .environment(\.clerk, clerk)
+                .environmentObject(UserSettingsManager.shared)
                 .task {
                     clerk.configure(publishableKey: "pk_live_Y2xlcmsucG9rcm9rLmFwcCQ")
                     try? await clerk.load()
+                    
+                    // Load user settings for primary color
+                    UserSettingsManager.shared.loadSettings()
                     
                     // Start automatic token refresh
                     startTokenRefreshTimer()

@@ -52,6 +52,13 @@ struct DailyPlanningView: View {
         return formatter.string(from: selectedDate).capitalized
     }
     
+    private var monthName: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "cs_CZ")
+        formatter.dateFormat = "MMMM"
+        return formatter.string(from: selectedDate)
+    }
+    
     private var dayNumber: Int {
         Calendar.current.component(.day, from: selectedDate)
     }
@@ -213,67 +220,56 @@ struct DailyPlanningView: View {
     
     // MARK: - Header Section with Progress
     private var headerSectionWithProgress: some View {
-        ModernCard(
-            backgroundColor: isToday ? DesignSystem.Colors.surface : DesignSystem.Colors.surfaceSecondary.opacity(0.6)
-        ) {
-            HStack(alignment: .center, spacing: DesignSystem.Spacing.md) {
+        PlayfulCard(variant: isToday ? .pink : .purple) {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                // Date row with navigation arrows
+                HStack(alignment: .center, spacing: DesignSystem.Spacing.sm) {
                 // Left arrow button
                 Button(action: {
                     changeDate(by: -1)
                 }) {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(isToday ? DesignSystem.Colors.primary : DesignSystem.Colors.textTertiary)
-                        .frame(width: 32, height: 32)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(isToday ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.textTertiary)
+                            .frame(width: 24, height: 24)
                 }
                 
                 // Date and day info
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                    Text(dayName)
-                        .font(DesignSystem.Typography.body)
-                        .foregroundColor(isToday ? DesignSystem.Colors.textSecondary : DesignSystem.Colors.textTertiary)
-                    
                     HStack(alignment: .bottom, spacing: DesignSystem.Spacing.xs) {
                         Text("\(dayNumber)")
-                            .font(DesignSystem.Typography.largeTitle)
+                            .font(DesignSystem.Typography.title1)
                             .fontWeight(.bold)
                             .foregroundColor(isToday ? DesignSystem.Colors.textPrimary : DesignSystem.Colors.textSecondary)
                         
-                        if !isToday {
-                            Text("(ne dnes)")
-                                .font(DesignSystem.Typography.caption)
-                                .foregroundColor(DesignSystem.Colors.textTertiary)
-                        }
-                    }
+                        Text(monthName)
+                            .font(DesignSystem.Typography.body)
+                            .foregroundColor(isToday ? DesignSystem.Colors.textSecondary : DesignSystem.Colors.textTertiary)
+                        
+                        Text(dayName)
+                            .font(DesignSystem.Typography.body)
+                            .foregroundColor(isToday ? DesignSystem.Colors.textSecondary : DesignSystem.Colors.textTertiary)
                 }
                 
                 Spacer()
-                
-                // Progress bar and percentage
-                VStack(alignment: .trailing, spacing: DesignSystem.Spacing.xs) {
-                    ModernProgressBar(
-                        progress: progressPercentageValue,
-                        height: 8,
-                        foregroundColor: DesignSystem.Colors.success
-                    )
-                    
-                    Text("\(completionPercentage)% (\(completedTasks)/\(totalTasks))")
-                        .font(DesignSystem.Typography.caption)
-                        .foregroundColor(isToday ? DesignSystem.Colors.textSecondary : DesignSystem.Colors.textTertiary)
-                }
-                .frame(width: 120)
                 
                 // Right arrow button
                 Button(action: {
                     changeDate(by: 1)
                 }) {
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(isToday ? DesignSystem.Colors.primary : DesignSystem.Colors.textTertiary)
-                        .frame(width: 32, height: 32)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(isToday ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.textTertiary)
+                            .frame(width: 24, height: 24)
                 }
+                }
+                
+                // Progress bar (without percentage)
+                PlayfulProgressBar(
+                    progress: progressPercentageValue,
+                    variant: .yellowGreen
+                )
             }
-            .padding(DesignSystem.Spacing.md)
+            .padding(DesignSystem.Spacing.sm) // Reduced padding from .md to .sm
         }
     }
     
@@ -334,9 +330,18 @@ struct DailyPlanningView: View {
             } else {
                 LazyVStack(spacing: DesignSystem.Spacing.sm) {
                     ForEach(Array(todaySteps.enumerated()), id: \.element.id) { index, step in
-                        StepRow(
+                        let goal = goals.first { $0.id == step.goalId }
+                        let calendar = Calendar.current
+                        let today = calendar.startOfDay(for: Date())
+                        let stepDate = calendar.startOfDay(for: step.date)
+                        let isOverdue = stepDate < today && !step.completed
+                        let isFuture = stepDate > today
+                        
+                        PlayfulStepCard(
                             step: step,
-                            index: index,
+                            goalTitle: goal?.title,
+                            isOverdue: isOverdue,
+                            isFuture: isFuture,
                             onToggle: {
                                 toggleStepCompletion(stepId: step.id, completed: !step.completed)
                             }
@@ -362,17 +367,19 @@ struct DailyPlanningView: View {
             } else {
                 LazyVStack(spacing: DesignSystem.Spacing.sm) {
                     ForEach(todaysHabits, id: \.id) { habit in
-                        HabitRow(
+                        PlayfulHabitCard(
                             habit: habit,
                             isCompleted: isHabitCompleted(habit),
-                            isLoading: loadingHabits.contains(habit.id),
                             onToggle: {
+                                if !loadingHabits.contains(habit.id) {
                                 toggleHabitCompletion(habit: habit)
-                            },
-                            onLongPress: {
-                                showHabitAspirationEditor(habit: habit)
+                                }
                             }
                         )
+                        .onLongPressGesture {
+                            showHabitAspirationEditor(habit: habit)
+                        }
+                        .disabled(loadingHabits.contains(habit.id))
                     }
                 }
             }
@@ -381,7 +388,7 @@ struct DailyPlanningView: View {
     
     // MARK: - Inspiration Section
     private var inspirationSection: some View {
-        ModernCard {
+        PlayfulCard(variant: .purple) {
             VStack(spacing: DesignSystem.Spacing.lg) {
                 VStack(spacing: DesignSystem.Spacing.md) {
                     Image(systemName: "party.popper.fill")
@@ -563,223 +570,6 @@ struct DailyPlanningView: View {
                     loadingHabits.remove(habit.id)
                 }
             }
-        }
-    }
-}
-
-// MARK: - Step Row Component
-struct StepRow: View {
-    let step: DailyStep
-    let onToggle: () -> Void
-    let index: Int
-    
-    init(step: DailyStep, index: Int = 0, onToggle: @escaping () -> Void) {
-        self.step = step
-        self.index = index
-        self.onToggle = onToggle
-    }
-    
-    private var isOverdue: Bool {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let stepDate = calendar.startOfDay(for: step.date)
-        return stepDate < today && !step.completed
-    }
-    
-    var body: some View {
-        Button(action: onToggle) {
-            HStack(spacing: DesignSystem.Spacing.md) {
-                // Checkbox - square with green background when completed
-                ZStack {
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(step.completed ? DesignSystem.Colors.success : Color.clear)
-                        .frame(width: 20, height: 20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(step.completed ? DesignSystem.Colors.success : DesignSystem.Colors.textTertiary, lineWidth: 2)
-                        )
-                    
-                    if step.completed {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(.white)
-                    }
-                }
-                .shadow(color: step.completed ? DesignSystem.Colors.success.opacity(0.3) : Color.clear, radius: 4, x: 0, y: 2)
-                
-                // Step number
-                Text("#\(index + 1)")
-                    .font(DesignSystem.Typography.caption)
-                    .foregroundColor(DesignSystem.Colors.textTertiary)
-                
-                // Step content
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                    HStack(spacing: DesignSystem.Spacing.sm) {
-                        Text(step.title)
-                            .font(DesignSystem.Typography.body)
-                            .fontWeight(.semibold)
-                            .foregroundColor(step.completed ? 
-                                            // Jemnější barva textu pro dokončené kroky - adaptivní
-                                            Color(UIColor { traitCollection in
-                                                switch traitCollection.userInterfaceStyle {
-                                                case .dark:
-                                                    // V dark mode: jemná světle zelená
-                                                    return UIColor(red: 134/255, green: 239/255, blue: 172/255, alpha: 1.0)
-                                                default:
-                                                    // V light mode: tmavší zelená
-                                                    return UIColor(red: 22/255, green: 163/255, blue: 74/255, alpha: 1.0)
-                                                }
-                                            }) : 
-                                            DesignSystem.Colors.textPrimary)
-                            .strikethrough(step.completed)
-                            .multilineTextAlignment(.leading)
-                        
-                        // Status chip
-                        if isOverdue {
-                            Text("Zpožděné")
-                                .font(DesignSystem.Typography.caption2)
-                                .fontWeight(.medium)
-                                .foregroundColor(DesignSystem.Colors.error)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(DesignSystem.Colors.error.opacity(0.1))
-                                .cornerRadius(8)
-                        }
-                    }
-                    
-                    if let description = step.description, !description.isEmpty {
-                        Text(description)
-                            .font(DesignSystem.Typography.caption)
-                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                            .lineLimit(2)
-                    }
-                }
-                
-                Spacer()
-            }
-            .padding(DesignSystem.Spacing.md)
-            .background(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
-                    .fill(step.completed ? 
-                          // Jemné matné pozadí pro dokončené kroky - adaptivní pro dark mode
-                          Color(UIColor { traitCollection in
-                              switch traitCollection.userInterfaceStyle {
-                              case .dark:
-                                  // V dark mode: velmi jemné tmavě zelené pozadí
-                                  return UIColor(red: 34/255, green: 50/255, blue: 40/255, alpha: 1.0)
-                              default:
-                                  // V light mode: velmi jemné světle zelené pozadí
-                                  return UIColor(red: 240/255, green: 253/255, blue: 244/255, alpha: 1.0)
-                              }
-                          }) :
-                          // Pro nedokončené kroky použijeme standardní surface
-                          DesignSystem.Colors.surface)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
-                    .stroke(step.completed ? 
-                            // Jemný matný border pro dokončené kroky - adaptivní
-                            Color(UIColor { traitCollection in
-                                switch traitCollection.userInterfaceStyle {
-                                case .dark:
-                                    // V dark mode: velmi jemný tmavě zelený border
-                                    return UIColor(red: 34/255, green: 80/255, blue: 50/255, alpha: 1.0)
-                                default:
-                                    // V light mode: jemný světle zelený border
-                                    return UIColor(red: 187/255, green: 247/255, blue: 208/255, alpha: 1.0)
-                                }
-                            }) :
-                            // Pro nedokončené kroky: jemný šedý border
-                            Color(UIColor { traitCollection in
-                                switch traitCollection.userInterfaceStyle {
-                                case .dark:
-                                    return UIColor(red: 60/255, green: 60/255, blue: 65/255, alpha: 1.0)
-                                default:
-                                    return UIColor(red: 229/255, green: 231/255, blue: 235/255, alpha: 1.0)
-                                }
-                            }),
-                            lineWidth: 1)
-            )
-            .shadow(color: step.completed ? 
-                    // Jemnější stíny pro dokončené kroky
-                    Color(UIColor { traitCollection in
-                        switch traitCollection.userInterfaceStyle {
-                        case .dark:
-                            return UIColor(red: 34/255, green: 197/255, blue: 94/255, alpha: 0.1)
-                        default:
-                            return UIColor(red: 34/255, green: 197/255, blue: 94/255, alpha: 0.15)
-                        }
-                    }) : 
-                    DesignSystem.Shadows.sm,
-                    radius: step.completed ? 4 : 2,
-                    x: 0,
-                    y: step.completed ? 2 : 1)
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
-
-// MARK: - Habit Row Component
-struct HabitRow: View {
-    let habit: Habit
-    let isCompleted: Bool
-    let isLoading: Bool
-    let onToggle: () -> Void
-    let onLongPress: (() -> Void)?
-    
-    init(habit: Habit, isCompleted: Bool, isLoading: Bool, onToggle: @escaping () -> Void, onLongPress: (() -> Void)? = nil) {
-        self.habit = habit
-        self.isCompleted = isCompleted
-        self.isLoading = isLoading
-        self.onToggle = onToggle
-        self.onLongPress = onLongPress
-    }
-    
-    var body: some View {
-        Button(action: onToggle) {
-            HStack(spacing: DesignSystem.Spacing.sm) {
-                // Checkbox - square with orange background when completed
-                ZStack {
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(isCompleted ? DesignSystem.Colors.primary : Color.clear)
-                        .frame(width: 20, height: 20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(isCompleted ? DesignSystem.Colors.primary : DesignSystem.Colors.textTertiary, lineWidth: 2)
-                        )
-                    
-                    if isLoading {
-                        ProgressView()
-                            .scaleEffect(0.7)
-                    } else if isCompleted {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(.white)
-                    }
-                }
-                
-                Text(habit.name)
-                    .font(DesignSystem.Typography.body)
-                    .foregroundColor(isCompleted ? DesignSystem.Colors.primary.opacity(0.8) : DesignSystem.Colors.textPrimary)
-                    .strikethrough(isCompleted)
-                    .multilineTextAlignment(.leading)
-                
-                Spacer()
-            }
-            .padding(DesignSystem.Spacing.md)
-            .background(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                    .fill(isCompleted ? DesignSystem.Colors.primary.opacity(0.1) : DesignSystem.Colors.background)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                            .stroke(isCompleted ? DesignSystem.Colors.primary.opacity(0.3) : Color.clear, lineWidth: 1)
-                    )
-            )
-        }
-        .buttonStyle(PlainButtonStyle())
-        .disabled(isLoading)
-        .onLongPressGesture {
-            onLongPress?()
         }
     }
 }

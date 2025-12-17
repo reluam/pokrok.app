@@ -20,6 +20,16 @@
 		7254029C2EA4265300697B62 /* DailyPlanningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7254029A2EA4265300697B62 /* DailyPlanningView.swift */; };
 		7254029D2EA4265300697B62 /* NoWorkflowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7254029B2EA4265300697B62 /* NoWorkflowView.swift */; };
 		725993E72EBE086100D5235D /* AspirationsOverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 725993E62EBE086100D5235D /* AspirationsOverviewView.swift */; };
+		72FEB5372EEC222300A10A89 /* PlayfulComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FEB5362EEC222300A10A89 /* PlayfulComponents.swift */; };
+		72FEB53E2EEC223100A10A89 /* WidgetSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FEB53C2EEC223100A10A89 /* WidgetSettings.swift */; };
+		72FEB53F2EEC223100A10A89 /* WidgetSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FEB53D2EEC223100A10A89 /* WidgetSettingsView.swift */; };
+		72FEB5402EEC223100A10A89 /* GoalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FEB53A2EEC223100A10A89 /* GoalDetailView.swift */; };
+		72FEB5412EEC223100A10A89 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FEB5392EEC223100A10A89 /* AuthView.swift */; };
+		72FEB5422EEC223100A10A89 /* StepDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FEB53B2EEC223100A10A89 /* StepDetailView.swift */; };
+		72FEB5432EEC223100A10A89 /* Animations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FEB5382EEC223100A10A89 /* Animations.swift */; };
+		72FEB5452EEC75F300A10A89 /* WeekView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FEB5442EEC75F300A10A89 /* WeekView.swift */; };
+		72FEB5472EED724500A10A89 /* AreasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FEB5462EED724500A10A89 /* AreasView.swift */; };
+		72FEB54A2EED8BA300A10A89 /* DateSelectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FEB5482EED8BA300A10A89 /* DateSelectionManager.swift */; };
 		A1234567890ABCDEF001 /* PokrokApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF002 /* PokrokApp.swift */; };
 		A1234567890ABCDEF003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF004 /* ContentView.swift */; };
 		A1234567890ABCDEF005 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF006 /* DashboardView.swift */; };
@@ -66,6 +76,16 @@
 		7254029A2EA4265300697B62 /* DailyPlanningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlanningView.swift; sourceTree = "<group>"; };
 		7254029B2EA4265300697B62 /* NoWorkflowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoWorkflowView.swift; sourceTree = "<group>"; };
 		725993E62EBE086100D5235D /* AspirationsOverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AspirationsOverviewView.swift; sourceTree = "<group>"; };
+		72FEB5362EEC222300A10A89 /* PlayfulComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayfulComponents.swift; sourceTree = "<group>"; };
+		72FEB5382EEC223100A10A89 /* Animations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Animations.swift; sourceTree = "<group>"; };
+		72FEB5392EEC223100A10A89 /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
+		72FEB53A2EEC223100A10A89 /* GoalDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalDetailView.swift; sourceTree = "<group>"; };
+		72FEB53B2EEC223100A10A89 /* StepDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepDetailView.swift; sourceTree = "<group>"; };
+		72FEB53C2EEC223100A10A89 /* WidgetSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSettings.swift; sourceTree = "<group>"; };
+		72FEB53D2EEC223100A10A89 /* WidgetSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSettingsView.swift; sourceTree = "<group>"; };
+		72FEB5442EEC75F300A10A89 /* WeekView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekView.swift; sourceTree = "<group>"; };
+		72FEB5462EED724500A10A89 /* AreasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AreasView.swift; sourceTree = "<group>"; };
+		72FEB5482EED8BA300A10A89 /* DateSelectionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateSelectionManager.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF000 /* Pokrok.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pokrok.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1234567890ABCDEF002 /* PokrokApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokrokApp.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF004 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -134,6 +154,16 @@
 		A1234567890ABCDEF015 /* Pokrok */ = {
 			isa = PBXGroup;
 			children = (
+				72FEB5482EED8BA300A10A89 /* DateSelectionManager.swift */,
+				72FEB5462EED724500A10A89 /* AreasView.swift */,
+				72FEB5442EEC75F300A10A89 /* WeekView.swift */,
+				72FEB5382EEC223100A10A89 /* Animations.swift */,
+				72FEB5392EEC223100A10A89 /* AuthView.swift */,
+				72FEB53A2EEC223100A10A89 /* GoalDetailView.swift */,
+				72FEB53B2EEC223100A10A89 /* StepDetailView.swift */,
+				72FEB53C2EEC223100A10A89 /* WidgetSettings.swift */,
+				72FEB53D2EEC223100A10A89 /* WidgetSettingsView.swift */,
+				72FEB5362EEC222300A10A89 /* PlayfulComponents.swift */,
 				725993E62EBE086100D5235D /* AspirationsOverviewView.swift */,
 				7254029A2EA4265300697B62 /* DailyPlanningView.swift */,
 				7254029B2EA4265300697B62 /* NoWorkflowView.swift */,
@@ -285,17 +315,27 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				72FEB54A2EED8BA300A10A89 /* DateSelectionManager.swift in Sources */,
 				A1234567890ABCDEF003 /* ContentView.swift in Sources */,
 				7254029C2EA4265300697B62 /* DailyPlanningView.swift in Sources */,
 				7254029D2EA4265300697B62 /* NoWorkflowView.swift in Sources */,
 				A1234567890ABCDEF001 /* PokrokApp.swift in Sources */,
+				72FEB53E2EEC223100A10A89 /* WidgetSettings.swift in Sources */,
+				72FEB53F2EEC223100A10A89 /* WidgetSettingsView.swift in Sources */,
+				72FEB5402EEC223100A10A89 /* GoalDetailView.swift in Sources */,
+				72FEB5412EEC223100A10A89 /* AuthView.swift in Sources */,
+				72FEB5422EEC223100A10A89 /* StepDetailView.swift in Sources */,
+				72FEB5472EED724500A10A89 /* AreasView.swift in Sources */,
+				72FEB5432EEC223100A10A89 /* Animations.swift in Sources */,
 				724664E52E9B9F550012345C /* AccessibilitySupport.swift in Sources */,
 				725993E72EBE086100D5235D /* AspirationsOverviewView.swift in Sources */,
+				72FEB5372EEC222300A10A89 /* PlayfulComponents.swift in Sources */,
 				724664E62E9B9F550012345C /* DesignSystem.swift in Sources */,
 				724664E72E9B9F550012345C /* ModernComponents.swift in Sources */,
 				A1234567890ABCDEF005 /* DashboardView.swift in Sources */,
 				725402992EA2B62A00697B62 /* NotesView.swift in Sources */,
 				A1234567890ABCDEF007 /* OverviewView.swift in Sources */,
+				72FEB5452EEC75F300A10A89 /* WeekView.swift in Sources */,
 				A1234567890ABCDEF009 /* OtherViews.swift in Sources */,
 				724664DF2E9B96400012345C /* Models.swift in Sources */,
 				724664E12E9B969B0012345C /* APIManager.swift in Sources */,

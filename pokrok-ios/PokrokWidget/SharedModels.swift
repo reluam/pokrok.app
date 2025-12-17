@@ -2,6 +2,42 @@ import Foundation
 
 // MARK: - Shared Models for Widget
 
+// MARK: - Widget Type
+// Note: WidgetType is also defined in Models.swift in the main app
+// Both definitions must match for compatibility
+enum WidgetType: String, CaseIterable {
+    case todaySteps = "today_steps"
+    case futureSteps = "future_steps"
+    case todayHabits = "today_habits"
+    case inspiration = "inspiration"
+    
+    var displayName: String {
+        switch self {
+        case .todaySteps:
+            return "Dnešní kroky"
+        case .futureSteps:
+            return "Dnešní a budoucí"
+        case .todayHabits:
+            return "Dnešní návyky"
+        case .inspiration:
+            return "Inspirace"
+        }
+    }
+    
+    var description: String {
+        switch self {
+        case .todaySteps:
+            return "Zobrazuje dnešní kroky a zpožděné úkoly"
+        case .futureSteps:
+            return "Zobrazuje dnešní i budoucí kroky"
+        case .todayHabits:
+            return "Zobrazuje dnešní návyky a jejich stav"
+        case .inspiration:
+            return "Zobrazuje náhodné inspirace a aktivity"
+        }
+    }
+}
+
 struct User: Codable {
     let id: String
     let email: String

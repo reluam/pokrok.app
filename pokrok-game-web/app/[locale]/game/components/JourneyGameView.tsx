@@ -444,6 +444,10 @@ export function JourneyGameView({
   const [goalDetailDatePickerPosition, setGoalDetailDatePickerPosition] = useState<{ top: number; left: number } | null>(null)
   const [goalDetailDatePickerMonth, setGoalDetailDatePickerMonth] = useState<Date>(new Date())
   const [selectedGoalDate, setSelectedGoalDate] = useState<Date | null>(null)
+  const [showGoalDetailStartDatePicker, setShowGoalDetailStartDatePicker] = useState(false)
+  const [goalDetailStartDatePickerPosition, setGoalDetailStartDatePickerPosition] = useState<{ top: number; left: number } | null>(null)
+  const [goalDetailStartDatePickerMonth, setGoalDetailStartDatePickerMonth] = useState<Date>(new Date())
+  const [selectedGoalStartDate, setSelectedGoalStartDate] = useState<Date | null>(null)
   const [showGoalDetailStatusPicker, setShowGoalDetailStatusPicker] = useState(false)
   const [goalDetailStatusPickerPosition, setGoalDetailStatusPickerPosition] = useState<{ top: number; left: number } | null>(null)
   const [expandedSidebarSections, setExpandedSidebarSections] = useState<Set<'paused' | 'completed'>>(new Set())
@@ -575,6 +579,7 @@ export function JourneyGameView({
   const goalTitleRef = useRef<HTMLInputElement | HTMLHeadingElement>(null)
   const goalDescriptionRef = useRef<HTMLTextAreaElement | HTMLParagraphElement>(null)
   const goalDateRef = useRef<HTMLSpanElement>(null)
+  const goalStartDateRef = useRef<HTMLSpanElement>(null)
   const goalStatusRef = useRef<HTMLButtonElement>(null)
   const goalIconRef = useRef<HTMLSpanElement>(null)
   const [showCreateStep, setShowCreateStep] = useState(false)
@@ -3625,6 +3630,14 @@ export function JourneyGameView({
           setGoalDetailDatePickerMonth={setGoalDetailDatePickerMonth}
           selectedGoalDate={selectedGoalDate}
           setSelectedGoalDate={setSelectedGoalDate}
+          showGoalDetailStartDatePicker={showGoalDetailStartDatePicker}
+          setShowGoalDetailStartDatePicker={setShowGoalDetailStartDatePicker}
+          goalDetailStartDatePickerPosition={goalDetailStartDatePickerPosition}
+          setGoalDetailStartDatePickerPosition={setGoalDetailStartDatePickerPosition}
+          goalDetailStartDatePickerMonth={goalDetailStartDatePickerMonth}
+          setGoalDetailStartDatePickerMonth={setGoalDetailStartDatePickerMonth}
+          selectedGoalStartDate={selectedGoalStartDate}
+          setSelectedGoalStartDate={setSelectedGoalStartDate}
           showGoalDetailStatusPicker={showGoalDetailStatusPicker}
           setShowGoalDetailStatusPicker={setShowGoalDetailStatusPicker}
           goalDetailStatusPickerPosition={goalDetailStatusPickerPosition}
@@ -3647,9 +3660,12 @@ export function JourneyGameView({
           goalTitleRef={goalTitleRef}
           goalDescriptionRef={goalDescriptionRef}
           goalDateRef={goalDateRef}
+          goalStartDateRef={goalStartDateRef}
           goalStatusRef={goalStatusRef}
           goalAreaRef={goalAreaRef}
           selectedDayDate={selectedDayDate}
+          selectedYear={selectedYear}
+          setSelectedYear={setSelectedYear}
           setSelectedDayDate={setSelectedDayDate}
           setShowDatePickerModal={setShowDatePickerModal}
           setSelectedItemType={setSelectedItemType}
