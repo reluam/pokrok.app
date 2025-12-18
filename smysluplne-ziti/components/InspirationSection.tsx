@@ -10,9 +10,6 @@ export default function InspirationSection() {
       
       <div className="max-w-7xl mx-auto container-padding relative">
         <div className="text-center mb-12">
-          <div className="inline-block px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-semibold mb-6">
-            Inspirace
-          </div>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary mb-6">
             Najděte{' '}
             <span className="gradient-text">inspiraci</span>
