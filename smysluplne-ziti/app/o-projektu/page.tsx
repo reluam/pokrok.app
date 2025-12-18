@@ -8,22 +8,22 @@ export default function AboutPage() {
     {
       icon: Heart,
       title: 'Autenticita',
-      description: 'Věříme v autentický přístup k životu a práci na sobě.',
+      description: 'Věřím v autentický přístup k životu a práci na sobě.',
     },
     {
       icon: Target,
       title: 'Cílevědomost',
-      description: 'Pomáháme lidem najít a dosáhnout jejich skutečných cílů.',
+      description: 'Pomáhám lidem najít a dosáhnout jejich skutečných cílů.',
     },
     {
       icon: Users,
       title: 'Společenství',
-      description: 'Vytváříme prostředí, kde se lidé mohou vzájemně podporovat.',
+      description: 'Vytvářím prostředí, kde se lidé mohou vzájemně podporovat.',
     },
     {
       icon: Lightbulb,
       title: 'Růst',
-      description: 'Věříme v kontinuální osobní rozvoj a učení se.',
+      description: 'Věřím v kontinuální osobní rozvoj a učení se.',
     },
   ]
 
@@ -60,22 +60,22 @@ export default function AboutPage() {
 
           <div className="max-w-4xl mx-auto mb-12">
             <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-10 md:p-14 border border-primary-100 hover:shadow-3xl transition-shadow duration-300">
-              <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-6">Naše vize</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-6">Moje vize</h2>
               <p className="text-text-primary text-lg md:text-xl leading-relaxed mb-6">
-                Věříme, že každý člověk má potenciál žít smysluplný a naplněný život.
-                Naším cílem je poskytnout nástroje, inspiraci a podporu, které lidem pomohou
+                Věřím, že každý člověk má potenciál žít smysluplný a naplněný život.
+                Mým cílem je poskytnout nástroje, inspiraci a podporu, které lidem pomohou
                 objevit jejich vlastní cestu k osobnímu růstu a spokojenosti.
               </p>
               <p className="text-text-primary text-lg md:text-xl leading-relaxed">
-                Kombinujeme moderní technologie s osvědčenými přístupy k osobnímu rozvoji,
-                abychom vytvořili komplexní ekosystém pro všechny, kteří chtějí aktivně pracovat
+                Kombinuji moderní technologie s osvědčenými přístupy k osobnímu rozvoji,
+                abych vytvořil komplexní ekosystém pro všechny, kteří chtějí aktivně pracovat
                 na svém životě a dosahovat svých cílů.
               </p>
             </div>
           </div>
 
           <div className="mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-12 text-center">Naše hodnoty</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-12 text-center">Moje hodnoty</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {values.map((value, index) => {
                 const Icon = value.icon
@@ -97,7 +97,7 @@ export default function AboutPage() {
 
           <div className="max-w-4xl mx-auto">
             <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-10 md:p-14 border border-primary-100 hover:shadow-3xl transition-shadow duration-300">
-              <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-8">Co nabízíme</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-8">Co nabízím</h2>
               <ul className="space-y-6 text-text-primary">
                 <li className="flex items-start group/item">
                   <span className="text-primary-600 mr-4 text-2xl font-bold group-hover/item:scale-125 transition-transform">•</span>

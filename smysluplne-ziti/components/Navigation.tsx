@@ -46,7 +46,6 @@ export default function Navigation() {
             <div className="ml-10 flex items-center space-x-1">
               {[
                 { href: '/coaching', label: 'Koučing' },
-                { href: '/#aplikace', label: 'Aplikace' },
                 { href: '/inspirace', label: 'Inspirace' },
                 { href: '/o-projektu', label: 'O projektu' },
               ].map((item) => (
@@ -82,7 +81,6 @@ export default function Navigation() {
         <div className="px-4 pt-2 pb-4 space-y-1 bg-white/95 backdrop-blur-md border-t border-primary-100">
           {[
             { href: '/coaching', label: 'Koučing' },
-            { href: '/#aplikace', label: 'Aplikace' },
             { href: '/inspirace', label: 'Inspirace' },
             { href: '/o-projektu', label: 'O projektu' },
           ].map((item) => (

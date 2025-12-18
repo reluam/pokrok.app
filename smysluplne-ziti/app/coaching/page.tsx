@@ -372,7 +372,7 @@ export default function CoachingPage() {
                     value={formData.message}
                     onChange={handleChange}
                     className="w-full px-5 py-3 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-base"
-                    placeholder="Napište nám, s čím vám můžeme pomoci..."
+                    placeholder="Napište mi, s čím vám mohu pomoci..."
                   />
                 </div>
 

@@ -20,7 +20,7 @@ export default function AboutSection() {
           <p className="text-xl md:text-2xl text-text-secondary max-w-4xl mx-auto leading-relaxed mb-8">
             Smysluplné žití je projekt zaměřený na pomoc lidem najít smysl v jejich životě,
             stanovit si jasné cíle a vytvářet návyky, které vedou k naplněnějšímu a šťastnějšímu životu.
-            Objevte naši vizi, hodnoty a to, co nabízíme.
+            Objevte moji vizi, hodnoty a to, co nabízím.
           </p>
           <Link
             href="/o-projektu"

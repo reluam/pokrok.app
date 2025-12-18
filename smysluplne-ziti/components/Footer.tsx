@@ -37,9 +37,15 @@ export default function Footer() {
           </div>
           <div>
             <h4 className="text-xl font-bold mb-6">Kontakt</h4>
-            <p className="text-playful-outline-lighter text-lg leading-relaxed">
-              Máte dotaz nebo zájem o spolupráci? Neváhejte nás kontaktovat.
+            <p className="text-playful-outline-lighter text-lg leading-relaxed mb-4">
+              Máte dotaz nebo zájem o spolupráci? Neváhejte mě kontaktovat.
             </p>
+            <Link 
+              href="/kontakt"
+              className="text-playful-outline-lighter hover:text-white transition-colors text-lg inline-block hover:translate-x-1 transform transition-transform font-semibold"
+            >
+              Kontaktní formulář →
+            </Link>
           </div>
         </div>
         <div className="mt-12 pt-8 border-t border-white/20 text-center text-playful-outline-lighter">
