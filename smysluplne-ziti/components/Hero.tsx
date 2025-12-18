@@ -35,17 +35,17 @@ export default function Hero() {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-24 md:mb-32">
             <Link
-              href="#coaching"
+              href="/coaching"
               className="group inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-full text-white bg-primary-600 hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform relative z-10"
             >
               Zarezervovat sezení
-              <ArrowDown className="ml-2 w-5 h-5 group-hover:translate-y-1 transition-transform" />
             </Link>
             <Link
-              href="#apps"
+              href="#aplikace"
               className="group inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-full text-primary-600 bg-white/80 backdrop-blur-sm border-2 border-primary-600 hover:bg-primary-50 transition-all duration-300 hover:scale-105 transform relative z-10"
             >
-              Prozkoumat aplikace
+              Prozkoumat aplikaci
+              <ArrowDown className="ml-2 w-5 h-5 group-hover:translate-y-1 transition-transform" />
             </Link>
           </div>
         </div>

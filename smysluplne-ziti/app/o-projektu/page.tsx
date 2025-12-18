@@ -102,7 +102,7 @@ export default function AboutPage() {
                 <li className="flex items-start group/item">
                   <span className="text-primary-600 mr-4 text-2xl font-bold group-hover/item:scale-125 transition-transform">•</span>
                   <span className="text-lg leading-relaxed">
-                    <strong className="font-bold text-xl">Coaching sezení</strong> - individuální podpora při hledání
+                    <strong className="font-bold text-xl">Koučing sezení</strong> - individuální podpora při hledání
                     životního smyslu a stanovování cílů
                   </span>
                 </li>

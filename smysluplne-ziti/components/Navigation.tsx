@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
@@ -27,9 +28,16 @@ export default function Navigation() {
           <div className="flex-shrink-0">
             <Link 
               href="/" 
-              className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent hover:from-primary-700 hover:to-primary-800 transition-all"
+              className="block relative h-12 w-auto hover:opacity-80 transition-opacity"
             >
-              Smysluplné žití
+              <Image
+                src="/logo.png"
+                alt="Smysluplné žití"
+                width={200}
+                height={48}
+                className="object-contain h-12 w-auto"
+                priority
+              />
             </Link>
           </div>
 
@@ -37,8 +45,8 @@ export default function Navigation() {
           <div className="hidden md:block">
             <div className="ml-10 flex items-center space-x-1">
               {[
-                { href: '/coaching', label: 'Coaching' },
-                { href: '/aplikace', label: 'Aplikace' },
+                { href: '/coaching', label: 'Koučing' },
+                { href: '/#aplikace', label: 'Aplikace' },
                 { href: '/inspirace', label: 'Inspirace' },
                 { href: '/o-projektu', label: 'O projektu' },
               ].map((item) => (
@@ -73,8 +81,8 @@ export default function Navigation() {
       }`}>
         <div className="px-4 pt-2 pb-4 space-y-1 bg-white/95 backdrop-blur-md border-t border-primary-100">
           {[
-            { href: '/coaching', label: 'Coaching' },
-            { href: '/aplikace', label: 'Aplikace' },
+            { href: '/coaching', label: 'Koučing' },
+            { href: '/#aplikace', label: 'Aplikace' },
             { href: '/inspirace', label: 'Inspirace' },
             { href: '/o-projektu', label: 'O projektu' },
           ].map((item) => (
