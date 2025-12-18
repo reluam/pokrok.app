@@ -697,7 +697,7 @@ export function PageContent(props: PageContentProps) {
             const areaColor = area.color || '#ea580c'
             
             return (
-              <div className="w-full h-full flex flex-col bg-primary-50">
+              <div className="w-full flex flex-col bg-primary-50" style={{ height: '100%' }}>
                 {/* Area detail content */}
                 <div className="flex-1 flex flex-col overflow-hidden" style={{ minHeight: 0 }}>
                   <div className="p-6 flex-shrink-0">
@@ -1154,9 +1154,9 @@ export function PageContent(props: PageContentProps) {
           switch (mainPanelSection) {
             case 'focus-day':
               return (
-                <div className="w-full min-h-full flex flex-col bg-primary-50">
+                <div className="w-full flex flex-col bg-primary-50" style={{ height: '100%' }}>
                   {/* Day View */}
-                  <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
+                  <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
                     <DayView
                       goals={goals}
                       habits={habits}
@@ -1181,9 +1181,9 @@ export function PageContent(props: PageContentProps) {
                                               )
             case 'focus-week':
                                         return (
-                <div className="w-full min-h-full flex flex-col bg-primary-50">
+                <div className="w-full flex flex-col bg-primary-50" style={{ height: '100%' }}>
                   {/* Week View */}
-                  <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
+                  <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
                     <WeekView
                         player={player}
                         goals={goals}
@@ -1351,7 +1351,7 @@ export function PageContent(props: PageContentProps) {
         }
         
         return (
-          <div className="w-full h-full flex bg-primary-50 overflow-hidden">
+          <div className="w-full flex bg-primary-50 overflow-hidden" style={{ height: '100%' }}>
             {/* Left sidebar - Navigation - Hidden on mobile */}
             <SidebarNavigation
               sidebarCollapsed={sidebarCollapsed}
@@ -1386,7 +1386,7 @@ export function PageContent(props: PageContentProps) {
             />
 
             {/* Right content area */}
-            <div className="flex-1 overflow-y-auto bg-primary-50 h-full flex flex-col">
+            <div className="flex-1 overflow-y-auto bg-primary-50 flex flex-col" style={{ minHeight: 0 }}>
               {/* Mobile hamburger menu for focus-day and other sections (except goal detail pages) */}
               {!mainPanelSection.startsWith('goal-') && (
                 <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">

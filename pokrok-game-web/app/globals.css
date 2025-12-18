@@ -58,19 +58,19 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #FFFAF5;
+  background: var(--color-background, #FFFAF5);
   border-radius: 8px;
-  border: 2px solid #5D4037;
+  border: 2px solid var(--color-primary-300, #f9a855);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #FFB3BA;
+  background: var(--color-primary-500, #E8871E);
   border-radius: 8px;
-  border: 2px solid #5D4037;
+  border: 2px solid var(--color-primary-600, #d16a0a);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #FF9AA2;
+  background: var(--color-primary-600, #d16a0a);
 }
 
   /* Playful Button Base Styles - Simple, flat design */
