@@ -33,17 +33,17 @@ export default function Hero() {
             Cesta k životu plnému smyslu, růstu a naplnění. Objevte nástroje, inspiraci a podporu pro váš osobní rozvoj.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-24 md:mb-32">
             <Link
               href="#coaching"
-              className="group inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-full text-white bg-primary-600 hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform"
+              className="group inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-full text-white bg-primary-600 hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform relative z-10"
             >
               Zarezervovat sezení
               <ArrowDown className="ml-2 w-5 h-5 group-hover:translate-y-1 transition-transform" />
             </Link>
             <Link
               href="#apps"
-              className="group inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-full text-primary-600 bg-white/80 backdrop-blur-sm border-2 border-primary-600 hover:bg-primary-50 transition-all duration-300 hover:scale-105 transform"
+              className="group inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-full text-primary-600 bg-white/80 backdrop-blur-sm border-2 border-primary-600 hover:bg-primary-50 transition-all duration-300 hover:scale-105 transform relative z-10"
             >
               Prozkoumat aplikace
             </Link>
@@ -51,7 +51,7 @@ export default function Hero() {
         </div>
         
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce z-0">
           <a
             href="#coaching"
             className="flex flex-col items-center gap-2 text-text-secondary hover:text-primary-600 transition-colors"
