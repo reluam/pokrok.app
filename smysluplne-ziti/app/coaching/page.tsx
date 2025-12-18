@@ -27,6 +27,7 @@ export default function CoachingPage() {
     type: null,
     message: '',
   })
+  const [showFreeConsultationForm, setShowFreeConsultationForm] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -113,85 +114,62 @@ export default function CoachingPage() {
             </p>
           </div>
 
-          {/* Purpose of coaching sessions section */}
-          <div className="max-w-4xl mx-auto mb-16">
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 md:p-12 border border-primary-100">
-              <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-6">
-                Účel mých coachovacích sezení
-              </h2>
-              <div className="text-text-primary text-lg leading-relaxed space-y-4">
-                <p>
-                  Mým hlavním cílem je pomoci lidem žít více smysluplný život. Věřím, že každý z nás 
-                  má potenciál najít svou vlastní cestu k naplnění a spokojenosti, ale často potřebujeme 
-                  podporu a vedení, abychom objevili, co je pro nás skutečně důležité.
-                </p>
-                <p>
-                  Během našich sezení společně prozkoumáme, co je pro vás v životě opravdu důležité. 
-                  Pomůžu vám přijít na to, jaké hodnoty, cíle a sny vás skutečně naplňují, a pak 
-                  najdeme konkrétní způsoby, jak toho v životě dosáhnout více.
-                </p>
-                <p>
-                  Nejedná se o to, abych vám říkal, co máte dělat. Místo toho vám pomůžu najít 
-                  vaše vlastní odpovědi a vytvořit akční plán, který vás posune vpřed. Společně 
-                  identifikujeme překážky, které vás brzdí, a najdeme způsoby, jak je překonat.
-                </p>
-                <p>
-                  Mým cílem je, abyste po našich sezeních měli:
-                </p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Jasno v tom, co je pro vás v životě skutečně důležité</li>
-                  <li>Konkrétní kroky, jak dosáhnout toho, co chcete</li>
-                  <li>Větší smysl a naplnění v každodenním životě</li>
-                  <li>Nástroje a strategie pro dlouhodobý osobní rozvoj</li>
-                  <li>Větší sebedůvěru v tom, že dokážete dosáhnout svých cílů</li>
-                </ul>
-                <p>
-                  Pokud hledáte způsob, jak žít více smysluplný život a mít více toho, co je pro vás 
-                  důležité, jsem tu, abych vám pomohl na této cestě.
+          {/* Two column layout: Coaching and Free Consultation */}
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            {/* Coaching section */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 md:p-10 border border-primary-100 flex flex-col">
+              <div className="mb-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-primary-100 p-3 rounded-xl">
+                    <Target className="text-primary-600" size={24} />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl md:text-3xl font-bold text-text-primary">Koučing</h2>
+                    <p className="text-text-secondary text-sm">Dej svému životu více smyslu</p>
+                  </div>
+                </div>
+                
+                <p className="text-text-primary text-base mb-6 leading-relaxed">
+                  Pomůžu vám objevit, co je pro vás v životě skutečně důležité, a najít cestu k většímu naplnění.
                 </p>
               </div>
-            </div>
-          </div>
 
-          {/* Coaching section */}
-          <div className="max-w-4xl mx-auto mb-16">
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 md:p-12 border border-primary-100">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="bg-primary-100 p-4 rounded-xl">
-                  <Target className="text-primary-600" size={32} />
+              <div className="space-y-4 mb-6 flex-grow">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center">
+                      <span className="text-primary-600 font-bold text-sm">✓</span>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-text-primary mb-1">Jasno v tom, co je důležité</h3>
+                    <p className="text-text-secondary text-sm">Společně prozkoumáme vaše hodnoty, cíle a sny.</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-3xl md:text-4xl font-bold text-text-primary">Koučing</h2>
-                  <p className="text-text-secondary">Profesionální podpora na vaší cestě</p>
-                </div>
-              </div>
-              
-              <p className="text-text-primary text-lg leading-relaxed mb-8">
-                Pravidelná coaching sezení vám pomohou systematicky pracovat na vašich cílech, 
-                budovat návyky a vytvářet trvalé změny ve vašem životě. Společně najdeme vaši 
-                vlastní cestu k úspěchu a naplnění.
-              </p>
 
-              <div className="bg-primary-50 rounded-2xl p-6 mb-6">
-                <h3 className="text-xl font-bold text-text-primary mb-4">Co zahrnuje:</h3>
-                <ul className="space-y-2 text-text-primary">
-                  <li className="flex items-start">
-                    <span className="text-primary-600 mr-3 text-xl font-bold">✓</span>
-                    <span>Pravidelná sezení zaměřená na vaše cíle</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary-600 mr-3 text-xl font-bold">✓</span>
-                    <span>Individuální přístup a podpora</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary-600 mr-3 text-xl font-bold">✓</span>
-                    <span>Konkrétní akční plány a kroky</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-primary-600 mr-3 text-xl font-bold">✓</span>
-                    <span>Kontinuální práce na vašem rozvoji</span>
-                  </li>
-                </ul>
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center">
+                      <span className="text-primary-600 font-bold text-sm">✓</span>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-text-primary mb-1">Konkrétní kroky vpřed</h3>
+                    <p className="text-text-secondary text-sm">Vytvoříme akční plán, který vás posune vpřed.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center">
+                      <span className="text-primary-600 font-bold text-sm">✓</span>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-text-primary mb-1">Nástroje pro rozvoj</h3>
+                    <p className="text-text-secondary text-sm">Získáte strategie pro trvalé změny.</p>
+                  </div>
+                </div>
               </div>
 
               {/* Calendly button */}
@@ -203,133 +181,183 @@ export default function CoachingPage() {
                     })
                   }
                 }}
-                className="w-full bg-primary-600 text-white py-4 px-6 rounded-full font-semibold text-lg hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] transform flex items-center justify-center gap-2"
+                className="w-full bg-primary-600 text-white py-3 px-6 rounded-full font-semibold text-base hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] transform flex items-center justify-center gap-2 mt-auto"
               >
-                <Target size={20} />
+                <Target size={18} />
                 Rezervovat koučing
               </button>
             </div>
-          </div>
 
-          {/* Free consultation section */}
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 md:p-12 border border-primary-100">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="bg-playful-yellow-light p-4 rounded-xl">
-                  <Gift className="text-primary-600" size={32} />
-                </div>
-                <div>
-                  <h2 className="text-3xl md:text-4xl font-bold text-text-primary">Konzultace zdarma</h2>
-                  <p className="text-text-secondary">Zkuste si, jestli je to pro vás</p>
-                </div>
-              </div>
-              
-              <p className="text-text-primary text-lg leading-relaxed mb-8">
-                Nevíte, jestli je coaching pro vás? Rezervujte si zdarma konzultační hodinu a zjistěte, 
-                jak vám coaching může pomoci. Ozveme se vám s konkrétním časem.
-              </p>
-
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-text-primary mb-2">
-                    <User className="inline mr-2" size={16} />
-                    Jméno a příjmení
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    required
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="w-full px-5 py-3 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white/50 backdrop-blur-sm"
-                    placeholder="Vaše jméno"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-text-primary mb-2">
-                    <Mail className="inline mr-2" size={16} />
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    required
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full px-5 py-3 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white/50 backdrop-blur-sm"
-                    placeholder="vas@email.cz"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="date" className="block text-sm font-medium text-text-primary mb-2">
-                    <Calendar className="inline mr-2" size={16} />
-                    Preferovaný datum
-                  </label>
-                  <input
-                    type="date"
-                    id="date"
-                    name="date"
-                    required
-                    value={formData.date}
-                    onChange={handleChange}
-                    className="w-full px-5 py-3 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white/50 backdrop-blur-sm"
-                  />
-                  <p className="text-sm text-text-light mt-2 flex items-start gap-1">
-                    <span>ℹ️</span>
-                    <span>Ozveme se vám s konkrétním časem na váš email.</span>
-                  </p>
-                </div>
-
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-text-primary mb-2">
-                    <MessageSquare className="inline mr-2" size={16} />
-                    Zpráva (volitelné)
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows={3}
-                    value={formData.message}
-                    onChange={handleChange}
-                    className="w-full px-5 py-3 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white/50 backdrop-blur-sm"
-                    placeholder="Napište nám, s čím vám můžeme pomoci..."
-                  />
-                </div>
-
-                {submitStatus.type && (
-                  <div
-                    className={`p-4 rounded-xl ${
-                      submitStatus.type === 'success'
-                        ? 'bg-green-50 text-green-800 border border-green-200'
-                        : 'bg-red-50 text-red-800 border border-red-200'
-                    }`}
-                  >
-                    <p className="font-medium text-sm">{submitStatus.message}</p>
+            {/* Free consultation section */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 md:p-10 border border-primary-100 flex flex-col">
+              <div className="mb-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-playful-yellow-light p-3 rounded-xl">
+                    <Gift className="text-primary-600" size={24} />
                   </div>
-                )}
+                  <div>
+                    <h2 className="text-2xl md:text-3xl font-bold text-text-primary">Konzultace zdarma</h2>
+                    <p className="text-text-secondary text-sm">Zkuste si, jestli je to pro vás</p>
+                  </div>
+                </div>
+                
+                <p className="text-text-primary text-base mb-6 leading-relaxed">
+                  Nevíte, jestli je coaching pro vás? Rezervujte si zdarma konzultační hodinu a zjistěte, 
+                  jak vám coaching může pomoci.
+                </p>
+              </div>
 
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-primary-600 text-white py-3 px-6 rounded-full font-semibold hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="animate-spin" size={18} />
-                      Odesílání...
-                    </>
-                  ) : (
-                    <>
-                      <Gift size={18} />
-                      Rezervovat zdarma konzultaci
-                    </>
+              {!showFreeConsultationForm ? (
+                <>
+                  <div className="space-y-4 mb-6 flex-grow">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 mt-0.5">
+                        <div className="w-6 h-6 rounded-full bg-playful-yellow-light flex items-center justify-center">
+                          <span className="text-primary-600 font-bold text-sm">✓</span>
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="text-base font-semibold text-text-primary mb-1">Projdeme oblasti k řešení</h3>
+                        <p className="text-text-secondary text-sm">Společně identifikujeme oblasti, které byste chtěl řešit.</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 mt-0.5">
+                        <div className="w-6 h-6 rounded-full bg-playful-yellow-light flex items-center justify-center">
+                          <span className="text-primary-600 font-bold text-sm">✓</span>
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="text-base font-semibold text-text-primary mb-1">Zjistíme, jestli je coaching pro vás</h3>
+                        <p className="text-text-secondary text-sm">Pomůžu vám zjistit, jestli je coaching vhodný způsob podpory.</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 mt-0.5">
+                        <div className="w-6 h-6 rounded-full bg-playful-yellow-light flex items-center justify-center">
+                          <span className="text-primary-600 font-bold text-sm">✓</span>
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="text-base font-semibold text-text-primary mb-1">Naplánujeme spolupráci</h3>
+                        <p className="text-text-secondary text-sm">Pokud to bude dávat smysl, naplánujeme další kroky.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setShowFreeConsultationForm(true)}
+                    className="w-full bg-primary-600 text-white py-3 px-6 rounded-full font-semibold hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] transform flex items-center justify-center gap-2 mt-auto"
+                  >
+                    <Gift size={18} />
+                    Rezervovat zdarma konzultaci
+                  </button>
+                </>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4 flex-grow flex flex-col">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-text-primary mb-2">
+                      <User className="inline mr-2" size={14} />
+                      Jméno a příjmení
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      required
+                      value={formData.name}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2.5 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white/50 backdrop-blur-sm text-sm"
+                      placeholder="Vaše jméno"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-text-primary mb-2">
+                      <Mail className="inline mr-2" size={14} />
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2.5 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white/50 backdrop-blur-sm text-sm"
+                      placeholder="vas@email.cz"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="date" className="block text-sm font-medium text-text-primary mb-2">
+                      <Calendar className="inline mr-2" size={14} />
+                      Preferovaný datum
+                    </label>
+                    <input
+                      type="date"
+                      id="date"
+                      name="date"
+                      required
+                      value={formData.date}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2.5 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white/50 backdrop-blur-sm text-sm"
+                    />
+                    <p className="text-xs text-text-light mt-1.5 flex items-start gap-1">
+                      <span>ℹ️</span>
+                      <span>Ozveme se vám s konkrétním časem na váš email.</span>
+                    </p>
+                  </div>
+
+                  <div>
+                    <label htmlFor="message" className="block text-sm font-medium text-text-primary mb-2">
+                      <MessageSquare className="inline mr-2" size={14} />
+                      Zpráva (volitelné)
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      rows={3}
+                      value={formData.message}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2.5 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white/50 backdrop-blur-sm text-sm"
+                      placeholder="Napište nám, s čím vám můžeme pomoci..."
+                    />
+                  </div>
+
+                  {submitStatus.type && (
+                    <div
+                      className={`p-3 rounded-xl text-sm ${
+                        submitStatus.type === 'success'
+                          ? 'bg-green-50 text-green-800 border border-green-200'
+                          : 'bg-red-50 text-red-800 border border-red-200'
+                      }`}
+                    >
+                      <p className="font-medium">{submitStatus.message}</p>
+                    </div>
                   )}
-                </button>
-              </form>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full bg-primary-600 text-white py-3 px-6 rounded-full font-semibold hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 mt-auto"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="animate-spin" size={16} />
+                        Odesílání...
+                      </>
+                    ) : (
+                      <>
+                        <Gift size={16} />
+                        Odeslat rezervaci
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </div>
