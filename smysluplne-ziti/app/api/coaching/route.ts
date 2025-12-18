@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
     await resend.emails.send({
       from: process.env.FROM_EMAIL || 'onboarding@resend.dev', // Musí být ověřená doména v Resend
       to: recipientEmail,
-      replyTo: email,
+      reply_to: email,
       subject: `${subjectPrefix} - ${name}`,
       html: adminEmailHtml,
     })
