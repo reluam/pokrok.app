@@ -51,7 +51,7 @@ export default function AppsSection() {
           </div>
           
           {/* Tlačítko - clear float, aby bylo pod obrázkem */}
-          <div className="clear-both pt-4">
+          <div className="clear-both pt-4 flex justify-end">
             <a
               href="https://pokrok.app"
               target="_blank"
