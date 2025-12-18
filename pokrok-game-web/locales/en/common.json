@@ -1512,6 +1512,11 @@
     }
   },
   "monthView": {
+    "filter": {
+      "all": "All",
+      "steps": "Steps",
+      "habits": "Habits"
+    },
     "overall": "Overall",
     "perfect": "Perfect",
     "partial": "Partial",

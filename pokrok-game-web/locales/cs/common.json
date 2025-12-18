@@ -1498,6 +1498,11 @@
     }
   },
   "monthView": {
+    "filter": {
+      "all": "Vše",
+      "steps": "Kroky",
+      "habits": "Návyky"
+    },
     "overall": "Celkově",
     "perfect": "Perfektní",
     "partial": "Částečné",

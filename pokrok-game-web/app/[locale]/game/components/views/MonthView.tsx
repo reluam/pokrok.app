@@ -54,6 +54,9 @@ export function MonthView({
     return date
   })
   
+  // Filter state: 'all' | 'steps' | 'habits'
+  const [viewFilter, setViewFilter] = useState<'all' | 'steps' | 'habits'>('all')
+  
   // Use selectedDayDate from props if available, otherwise use local state
   const [localSelectedDay, setLocalSelectedDay] = useState<Date | null>(null)
   
@@ -131,16 +134,32 @@ export function MonthView({
     }).length
     const totalHabits = scheduledHabits.length
     
+    // Apply filter
+    let filteredCompleted = 0
+    let filteredTotal = 0
+    
+    if (viewFilter === 'steps') {
+      filteredCompleted = completedSteps
+      filteredTotal = totalSteps
+    } else if (viewFilter === 'habits') {
+      filteredCompleted = completedHabits
+      filteredTotal = totalHabits
+    } else {
+      // 'all'
+      filteredCompleted = completedSteps + completedHabits
+      filteredTotal = totalSteps + totalHabits
+    }
+    
     return {
       steps: { completed: completedSteps, total: totalSteps },
       habits: { completed: completedHabits, total: totalHabits },
-      totalCompleted: completedSteps + completedHabits,
-      totalItems: totalSteps + totalHabits,
-      completionRate: totalSteps + totalHabits > 0 
-        ? Math.round(((completedSteps + completedHabits) / (totalSteps + totalHabits)) * 100)
+      totalCompleted: filteredCompleted,
+      totalItems: filteredTotal,
+      completionRate: filteredTotal > 0 
+        ? Math.round((filteredCompleted / filteredTotal) * 100)
         : 0
     }
-  }, [dailySteps, habits])
+  }, [dailySteps, habits, viewFilter])
   
   // Calculate month statistics - force recalculation when habits or dailySteps change
   const monthStats = useMemo(() => {
@@ -310,12 +329,13 @@ export function MonthView({
       return stepDate === dateStr
     })
   }, [selectedDayData, dailySteps])
-
+  
   return (
     <div className="w-full h-full flex flex-col p-4 sm:p-6 lg:p-8 bg-primary-50 overflow-y-auto">
       {/* Header with month navigation */}
       <div className="mb-4">
-        <div className="flex items-center justify-between mb-4">
+        {/* Top row: Month name and navigation buttons */}
+        <div className="flex items-center justify-between mb-3">
           <h2 className="text-xl sm:text-2xl font-bold text-black font-playful">
             {monthName}
           </h2>
@@ -334,8 +354,43 @@ export function MonthView({
             </button>
           </div>
         </div>
-      </div>
-      
+        {/* Filter toggle - below on small screens, centered on larger screens */}
+        <div className="flex justify-center md:absolute md:left-1/2 md:transform md:-translate-x-1/2 md:top-0">
+          <div className="flex items-center gap-1 bg-white border-2 border-primary-500 rounded-playful-md p-1">
+            <button
+              onClick={() => setViewFilter('all')}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-playful-sm transition-colors ${
+                viewFilter === 'all'
+                  ? 'bg-primary-500 text-black'
+                  : 'bg-transparent text-gray-700 hover:bg-primary-50'
+              }`}
+            >
+              {t('monthView.filter.all') || 'Vše'}
+            </button>
+            <button
+              onClick={() => setViewFilter('steps')}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-playful-sm transition-colors ${
+                viewFilter === 'steps'
+                  ? 'bg-primary-500 text-black'
+                  : 'bg-transparent text-gray-700 hover:bg-primary-50'
+              }`}
+            >
+              {t('monthView.filter.steps') || 'Kroky'}
+            </button>
+            <button
+              onClick={() => setViewFilter('habits')}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-playful-sm transition-colors ${
+                viewFilter === 'habits'
+                  ? 'bg-primary-500 text-black'
+                  : 'bg-transparent text-gray-700 hover:bg-primary-50'
+              }`}
+            >
+              {t('monthView.filter.habits') || 'Návyky'}
+            </button>
+          </div>
+          </div>
+        </div>
+        
       {/* Layout: Stats on left, Calendar on right */}
       <div className="flex flex-col lg:flex-row gap-4 mb-4">
         {/* Statistics box - left side */}
@@ -371,7 +426,7 @@ export function MonthView({
               </div>
               <div className="text-base sm:text-lg font-bold text-black">
                 {displayStats.completedHabits}/{displayStats.totalHabits}
-              </div>
+          </div>
             </div>
             
             {/* Perfect days */}
@@ -379,13 +434,13 @@ export function MonthView({
               <div className="flex items-center justify-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
                 <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
                 <span className="text-[9px] sm:text-[10px] font-semibold text-gray-600">{t('monthView.perfect') || 'Perfektní'}</span>
-              </div>
+            </div>
               <div className="text-lg sm:text-xl font-bold text-green-600">
                 {displayStats.perfectDays}
               </div>
               <div className="text-[9px] sm:text-[10px] text-gray-500">
                 {selectedDayData ? '' : t('monthView.days') || 'dní'}
-              </div>
+          </div>
             </div>
             
             {/* Partial days */}
@@ -399,7 +454,7 @@ export function MonthView({
               </div>
               <div className="text-[9px] sm:text-[10px] text-gray-500">
                 {selectedDayData ? '' : t('monthView.days') || 'dní'}
-              </div>
+            </div>
             </div>
             
             {/* Failed days */}
@@ -407,16 +462,16 @@ export function MonthView({
               <div className="flex items-center justify-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
                 <X className="w-3 h-3 sm:w-4 sm:h-4 text-red-600" />
                 <span className="text-[9px] sm:text-[10px] font-semibold text-gray-600">{t('monthView.failed') || 'Neúspěšné'}</span>
-              </div>
+          </div>
               <div className="text-lg sm:text-xl font-bold text-red-600">
                 {displayStats.failedDays}
-              </div>
+            </div>
               <div className="text-[9px] sm:text-[10px] text-gray-500">
                 {selectedDayData ? '' : t('monthView.days') || 'dní'}
-              </div>
             </div>
           </div>
         </div>
+      </div>
       
         {/* Compact calendar grid - right side */}
         <div className="bg-white border-4 border-primary-500 rounded-playful-lg p-3 sm:p-4 flex-1">
@@ -452,9 +507,9 @@ export function MonthView({
             
             switch (status) {
               case 'perfect':
-                dayClasses = 'bg-primary-500 border-2 border-primary-700'
-                indicatorColor = 'bg-primary-700'
-                textColor = 'text-white'
+                dayClasses = 'bg-white border-2 border-primary-500'
+                indicatorColor = 'bg-primary-500'
+                textColor = 'text-primary-600'
                 break
               case 'partial':
                 dayClasses = 'bg-primary-200 border-2 border-primary-500'
@@ -487,25 +542,25 @@ export function MonthView({
               <button
                 key={date.toISOString()}
                 onClick={() => !isFuture && handleDayClick(date)}
-                className={`h-12 sm:h-14 md:h-16 ${dayClasses} rounded-playful-sm p-1.5 flex flex-col items-center justify-center transition-all hover:scale-105 ${isFuture ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${selectedDay && date.toISOString() === selectedDay.toISOString() ? 'ring-4 ring-primary-400 ring-offset-2' : ''}`}
+                className={`h-12 sm:h-14 md:h-16 ${dayClasses} rounded-playful-sm p-1.5 flex flex-col sm:flex-row items-center justify-center sm:justify-between transition-all hover:scale-105 ${isFuture ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${selectedDay && date.toISOString() === selectedDay.toISOString() ? 'ring-4 ring-primary-400 ring-offset-2' : ''}`}
                 disabled={isFuture}
-                title={isFuture ? '' : `${date.getDate()}. ${date.getMonth() + 1}. - ${stats.totalItems > 0 ? `${stats.steps.completed + stats.habits.completed}/${stats.totalItems} dokončeno` : 'Bez aktivity'}`}
+                title={isFuture ? '' : `${date.getDate()}. ${date.getMonth() + 1}. - ${stats.totalItems > 0 ? `${stats.totalCompleted}/${stats.totalItems} dokončeno` : 'Bez aktivity'}`}
               >
-                {/* Day number */}
-                <div className={`text-sm font-bold ${textColor} mb-0.5`}>
+                {/* Day number - top on small screens, left on larger screens */}
+                <div className={`text-sm sm:text-base md:text-lg font-bold ${textColor} ${stats.totalItems > 0 ? 'sm:mb-0' : ''}`}>
                   {date.getDate()}
                 </div>
                 
-                {/* Compact indicator or percentage */}
+                {/* Compact indicator or count - bottom on small screens, right on larger screens */}
                 {!isFuture && stats.totalItems > 0 && (
-                  <div className="flex items-center gap-0.5">
+                  <div className="flex items-center gap-0.5 flex-shrink-0">
                     {status === 'perfect' ? (
-                      <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                      <Check className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary-600" strokeWidth={3} />
                     ) : status === 'failed' ? (
-                      <X className="w-3 h-3 text-red-600" strokeWidth={3} />
+                      <X className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-red-600" strokeWidth={3} />
                     ) : (
-                      <div className="text-[8px] font-bold text-gray-700">
-                        {stats.completionRate}%
+                      <div className="text-[8px] sm:text-[10px] md:text-xs font-bold text-gray-700 whitespace-nowrap">
+                        {stats.totalCompleted}/{stats.totalItems}
                       </div>
                     )}
                   </div>
@@ -514,7 +569,7 @@ export function MonthView({
             )
           })}
         </div>
-        </div>
+      </div>
       </div>
       
       {/* Selected day detail - display habits and steps without box */}
