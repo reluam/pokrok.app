@@ -473,6 +473,7 @@
       "goals": "Goals",
       "steps": "Steps",
       "dailyPlan": "Daily Plan",
+      "display": "Display",
       "statistics": "Statistics",
       "player": "Character",
       "workflows": "Workflows",
@@ -550,6 +551,18 @@
       "showProgress": "Show Progress",
       "showAchievements": "Show Achievements",
       "dataRetentionDays": "Data Retention Days"
+    },
+    "display": {
+      "title": "DISPLAY SETTINGS",
+      "dateFormat": "Date Format",
+      "dateDisplayFormat": "Date Display Format",
+      "dateFormatDescription": "This format will be used for displaying dates outside the current week",
+      "dateFormatOptions": {
+        "DD_MM_YYYY": "DD.MM.YYYY (e.g. 15.01.2025)",
+        "MM_DD_YYYY": "MM/DD/YYYY (e.g. 01/15/2025)",
+        "YYYY_MM_DD": "YYYY-MM-DD (e.g. 2025-01-15)",
+        "DD_MMM_YYYY": "DD MMM YYYY (e.g. 15 Jan 2025)"
+      }
     },
     "player": {
       "title": "CHARACTER SETTINGS",

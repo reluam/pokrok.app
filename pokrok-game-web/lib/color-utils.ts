@@ -190,3 +190,34 @@ export function initializeTheme() {
   const currentTheme = getCurrentTheme()
   applyColorTheme(currentTheme)
 }
+
+// Generate inline script for early theme application
+// This function returns a script that applies the theme before React loads
+export function getThemeInitScript(): string {
+  const palettes = colorPalettes.map(p => ({
+    value: p.value,
+    bg: p.bg,
+    shades: p.shades
+  }))
+  
+  return `
+    (function() {
+      try {
+        var palettes = ${JSON.stringify(palettes)};
+        var savedColor = localStorage.getItem('app-primary-color') || '#E8871E';
+        var palette = palettes.find(function(p) { return p.value === savedColor; }) || palettes[0];
+        var root = document.documentElement;
+        
+        // Apply primary color shades
+        Object.keys(palette.shades).forEach(function(shade) {
+          root.style.setProperty('--color-primary-' + shade, palette.shades[shade]);
+        });
+        
+        // Apply background color
+        root.style.setProperty('--color-background', palette.bg);
+      } catch (e) {
+        // Silently fail if localStorage is not available
+      }
+    })();
+  `
+}

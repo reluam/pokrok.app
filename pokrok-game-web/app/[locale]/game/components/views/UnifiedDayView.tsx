@@ -289,7 +289,7 @@ export function UnifiedDayView({
   }, [])
   
   return (
-    <div className="w-full h-full flex flex-col p-6 space-y-4 overflow-y-auto bg-primary-50/30">
+    <div className="w-full flex flex-col p-6 space-y-4 bg-primary-50/30">
       {/* Header with date/week */}
       <div className="flex items-center justify-center gap-2">
         <h1 className="text-2xl font-bold text-gray-800 capitalize">

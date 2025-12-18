@@ -388,7 +388,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
     { id: 'goals' as SettingsTab, label: t('settings.tabs.goals'), icon: Target },
     { id: 'steps' as SettingsTab, label: t('settings.tabs.steps'), icon: Footprints },
     { id: 'statistics' as SettingsTab, label: t('settings.tabs.statistics'), icon: BarChart3 },
-    { id: 'display' as SettingsTab, label: 'Zobrazení', icon: Eye },
+    { id: 'display' as SettingsTab, label: t('settings.tabs.display'), icon: Eye },
     { id: 'danger' as SettingsTab, label: t('settings.tabs.danger'), icon: UserCircle }
   ]
 
@@ -640,10 +640,10 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
               
               {/* Date Format */}
             <div>
-                <h4 className="text-lg font-bold text-black mb-4 font-playful">📅 Formát data</h4>
+                <h4 className="text-lg font-bold text-black mb-4 font-playful">📅 {t('settings.display.dateFormat')}</h4>
               <div className="box-playful-highlight p-4">
                 <label className="block text-sm font-bold text-black mb-2 font-playful">
-                    Formát zobrazení data
+                    {t('settings.display.dateDisplayFormat')}
                 </label>
                 <select
                     value={displaySettings.dateFormat}
@@ -651,13 +651,13 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
                   disabled={isSavingDisplay}
                     className="w-full p-3 border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 focus:outline-none disabled:opacity-50 bg-white"
                 >
-                    <option value="DD.MM.YYYY">DD.MM.YYYY (např. 15.01.2025)</option>
-                    <option value="MM/DD/YYYY">MM/DD/YYYY (např. 01/15/2025)</option>
-                    <option value="YYYY-MM-DD">YYYY-MM-DD (např. 2025-01-15)</option>
-                    <option value="DD MMM YYYY">DD MMM YYYY (např. 15 led 2025)</option>
+                    <option value="DD.MM.YYYY">{t('settings.display.dateFormatOptions.DD_MM_YYYY')}</option>
+                    <option value="MM/DD/YYYY">{t('settings.display.dateFormatOptions.MM_DD_YYYY')}</option>
+                    <option value="YYYY-MM-DD">{t('settings.display.dateFormatOptions.YYYY_MM_DD')}</option>
+                    <option value="DD MMM YYYY">{t('settings.display.dateFormatOptions.DD_MMM_YYYY')}</option>
                 </select>
                 <p className="text-xs text-gray-600 mt-2 font-playful">
-                    Tento formát se použije pro zobrazení dat mimo aktuální týden
+                    {t('settings.display.dateFormatDescription')}
                 </p>
                 </div>
               </div>

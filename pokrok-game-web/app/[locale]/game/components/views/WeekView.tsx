@@ -404,10 +404,18 @@ export function WeekView({
                   }
                   
                   return (
-                    <button
+                    <div
                       key={dateStr}
                       onClick={() => handleDayClick(day)}
-                      className="flex flex-col items-center group min-w-0 flex-1"
+                      className="flex flex-col items-center group min-w-0 flex-1 cursor-pointer"
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          handleDayClick(day)
+                        }
+                      }}
                     >
                       {/* Dot */}
                       <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all relative z-10 ${dotBg} ${dotBorder}`}>
@@ -521,7 +529,7 @@ export function WeekView({
                           </div>
                         )
                       })()}
-                    </button>
+                    </div>
                   )
                 })}
               </div>

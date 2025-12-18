@@ -38,11 +38,12 @@ export default function GamePage() {
                   if (settingsResponse.ok) {
                     const settingsData = await settingsResponse.json()
                     const primaryColor = settingsData.settings?.primary_color || '#E8871E'
+                    // applyColorTheme already saves to localStorage, but we ensure sync
                     applyColorTheme(primaryColor)
                   }
                 } catch (error) {
                   console.error('Error loading primary color:', error)
-                  // Fallback to default
+                  // Fallback to default - applyColorTheme will save to localStorage
                   applyColorTheme('#E8871E')
                 }
                 

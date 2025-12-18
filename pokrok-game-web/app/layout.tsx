@@ -1,6 +1,7 @@
 import { Inter, Press_Start_2P } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { getThemeInitScript } from '@/lib/color-utils'
 import './globals.css'
 
 const inter = Inter({ 
@@ -31,8 +32,13 @@ export default function RootLayout({
       signInFallbackRedirectUrl="/game"
       signUpFallbackRedirectUrl="/game"
     >
-      <html>
+      <html suppressHydrationWarning>
         <head>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: getThemeInitScript(),
+            }}
+          />
           <script
             dangerouslySetInnerHTML={{
               __html: `

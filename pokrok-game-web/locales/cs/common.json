@@ -464,6 +464,7 @@
       "goals": "Cíle",
       "steps": "Kroky",
       "dailyPlan": "Denní plán",
+      "display": "Zobrazení",
       "statistics": "Statistiky",
       "player": "Postava",
       "workflows": "Workflows",
@@ -541,6 +542,18 @@
       "showProgress": "Zobrazovat pokrok",
       "showAchievements": "Zobrazovat úspěchy",
       "dataRetentionDays": "Dny uchování dat"
+    },
+    "display": {
+      "title": "NASTAVENÍ ZOBRAZENÍ",
+      "dateFormat": "Formát data",
+      "dateDisplayFormat": "Formát zobrazení data",
+      "dateFormatDescription": "Tento formát se použije pro zobrazení dat mimo aktuální týden",
+      "dateFormatOptions": {
+        "DD_MM_YYYY": "DD.MM.YYYY (např. 15.01.2025)",
+        "MM_DD_YYYY": "MM/DD/YYYY (např. 01/15/2025)",
+        "YYYY_MM_DD": "YYYY-MM-DD (např. 2025-01-15)",
+        "DD_MMM_YYYY": "DD MMM YYYY (např. 15 led 2025)"
+      }
     },
     "player": {
       "title": "NASTAVENÍ POSTAVY",

@@ -697,10 +697,10 @@ export function PageContent(props: PageContentProps) {
             const areaColor = area.color || '#ea580c'
             
             return (
-              <div className="w-full min-h-full flex flex-col bg-primary-50">
+              <div className="w-full h-full flex flex-col bg-primary-50">
                 {/* Area detail content */}
-                <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
-                  <div className="p-6">
+                <div className="flex-1 flex flex-col overflow-hidden" style={{ minHeight: 0 }}>
+                  <div className="p-6 flex-shrink-0">
                     {/* Area header - with inline editing */}
                     <div className="mb-4">
                       <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -827,9 +827,10 @@ export function PageContent(props: PageContentProps) {
                         </div>
                       </div>
                     </div>
+                  </div>
                     
                     {/* Unified Day View - filtered by area */}
-                    <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
+                    <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
                       <UnifiedDayView
                         player={player}
                         goals={areaGoals}
@@ -848,7 +849,6 @@ export function PageContent(props: PageContentProps) {
                         onDailyStepsUpdate={onDailyStepsUpdate}
                       />
                     </div>
-                  </div>
                 </div>
                 
                 {/* Area Icon Picker */}
