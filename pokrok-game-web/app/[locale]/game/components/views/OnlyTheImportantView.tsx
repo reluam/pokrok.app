@@ -518,12 +518,12 @@ export function OnlyTheImportantView({
             <div className="space-y-2">
               {habits.filter((h: any) => {
                 // Show habits that are due today
-                const today = new Date()
-                today.setHours(0, 0, 0, 0)
-                const todayStr = today.toISOString().split('T')[0]
                 // Simple check - show all active habits for now
                 return h.status === 'active'
               }).map((habit: any) => {
+                const today = new Date()
+                today.setHours(0, 0, 0, 0)
+                const todayStr = getLocalDateString(today)
                 const isCompleted = habit.habit_completions?.[todayStr] === true
                 const isLoading = loadingSteps.has(habit.id)
                 
