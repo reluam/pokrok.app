@@ -112,7 +112,7 @@ export function ImportantStepColumn({
   const allIdsInColumn = [...stepIds, ...(availableSteps || []).map(s => s.id)]
 
   return (
-    <div className={`h-full flex flex-col box-playful-highlight border-2 rounded-playful-md overflow-hidden ${
+    <div className={`md:h-full h-auto flex flex-col box-playful-highlight border-2 rounded-playful-md overflow-hidden ${
         category === 'important'
           ? 'border-primary-500 bg-white'
           : category === 'other'
