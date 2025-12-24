@@ -36,6 +36,7 @@ interface AvailableWorkflow {
 interface WorkflowsViewProps {
   player?: any
   onBack?: () => void
+  onNavigateToMain?: () => void
 }
 
 export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsViewProps) {
