@@ -231,7 +231,7 @@ export function OnlyTheImportantView({
         // Also call handleStepToggle to update parent's state (for consistency)
         // This ensures the parent component is aware of the change
         try {
-          await handleStepToggle(stepId, newCompleted)
+          await handleStepToggle(stepId)
         } catch (toggleError) {
           console.warn('handleStepToggle failed, but step was already updated:', toggleError)
         }
