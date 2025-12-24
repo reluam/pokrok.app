@@ -4,10 +4,10 @@ import { useTranslations } from 'next-intl'
 import { HelpCircle, Settings, Menu } from 'lucide-react'
 
 interface HeaderNavigationProps {
-  currentPage: 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'help'
-  setCurrentPage: (page: 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'help') => void
-  mainPanelSection: string
-  setMainPanelSection: (section: string) => void
+  currentPage: 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas'
+  setCurrentPage: (page: 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas') => void
+  mainPanelSection: string | null
+  setMainPanelSection: (section: string | null) => void
   topMenuItems: Array<{ id: string; label: string; icon: any }>
   totalXp: number
   loginStreak: number
