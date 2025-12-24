@@ -254,7 +254,9 @@ export function JourneyGameView({
       localStorage.setItem('journeyGame_currentPage', currentPage)
       localStorage.setItem('journeyGame_currentProgram', currentProgram)
       localStorage.setItem('journeyGame_currentManagementProgram', currentManagementProgram)
-      localStorage.setItem('journeyGame_mainPanelSection', mainPanelSection)
+      if (mainPanelSection !== null) {
+        localStorage.setItem('journeyGame_mainPanelSection', mainPanelSection)
+      }
       localStorage.setItem('journeyGame_sidebarCollapsed', sidebarCollapsed.toString())
     } catch (error) {
       console.error('Error saving navigation state:', error)
