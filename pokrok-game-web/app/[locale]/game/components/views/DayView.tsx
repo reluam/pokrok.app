@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Check } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
@@ -8,6 +8,7 @@ import { QuickOverviewWidget } from './QuickOverviewWidget'
 import { TodayFocusSection } from './TodayFocusSection'
 import { Timeline } from './Timeline'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
+import { ImportantStepsPlanningView } from '../workflows/ImportantStepsPlanningView'
 
 interface DayViewProps {
   goals?: any[]
@@ -27,6 +28,7 @@ interface DayViewProps {
   player?: any
   onNavigateToHabits?: () => void
   onNavigateToSteps?: () => void
+  userId?: string | null
 }
 
 export function DayView({
@@ -46,7 +48,8 @@ export function DayView({
   loadingSteps,
   player,
   onNavigateToHabits,
-  onNavigateToSteps
+  onNavigateToSteps,
+  userId
 }: DayViewProps) {
   const t = useTranslations()
   const locale = useLocale()
@@ -68,6 +71,86 @@ export function DayView({
   const handleDisplayedStepsChange = useCallback((stepIds: Set<string>) => {
     setDisplayedStepIds(stepIds)
   }, [])
+
+  // Check if "only the important" workflow is active and get important steps
+  const [importantStepsWorkflow, setImportantStepsWorkflow] = useState<any>(null)
+  const [importantStepIds, setImportantStepIds] = useState<Set<string>>(new Set())
+  const [otherStepIds, setOtherStepIds] = useState<Set<string>>(new Set())
+  const [showOtherSteps, setShowOtherSteps] = useState(false)
+  const [showPlanTomorrow, setShowPlanTomorrow] = useState(false)
+
+  // Load view settings for day view
+  const [visibleSections, setVisibleSections] = useState<Record<string, boolean>>({
+    quickOverview: true,
+    todayFocus: true,
+    habits: true,
+    futureSteps: true,
+    overdueSteps: true
+  })
+
+  useEffect(() => {
+    if (!userId) return
+
+    const loadViewSettings = async () => {
+      try {
+        const response = await fetch('/api/view-settings?view_type=day')
+        if (response.ok) {
+          const data = await response.json()
+          if (data && data.visible_sections) {
+            setVisibleSections(data.visible_sections)
+          }
+        }
+      } catch (error) {
+        console.error('Error loading view settings:', error)
+      }
+    }
+
+    loadViewSettings()
+  }, [userId])
+
+  useEffect(() => {
+    if (!userId || !isToday) return
+
+    const checkWorkflow = async () => {
+      try {
+        // Check if workflow is enabled
+        const workflowResponse = await fetch('/api/workflows/only-the-important/check')
+        if (workflowResponse.ok) {
+          const workflowData = await workflowResponse.json()
+          setImportantStepsWorkflow(workflowData.workflow_enabled ? workflowData : null)
+          
+          if (workflowData.workflow_enabled) {
+            // Get planning data for today
+            const planningResponse = await fetch(`/api/workflows/only-the-important/planning?date=${displayDateStr}`)
+            if (planningResponse.ok) {
+              const planningData = await planningResponse.json()
+              setImportantStepIds(new Set(planningData.important_steps.map((s: any) => s.id)))
+              setOtherStepIds(new Set(planningData.other_steps.map((s: any) => s.id)))
+              
+              // Check if all important steps are completed
+              const allImportantCompleted = planningData.important_steps.every((s: any) => {
+                const step = dailySteps.find((ds: any) => ds.id === s.id)
+                return step?.completed === true
+              })
+              
+              // Check if all other steps are completed
+              const allOtherCompleted = planningData.other_steps.length === 0 || planningData.other_steps.every((s: any) => {
+                const step = dailySteps.find((ds: any) => ds.id === s.id)
+                return step?.completed === true
+              })
+              
+              setShowOtherSteps(allImportantCompleted && planningData.other_steps.length > 0)
+              setShowPlanTomorrow(allImportantCompleted && allOtherCompleted)
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error checking workflow:', error)
+      }
+    }
+
+    checkWorkflow()
+  }, [userId, isToday, displayDateStr, dailySteps])
   
   // Filter habits for selected day - only selected day's habits + always_show habits
   const dayOfWeek = displayDate.getDay()
@@ -92,7 +175,7 @@ export function DayView({
   
   // Filter steps - overdue (incomplete) + selected day's steps (incomplete) - for display
   // Exclude steps that are already displayed in TodayFocusSection
-  const todaySteps = dailySteps.filter(step => {
+  let todaySteps = dailySteps.filter(step => {
     if (!step.date) return false // Exclude steps without date
     if (step.completed) return false // Exclude completed steps
     
@@ -106,6 +189,17 @@ export function DayView({
     // Include if overdue or on selected day
     return stepDateObj <= displayDate
   })
+
+  // If workflow is active and it's today, filter to show only important or other steps
+  if (importantStepsWorkflow && isToday) {
+    if (showOtherSteps) {
+      // Show only other steps
+      todaySteps = todaySteps.filter(step => otherStepIds.has(step.id))
+    } else {
+      // Show only important steps
+      todaySteps = todaySteps.filter(step => importantStepIds.has(step.id))
+    }
+  }
   
   // Filter steps for progress calculation - only steps on selected day (exclude overdue)
   // Include ALL steps (both completed and incomplete) for total count
@@ -212,15 +306,17 @@ export function DayView({
         />
         
         {/* Quick Overview Widget */}
-        <QuickOverviewWidget
-          habits={habits}
-          dailySteps={dailySteps}
-          selectedDayDate={selectedDayDate}
-          player={player}
-        />
+        {visibleSections.quickOverview !== false && (
+          <QuickOverviewWidget
+            habits={habits}
+            dailySteps={dailySteps}
+            selectedDayDate={selectedDayDate}
+            player={player}
+          />
+        )}
         
         {/* Habits in a row - only name and checkbox */}
-        {todaysHabits.length > 0 && (
+        {visibleSections.habits !== false && todaysHabits.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-3">
             {todaysHabits.map((habit) => {
               const isCompleted = habit.habit_completions && habit.habit_completions[displayDateStr] === true
@@ -275,23 +371,26 @@ export function DayView({
       </div>
       
       {/* Today Focus Section */}
-      <TodayFocusSection
-        goals={goals}
-        dailySteps={dailySteps}
-        habits={habits}
-        selectedDayDate={selectedDayDate}
-        handleStepToggle={handleStepToggle}
-        handleHabitToggle={handleHabitToggle}
-        handleItemClick={handleItemClick}
-        loadingSteps={loadingSteps}
-        loadingHabits={loadingHabits}
-        player={player}
-        todaySteps={todaySteps}
-        onOpenStepModal={onOpenStepModal}
-        onDisplayedStepsChange={handleDisplayedStepsChange}
-        onNavigateToHabits={onNavigateToHabits}
-        onNavigateToSteps={onNavigateToSteps}
-      />
+      {visibleSections.todayFocus !== false && (
+        <TodayFocusSection
+          goals={goals}
+          dailySteps={dailySteps}
+          habits={habits}
+          selectedDayDate={selectedDayDate}
+          handleStepToggle={handleStepToggle}
+          handleHabitToggle={handleHabitToggle}
+          handleItemClick={handleItemClick}
+          loadingSteps={loadingSteps}
+          loadingHabits={loadingHabits}
+          player={player}
+          todaySteps={todaySteps}
+          onOpenStepModal={onOpenStepModal}
+          onDisplayedStepsChange={handleDisplayedStepsChange}
+          onNavigateToHabits={onNavigateToHabits}
+          onNavigateToSteps={onNavigateToSteps}
+          visibleSections={visibleSections}
+        />
+      )}
     </div>
   )
 }
