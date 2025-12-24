@@ -56,6 +56,7 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
     const goalId = searchParams.get('goalId')
+    const filterImportantOnly = searchParams.get('filterImportantOnly') === 'true'
     
     // Support both userId and goalId queries
     if (goalId) {
@@ -118,10 +119,42 @@ export async function GET(request: NextRequest) {
     }
     
     // Normalize all date fields to YYYY-MM-DD strings to avoid timezone issues
-    const normalizedSteps = steps.map((step) => ({
+    let normalizedSteps = steps.map((step) => ({
       ...step,
       date: normalizeDateFromDB(step.date)
     }))
+    
+    // If filterImportantOnly is requested, filter to only important steps for today
+    if (filterImportantOnly && date) {
+      // Check if workflow is enabled
+      const workflow = await sql`
+        SELECT * FROM workflows 
+        WHERE user_id = ${dbUser.id} AND type = 'only_the_important' AND enabled = true
+        LIMIT 1
+      `
+      
+      if (workflow.length > 0) {
+        // Get today's date
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const todayStr = today.toISOString().split('T')[0]
+        const requestedDate = date.split('T')[0]
+        
+        // If requesting today's steps, filter to only important ones
+        if (requestedDate === todayStr) {
+          const importantPlanning = await sql`
+            SELECT step_id FROM important_steps_planning 
+            WHERE user_id = ${dbUser.id} AND date = ${todayStr} AND category = 'important'
+          `
+          
+          const importantStepIds = new Set(importantPlanning.map((p: any) => p.step_id))
+          
+          normalizedSteps = normalizedSteps.filter((step) => 
+            importantStepIds.has(step.id)
+          )
+        }
+      }
+    }
     
     return NextResponse.json(normalizedSteps)
   } catch (error) {

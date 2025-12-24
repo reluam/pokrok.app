@@ -14,12 +14,13 @@ export default function AppsSection() {
       <div className="absolute bottom-20 right-10 w-64 h-64 bg-playful-purple-light rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
       
       <div className="max-w-7xl mx-auto container-padding relative">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary mb-6">
+            <span className="gradient-text">Aplikace Pokrok</span>
+          </h2>
+        </div>
+        
         <div className="max-w-6xl mx-auto bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 md:p-12 border border-primary-100 overflow-hidden">
-          {/* Nadpis */}
-          <h3 className="text-3xl md:text-4xl font-bold text-text-primary mb-6">
-            Aplikace Pokrok
-          </h3>
-          
           {/* Obrázek aplikace - float left pro obtékání */}
           <button
             onClick={() => setIsImageModalOpen(true)}

@@ -179,9 +179,6 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('Error saving view settings:', error)
     console.error('Error details:', {
-      view_type,
-      order_index,
-      hasOrderIndex: order_index !== undefined,
       errorMessage: error.message,
       errorStack: error.stack
     })

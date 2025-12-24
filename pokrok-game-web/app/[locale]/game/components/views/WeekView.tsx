@@ -286,6 +286,35 @@ export function WeekView({
   const additionalSteps = useMemo(() => {
     return displayData.steps.filter(step => !displayedStepIds.has(step.id))
   }, [displayData.steps, displayedStepIds])
+
+  // Load view settings for week view
+  const [visibleSections, setVisibleSections] = useState<Record<string, boolean>>({
+    quickOverview: true,
+    weeklyFocus: true,
+    habits: true,
+    futureSteps: true,
+    overdueSteps: true
+  })
+
+  useEffect(() => {
+    if (!player?.user_id) return
+
+    const loadViewSettings = async () => {
+      try {
+        const response = await fetch('/api/view-settings?view_type=week')
+        if (response.ok) {
+          const data = await response.json()
+          if (data && data.visible_sections) {
+            setVisibleSections(data.visible_sections)
+          }
+        }
+      } catch (error) {
+        console.error('Error loading view settings:', error)
+      }
+    }
+
+    loadViewSettings()
+  }, [player?.user_id])
   
   return (
     <div className="w-full h-full flex flex-col p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 overflow-y-auto bg-primary-50">
@@ -315,7 +344,8 @@ export function WeekView({
       </div>
       
       {/* Timeline */}
-      <div className="box-playful-highlight p-4 sm:p-6">
+      {visibleSections.quickOverview !== false && (
+        <div className="box-playful-highlight p-4 sm:p-6">
         <div className="flex items-center justify-between gap-2 sm:gap-4">
           {/* Prev button */}
           <button
@@ -545,55 +575,62 @@ export function WeekView({
           </button>
         </div>
       </div>
+      )}
       
       {/* Content based on selection */}
       {selectedDayDate ? (
         // Show day detail view
-        <div className="flex-1 space-y-6">
-          <TodayFocusSection
-            goals={goals}
-            dailySteps={displayData.steps}
-            habits={displayData.habits}
-            selectedDayDate={selectedDayDate}
-            handleStepToggle={handleStepToggle || (async () => {})}
-            handleHabitToggle={handleHabitToggle}
-            handleItemClick={handleItemClick}
-            loadingSteps={loadingSteps}
-            loadingHabits={loadingHabits}
-            player={player}
-            todaySteps={additionalSteps}
-            onOpenStepModal={onOpenStepModal}
-            onDisplayedStepsChange={handleDisplayedStepsChange}
-            onNavigateToHabits={onNavigateToHabits}
-            onNavigateToSteps={onNavigateToSteps}
-          />
-        </div>
+        visibleSections.weeklyFocus !== false && (
+          <div className="flex-1 space-y-6">
+            <TodayFocusSection
+              goals={goals}
+              dailySteps={displayData.steps}
+              habits={displayData.habits}
+              selectedDayDate={selectedDayDate}
+              handleStepToggle={handleStepToggle || (async () => {})}
+              handleHabitToggle={handleHabitToggle}
+              handleItemClick={handleItemClick}
+              loadingSteps={loadingSteps}
+              loadingHabits={loadingHabits}
+              player={player}
+              todaySteps={additionalSteps}
+              onOpenStepModal={onOpenStepModal}
+              onDisplayedStepsChange={handleDisplayedStepsChange}
+              onNavigateToHabits={onNavigateToHabits}
+              onNavigateToSteps={onNavigateToSteps}
+              visibleSections={visibleSections}
+            />
+          </div>
+        )
       ) : (
         // Show week summary view
-        <div className="flex-1 space-y-6">
-          {/* Week Focus Section - show all week's steps and goals with habits table */}
-          {/* Pass all dailySteps, not just week steps - filtering happens in TodayFocusSection */}
-          <TodayFocusSection
-            goals={goals}
-            dailySteps={dailySteps}
-            habits={habits}
-            selectedDayDate={currentWeekStart} // Use week start as reference
-            handleStepToggle={handleStepToggle || (async () => {})}
-            handleHabitToggle={handleHabitToggle}
-            handleItemClick={handleItemClick}
-            loadingSteps={loadingSteps}
-            loadingHabits={loadingHabits}
-            player={player}
-            todaySteps={[]} // Not used in week view
-            onOpenStepModal={onOpenStepModal}
-            onDisplayedStepsChange={handleDisplayedStepsChange}
-            isWeekView={true}
-            weekStartDate={currentWeekStart}
-            weekSelectedDayDate={selectedDayDate}
-            onNavigateToHabits={onNavigateToHabits}
-            onNavigateToSteps={onNavigateToSteps}
-          />
-        </div>
+        visibleSections.weeklyFocus !== false && (
+          <div className="flex-1 space-y-6">
+            {/* Week Focus Section - show all week's steps and goals with habits table */}
+            {/* Pass all dailySteps, not just week steps - filtering happens in TodayFocusSection */}
+            <TodayFocusSection
+              goals={goals}
+              dailySteps={dailySteps}
+              habits={habits}
+              selectedDayDate={currentWeekStart} // Use week start as reference
+              handleStepToggle={handleStepToggle || (async () => {})}
+              handleHabitToggle={handleHabitToggle}
+              handleItemClick={handleItemClick}
+              loadingSteps={loadingSteps}
+              loadingHabits={loadingHabits}
+              player={player}
+              todaySteps={[]} // Not used in week view
+              onOpenStepModal={onOpenStepModal}
+              onDisplayedStepsChange={handleDisplayedStepsChange}
+              isWeekView={true}
+              weekStartDate={currentWeekStart}
+              weekSelectedDayDate={selectedDayDate}
+              onNavigateToHabits={onNavigateToHabits}
+              onNavigateToSteps={onNavigateToSteps}
+              visibleSections={visibleSections}
+            />
+          </div>
+        )
       )}
     </div>
   )

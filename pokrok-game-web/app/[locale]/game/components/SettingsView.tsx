@@ -5,7 +5,8 @@ import { useUser, useClerk } from '@clerk/nextjs'
 import { useTranslations, useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { locales, type Locale } from '@/i18n/config'
-import { User, Target, Footprints, BarChart3, Eye, UserCircle, Menu } from 'lucide-react'
+import { User, Target, Footprints, BarChart3, Eye, UserCircle, Menu, CreditCard } from 'lucide-react'
+import { UserProfile, PricingTable, Protect } from '@clerk/nextjs'
 import { colorPalettes, applyColorTheme } from '@/lib/color-utils'
 
 interface SettingsViewProps {
@@ -15,7 +16,7 @@ interface SettingsViewProps {
   onNavigateToMain?: () => void
 }
 
-type SettingsTab = 'user' | 'goals' | 'steps' | 'statistics' | 'display' | 'danger'
+type SettingsTab = 'user' | 'goals' | 'steps' | 'statistics' | 'display' | 'views' | 'subscription' | 'danger'
 
 export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain }: SettingsViewProps) {
   const { user } = useUser()
@@ -27,12 +28,15 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
   // Mobile menu state
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   
+  // Billing modal state
+  const [showBillingModal, setShowBillingModal] = useState(false)
+  
   // Load active tab from localStorage on mount
   const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
     if (typeof window !== 'undefined') {
       try {
         const savedTab = localStorage.getItem('settingsView_activeTab')
-        if (savedTab && ['user', 'goals', 'steps', 'statistics', 'display', 'danger'].includes(savedTab)) {
+        if (savedTab && ['user', 'goals', 'steps', 'statistics', 'display', 'subscription', 'danger'].includes(savedTab)) {
           return savedTab as SettingsTab
         }
       } catch (error) {
@@ -389,6 +393,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
     { id: 'steps' as SettingsTab, label: t('settings.tabs.steps'), icon: Footprints },
     { id: 'statistics' as SettingsTab, label: t('settings.tabs.statistics'), icon: BarChart3 },
     { id: 'display' as SettingsTab, label: t('settings.tabs.display'), icon: Eye },
+    { id: 'subscription' as SettingsTab, label: t('settings.tabs.subscription'), icon: CreditCard },
     { id: 'danger' as SettingsTab, label: t('settings.tabs.danger'), icon: UserCircle }
   ]
 
@@ -663,6 +668,100 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
               </div>
             </div>
           </div>
+        )
+
+      case 'subscription':
+        return (
+          <>
+            <div>
+              <div className="space-y-6">
+              {/* Current Subscription Status */}
+              <div>
+                <h4 className="text-lg font-bold text-black font-playful mb-4">
+                  💳 {t('settings.subscription.currentPlan')}
+                </h4>
+                <div className="box-playful-highlight p-4 border-2 border-primary-500">
+                  <Protect
+                    plan="premium"
+                    fallback={
+                      <div>
+                        <p className="text-sm font-bold text-black font-playful mb-1">
+                          {t('settings.subscription.plan')}
+                        </p>
+                        <p className="text-lg font-bold text-primary-600 font-playful">
+                          {t('settings.subscription.free')}
+                        </p>
+                      </div>
+                    }
+                  >
+                    <div>
+                      <p className="text-sm font-bold text-black font-playful mb-1">
+                        {t('settings.subscription.plan')}
+                      </p>
+                      <p className="text-lg font-bold text-primary-600 font-playful">
+                        {t('settings.subscription.premium')}
+                      </p>
+                    </div>
+                  </Protect>
+                </div>
+              </div>
+
+              {/* Pricing Table */}
+              <div>
+                <h4 className="text-lg font-bold text-black font-playful mb-4">
+                  💎 {t('settings.subscription.choosePlan')}
+                </h4>
+                <div className="box-playful-highlight p-4">
+                  <PricingTable />
+                </div>
+              </div>
+
+              {/* Billing Management */}
+              <div>
+                <h4 className="text-lg font-bold text-black font-playful mb-4">
+                  📋 {t('settings.subscription.billing')}
+                </h4>
+                <div className="box-playful-highlight p-4 border-2 border-primary-500">
+                  <p className="text-sm text-gray-700 font-playful mb-4">
+                    {t('settings.subscription.billingDescription')}
+                  </p>
+                  <button
+                    onClick={() => setShowBillingModal(true)}
+                    className="btn-playful-primary px-4 py-2"
+                  >
+                    {t('settings.subscription.openBilling')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Billing Modal */}
+          {showBillingModal && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4">
+              <div className="bg-white rounded-xl shadow-2xl w-auto max-w-[95vw] sm:max-w-3xl md:max-w-4xl lg:max-w-5xl max-h-[90vh] overflow-hidden border-2 border-primary-500 flex flex-col">
+                {/* Custom Header */}
+                <div className="flex items-center justify-between p-4 flex-shrink-0 border-b-2 border-primary-500 bg-white">
+                  <h3 className="text-xl font-bold text-black font-playful">
+                    {t('settings.subscription.billing')}
+                  </h3>
+                  <button
+                    onClick={() => setShowBillingModal(false)}
+                    className="btn-playful-base p-2"
+                    title={t('common.close')}
+                  >
+                    <span className="text-2xl">×</span>
+                  </button>
+                </div>
+                
+                {/* Clerk UserProfile - standardní zobrazení */}
+                <div className="flex-1 overflow-hidden">
+                  <UserProfile routing="hash" />
+                </div>
+              </div>
+            </div>
+          )}
+        </>
         )
 
       case 'danger':
