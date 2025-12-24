@@ -31,6 +31,7 @@ interface TodayFocusSectionProps {
   onStepTimeChange?: (stepId: string, minutes: number) => Promise<void>
   onDeleteStep?: (stepId: string) => Promise<void>
   onDailyStepsUpdate?: (steps: any[]) => void
+  visibleSections?: Record<string, boolean> // View settings for showing/hiding sections
 }
 
 export function TodayFocusSection({
@@ -56,7 +57,11 @@ export function TodayFocusSection({
   onStepDateChange,
   onStepTimeChange,
   onDeleteStep,
-  onDailyStepsUpdate
+  onDailyStepsUpdate,
+  visibleSections = {
+    futureSteps: true,
+    overdueSteps: true
+  }
 }: TodayFocusSectionProps) {
   const t = useTranslations()
   const locale = useLocale()
@@ -1099,7 +1104,7 @@ export function TodayFocusSection({
       {((overdueStepsList.length > 0 || futureStepsList.length > 0) || isWeekView) && (
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Overdue Steps Box */}
-          {(overdueStepsList.length > 0 || isWeekView) && (
+          {visibleSections.overdueSteps !== false && (overdueStepsList.length > 0 || isWeekView) && (
             <div className="card-playful-base flex-1 min-w-0">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -1123,7 +1128,7 @@ export function TodayFocusSection({
           )}
           
           {/* Future Steps Box */}
-          {(futureStepsList.length > 0 || isWeekView) && (
+          {visibleSections.futureSteps !== false && (futureStepsList.length > 0 || isWeekView) && (
             <div className="card-playful-base flex-1 min-w-0">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
