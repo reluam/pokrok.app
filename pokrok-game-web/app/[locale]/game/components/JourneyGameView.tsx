@@ -157,7 +157,7 @@ export function JourneyGameView({
   // Removed: Important steps planning overlay - now handled as workflow view in navigation
   
   // Navigation within main panel - now supports goal IDs (e.g., 'goal-{id}')
-  const [mainPanelSection, setMainPanelSection] = useState<string>(() => {
+  const [mainPanelSection, setMainPanelSection] = useState<string | null>(() => {
     if (typeof window !== 'undefined') {
       try {
         const savedSection = localStorage.getItem('journeyGame_mainPanelSection')
