@@ -47,6 +47,7 @@ import { StepModal } from './modals/StepModal'
 import { DeleteStepModal } from './modals/DeleteStepModal'
 import { OnboardingTutorial } from './OnboardingTutorial'
 import { LoadingSpinner } from './ui/LoadingSpinner'
+// Removed: ImportantStepsPlanningView import - now handled as workflow view in navigation
 
 interface JourneyGameViewProps {
   player?: any
@@ -139,12 +140,12 @@ export function JourneyGameView({
     loadUserId()
   }, [user?.id, userId])
 
-  const [currentPage, setCurrentPage] = useState<'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'help'>(() => {
+  const [currentPage, setCurrentPage] = useState<'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas'>(() => {
     if (typeof window !== 'undefined') {
       try {
         const savedPage = localStorage.getItem('journeyGame_currentPage')
-        if (savedPage && ['main', 'goals', 'habits', 'steps', 'statistics', 'achievements', 'settings', 'help'].includes(savedPage)) {
-          return savedPage as 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'help'
+        if (savedPage && ['main', 'goals', 'habits', 'steps', 'statistics', 'achievements', 'settings', 'workflows', 'help', 'areas'].includes(savedPage)) {
+          return savedPage as 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help'
         }
       } catch (error) {
         console.error('Error loading currentPage:', error)
@@ -152,6 +153,8 @@ export function JourneyGameView({
     }
     return 'main'
   })
+
+  // Removed: Important steps planning overlay - now handled as workflow view in navigation
   
   // Navigation within main panel - now supports goal IDs (e.g., 'goal-{id}')
   const [mainPanelSection, setMainPanelSection] = useState<string>(() => {
@@ -173,7 +176,7 @@ export function JourneyGameView({
   })
   
   // Selected goal ID (extracted from mainPanelSection if it's a goal)
-  const selectedGoalId = mainPanelSection.startsWith('goal-') ? mainPanelSection.replace('goal-', '') : null
+  const selectedGoalId = mainPanelSection?.startsWith('goal-') ? mainPanelSection.replace('goal-', '') : null
   
   // Sidebar collapsed state
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
@@ -258,6 +261,18 @@ export function JourneyGameView({
     }
   }, [currentPage, currentProgram, currentManagementProgram, mainPanelSection, sidebarCollapsed])
 
+  // Listen for workflows settings open event from sidebar
+  useEffect(() => {
+    const handleOpenWorkflowsSettings = () => {
+      setCurrentPage('workflows')
+    }
+
+    window.addEventListener('openWorkflowsSettings', handleOpenWorkflowsSettings)
+    return () => {
+      window.removeEventListener('openWorkflowsSettings', handleOpenWorkflowsSettings)
+    }
+  }, [])
+
   // Listen for storage changes to update mainPanelSection from external navigation
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
@@ -334,11 +349,11 @@ export function JourneyGameView({
   
   // Auto-expand/collapse areas based on current page
   useEffect(() => {
-    if (mainPanelSection.startsWith('area-')) {
+    if (mainPanelSection?.startsWith('area-')) {
       // If we're on an area page, expand that area and collapse all others
       const areaId = mainPanelSection.replace('area-', '')
       setExpandedAreas(new Set([areaId]))
-    } else if (mainPanelSection.startsWith('goal-')) {
+    } else if (mainPanelSection?.startsWith('goal-')) {
       // If we're on a goal page, check if the goal belongs to an area
       const goalId = mainPanelSection.replace('goal-', '')
       const goal = goals.find(g => g.id === goalId)
@@ -514,7 +529,7 @@ export function JourneyGameView({
   }, [currentPage, isOnboardingActive])
   
   // Get selected area ID from mainPanelSection
-  const selectedAreaId = mainPanelSection.startsWith('area-') ? mainPanelSection.replace('area-', '') : null
+  const selectedAreaId = mainPanelSection?.startsWith('area-') ? mainPanelSection.replace('area-', '') : null
   
   // Create refs for areas
   useEffect(() => {
@@ -1325,7 +1340,7 @@ export function JourneyGameView({
       const defaultDate = date || getLocalDateString(new Date())
       // Check if we're on an area page and should assign the step to that area
       let defaultAreaId = ''
-      if (mainPanelSection.startsWith('area-')) {
+      if (mainPanelSection?.startsWith('area-')) {
         defaultAreaId = mainPanelSection.replace('area-', '')
       }
       setStepModalData({
@@ -1439,6 +1454,11 @@ export function JourneyGameView({
           }))
         }
         
+        // Dispatch custom event when step is created (for important steps planning)
+        if (isNewStep && updatedStep) {
+          window.dispatchEvent(new CustomEvent('stepCreated', { detail: { stepId: updatedStep.id, date: updatedStep.date } }))
+        }
+        
         // Close modal after successful save
         setShowStepModal(false)
         setStepModalData({
@@ -1521,7 +1541,7 @@ export function JourneyGameView({
     }
     
     // If creating new habit and we're on an area page, automatically assign the area
-    if (!habit && mainPanelSection.startsWith('area-')) {
+    if (!habit && mainPanelSection?.startsWith('area-')) {
       const areaId = mainPanelSection.replace('area-', '')
       setEditingHabitAreaId(areaId)
     } else {
@@ -1645,10 +1665,10 @@ export function JourneyGameView({
     }
   }
 
-  // Handle areas management modal
+  // Handle areas management - open as page instead of modal
   const handleOpenAreasManagementModal = () => {
-    setShowAreasManagementModal(true)
-    setEditingArea(null)
+    setCurrentPage('areas')
+    setMainPanelSection(null)
   }
 
   const handleOpenAreaEditModal = (area?: any) => {
@@ -1748,8 +1768,11 @@ export function JourneyGameView({
     setShowDeleteAreaModal(true)
   }
 
-  const handleDeleteAreaConfirm = async () => {
-    if (!areaToDelete) return
+  const handleDeleteAreaConfirm = async (areaId?: string, deleteRelated?: boolean) => {
+    const targetAreaId = areaId || areaToDelete
+    const shouldDeleteRelated = deleteRelated !== undefined ? deleteRelated : deleteAreaWithRelated
+    
+    if (!targetAreaId) return
 
     setIsDeletingArea(true)
     try {
@@ -1759,8 +1782,8 @@ export function JourneyGameView({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          id: areaToDelete,
-          deleteRelated: deleteAreaWithRelated
+          id: targetAreaId,
+          deleteRelated: shouldDeleteRelated
         }),
       })
 
@@ -1773,13 +1796,13 @@ export function JourneyGameView({
         }
         
         // If we're on the area page, navigate back to overview
-        if (mainPanelSection === `area-${areaToDelete}`) {
+        if (mainPanelSection === `area-${targetAreaId}`) {
           setMainPanelSection('overview')
         }
         
         setShowDeleteAreaModal(false)
         setAreaToDelete(null)
-        const wasRelatedDeleted = deleteAreaWithRelated
+        const wasRelatedDeleted = shouldDeleteRelated
         setDeleteAreaWithRelated(false)
         
         // Reload goals, steps, and habits (either deleted or unlinked)
@@ -2477,7 +2500,7 @@ export function JourneyGameView({
 
     // Check if we're on an area page and should assign the goal to that area
     let areaId: string | null = null
-    if (mainPanelSection.startsWith('area-')) {
+    if (mainPanelSection?.startsWith('area-')) {
       areaId = mainPanelSection.replace('area-', '')
     }
 
@@ -3138,7 +3161,7 @@ export function JourneyGameView({
 
   // Load steps for goal detail page when it's opened
   useEffect(() => {
-    if (mainPanelSection.startsWith('goal-')) {
+    if (mainPanelSection?.startsWith('goal-')) {
       const goalId = mainPanelSection.replace('goal-', '')
       const goal = goals.find(g => g.id === goalId)
       
@@ -3166,7 +3189,7 @@ export function JourneyGameView({
 
   // Update goal detail page state when goal changes
   useEffect(() => {
-    if (mainPanelSection.startsWith('goal-')) {
+    if (mainPanelSection?.startsWith('goal-')) {
       const goalId = mainPanelSection.replace('goal-', '')
       const goal = goals.find(g => g.id === goalId)
       
@@ -3182,7 +3205,7 @@ export function JourneyGameView({
 
   // Update area detail page state when area changes
   useEffect(() => {
-    if (mainPanelSection.startsWith('area-')) {
+    if (mainPanelSection?.startsWith('area-')) {
       const areaId = mainPanelSection.replace('area-', '')
       const area = areas.find(a => a.id === areaId)
       
@@ -3460,7 +3483,7 @@ export function JourneyGameView({
     }
     
     // Only calculate if we're on a habit detail page
-    if (mainPanelSection.startsWith('habit-')) {
+    if (mainPanelSection?.startsWith('habit-')) {
       const habitId = mainPanelSection.replace('habit-', '')
       calculateVisibleDays(habitId)
       window.addEventListener('resize', () => calculateVisibleDays(habitId))
@@ -3858,7 +3881,7 @@ export function JourneyGameView({
         showAreaIconPicker={showAreaIconPicker}
         setShowAreaIconPicker={setShowAreaIconPicker}
         isSavingArea={isSavingArea}
-        onSave={handleSaveArea}
+          onSave={handleSaveArea}
       />
 
       <DeleteHabitModal

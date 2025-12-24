@@ -1,8 +1,8 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Target, Plus, Footprints, CheckSquare, Settings, Calendar, CalendarRange, CalendarDays, CalendarCheck } from 'lucide-react'
+import { LayoutDashboard, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Target, Plus, Footprints, CheckSquare, Settings, Calendar, CalendarRange, CalendarDays, CalendarCheck, BookOpen } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
 
 interface SidebarNavigationProps {
@@ -35,6 +35,8 @@ interface SidebarNavigationProps {
   areaButtonRefs?: Map<string, React.RefObject<HTMLButtonElement>>
   goalButtonRefs?: Map<string, React.RefObject<HTMLButtonElement>>
   onGoalClick?: (goalId: string) => void
+  activeWorkflows?: any[]
+  availableWorkflows?: Record<string, any>
 }
 
 export function SidebarNavigation({
@@ -66,59 +68,198 @@ export function SidebarNavigation({
   onOnboardingGoalClick,
   areaButtonRefs,
   goalButtonRefs,
-  onGoalClick
+  onGoalClick,
+  activeWorkflows = [],
+  availableWorkflows = {}
 }: SidebarNavigationProps) {
   const t = useTranslations()
   
+  // Load view type visibility settings and order
+  const [viewTypeVisibility, setViewTypeVisibility] = useState<Record<string, boolean>>({
+    day: true,
+    week: true,
+    month: true,
+    year: true,
+    areas: true,
+    only_the_important: true,
+    daily_review: true
+  })
+  const [workflowsOrder, setWorkflowsOrder] = useState<string[]>(['only_the_important', 'daily_review'])
+  const [timeOrder, setTimeOrder] = useState<string[]>(['day', 'week', 'month', 'year'])
+
+  useEffect(() => {
+    const loadViewSettings = async () => {
+      const viewTypes = ['day', 'week', 'month', 'year', 'areas', 'only_the_important', 'daily_review']
+      const settingsPromises = viewTypes.map(async (viewType) => {
+        try {
+          const response = await fetch(`/api/view-settings?view_type=${viewType}`)
+          if (response.ok) {
+            const data = await response.json()
+            const visibleInNav = data?.visible_sections?._visible_in_navigation !== false // Default to true
+            const order = data?.order_index !== null && data?.order_index !== undefined 
+              ? Number(data.order_index) 
+              : null
+            return { viewType, visibleInNav, order }
+          }
+        } catch (error) {
+          console.error(`Error loading view settings for ${viewType}:`, error)
+        }
+        return { viewType, visibleInNav: true, order: null } // Default to true
+      })
+
+      const settingsResults = await Promise.all(settingsPromises)
+      const visibilityMap: Record<string, boolean> = {}
+      settingsResults.forEach(({ viewType, visibleInNav }) => {
+        visibilityMap[viewType] = visibleInNav
+      })
+      setViewTypeVisibility(visibilityMap)
+      
+      // Define view categories
+      const workflowsViews = ['only_the_important', 'daily_review']
+      const timeViews = ['day', 'week', 'month', 'year']
+      
+      // Load view order by category
+      const orderMap = new Map<string, number>()
+      settingsResults.forEach(({ viewType, order }) => {
+        if (order !== null && order !== undefined && typeof order === 'number') {
+          orderMap.set(viewType, order)
+        }
+      })
+      
+      // Sort workflows views
+      const workflowsWithOrder = workflowsViews
+        .filter(vt => orderMap.has(vt))
+        .sort((a, b) => (orderMap.get(a) || 0) - (orderMap.get(b) || 0))
+      const workflowsWithoutOrder = workflowsViews.filter(vt => !orderMap.has(vt))
+      setWorkflowsOrder([...workflowsWithOrder, ...workflowsWithoutOrder])
+      
+      // Sort time views
+      const timeWithOrder = timeViews
+        .filter(vt => orderMap.has(vt))
+        .sort((a, b) => (orderMap.get(a) || 0) - (orderMap.get(b) || 0))
+      const timeWithoutOrder = timeViews.filter(vt => !orderMap.has(vt))
+      setTimeOrder([...timeWithOrder, ...timeWithoutOrder])
+    }
+
+    loadViewSettings()
+
+    // Listen for view visibility and order changes
+    const handleSettingsChange = () => {
+      loadViewSettings()
+    }
+    window.addEventListener('viewVisibilityChanged', handleSettingsChange)
+    window.addEventListener('viewOrderChanged', handleSettingsChange)
+    return () => {
+      window.removeEventListener('viewVisibilityChanged', handleSettingsChange)
+      window.removeEventListener('viewOrderChanged', handleSettingsChange)
+    }
+  }, [])
+
   // Auto-expand logic removed - Focus items are always visible
 
   return (
     <div className={`hidden md:flex ${sidebarCollapsed ? 'w-14' : 'w-64'} border-r-4 border-primary-500 bg-white flex-shrink-0 transition-all duration-300 relative h-full flex flex-col`}>
       <div className={`${sidebarCollapsed ? 'p-2 pt-12' : 'p-4'} flex-1 overflow-y-auto`}>
         {!sidebarCollapsed && (
-          <h2 className="text-lg font-bold text-black mb-4 font-playful">{t('navigation.title')}</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-black font-playful">{t('navigation.title')}</h2>
+            <button
+              onClick={() => {
+                // Dispatch custom event to open workflows view
+                window.dispatchEvent(new CustomEvent('openWorkflowsSettings'))
+              }}
+              className="p-1.5 rounded-playful-sm hover:bg-primary-50 transition-colors border-2 border-primary-500 text-black hover:text-primary-600"
+              title={t('workflows.title') || 'Nastavení workflows'}
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+          </div>
         )}
         <nav className={`${sidebarCollapsed ? 'space-y-2 flex flex-col items-center' : 'space-y-2'}`}>
-          {/* Focus section - Day, Week, Month (always visible, not expandable) */}
           {!sidebarCollapsed ? (
-            <div className="space-y-1.5">
-                  <button
-                    onClick={() => setMainPanelSection('focus-day')}
-                    className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                      mainPanelSection === 'focus-day' ? 'active' : ''
-                    }`}
-                  >
-                    <CalendarDays className="w-4 h-4 flex-shrink-0" />
-                <span className="font-medium text-sm">{t('navigation.focusDay') || 'Den'}</span>
-                  </button>
-                  <button
-                    onClick={() => setMainPanelSection('focus-week')}
-                    className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                      mainPanelSection === 'focus-week' ? 'active' : ''
-                    }`}
-                  >
-                    <CalendarRange className="w-4 h-4 flex-shrink-0" />
-                <span className="font-medium text-sm">{t('navigation.focusWeek') || 'Týden'}</span>
-                  </button>
-                  <button
-                    onClick={() => setMainPanelSection('focus-month')}
-                    className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                      mainPanelSection === 'focus-month' ? 'active' : ''
-                    }`}
-                  >
-                    <Calendar className="w-4 h-4 flex-shrink-0" />
-                <span className="font-medium text-sm">{t('navigation.focusMonth') || 'Měsíc'}</span>
-                  </button>
-                  <button
-                    onClick={() => setMainPanelSection('focus-year')}
-                    className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                      mainPanelSection === 'focus-year' ? 'active' : ''
-                    }`}
-                  >
-                    <CalendarCheck className="w-4 h-4 flex-shrink-0" />
-                <span className="font-medium text-sm">{t('navigation.focusYear') || 'Rok'}</span>
-                  </button>
-            </div>
+            <>
+              {/* Workflows section - Only the important, Daily review */}
+              {(workflowsOrder.some(vt => viewTypeVisibility[vt] !== false)) && (
+                <div className="space-y-1.5 mb-4">
+                  <h3 className="text-xs font-bold text-black uppercase tracking-wider font-playful px-2 py-1">
+                    {t('navigation.workflows') || 'Workflows'}
+                  </h3>
+                  {workflowsOrder.map((viewType) => {
+                    const isVisible = viewTypeVisibility[viewType] !== false
+                    if (!isVisible) return null
+                    
+                    const sectionKey = `focus-${viewType}`
+                    const isActive = mainPanelSection === sectionKey
+                    
+                    const viewConfig: Record<string, { icon: any; labelKey: string }> = {
+                      only_the_important: { icon: Target, labelKey: 'views.onlyTheImportant.name' },
+                      daily_review: { icon: BookOpen, labelKey: 'views.dailyReview.name' }
+                    }
+                    
+                    const config = viewConfig[viewType]
+                    if (!config) return null
+                    
+                    const IconComponent = config.icon
+                    const label = t(config.labelKey) || viewType
+                    
+                    return (
+                      <button
+                        key={viewType}
+                        onClick={() => setMainPanelSection(sectionKey)}
+                        className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
+                          isActive ? 'active' : ''
+                        }`}
+                      >
+                        <IconComponent className="w-4 h-4 flex-shrink-0" />
+                        <span className="font-medium text-sm">{label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+              
+              {/* Time-based section - Day, Week, Month, Year */}
+              {(timeOrder.some(vt => viewTypeVisibility[vt] !== false)) && (
+                <div className="space-y-1.5 mb-4">
+                  <h3 className="text-xs font-bold text-black uppercase tracking-wider font-playful px-2 py-1">
+                    {t('navigation.timeBased') || 'Časové'}
+                  </h3>
+                  {timeOrder.map((viewType) => {
+                    const isVisible = viewTypeVisibility[viewType] !== false
+                    if (!isVisible) return null
+                    
+                    const sectionKey = `focus-${viewType}`
+                    const isActive = mainPanelSection === sectionKey
+                    
+                    const viewConfig: Record<string, { icon: any; labelKey: string }> = {
+                      day: { icon: CalendarDays, labelKey: 'navigation.focusDay' },
+                      week: { icon: CalendarRange, labelKey: 'navigation.focusWeek' },
+                      month: { icon: Calendar, labelKey: 'navigation.focusMonth' },
+                      year: { icon: CalendarCheck, labelKey: 'navigation.focusYear' }
+                    }
+                    
+                    const config = viewConfig[viewType]
+                    if (!config) return null
+                    
+                    const IconComponent = config.icon
+                    const label = t(config.labelKey) || viewType
+                    
+                    return (
+                      <button
+                        key={viewType}
+                        onClick={() => setMainPanelSection(sectionKey)}
+                        className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
+                          isActive ? 'active' : ''
+                        }`}
+                      >
+                        <IconComponent className="w-4 h-4 flex-shrink-0" />
+                        <span className="font-medium text-sm">{label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </>
           ) : (
             // Collapsed sidebar - show only Focus icon
             <button
@@ -130,6 +271,40 @@ export function SidebarNavigation({
             >
               <Calendar className="w-5 h-5 flex-shrink-0" />
             </button>
+          )}
+          
+          {/* Active Workflows - after Focus, before Areas */}
+          {/* Show all enabled workflows as standalone views in navigation */}
+          {!sidebarCollapsed && activeWorkflows.length > 0 && (
+            <div className="space-y-1.5 mt-4">
+              <h3 className="text-xs font-bold text-black uppercase tracking-wider font-playful px-2 py-1">
+                {t('views.title') || 'Views'}
+              </h3>
+              {activeWorkflows.map((workflow) => {
+                const workflowDef = availableWorkflows[workflow.workflow_key]
+                if (!workflowDef) return null
+                
+                const sectionKey = `workflow-${workflow.workflow_key}`
+                const isActive = mainPanelSection === sectionKey
+                const IconComponent = getIconComponent(workflowDef.icon || 'LayoutDashboard')
+                
+                return (
+                  <button
+                    key={workflow.id}
+                    onClick={() => setMainPanelSection(sectionKey)}
+                    className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
+                      isActive ? 'active' : ''
+                    }`}
+                    title={t(workflowDef.nameKey)}
+                  >
+                    <IconComponent className="w-4 h-4 flex-shrink-0" />
+                    <span className="font-medium text-sm truncate">
+                      {t(workflowDef.nameKey)}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
           )}
           
           {/* Areas list - directly under Focus */}

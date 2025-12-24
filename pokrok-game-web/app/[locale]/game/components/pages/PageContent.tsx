@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { ItemDetailRenderer } from '../details/ItemDetailRenderer'
 import { HabitsPage } from '../views/HabitsPage'
@@ -12,6 +12,8 @@ import { WeekView } from '../views/WeekView'
 import { MonthView } from '../views/MonthView'
 import { YearView } from '../views/YearView'
 import { SettingsPage } from '../SettingsPage'
+import { WorkflowsPage } from './WorkflowsPage'
+import { AreasSettingsView } from '../AreasSettingsView'
 import { HelpView } from '../views/HelpView'
 import { GoalEditingForm } from '../journey/GoalEditingForm'
 import { DisplayContent } from '../content/DisplayContent'
@@ -24,12 +26,15 @@ import { GoalsManagementView } from '../views/GoalsManagementView'
 import { HabitsManagementView } from '../views/HabitsManagementView'
 import { StepsManagementView } from '../views/StepsManagementView'
 import { HabitDetailInlineView } from '../views/HabitDetailInlineView'
+import { ImportantStepsPlanningView } from '../workflows/ImportantStepsPlanningView'
+import { DailyReviewWorkflow } from '../DailyReviewWorkflow'
+import { OnlyTheImportantView } from '../views/OnlyTheImportantView'
 
 // NOTE: This component is very large (~2862 lines) and will be further refactored
 // For now, it contains the entire renderPageContent logic
 
 interface PageContentProps {
-  currentPage: 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'help'
+  currentPage: 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas'
   [key: string]: any // Allow any props - this function uses many variables from parent
 }
 
@@ -287,6 +292,42 @@ export function PageContent(props: PageContentProps) {
   const [habitsShowCompletedToday, setHabitsShowCompletedToday] = React.useState(true)
   const [selectedHabitForDetail, setSelectedHabitForDetail] = React.useState<string | null>(null)
   const habitsPageTimelineContainerRef = React.useRef<HTMLDivElement>(null)
+  
+  // Load active workflows for navigation
+  const [activeWorkflows, setActiveWorkflows] = React.useState<any[]>([])
+  const [availableWorkflows, setAvailableWorkflows] = React.useState<Record<string, any>>({})
+  
+  React.useEffect(() => {
+    if (!userId) return
+    
+    const loadWorkflows = async () => {
+      try {
+        // Load available workflows
+        const workflowsResponse = await fetch('/api/view-configurations/available')
+        if (workflowsResponse.ok) {
+          const workflows = await workflowsResponse.json()
+          const workflowsMap: Record<string, any> = {}
+          workflows.forEach((workflow: any) => {
+            workflowsMap[workflow.key] = workflow
+          })
+          setAvailableWorkflows(workflowsMap)
+        }
+        
+        // Load user configurations - filter only by enabled (no view type filtering)
+        const configResponse = await fetch('/api/view-configurations')
+        if (configResponse.ok) {
+          const configs = await configResponse.json()
+          // Filter workflows that are enabled (workflows are now standalone views, not filtered by view type)
+          const enabled = configs.filter((c: any) => c.enabled)
+          setActiveWorkflows(enabled)
+        }
+      } catch (error) {
+        console.error('Error loading workflows:', error)
+      }
+    }
+    
+    loadWorkflows()
+  }, [userId])
   
   // Reset selectedHabitForDetail when navigating to habits page
   React.useEffect(() => {
@@ -661,6 +702,92 @@ export function PageContent(props: PageContentProps) {
         })
         
         const renderMainContent = () => {
+          // Check if it's a workflow view (legacy support - remove later)
+          if (mainPanelSection.startsWith('workflow-')) {
+            const workflowKey = mainPanelSection.replace('workflow-', '')
+            const workflowDef = availableWorkflows[workflowKey]
+            
+            if (!workflowDef) {
+              return (
+                <div className="w-full min-h-full flex items-center justify-center bg-primary-50">
+                  <div className="text-center">
+                    <p className="text-gray-500">{t('navigation.workflowNotFound') || 'Workflow nenalezen'}</p>
+                  </div>
+                </div>
+              )
+            }
+            
+            return (
+              <div className="w-full min-h-full flex items-center justify-center bg-primary-50">
+                <div className="text-center">
+                  <p className="text-gray-500">{t(workflowDef.nameKey)}</p>
+                </div>
+              </div>
+            )
+          }
+          
+          // Check for only_the_important and daily_review as focus views
+          if (mainPanelSection === 'focus-only_the_important') {
+            return (
+              <div className="w-full flex flex-col bg-primary-50" style={{ height: '100%' }}>
+                {userId ? (
+                  <OnlyTheImportantView
+                    userId={userId}
+                    goals={goals}
+                    habits={habits}
+                    dailySteps={dailySteps}
+                    handleStepToggle={handleToggleStepCompleted}
+                    handleHabitToggle={handleHabitToggle}
+                    handleItemClick={handleItemClick}
+                    loadingSteps={loadingSteps}
+                    animatingSteps={animatingSteps}
+                    player={player}
+                    onDailyStepsUpdate={onDailyStepsUpdate}
+                    onOpenStepModal={handleOpenStepModal}
+                    setMainPanelSection={setMainPanelSection}
+                  />
+                ) : (
+                  <div className="flex-1 flex items-center justify-center">
+                    <p className="text-gray-500">{t('common.loading')}</p>
+                  </div>
+                )}
+              </div>
+            )
+          }
+          
+          if (mainPanelSection === 'focus-daily_review') {
+            return (
+              <div className="w-full flex flex-col bg-primary-50" style={{ height: '100%' }}>
+                <div className="flex-1 overflow-y-auto p-6" style={{ minHeight: 0 }}>
+                  <div className="max-w-4xl mx-auto">
+                    <DailyReviewWorkflow
+                      workflow={null}
+                      goals={goals}
+                      player={player}
+                      onComplete={async (workflowId: string, xp: number) => {
+                        if (onDailyStepsUpdate) {
+                          const stepsResponse = await fetch('/api/daily-steps')
+                          if (stepsResponse.ok) {
+                            const steps = await stepsResponse.json()
+                            onDailyStepsUpdate(steps)
+                          }
+                        }
+                      }}
+                      onSkip={async (workflowId: string) => {
+                        // Handle workflow skip
+                      }}
+                      onGoalProgressUpdate={async (goalId: string, progress: number) => {
+                        if (onGoalsUpdate) {
+                          await onGoalsUpdate()
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )
+          }
+          
           // Check if it's an area page
           if (mainPanelSection.startsWith('area-')) {
             const areaId = mainPanelSection.replace('area-', '')
@@ -1173,6 +1300,7 @@ export function PageContent(props: PageContentProps) {
                       loadingHabits={loadingHabits}
                       loadingSteps={loadingSteps}
                       player={player}
+                      userId={userId}
                       onNavigateToHabits={onNavigateToHabits}
                       onNavigateToSteps={onNavigateToSteps}
                     />
@@ -1383,6 +1511,8 @@ export function PageContent(props: PageContentProps) {
               areaButtonRefs={props.areaButtonRefs}
               goalButtonRefs={props.goalButtonRefs}
               onGoalClick={props.onGoalClick}
+              activeWorkflows={activeWorkflows}
+              availableWorkflows={availableWorkflows}
             />
 
             {/* Right content area */}
@@ -1592,6 +1722,63 @@ export function PageContent(props: PageContentProps) {
             }}
             onBack={() => setCurrentPage('main')}
             onNavigateToMain={() => setCurrentPage('main')}
+          />
+        );
+      }
+
+      case 'workflows': {
+        return (
+          <WorkflowsPage 
+            player={player}
+            onBack={() => setCurrentPage('main')}
+            onNavigateToMain={() => setCurrentPage('main')}
+          />
+        );
+      }
+
+      case 'areas': {
+        return (
+          <AreasSettingsView
+            player={player}
+            areas={props.areas || []}
+            goals={props.goals || []}
+            dailySteps={props.dailySteps || []}
+            habits={props.habits || []}
+            onNavigateToMain={() => {
+              if (props.setCurrentPage) {
+                props.setCurrentPage('main')
+              }
+            }}
+            onEditArea={(area) => {
+              if (props.handleOpenAreaEditModal) {
+                props.handleOpenAreaEditModal(area)
+              }
+            }}
+            onDeleteArea={props.handleDeleteArea}
+            onDeleteAreaConfirm={props.handleDeleteAreaConfirm}
+            isDeletingArea={props.isDeletingArea}
+            onSaveArea={async (areaData) => {
+              // If areaData has an id, it's an update - save directly
+              if (areaData.id) {
+                // Set the modal state for the save function
+                if (props.setEditingArea) props.setEditingArea({ id: areaData.id })
+                if (props.setAreaModalName) props.setAreaModalName(areaData.name || '')
+                if (props.setAreaModalDescription) props.setAreaModalDescription(areaData.description || '')
+                if (props.setAreaModalColor) props.setAreaModalColor(areaData.color || '#ea580c')
+                if (props.setAreaModalIcon) props.setAreaModalIcon(areaData.icon || 'LayoutDashboard')
+                
+                // Call the actual save function
+                if (props.handleSaveArea) {
+                  await props.handleSaveArea()
+                }
+              } else {
+                // New area - open modal
+                if (props.handleOpenAreaEditModal) {
+                  props.handleOpenAreaEditModal()
+                }
+              }
+            }}
+            onAreasUpdate={props.onAreasUpdate}
           />
         );
       }
@@ -1928,17 +2115,26 @@ export function PageContent(props: PageContentProps) {
                   <div className="p-2">
                     {filteredHabits.map((habit: any) => {
                       const isSelected = selectedHabitForDetail === habit.id
+                      // Calculate total completions count
+                      const totalCompletions = habit.habit_completions 
+                        ? Object.values(habit.habit_completions).filter((completed: any) => completed === true).length
+                        : 0
                       return (
                         <button
                           key={habit.id}
                           onClick={() => setSelectedHabitForDetail(isSelected ? null : habit.id)}
-                          className={`w-full text-left px-3 py-2 mb-1 rounded-playful-sm text-sm font-playful transition-colors ${
+                          className={`w-full text-left px-3 py-2 mb-1 rounded-playful-sm text-sm font-playful transition-colors flex items-center justify-between gap-2 ${
                             isSelected
                               ? 'bg-primary-500 text-black font-semibold'
                               : 'bg-white text-black hover:bg-primary-50 border-2 border-transparent hover:border-primary-500'
                           }`}
                         >
-                          {habit.name}
+                          <span className="truncate flex-1">{habit.name}</span>
+                          <span className={`text-xs font-semibold flex-shrink-0 ${
+                            isSelected ? 'text-black' : 'text-primary-600'
+                          }`}>
+                            {totalCompletions}x
+                          </span>
                         </button>
                       )
                     })}
@@ -2324,20 +2520,24 @@ export function PageContent(props: PageContentProps) {
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => {
-                  setShowDeleteAreaModal(false)
-                  setAreaToDelete(null)
+                  if (props.setShowDeleteAreaModal) {
+                    props.setShowDeleteAreaModal(false)
+                  }
+                  if (props.setAreaToDelete) {
+                    props.setAreaToDelete(null)
+                  }
                 }}
-                disabled={isDeletingArea}
+                disabled={props.isDeletingArea}
                 className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('common.cancel') || 'Zrušit'}
               </button>
               <button
                 onClick={handleDeleteAreaConfirm}
-                disabled={isDeletingArea}
+                disabled={props.isDeletingArea}
                 className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
-                {isDeletingArea ? (
+                {props.isDeletingArea ? (
                   <>
                     <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

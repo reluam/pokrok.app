@@ -30,7 +30,18 @@
     "next": "Další",
     "select": "Vybrat",
     "completed": "Dokončeno",
-    "of": "z"
+    "of": "z",
+    "yes": "Ano",
+    "no": "Ne",
+    "steps": "Kroky",
+    "step": "krok",
+    "addStep": "Přidat krok",
+    "remaining": "zbývá",
+    "previousYear": "Předchozí rok",
+    "nextYear": "Další rok",
+    "backToCurrent": "Zpět na aktuální rok",
+    "statistics": "Statistiky",
+    "dragToReorder": "Přetáhněte pro změnu pořadí"
   },
   "homepage": {
     "tagline": "Aplikace pro plánování života",
@@ -465,9 +476,11 @@
       "steps": "Kroky",
       "dailyPlan": "Denní plán",
       "display": "Zobrazení",
+      "views": "Views",
       "statistics": "Statistiky",
       "player": "Postava",
       "workflows": "Workflows",
+      "subscription": "Předplatné",
       "danger": "Účet"
     },
     "user": {
@@ -587,6 +600,18 @@
       "activate": "Aktivovat",
       "deactivate": "Deaktivovat"
     },
+    "subscription": {
+      "currentPlan": "Aktuální plán",
+      "plan": "Plán",
+      "premium": "Premium",
+      "free": "Zdarma",
+      "upgradePrompt": "Upgradujte na Premium pro více funkcí",
+      "upgradeButton": "Upgradovat",
+      "choosePlan": "Vyberte si plán",
+      "billing": "Fakturace a platební údaje",
+      "billingDescription": "Spravujte své platební údaje, faktury a historii plateb.",
+      "openBilling": "Otevřít platební údaje"
+    },
     "danger": {
       "title": "ÚČET",
       "warning": "Varování",
@@ -620,6 +645,74 @@
       }
     }
   },
+  "workflows": {
+    "title": "WORKFLOWS",
+    "description": "Workflows jsou automatizované procesy, které vám pomohou s pravidelnou reflexí a plánováním. Nastavte si, kdy se mají zobrazovat, a nechte workflow vést vaše kroky.",
+    "loading": "Načítání workflows...",
+    "noWorkflows": "Zatím nemáte žádné workflows.",
+    "time": "Čas",
+    "notSet": "Nenastaveno",
+    "active": "✓ Aktivní",
+    "inactive": "○ Neaktivní",
+    "stop": "Zastavit",
+    "start": "Zapnout",
+    "configure": "Konfigurovat",
+    "availableWorkflows": "Dostupné Workflows",
+    "dailyReview": {
+      "name": "Pohled za dneškem",
+      "description": "Každý večer vás workflow vyzve k reflexi nad uplynulým dnem."
+    },
+    "activate": "Aktivovat",
+    "deactivate": "Deaktivovat",
+    "showInNavigation": "Zobrazit v navigaci",
+    "showInNavigationDescription": "Pokud je zapnuto, tento view se zobrazí v navigačním panelu na hlavním panelu.",
+    "noWorkflowsAvailable": "Pro tento view nejsou k dispozici žádné workflows.",
+    "viewTypes": "View Types",
+    "onlyTheImportant": {
+      "name": "Important",
+      "description": "Každý den si vyberte nejdůležitější kroky, na které se soustředíte. Důležité kroky se zobrazí v denním view, ostatní až po jejich splnění.",
+      "settings": {
+        "title": "Nastavení workflow",
+        "importantStepsCount": "Počet důležitých kroků na den",
+        "importantStepsCountDescription": "Kolik kroků bude zobrazeno jako důležité v denním view (1-10)",
+        "maxTasks": "Maximální počet tasků",
+        "maxTasksDescription": "Maximální počet důležitých tasků, které se zobrazí v tomto view."
+      },
+      "planning": {
+        "title": "Plánování důležitých kroků",
+        "importantSteps": "Důležité kroky",
+        "otherSteps": "Ostatní kroky",
+        "backlog": "Backlog",
+        "addNewStep": "Přidat nový krok",
+        "completePlanning": "Dokončit plánování",
+        "maxSteps": "Maximum {count} kroků",
+        "emptyColumn": "Přetáhněte kroky sem",
+        "deleteConfirm": "Opravdu chcete smazat tento krok?",
+        "error": "Chyba při načítání dat",
+        "today": "Dnes",
+        "tomorrow": "Zítra",
+        "previousDay": "Předchozí den",
+        "nextDay": "Další den",
+        "stepTitlePlaceholder": "Název kroku",
+        "stepDescriptionPlaceholder": "Popis kroku (volitelné)",
+        "availableSteps": "Dostupné kroky"
+      },
+      "dailyView": {
+        "allDone": "Máte vše splněno!",
+        "planTomorrow": "Nastavit kroky na zítřek",
+        "showOtherSteps": "Zobrazit ostatní kroky"
+      }
+    },
+    "premium": {
+        "title": "Workflows jsou placená funkce",
+        "description": "Workflows jsou dostupné pouze pro uživatele s Premium plánem. Upgradujte na Premium, abyste mohli používat automatizované workflows pro reflexi a plánování.",
+        "benefits": "S Premium plánem získáte:",
+        "benefit1": "Automatizované workflows pro denní reflexi",
+        "benefit2": "Pravidelné připomínky a plánování",
+        "benefit3": "Pokročilé funkce pro organizaci života",
+        "choosePlan": "Vyberte si plán"
+      }
+  },
   "dailyPlanning": {
     "title": "DENNÍ PLÁNOVÁNÍ",
     "loading": "Načítání denních kroků...",
@@ -649,6 +742,8 @@
     "steps": "Kroky",
     "habits": "Návyky",
     "areas": "Oblasti",
+    "workflows": "Workflows",
+    "timeBased": "Časové",
     "noGoals": "Žádné cíle",
     "noHabits": "Žádné návyky",
     "noAreas": "Žádné oblasti",
@@ -734,6 +829,7 @@
       "statistics": "Statistiky",
       "achievements": "Úspěchy",
       "settings": "Nastavení",
+      "workflows": "Workflows",
       "logout": "Odhlásit se"
     },
     "level": "Level",
@@ -915,6 +1011,7 @@
       "estimatedTime": "Odhadovaný čas (min):",
       "xpReward": "XP odměna:",
       "confirm": "Potvrdit",
+    "confirmed": "Potvrzeno",
       "important": "Důležité",
       "urgent": "Urgentní",
       "goal": "Cíl",
@@ -1331,35 +1428,23 @@
     "descriptionPlaceholder": "Popis oblasti...",
     "color": "Barva",
     "icon": "Ikona",
-    "noAreas": "Žádné oblasti",
-    "noAreasDescription": "Vytvořte oblast pro organizaci vašich cílů, kroků a návyků",
+    "noAreas": "Zatím nemáte žádné oblasti",
+    "noAreasDescription": "Oblasti slouží k rozdělení cílů, návyků a kroků na jednotlivé oblasti tak, jak chcete - například Zdraví, Práce, Projekt, atd.",
     "selectArea": "Vybrat oblast",
     "noArea": "Bez oblasti",
-    "nameRequired": "Název oblasti je povinný",
-    "nameTooLong": "Název oblasti je příliš dlouhý. Maximální délka je 255 znaků. Aktuální délka: {length} znaků.",
-    "iconTooLong": "Název ikony je příliš dlouhý. Maximální délka je 50 znaků. Aktuální délka: {length} znaků. Prosím vyberte kratší ikonu.",
-    "deleteConfirm": "Opravdu chcete smazat tuto oblast?",
-    "deleteConfirmDescription": "Cíle, kroky a návyky přiřazené k této oblasti budou odpojeny. Tato akce je nevratná.",
-    "deleteWithRelated": "Odstranit i cíle, kroky a návyky přiřazené k této oblasti",
-    "manage": "Spravovat oblasti",
     "areaGoals": "Cíle v oblasti",
     "areaSteps": "Kroky v oblasti",
     "areaHabits": "Návyky v oblasti",
-    "title": "Oblasti",
-    "add": "Přidat oblast",
-    "edit": "Upravit oblast",
-    "name": "Název",
-    "namePlaceholder": "Název oblasti",
     "nameRequired": "Název oblasti je povinný",
-    "description": "Popis",
-    "descriptionPlaceholder": "Popis oblasti",
-    "color": "Barva",
-    "icon": "Ikona",
+    "nameTooLong": "Název oblasti je příliš dlouhý. Maximální délka je 255 znaků. Aktuální délka: {length} znaků.",
+    "iconTooLong": "Název ikony je příliš dlouhý. Maximální délka je 50 znaků. Aktuální délka: {length} znaků. Prosím vyberte kratší ikonu.",
+    "generalSettings": "Obecné nastavení",
+    "generalSettingsDescription": "Zde můžete spravovat obecná nastavení pro oblasti.",
     "manage": "Spravovat oblasti",
-    "noAreas": "Zatím nemáte žádné oblasti",
-    "noAreasDescription": "Oblasti slouží k rozdělení cílů, návyků a kroků na jednotlivé oblasti tak, jak chcete - například Zdraví, Práce, Projekt, atd.",
     "addFirst": "Vytvořit první oblast",
-    "deleteConfirm": "Opravdu chcete smazat tuto oblast? Cíle, kroky a návyky přiřazené k této oblasti budou odpojeny.",
+    "deleteConfirm": "Opravdu chcete smazat tuto oblast?",
+    "deleteConfirmDescription": "Cíle, kroky a návyky přiřazené k této oblasti budou odpojeny. Tato akce je nevratná.",
+    "deleteWithRelated": "Odstranit i cíle, kroky a návyky přiřazené k této oblasti",
     "deleteError": "Nepodařilo se smazat oblast"
   },
   "onboarding": {
@@ -1424,19 +1509,6 @@
       "habitName": "Návyk",
       "function": "Návyky můžete vázat k oblasti a nastavit jejich frekvenci (denně, týdně, nebo vlastní dny)."
     },
-    "views": {
-      "title": "Úrovně zobrazení",
-      "description": "Pokrok nabízí čtyři různé úrovně zobrazení, každá vhodná pro jiný účel. Jednotlivé views najdete v navigation menu vlevo na hlavním panelu.",
-      "location": "Jednotlivé views najdete v navigation menu vlevo na hlavním panelu.",
-      "daily": "Denní",
-      "dailyDesc": "Ideální pro každodenní práci a rutiny. Zobrazuje kroky a návyky pro konkrétní den.",
-      "weekly": "Týdenní",
-      "weeklyDesc": "Přehled jednotlivých kroků v týdnu. Umožňuje plánovat a organizovat úkoly na celý týden.",
-      "monthly": "Měsíční",
-      "monthlyDesc": "Slouží k většímu overview. Zobrazuje kalendář s kroky a návyky pro celý měsíc.",
-      "yearly": "Roční",
-      "yearlyDesc": "Přehled posunu v jednotlivých cílech. Zobrazuje timeline s progress bary pro všechny cíle."
-    },
     "complete": {
       "title": "Tutoriál dokončen!",
       "description": "Nyní víte, jak používat Pokrok. Začněte vytvářet své oblasti, cíle, kroky a návyky a posouvejte se směrem k životu plnému smyslu a naplnění!",
@@ -1477,6 +1549,19 @@
     "habitsInfo": {
       "title": "Návyky",
       "description": "Návyky jsou nekonečné opakující se rutiny, které také můžete přiřadit do oblasti. Používejte je pro dlouhodobé budování dobrých návyků."
+    },
+    "views": {
+      "title": "Úrovně zobrazení",
+      "description": "Pokrok nabízí čtyři různé úrovně zobrazení, každá vhodná pro jiný účel. Jednotlivé views najdete v navigation menu vlevo na hlavním panelu.",
+      "location": "Jednotlivé views najdete v navigation menu vlevo na hlavním panelu.",
+      "daily": "Denní",
+      "dailyDesc": "Ideální pro každodenní práci a rutiny. Zobrazuje kroky a návyky pro konkrétní den.",
+      "weekly": "Týdenní",
+      "weeklyDesc": "Přehled jednotlivých kroků v týdnu. Umožňuje plánovat a organizovat úkoly na celý týden.",
+      "monthly": "Měsíční",
+      "monthlyDesc": "Slouží k většímu overview. Zobrazuje kalendář s kroky a návyky pro celý měsíc.",
+      "yearly": "Roční",
+      "yearlyDesc": "Přehled posunu v jednotlivých cílech. Zobrazuje timeline s progress bary pro všechny cíle."
     },
     "complete": {
       "title": "Tutoriál dokončen!",
@@ -1525,6 +1610,58 @@
     "areaNoActivity": "oblast nemá žádnou aktivitu",
     "areasNoActivity": "oblastí nemá žádnou aktivitu",
     "noInsights": "Zatím nemáme dostatek dat pro poznatky. Pokračujte v práci na svých cílech!"
+  },
+  "views": {
+    "title": "Úrovně zobrazení",
+    "description": "Pokrok nabízí čtyři různé úrovně zobrazení, každá vhodná pro jiný účel. Jednotlivé views najdete v navigation menu vlevo na hlavním panelu.",
+    "location": "Jednotlivé views najdete v navigation menu vlevo na hlavním panelu.",
+    "day": "Den",
+    "week": "Týden",
+    "month": "Měsíc",
+    "year": "Rok",
+    "time": "Časové",
+    "show": "Zobrazit",
+    "hide": "Skrýt",
+    "showInNavigation": "Zobrazit v navigaci",
+    "showInNavigationDescription": "Pokud je zapnuto, tento view se zobrazí v navigačním panelu na hlavním panelu.",
+    "onlyTheImportant": {
+      "name": "Important",
+      "description": "Každý den si vyberte nejdůležitější kroky, na které se soustředíte. Důležité kroky se zobrazí v denním view, ostatní až po jejich splnění."
+    },
+    "dailyReview": {
+      "name": "Pohled za dneškem",
+      "description": "Každý večer vás workflow vyzve k reflexi nad uplynulým dnem."
+    },
+    "configure": "Konfigurovat",
+    "activate": "Aktivovat",
+    "deactivate": "Deaktivovat",
+    "viewSettings": {
+      "title": "Zobrazované sekce",
+      "description": "Vyberte, které sekce chcete zobrazit v tomto view.",
+      "show": "Zobrazit",
+      "hide": "Skrýt",
+      "sections": {
+        "quickOverview": "Rychlý přehled",
+        "todayFocus": "Dnešní kroky",
+        "weeklyFocus": "Týdenní kroky",
+        "habits": "Návyky",
+        "futureSteps": "Budoucí kroky",
+        "overdueSteps": "Zpožděné kroky",
+        "calendar": "Kalendář",
+        "statistics": "Statistiky",
+        "goals": "Cíle",
+        "insights": "Přehledy",
+        "steps": "Kroky"
+      }
+    },
+    "daily": "Denní",
+    "dailyDesc": "Ideální pro každodenní práci a rutiny. Zobrazuje kroky a návyky pro konkrétní den.",
+    "weekly": "Týdenní",
+    "weeklyDesc": "Přehled jednotlivých kroků v týdnu. Umožňuje plánovat a organizovat úkoly na celý týden.",
+    "monthly": "Měsíční",
+    "monthlyDesc": "Slouží k většímu overview. Zobrazuje kalendář s kroky a návyky pro celý měsíc.",
+    "yearly": "Roční",
+    "yearlyDesc": "Přehled posunu v jednotlivých cílech. Zobrazuje timeline s progress bary pro všechny cíle."
   }
 }
 

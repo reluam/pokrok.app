@@ -31,6 +31,8 @@
     "select": "Select",
     "completed": "Completed",
     "of": "of",
+    "yes": "Yes",
+    "no": "No",
     "steps": "Steps",
     "step": "step",
     "addStep": "Add step",
@@ -39,6 +41,7 @@
     "nextYear": "Next year",
     "backToCurrent": "Back to current year",
     "statistics": "Statistics",
+    "dragToReorder": "Drag to reorder",
     "metrics": {
       "title": "Metrics",
       "metric": "metric",
@@ -474,9 +477,11 @@
       "steps": "Steps",
       "dailyPlan": "Daily Plan",
       "display": "Display",
+      "views": "Views",
       "statistics": "Statistics",
       "player": "Character",
       "workflows": "Workflows",
+      "subscription": "Subscription",
       "danger": "Account"
     },
     "user": {
@@ -596,6 +601,18 @@
       "activate": "Activate",
       "deactivate": "Deactivate"
     },
+    "subscription": {
+      "currentPlan": "Current Plan",
+      "plan": "Plan",
+      "premium": "Premium",
+      "free": "Free",
+      "upgradePrompt": "Upgrade to Premium for more features",
+      "upgradeButton": "Upgrade",
+      "choosePlan": "Choose a Plan",
+      "billing": "Billing & Payment Information",
+      "billingDescription": "Manage your payment methods, invoices, and payment history.",
+      "openBilling": "Open Billing Settings"
+    },
     "danger": {
       "title": "ACCOUNT",
       "warning": "Warning",
@@ -629,6 +646,74 @@
       }
     }
   },
+  "workflows": {
+    "title": "WORKFLOWS",
+    "description": "Workflows are automated processes that help you with regular reflection and planning. Set when they should appear and let workflows guide your steps.",
+    "loading": "Loading workflows...",
+    "noWorkflows": "You don't have any workflows yet.",
+    "time": "Time",
+    "notSet": "Not Set",
+    "active": "✓ Active",
+    "inactive": "○ Inactive",
+    "stop": "Stop",
+    "start": "Start",
+    "configure": "Configure",
+    "availableWorkflows": "Available Workflows",
+    "dailyReview": {
+      "name": "Daily Review",
+      "description": "Every evening, the workflow will prompt you to reflect on the past day."
+    },
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "showInNavigation": "Show in navigation",
+    "showInNavigationDescription": "If enabled, this view will be displayed in the navigation panel on the main panel.",
+    "noWorkflowsAvailable": "No workflows available for this view.",
+    "viewTypes": "View Types",
+    "onlyTheImportant": {
+      "name": "Important",
+      "description": "Every day, choose the most important steps you focus on. Important steps will be shown in daily view, others only after completing them.",
+      "settings": {
+        "title": "Workflow Settings",
+        "importantStepsCount": "Number of important steps per day",
+        "importantStepsCountDescription": "How many steps will be displayed as important in daily view (1-10)",
+        "maxTasks": "Maximum number of tasks",
+        "maxTasksDescription": "Maximum number of important tasks that will be displayed in this view."
+      },
+      "planning": {
+        "title": "Planning important steps",
+        "importantSteps": "Important steps",
+        "otherSteps": "Other steps",
+        "backlog": "Backlog",
+        "addNewStep": "Add new step",
+        "completePlanning": "Complete planning",
+        "maxSteps": "Maximum {count} steps",
+        "emptyColumn": "Drag steps here",
+        "deleteConfirm": "Do you really want to delete this step?",
+        "error": "Error loading data",
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "previousDay": "Previous day",
+        "nextDay": "Next day",
+        "stepTitlePlaceholder": "Step title",
+        "stepDescriptionPlaceholder": "Step description (optional)",
+        "availableSteps": "Available steps"
+      },
+      "dailyView": {
+        "allDone": "You have everything completed!",
+        "planTomorrow": "Plan steps for tomorrow",
+        "showOtherSteps": "Show other steps"
+      }
+    },
+    "premium": {
+        "title": "Workflows is a Premium Feature",
+        "description": "Workflows are only available for users with a Premium plan. Upgrade to Premium to use automated workflows for reflection and planning.",
+        "benefits": "With Premium plan you get:",
+        "benefit1": "Automated workflows for daily reflection",
+        "benefit2": "Regular reminders and planning",
+        "benefit3": "Advanced features for life organization",
+        "choosePlan": "Choose a Plan"
+      }
+  },
   "dailyPlanning": {
     "title": "DAILY PLANNING",
     "loading": "Loading daily steps...",
@@ -658,6 +743,8 @@
     "steps": "Steps",
     "habits": "Habits",
     "areas": "Areas",
+    "workflows": "Workflows",
+    "timeBased": "Time-based",
     "noGoals": "No goals",
     "noHabits": "No habits",
     "noAreas": "No areas",
@@ -743,6 +830,7 @@
       "statistics": "Statistics",
       "achievements": "Achievements",
       "settings": "Settings",
+      "workflows": "Workflows",
       "logout": "Sign Out"
     },
     "level": "Level",
@@ -924,6 +1012,7 @@
       "estimatedTime": "Estimated time (min):",
       "xpReward": "XP reward:",
       "confirm": "Confirm",
+    "confirmed": "Confirmed",
       "important": "Important",
       "urgent": "Urgent",
       "goal": "Goal",
@@ -1349,31 +1438,8 @@
     "nameRequired": "Area name is required",
     "nameTooLong": "Area name is too long. Maximum length is 255 characters. Current length: {length} characters.",
     "iconTooLong": "Icon name is too long. Maximum length is 50 characters. Current length: {length} characters. Please choose a shorter icon.",
-    "deleteConfirm": "Are you sure you want to delete this area?",
-    "deleteConfirmDescription": "Goals, steps, and habits assigned to this area will be unassigned. This action cannot be undone.",
-    "deleteWithRelated": "Also delete goals, steps and habits assigned to this area",
-    "manage": "Manage areas"
-  },
-  "areas": {
-    "title": "Areas",
-    "add": "Add area",
-    "create": "Create area",
-    "edit": "Edit area",
-    "delete": "Delete area",
-    "name": "Area name",
-    "namePlaceholder": "E.g. Health, Career, Relationships",
-    "description": "Description",
-    "descriptionPlaceholder": "Area description...",
-    "color": "Color",
-    "icon": "Icon",
-    "noAreas": "No areas",
-    "noAreasDescription": "Areas serve to organize your goals, habits, and steps into different areas as you wish - for example Health, Work, Project, etc.",
-    "selectArea": "Select area",
-    "noArea": "No area",
-    "areaGoals": "Goals in area",
-    "areaSteps": "Steps in area",
-    "areaHabits": "Habits in area",
-    "nameRequired": "Area name is required",
+    "generalSettings": "General Settings",
+    "generalSettingsDescription": "Here you can manage general settings for areas.",
     "manage": "Manage areas",
     "addFirst": "Create first area",
     "deleteConfirm": "Are you sure you want to delete this area?",
@@ -1443,19 +1509,6 @@
       "habitName": "Habit",
       "function": "You can link habits to an area and set their frequency (daily, weekly, or custom days)."
     },
-    "views": {
-      "title": "View levels",
-      "description": "Pokrok offers four different view levels, each suitable for a different purpose. You can find individual views in the navigation menu on the left side of the main panel.",
-      "location": "You can find individual views in the navigation menu on the left side of the main panel.",
-      "daily": "Daily",
-      "dailyDesc": "Ideal for daily work and routines. Displays steps and habits for a specific day.",
-      "weekly": "Weekly",
-      "weeklyDesc": "Overview of individual steps in the week. Allows you to plan and organize tasks for the entire week.",
-      "monthly": "Monthly",
-      "monthlyDesc": "Serves for a larger overview. Displays a calendar with steps and habits for the entire month.",
-      "yearly": "Yearly",
-      "yearlyDesc": "Overview of progress in individual goals. Displays a timeline with progress bars for all goals."
-    },
     "complete": {
       "title": "Tutorial Complete!",
       "description": "Now you know how to use Pokrok. Start creating your areas, goals, steps and habits and move toward a life full of meaning and fulfillment!",
@@ -1496,6 +1549,19 @@
     "habitsInfo": {
       "title": "Habits",
       "description": "Habits are infinite repeating routines that you can also assign to an area. Use them for long-term building of good habits."
+    },
+    "views": {
+      "title": "View levels",
+      "description": "Pokrok offers four different view levels, each suitable for a different purpose. You can find individual views in the navigation menu on the left side of the main panel.",
+      "location": "You can find individual views in the navigation menu on the left side of the main panel.",
+      "daily": "Daily",
+      "dailyDesc": "Ideal for daily work and routines. Displays steps and habits for a specific day.",
+      "weekly": "Weekly",
+      "weeklyDesc": "Overview of individual steps in the week. Allows you to plan and organize tasks for the entire week.",
+      "monthly": "Monthly",
+      "monthlyDesc": "Serves for a larger overview. Displays a calendar with steps and habits for the entire month.",
+      "yearly": "Yearly",
+      "yearlyDesc": "Overview of progress in individual goals. Displays a timeline with progress bars for all goals."
     },
     "mobile": {
       "createArea": {
@@ -1539,6 +1605,58 @@
     "areaNoActivity": "area has no activity",
     "areasNoActivity": "areas have no activity",
     "noInsights": "We don't have enough data for insights yet. Keep working on your goals!"
+  },
+  "views": {
+    "title": "View levels",
+    "description": "Pokrok offers four different view levels, each suitable for a different purpose. You can find individual views in the navigation menu on the left side of the main panel.",
+    "location": "You can find individual views in the navigation menu on the left side of the main panel.",
+    "day": "Day",
+    "week": "Week",
+    "month": "Month",
+    "year": "Year",
+    "time": "Time",
+    "show": "Show",
+    "hide": "Hide",
+    "showInNavigation": "Show in navigation",
+    "showInNavigationDescription": "If enabled, this view will be displayed in the navigation panel on the main panel.",
+    "onlyTheImportant": {
+      "name": "Important",
+      "description": "Every day, choose the most important steps you focus on. Important steps will be shown in daily view, others only after completing them."
+    },
+    "dailyReview": {
+      "name": "Daily Review",
+      "description": "Every evening, the workflow will prompt you to reflect on the past day."
+    },
+    "configure": "Configure",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "viewSettings": {
+      "title": "Visible Sections",
+      "description": "Select which sections you want to display in this view.",
+      "show": "Show",
+      "hide": "Hide",
+      "sections": {
+        "quickOverview": "Quick Overview",
+        "todayFocus": "Today's Steps",
+        "weeklyFocus": "Weekly Steps",
+        "habits": "Habits",
+        "futureSteps": "Future Steps",
+        "overdueSteps": "Overdue Steps",
+        "calendar": "Calendar",
+        "statistics": "Statistics",
+        "goals": "Goals",
+        "insights": "Insights",
+        "steps": "Steps"
+      }
+    },
+    "daily": "Daily",
+    "dailyDesc": "Ideal for daily work and routines. Displays steps and habits for a specific day.",
+    "weekly": "Weekly",
+    "weeklyDesc": "Overview of individual steps in the week. Allows you to plan and organize tasks for the entire week.",
+    "monthly": "Monthly",
+    "monthlyDesc": "Serves for a larger overview. Displays a calendar with steps and habits for the entire month.",
+    "yearly": "Yearly",
+    "yearlyDesc": "Overview of progress in individual goals. Displays a timeline with progress bars for all goals."
   }
 }
 
