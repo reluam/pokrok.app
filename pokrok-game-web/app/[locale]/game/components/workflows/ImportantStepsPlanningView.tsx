@@ -529,11 +529,11 @@ export function ImportantStepsPlanningView({
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <div className="md:h-full min-h-full grid grid-cols-1 md:grid-cols-3 gap-4 pb-4 md:pb-0">
+          <div className="h-full grid grid-cols-1 md:grid-cols-3 gap-4 pb-4 md:pb-0">
             {/* Left column with Important and Other */}
-            <div className="md:col-span-2 flex flex-col gap-4 md:h-full">
+            <div className="md:col-span-2 flex flex-col gap-4 h-full">
               {/* Important Steps Column - Top */}
-              <div className="flex-1 md:min-h-0 md:h-auto">
+              <div className="flex-1 min-h-0">
             <ImportantStepColumn
               id="important-column"
               title={t('workflows.onlyTheImportant.planning.importantSteps')}
@@ -547,7 +547,7 @@ export function ImportantStepsPlanningView({
               </div>
 
               {/* Other Steps Column - Bottom */}
-              <div className="flex-1 md:min-h-0 md:h-auto">
+              <div className="flex-1 min-h-0">
               <ImportantStepColumn
                 id="other-column"
                 title={t('workflows.onlyTheImportant.planning.otherSteps')}
@@ -561,7 +561,7 @@ export function ImportantStepsPlanningView({
             </div>
 
             {/* Right column with Backlog - Full height */}
-            <div className="md:col-span-1 md:h-full">
+            <div className="md:col-span-1 h-full">
               <ImportantStepColumn
                 id="backlog-column"
                 title={t('workflows.onlyTheImportant.planning.backlog')}

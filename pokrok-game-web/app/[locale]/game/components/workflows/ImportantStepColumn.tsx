@@ -112,7 +112,7 @@ export function ImportantStepColumn({
   const allIdsInColumn = [...stepIds, ...(availableSteps || []).map(s => s.id)]
 
   return (
-    <div className={`md:h-full h-auto flex flex-col box-playful-highlight border-2 rounded-playful-md overflow-hidden ${
+    <div className={`h-full flex flex-col box-playful-highlight border-2 rounded-playful-md overflow-hidden ${
         category === 'important'
           ? 'border-primary-500 bg-white'
           : category === 'other'
@@ -154,7 +154,7 @@ export function ImportantStepColumn({
       {/* Drop Zone */}
       <div
         ref={setNodeRef}
-        className={`flex-1 overflow-y-auto p-4 space-y-3 ${
+        className={`flex-1 overflow-y-auto min-h-0 p-4 space-y-3 ${
           isOver
             ? category === 'important'
               ? 'bg-primary-50'
