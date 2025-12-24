@@ -155,8 +155,9 @@ export function ImportantStepsPlanningView({
   useEffect(() => {
     if (!pendingStepCategory) return
 
-    const handleStepCreated = async (event: CustomEvent) => {
-      const { stepId, date } = event.detail
+    const handleStepCreated = async (event: Event) => {
+      const customEvent = event as CustomEvent
+      const { stepId, date } = customEvent.detail
       
       // Check if the step is for the current planning date
       if (date === selectedDate) {
@@ -165,10 +166,10 @@ export function ImportantStepsPlanningView({
       }
     }
 
-    window.addEventListener('stepCreated', handleStepCreated as EventListener)
+    window.addEventListener('stepCreated', handleStepCreated)
     
     return () => {
-      window.removeEventListener('stepCreated', handleStepCreated as EventListener)
+      window.removeEventListener('stepCreated', handleStepCreated)
     }
   }, [pendingStepCategory, selectedDate, moveStepToCategory])
 
