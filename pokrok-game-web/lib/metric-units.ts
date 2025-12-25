@@ -261,7 +261,8 @@ export function groupMetricsByUnits(metrics: Array<{
   for (const metric of metrics) {
     // Find compatible group or create new one
     let groupKey: string | null = null
-    for (const key of groups.keys()) {
+    const groupKeys = Array.from(groups.keys())
+    for (const key of groupKeys) {
       if (areUnitsCompatible(metric.unit, key)) {
         groupKey = key
         break
@@ -297,7 +298,8 @@ export function groupMetricsByUnits(metrics: Array<{
   
   // Convert all groups to best display unit
   const result: GroupedMetric[] = []
-  for (const group of groups.values()) {
+  const groupValues = Array.from(groups.values())
+  for (const group of groupValues) {
     if (group.metrics.length > 1) {
       // Multiple metrics in group - convert to best unit
       const units = group.metrics.map(m => m.unit)
