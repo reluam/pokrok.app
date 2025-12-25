@@ -741,6 +741,7 @@
     "focusWeek": "Týden",
     "focusMonth": "Měsíc",
     "focusYear": "Rok",
+    "calendar": "Kalendář",
     "goals": "Cíle",
     "steps": "Kroky",
     "habits": "Návyky",
@@ -1618,6 +1619,9 @@
     "title": "Úrovně zobrazení",
     "description": "Pokrok nabízí čtyři různé úrovně zobrazení, každá vhodná pro jiný účel. Jednotlivé views najdete v navigation menu vlevo na hlavním panelu.",
     "location": "Jednotlivé views najdete v navigation menu vlevo na hlavním panelu.",
+    "calendar": {
+      "description": "Kalendář zobrazuje denní, týdenní, měsíční a roční pohledy. Přepínat mezi nimi můžete pomocí přepínače nahoře v view."
+    },
     "day": "Den",
     "week": "Týden",
     "month": "Měsíc",

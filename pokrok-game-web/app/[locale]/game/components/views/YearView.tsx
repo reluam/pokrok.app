@@ -14,6 +14,7 @@ interface YearViewProps {
   handleItemClick: (item: any, type: 'step' | 'habit' | 'goal' | 'stat') => void
   player?: any
   areas?: any[]
+  visibleSections?: Record<string, boolean>
 }
 
 export function YearView({

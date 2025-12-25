@@ -76,69 +76,54 @@ export function SidebarNavigation({
   
   // Load view type visibility settings and order
   const [viewTypeVisibility, setViewTypeVisibility] = useState<Record<string, boolean>>({
-    day: true,
-    week: true,
-    month: true,
-    year: true,
+    calendar: true,
     areas: true,
     only_the_important: true,
     daily_review: true
   })
-  const [workflowsOrder, setWorkflowsOrder] = useState<string[]>(['only_the_important', 'daily_review'])
-  const [timeOrder, setTimeOrder] = useState<string[]>(['day', 'week', 'month', 'year'])
+  const [allViewsOrder, setAllViewsOrder] = useState<string[]>(['only_the_important', 'daily_review', 'calendar', 'areas'])
 
   useEffect(() => {
     const loadViewSettings = async () => {
-      const viewTypes = ['day', 'week', 'month', 'year', 'areas', 'only_the_important', 'daily_review']
-      const settingsPromises = viewTypes.map(async (viewType) => {
-        try {
-          const response = await fetch(`/api/view-settings?view_type=${viewType}`)
-          if (response.ok) {
-            const data = await response.json()
-            const visibleInNav = data?.visible_sections?._visible_in_navigation !== false // Default to true
-            const order = data?.order_index !== null && data?.order_index !== undefined 
-              ? Number(data.order_index) 
-              : null
-            return { viewType, visibleInNav, order }
-          }
-        } catch (error) {
-          console.error(`Error loading view settings for ${viewType}:`, error)
+      // Load all view settings at once to get unified order
+      try {
+        const response = await fetch('/api/view-settings')
+        if (response.ok) {
+          const allSettings = await response.json()
+          
+          // Map settings to view types
+          const visibilityMap: Record<string, boolean> = {}
+          const orderMap = new Map<string, number>()
+          
+          allSettings.forEach((setting: any) => {
+            const viewType = setting.view_type
+            visibilityMap[viewType] = setting.visible_sections?._visible_in_navigation !== false
+            if (setting.order_index !== null && setting.order_index !== undefined) {
+              orderMap.set(viewType, Number(setting.order_index))
+            }
+          })
+          
+          // Set defaults for missing views
+          const defaultViews = ['calendar', 'areas', 'only_the_important', 'daily_review']
+          defaultViews.forEach(viewType => {
+            if (!(viewType in visibilityMap)) {
+              visibilityMap[viewType] = true
+            }
+          })
+          
+          setViewTypeVisibility(visibilityMap)
+          
+          // Sort all views by order_index
+          const allViews = ['only_the_important', 'daily_review', 'calendar', 'areas']
+          const viewsWithOrder = allViews
+            .filter(vt => orderMap.has(vt))
+            .sort((a, b) => (orderMap.get(a) || 0) - (orderMap.get(b) || 0))
+          const viewsWithoutOrder = allViews.filter(vt => !orderMap.has(vt))
+          setAllViewsOrder([...viewsWithOrder, ...viewsWithoutOrder])
         }
-        return { viewType, visibleInNav: true, order: null } // Default to true
-      })
-
-      const settingsResults = await Promise.all(settingsPromises)
-      const visibilityMap: Record<string, boolean> = {}
-      settingsResults.forEach(({ viewType, visibleInNav }) => {
-        visibilityMap[viewType] = visibleInNav
-      })
-      setViewTypeVisibility(visibilityMap)
-      
-      // Define view categories
-      const workflowsViews = ['only_the_important', 'daily_review']
-      const timeViews = ['day', 'week', 'month', 'year']
-      
-      // Load view order by category
-      const orderMap = new Map<string, number>()
-      settingsResults.forEach(({ viewType, order }) => {
-        if (order !== null && order !== undefined && typeof order === 'number') {
-          orderMap.set(viewType, order)
-        }
-      })
-      
-      // Sort workflows views
-      const workflowsWithOrder = workflowsViews
-        .filter(vt => orderMap.has(vt))
-        .sort((a, b) => (orderMap.get(a) || 0) - (orderMap.get(b) || 0))
-      const workflowsWithoutOrder = workflowsViews.filter(vt => !orderMap.has(vt))
-      setWorkflowsOrder([...workflowsWithOrder, ...workflowsWithoutOrder])
-      
-      // Sort time views
-      const timeWithOrder = timeViews
-        .filter(vt => orderMap.has(vt))
-        .sort((a, b) => (orderMap.get(a) || 0) - (orderMap.get(b) || 0))
-      const timeWithoutOrder = timeViews.filter(vt => !orderMap.has(vt))
-      setTimeOrder([...timeWithOrder, ...timeWithoutOrder])
+      } catch (error) {
+        console.error('Error loading view settings:', error)
+      }
     }
 
     loadViewSettings()
@@ -178,96 +163,65 @@ export function SidebarNavigation({
         <nav className={`${sidebarCollapsed ? 'space-y-2 flex flex-col items-center' : 'space-y-2'}`}>
           {!sidebarCollapsed ? (
             <>
-              {/* Workflows section - Only the important, Daily review */}
-              {(workflowsOrder.some(vt => viewTypeVisibility[vt] !== false)) && (
-                <div className="space-y-1.5 mb-4">
-                  <h3 className="text-xs font-bold text-black uppercase tracking-wider font-playful px-2 py-1">
-                    {t('navigation.workflows') || 'Workflows'}
-                  </h3>
-                  {workflowsOrder.map((viewType) => {
-                    const isVisible = viewTypeVisibility[viewType] !== false
-                    if (!isVisible) return null
-                    
-                    const sectionKey = `focus-${viewType}`
-                    const isActive = mainPanelSection === sectionKey
-                    
-                    const viewConfig: Record<string, { icon: any; labelKey: string }> = {
-                      only_the_important: { icon: Target, labelKey: 'views.onlyTheImportant.name' },
-                      daily_review: { icon: BookOpen, labelKey: 'views.dailyReview.name' }
-                    }
-                    
-                    const config = viewConfig[viewType]
-                    if (!config) return null
-                    
-                    const IconComponent = config.icon
-                    const label = t(config.labelKey) || viewType
-                    
-                    return (
-                      <button
-                        key={viewType}
-                        onClick={() => setMainPanelSection(sectionKey)}
-                        className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                          isActive ? 'active' : ''
-                        }`}
-                      >
-                        <IconComponent className="w-4 h-4 flex-shrink-0" />
-                        <span className="font-medium text-sm">{label}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-              
-              {/* Time-based section - Day, Week, Month, Year */}
-              {(timeOrder.some(vt => viewTypeVisibility[vt] !== false)) && (
-                <div className="space-y-1.5 mb-4">
-                  <h3 className="text-xs font-bold text-black uppercase tracking-wider font-playful px-2 py-1">
-                    {t('navigation.timeBased') || 'Časové'}
-                  </h3>
-                  {timeOrder.map((viewType) => {
-                    const isVisible = viewTypeVisibility[viewType] !== false
-                    if (!isVisible) return null
-                    
-                    const sectionKey = `focus-${viewType}`
-                    const isActive = mainPanelSection === sectionKey
-                    
-                    const viewConfig: Record<string, { icon: any; labelKey: string }> = {
-                      day: { icon: CalendarDays, labelKey: 'navigation.focusDay' },
-                      week: { icon: CalendarRange, labelKey: 'navigation.focusWeek' },
-                      month: { icon: Calendar, labelKey: 'navigation.focusMonth' },
-                      year: { icon: CalendarCheck, labelKey: 'navigation.focusYear' }
-                    }
-                    
-                    const config = viewConfig[viewType]
-                    if (!config) return null
-                    
-                    const IconComponent = config.icon
-                    const label = t(config.labelKey) || viewType
-                    
-                    return (
-                      <button
-                        key={viewType}
-                        onClick={() => setMainPanelSection(sectionKey)}
-                        className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                          isActive ? 'active' : ''
-                        }`}
-                      >
-                        <IconComponent className="w-4 h-4 flex-shrink-0" />
-                        <span className="font-medium text-sm">{label}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
+              {/* All views in one list - no section headers */}
+              <div className="space-y-1.5 mb-4">
+                {allViewsOrder.map((viewType) => {
+                  const isVisible = viewTypeVisibility[viewType] !== false
+                  if (!isVisible) return null
+                  
+                  // Map view types to section keys and configs
+                  let sectionKey: string
+                  let icon: any
+                  let labelKey: string
+                  
+                  if (viewType === 'calendar') {
+                    sectionKey = 'focus-calendar'
+                    icon = Calendar
+                    labelKey = 'navigation.calendar'
+                  } else if (viewType === 'only_the_important') {
+                    sectionKey = 'focus-only_the_important'
+                    icon = Target
+                    labelKey = 'views.onlyTheImportant.name'
+                  } else if (viewType === 'daily_review') {
+                    sectionKey = 'focus-daily_review'
+                    icon = BookOpen
+                    labelKey = 'views.dailyReview.name'
+                  } else if (viewType === 'areas') {
+                    // Areas will be handled separately below
+                    return null
+                  } else {
+                    return null
+                  }
+                  
+                  const isActive = mainPanelSection === sectionKey || 
+                    (viewType === 'calendar' && ['focus-day', 'focus-week', 'focus-month', 'focus-year'].includes(mainPanelSection))
+                  
+                  const IconComponent = icon
+                  const label = t(labelKey) || viewType
+                  
+                  return (
+                    <button
+                      key={viewType}
+                      onClick={() => setMainPanelSection(sectionKey)}
+                      className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
+                        isActive ? 'active' : ''
+                      }`}
+                    >
+                      <IconComponent className="w-4 h-4 flex-shrink-0" />
+                      <span className="font-medium text-sm">{label}</span>
+                    </button>
+                  )
+                })}
+              </div>
             </>
           ) : (
-            // Collapsed sidebar - show only Focus icon
+            // Collapsed sidebar - show Calendar icon
             <button
-              onClick={() => setMainPanelSection('focus-day')}
+              onClick={() => setMainPanelSection('focus-calendar')}
               className={`btn-playful-nav flex items-center justify-center w-10 h-10 ${
-                mainPanelSection.startsWith('focus-') ? 'active' : ''
+                ['focus-day', 'focus-week', 'focus-month', 'focus-year', 'focus-calendar'].includes(mainPanelSection) ? 'active' : ''
               }`}
-              title={t('navigation.focus') || 'Focus'}
+              title={t('navigation.calendar') || 'Calendar'}
             >
               <Calendar className="w-5 h-5 flex-shrink-0" />
             </button>

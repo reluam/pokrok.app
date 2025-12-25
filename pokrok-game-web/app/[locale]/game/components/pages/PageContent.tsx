@@ -7,6 +7,7 @@ import { HabitsPage } from '../views/HabitsPage'
 import { HabitDetailPage } from '../views/HabitDetailPage'
 import { GoalDetailPage } from '../views/GoalDetailPage'
 import { UnifiedDayView } from '../views/UnifiedDayView'
+import { CalendarView } from '../views/CalendarView'
 import { DayView } from '../views/DayView'
 import { WeekView } from '../views/WeekView'
 import { MonthView } from '../views/MonthView'
@@ -221,6 +222,7 @@ export function PageContent(props: PageContentProps) {
     setSelectedDayDate,
     selectedYear,
     setSelectedYear,
+    visibleSections = undefined,
     setShowDatePickerModal,
     setSelectedItemType,
     setStepModalData,
@@ -1280,99 +1282,39 @@ export function PageContent(props: PageContentProps) {
           
           switch (mainPanelSection) {
             case 'focus-day':
-              return (
-                <div className="w-full flex flex-col bg-primary-50" style={{ height: '100%' }}>
-                  {/* Day View */}
-                  <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
-                    <DayView
-                      goals={goals}
-                      habits={habits}
-                      dailySteps={dailySteps}
-                      selectedDayDate={selectedDayDate}
-                      setSelectedDayDate={setSelectedDayDate}
-                      setShowDatePickerModal={setShowDatePickerModal}
-                      handleItemClick={handleItemClick}
-                      handleHabitToggle={handleHabitToggle}
-                      handleStepToggle={handleStepToggle}
-                      setSelectedItem={setSelectedItem}
-                      setSelectedItemType={setSelectedItemType}
-                      onOpenStepModal={handleOpenStepModal}
-                      loadingHabits={loadingHabits}
-                      loadingSteps={loadingSteps}
-                      player={player}
-                      userId={userId}
-                      onNavigateToHabits={onNavigateToHabits}
-                      onNavigateToSteps={onNavigateToSteps}
-                    />
-                                                        </div>
-                                                </div>
-                                              )
             case 'focus-week':
-                                        return (
-                <div className="w-full flex flex-col bg-primary-50" style={{ height: '100%' }}>
-                  {/* Week View */}
-                  <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
-                    <WeekView
-                        player={player}
-                        goals={goals}
-                        habits={habits}
-                        dailySteps={dailySteps}
-                      onHabitsUpdate={onHabitsUpdate}
-                      onDailyStepsUpdate={onDailyStepsUpdate}
-                      setShowDatePickerModal={setShowDatePickerModal}
-                        handleItemClick={handleItemClick}
-                        handleHabitToggle={handleHabitToggle}
-                        handleStepToggle={handleStepToggle}
-                        loadingHabits={loadingHabits}
-                        loadingSteps={loadingSteps}
-                        onOpenStepModal={handleOpenStepModal}
-                        onNavigateToHabits={onNavigateToHabits}
-                        onNavigateToSteps={onNavigateToSteps}
-                      />
-                  </div>
-                </div>
-              )
             case 'focus-month':
-              return (
-                <div className="w-full min-h-full flex flex-col bg-primary-50">
-                  {/* Month View */}
-                  <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
-                    <MonthView
-                      key={`month-${habits.length}-${dailySteps.length}-${habits.reduce((acc: string, h: any) => acc + (h.habit_completions ? Object.keys(h.habit_completions).filter(k => h.habit_completions[k] === true).join(',') : ''), '')}-${dailySteps.filter((s: any) => s.completed).length}`}
-                      goals={goals}
-                      habits={habits}
-                      dailySteps={dailySteps}
-                      selectedDayDate={selectedDayDate}
-                      setSelectedDayDate={setSelectedDayDate}
-                      setMainPanelSection={setMainPanelSection}
-                      player={player}
-                      handleHabitToggle={handleHabitToggle}
-                      handleStepToggle={handleToggleStepCompleted}
-                      handleItemClick={handleItemClick}
-                      loadingHabits={loadingHabits}
-                      loadingSteps={loadingSteps}
-                      animatingSteps={animatingSteps}
-                    />
-                  </div>
-                </div>
-              )
             case 'focus-year':
+            case 'focus-calendar':
               return (
-                <div className="w-full min-h-full flex flex-col bg-primary-50">
-                  {/* Year View */}
-                  <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
-                    <YearView
-                      goals={goals}
-                      habits={habits}
-                      dailySteps={dailySteps}
-                      selectedYear={selectedYear || new Date().getFullYear()}
-                      setSelectedYear={setSelectedYear}
-                      handleItemClick={handleItemClick}
-                      player={player}
-                      areas={areas}
-                    />
-                  </div>
-                </div>
+                <CalendarView
+                  goals={goals}
+                  habits={habits}
+                  dailySteps={dailySteps}
+                  selectedDayDate={selectedDayDate}
+                  setSelectedDayDate={setSelectedDayDate}
+                  setShowDatePickerModal={setShowDatePickerModal}
+                  handleItemClick={handleItemClick}
+                  handleHabitToggle={handleHabitToggle}
+                  handleStepToggle={handleStepToggle}
+                  setSelectedItem={setSelectedItem}
+                  setSelectedItemType={setSelectedItemType}
+                  onOpenStepModal={handleOpenStepModal}
+                  loadingHabits={loadingHabits}
+                  loadingSteps={loadingSteps}
+                  animatingSteps={animatingSteps}
+                  player={player}
+                  onNavigateToHabits={onNavigateToHabits}
+                  onNavigateToSteps={onNavigateToSteps}
+                  onHabitsUpdate={onHabitsUpdate}
+                  onDailyStepsUpdate={onDailyStepsUpdate}
+                  setMainPanelSection={setMainPanelSection}
+                  selectedYear={selectedYear}
+                  setSelectedYear={setSelectedYear}
+                  areas={areas}
+                  userId={userId}
+                  visibleSections={visibleSections}
+                />
               )
             case 'goals':
               return (
@@ -1522,12 +1464,8 @@ export function PageContent(props: PageContentProps) {
                 <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-bold text-gray-900">
-                      {mainPanelSection === 'focus-day'
-                        ? t('navigation.focusDay') || 'Den'
-                        : mainPanelSection === 'focus-week'
-                        ? t('navigation.focusWeek') || 'Týden'
-                        : mainPanelSection === 'focus-month'
-                        ? t('navigation.focusMonth') || 'Měsíc'
+                      {['focus-day', 'focus-week', 'focus-month', 'focus-year', 'focus-calendar'].includes(mainPanelSection)
+                        ? t('navigation.calendar') || 'Kalendář'
                         : mainPanelSection.startsWith('area-')
                         ? areas.find((a: any) => `area-${a.id}` === mainPanelSection)?.name || t('navigation.areas')
                         : t('navigation.title')}

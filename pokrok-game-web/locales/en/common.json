@@ -742,6 +742,7 @@
     "focusWeek": "Week",
     "focusMonth": "Month",
     "focusYear": "Year",
+    "calendar": "Calendar",
     "goals": "Goals",
     "steps": "Steps",
     "habits": "Habits",
@@ -1613,6 +1614,9 @@
     "title": "View levels",
     "description": "Pokrok offers four different view levels, each suitable for a different purpose. You can find individual views in the navigation menu on the left side of the main panel.",
     "location": "You can find individual views in the navigation menu on the left side of the main panel.",
+    "calendar": {
+      "description": "Calendar displays daily, weekly, monthly, and yearly views. You can switch between them using the switcher at the top of the view."
+    },
     "day": "Day",
     "week": "Week",
     "month": "Month",
