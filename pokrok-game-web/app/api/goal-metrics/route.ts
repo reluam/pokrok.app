@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
             goal_id VARCHAR(255) NOT NULL REFERENCES goals(id) ON DELETE CASCADE,
             name VARCHAR(255) NOT NULL,
             description TEXT,
-            type VARCHAR(20) NOT NULL CHECK (type IN ('number', 'currency', 'percentage', 'distance', 'time', 'custom')),
+            type VARCHAR(20) NOT NULL CHECK (type IN ('number', 'currency', 'percentage', 'distance', 'time', 'weight', 'custom')),
             unit VARCHAR(50) NOT NULL,
             target_value DECIMAL(10,2) NOT NULL,
             current_value DECIMAL(10,2) DEFAULT 0,
@@ -118,10 +118,31 @@ export async function POST(request: NextRequest) {
         const existingColumns = allColumns.map((row: any) => row.column_name)
         console.log('POST /api/goal-metrics - Existing columns:', existingColumns)
         
-        const requiredColumns = ['id', 'user_id', 'goal_id', 'name', 'description', 'type', 'unit', 'target_value', 'current_value', 'incremental_value', 'created_at', 'updated_at']
+        const requiredColumns = ['id', 'user_id', 'goal_id', 'name', 'description', 'type', 'unit', 'target_value', 'current_value', 'initial_value', 'incremental_value', 'created_at', 'updated_at']
         const missingColumns = requiredColumns.filter(col => !existingColumns.includes(col))
         
-        if (missingColumns.length > 0) {
+        // Check if initial_value column exists
+        if (!existingColumns.includes('initial_value')) {
+          try {
+            console.log('POST /api/goal-metrics - Adding initial_value column...')
+            await sql`ALTER TABLE goal_metrics ADD COLUMN initial_value DECIMAL(10,2) DEFAULT 0`
+            console.log('POST /api/goal-metrics - initial_value column added successfully')
+          } catch (e: any) {
+            console.warn('POST /api/goal-metrics - Could not add initial_value column:', e?.message)
+          }
+        }
+        
+        // Update type constraint to include 'weight'
+        try {
+          console.log('POST /api/goal-metrics - Updating type constraint to include weight...')
+          await sql`ALTER TABLE goal_metrics DROP CONSTRAINT IF EXISTS goal_metrics_type_check`
+          await sql`ALTER TABLE goal_metrics ADD CONSTRAINT goal_metrics_type_check CHECK (type IN ('number', 'currency', 'percentage', 'distance', 'time', 'weight', 'custom'))`
+          console.log('POST /api/goal-metrics - Type constraint updated successfully')
+        } catch (e: any) {
+          console.warn('POST /api/goal-metrics - Could not update type constraint:', e?.message)
+        }
+        
+        if (missingColumns.length > 0 && missingColumns.filter(col => col !== 'initial_value').length > 0) {
           console.log('POST /api/goal-metrics - Missing columns detected:', missingColumns)
           console.log('POST /api/goal-metrics - Recreating table with correct structure...')
           // Drop and recreate table with correct structure
@@ -133,10 +154,11 @@ export async function POST(request: NextRequest) {
               goal_id VARCHAR(255) NOT NULL REFERENCES goals(id) ON DELETE CASCADE,
               name VARCHAR(255) NOT NULL,
               description TEXT,
-              type VARCHAR(20) NOT NULL CHECK (type IN ('number', 'currency', 'percentage', 'distance', 'time', 'custom')),
+              type VARCHAR(20) NOT NULL CHECK (type IN ('number', 'currency', 'percentage', 'distance', 'time', 'weight', 'custom')),
               unit VARCHAR(50) NOT NULL,
               target_value DECIMAL(10,2) NOT NULL,
               current_value DECIMAL(10,2) DEFAULT 0,
+              initial_value DECIMAL(10,2) DEFAULT 0,
               incremental_value DECIMAL(10,2) DEFAULT 1,
               created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
               updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

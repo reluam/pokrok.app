@@ -342,6 +342,8 @@ export interface UserSettings {
   default_view?: 'day' | 'week' | 'month' | 'year'
   date_format?: 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY'
   primary_color?: string
+  default_currency?: string
+  weight_unit_preference?: 'kg' | 'lbs'
   filters?: {
     showToday: boolean
     showOverdue: boolean
@@ -573,7 +575,7 @@ export async function initializeCestaDatabase() {
         goal_id VARCHAR(255) NOT NULL REFERENCES goals(id) ON DELETE CASCADE,
         name VARCHAR(255) NOT NULL,
         description TEXT,
-        type VARCHAR(20) NOT NULL CHECK (type IN ('number', 'currency', 'percentage', 'distance', 'time', 'custom')),
+        type VARCHAR(20) NOT NULL CHECK (type IN ('number', 'currency', 'percentage', 'distance', 'time', 'weight', 'custom')),
         unit VARCHAR(50) NOT NULL,
         target_value DECIMAL(10,2) NOT NULL,
         current_value DECIMAL(10,2) DEFAULT 0,
@@ -800,6 +802,20 @@ export async function initializeCestaDatabase() {
       } catch (error) {
         // Column might already exist, ignore error
         console.log('Note: default_view column migration:', error instanceof Error ? error.message : 'unknown error')
+      }
+      
+      // Check if default_currency column exists
+      try {
+        await sql`ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS default_currency VARCHAR(10)`
+      } catch (error) {
+        console.log('Note: default_currency column migration:', error instanceof Error ? error.message : 'unknown error')
+      }
+      
+      // Check if weight_unit_preference column exists
+      try {
+        await sql`ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS weight_unit_preference VARCHAR(5) DEFAULT 'kg' CHECK (weight_unit_preference IN ('kg', 'lbs'))`
+      } catch (error) {
+        console.log('Note: weight_unit_preference column migration:', error instanceof Error ? error.message : 'unknown error')
       }
     } catch (error) {
       // Ignore errors if columns already exist or other migration issues
@@ -2728,10 +2744,11 @@ export async function createGoalMetric(metricData: Omit<GoalMetric, 'id' | 'crea
             goal_id VARCHAR(255) NOT NULL REFERENCES goals(id) ON DELETE CASCADE,
             name VARCHAR(255) NOT NULL,
             description TEXT,
-            type VARCHAR(20) NOT NULL CHECK (type IN ('number', 'currency', 'percentage', 'distance', 'time', 'custom')),
+            type VARCHAR(20) NOT NULL CHECK (type IN ('number', 'currency', 'percentage', 'distance', 'time', 'weight', 'custom')),
             unit VARCHAR(50) NOT NULL,
             target_value DECIMAL(10,2) NOT NULL,
             current_value DECIMAL(10,2) DEFAULT 0,
+            initial_value DECIMAL(10,2) DEFAULT 0,
             incremental_value DECIMAL(10,2) DEFAULT 1,
             created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
             updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -2756,6 +2773,26 @@ export async function createGoalMetric(metricData: Omit<GoalMetric, 'id' | 'crea
           }
         } catch (migrationError: any) {
           console.warn('Could not check/add incremental_value column:', migrationError?.message)
+          // Continue anyway, will try without the column
+        }
+        
+        // Check if initial_value column exists
+        try {
+          const columnCheck = await sql`
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'goal_metrics' AND column_name = 'initial_value'
+          `
+          
+          if (columnCheck.length === 0) {
+            console.log('Adding initial_value column to goal_metrics table...')
+            await sql`ALTER TABLE goal_metrics ADD COLUMN initial_value DECIMAL(10,2) DEFAULT 0`
+            console.log('initial_value column added successfully')
+          } else {
+            console.log('initial_value column already exists')
+          }
+        } catch (migrationError: any) {
+          console.warn('Could not check/add initial_value column:', migrationError?.message)
           // Continue anyway, will try without the column
         }
       }
@@ -2900,11 +2937,12 @@ export async function deleteGoalMetric(metricId: string): Promise<void> {
 
 export async function updateGoalProgressFromGoalMetrics(goalId: string) {
   try {
-    // Calculate progress based on goal metrics
-    // Progress is calculated from initial_value to target_value
+    // Calculate progress based on goal metrics, grouping by compatible units
+    // Metrics with the same units are grouped together, progress is calculated per group, then averaged
     const result = await sql`
       WITH metric_progress AS (
         SELECT 
+          unit,
           CASE 
             -- If target == initial, check if current >= target (100%) or < target (0%)
             WHEN COALESCE(target_value, 0) = COALESCE(initial_value, 0) THEN
@@ -2919,11 +2957,17 @@ export async function updateGoalProgressFromGoalMetrics(goalId: string) {
           END as progress
         FROM goal_metrics
         WHERE goal_id = ${goalId}
+      ),
+      unit_group_progress AS (
+        -- Calculate average progress for each unit group
+        SELECT unit, AVG(progress) as group_progress
+        FROM metric_progress
+        GROUP BY unit
       )
       UPDATE goals 
       SET 
         progress_percentage = COALESCE(
-          (SELECT ROUND(AVG(progress)) FROM metric_progress), 
+          (SELECT ROUND(AVG(group_progress)) FROM unit_group_progress), 
           0
         ),
         updated_at = NOW()
@@ -2945,6 +2989,7 @@ export async function updateGoalProgressCombined(goalId: string) {
     const result = await sql`
       WITH metric_progress AS (
         SELECT 
+          unit,
           CASE 
             -- If target == initial, check if current >= target (100%) or < target (0%)
             WHEN COALESCE(target_value, 0) = COALESCE(initial_value, 0) THEN
@@ -2960,6 +3005,12 @@ export async function updateGoalProgressCombined(goalId: string) {
         FROM goal_metrics
         WHERE goal_id = ${goalId}
       ),
+      unit_group_progress AS (
+        -- Calculate average progress for each unit group (metrics with same units are grouped)
+        SELECT unit, AVG(progress) as group_progress
+        FROM metric_progress
+        GROUP BY unit
+      ),
       step_progress AS (
         SELECT 
           CASE 
@@ -2971,17 +3022,17 @@ export async function updateGoalProgressCombined(goalId: string) {
         WHERE goal_id = ${goalId}
       ),
       all_progress_values AS (
-        -- Collect all metric progress values
-        SELECT progress FROM metric_progress
+        -- Collect progress from each unit group (metrics grouped by units)
+        SELECT group_progress as progress FROM unit_group_progress
         UNION ALL
-        -- Add step progress as a single value (if steps exist) - steps have same weight as one metric
+        -- Add step progress as a single value (if steps exist) - steps have same weight as one unit group
         SELECT progress FROM step_progress WHERE (SELECT COUNT(*) FROM daily_steps WHERE goal_id = ${goalId}) > 0
       ),
       combined_progress AS (
         SELECT 
           CASE 
             WHEN (SELECT COUNT(*) FROM all_progress_values) > 0 THEN
-              -- Average of all progress values (each metric + steps as one value)
+              -- Average of all progress values (each unit group + steps as one value)
               (SELECT AVG(progress) FROM all_progress_values)
             ELSE 0
           END as final_progress
@@ -3592,7 +3643,9 @@ export async function createOrUpdateUserSettings(
   filters?: UserSettings['filters'],
   defaultView?: 'day' | 'week' | 'month' | 'year',
   dateFormat?: 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY',
-  primaryColor?: string
+  primaryColor?: string,
+  defaultCurrency?: string,
+  weightUnitPreference?: 'kg' | 'lbs'
 ): Promise<UserSettings> {
   try {
     // Ensure default_view column exists (migration on-the-fly)
@@ -3619,6 +3672,40 @@ export async function createOrUpdateUserSettings(
       console.log('Note: primary_color column check:', migrationError instanceof Error ? migrationError.message : 'unknown')
     }
     
+    // Ensure default_currency column exists (migration on-the-fly)
+    try {
+      await sql`ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS default_currency VARCHAR(10)`
+    } catch (migrationError) {
+      // Column might already exist, continue
+      console.log('Note: default_currency column check:', migrationError instanceof Error ? migrationError.message : 'unknown')
+    }
+    
+    // Ensure weight_unit_preference column exists (migration on-the-fly)
+    try {
+      await sql`ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS weight_unit_preference VARCHAR(5) DEFAULT 'kg'`
+      // Try to add check constraint if it doesn't exist
+      try {
+        await sql`
+          DO $$ 
+          BEGIN
+            IF NOT EXISTS (
+              SELECT 1 FROM pg_constraint 
+              WHERE conname = 'user_settings_weight_unit_preference_check'
+            ) THEN
+              ALTER TABLE user_settings 
+              ADD CONSTRAINT user_settings_weight_unit_preference_check 
+              CHECK (weight_unit_preference IN ('kg', 'lbs'));
+            END IF;
+          END $$;
+        `
+      } catch (constraintError) {
+        // Constraint might already exist, ignore
+      }
+    } catch (migrationError) {
+      // Column might already exist, continue
+      console.log('Note: weight_unit_preference column check:', migrationError instanceof Error ? migrationError.message : 'unknown')
+    }
+    
     // Get existing settings to preserve values not being updated
     const existingSettings = await getUserSettings(userId)
     
@@ -3628,6 +3715,8 @@ export async function createOrUpdateUserSettings(
     const finalDefaultView = defaultView !== undefined ? defaultView : (existingSettings?.default_view ?? 'day')
     const finalDateFormat = dateFormat !== undefined ? dateFormat : (existingSettings?.date_format ?? 'DD.MM.YYYY')
     const finalPrimaryColor = primaryColor !== undefined ? primaryColor : existingSettings?.primary_color ?? null
+    const finalDefaultCurrency = defaultCurrency !== undefined ? defaultCurrency : existingSettings?.default_currency ?? null
+    const finalWeightUnitPreference = weightUnitPreference !== undefined ? weightUnitPreference : (existingSettings?.weight_unit_preference ?? 'kg')
     const finalFilters = filters !== undefined ? filters : (existingSettings?.filters ?? {
       showToday: true,
       showOverdue: true,
@@ -3638,8 +3727,8 @@ export async function createOrUpdateUserSettings(
     })
     
     const settings = await sql`
-      INSERT INTO user_settings (id, user_id, daily_steps_count, workflow, daily_reset_hour, filters, default_view, date_format, primary_color)
-      VALUES (${crypto.randomUUID()}, ${userId}, ${finalDailyStepsCount}, ${finalWorkflow}, ${finalDailyResetHour}, ${JSON.stringify(finalFilters)}, ${finalDefaultView}, ${finalDateFormat}, ${finalPrimaryColor})
+      INSERT INTO user_settings (id, user_id, daily_steps_count, workflow, daily_reset_hour, filters, default_view, date_format, primary_color, default_currency, weight_unit_preference)
+      VALUES (${crypto.randomUUID()}, ${userId}, ${finalDailyStepsCount}, ${finalWorkflow}, ${finalDailyResetHour}, ${JSON.stringify(finalFilters)}, ${finalDefaultView}, ${finalDateFormat}, ${finalPrimaryColor}, ${finalDefaultCurrency}, ${finalWeightUnitPreference})
       ON CONFLICT (user_id) 
       DO UPDATE SET 
         daily_steps_count = ${finalDailyStepsCount},
@@ -3649,6 +3738,8 @@ export async function createOrUpdateUserSettings(
         default_view = ${finalDefaultView},
         date_format = ${finalDateFormat},
         primary_color = ${finalPrimaryColor},
+        default_currency = ${finalDefaultCurrency},
+        weight_unit_preference = ${finalWeightUnitPreference},
         updated_at = NOW()
       RETURNING *
     `

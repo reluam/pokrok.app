@@ -8,6 +8,7 @@ import { locales, type Locale } from '@/i18n/config'
 import { User, Target, Footprints, BarChart3, Eye, UserCircle, Menu, CreditCard } from 'lucide-react'
 import { UserProfile, PricingTable, Protect } from '@clerk/nextjs'
 import { colorPalettes, applyColorTheme } from '@/lib/color-utils'
+import { getDefaultCurrencyByLocale } from '@/lib/metric-units'
 
 interface SettingsViewProps {
   player: any
@@ -92,6 +93,13 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
     primaryColor: '#E8871E' as string
   })
   const [isSavingDisplay, setIsSavingDisplay] = useState(false)
+  
+  // Metric settings state
+  const [metricSettings, setMetricSettings] = useState({
+    defaultCurrency: 'USD' as string,
+    weightUnitPreference: 'kg' as 'kg' | 'lbs'
+  })
+  const [isSavingMetric, setIsSavingMetric] = useState(false)
 
   // Reset data and delete account state
   const [showResetDataDialog, setShowResetDataDialog] = useState(false)
@@ -136,13 +144,56 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
           })
           // Apply color theme on load
           applyColorTheme(primaryColor)
+          
+          // Load metric settings
+          const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
+          const defaultCurrency = data.settings?.default_currency || getDefaultCurrencyByLocale(localeCode)
+          const weightUnitPreference = data.settings?.weight_unit_preference || 'kg'
+          setMetricSettings({
+            defaultCurrency,
+            weightUnitPreference
+          })
         }
       } catch (error) {
         console.error('Error loading display settings:', error)
       }
     }
     loadDisplaySettings()
-  }, [player?.user_id])
+  }, [player?.user_id, locale])
+
+  // Handler for saving metric settings
+  const handleSaveMetricSettings = async (newCurrency?: string, newWeightUnit?: 'kg' | 'lbs') => {
+    setIsSavingMetric(true)
+    try {
+      const requestBody: any = {}
+      if (newCurrency !== undefined) requestBody.default_currency = newCurrency
+      if (newWeightUnit !== undefined) requestBody.weight_unit_preference = newWeightUnit
+      
+      const response = await fetch('/api/cesta/user-settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      })
+      
+      if (response.ok) {
+        if (newCurrency !== undefined) {
+          setMetricSettings(prev => ({ ...prev, defaultCurrency: newCurrency }))
+        }
+        if (newWeightUnit !== undefined) {
+          setMetricSettings(prev => ({ ...prev, weightUnitPreference: newWeightUnit }))
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        console.error('Failed to save metric settings:', errorData)
+        alert(`Chyba při ukládání nastavení: ${errorData.error || 'Neznámá chyba'}`)
+      }
+    } catch (error) {
+      console.error('Error saving metric settings:', error)
+      alert(`Chyba při ukládání nastavení: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
+    } finally {
+      setIsSavingMetric(false)
+    }
+  }
 
   // Handler for saving display settings
   const handleSaveDisplaySettings = async (newView?: 'day' | 'week' | 'month' | 'year', newDateFormat?: 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY', newPrimaryColor?: string) => {
@@ -472,25 +523,97 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
                   {isSavingLocale && (
                     <p className="text-sm text-primary-600 mt-2 font-playful">{t('common.loading')}</p>
                   )}
-                      </div>
-                      
-                      {/* Onboarding Reset */}
-                      <div className="mt-6">
-                        <h4 className="text-lg font-bold text-black font-playful mb-4">🎓 {t('settings.user.onboarding.title')}</h4>
-                        <div className="box-playful-highlight p-4 border-2 border-primary-500">
-                          <p className="text-sm text-gray-600 mb-3 font-playful">
-                            {t('settings.user.onboarding.description')}
-                          </p>
-                          <button
-                            onClick={handleResetOnboarding}
-                            disabled={isResettingOnboarding}
-                            className="btn-playful-primary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {isResettingOnboarding ? t('common.loading') : t('settings.user.onboarding.button')}
-                          </button>
-                        </div>
-                      </div>
-                        </div>
+                </div>
+              </div>
+              
+              {/* Currency Settings */}
+              <div className="mt-6">
+                <h4 className="text-lg font-bold text-black font-playful mb-4">💵 {t('settings.user.currency.title') || 'Výchozí měna'}</h4>
+                <div className="box-playful-highlight p-4">
+                  <label className="block text-sm font-bold text-black font-playful mb-2">
+                    {t('settings.user.currency.label') || 'Výchozí měna pro metriky'}
+                  </label>
+                  <select
+                    value={metricSettings.defaultCurrency}
+                    onChange={(e) => handleSaveMetricSettings(e.target.value, undefined)}
+                    disabled={isSavingMetric}
+                    className="w-full p-3 border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 focus:outline-none disabled:opacity-50 bg-white"
+                  >
+                    <option value="CZK">CZK (Kč)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                    <option value="GBP">GBP (£)</option>
+                    <option value="PLN">PLN (zł)</option>
+                    <option value="JPY">JPY (¥)</option>
+                    <option value="CHF">CHF (Fr)</option>
+                    <option value="AUD">AUD (A$)</option>
+                    <option value="CAD">CAD (C$)</option>
+                  </select>
+                  <p className="text-xs text-gray-600 mt-2 font-playful">
+                    {t('settings.user.currency.description') || 'Tato měna bude použita jako výchozí při vytváření nových měnových metrik.'}
+                  </p>
+                  {isSavingMetric && (
+                    <p className="text-sm text-primary-600 mt-2 font-playful">{t('common.loading')}</p>
+                  )}
+                </div>
+              </div>
+              
+              {/* Weight Unit Preference */}
+              <div className="mt-6">
+                <h4 className="text-lg font-bold text-black font-playful mb-4">⚖️ {t('settings.user.weightUnit.title') || 'Jednotky hmotnosti'}</h4>
+                <div className="box-playful-highlight p-4">
+                  <label className="block text-sm font-bold text-black font-playful mb-2">
+                    {t('settings.user.weightUnit.label') || 'Preferované jednotky hmotnosti'}
+                  </label>
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => handleSaveMetricSettings(undefined, 'kg')}
+                      disabled={isSavingMetric}
+                      className={`px-4 py-2 rounded-playful-md border-2 font-playful transition-all ${
+                        metricSettings.weightUnitPreference === 'kg'
+                          ? 'bg-primary-500 text-black border-primary-500 font-semibold'
+                          : 'bg-white text-black border-primary-500 hover:bg-primary-50'
+                      } disabled:opacity-50`}
+                    >
+                      kg (kilogramy)
+                    </button>
+                    <button
+                      onClick={() => handleSaveMetricSettings(undefined, 'lbs')}
+                      disabled={isSavingMetric}
+                      className={`px-4 py-2 rounded-playful-md border-2 font-playful transition-all ${
+                        metricSettings.weightUnitPreference === 'lbs'
+                          ? 'bg-primary-500 text-black border-primary-500 font-semibold'
+                          : 'bg-white text-black border-primary-500 hover:bg-primary-50'
+                      } disabled:opacity-50`}
+                    >
+                      lbs (libry)
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-2 font-playful">
+                    {t('settings.user.weightUnit.description') || 'Tato jednotka bude použita jako výchozí při vytváření nových metrik hmotnosti.'}
+                  </p>
+                  {isSavingMetric && (
+                    <p className="text-sm text-primary-600 mt-2 font-playful">{t('common.loading')}</p>
+                  )}
+                </div>
+              </div>
+              
+              {/* Onboarding Reset */}
+              <div className="mt-6">
+                <h4 className="text-lg font-bold text-black font-playful mb-4">🎓 {t('settings.user.onboarding.title')}</h4>
+                <div className="box-playful-highlight p-4 border-2 border-primary-500">
+                  <p className="text-sm text-gray-600 mb-3 font-playful">
+                    {t('settings.user.onboarding.description')}
+                  </p>
+                  <button
+                    onClick={handleResetOnboarding}
+                    disabled={isResettingOnboarding}
+                    className="btn-playful-primary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isResettingOnboarding ? t('common.loading') : t('settings.user.onboarding.button')}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )

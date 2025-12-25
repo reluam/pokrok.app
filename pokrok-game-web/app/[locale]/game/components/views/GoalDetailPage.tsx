@@ -1,11 +1,12 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { ChevronLeft, ChevronRight, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Check, Plus, Edit, Pencil, Minus } from 'lucide-react'
 import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { MetricModal } from '../modals/MetricModal'
+import { groupMetricsByUnits, convertUnit, type GroupedMetric } from '@/lib/metric-units'
 
 interface GoalDetailPageProps {
   goal: any
@@ -97,6 +98,8 @@ interface GoalDetailPageProps {
   setMetricModalData: (data: any) => void
   editingMetricName: string
   setEditingMetricName: (name: string) => void
+  editingMetricType: 'number' | 'currency' | 'percentage' | 'distance' | 'time' | 'weight' | 'custom'
+  setEditingMetricType: (type: 'number' | 'currency' | 'percentage' | 'distance' | 'time' | 'weight' | 'custom') => void
   editingMetricCurrentValue: number
   setEditingMetricCurrentValue: (value: number) => void
   editingMetricTargetValue: number
@@ -191,6 +194,8 @@ export function GoalDetailPage({
   setMetricModalData,
   editingMetricName,
   setEditingMetricName,
+  editingMetricType,
+  setEditingMetricType,
   editingMetricCurrentValue,
   setEditingMetricCurrentValue,
   editingMetricTargetValue,
@@ -207,7 +212,28 @@ export function GoalDetailPage({
   const [editingCurrentValue, setEditingCurrentValue] = React.useState<Record<string, number>>({})
   const [metricsExpanded, setMetricsExpanded] = React.useState(false)
   const [stepsExpanded, setStepsExpanded] = React.useState(false)
+  const [isProgressExpanded, setIsProgressExpanded] = React.useState(false)
+  const [userSettings, setUserSettings] = useState<{ default_currency?: string; weight_unit_preference?: 'kg' | 'lbs' } | null>(null)
   const t = useTranslations()
+  
+  // Load user settings for metric defaults
+  useEffect(() => {
+    const loadUserSettings = async () => {
+      try {
+        const response = await fetch('/api/cesta/user-settings')
+        if (response.ok) {
+          const data = await response.json()
+          setUserSettings({
+            default_currency: data.settings?.default_currency,
+            weight_unit_preference: data.settings?.weight_unit_preference || 'kg'
+          })
+        }
+      } catch (error) {
+        console.error('Error loading user settings:', error)
+      }
+    }
+    loadUserSettings()
+  }, [])
 
   // Goal detail page - similar to overview but focused on this goal
   // Get steps from cache first, then fallback to dailySteps prop
@@ -652,8 +678,18 @@ export function GoalDetailPage({
             <div className="mb-8 space-y-6">
               {/* Progress bar - calculated from metrics and steps combined */}
               <div key={`progress-${goal.id}-${Math.round(displayProgress)}`}>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-lg font-medium text-black font-playful">{t('details.goal.progress')}</span>
+                <div 
+                  className="flex items-center justify-between mb-3 cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => setIsProgressExpanded(!isProgressExpanded)}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-medium text-black font-playful">{t('details.goal.progress')}</span>
+                    <ChevronDown 
+                      className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${
+                        isProgressExpanded ? 'transform rotate-180' : ''
+                      }`}
+                    />
+                  </div>
                   <span className="text-2xl font-bold text-primary-600 font-playful">
                     {Math.round(displayProgress)}%
                   </span>
@@ -667,25 +703,88 @@ export function GoalDetailPage({
                 </div>
               </div>
               
-              {/* Steps statistics - inline with larger numbers */}
-              <div className="flex flex-wrap items-center gap-6">
-                <div className="flex items-baseline gap-3">
-                  <span className="text-lg text-gray-600 font-medium font-playful">{t('details.goal.totalSteps')}:</span>
-                  <span className="text-2xl font-bold text-black font-playful">{totalSteps}</span>
-                </div>
-                <div className="flex items-baseline gap-3">
-                  <span className="text-lg text-gray-600 font-medium font-playful">{t('details.goal.completedSteps')}:</span>
-                  <span className="text-2xl font-bold text-primary-600 font-playful">
-                    {completedSteps}
-                  </span>
-                </div>
-                <div className="flex items-baseline gap-3">
-                  <span className="text-lg text-gray-600 font-medium font-playful">{t('details.goal.remainingSteps')}:</span>
-                  <span className="text-2xl font-bold text-primary-600 font-playful">
-                    {remainingSteps}
-                  </span>
-                </div>
-              </div>
+              {/* Aggregated metrics by units and steps progress - displayed as smaller progress bars */}
+              {isProgressExpanded && (() => {
+                const progressBars: JSX.Element[] = []
+                
+                // Add steps progress bar if there are steps
+                if (totalSteps > 0) {
+                  const stepsProgress = (completedSteps / totalSteps) * 100
+                  progressBars.push(
+                    <div key="steps-progress" className="space-y-1">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 font-playful">
+                          {t('details.goal.completedSteps')} ({completedSteps} / {totalSteps})
+                        </span>
+                        <span className="text-gray-500 font-playful text-xs">
+                          {Math.round(stepsProgress)}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-100 border border-gray-300 rounded-playful-sm h-2 overflow-hidden">
+                        <div 
+                          className="bg-gray-400 h-full rounded-playful-sm transition-all duration-300"
+                          style={{ width: `${Math.round(stepsProgress)}%` }}
+                        />
+                      </div>
+                    </div>
+                  )
+                }
+                
+                // Add metrics progress bars
+                if (metrics && metrics.length > 0) {
+                  const groupedMetrics = groupMetricsByUnits(metrics)
+                  
+                  groupedMetrics.forEach((group, index) => {
+                    const range = group.totalTarget - group.totalInitial
+                    let progress = 0
+                    if (range === 0) {
+                      progress = group.totalCurrent >= group.totalTarget ? 100 : 0
+                    } else if (range > 0) {
+                      progress = Math.min(Math.max(((group.totalCurrent - group.totalInitial) / range) * 100, 0), 100)
+                    } else {
+                      progress = Math.min(Math.max(((group.totalInitial - group.totalCurrent) / Math.abs(range)) * 100, 0), 100)
+                    }
+                    
+                    // Format number with decimals if needed (show up to 1 decimal place)
+                    const formatNumber = (value: number): string => {
+                      const rounded = Math.round(value * 10) / 10
+                      if (rounded % 1 === 0) return rounded.toString()
+                      return rounded.toFixed(1)
+                    }
+                    
+                    const metricNames = group.metrics.length > 1 
+                      ? group.metrics.map(m => m.name).join(' + ')
+                      : group.metrics[0].name
+                    
+                    progressBars.push(
+                      <div key={`metric-${group.unit}-${index}`} className="space-y-1">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600 font-playful">
+                            {metricNames} ({formatNumber(group.totalCurrent)} {group.unit} / {formatNumber(group.totalTarget)} {group.unit})
+                          </span>
+                          <span className="text-gray-500 font-playful text-xs">
+                            {Math.round(progress)}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-100 border border-gray-300 rounded-playful-sm h-2 overflow-hidden">
+                          <div 
+                            className="bg-gray-400 h-full rounded-playful-sm transition-all duration-300"
+                            style={{ width: `${Math.round(progress)}%` }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })
+                }
+                
+                if (progressBars.length === 0) return null
+                
+                return (
+                  <div className="space-y-2 mt-3">
+                    {progressBars}
+                  </div>
+                )
+              })()}
             </div>
           </div>
           
@@ -793,9 +892,11 @@ export function GoalDetailPage({
                       currentValue: currentValue,
                       targetValue: metric.target_value,
                       incrementalValue: metric.incremental_value,
-                      unit: metric.unit
+                      unit: metric.unit,
+                      type: metric.type || 'number'
                     })
                     setEditingMetricName(metric.name)
+                    setEditingMetricType(metric.type || 'number')
                     setEditingMetricCurrentValue(currentValue)
                     setEditingMetricTargetValue(metric.target_value)
                     setEditingMetricInitialValue(metric.initial_value ?? 0)
@@ -958,8 +1059,9 @@ export function GoalDetailPage({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      setMetricModalData({ id: null, name: '', currentValue: 0, targetValue: 0, initialValue: 0, incrementalValue: 1, unit: '' })
+                      setMetricModalData({ id: null, name: '', currentValue: 0, targetValue: 0, initialValue: 0, incrementalValue: 1, unit: '', type: 'number' })
                       setEditingMetricName('')
+                      setEditingMetricType('number')
                       setEditingMetricCurrentValue(0)
                       setEditingMetricTargetValue(0)
                       setEditingMetricInitialValue(0)
@@ -1790,7 +1892,7 @@ export function GoalDetailPage({
         metricModalData={metricModalData}
         onClose={() => {
           setShowMetricModal(false)
-          setMetricModalData({ id: null, name: '', currentValue: 0, targetValue: 0, initialValue: 0, incrementalValue: 1, unit: '' })
+          setMetricModalData({ id: null, name: '', currentValue: 0, targetValue: 0, initialValue: 0, incrementalValue: 1, unit: '', type: 'number' })
           setEditingMetricCurrentValue(0)
           setEditingMetricInitialValue(0)
         }}
@@ -1798,6 +1900,7 @@ export function GoalDetailPage({
           if (metricModalData.id) {
             await handleMetricUpdate(metricModalData.id, goalId, {
               name: editingMetricName,
+              type: editingMetricType,
               currentValue: editingMetricCurrentValue,
               targetValue: editingMetricTargetValue,
               initialValue: editingMetricInitialValue,
@@ -1807,12 +1910,12 @@ export function GoalDetailPage({
           } else {
             await handleMetricCreate(goalId, {
               name: editingMetricName,
+              type: editingMetricType,
               currentValue: editingMetricCurrentValue,
               targetValue: editingMetricTargetValue,
               initialValue: editingMetricInitialValue,
               incrementalValue: editingMetricIncrementalValue,
-              unit: editingMetricUnit,
-              type: 'number'
+              unit: editingMetricUnit
             })
           }
           setShowMetricModal(false)
@@ -1824,6 +1927,8 @@ export function GoalDetailPage({
         isSaving={false}
         editingMetricName={editingMetricName}
         setEditingMetricName={setEditingMetricName}
+        editingMetricType={editingMetricType}
+        setEditingMetricType={setEditingMetricType}
         editingMetricCurrentValue={editingMetricCurrentValue}
         setEditingMetricCurrentValue={setEditingMetricCurrentValue}
         editingMetricTargetValue={editingMetricTargetValue}
@@ -1834,6 +1939,7 @@ export function GoalDetailPage({
         setEditingMetricIncrementalValue={setEditingMetricIncrementalValue}
         editingMetricUnit={editingMetricUnit}
         setEditingMetricUnit={setEditingMetricUnit}
+        userSettings={userSettings || undefined}
       />
     </div>
   )

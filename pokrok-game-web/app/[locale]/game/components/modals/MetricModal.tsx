@@ -1,9 +1,11 @@
 'use client'
 
+import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { X, Trash2 } from 'lucide-react'
 import { PlayfulButton } from '@/components/design-system/Button/PlayfulButton'
+import { getUnitsByType, type MetricType, CURRENCIES, getDefaultCurrencyByLocale } from '@/lib/metric-units'
 
 interface MetricModalProps {
   show: boolean
@@ -15,6 +17,8 @@ interface MetricModalProps {
   // Editing state
   editingMetricName: string
   setEditingMetricName: (name: string) => void
+  editingMetricType: MetricType
+  setEditingMetricType: (type: MetricType) => void
   editingMetricCurrentValue: number
   setEditingMetricCurrentValue: (value: number) => void
   editingMetricTargetValue: number
@@ -25,6 +29,10 @@ interface MetricModalProps {
   setEditingMetricIncrementalValue: (value: number) => void
   editingMetricUnit: string
   setEditingMetricUnit: (unit: string) => void
+  userSettings?: {
+    default_currency?: string
+    weight_unit_preference?: 'kg' | 'lbs'
+  }
 }
 
 export function MetricModal({
@@ -36,6 +44,8 @@ export function MetricModal({
   isSaving,
   editingMetricName,
   setEditingMetricName,
+  editingMetricType,
+  setEditingMetricType,
   editingMetricCurrentValue,
   setEditingMetricCurrentValue,
   editingMetricTargetValue,
@@ -46,18 +56,38 @@ export function MetricModal({
   setEditingMetricIncrementalValue,
   editingMetricUnit,
   setEditingMetricUnit,
+  userSettings,
 }: MetricModalProps) {
   const t = useTranslations()
+  const locale = useLocale()
+  const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
+
+  // Get available units based on selected type
+  const availableUnits = getUnitsByType(
+    editingMetricType,
+    userSettings?.weight_unit_preference || 'kg'
+  )
+
+  // When type changes, set default unit if current unit is not available for new type
+  useEffect(() => {
+    if (!show) return // Early return inside useEffect is OK
+    
+    if (editingMetricType === 'currency' && !editingMetricUnit) {
+      const defaultCurrency = userSettings?.default_currency || getDefaultCurrencyByLocale(localeCode)
+      setEditingMetricUnit(defaultCurrency)
+    } else if (editingMetricType === 'weight' && !editingMetricUnit) {
+      setEditingMetricUnit(userSettings?.weight_unit_preference || 'kg')
+    } else if (editingMetricType !== 'custom' && availableUnits.length > 0) {
+      // Check if current unit is available for this type
+      const unitExists = availableUnits.some(u => u.value === editingMetricUnit)
+      if (!unitExists && availableUnits.length > 0) {
+        // Set first available unit as default
+        setEditingMetricUnit(availableUnits[0].value)
+      }
+    }
+  }, [editingMetricType, availableUnits, editingMetricUnit, userSettings, localeCode, setEditingMetricUnit, show])
 
   if (!show || typeof window === 'undefined') return null
-
-  const defaultMetricData = {
-    id: null,
-    name: '',
-    targetValue: 0,
-    incrementalValue: 1,
-    unit: '',
-  }
 
   return createPortal(
     <>
@@ -97,6 +127,25 @@ export function MetricModal({
                   placeholder={t('common.metrics.namePlaceholder')}
                   autoFocus
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-black mb-2 font-playful">
+                  {t('common.metrics.type')} <span className="text-primary-600">*</span>
+                </label>
+                <select
+                  value={editingMetricType}
+                  onChange={(e) => setEditingMetricType(e.target.value as MetricType)}
+                  className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
+                >
+                  <option value="number">{t('common.metrics.types.number') || 'Number'}</option>
+                  <option value="currency">{t('common.metrics.types.currency') || 'Currency'}</option>
+                  <option value="distance">{t('common.metrics.types.distance') || 'Distance'}</option>
+                  <option value="weight">{t('common.metrics.types.weight') || 'Weight'}</option>
+                  <option value="time">{t('common.metrics.types.time') || 'Time'}</option>
+                  <option value="percentage">{t('common.metrics.types.percentage') || 'Percentage'}</option>
+                  <option value="custom">{t('common.metrics.types.custom') || 'Custom'}</option>
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -145,13 +194,28 @@ export function MetricModal({
                 <label className="block text-sm font-semibold text-black mb-2 font-playful">
                   {t('common.metrics.unit')} <span className="text-primary-600">*</span>
                 </label>
-                <input
-                  type="text"
-                  value={editingMetricUnit}
-                  onChange={(e) => setEditingMetricUnit(e.target.value)}
-                  className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
-                  placeholder={t('common.metrics.unitPlaceholder')}
-                />
+                {editingMetricType === 'custom' ? (
+                  <input
+                    type="text"
+                    value={editingMetricUnit}
+                    onChange={(e) => setEditingMetricUnit(e.target.value)}
+                    className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
+                    placeholder={t('common.metrics.unitPlaceholder')}
+                  />
+                ) : (
+                  <select
+                    value={editingMetricUnit}
+                    onChange={(e) => setEditingMetricUnit(e.target.value)}
+                    className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
+                  >
+                    <option value="">{t('common.metrics.selectUnit') || 'Select unit...'}</option>
+                    {availableUnits.map((unit) => (
+                      <option key={unit.value} value={unit.value}>
+                        {unit.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
             </div>
           </div>

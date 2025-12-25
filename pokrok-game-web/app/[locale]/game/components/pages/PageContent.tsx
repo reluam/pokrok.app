@@ -371,6 +371,7 @@ export function PageContent(props: PageContentProps) {
   const [showMetricModal, setShowMetricModal] = React.useState(false)
   const [metricModalData, setMetricModalData] = React.useState<any>({ id: null, name: '', targetValue: 0, incrementalValue: 1, unit: '' })
   const [editingMetricName, setEditingMetricName] = React.useState('')
+  const [editingMetricType, setEditingMetricType] = React.useState<'number' | 'currency' | 'percentage' | 'distance' | 'time' | 'weight' | 'custom'>('number')
   const [editingMetricCurrentValue, setEditingMetricCurrentValue] = React.useState(0)
   const [editingMetricTargetValue, setEditingMetricTargetValue] = React.useState(0)
   const [editingMetricInitialValue, setEditingMetricInitialValue] = React.useState(0)
@@ -534,6 +535,7 @@ export function PageContent(props: PageContentProps) {
           metricId,
           goalId,
           name: metricData.name,
+          type: metricData.type || 'number',
           unit: metricData.unit,
           currentValue: metricData.currentValue,
           targetValue: metricData.targetValue,
@@ -1215,6 +1217,8 @@ export function PageContent(props: PageContentProps) {
                 setMetricModalData={setMetricModalData}
                 editingMetricName={editingMetricName}
                 setEditingMetricName={setEditingMetricName}
+                editingMetricType={editingMetricType}
+                setEditingMetricType={setEditingMetricType}
                 editingMetricCurrentValue={editingMetricCurrentValue}
                 setEditingMetricCurrentValue={setEditingMetricCurrentValue}
                 editingMetricTargetValue={editingMetricTargetValue}
@@ -1922,6 +1926,8 @@ export function PageContent(props: PageContentProps) {
                       setMetricModalData={setMetricModalData}
                       editingMetricName={editingMetricName}
                       setEditingMetricName={setEditingMetricName}
+                      editingMetricType={editingMetricType}
+                      setEditingMetricType={setEditingMetricType}
                       editingMetricCurrentValue={editingMetricCurrentValue}
                       setEditingMetricCurrentValue={setEditingMetricCurrentValue}
                       editingMetricTargetValue={editingMetricTargetValue}
