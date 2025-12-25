@@ -638,7 +638,6 @@ export async function DELETE(request: NextRequest) {
       if (stepCheck.length === 0) {
         return NextResponse.json({ error: 'Step not found' }, { status: 404 })
       }
-      console.error('Step ownership verification failed', { stepId, stepUserId: stepCheck[0]?.user_id, dbUserId: dbUser.id })
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     

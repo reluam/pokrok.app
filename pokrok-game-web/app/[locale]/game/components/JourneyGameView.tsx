@@ -2721,7 +2721,6 @@ export function JourneyGameView({
     setIsDeletingStep(true)
     try {
       const stepId = stepModalData.id
-      console.log('Deleting step:', stepId)
       
       // Find the step to get its goalId before deletion
       const stepToDelete = dailySteps.find((s: any) => s.id === stepId)
@@ -2732,8 +2731,6 @@ export function JourneyGameView({
       })
 
       if (response.ok) {
-        console.log('Step deleted successfully')
-        
         // Close modals
         setShowDeleteStepModal(false)
         setShowStepModal(false)
@@ -2769,7 +2766,6 @@ export function JourneyGameView({
               // Trigger reactivity - update stepsCacheVersion to force re-render in SortableGoal
               setStepsCacheVersion((prev: Record<string, number>) => {
                 const newVersion = (prev[goalId] || 0) + 1
-                console.log('handleDeleteStep: Updating stepsCacheVersion', { goalId, newVersion, stepsCount: stepsArray.length })
                 return { ...prev, [goalId]: newVersion }
               })
             }
@@ -2798,7 +2794,6 @@ export function JourneyGameView({
               }
             }
           } catch (error) {
-            console.error('Error reloading steps after deletion:', error)
             // Non-critical error - local state was already updated
           }
         }
