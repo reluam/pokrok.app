@@ -631,6 +631,14 @@ export async function DELETE(request: NextRequest) {
     // ✅ SECURITY: Ověření vlastnictví stepu
     const stepOwned = await verifyEntityOwnership(stepId, 'daily_steps', dbUser)
     if (!stepOwned) {
+      // Check if step exists at all for better error message
+      const stepCheck = await sql`
+        SELECT id, user_id FROM daily_steps WHERE id = ${stepId} LIMIT 1
+      `
+      if (stepCheck.length === 0) {
+        return NextResponse.json({ error: 'Step not found' }, { status: 404 })
+      }
+      console.error('Step ownership verification failed', { stepId, stepUserId: stepCheck[0]?.user_id, dbUserId: dbUser.id })
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     
