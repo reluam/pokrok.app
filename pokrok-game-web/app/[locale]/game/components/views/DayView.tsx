@@ -79,34 +79,15 @@ export function DayView({
   const [showOtherSteps, setShowOtherSteps] = useState(false)
   const [showPlanTomorrow, setShowPlanTomorrow] = useState(false)
 
-  // Load view settings for day view
-  const [visibleSections, setVisibleSections] = useState<Record<string, boolean>>({
+  // Always show all sections in calendar views - ignore API settings
+  // Calendar view can only be turned on/off as a whole, not individual sections
+  const visibleSections: Record<string, boolean> = {
     quickOverview: true,
     todayFocus: true,
     habits: true,
     futureSteps: true,
     overdueSteps: true
-  })
-
-  useEffect(() => {
-    if (!userId) return
-
-    const loadViewSettings = async () => {
-      try {
-        const response = await fetch('/api/view-settings?view_type=day')
-        if (response.ok) {
-          const data = await response.json()
-          if (data && data.visible_sections) {
-            setVisibleSections(data.visible_sections)
-          }
-        }
-      } catch (error) {
-        console.error('Error loading view settings:', error)
-      }
-    }
-
-    loadViewSettings()
-  }, [userId])
+  }
 
   useEffect(() => {
     if (!userId || !isToday) return
@@ -253,7 +234,7 @@ export function DayView({
   }
   
   return (
-    <div className="w-full flex flex-col p-6 space-y-6">
+    <div className="w-full h-full flex flex-col overflow-y-auto p-6 space-y-6" style={{ minHeight: 0 }}>
       {/* Header with date and navigation */}
       <div className="flex-shrink-0">
         <div className="flex items-center justify-between mb-4">

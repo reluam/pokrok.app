@@ -22,6 +22,7 @@ interface MonthViewProps {
   loadingHabits?: Set<string>
   loadingSteps?: Set<string>
   animatingSteps?: Set<string>
+  visibleSections?: Record<string, boolean>
 }
 
 export function MonthView({
@@ -354,43 +355,8 @@ export function MonthView({
             </button>
           </div>
         </div>
-        {/* Filter toggle - below on small screens, centered on larger screens */}
-        <div className="flex justify-center md:absolute md:left-1/2 md:transform md:-translate-x-1/2 md:top-0">
-          <div className="flex items-center gap-1 bg-white border-2 border-primary-500 rounded-playful-md p-1">
-            <button
-              onClick={() => setViewFilter('all')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-playful-sm transition-colors ${
-                viewFilter === 'all'
-                  ? 'bg-primary-500 text-black'
-                  : 'bg-transparent text-gray-700 hover:bg-primary-50'
-              }`}
-            >
-              {t('monthView.filter.all') || 'Vše'}
-            </button>
-            <button
-              onClick={() => setViewFilter('steps')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-playful-sm transition-colors ${
-                viewFilter === 'steps'
-                  ? 'bg-primary-500 text-black'
-                  : 'bg-transparent text-gray-700 hover:bg-primary-50'
-              }`}
-            >
-              {t('monthView.filter.steps') || 'Kroky'}
-            </button>
-            <button
-              onClick={() => setViewFilter('habits')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-playful-sm transition-colors ${
-                viewFilter === 'habits'
-                  ? 'bg-primary-500 text-black'
-                  : 'bg-transparent text-gray-700 hover:bg-primary-50'
-              }`}
-            >
-              {t('monthView.filter.habits') || 'Návyky'}
-            </button>
-          </div>
-          </div>
-        </div>
-        
+      </div>
+      
       {/* Layout: Stats on left, Calendar on right */}
       <div className="flex flex-col lg:flex-row gap-4 mb-4">
         {/* Statistics box - left side */}
@@ -475,6 +441,42 @@ export function MonthView({
       
         {/* Compact calendar grid - right side */}
         <div className="bg-white border-4 border-primary-500 rounded-playful-lg p-3 sm:p-4 flex-1">
+        {/* Filter toggle - compact, above day names */}
+        <div className="flex justify-center mb-3">
+          <div className="flex items-center gap-1 bg-primary-50 border-2 border-primary-300 rounded-playful-sm p-0.5">
+            <button
+              onClick={() => setViewFilter('all')}
+              className={`px-2 py-1 text-[10px] sm:text-xs font-semibold rounded-playful-sm transition-colors ${
+                viewFilter === 'all'
+                  ? 'bg-primary-500 text-white'
+                  : 'bg-transparent text-gray-700 hover:bg-primary-100'
+              }`}
+            >
+              {t('monthView.filter.all') || 'Vše'}
+            </button>
+            <button
+              onClick={() => setViewFilter('steps')}
+              className={`px-2 py-1 text-[10px] sm:text-xs font-semibold rounded-playful-sm transition-colors ${
+                viewFilter === 'steps'
+                  ? 'bg-primary-500 text-white'
+                  : 'bg-transparent text-gray-700 hover:bg-primary-100'
+              }`}
+            >
+              {t('monthView.filter.steps') || 'Kroky'}
+            </button>
+            <button
+              onClick={() => setViewFilter('habits')}
+              className={`px-2 py-1 text-[10px] sm:text-xs font-semibold rounded-playful-sm transition-colors ${
+                viewFilter === 'habits'
+                  ? 'bg-primary-500 text-white'
+                  : 'bg-transparent text-gray-700 hover:bg-primary-100'
+              }`}
+            >
+              {t('monthView.filter.habits') || 'Návyky'}
+            </button>
+          </div>
+        </div>
+        
         {/* Day names header */}
         <div className="grid grid-cols-7 gap-1.5 mb-2">
           {dayNames.map((dayName) => (
