@@ -162,9 +162,13 @@ export function JourneyGameView({
       try {
         const savedSection = localStorage.getItem('journeyGame_mainPanelSection')
         if (savedSection) {
-          // Migrate old 'overview' to 'focus-day'
+          // Migrate old 'overview' to 'focus-calendar'
           if (savedSection === 'overview') {
-            return 'focus-day'
+            return 'focus-calendar'
+          }
+          // Migrate old time-based views (focus-day, focus-week, focus-month, focus-year) to focus-calendar
+          if (['focus-day', 'focus-week', 'focus-month', 'focus-year'].includes(savedSection)) {
+            return 'focus-calendar'
           }
           return savedSection
         }
@@ -172,7 +176,7 @@ export function JourneyGameView({
         console.error('Error loading mainPanelSection:', error)
       }
     }
-    return 'focus-day'
+    return 'focus-calendar'
   })
   
   // Selected goal ID (extracted from mainPanelSection if it's a goal)
@@ -499,8 +503,8 @@ export function JourneyGameView({
   useEffect(() => {
     if (hasCompletedOnboarding === false) {
       setIsOnboardingActive(true)
-      // Ensure we're on focus-day
-      setMainPanelSection('focus-day')
+      // Ensure we're on focus-calendar
+      setMainPanelSection('focus-calendar')
     } else if (hasCompletedOnboarding === true) {
       setIsOnboardingActive(false)
     }
@@ -517,7 +521,7 @@ export function JourneyGameView({
             // Update onboarding status if it changed
             if (gameData.user.has_completed_onboarding === false && !isOnboardingActive) {
               setIsOnboardingActive(true)
-              setMainPanelSection('focus-day')
+              setMainPanelSection('focus-calendar')
             }
           }
         } catch (error) {

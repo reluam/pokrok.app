@@ -11,7 +11,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { OnlyTheImportantSettings } from './views/settings/OnlyTheImportantSettings'
 import { ViewTypeSettings } from './views/settings/ViewTypeSettings'
 
-type ViewType = 'day' | 'week' | 'month' | 'year' | 'areas' | 'only_the_important' | 'daily_review'
+type ViewType = 'calendar' | 'areas' | 'only_the_important' | 'daily_review'
 
 interface ViewConfiguration {
   id: string
@@ -47,23 +47,17 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
   const [loading, setLoading] = useState(true)
   const [configurations, setConfigurations] = useState<ViewConfiguration[]>([])
   const [availableWorkflows, setAvailableWorkflows] = useState<Record<string, AvailableWorkflow>>({})
-  const [selectedViewType, setSelectedViewType] = useState<ViewType | null>('day')
+  const [selectedViewType, setSelectedViewType] = useState<ViewType | null>('calendar')
   const [selectedWorkflow, setSelectedWorkflow] = useState<string | null>(null)
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState<string | null>(null)
-  const [selectedTimeView, setSelectedTimeView] = useState<'day' | 'week' | 'month' | 'year'>('day') // Selected time view within "Časové" settings
-  const [timeViewsExpanded, setTimeViewsExpanded] = useState(false) // Whether time views section is expanded
   const [viewTypeVisibility, setViewTypeVisibility] = useState<Record<ViewType, boolean>>({
-    day: true,
-    week: true,
-    month: true,
-    year: true,
+    calendar: true,
     areas: true,
     only_the_important: true,
     daily_review: true
   })
-  const [workflowsOrder, setWorkflowsOrder] = useState<ViewType[]>(['only_the_important', 'daily_review']) // Order of workflows views
-  const [timeOrder, setTimeOrder] = useState<ViewType[]>(['day', 'week', 'month', 'year']) // Order of time-based views
+  const [allViewsOrder, setAllViewsOrder] = useState<ViewType[]>(['only_the_important', 'daily_review', 'calendar', 'areas']) // Unified order of all views
   const [activeId, setActiveId] = useState<string | null>(null)
   const [onlyImportantMaxTasks, setOnlyImportantMaxTasks] = useState<number>(3)
   const [isSavingMaxTasks, setIsSavingMaxTasks] = useState(false)
@@ -113,8 +107,8 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
         setConfigurations(configs)
       }
 
-      // Load view type visibility settings and order
-      const viewTypes: ViewType[] = ['day', 'week', 'month', 'year', 'areas', 'only_the_important', 'daily_review']
+      // Load view type visibility settings and order - unified list
+      const viewTypes: ViewType[] = ['calendar', 'areas', 'only_the_important', 'daily_review']
       const visibilityPromises = viewTypes.map(async (viewType) => {
         try {
           const response = await fetch(`/api/view-settings?view_type=${viewType}`)
@@ -132,10 +126,7 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
 
       const visibilityResults = await Promise.all(visibilityPromises)
       const visibilityMap: Record<ViewType, boolean> = {
-        day: true,
-        week: true,
-        month: true,
-        year: true,
+        calendar: true,
         areas: true,
         only_the_important: true,
         daily_review: true
@@ -145,7 +136,7 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
       })
       setViewTypeVisibility(visibilityMap)
       
-      // Load view order from settings by category
+      // Load unified view order (all views together)
       const orderMap = new Map<ViewType, number>()
       visibilityResults.forEach(({ viewType, order }) => {
         if (order !== null && order !== undefined && typeof order === 'number') {
@@ -153,23 +144,13 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
         }
       })
       
-      // Define view categories
-      const workflowsViews: ViewType[] = ['only_the_important', 'daily_review']
-      const timeViews: ViewType[] = ['day', 'week', 'month', 'year']
-      
-      // Sort workflows views
-      const workflowsWithOrder = workflowsViews
+      // Sort all views together by order_index
+      const allViews: ViewType[] = ['only_the_important', 'daily_review', 'calendar', 'areas']
+      const viewsWithOrder = allViews
         .filter(vt => orderMap.has(vt))
         .sort((a, b) => (orderMap.get(a) || 0) - (orderMap.get(b) || 0))
-      const workflowsWithoutOrder = workflowsViews.filter(vt => !orderMap.has(vt))
-      setWorkflowsOrder([...workflowsWithOrder, ...workflowsWithoutOrder])
-      
-      // Sort time views
-      const timeWithOrder = timeViews
-        .filter(vt => orderMap.has(vt))
-        .sort((a, b) => (orderMap.get(a) || 0) - (orderMap.get(b) || 0))
-      const timeWithoutOrder = timeViews.filter(vt => !orderMap.has(vt))
-      setTimeOrder([...timeWithOrder, ...timeWithoutOrder])
+      const viewsWithoutOrder = allViews.filter(vt => !orderMap.has(vt))
+      setAllViewsOrder([...viewsWithOrder, ...viewsWithoutOrder])
     } catch (error) {
       console.error('Error loading workflows data:', error)
     } finally {
@@ -307,20 +288,10 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
   }
 
   const viewTypeLabels: Record<ViewType, { label: string; icon: any }> = {
-    day: { label: t('views.day'), icon: CalendarDays },
-    week: { label: t('views.week'), icon: CalendarRange },
-    month: { label: t('views.month'), icon: Calendar },
-    year: { label: t('views.year'), icon: CalendarCheck },
+    calendar: { label: t('navigation.calendar') || 'Kalendář', icon: Calendar },
     areas: { label: t('areas.title') || 'Oblasti', icon: LayoutDashboard },
     only_the_important: { label: t('views.onlyTheImportant.name'), icon: Target },
     daily_review: { label: t('views.dailyReview.name'), icon: BookOpen }
-  }
-
-  const timeViewLabels: Record<'day' | 'week' | 'month' | 'year', { label: string; icon: any }> = {
-    day: { label: t('views.day'), icon: CalendarDays },
-    week: { label: t('views.week'), icon: CalendarRange },
-    month: { label: t('views.month'), icon: Calendar },
-    year: { label: t('views.year'), icon: CalendarCheck }
   }
 
   // Sortable View Item Component
@@ -414,11 +385,6 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
     } else if (viewType !== null) {
       setSelectedViewType(viewType)
       setSelectedWorkflow(null)
-      // If it's a time view, also set selectedTimeView and expand the section
-      if (['day', 'week', 'month', 'year'].includes(viewType)) {
-        setSelectedTimeView(viewType as 'day' | 'week' | 'month' | 'year')
-        setTimeViewsExpanded(true) // Auto-expand when selecting a time view
-      }
     }
   }
 
@@ -426,29 +392,24 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
     setActiveId(event.active.id as string)
   }
 
-  const handleDragEnd = async (event: DragEndEvent, category: 'workflows' | 'time') => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
     setActiveId(null)
 
     if (!over || active.id === over.id) return
 
-    const currentOrder = category === 'workflows' ? workflowsOrder : timeOrder
-    const oldIndex = currentOrder.indexOf(active.id as ViewType)
-    const newIndex = currentOrder.indexOf(over.id as ViewType)
+    const oldIndex = allViewsOrder.indexOf(active.id as ViewType)
+    const newIndex = allViewsOrder.indexOf(over.id as ViewType)
 
     if (oldIndex === -1 || newIndex === -1) return
 
-    // Update local order for the specific category
-    const newOrder = arrayMove(currentOrder, oldIndex, newIndex)
-    if (category === 'workflows') {
-      setWorkflowsOrder(newOrder)
-    } else {
-      setTimeOrder(newOrder)
-    }
+    // Update local order for all views
+    const newOrder = arrayMove(allViewsOrder, oldIndex, newIndex)
+    setAllViewsOrder(newOrder)
     
-    console.log(`Saving new ${category} order:`, newOrder.map((vt, idx) => ({ viewType: vt, index: idx })))
+    console.log(`Saving new unified order:`, newOrder.map((vt, idx) => ({ viewType: vt, index: idx })))
 
-    // Save order to API (only for views in this category)
+    // Save order to API for all views
     try {
       // Save order for each view sequentially to avoid race conditions
       for (let index = 0; index < newOrder.length; index++) {
@@ -536,23 +497,20 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
             })}
           </div>
 
-          {/* Workflows section */}
+          {/* All views - unified list without section headers */}
           <div className="pt-4 border-t-2 border-primary-200">
-            <h3 className="text-xs font-bold text-black uppercase tracking-wider font-playful px-2 py-1 mb-2">
-              {t('navigation.workflows') || 'Workflows'}
-            </h3>
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
               onDragStart={handleDragStart}
-              onDragEnd={(e) => handleDragEnd(e, 'workflows')}
+              onDragEnd={handleDragEnd}
             >
               <SortableContext
-                items={workflowsOrder}
+                items={allViewsOrder}
                 strategy={verticalListSortingStrategy}
               >
                 <div className="space-y-1.5">
-                  {workflowsOrder.map(viewType => {
+                  {allViewsOrder.map(viewType => {
                     return (
                       <SortableViewItem
                         key={viewType}
@@ -563,50 +521,6 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
                         viewTypeLabels={viewTypeLabels}
                         onSelect={() => {
                           handleMenuClick(null, viewType)
-                        }}
-                        onToggleVisibility={(e) => {
-                          e.stopPropagation()
-                          toggleViewTypeVisibility(viewType, viewTypeVisibility[viewType] !== false)
-                        }}
-                        t={t}
-                      />
-                    )
-                  })}
-                </div>
-              </SortableContext>
-            </DndContext>
-          </div>
-
-          {/* Time-based section */}
-          <div className="pt-4 border-t-2 border-primary-200">
-            <h3 className="text-xs font-bold text-black uppercase tracking-wider font-playful px-2 py-1 mb-2">
-              {t('navigation.timeBased') || 'Časové'}
-            </h3>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragStart={handleDragStart}
-              onDragEnd={(e) => handleDragEnd(e, 'time')}
-            >
-              <SortableContext
-                items={timeOrder}
-                strategy={verticalListSortingStrategy}
-              >
-                <div className="space-y-1.5">
-                  {timeOrder.map(viewType => {
-                    return (
-                      <SortableViewItem
-                        key={viewType}
-                        viewType={viewType}
-                        isActive={selectedViewType === viewType}
-                        isVisibleInNav={viewTypeVisibility[viewType] !== false}
-                        isUpdating={isUpdating === `view-${viewType}`}
-                        viewTypeLabels={viewTypeLabels}
-                        onSelect={() => {
-                          handleMenuClick(null, viewType)
-                          if (['day', 'week', 'month', 'year'].includes(viewType)) {
-                            setSelectedTimeView(viewType as 'day' | 'week' | 'month' | 'year')
-                          }
                         }}
                         onToggleVisibility={(e) => {
                           e.stopPropagation()
@@ -766,47 +680,44 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
               {/* Show view type settings */}
               {selectedViewType && (
                 <div>
-                  {/* Time Views - show all time views */}
-                  {['day', 'week', 'month', 'year'].includes(selectedViewType) ? (
+                  {/* Calendar view and other views */}
+                  {selectedViewType === 'calendar' ? (
                     <div>
                       <h3 className="text-2xl font-bold font-playful mb-4">
-                        {timeViewLabels[selectedViewType as 'day' | 'week' | 'month' | 'year'].label}
+                        {viewTypeLabels[selectedViewType].label}
                       </h3>
                       
                       <div className="bg-white border-2 border-primary-500 rounded-playful-md p-4 space-y-4">
-                        {/* Show settings for the selected time view */}
-                        <div>
-
-                          {/* Visibility toggle with description */}
-                          <div className="flex items-center justify-between p-4 bg-primary-50 rounded-playful-sm border-2 border-primary-200 mb-4">
-                            <div className="flex-1">
-                              <h4 className="text-base font-bold font-playful mb-1">
-                                {t('views.showInNavigation') || 'Zobrazit v navigaci'}
-                              </h4>
-                              <p className="text-sm text-gray-600 font-playful">
-                                {t('views.showInNavigationDescription') || 'Pokud je zapnuto, tento view se zobrazí v navigačním panelu na hlavním panelu.'}
-                              </p>
-                            </div>
-                            <button
-                              onClick={() => toggleViewTypeVisibility(selectedViewType, viewTypeVisibility[selectedViewType] !== false)}
-                              disabled={isUpdating === `view-${selectedViewType}`}
-                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ml-4 ${
-                                viewTypeVisibility[selectedViewType] !== false ? 'bg-primary-500' : 'bg-gray-300'
-                              } disabled:opacity-50 disabled:cursor-not-allowed`}
-                              title={viewTypeVisibility[selectedViewType] !== false ? t('views.hide') || 'Skrýt v navigaci' : t('views.show') || 'Zobrazit v navigaci'}
-                            >
-                              <span
-                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                  viewTypeVisibility[selectedViewType] !== false ? 'translate-x-6' : 'translate-x-1'
-                                }`}
-                              />
-                            </button>
+                        {/* Visibility toggle with description */}
+                        <div className="flex items-center justify-between p-4 bg-primary-50 rounded-playful-sm border-2 border-primary-200">
+                          <div className="flex-1">
+                            <h4 className="text-base font-bold font-playful mb-1">
+                              {t('views.showInNavigation') || 'Zobrazit v navigaci'}
+                            </h4>
+                            <p className="text-sm text-gray-600 font-playful">
+                              {t('views.showInNavigationDescription') || 'Pokud je zapnuto, tento view se zobrazí v navigačním panelu na hlavním panelu.'}
+                            </p>
                           </div>
-
-                          {/* Section visibility settings for selected time view */}
-                          {player?.user_id && (
-                            <ViewTypeSettings viewType={selectedViewType} userId={player.user_id} />
-                          )}
+                          <button
+                            onClick={() => toggleViewTypeVisibility(selectedViewType, viewTypeVisibility[selectedViewType] !== false)}
+                            disabled={isUpdating === `view-${selectedViewType}`}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ml-4 ${
+                              viewTypeVisibility[selectedViewType] !== false ? 'bg-primary-500' : 'bg-gray-300'
+                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                            title={viewTypeVisibility[selectedViewType] !== false ? t('views.hide') || 'Skrýt v navigaci' : t('views.show') || 'Zobrazit v navigaci'}
+                          >
+                            <span
+                              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                viewTypeVisibility[selectedViewType] !== false ? 'translate-x-6' : 'translate-x-1'
+                              }`}
+                            />
+                          </button>
+                        </div>
+                        
+                        <div className="p-4 bg-primary-50 rounded-playful-sm border-2 border-primary-200">
+                          <p className="text-sm text-gray-600 font-playful">
+                            {t('views.calendar.description')}
+                          </p>
                         </div>
                       </div>
                     </div>
