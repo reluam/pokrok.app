@@ -2778,23 +2778,38 @@ export function JourneyGameView({
           }
         }
         
-        // Reload steps data instead of full page reload
+        // Immediately update local dailySteps state by filtering out deleted step
+        if (onDailyStepsUpdate) {
+          const updatedSteps = dailySteps.filter((s: any) => s.id !== stepId)
+          onDailyStepsUpdate(updatedSteps)
+        }
+        
+        // Also reload steps data from API to ensure consistency
         const currentDate = new Date().toISOString().split('T')[0]
-        const stepsResponse = await fetch(`/api/daily-steps?userId=${player.user_id}&date=${currentDate}`)
-        if (stepsResponse.ok) {
-          const steps = await stepsResponse.json()
-          // Update dailySteps in parent component
-          if (onDailyStepsUpdate) {
-            onDailyStepsUpdate(steps)
+        const userIdForFetch = player?.user_id || userId
+        if (userIdForFetch) {
+          try {
+            const stepsResponse = await fetch(`/api/daily-steps?userId=${userIdForFetch}&date=${currentDate}`)
+            if (stepsResponse.ok) {
+              const steps = await stepsResponse.json()
+              // Update dailySteps in parent component with fresh data
+              if (onDailyStepsUpdate) {
+                onDailyStepsUpdate(steps)
+              }
+            }
+          } catch (error) {
+            console.error('Error reloading steps after deletion:', error)
+            // Non-critical error - local state was already updated
           }
         }
       } else {
-        console.error('Failed to delete step, status:', response.status)
-        alert('Nepodařilo se smazat krok')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Failed to delete step, status:', response.status, errorData)
+        alert(t('steps.deleteError') || 'Nepodařilo se smazat krok')
       }
     } catch (error) {
       console.error('Error deleting step:', error)
-      alert('Chyba při mazání kroku')
+      alert(t('steps.deleteError') || 'Chyba při mazání kroku')
     } finally {
       setIsDeletingStep(false)
     }
