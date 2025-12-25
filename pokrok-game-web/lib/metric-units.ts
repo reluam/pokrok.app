@@ -261,7 +261,7 @@ export function groupMetricsByUnits(metrics: Array<{
   for (const metric of metrics) {
     // Find compatible group or create new one
     let groupKey: string | null = null
-    for (const [key] of groups) {
+    for (const key of groups.keys()) {
       if (areUnitsCompatible(metric.unit, key)) {
         groupKey = key
         break
