@@ -50,6 +50,7 @@ function DraggableStepItem({
   const style = {
     transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.5 : 1,
+    boxShadow: 'none',
   }
 
   return (
@@ -65,7 +66,6 @@ function DraggableStepItem({
           ? 'border-primary-300 bg-white hover:border-primary-400 hover:bg-primary-50/50'
           : 'border-gray-300 bg-gray-50/50 hover:border-gray-400 hover:bg-gray-50'
       }`}
-      style={{ boxShadow: 'none' }}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
