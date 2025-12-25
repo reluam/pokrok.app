@@ -3,6 +3,7 @@
 import { useMemo } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
+import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { Flame, Target, CheckCircle } from 'lucide-react'
 
 interface QuickOverviewWidgetProps {
@@ -30,11 +31,38 @@ export function QuickOverviewWidget({
   const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
   const dayName = dayNames[dayOfWeek]
   
-  // Filter habits for progress calculation
+  // Filter habits for progress calculation - only habits actually scheduled for this day
+  // Always_show habits are only counted if they are also scheduled for this day
   const habitsForProgress = habits.filter(habit => {
-    if (habit.frequency === 'daily') return true
-    if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
-    return false
+    // Check if scheduled for selected day using isHabitScheduledForDay for proper frequency handling
+    // But exclude always_show habits that aren't actually scheduled
+    const isScheduled = isHabitScheduledForDay(habit, displayDate)
+    
+    // If it's an always_show habit, verify it's also actually scheduled (not just always_show)
+    if (habit.always_show || habit.alwaysShow) {
+      // Check actual scheduling, not just always_show flag
+      if (habit.frequency === 'daily') return true
+      if (habit.frequency === 'weekly' && habit.selected_days && habit.selected_days.includes(dayName)) return true
+      if (habit.frequency === 'monthly' && habit.selected_days) {
+        const dayOfMonth = displayDate.getDate()
+        if (habit.selected_days.includes(dayOfMonth.toString())) return true
+        // For day of week in month (e.g., "first_monday"), use isHabitScheduledForDay result
+        // but only if it's actually a scheduled pattern match
+        if (isScheduled) {
+          for (const selectedDay of habit.selected_days) {
+            if (typeof selectedDay === 'string' && selectedDay.includes('_')) {
+              return true
+            }
+          }
+        }
+      }
+      if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
+      // If only always_show without actual scheduling, don't count for progress
+      return false
+    }
+    
+    // For non-always_show habits, use the scheduled check result
+    return isScheduled
   })
   
   // Filter steps for progress calculation
@@ -51,9 +79,8 @@ export function QuickOverviewWidget({
     return habit.habit_completions && habit.habit_completions[displayDateStr] === true
   }).length
   
-  const completedSteps = dailySteps.filter(step => {
-    const stepDate = normalizeDate(step.date)
-    return stepDate === displayDateStr && step.completed
+  const completedSteps = stepsForProgress.filter(step => {
+    return step.completed === true
   }).length
   
   const totalTasks = habitsForProgress.length + stepsForProgress.length
