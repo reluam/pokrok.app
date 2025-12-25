@@ -136,11 +136,14 @@ export async function GET(request: NextRequest) {
       `
     }
 
+    // Combine backlog_steps and available_steps into one backlog list
+    const allBacklogSteps = [...backlogSteps, ...availableSteps]
+
     return NextResponse.json({
       important_steps: importantSteps,
       other_steps: otherSteps,
-      backlog_steps: backlogSteps,
-      available_steps: availableSteps,
+      backlog_steps: allBacklogSteps,
+      available_steps: [], // Keep for backward compatibility, but empty
       settings: {
         important_steps_count: importantStepsCount
       },

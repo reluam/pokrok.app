@@ -477,8 +477,8 @@ export function OnlyTheImportantView({
     }
     
     return (
-      <div className="w-full flex flex-col bg-primary-50" style={{ height: '100%' }}>
-        <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
+      <div className="w-full h-full flex flex-col bg-primary-50 overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-hidden">
           <ImportantStepsPlanningView
             key={`planning-${planningDate || 'today'}`} // Force re-render when date changes
             userId={userId}
@@ -494,8 +494,8 @@ export function OnlyTheImportantView({
   // If no planning data, show planning view
   if (!planningData) {
     return (
-      <div className="w-full flex flex-col bg-primary-50" style={{ height: '100%' }}>
-        <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
+      <div className="w-full h-full flex flex-col bg-primary-50 overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-hidden">
           <ImportantStepsPlanningView
             userId={userId}
             onComplete={handlePlanningComplete}

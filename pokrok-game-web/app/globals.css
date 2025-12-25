@@ -54,23 +54,30 @@
 
 /* Custom scrollbar for game UI - Playful Style */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-background, #FFFAF5);
-  border-radius: 8px;
-  border: 2px solid var(--color-primary-300, #f9a855);
+  background: transparent;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-primary-500, #E8871E);
-  border-radius: 8px;
-  border: 2px solid var(--color-primary-600, #d16a0a);
+  background: rgba(232, 135, 30, 0.3); /* primary-500 with opacity */
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-primary-600, #d16a0a);
+  background: rgba(232, 135, 30, 0.5); /* primary-500 with more opacity on hover */
+  background-clip: padding-box;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(232, 135, 30, 0.3) transparent;
 }
 
   /* Playful Button Base Styles - Simple, flat design */

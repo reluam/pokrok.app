@@ -696,7 +696,10 @@
         "nextDay": "Next day",
         "stepTitlePlaceholder": "Step title",
         "stepDescriptionPlaceholder": "Step description (optional)",
-        "availableSteps": "Available steps"
+        "availableSteps": "Available steps",
+        "today": "Today",
+        "overdue": "Overdue",
+        "future": "Future"
       },
       "dailyView": {
         "allDone": "You have everything completed!",

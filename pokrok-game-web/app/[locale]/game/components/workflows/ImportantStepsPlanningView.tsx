@@ -204,9 +204,6 @@ export function ImportantStepsPlanningView({
     } else if (planningData.backlog_steps.find(s => s.id === activeId)) {
       draggedStep = planningData.backlog_steps.find(s => s.id === activeId)
       fromCategory = 'backlog'
-    } else if (planningData.available_steps.find(s => s.id === activeId)) {
-      draggedStep = planningData.available_steps.find(s => s.id === activeId)
-      fromCategory = null // from available (not yet in planning)
     }
 
     if (!draggedStep) {
@@ -285,8 +282,6 @@ export function ImportantStepsPlanningView({
       newData.other_steps = newData.other_steps.filter(s => s.id !== step.id)
     } else if (fromCategory === 'backlog') {
       newData.backlog_steps = newData.backlog_steps.filter(s => s.id !== step.id)
-    } else {
-      newData.available_steps = newData.available_steps.filter(s => s.id !== step.id)
     }
 
     // Add to new category
@@ -462,7 +457,7 @@ export function ImportantStepsPlanningView({
   }
 
   const activeStep = activeId 
-    ? [...planningData.important_steps, ...planningData.other_steps, ...planningData.backlog_steps, ...planningData.available_steps]
+    ? [...planningData.important_steps, ...planningData.other_steps, ...planningData.backlog_steps]
         .find(s => s.id === activeId)
     : null
 
@@ -522,18 +517,18 @@ export function ImportantStepsPlanningView({
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto md:overflow-hidden px-4 pb-4 min-h-0 max-h-full">
+      <div className="flex-1 overflow-hidden px-4 pb-4 min-h-0" style={{ height: 0 }}>
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <div className="h-full max-h-full grid grid-cols-1 md:grid-cols-3 gap-4 pb-4 md:pb-0">
+          <div className="h-full grid grid-cols-1 md:grid-cols-2 gap-4" style={{ maxHeight: '100%' }}>
             {/* Left column with Important and Other */}
-            <div className="md:col-span-2 flex flex-col gap-4 h-full max-h-full">
+            <div className="flex flex-col gap-4 h-full" style={{ maxHeight: '100%', overflow: 'hidden' }}>
               {/* Important Steps Column - Top */}
-              <div className="flex-1 min-h-0 max-h-full">
+              <div className="flex-1 min-h-0" style={{ maxHeight: '50%', overflow: 'hidden' }}>
             <ImportantStepColumn
               id="important-column"
               title={t('workflows.onlyTheImportant.planning.importantSteps')}
@@ -547,7 +542,7 @@ export function ImportantStepsPlanningView({
               </div>
 
               {/* Other Steps Column - Bottom */}
-              <div className="flex-1 min-h-0 max-h-full">
+              <div className="flex-1 min-h-0" style={{ maxHeight: '50%', overflow: 'hidden' }}>
               <ImportantStepColumn
                 id="other-column"
                 title={t('workflows.onlyTheImportant.planning.otherSteps')}
@@ -561,7 +556,7 @@ export function ImportantStepsPlanningView({
             </div>
 
             {/* Right column with Backlog - Full height */}
-            <div className="md:col-span-1 h-full max-h-full">
+            <div className="h-full" style={{ maxHeight: '100%', overflow: 'hidden' }}>
               <ImportantStepColumn
                 id="backlog-column"
                 title={t('workflows.onlyTheImportant.planning.backlog')}
