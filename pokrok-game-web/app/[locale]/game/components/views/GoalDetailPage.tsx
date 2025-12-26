@@ -891,11 +891,15 @@ export function GoalDetailPage({
                         ? group.metrics.map(m => m.name).join(' + ')
                         : group.metrics[0].name
                       
+                      // Format: initial → current → target for decreasing metrics
+                      const unitDisplay = group.unit ? ` ${group.unit}` : ''
+                      const valueDisplay = `${formatNumber(totalInitial)}${unitDisplay} → ${formatNumber(totalCurrent)}${unitDisplay} → ${formatNumber(totalTarget)}${unitDisplay}`
+                      
                       progressBars.push(
                         <div key={`metric-decreasing-${group.unit}-${index}`} className="space-y-1">
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-gray-600 font-playful">
-                              {metricNames} ({formatNumber(group.totalCurrent)}{group.unit ? ` ${group.unit}` : ''} / {formatNumber(group.totalTarget)}{group.unit ? ` ${group.unit}` : ''})
+                              {metricNames} ({valueDisplay})
                             </span>
                             <span className="text-gray-500 font-playful text-xs">
                               {Math.round(progress)}%
