@@ -271,6 +271,7 @@ export function PageContent(props: PageContentProps) {
   // Filters state for Goals page
   const [goalsStatusFilters, setGoalsStatusFilters] = React.useState<Set<string>>(new Set(['active']))
   const [selectedGoalForDetail, setSelectedGoalForDetail] = React.useState<string | null>(null)
+  const [goalsMobileMenuOpen, setGoalsMobileMenuOpen] = React.useState(false)
   
   // Keep selectedGoal in state and update it whenever goals or selectedGoalForDetail changes
   const [selectedGoal, setSelectedGoal] = React.useState<any | null>(null)
@@ -294,6 +295,7 @@ export function PageContent(props: PageContentProps) {
   const [habitsShowCompletedToday, setHabitsShowCompletedToday] = React.useState(true)
   const [selectedHabitForDetail, setSelectedHabitForDetail] = React.useState<string | null>(null)
   const habitsPageTimelineContainerRef = React.useRef<HTMLDivElement>(null)
+  const [habitsMobileMenuOpen, setHabitsMobileMenuOpen] = React.useState(false)
   
   // Load active workflows for navigation
   const [activeWorkflows, setActiveWorkflows] = React.useState<any[]>([])
@@ -364,6 +366,7 @@ export function PageContent(props: PageContentProps) {
   const [stepsShowCompleted, setStepsShowCompleted] = React.useState(false)
   const [stepsGoalFilter, setStepsGoalFilter] = React.useState<string | null>(null)
   const [stepsDateFilter, setStepsDateFilter] = React.useState<string | null>(null)
+  const [stepsMobileMenuOpen, setStepsMobileMenuOpen] = React.useState(false)
   
   // Metrics state
   const [metrics, setMetrics] = React.useState<Record<string, any[]>>({})
@@ -1794,8 +1797,8 @@ export function PageContent(props: PageContentProps) {
 
         return (
           <div className="flex flex-1 overflow-hidden">
-            {/* Left Panel - Filters and Add button */}
-            <div className="w-64 border-r-2 border-primary-500 bg-white flex flex-col">
+            {/* Left Panel - Filters and Add button - hidden on mobile */}
+            <div className="hidden md:flex w-64 border-r-2 border-primary-500 bg-white flex flex-col">
               {/* Header */}
               <div className="p-4 border-b-2 border-primary-500">
                 <button
@@ -1893,7 +1896,130 @@ export function PageContent(props: PageContentProps) {
               </div>
             </div>
             {/* Main Content */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto flex flex-col">
+              {/* Mobile hamburger menu */}
+              <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-gray-900">
+                    {selectedGoalForDetail && selectedGoal ? selectedGoal.title : t('navigation.goals')}
+                  </h2>
+                  <div className="relative">
+                    <button
+                      onClick={() => setGoalsMobileMenuOpen(!goalsMobileMenuOpen)}
+                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      title="Menu"
+                    >
+                      <Menu className="w-5 h-5 text-gray-700" />
+                    </button>
+                    
+                    {/* Mobile menu dropdown */}
+                    {goalsMobileMenuOpen && (
+                      <>
+                        {/* Backdrop */}
+                        <div 
+                          className="fixed inset-0 z-[100]" 
+                          onClick={() => setGoalsMobileMenuOpen(false)}
+                        />
+                        <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-[101] min-w-[200px] max-h-[80vh] overflow-y-auto">
+                          <nav className="py-2">
+                            {/* Status Filters */}
+                            <div className="px-4 py-2 border-b border-gray-200">
+                              <h3 className="text-xs font-semibold text-gray-700 uppercase mb-2">{t('goals.filters.status.title') || 'Status'}</h3>
+                              <div className="space-y-2">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={goalsStatusFilters.has('active')}
+                                    onChange={() => handleGoalsStatusFilterToggle('active')}
+                                    className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+                                  />
+                                  <span className="text-sm font-medium text-black font-playful flex items-center gap-1.5">
+                                    <Target className="w-3.5 h-3.5 text-primary-600" />
+                                    {t('goals.status.active')}
+                                  </span>
+                                </label>
+                                
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={goalsStatusFilters.has('paused')}
+                                    onChange={() => handleGoalsStatusFilterToggle('paused')}
+                                    className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+                                  />
+                                  <span className="text-sm font-medium text-black font-playful flex items-center gap-1.5">
+                                    <Moon className="w-3.5 h-3.5 text-primary-600" />
+                                    {t('goals.status.paused')}
+                                  </span>
+                                </label>
+                                
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={goalsStatusFilters.has('completed')}
+                                    onChange={() => handleGoalsStatusFilterToggle('completed')}
+                                    className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+                                  />
+                                  <span className="text-sm font-medium text-black font-playful flex items-center gap-1.5">
+                                    <CheckCircle className="w-3.5 h-3.5 text-primary-600" />
+                                    {t('goals.status.completed')}
+                                  </span>
+                                </label>
+                              </div>
+                            </div>
+                            
+                            {/* Goals list */}
+                            {filteredGoals.length > 0 && (
+                              <div className="px-4 py-2 border-b border-gray-200">
+                                <h3 className="text-xs font-semibold text-gray-700 uppercase mb-2">{t('navigation.goals')}</h3>
+                                <div className="space-y-1 max-h-[300px] overflow-y-auto">
+                                  {filteredGoals.map((goal: any) => {
+                                    const isSelected = selectedGoalForDetail === goal.id
+                                    const IconComponent = getIconComponent(goal.icon)
+                                    return (
+                                      <button
+                                        key={goal.id}
+                                        onClick={() => {
+                                          setSelectedGoalForDetail(isSelected ? null : goal.id)
+                                          setGoalsMobileMenuOpen(false)
+                                        }}
+                                        className={`w-full text-left px-3 py-2 rounded-playful-sm text-sm font-playful transition-colors flex items-center gap-2 ${
+                                          isSelected
+                                            ? 'bg-primary-500 text-black font-semibold'
+                                            : 'bg-white text-black hover:bg-primary-50 border-2 border-transparent hover:border-primary-500'
+                                        }`}
+                                      >
+                                        <IconComponent className="w-4 h-4 flex-shrink-0" />
+                                        <span className="truncate">{goal.title}</span>
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Add button */}
+                            <div className="px-4 py-2">
+                              <button
+                                onClick={() => {
+                                  handleCreateGoal()
+                                  setGoalsMobileMenuOpen(false)
+                                }}
+                                className="btn-playful-base w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-white hover:bg-primary-50"
+                              >
+                                <Plus className="w-5 h-5" />
+                                {t('goals.add')}
+                              </button>
+                            </div>
+                          </nav>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Content area */}
+              <div className="flex-1 overflow-y-auto">
               {selectedGoalForDetail && selectedGoal ? (
                 <GoalDetailPage
                   key={`goal-${selectedGoalForDetail}-${selectedGoal.progress_percentage || 0}`}
@@ -2007,6 +2133,7 @@ export function PageContent(props: PageContentProps) {
                   hideHeader={true}
                 />
               )}
+              </div>
             </div>
           </div>
         )
@@ -2034,8 +2161,8 @@ export function PageContent(props: PageContentProps) {
         
         return (
           <div className="flex flex-1 overflow-hidden">
-            {/* Left Panel - List of habits */}
-            <div className="w-64 border-r-2 border-primary-500 bg-white flex flex-col">
+            {/* Left Panel - List of habits - Hidden on mobile */}
+            <div className="hidden md:flex w-64 border-r-2 border-primary-500 bg-white flex flex-col">
               {/* Header */}
               <div className="p-4 border-b-2 border-primary-500">
                 <button
@@ -2099,7 +2226,120 @@ export function PageContent(props: PageContentProps) {
             </div>
             
             {/* Main Content */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto flex flex-col">
+              {/* Mobile hamburger menu */}
+              <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-gray-900">
+                    {selectedHabit ? selectedHabit.name : t('navigation.habits')}
+                  </h2>
+                  <div className="relative">
+                    <button
+                      onClick={() => setHabitsMobileMenuOpen(!habitsMobileMenuOpen)}
+                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      title="Menu"
+                    >
+                      <Menu className="w-5 h-5 text-gray-700" />
+                    </button>
+                    
+                    {/* Mobile menu dropdown */}
+                    {habitsMobileMenuOpen && (
+                      <>
+                        {/* Backdrop */}
+                        <div 
+                          className="fixed inset-0 z-[100]" 
+                          onClick={() => setHabitsMobileMenuOpen(false)}
+                        />
+                        <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-[101] min-w-[200px] max-h-[80vh] overflow-y-auto">
+                          <nav className="py-2">
+                            {/* Filters */}
+                            <div className="px-4 py-2 border-b border-gray-200">
+                              <h3 className="text-xs font-semibold text-gray-700 uppercase mb-2">{t('habits.filters.title') || 'Filtry'}</h3>
+                              <div className="space-y-2">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={habitsShowCompletedToday}
+                                    onChange={(e) => setHabitsShowCompletedToday(e.target.checked)}
+                                    className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+                                  />
+                                  <span className="text-sm font-medium text-black">{t('habits.filters.showCompletedToday') || 'Zobrazit dokončené dnes'}</span>
+                                </label>
+                              </div>
+                              <div className="mt-2">
+                                <label className="text-xs font-semibold text-black mb-1.5 block">{t('habits.filters.frequency') || 'Frekvence'}</label>
+                                <select
+                                  value={habitsFrequencyFilter}
+                                  onChange={(e) => setHabitsFrequencyFilter(e.target.value as 'all' | 'daily' | 'weekly' | 'monthly')}
+                                  className="w-full px-2 py-1.5 text-xs border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                                >
+                                  <option value="all">{t('habits.filters.frequency.all') || 'Vše'}</option>
+                                  <option value="daily">{t('habits.filters.frequency.daily') || 'Denní'}</option>
+                                  <option value="weekly">{t('habits.filters.frequency.weekly') || 'Týdenní'}</option>
+                                  <option value="monthly">{t('habits.filters.frequency.monthly') || 'Měsíční'}</option>
+                                </select>
+                              </div>
+                            </div>
+                            
+                            {/* Habits list */}
+                            {filteredHabits.length > 0 && (
+                              <div className="px-4 py-2 border-b border-gray-200">
+                                <h3 className="text-xs font-semibold text-gray-700 uppercase mb-2">{t('navigation.habits')}</h3>
+                                <div className="space-y-1 max-h-[300px] overflow-y-auto">
+                                  {filteredHabits.map((habit: any) => {
+                                    const isSelected = selectedHabitForDetail === habit.id
+                                    const totalCompletions = habit.habit_completions 
+                                      ? Object.values(habit.habit_completions).filter((completed: any) => completed === true).length
+                                      : 0
+                                    return (
+                                      <button
+                                        key={habit.id}
+                                        onClick={() => {
+                                          setSelectedHabitForDetail(isSelected ? null : habit.id)
+                                          setHabitsMobileMenuOpen(false)
+                                        }}
+                                        className={`w-full text-left px-3 py-2 rounded-playful-sm text-sm font-playful transition-colors flex items-center justify-between gap-2 ${
+                                          isSelected
+                                            ? 'bg-primary-500 text-black font-semibold'
+                                            : 'bg-white text-black hover:bg-primary-50 border-2 border-transparent hover:border-primary-500'
+                                        }`}
+                                      >
+                                        <span className="truncate flex-1">{habit.name}</span>
+                                        <span className={`text-xs font-semibold flex-shrink-0 ${
+                                          isSelected ? 'text-black' : 'text-primary-600'
+                                        }`}>
+                                          {totalCompletions}x
+                                        </span>
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Add button */}
+                            <div className="px-4 py-2">
+                              <button
+                                onClick={() => {
+                                  handleOpenHabitModal(null)
+                                  setHabitsMobileMenuOpen(false)
+                                }}
+                                className="btn-playful-base w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-white hover:bg-primary-50"
+                              >
+                                <Plus className="w-5 h-5" />
+                                {t('habits.add')}
+                              </button>
+                            </div>
+                          </nav>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Content area */}
+              <div className="flex-1 overflow-y-auto">
               {selectedHabit ? (
                 <HabitDetailInlineView
                   habit={selectedHabit}
@@ -2134,6 +2374,7 @@ export function PageContent(props: PageContentProps) {
                   />
                 </div>
               )}
+              </div>
             </div>
           </div>
         )
@@ -2165,8 +2406,8 @@ export function PageContent(props: PageContentProps) {
 
         return (
           <div className="flex flex-1 overflow-hidden">
-            {/* Left Panel - Filters and Add button */}
-            <div className="w-64 border-r-2 border-primary-500 bg-white flex flex-col">
+            {/* Left Panel - Filters and Add button - Hidden on mobile */}
+            <div className="hidden md:flex w-64 border-r-2 border-primary-500 bg-white flex flex-col">
               {/* Filters at top */}
               <div className="p-4 border-b-2 border-primary-500 overflow-y-auto">
                 <h3 className="text-sm font-bold text-black font-playful mb-4">{t('navigation.steps')}</h3>
@@ -2237,7 +2478,109 @@ export function PageContent(props: PageContentProps) {
               </div>
             </div>
             {/* Main Content */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto flex flex-col">
+              {/* Mobile hamburger menu */}
+              <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-gray-900">
+                    {t('navigation.steps')}
+                  </h2>
+                  <div className="relative">
+                    <button
+                      onClick={() => setStepsMobileMenuOpen(!stepsMobileMenuOpen)}
+                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      title="Menu"
+                    >
+                      <Menu className="w-5 h-5 text-gray-700" />
+                    </button>
+                    
+                    {/* Mobile menu dropdown */}
+                    {stepsMobileMenuOpen && (
+                      <>
+                        {/* Backdrop */}
+                        <div 
+                          className="fixed inset-0 z-[100]" 
+                          onClick={() => setStepsMobileMenuOpen(false)}
+                        />
+                        <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-[101] min-w-[200px] max-h-[80vh] overflow-y-auto">
+                          <nav className="py-2">
+                            {/* Filters */}
+                            <div className="px-4 py-2 border-b border-gray-200">
+                              <h3 className="text-xs font-semibold text-gray-700 uppercase mb-2">{t('steps.filters.title') || 'Filtry'}</h3>
+                              <div className="space-y-3">
+                                {/* Show Completed Checkbox */}
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={stepsShowCompleted}
+                                    onChange={(e) => setStepsShowCompleted(e.target.checked)}
+                                    className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+                                  />
+                                  <span className="text-sm font-medium text-black">{t('steps.filters.showCompleted')}</span>
+                                </label>
+                                
+                                {/* Goal Filter */}
+                                <div>
+                                  <label className="text-xs font-semibold text-black mb-1.5 block">{t('steps.filters.goal.title') || 'Cíl'}</label>
+                                  <select
+                                    value={stepsGoalFilter || ''}
+                                    onChange={(e) => setStepsGoalFilter(e.target.value || null)}
+                                    className="w-full px-2 py-1.5 text-xs border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                                  >
+                                    <option value="">{t('steps.filters.goal.all')}</option>
+                                    <option value="none">{t('steps.filters.goal.withoutGoal') || 'Bez cíle'}</option>
+                                    {goals.map((goal: any) => (
+                                      <option key={goal.id} value={goal.id}>{goal.title}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                                
+                                {/* Date Filter */}
+                                <div>
+                                  <label className="text-xs font-semibold text-black mb-1.5 block">{t('steps.filters.date.title') || 'Datum'}</label>
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="date"
+                                      value={stepsDateFilter || ''}
+                                      onChange={(e) => setStepsDateFilter(e.target.value || null)}
+                                      className="flex-1 px-2 py-1.5 text-xs border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                                    />
+                                    {stepsDateFilter && (
+                                      <button
+                                        onClick={() => setStepsDateFilter(null)}
+                                        className="px-2 py-1.5 text-xs text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-playful-sm transition-colors"
+                                      >
+                                        {t('common.clear')}
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Add button */}
+                            <div className="px-4 py-2">
+                              <button
+                                onClick={() => {
+                                  handleOpenStepModal()
+                                  setStepsMobileMenuOpen(false)
+                                }}
+                                className="btn-playful-base w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-white hover:bg-primary-50"
+                              >
+                                <Plus className="w-5 h-5" />
+                                {t('steps.add')}
+                              </button>
+                            </div>
+                          </nav>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Content area */}
+              <div className="flex-1 overflow-y-auto">
               <StepsManagementView
                 dailySteps={filteredSteps}
                 goals={goals}
@@ -2250,6 +2593,7 @@ export function PageContent(props: PageContentProps) {
                 goalFilter={stepsGoalFilter}
                 dateFilter={stepsDateFilter}
               />
+              </div>
             </div>
           </div>
         )

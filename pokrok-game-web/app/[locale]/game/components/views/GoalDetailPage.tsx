@@ -633,7 +633,24 @@ export function GoalDetailPage({
                       setShowGoalDetailAreaPicker(true)
                     }
                   }}
-                  className="btn-playful-base flex items-center gap-2 px-3 py-1.5 text-sm text-primary-600 bg-white hover:bg-primary-50"
+                  className="flex items-center gap-2 px-3 py-1.5 text-sm bg-white transition-all border-2 rounded-playful-lg font-semibold"
+                  style={(() => {
+                    const area = goal.area_id ? areas.find(a => a.id === goal.area_id) : null
+                    const areaColor = area?.color || '#E8871E' // Default to primary color
+                    return {
+                      borderColor: areaColor,
+                      color: areaColor,
+                      boxShadow: `3px 3px 0 0 ${areaColor}`
+                    }
+                  })()}
+                  onMouseEnter={(e) => {
+                    const area = goal.area_id ? areas.find(a => a.id === goal.area_id) : null
+                    const areaColor = area?.color || '#E8871E'
+                    e.currentTarget.style.backgroundColor = `${areaColor}20`
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'white'
+                  }}
                 >
                   {goal.area_id ? (
                     <>
@@ -652,7 +669,7 @@ export function GoalDetailPage({
                   ) : (
                     <>
                       <Target className="w-4 h-4" />
-                      <span className="font-medium text-gray-500">
+                      <span className="font-medium">
                         {t('details.goal.selectArea')}
                       </span>
                     </>
@@ -1821,10 +1838,19 @@ export function GoalDetailPage({
             onClick={() => setShowGoalDetailAreaPicker(false)}
           />
           <div 
-            className="fixed z-50 box-playful-highlight bg-white min-w-[200px] max-h-64 overflow-y-auto"
+            className="fixed z-50 bg-white min-w-[200px] max-h-64 overflow-y-auto border-2 rounded-playful-lg"
             style={{
               top: `${goalDetailAreaPickerPosition.top}px`,
-              left: `${goalDetailAreaPickerPosition.left}px`
+              left: `${goalDetailAreaPickerPosition.left}px`,
+              borderColor: (() => {
+                const selectedArea = goal.area_id ? areas.find(a => a.id === goal.area_id) : null
+                return selectedArea?.color || '#E8871E'
+              })(),
+              boxShadow: (() => {
+                const selectedArea = goal.area_id ? areas.find(a => a.id === goal.area_id) : null
+                const areaColor = selectedArea?.color || '#E8871E'
+                return `3px 3px 0 0 ${areaColor}`
+              })()
             }}
           >
             <button
@@ -1832,16 +1858,32 @@ export function GoalDetailPage({
               onClick={async () => {
                 await handleGoalAreaSelect(null)
               }}
-              className={`w-full text-left px-4 py-3 text-sm hover:bg-primary-50 transition-colors font-medium font-playful flex items-center gap-2 ${
+              className={`w-full text-left px-4 py-3 text-sm transition-colors font-medium font-playful flex items-center gap-2 ${
                 !goal.area_id 
-                  ? 'bg-primary-100 text-primary-600 font-semibold' 
+                  ? 'font-semibold' 
                   : 'text-black'
               }`}
+              style={!goal.area_id ? {
+                backgroundColor: '#E8871E20',
+                color: '#E8871E'
+              } : {}}
+              onMouseEnter={(e) => {
+                if (goal.area_id) {
+                  e.currentTarget.style.backgroundColor = '#E8871E20'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (goal.area_id) {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                }
+              }}
             >
               <span>{t('details.goal.noArea') || 'Bez oblasti'}</span>
             </button>
             {areas.map((area) => {
               const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
+              const isSelected = goal.area_id === area.id
+              const areaColor = area.color || '#E8871E'
               return (
                 <button
                   key={area.id}
@@ -1849,13 +1891,25 @@ export function GoalDetailPage({
                   onClick={async () => {
                     await handleGoalAreaSelect(area.id)
                   }}
-                  className={`w-full text-left px-4 py-3 text-sm hover:bg-primary-50 transition-colors font-medium font-playful flex items-center gap-2 ${
-                    goal.area_id === area.id 
-                      ? 'bg-primary-100 text-primary-600 font-semibold' 
-                      : 'text-black'
+                  className={`w-full text-left px-4 py-3 text-sm transition-colors font-medium font-playful flex items-center gap-2 ${
+                    isSelected ? 'font-semibold' : 'text-black'
                   }`}
+                  style={isSelected ? {
+                    backgroundColor: `${areaColor}20`,
+                    color: areaColor
+                  } : {}}
+                  onMouseEnter={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.backgroundColor = `${areaColor}20`
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }
+                  }}
                 >
-                  <IconComponent className="w-4 h-4" style={{ color: area.color || '#3B82F6' }} />
+                  <IconComponent className="w-4 h-4" style={{ color: areaColor }} />
                   <span>{area.name}</span>
                 </button>
               )

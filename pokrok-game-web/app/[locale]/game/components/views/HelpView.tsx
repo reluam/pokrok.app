@@ -1492,7 +1492,7 @@ export function HelpView({
               {mobileMenuOpen && (
                 <>
                   <div className="fixed inset-0 z-[100]" onClick={() => setMobileMenuOpen(false)} />
-                  <div className="absolute right-0 top-10 box-playful-highlight z-[101] min-w-[180px] overflow-hidden">
+                  <div className="absolute right-0 top-10 box-playful-highlight bg-white z-[101] min-w-[180px] overflow-hidden">
                     <nav className="py-1">
                       {categories.map((category) => {
                         const Icon = category.icon

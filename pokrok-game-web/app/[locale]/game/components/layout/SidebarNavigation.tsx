@@ -73,6 +73,18 @@ export function SidebarNavigation({
   availableWorkflows = {}
 }: SidebarNavigationProps) {
   const t = useTranslations()
+  const [hoveredAreaId, setHoveredAreaId] = useState<string | null>(null)
+  const [hoveredGoalId, setHoveredGoalId] = useState<string | null>(null)
+  const [hoveredPausedSectionId, setHoveredPausedSectionId] = useState<string | null>(null)
+  const [hoveredCompletedSectionId, setHoveredCompletedSectionId] = useState<string | null>(null)
+  
+  // Helper function to convert hex color to rgba with alpha
+  const hexToRgba = (hex: string, alpha: number): string => {
+    const r = parseInt(hex.slice(1, 3), 16)
+    const g = parseInt(hex.slice(3, 5), 16)
+    const b = parseInt(hex.slice(5, 7), 16)
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`
+  }
   
   // Load view type visibility settings and order
   const [viewTypeVisibility, setViewTypeVisibility] = useState<Record<string, boolean>>({
@@ -306,10 +318,15 @@ export function SidebarNavigation({
                             setMainPanelSection(`area-${area.id}`)
                             // useEffect will automatically expand this area and collapse others
                           }}
+                          onMouseEnter={() => setHoveredAreaId(area.id)}
+                          onMouseLeave={() => setHoveredAreaId(null)}
                           className={`btn-playful-nav flex-1 flex items-center gap-3 px-3 py-2 text-left ${
                             mainPanelSection === `area-${area.id}` ? 'active' : ''
                           }`}
-                          style={mainPanelSection === `area-${area.id}` ? { textDecorationColor: areaColor } : undefined}
+                          style={{
+                            ...(mainPanelSection === `area-${area.id}` ? { textDecorationColor: areaColor } : {}),
+                            ...(hoveredAreaId === area.id ? { backgroundColor: hexToRgba(areaColor, 0.2) } : {})
+                          }}
                           title={area.name}
                         >
                           <IconComponent className="w-4 h-4 flex-shrink-0" style={mainPanelSection === `area-${area.id}` ? undefined : { color: areaColor }} />
@@ -376,12 +393,18 @@ export function SidebarNavigation({
                                       setMainPanelSection(goalSectionId)
                                     }
                                   }}
-                                  className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left ${
+                                  onMouseEnter={() => setHoveredGoalId(goal.id)}
+                                  onMouseLeave={() => setHoveredGoalId(null)}
+                                  className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left border-2 ${
                                     isSelected ? 'active' : ''
                                   }`}
+                                  style={{
+                                    borderColor: areaColor,
+                                    ...(hoveredGoalId === goal.id ? { backgroundColor: hexToRgba(areaColor, 0.2) } : {})
+                                  }}
                                   title={goal.title}
                                 >
-                                  <span className={`text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right ${isSelected ? 'text-primary-600' : ''}`} style={!isSelected ? { color: areaColor } : undefined}>
+                                  <span className="text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right" style={{ color: areaColor }}>
                                     {progressPercentage}%
                                   </span>
                                   <span className="font-medium text-xs truncate flex-1">
@@ -404,7 +427,10 @@ export function SidebarNavigation({
                                     }
                                     setExpandedGoalSections(newSet)
                                   }}
-                                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-black hover:bg-primary-50 transition-all rounded-playful-sm bg-transparent"
+                                  onMouseEnter={() => setHoveredPausedSectionId(pausedSectionKey)}
+                                  onMouseLeave={() => setHoveredPausedSectionId(null)}
+                                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-black transition-all rounded-playful-sm bg-transparent"
+                                  style={hoveredPausedSectionId === pausedSectionKey ? { backgroundColor: hexToRgba(areaColor, 0.2) } : {}}
                                 >
                                   <ChevronDown className={`w-3 h-3 transition-transform ${isPausedExpanded ? 'rotate-180' : ''}`} />
                                   <span>{t('goals.filters.status.paused') || 'Odložené'} ({pausedGoals.length})</span>
@@ -426,14 +452,20 @@ export function SidebarNavigation({
                                               setMainPanelSection(goalSectionId)
                                             }
                                           }}
-                                          className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left ${
+                                          onMouseEnter={() => setHoveredGoalId(goal.id)}
+                                          onMouseLeave={() => setHoveredGoalId(null)}
+                                          className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left border-2 ${
                                             isSelected ? 'active' : ''
                                           }`}
+                                          style={{
+                                            borderColor: areaColor,
+                                            ...(hoveredGoalId === goal.id ? { backgroundColor: hexToRgba(areaColor, 0.2) } : {})
+                                          }}
                                           title={goal.title}
                                         >
-                                          <span className={`text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right ${isSelected ? 'text-primary-600' : ''}`} style={!isSelected ? { color: areaColor } : undefined}>
-                                            {progressPercentage}%
-                                          </span>
+                                  <span className="text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right" style={{ color: areaColor }}>
+                                    {progressPercentage}%
+                                  </span>
                                           <span className="font-medium text-xs truncate flex-1">
                                             {goal.title}
                                           </span>
@@ -458,7 +490,10 @@ export function SidebarNavigation({
                                     }
                                     setExpandedGoalSections(newSet)
                                   }}
-                                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-black hover:bg-primary-50 transition-all rounded-playful-sm bg-transparent"
+                                  onMouseEnter={() => setHoveredCompletedSectionId(completedSectionKey)}
+                                  onMouseLeave={() => setHoveredCompletedSectionId(null)}
+                                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-black transition-all rounded-playful-sm bg-transparent"
+                                  style={hoveredCompletedSectionId === completedSectionKey ? { backgroundColor: hexToRgba(areaColor, 0.2) } : {}}
                                 >
                                   <ChevronDown className={`w-3 h-3 transition-transform ${isCompletedExpanded ? 'rotate-180' : ''}`} />
                                   <span>{t('goals.filters.status.completed') || 'Hotové'} ({completedGoals.length})</span>
@@ -480,14 +515,20 @@ export function SidebarNavigation({
                                               setMainPanelSection(goalSectionId)
                                             }
                                           }}
-                                          className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left ${
+                                          onMouseEnter={() => setHoveredGoalId(goal.id)}
+                                          onMouseLeave={() => setHoveredGoalId(null)}
+                                          className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left border-2 ${
                                             isSelected ? 'active' : ''
                                           }`}
+                                          style={{
+                                            borderColor: areaColor,
+                                            ...(hoveredGoalId === goal.id ? { backgroundColor: hexToRgba(areaColor, 0.2) } : {})
+                                          }}
                                           title={goal.title}
                                         >
-                                          <span className={`text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right ${isSelected ? 'text-primary-600' : ''}`} style={!isSelected ? { color: areaColor } : undefined}>
-                                            {progressPercentage}%
-                                          </span>
+                                  <span className="text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right" style={{ color: areaColor }}>
+                                    {progressPercentage}%
+                                  </span>
                                           <span className="font-medium text-xs truncate flex-1">
                                             {goal.title}
                                           </span>

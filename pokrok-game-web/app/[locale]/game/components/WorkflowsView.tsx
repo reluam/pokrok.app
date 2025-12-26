@@ -332,28 +332,30 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
     const Icon = viewTypeLabels[viewType].icon
 
     return (
-      <div ref={setNodeRef} style={style} className="flex items-center gap-2">
-        <div
-          {...attributes}
-          {...listeners}
-          className="cursor-grab active:cursor-grabbing p-1 hover:bg-primary-50 rounded-playful-sm"
-          title={t('common.dragToReorder') || 'Přetáhněte pro změnu pořadí'}
-        >
-          <GripVertical className="w-4 h-4 text-gray-400" />
+      <div ref={setNodeRef} style={style} className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-2">
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <div
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing p-1 hover:bg-primary-50 rounded-playful-sm"
+            title={t('common.dragToReorder') || 'Přetáhněte pro změnu pořadí'}
+          >
+            <GripVertical className="w-4 h-4 text-gray-400" />
+          </div>
+          <button
+            onClick={onSelect}
+            className={`btn-playful-nav flex-1 md:flex-1 flex items-center gap-3 px-3 py-2 text-left ${
+              isActive ? 'active' : ''
+            } ${!isVisibleInNav ? 'opacity-50' : ''}`}
+          >
+            <Icon className="w-4 h-4 flex-shrink-0" />
+            <span className="font-medium text-sm">{viewTypeLabels[viewType].label}</span>
+          </button>
         </div>
-        <button
-          onClick={onSelect}
-          className={`btn-playful-nav flex-1 flex items-center gap-3 px-3 py-2 text-left ${
-            isActive ? 'active' : ''
-          } ${!isVisibleInNav ? 'opacity-50' : ''}`}
-        >
-          <Icon className="w-4 h-4 flex-shrink-0" />
-          <span className="font-medium text-sm">{viewTypeLabels[viewType].label}</span>
-        </button>
         <button
           onClick={onToggleVisibility}
           disabled={isUpdating}
-          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors flex-shrink-0 ${
+          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors flex-shrink-0 self-start md:self-center ${
             isVisibleInNav ? 'bg-primary-500' : 'bg-gray-300'
           } disabled:opacity-50 disabled:cursor-not-allowed`}
           title={isVisibleInNav ? t('views.hide') || 'Skrýt v navigaci' : t('views.show') || 'Zobrazit v navigaci'}

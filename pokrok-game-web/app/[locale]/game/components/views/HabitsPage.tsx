@@ -34,17 +34,23 @@ export function HabitsPage({
   const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
   const habitsPageTimelineContainerRef = useRef<HTMLDivElement>(null)
   
-  // Calculate visible days based on container width
+  // Set visible days to 5 for mobile, calculate for desktop
   useEffect(() => {
     const calculateVisibleDays = () => {
-      if (habitsPageTimelineContainerRef.current) {
-        const containerWidth = habitsPageTimelineContainerRef.current.offsetWidth
-        // Each day is 32px wide + 4px gap (gap-1) = 36px total per day
-        // Subtract space for habit name column (150px) + settings icon (32px) + gap (8px) = 190px
-        const availableWidth = containerWidth - 190
-        const daysThatFit = Math.floor(availableWidth / 36)
-        const newVisibleDays = Math.max(7, daysThatFit) // Minimum 7 days
-        setHabitsPageVisibleDays(newVisibleDays)
+      if (typeof window !== 'undefined' && window.innerWidth < 768) {
+        // Mobile: always show 5 days
+        setHabitsPageVisibleDays(5)
+      } else {
+        // Desktop: calculate based on container width
+        if (habitsPageTimelineContainerRef.current) {
+          const containerWidth = habitsPageTimelineContainerRef.current.offsetWidth
+          // Each day is 32px wide + 4px gap (gap-1) = 36px total per day
+          // Subtract space for habit name column (190px)
+          const availableWidth = containerWidth - 190
+          const daysThatFit = Math.floor(availableWidth / 36)
+          const newVisibleDays = Math.max(7, daysThatFit) // Minimum 7 days
+          setHabitsPageVisibleDays(newVisibleDays)
+        }
       }
     }
     
@@ -229,7 +235,7 @@ export function HabitsPage({
   }
   
   return (
-    <div className="w-full min-h-full flex flex-col bg-primary-50 p-6">
+    <div className="w-full min-h-full flex flex-col bg-primary-50 p-4 md:p-6">
       {/* Statistics section */}
       <div className="mb-6">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -299,7 +305,7 @@ export function HabitsPage({
         </div>
         
         {/* Timeline with month, dates, and boxes for all habits */}
-        <div ref={habitsPageTimelineContainerRef} className="w-full">
+        <div ref={habitsPageTimelineContainerRef} className="w-full overflow-x-auto scrollbar-hide -mx-4 px-4">
           {/* Month row - positioned around middle of month */}
           <div className="flex mb-2 relative" style={{ height: '24px' }}>
             {(() => {
@@ -343,8 +349,10 @@ export function HabitsPage({
                 adjustedIndex = Math.max(timelineDates.length - 1 - edgeThreshold, 0)
               }
               
-              // Position month label accounting for habit name column (150px) + settings icon (32px) + gap (8px) = 190px
-              const position = 190 + adjustedIndex * 36 + 16
+              // Position month label accounting for habit name column - responsive width
+              // Mobile: 140px, Desktop: 190px
+              const positionMobile = 140 + adjustedIndex * 36 + 16
+              const positionDesktop = 190 + adjustedIndex * 36 + 16
               
               const monthNames = localeCode === 'cs-CZ' 
                 ? ['Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen', 'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec']
@@ -353,23 +361,34 @@ export function HabitsPage({
               const monthName = monthNames[targetMonth]
               
               return (
-                <div 
-                  className="text-sm font-medium text-gray-700 absolute"
-                  style={{ 
-                    left: `${position}px`,
-                    transform: 'translateX(-50%)'
-                  }}
-                >
-                  {monthName}
-                </div>
+                <>
+                  <div 
+                    className="text-sm font-medium text-gray-700 absolute md:hidden"
+                    style={{ 
+                      left: `${positionMobile}px`,
+                      transform: 'translateX(-50%)'
+                    }}
+                  >
+                    {monthName}
+                  </div>
+                  <div 
+                    className="hidden md:block text-sm font-medium text-gray-700 absolute"
+                    style={{ 
+                      left: `${positionDesktop}px`,
+                      transform: 'translateX(-50%)'
+                    }}
+                  >
+                    {monthName}
+                  </div>
+                </>
               )
             })()}
           </div>
           
-          {/* Dates row - aligned with boxes (after habit name column + settings icon) */}
-          <div className="flex gap-2 mb-2 relative">
-            {/* Spacer for habit name column (150px) + settings icon (32px) + gap (8px) = 190px */}
-            <div className="w-[190px] flex-shrink-0"></div>
+          {/* Dates row - aligned with boxes (after habit name column) */}
+          <div className="flex gap-1 mb-2 relative min-w-max">
+            {/* Spacer for habit name column - responsive width */}
+            <div className="w-[140px] md:w-[190px] flex-shrink-0"></div>
             
             {/* Dates aligned with boxes */}
             <div className="flex gap-1">
@@ -433,24 +452,16 @@ export function HabitsPage({
             }).map((habit) => {
               const isSelected = selectedHabitId === habit.id
               return (
-                <div key={habit.id} className="flex items-center gap-2">
-                  {/* Habit name and settings icon container - fixed width to match dates spacer */}
-                  <div className="w-[190px] flex items-center gap-2 flex-shrink-0">
+                <div key={habit.id} className="flex flex-col md:flex-row items-start md:items-center gap-1 min-w-max w-full">
+                  {/* Habit name container - responsive width to match dates spacer */}
+                  <div className="w-[140px] md:w-[190px] flex items-center gap-2 flex-shrink-0">
                     <div className="text-left text-sm font-medium text-gray-700 truncate flex-1 min-w-0" title={habit.name}>
                       {habit.name}
                     </div>
-                    {/* Settings icon button */}
-                    <button
-                      onClick={() => handleOpenHabitModal(habit)}
-                      className="btn-playful-base p-1.5 flex-shrink-0"
-                      title={t('habits.settings') || 'Nastavení'}
-                    >
-                      <Settings className="w-4 h-4 text-black" />
-                    </button>
                   </div>
                   
                   {/* Boxes row */}
-                  <div className="flex gap-1 relative">
+                  <div className="flex gap-1 relative flex-1 min-w-0">
                     {timelineDates.map((date, index) => {
                       const dateStr = getLocalDateString(date)
                       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
@@ -498,6 +509,15 @@ export function HabitsPage({
                       )
                     })}
                   </div>
+                  
+                  {/* Settings icon button - positioned to the right */}
+                  <button
+                    onClick={() => handleOpenHabitModal(habit)}
+                    className="btn-playful-base p-1.5 flex-shrink-0 ml-auto"
+                    title={t('habits.settings') || 'Nastavení'}
+                  >
+                    <Settings className="w-4 h-4 text-black" />
+                  </button>
                 </div>
               )
             })}

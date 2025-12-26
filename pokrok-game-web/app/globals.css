@@ -80,6 +80,16 @@
   scrollbar-color: rgba(232, 135, 30, 0.3) transparent;
 }
 
+/* Hide scrollbar utility class */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
   /* Playful Button Base Styles - Simple, flat design */
   @layer components {
     .btn-playful-base {
@@ -167,7 +177,7 @@
   .btn-playful-nav.active {
     background-color: transparent;
     color: #000000; /* Black text for contrast */
-    border-bottom: 2px solid var(--color-primary-500, #E8871E); /* Primary color underline across full width */
+    border: 2px solid var(--color-primary-500, #E8871E); /* Primary color border around entire button */
   }
   
   .btn-playful-nav.active:hover {

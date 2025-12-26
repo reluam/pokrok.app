@@ -234,9 +234,11 @@ export function DayView({
   }
   
   return (
-    <div className="w-full h-full flex flex-col overflow-y-auto p-6 space-y-6" style={{ minHeight: 0 }}>
-      {/* Header with date and navigation */}
-      <div className="flex-shrink-0">
+    <div className="w-full h-full flex flex-col" style={{ minHeight: 0 }}>
+      <div className="flex-1 overflow-y-auto">
+        <div className="flex flex-col py-6 px-6 space-y-6">
+        {/* Header with date and navigation */}
+        <div className="flex-shrink-0">
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={goToPreviousDay}
@@ -372,6 +374,8 @@ export function DayView({
           visibleSections={visibleSections}
         />
       )}
+        </div>
+      </div>
     </div>
   )
 }
