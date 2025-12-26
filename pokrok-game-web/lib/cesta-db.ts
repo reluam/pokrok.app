@@ -195,8 +195,8 @@ export interface GoalMetric {
   goal_id: string
   name: string
   description?: string
-  type: 'number' | 'currency' | 'percentage' | 'distance' | 'time' | 'custom'
-  unit: string
+  type: 'number' | 'currency' | 'percentage' | 'distance' | 'time' | 'weight' | 'custom'
+  unit: string | null
   target_value: number
   current_value: number
   initial_value: number
@@ -2745,7 +2745,7 @@ export async function createGoalMetric(metricData: Omit<GoalMetric, 'id' | 'crea
             name VARCHAR(255) NOT NULL,
             description TEXT,
             type VARCHAR(20) NOT NULL CHECK (type IN ('number', 'currency', 'percentage', 'distance', 'time', 'weight', 'custom')),
-            unit VARCHAR(50) NOT NULL,
+            unit VARCHAR(50),
             target_value DECIMAL(10,2) NOT NULL,
             current_value DECIMAL(10,2) DEFAULT 0,
             initial_value DECIMAL(10,2) DEFAULT 0,

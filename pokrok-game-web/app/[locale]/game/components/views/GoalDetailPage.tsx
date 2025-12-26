@@ -732,49 +732,99 @@ export function GoalDetailPage({
                 
                 // Add metrics progress bars
                 if (metrics && metrics.length > 0) {
-                  const groupedMetrics = groupMetricsByUnits(metrics)
-                  
-                  groupedMetrics.forEach((group, index) => {
-                    const range = group.totalTarget - group.totalInitial
-                    let progress = 0
-                    if (range === 0) {
-                      progress = group.totalCurrent >= group.totalTarget ? 100 : 0
-                    } else if (range > 0) {
-                      progress = Math.min(Math.max(((group.totalCurrent - group.totalInitial) / range) * 100, 0), 100)
-                    } else {
-                      progress = Math.min(Math.max(((group.totalInitial - group.totalCurrent) / Math.abs(range)) * 100, 0), 100)
-                    }
-                    
-                    // Format number with decimals if needed (show up to 1 decimal place)
-                    const formatNumber = (value: number): string => {
-                      const rounded = Math.round(value * 10) / 10
-                      if (rounded % 1 === 0) return rounded.toString()
-                      return rounded.toFixed(1)
-                    }
-                    
-                    const metricNames = group.metrics.length > 1 
-                      ? group.metrics.map(m => m.name).join(' + ')
-                      : group.metrics[0].name
-                    
-                    progressBars.push(
-                      <div key={`metric-${group.unit}-${index}`} className="space-y-1">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600 font-playful">
-                            {metricNames} ({formatNumber(group.totalCurrent)} {group.unit} / {formatNumber(group.totalTarget)} {group.unit})
-                          </span>
-                          <span className="text-gray-500 font-playful text-xs">
-                            {Math.round(progress)}%
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-100 border border-gray-300 rounded-playful-sm h-2 overflow-hidden">
-                          <div 
-                            className="bg-gray-400 h-full rounded-playful-sm transition-all duration-300"
-                            style={{ width: `${Math.round(progress)}%` }}
-                          />
-                        </div>
-                      </div>
-                    )
+                  // Separate metrics by direction: increasing (target > initial) vs decreasing (target < initial)
+                  const increasingMetrics = metrics.filter((m: any) => {
+                    const target = parseFloat(m.target_value || 0)
+                    const initial = parseFloat(m.initial_value || 0)
+                    return target > initial
                   })
+                  
+                  const decreasingMetrics = metrics.filter((m: any) => {
+                    const target = parseFloat(m.target_value || 0)
+                    const initial = parseFloat(m.initial_value || 0)
+                    return target < initial
+                  })
+                  
+                  // Format number with decimals if needed (show up to 1 decimal place)
+                  const formatNumber = (value: number): string => {
+                    const rounded = Math.round(value * 10) / 10
+                    if (rounded % 1 === 0) return rounded.toString()
+                    return rounded.toFixed(1)
+                  }
+                  
+                  // Process increasing metrics
+                  if (increasingMetrics.length > 0) {
+                    const groupedIncreasing = groupMetricsByUnits(increasingMetrics)
+                    groupedIncreasing.forEach((group, index) => {
+                      const range = group.totalTarget - group.totalInitial
+                      let progress = 0
+                      if (range === 0) {
+                        progress = group.totalCurrent >= group.totalTarget ? 100 : 0
+                      } else {
+                        progress = Math.min(Math.max(((group.totalCurrent - group.totalInitial) / range) * 100, 0), 100)
+                      }
+                      
+                      const metricNames = group.metrics.length > 1 
+                        ? group.metrics.map(m => m.name).join(' + ')
+                        : group.metrics[0].name
+                      
+                      progressBars.push(
+                        <div key={`metric-increasing-${group.unit}-${index}`} className="space-y-1">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-600 font-playful">
+                              {metricNames} ({formatNumber(group.totalCurrent)}{group.unit ? ` ${group.unit}` : ''} / {formatNumber(group.totalTarget)}{group.unit ? ` ${group.unit}` : ''})
+                            </span>
+                            <span className="text-gray-500 font-playful text-xs">
+                              {Math.round(progress)}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-100 border border-gray-300 rounded-playful-sm h-2 overflow-hidden">
+                            <div 
+                              className="bg-gray-400 h-full rounded-playful-sm transition-all duration-300"
+                              style={{ width: `${Math.round(progress)}%` }}
+                            />
+                          </div>
+                        </div>
+                      )
+                    })
+                  }
+                  
+                  // Process decreasing metrics
+                  if (decreasingMetrics.length > 0) {
+                    const groupedDecreasing = groupMetricsByUnits(decreasingMetrics)
+                    groupedDecreasing.forEach((group, index) => {
+                      const range = group.totalInitial - group.totalTarget // Note: reversed for decreasing
+                      let progress = 0
+                      if (range === 0) {
+                        progress = group.totalCurrent <= group.totalTarget ? 100 : 0
+                      } else {
+                        progress = Math.min(Math.max(((group.totalInitial - group.totalCurrent) / range) * 100, 0), 100)
+                      }
+                      
+                      const metricNames = group.metrics.length > 1 
+                        ? group.metrics.map(m => m.name).join(' + ')
+                        : group.metrics[0].name
+                      
+                      progressBars.push(
+                        <div key={`metric-decreasing-${group.unit}-${index}`} className="space-y-1">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-600 font-playful">
+                              {metricNames} ({formatNumber(group.totalCurrent)}{group.unit ? ` ${group.unit}` : ''} / {formatNumber(group.totalTarget)}{group.unit ? ` ${group.unit}` : ''})
+                            </span>
+                            <span className="text-gray-500 font-playful text-xs">
+                              {Math.round(progress)}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-100 border border-gray-300 rounded-playful-sm h-2 overflow-hidden">
+                            <div 
+                              className="bg-gray-400 h-full rounded-playful-sm transition-all duration-300"
+                              style={{ width: `${Math.round(progress)}%` }}
+                            />
+                          </div>
+                        </div>
+                      )
+                    })
+                  }
                 }
                 
                 if (progressBars.length === 0) return null
@@ -1897,6 +1947,11 @@ export function GoalDetailPage({
           setEditingMetricInitialValue(0)
         }}
         onSave={async () => {
+          // Convert empty string to null for unit if type is 'number'
+          const unitValue = (editingMetricType === 'number' && (!editingMetricUnit || editingMetricUnit === '')) 
+            ? null 
+            : editingMetricUnit || null
+          
           if (metricModalData.id) {
             await handleMetricUpdate(metricModalData.id, goalId, {
               name: editingMetricName,
@@ -1905,9 +1960,14 @@ export function GoalDetailPage({
               targetValue: editingMetricTargetValue,
               initialValue: editingMetricInitialValue,
               incrementalValue: editingMetricIncrementalValue,
-              unit: editingMetricUnit
+              unit: unitValue
             })
           } else {
+            // Convert empty string to null for unit if type is 'number'
+            const createUnitValue = (editingMetricType === 'number' && (!editingMetricUnit || editingMetricUnit === '')) 
+              ? null 
+              : editingMetricUnit || null
+            
             await handleMetricCreate(goalId, {
               name: editingMetricName,
               type: editingMetricType,
@@ -1915,7 +1975,7 @@ export function GoalDetailPage({
               targetValue: editingMetricTargetValue,
               initialValue: editingMetricInitialValue,
               incrementalValue: editingMetricIncrementalValue,
-              unit: editingMetricUnit
+              unit: createUnitValue
             })
           }
           setShowMetricModal(false)

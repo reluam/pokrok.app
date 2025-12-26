@@ -112,11 +112,15 @@ export function getDefaultCurrencyByLocale(locale: string): string {
     'zh-CN': 'USD',
   }
   
-  return localeToCurrency[locale] || 'USD'
+  return localeToCurrency[locale] || localeToCurrency[locale.split('-')[0]] || 'USD'
 }
 
 // Check if two units are compatible (same unit or convertible)
-export function areUnitsCompatible(unit1: string, unit2: string): boolean {
+export function areUnitsCompatible(unit1: string | null | undefined, unit2: string | null | undefined): boolean {
+  // Both null/empty are compatible
+  if ((!unit1 || unit1 === '') && (!unit2 || unit2 === '')) return true
+  // If one is null/empty and other is not, they're not compatible
+  if ((!unit1 || unit1 === '') || (!unit2 || unit2 === '')) return false
   if (unit1 === unit2) return true
   
   // Weight conversions (kg <-> lbs)
@@ -234,14 +238,14 @@ export function getBestDisplayUnit(units: string[]): string {
 
 // Group metrics by compatible units
 export interface GroupedMetric {
-  unit: string
+  unit: string | null
   metrics: Array<{
     id: string
     name: string
     current_value: number
     target_value: number
     initial_value: number
-    unit: string
+    unit: string | null
   }>
   totalCurrent: number
   totalTarget: number
@@ -254,16 +258,19 @@ export function groupMetricsByUnits(metrics: Array<{
   current_value: number
   target_value: number
   initial_value: number
-  unit: string
+  unit: string | null
 }>): GroupedMetric[] {
   const groups: Map<string, GroupedMetric> = new Map()
   
   for (const metric of metrics) {
+    // Normalize unit (null/empty becomes empty string for grouping)
+    const normalizedUnit = metric.unit || ''
+    
     // Find compatible group or create new one
     let groupKey: string | null = null
     const groupKeys = Array.from(groups.keys())
     for (const key of groupKeys) {
-      if (areUnitsCompatible(metric.unit, key)) {
+      if (areUnitsCompatible(normalizedUnit, key)) {
         groupKey = key
         break
       }
@@ -271,9 +278,9 @@ export function groupMetricsByUnits(metrics: Array<{
     
     if (!groupKey) {
       // Create new group with this unit
-      groupKey = metric.unit
+      groupKey = normalizedUnit
       groups.set(groupKey, {
-        unit: metric.unit,
+        unit: normalizedUnit || null,
         metrics: [],
         totalCurrent: 0,
         totalTarget: 0,
@@ -287,9 +294,12 @@ export function groupMetricsByUnits(metrics: Array<{
     group.metrics.push(metric)
     
     // Convert metric values to group's unit and add to totals
-    const convertedCurrent = convertUnit(metric.current_value, metric.unit, group.unit)
-    const convertedTarget = convertUnit(metric.target_value, metric.unit, group.unit)
-    const convertedInitial = convertUnit(metric.initial_value || 0, metric.unit, group.unit)
+    // If units are null/empty, no conversion needed
+    const fromUnit = metric.unit || ''
+    const toUnit = group.unit || ''
+    const convertedCurrent = fromUnit && toUnit ? convertUnit(metric.current_value, fromUnit, toUnit) : metric.current_value
+    const convertedTarget = fromUnit && toUnit ? convertUnit(metric.target_value, fromUnit, toUnit) : metric.target_value
+    const convertedInitial = fromUnit && toUnit ? convertUnit(metric.initial_value || 0, fromUnit, toUnit) : (metric.initial_value || 0)
     
     group.totalCurrent += convertedCurrent
     group.totalTarget += convertedTarget
@@ -302,15 +312,21 @@ export function groupMetricsByUnits(metrics: Array<{
   for (const group of groupValues) {
     if (group.metrics.length > 1) {
       // Multiple metrics in group - convert to best unit
-      const units = group.metrics.map(m => m.unit)
-      const bestUnit = getBestDisplayUnit(units)
-      
-      if (bestUnit !== group.unit) {
-        // Convert totals to best unit
-        group.totalCurrent = convertUnit(group.totalCurrent, group.unit, bestUnit)
-        group.totalTarget = convertUnit(group.totalTarget, group.unit, bestUnit)
-        group.totalInitial = convertUnit(group.totalInitial, group.unit, bestUnit)
-        group.unit = bestUnit
+      const units = group.metrics.map(m => m.unit).filter((u): u is string => !!u)
+      if (units.length > 0) {
+        const bestUnit = getBestDisplayUnit(units)
+        
+        if (bestUnit !== group.unit) {
+          // Convert totals to best unit
+          const fromUnit = group.unit || ''
+          const toUnit = bestUnit
+          if (fromUnit && toUnit) {
+            group.totalCurrent = convertUnit(group.totalCurrent, fromUnit, toUnit)
+            group.totalTarget = convertUnit(group.totalTarget, fromUnit, toUnit)
+            group.totalInitial = convertUnit(group.totalInitial, fromUnit, toUnit)
+            group.unit = bestUnit
+          }
+        }
       }
     }
     result.push(group)
@@ -318,4 +334,3 @@ export function groupMetricsByUnits(metrics: Array<{
   
   return result
 }
-

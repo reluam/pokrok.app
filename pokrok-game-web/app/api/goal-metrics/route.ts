@@ -74,7 +74,9 @@ export async function POST(request: NextRequest) {
 
     console.log('POST /api/goal-metrics - Request data:', { goalId, name, description, type, unit, targetValue, currentValue, initialValue, incrementalValue })
 
-    if (!goalId || !name || !type || !unit || targetValue === undefined) {
+    // Unit is required for all types except 'number'
+    const unitRequired = type !== 'number'
+    if (!goalId || !name || !type || (unitRequired && !unit) || targetValue === undefined) {
       console.error('POST /api/goal-metrics - Missing required fields:', { goalId, name, type, unit, targetValue })
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
@@ -142,6 +144,23 @@ export async function POST(request: NextRequest) {
           console.warn('POST /api/goal-metrics - Could not update type constraint:', e?.message)
         }
         
+        // Check if unit column allows NULL, if not modify it
+        try {
+          const columnCheck = await sql`
+            SELECT is_nullable 
+            FROM information_schema.columns 
+            WHERE table_name = 'goal_metrics' AND column_name = 'unit'
+          `
+          
+          if (columnCheck.length > 0 && columnCheck[0]?.is_nullable === 'NO') {
+            console.log('POST /api/goal-metrics - Modifying unit column to allow NULL...')
+            await sql`ALTER TABLE goal_metrics ALTER COLUMN unit DROP NOT NULL`
+            console.log('POST /api/goal-metrics - unit column modified to allow NULL successfully')
+          }
+        } catch (e: any) {
+          console.warn('POST /api/goal-metrics - Could not modify unit column to allow NULL:', e?.message)
+        }
+        
         if (missingColumns.length > 0 && missingColumns.filter(col => col !== 'initial_value').length > 0) {
           console.log('POST /api/goal-metrics - Missing columns detected:', missingColumns)
           console.log('POST /api/goal-metrics - Recreating table with correct structure...')
@@ -155,7 +174,7 @@ export async function POST(request: NextRequest) {
               name VARCHAR(255) NOT NULL,
               description TEXT,
               type VARCHAR(20) NOT NULL CHECK (type IN ('number', 'currency', 'percentage', 'distance', 'time', 'weight', 'custom')),
-              unit VARCHAR(50) NOT NULL,
+              unit VARCHAR(50),
               target_value DECIMAL(10,2) NOT NULL,
               current_value DECIMAL(10,2) DEFAULT 0,
               initial_value DECIMAL(10,2) DEFAULT 0,
@@ -185,7 +204,7 @@ export async function POST(request: NextRequest) {
       name,
       description,
       type,
-      unit,
+      unit: unit || null, // Allow null for 'number' type
       target_value: targetValue,
       current_value: currentValue || 0,
       initial_value: initialValue ?? 0,
