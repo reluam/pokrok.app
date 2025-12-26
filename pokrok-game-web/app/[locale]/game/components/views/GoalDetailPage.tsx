@@ -811,11 +811,12 @@ export function GoalDetailPage({
                     return target < initial
                   })
                   
-                  // Format number with decimals if needed (show up to 1 decimal place)
+                  // Format number with decimals if needed (show up to 1 decimal place) and thousand separators
                   const formatNumber = (value: number): string => {
                     const rounded = Math.round(value * 10) / 10
-                    if (rounded % 1 === 0) return rounded.toString()
-                    return rounded.toFixed(1)
+                    const numberStr = rounded % 1 === 0 ? rounded.toString() : rounded.toFixed(1)
+                    // Add thousand separators (spaces)
+                    return numberStr.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
                   }
                   
                   // Process increasing metrics
