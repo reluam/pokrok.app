@@ -69,6 +69,9 @@ export async function POST(request: NextRequest) {
     `
     const maxOrder = maxOrderResult[0]?.max_order || 0
     
+    // Set start_date to today for new habits
+    const startDate = new Date().toISOString().split('T')[0]
+    
     const habitData = {
       user_id: dbUser.id,
       name,
@@ -88,6 +91,7 @@ export async function POST(request: NextRequest) {
       area_id: areaId || null,
       icon: icon || null,
       order: order !== undefined ? order : maxOrder + 1,
+      start_date: startDate,
       habit_completions: {}
     }
 

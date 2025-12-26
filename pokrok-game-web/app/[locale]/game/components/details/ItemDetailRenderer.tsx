@@ -664,14 +664,16 @@ export function ItemDetailRenderer({
                       const dayName = dayNames[date.getDay()]
                       const isScheduled = item.selected_days && item.selected_days.includes(dayName)
                       
-                      // Check if this date is after user account creation (not habit creation)
-                      const userCreatedDateFull = new Date(player?.created_at || '2024-01-01')
-                      const userCreatedDate = new Date(userCreatedDateFull.getFullYear(), userCreatedDateFull.getMonth(), userCreatedDateFull.getDate())
-                      const isAfterUserCreation = date >= userCreatedDate
+                      // Check if this date is after habit start_date (or created_at if start_date not set)
+                      const habitStartDateStr = (item as any).start_date || item.created_at
+                      const habitStartDateFull = new Date(habitStartDateStr || '2024-01-01')
+                      const habitStartDate = new Date(habitStartDateFull.getFullYear(), habitStartDateFull.getMonth(), habitStartDateFull.getDate())
+                      const isAfterHabitStart = date >= habitStartDate
                       
                       // Determine day state based on new logic
                       // For past days (before today), only show "completed" or "missed"
                       // If scheduled but not completed in the past, automatically show as "missed"
+                      // But only if date is after habit start_date
                       let dayState = 'not-planned' // default
                       let className = 'text-center text-xs py-1 rounded transition-all duration-200 '
                       let onClick = () => {}
@@ -690,9 +692,10 @@ export function ItemDetailRenderer({
                         onClick = () => {
                           handleHabitCalendarToggle(item.id, dateKey, 'missed', isScheduled)
                         }
-                      } else if (isPast && isAfterUserCreation) {
+                      } else if (isPast && isAfterHabitStart) {
                         // Past days: if scheduled but not completed, show as "missed"
                         // If not scheduled and not completed, also show as "missed" (user can mark as completed)
+                        // Only if date is after habit start_date
                         dayState = 'missed'
                         className += 'bg-red-200 text-red-800 hover:bg-red-300 cursor-pointer'
                         onClick = () => {
@@ -713,16 +716,16 @@ export function ItemDetailRenderer({
                         onClick = () => {
                           handleHabitCalendarToggle(item.id, dateKey, isCompleted ? 'completed' : isMissed ? 'missed' : isScheduled ? 'planned' : 'not-scheduled', isScheduled)
                         }
-                      } else if (isScheduled && isAfterUserCreation && isFuture) {
+                      } else if (isScheduled && isAfterHabitStart && isFuture) {
                         // 4b. Budoucí naplánovaný den - světle šedě (nelze kliknout)
                         dayState = 'planned-future'
                         className += 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      } else if (isAfterUserCreation && isFuture) {
+                      } else if (isAfterHabitStart && isFuture) {
                         // 5b. Budoucí nenaplánovaný den - šedě (nelze kliknout)
                         dayState = 'not-scheduled-future'
                         className += 'bg-gray-200 text-gray-400 cursor-not-allowed'
                       } else {
-                        // Ostatní případy - velmi světle šedě (před vytvořením účtu)
+                        // Ostatní případy - velmi světle šedě (před start_date návyku)
                         dayState = 'inactive'
                         className += 'bg-gray-50 text-gray-300 cursor-not-allowed'
                       }

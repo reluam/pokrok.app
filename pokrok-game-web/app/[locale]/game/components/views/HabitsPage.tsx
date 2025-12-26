@@ -123,11 +123,14 @@ export function HabitsPage({
         return habit.habit_completions && habit.habit_completions[dateStr] === true
       }
       
-      // Get start date (created_at or earliest completion, whichever is earlier)
-      const startDate = getHabitStartDate(habit)
+      // Get start date from database (start_date field), not from earliest completion
+      // This ensures we only count from when the habit was actually created/started
+      const habitStartDateStr = (habit as any).start_date || habit.created_at
+      const habitStartDate = new Date(habitStartDateStr)
+      habitStartDate.setHours(0, 0, 0, 0)
       
-      // Go from start date to today
-      const currentDate = new Date(startDate)
+      // Go from start date to today (only count days after start_date)
+      const currentDate = new Date(habitStartDate)
       while (currentDate <= today) {
         const date = new Date(currentDate)
         const isScheduled = checkHabitScheduled(date)
@@ -148,7 +151,6 @@ export function HabitsPage({
       // Calculate current streak (backwards from today)
       // Streak continues if there's no scheduled missed day
       // Splnění v nenaplánovaný den se nepočítá do streak, ale do celkově splněných
-      const habitStartDate = getHabitStartDate(habit)
       let streakDate = new Date(today)
       streakDate.setHours(0, 0, 0, 0)
       const habitStartDateNormalized = new Date(habitStartDate)

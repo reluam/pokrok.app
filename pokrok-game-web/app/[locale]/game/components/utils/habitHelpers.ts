@@ -127,9 +127,17 @@ function isDayOfWeekInMonth(day: Date, week: string, dayOfWeek: string): boolean
 
 /**
  * Get the start date for habit statistics calculation
- * Uses created_at or the earliest completion date, whichever is earlier
+ * Uses start_date from database if available, otherwise created_at or the earliest completion date, whichever is earlier
  */
 export function getHabitStartDate(habit: any): Date {
+  // First check if habit has start_date set (from database)
+  if (habit.start_date) {
+    const startDate = new Date(habit.start_date)
+    startDate.setHours(0, 0, 0, 0)
+    return startDate
+  }
+  
+  // Fallback to created_at or earliest completion date
   const createdDate = habit.created_at ? new Date(habit.created_at) : new Date()
   createdDate.setHours(0, 0, 0, 0)
   

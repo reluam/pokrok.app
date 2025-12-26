@@ -139,13 +139,24 @@ export function DayView({
   const dayName = dayNames[dayOfWeek]
   
   // Filter habits for display - includes always_show habits even if not scheduled
+  // Show habits even if before start_date (for viewing past dates), but they won't be counted in stats
   const todaysHabits = habits.filter(habit => {
     return isHabitScheduledForDay(habit, displayDate)
   })
   
   // Filter habits for progress calculation - only habits actually scheduled for this day
   // Always_show habits are only counted if they are also scheduled for this day
+  // Also check if habit has started (date is after or equal to start_date)
   const habitsForProgress = habits.filter(habit => {
+    // Check if habit has started
+    const habitStartDateStr = (habit as any).start_date || habit.created_at
+    if (habitStartDateStr) {
+      const habitStartDate = new Date(habitStartDateStr)
+      habitStartDate.setHours(0, 0, 0, 0)
+      if (displayDate < habitStartDate) {
+        return false // Habit hasn't started yet, don't count it
+      }
+    }
     // Check if scheduled for selected day
     if (habit.frequency === 'daily') return true
     if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
@@ -305,20 +316,36 @@ export function DayView({
               const isCompleted = habit.habit_completions && habit.habit_completions[displayDateStr] === true
               const isLoading = loadingHabits.has(`${habit.id}-${displayDateStr}`)
               
+              // Check if habit has started (date is after or equal to start_date)
+              const habitStartDateStr = (habit as any).start_date || habit.created_at
+              let isAfterHabitStart = true
+              if (habitStartDateStr) {
+                const habitStartDate = new Date(habitStartDateStr)
+                habitStartDate.setHours(0, 0, 0, 0)
+                isAfterHabitStart = displayDate >= habitStartDate
+              }
+              
               return (
                 <div
                   key={habit.id}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-playful-md border-2 transition-all bg-white cursor-pointer hover:border-primary-300"
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-playful-md border-2 transition-all cursor-pointer hover:border-primary-300 ${
+                    isAfterHabitStart ? 'bg-white' : 'bg-gray-50'
+                  }`}
                   style={{
                     borderColor: isCompleted ? 'var(--color-primary-500)' : '#d1d5db',
                     boxShadow: isCompleted 
                       ? '0 2px 8px rgba(249, 115, 22, 0.2) !important'
-                      : '0 2px 8px rgba(249, 115, 22, 0.15) !important'
+                      : '0 2px 8px rgba(249, 115, 22, 0.15) !important',
+                    opacity: isAfterHabitStart ? 1 : 0.7
                   }}
                   onClick={() => handleItemClick(habit, 'habit')}
                 >
                   <span className={`text-xs font-medium whitespace-nowrap ${
-                    isCompleted ? 'text-primary-800 line-through' : 'text-black'
+                    isCompleted 
+                      ? 'text-primary-800 line-through' 
+                      : isAfterHabitStart 
+                        ? 'text-black' 
+                        : 'text-gray-500'
                   }`}>
                     {habit.name}
                   </span>
@@ -333,9 +360,11 @@ export function DayView({
                     className={`flex-shrink-0 w-6 h-6 rounded-playful-sm flex items-center justify-center transition-all border-2 ${
                       isCompleted
                         ? 'bg-primary-100 border-primary-500 hover:bg-primary-200 cursor-pointer'
-                        : 'bg-white border-primary-500 hover:bg-primary-50 cursor-pointer'
+                        : isAfterHabitStart
+                          ? 'bg-white border-primary-500 hover:bg-primary-50 cursor-pointer'
+                          : 'bg-gray-50 border-gray-400 hover:bg-gray-100 cursor-pointer'
                     }`}
-                    title={isCompleted ? 'Splněno' : 'Klikni pro splnění'}
+                    title={isCompleted ? 'Splněno - klikni pro zrušení' : 'Klikni pro splnění'}
                   >
                     {isLoading ? (
                       <svg className="animate-spin h-3 w-3 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

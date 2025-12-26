@@ -89,7 +89,20 @@ export function Timeline({
       const dayName = dayNames[dayOfWeek]
       
       // Filter habits for this date
+      // Also check if habit has started (date is after or equal to start_date)
+      const dateObj = new Date(date)
+      dateObj.setHours(0, 0, 0, 0)
       const dayHabits = habits.filter(habit => {
+        // Check if habit has started
+        const habitStartDateStr = (habit as any).start_date || habit.created_at
+        if (habitStartDateStr) {
+          const habitStartDate = new Date(habitStartDateStr)
+          habitStartDate.setHours(0, 0, 0, 0)
+          if (dateObj < habitStartDate) {
+            return false // Habit hasn't started yet, don't count it
+          }
+        }
+        // Check if scheduled for this day
         if (habit.frequency === 'daily') return true
         if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
         return false

@@ -173,7 +173,19 @@ export function UnifiedDayView({
       completedSteps += daySteps.filter(s => s.completed).length
       
       // Count habits - use helper function
+      // Also check if habit has started (date is after or equal to start_date)
+      const dayDate = new Date(day)
+      dayDate.setHours(0, 0, 0, 0)
       const dayHabits = habits.filter(habit => {
+        // Check if habit has started
+        const habitStartDateStr = (habit as any).start_date || habit.created_at
+        if (habitStartDateStr) {
+          const habitStartDate = new Date(habitStartDateStr)
+          habitStartDate.setHours(0, 0, 0, 0)
+          if (dayDate < habitStartDate) {
+            return false // Habit hasn't started yet, don't count it
+          }
+        }
         return isHabitScheduledForDay(habit, day)
       })
       totalHabits += dayHabits.length

@@ -33,7 +33,18 @@ export function QuickOverviewWidget({
   
   // Filter habits for progress calculation - only habits actually scheduled for this day
   // Always_show habits are only counted if they are also scheduled for this day
+  // Also check if habit has started (date is after or equal to start_date)
   const habitsForProgress = habits.filter(habit => {
+    // Check if habit has started (date is after or equal to start_date)
+    const habitStartDateStr = (habit as any).start_date || habit.created_at
+    if (habitStartDateStr) {
+      const habitStartDate = new Date(habitStartDateStr)
+      habitStartDate.setHours(0, 0, 0, 0)
+      if (displayDate < habitStartDate) {
+        return false // Habit hasn't started yet, don't count it
+      }
+    }
+    
     // Check if scheduled for selected day using isHabitScheduledForDay for proper frequency handling
     // But exclude always_show habits that aren't actually scheduled
     const isScheduled = isHabitScheduledForDay(habit, displayDate)

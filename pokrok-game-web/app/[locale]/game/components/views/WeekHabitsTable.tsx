@@ -122,12 +122,28 @@ export function WeekHabitsTable({
       
       {/* Desktop: Habits list with completion squares */}
       <div className="hidden md:block space-y-2">
-        {weekHabits.map((habit) => (
+        {weekHabits.map((habit) => {
+          // Check if habit has started (check if any day in week is after or equal to start_date)
+          const habitStartDateStr = (habit as any).start_date || habit.created_at
+          let isHabitStarted = true
+          if (habitStartDateStr) {
+            const habitStartDate = new Date(habitStartDateStr)
+            habitStartDate.setHours(0, 0, 0, 0)
+            // Check if any day in the week is after or equal to start_date
+            const weekEndDate = weekDays[weekDays.length - 1]
+            isHabitStarted = weekEndDate >= habitStartDate
+          }
+          
+          return (
           <div key={habit.id} className="flex items-center gap-2">
             {/* Habit name */}
             <button
               onClick={() => onHabitClick?.(habit)}
-              className="w-[132px] text-left text-sm font-medium text-gray-700 hover:text-orange-600 transition-colors truncate flex-shrink-0"
+              className={`w-[132px] text-left text-sm font-medium truncate flex-shrink-0 transition-colors ${
+                isHabitStarted 
+                  ? 'text-gray-700 hover:text-orange-600' 
+                  : 'text-gray-400 opacity-60'
+              }`}
               title={habit.name}
             >
               {habit.name}
@@ -137,6 +153,18 @@ export function WeekHabitsTable({
             <div className="flex gap-1">
               {weekDays.map((day) => {
                 const dateStr = getLocalDateString(day)
+                const dayDate = new Date(day)
+                dayDate.setHours(0, 0, 0, 0)
+                
+                // Check if habit has started (date is after or equal to start_date)
+                const habitStartDateStr = (habit as any).start_date || habit.created_at
+                let isAfterHabitStart = true
+                if (habitStartDateStr) {
+                  const habitStartDate = new Date(habitStartDateStr)
+                  habitStartDate.setHours(0, 0, 0, 0)
+                  isAfterHabitStart = dayDate >= habitStartDate
+                }
+                
                 const isScheduled = isHabitScheduledForDay(habit, day)
                 const isCompleted = isHabitCompletedForDay(habit, day)
                 const isSelected = selectedDayDate && getLocalDateString(selectedDayDate) === dateStr
@@ -152,15 +180,21 @@ export function WeekHabitsTable({
                     }}
                     disabled={!isScheduled || isLoading}
                     className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
-                      !isScheduled 
-                        ? isCompleted
-                          ? 'bg-orange-100 hover:bg-orange-200 cursor-pointer'
-                          : 'bg-gray-100 cursor-default'
-                        : isCompleted
-                          ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
-                          : 'bg-gray-200 hover:bg-orange-200 cursor-pointer'
+                      !isAfterHabitStart
+                        ? !isScheduled
+                          ? 'bg-gray-50 opacity-60 cursor-default'
+                          : isCompleted
+                            ? 'bg-orange-100 hover:bg-orange-200 cursor-pointer opacity-70'
+                            : 'bg-gray-100 hover:bg-gray-200 cursor-pointer opacity-70'
+                        : !isScheduled 
+                          ? isCompleted
+                            ? 'bg-orange-100 hover:bg-orange-200 cursor-pointer'
+                            : 'bg-gray-100 cursor-default'
+                          : isCompleted
+                            ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                            : 'bg-gray-200 hover:bg-orange-200 cursor-pointer'
                     } ${isSelected ? 'ring-2 ring-orange-400 ring-offset-1' : ''}`}
-                    title={isScheduled ? (isCompleted ? 'Splněno - klikni pro zrušení' : 'Klikni pro splnění') : 'Nenaplánováno'}
+                    title={!isAfterHabitStart && isScheduled ? 'Klikni pro splnění (posune start_date)' : isScheduled ? (isCompleted ? 'Splněno - klikni pro zrušení' : 'Klikni pro splnění') : 'Nenaplánováno'}
                   >
                     {isLoading ? (
                       <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -175,17 +209,34 @@ export function WeekHabitsTable({
               })}
             </div>
           </div>
-        ))}
+          )
+        })}
       </div>
       
       {/* Mobile: Habits as titles with checkboxes below */}
       <div className="md:hidden space-y-2.5">
-        {weekHabits.map((habit) => (
+        {weekHabits.map((habit) => {
+          // Check if habit has started (check if any day in week is after or equal to start_date)
+          const habitStartDateStr = (habit as any).start_date || habit.created_at
+          let isHabitStarted = true
+          if (habitStartDateStr) {
+            const habitStartDate = new Date(habitStartDateStr)
+            habitStartDate.setHours(0, 0, 0, 0)
+            // Check if any day in the week is after or equal to start_date
+            const weekEndDate = weekDays[weekDays.length - 1]
+            isHabitStarted = weekEndDate >= habitStartDate
+          }
+          
+          return (
           <div key={habit.id} className="flex flex-col gap-1.5">
             {/* Habit name as title */}
             <button
               onClick={() => onHabitClick?.(habit)}
-              className="text-xs font-semibold text-gray-800 hover:text-orange-600 transition-colors text-left leading-tight"
+              className={`text-xs font-semibold text-left leading-tight transition-colors ${
+                isHabitStarted 
+                  ? 'text-gray-800 hover:text-orange-600' 
+                  : 'text-gray-400 opacity-60'
+              }`}
               title={habit.name}
             >
               {habit.name}
@@ -195,6 +246,18 @@ export function WeekHabitsTable({
             <div className="flex gap-1 justify-between">
               {weekDays.map((day) => {
                 const dateStr = getLocalDateString(day)
+                const dayDate = new Date(day)
+                dayDate.setHours(0, 0, 0, 0)
+                
+                // Check if habit has started (date is after or equal to start_date)
+                const habitStartDateStr = (habit as any).start_date || habit.created_at
+                let isAfterHabitStart = true
+                if (habitStartDateStr) {
+                  const habitStartDate = new Date(habitStartDateStr)
+                  habitStartDate.setHours(0, 0, 0, 0)
+                  isAfterHabitStart = dayDate >= habitStartDate
+                }
+                
                 const isScheduled = isHabitScheduledForDay(habit, day)
                 const isCompleted = isHabitCompletedForDay(habit, day)
                 const isSelected = selectedDayDate && getLocalDateString(selectedDayDate) === dateStr
@@ -224,14 +287,21 @@ export function WeekHabitsTable({
                       }}
                       disabled={!isScheduled || isLoading}
                       className={`w-7 h-7 rounded-md flex items-center justify-center transition-all touch-manipulation ${
-                        !isScheduled 
-                          ? isCompleted
-                            ? 'bg-orange-100 hover:bg-orange-200 active:bg-orange-300 cursor-pointer'
-                            : 'bg-gray-100 cursor-default'
-                          : isCompleted
-                            ? 'bg-orange-500 hover:bg-orange-600 active:bg-orange-700 cursor-pointer shadow-sm'
-                            : 'bg-gray-200 hover:bg-orange-200 active:bg-orange-300 cursor-pointer'
+                        !isAfterHabitStart
+                          ? !isScheduled
+                            ? 'bg-gray-50 opacity-60 cursor-default'
+                            : isCompleted
+                              ? 'bg-orange-100 hover:bg-orange-200 active:bg-orange-300 cursor-pointer opacity-70'
+                              : 'bg-gray-100 hover:bg-gray-200 active:bg-gray-300 cursor-pointer opacity-70'
+                          : !isScheduled 
+                            ? isCompleted
+                              ? 'bg-orange-100 hover:bg-orange-200 active:bg-orange-300 cursor-pointer'
+                              : 'bg-gray-100 cursor-default'
+                            : isCompleted
+                              ? 'bg-orange-500 hover:bg-orange-600 active:bg-orange-700 cursor-pointer shadow-sm'
+                              : 'bg-gray-200 hover:bg-orange-200 active:bg-orange-300 cursor-pointer'
                       } ${isSelected ? 'ring-1 ring-orange-400' : ''}`}
+                      title={!isAfterHabitStart && isScheduled ? 'Klikni pro splnění (posune start_date)' : isScheduled ? (isCompleted ? 'Splněno - klikni pro zrušení' : 'Klikni pro splnění') : 'Nenaplánováno'}
                     >
                       {isLoading ? (
                         <svg className="animate-spin h-2.5 w-2.5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -247,7 +317,8 @@ export function WeekHabitsTable({
               })}
             </div>
           </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

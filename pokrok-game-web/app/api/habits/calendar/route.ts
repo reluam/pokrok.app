@@ -45,6 +45,41 @@ export async function POST(request: NextRequest) {
     // dbUser už máme z výše
     const dbUserId = dbUser.id
 
+    // Check if habit has start_date and handle start_date updates
+    const habitInfo = await sql`
+      SELECT start_date FROM habits WHERE id = ${habitId}
+    `
+    
+    const clickedDate = new Date(date)
+    clickedDate.setHours(0, 0, 0, 0)
+    
+    if (completed === true) {
+      // When checking, if clicked date is earlier than start_date, update start_date
+      if (habitInfo.length > 0) {
+        const habitStartDate = habitInfo[0].start_date ? new Date(habitInfo[0].start_date) : null
+        
+        if (habitStartDate) {
+          habitStartDate.setHours(0, 0, 0, 0)
+          if (clickedDate < habitStartDate) {
+            await sql`
+              UPDATE habits 
+              SET start_date = CAST(${date} AS DATE), updated_at = NOW()
+              WHERE id = ${habitId}
+            `
+            console.log('Updated habit start_date to earlier date:', { habitId, date })
+          }
+        } else {
+          // No start_date set, set it to clicked date
+          await sql`
+            UPDATE habits 
+            SET start_date = CAST(${date} AS DATE), updated_at = NOW()
+            WHERE id = ${habitId}
+          `
+          console.log('Set habit start_date to clicked date:', { habitId, date })
+        }
+      }
+    }
+
     if (completed === null) {
       // Remove the completion record
       console.log('Deleting completion record for:', { habitId, dbUserId, date })
@@ -53,8 +88,71 @@ export async function POST(request: NextRequest) {
         WHERE habit_id = ${habitId} AND user_id = ${dbUserId} AND completion_date = CAST(${date} AS DATE)
       `
       console.log('Deletion completed')
+      
+      // After deletion, update start_date to earliest completed date or today
+      const completedDates = await sql`
+        SELECT completion_date 
+        FROM habit_completions 
+        WHERE habit_id = ${habitId} 
+          AND user_id = ${dbUserId} 
+          AND completed = true
+        ORDER BY completion_date ASC
+        LIMIT 1
+      `
+      
+      let newStartDate: string
+      if (completedDates.length > 0 && completedDates[0].completion_date) {
+        newStartDate = completedDates[0].completion_date.toISOString().split('T')[0]
+      } else {
+        // No completed dates, use today
+        newStartDate = new Date().toISOString().split('T')[0]
+      }
+      
+      await sql`
+        UPDATE habits 
+        SET start_date = CAST(${newStartDate} AS DATE), updated_at = NOW()
+        WHERE id = ${habitId}
+      `
+      console.log('Updated habit start_date to earliest completed or today:', { habitId, newStartDate })
+    } else if (completed === false) {
+      // When unchecking (setting to false), update start_date to earliest completed date or today
+      // First update the completion record
+      console.log('Inserting/updating completion record:', { dbUserId, habitId, date, completed })
+      await sql`
+        INSERT INTO habit_completions (user_id, habit_id, completion_date, completed, created_at)
+        VALUES (${dbUserId}, ${habitId}, CAST(${date} AS DATE), ${completed}, NOW())
+        ON CONFLICT (user_id, habit_id, completion_date)
+        DO UPDATE SET completed = ${completed}, updated_at = NOW()
+      `
+      console.log('Insert/update completed')
+      
+      // Then find earliest completed date or use today
+      const completedDates = await sql`
+        SELECT completion_date 
+        FROM habit_completions 
+        WHERE habit_id = ${habitId} 
+          AND user_id = ${dbUserId} 
+          AND completed = true
+        ORDER BY completion_date ASC
+        LIMIT 1
+      `
+      
+      let newStartDate: string
+      if (completedDates.length > 0 && completedDates[0].completion_date) {
+        newStartDate = completedDates[0].completion_date.toISOString().split('T')[0]
+      } else {
+        // No completed dates, use today
+        newStartDate = new Date().toISOString().split('T')[0]
+      }
+      
+      await sql`
+        UPDATE habits 
+        SET start_date = CAST(${newStartDate} AS DATE), updated_at = NOW()
+        WHERE id = ${habitId}
+      `
+      console.log('Updated habit start_date to earliest completed or today:', { habitId, newStartDate })
     } else {
-      // Insert or update the completion record
+      // Insert or update the completion record (completed === true)
       console.log('Inserting/updating completion record:', { dbUserId, habitId, date, completed })
       await sql`
         INSERT INTO habit_completions (user_id, habit_id, completion_date, completed, created_at)

@@ -484,13 +484,27 @@ export function WeekView({
                             <div className="flex items-center justify-center gap-0.5 sm:gap-1 flex-wrap max-w-full">
                               {dayHabits.slice(0, 4).map((habit) => {
                                 const IconComponent = getIconComponent(habit.icon || 'Target')
+                                const dayDate = new Date(day)
+                                dayDate.setHours(0, 0, 0, 0)
+                                
+                                // Check if habit has started (date is after or equal to start_date)
+                                const habitStartDateStr = (habit as any).start_date || habit.created_at
+                                let isAfterHabitStart = true
+                                if (habitStartDateStr) {
+                                  const habitStartDate = new Date(habitStartDateStr)
+                                  habitStartDate.setHours(0, 0, 0, 0)
+                                  isAfterHabitStart = dayDate >= habitStartDate
+                                }
+                                
                                 return (
                                   <div
                                     key={habit.id}
                                     className="flex-shrink-0 w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center"
                                     title={habit.name}
                                   >
-                                    <IconComponent className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
+                                    <IconComponent className={`w-3 h-3 sm:w-4 sm:h-4 ${
+                                      isAfterHabitStart ? 'text-gray-600' : 'text-gray-400 opacity-70'
+                                    }`} />
                                   </div>
                                 )
                               })}
@@ -505,6 +519,18 @@ export function WeekView({
                             <div className="flex items-center justify-center gap-0.5 sm:gap-1 flex-wrap max-w-full">
                               {dayHabits.slice(0, 4).map((habit) => {
                                 const habitDateStr = getLocalDateString(day)
+                                const dayDate = new Date(day)
+                                dayDate.setHours(0, 0, 0, 0)
+                                
+                                // Check if habit has started (date is after or equal to start_date)
+                                const habitStartDateStr = (habit as any).start_date || habit.created_at
+                                let isAfterHabitStart = true
+                                if (habitStartDateStr) {
+                                  const habitStartDate = new Date(habitStartDateStr)
+                                  habitStartDate.setHours(0, 0, 0, 0)
+                                  isAfterHabitStart = dayDate >= habitStartDate
+                                }
+                                
                                 const isHabitCompleted = habit.habit_completions && habit.habit_completions[habitDateStr] === true
                                 const isHabitLoading = loadingHabits.has(`${habit.id}-${habitDateStr}`)
                                 const isHabitFuture = day > today
@@ -524,9 +550,11 @@ export function WeekView({
                                         ? 'bg-primary-500 border-primary-600'
                                         : isHabitFuture
                                         ? 'bg-gray-200 border-gray-300 opacity-50'
+                                        : !isAfterHabitStart
+                                        ? 'bg-gray-50 border-gray-400 opacity-70'
                                         : 'bg-white border-primary-400 hover:bg-primary-50'
                                     }`}
-                                    title={isHabitFuture ? (t('focus.futureDay') || 'Budoucí den') : habit.name}
+                                    title={isHabitFuture ? (t('focus.futureDay') || 'Budoucí den') : !isAfterHabitStart ? 'Klikni pro splnění (posune start_date)' : habit.name}
                                   >
                                     {isHabitLoading ? (
                                       <svg className="animate-spin h-2 w-2 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

@@ -329,6 +329,7 @@ export interface Habit {
   aspiration_id?: string
   area_id?: string
   icon: string | null
+  start_date?: string | Date
   created_at: Date
   updated_at: Date
 }
@@ -449,10 +450,22 @@ export async function initializeCestaDatabase() {
         aspiration_id VARCHAR(255) REFERENCES aspirations(id) ON DELETE SET NULL,
         area_id VARCHAR(255) REFERENCES areas(id) ON DELETE SET NULL,
         icon VARCHAR(50),
+        start_date DATE DEFAULT CURRENT_DATE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
     `
+    
+    // Add start_date column if it doesn't exist (migration for existing databases)
+    try {
+      await sql`
+        ALTER TABLE habits 
+        ADD COLUMN IF NOT EXISTS start_date DATE DEFAULT CURRENT_DATE
+      `
+    } catch (error) {
+      // Column might already exist, ignore error
+      console.log('start_date column check:', error)
+    }
 
     // Create habit_completions table
     await sql`
@@ -4141,14 +4154,32 @@ export async function createHabit(habitData: Omit<Habit, 'id' | 'created_at' | '
   try {
     const id = crypto.randomUUID()
     
+    // Check if start_date column exists, if not add it
+    try {
+      const startDateColumnCheck = await sql`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'habits' AND column_name = 'start_date'
+      `
+      if (startDateColumnCheck.length === 0) {
+        console.log('createHabit: Adding start_date column to habits table')
+        await sql`ALTER TABLE habits ADD COLUMN IF NOT EXISTS start_date DATE DEFAULT CURRENT_DATE`
+      }
+    } catch (columnError) {
+      console.warn('createHabit: Could not check/add start_date column:', columnError)
+    }
+    
+    // Set start_date to today if not provided
+    const startDate = (habitData as any).start_date || new Date().toISOString().split('T')[0]
+    
     const result = await sql`
       INSERT INTO habits (
         id, user_id, name, description, frequency, streak, 
-        max_streak, category, difficulty, is_custom, reminder_time, notification_enabled, selected_days, always_show, xp_reward, aspiration_id, area_id, icon, "order"
+        max_streak, category, difficulty, is_custom, reminder_time, notification_enabled, selected_days, always_show, xp_reward, aspiration_id, area_id, icon, "order", start_date
       ) VALUES (
         ${id}, ${habitData.user_id}, ${habitData.name}, ${habitData.description}, 
         ${habitData.frequency}, ${habitData.streak}, ${habitData.max_streak}, 
-        ${habitData.category}, ${habitData.difficulty}, ${habitData.is_custom}, ${habitData.reminder_time}, ${(habitData as any).notification_enabled || false}, ${habitData.selected_days}, ${habitData.always_show}, ${habitData.xp_reward}, ${habitData.aspiration_id || null}, ${habitData.area_id || null}, ${habitData.icon || null}, ${(habitData as any).order || 0}
+        ${habitData.category}, ${habitData.difficulty}, ${habitData.is_custom}, ${habitData.reminder_time}, ${(habitData as any).notification_enabled || false}, ${habitData.selected_days}, ${habitData.always_show}, ${habitData.xp_reward}, ${habitData.aspiration_id || null}, ${habitData.area_id || null}, ${habitData.icon || null}, ${(habitData as any).order || 0}, ${startDate}
       ) RETURNING *
     `
     
@@ -4183,6 +4214,21 @@ export async function updateHabit(habitId: string, updates: Partial<Omit<Habit, 
       console.warn('updateHabit: Could not check/add icon column:', columnError)
     }
     
+    // Check if start_date column exists, if not add it
+    try {
+      const startDateColumnCheck = await sql`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'habits' AND column_name = 'start_date'
+      `
+      if (startDateColumnCheck.length === 0) {
+        console.log('updateHabit: Adding start_date column to habits table')
+        await sql`ALTER TABLE habits ADD COLUMN IF NOT EXISTS start_date DATE DEFAULT CURRENT_DATE`
+      }
+    } catch (columnError) {
+      console.warn('updateHabit: Could not check/add start_date column:', columnError)
+    }
+    
     // Get user_id first to invalidate cache
     const habit = await sql`SELECT user_id FROM habits WHERE id = ${habitId} LIMIT 1`
     if (habit.length === 0) {
@@ -4209,6 +4255,7 @@ export async function updateHabit(habitId: string, updates: Partial<Omit<Habit, 
         aspiration_id = ${updates.aspiration_id !== undefined ? updates.aspiration_id : null},
         area_id = ${updates.area_id !== undefined ? updates.area_id : null},
         icon = ${updates.icon !== undefined ? updates.icon : sql`icon`},
+        start_date = ${(updates as any).start_date !== undefined ? (updates as any).start_date : sql`start_date`},
         "order" = COALESCE(${(updates as any).order}, "order"),
         updated_at = NOW()
       WHERE id = ${habitId}

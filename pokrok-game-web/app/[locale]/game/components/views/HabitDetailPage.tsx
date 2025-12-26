@@ -95,8 +95,11 @@ export function HabitDetailPage({
       const today = new Date()
       today.setHours(0, 0, 0, 0)
       
-      // Get start date (created_at or earliest completion, whichever is earlier)
-      const startDate = getHabitStartDate(habit)
+      // Get start date from database (start_date field), not from earliest completion
+      // This ensures we only count from when the habit was actually created/started
+      const habitStartDateStr = (habit as any).start_date || habit.created_at
+      const startDate = new Date(habitStartDateStr)
+      startDate.setHours(0, 0, 0, 0)
       
       // Go from start date to today
       const currentDate = new Date(startDate)

@@ -596,21 +596,45 @@ export function MonthView({
                 const isLoading = loadingHabits.has(`${habit.id}-${dateStr}`)
                 const IconComponent = getIconComponent(habit.icon || 'Target')
                 
+                // Check if habit has started (date is after or equal to start_date)
+                const dayDate = new Date(selectedDayData.date)
+                dayDate.setHours(0, 0, 0, 0)
+                const habitStartDateStr = (habit as any).start_date || habit.created_at
+                let isAfterHabitStart = true
+                if (habitStartDateStr) {
+                  const habitStartDate = new Date(habitStartDateStr)
+                  habitStartDate.setHours(0, 0, 0, 0)
+                  isAfterHabitStart = dayDate >= habitStartDate
+                }
+                
                 return (
                   <div
                     key={habit.id}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-playful-md border-2 transition-all bg-white cursor-pointer hover:border-primary-300"
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-playful-md border-2 transition-all cursor-pointer hover:border-primary-300 ${
+                      isAfterHabitStart ? 'bg-white' : 'bg-gray-50'
+                    }`}
                     style={{
                       borderColor: isCompleted ? 'var(--color-primary-500)' : '#d1d5db',
                       boxShadow: isCompleted 
                         ? '0 2px 8px rgba(249, 115, 22, 0.2) !important'
-                        : '0 2px 8px rgba(249, 115, 22, 0.15) !important'
+                        : '0 2px 8px rgba(249, 115, 22, 0.15) !important',
+                      opacity: isAfterHabitStart ? 1 : 0.7
                     }}
                     onClick={() => handleItemClick && handleItemClick(habit, 'habit')}
                   >
-                    <IconComponent className={`w-4 h-4 flex-shrink-0 ${isCompleted ? 'text-primary-600' : 'text-gray-600'}`} />
+                    <IconComponent className={`w-4 h-4 flex-shrink-0 ${
+                      isCompleted 
+                        ? 'text-primary-600' 
+                        : isAfterHabitStart 
+                          ? 'text-gray-600' 
+                          : 'text-gray-500'
+                    }`} />
                     <span className={`text-xs font-medium whitespace-nowrap ${
-                      isCompleted ? 'text-primary-800 line-through' : 'text-black'
+                      isCompleted 
+                        ? 'text-primary-800 line-through' 
+                        : isAfterHabitStart 
+                          ? 'text-black' 
+                          : 'text-gray-500'
                     }`}>
                       {habit.name}
                     </span>
@@ -625,9 +649,11 @@ export function MonthView({
                       className={`flex-shrink-0 w-6 h-6 rounded-playful-sm flex items-center justify-center transition-all border-2 ${
                         isCompleted
                           ? 'bg-primary-100 border-primary-500 hover:bg-primary-200 cursor-pointer'
-                          : 'bg-white border-primary-500 hover:bg-primary-50 cursor-pointer'
+                          : isAfterHabitStart
+                            ? 'bg-white border-primary-500 hover:bg-primary-50 cursor-pointer'
+                            : 'bg-gray-50 border-gray-400 hover:bg-gray-100 cursor-pointer'
                       }`}
-                      title={isCompleted ? t('common.completed') || 'Splněno' : t('focus.clickToComplete') || 'Klikni pro splnění'}
+                      title={isCompleted ? t('common.completed') || 'Splněno - klikni pro zrušení' : t('focus.clickToComplete') || 'Klikni pro splnění'}
                     >
                       {isLoading ? (
                         <svg className="animate-spin h-3 w-3 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

@@ -319,7 +319,19 @@ export function CalendarProgram({
     const dateObj = new Date(date)
     dateObj.setHours(0, 0, 0, 0)
     // Get habits for this day (scheduled or completed that day)
-    const dayHabits = habits.filter(h => isHabitScheduledForDate(h, dateObj, dateStr))
+    // Filter out habits that haven't started yet (before start_date)
+    const dayHabits = habits.filter(h => {
+      // Check if habit has started (date is after or equal to start_date)
+      const habitStartDateStr = (h as any).start_date || h.created_at
+      if (habitStartDateStr) {
+        const habitStartDate = new Date(habitStartDateStr)
+        habitStartDate.setHours(0, 0, 0, 0)
+        if (dateObj < habitStartDate) {
+          return false // Habit hasn't started yet, don't count it
+        }
+      }
+      return isHabitScheduledForDate(h, dateObj, dateStr)
+    })
     // Count all habits (including always_show) for progress calculation
     // always_show habits are included in stats if they are scheduled for this day
     const countableHabits = dayHabits
