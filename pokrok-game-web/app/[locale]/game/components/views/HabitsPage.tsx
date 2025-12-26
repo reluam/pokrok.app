@@ -34,35 +34,65 @@ export function HabitsPage({
   const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
   const habitsPageTimelineContainerRef = useRef<HTMLDivElement>(null)
   
-  // Set visible days to 5 for mobile, calculate for desktop
+  // Calculate visible days based on container width - dynamically adjust to available space
   useEffect(() => {
+    let resizeObserver: ResizeObserver | null = null
+    
     const calculateVisibleDays = () => {
-      if (typeof window !== 'undefined' && window.innerWidth < 768) {
-        // Mobile: always show 5 days
-        setHabitsPageVisibleDays(5)
-      } else {
-        // Desktop: calculate based on container width
-        if (habitsPageTimelineContainerRef.current) {
-          const containerWidth = habitsPageTimelineContainerRef.current.offsetWidth
-          // Each day is 32px wide + 4px gap (gap-1) = 36px total per day
-          // Subtract space for habit name column (190px)
-          const availableWidth = containerWidth - 190
-          const daysThatFit = Math.floor(availableWidth / 36)
-          const newVisibleDays = Math.max(7, daysThatFit) // Minimum 7 days
+      if (habitsPageTimelineContainerRef.current) {
+        // Use getBoundingClientRect for more accurate width measurement
+        const rect = habitsPageTimelineContainerRef.current.getBoundingClientRect()
+        const containerWidth = rect.width
+        if (containerWidth === 0) return // Skip if container not yet rendered
+        
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+        const isTablet = typeof window !== 'undefined' && window.innerWidth >= 768 && window.innerWidth < 1024
+        
+        // Each day is 32px wide + 4px gap (gap-1) = 36px total per day
+        if (isMobile || isTablet) {
+          // On mobile/tablet: habit names are above boxes, so use full width
+          // Subtract padding from container (p-4 = 16px on each side = 32px total)
+          const padding = 32
+          const availableWidth = containerWidth - padding
+          const daysThatFit = Math.ceil(availableWidth / 36)
+          const newVisibleDays = Math.max(3, daysThatFit)
+          setHabitsPageVisibleDays(newVisibleDays)
+        } else {
+          // On desktop: habit names are on the left, boxes on the right
+          // Subtract space for habit name column (190px on desktop)
+          // Subtract space for margin between name/settings and boxes (16px on desktop - ml-4)
+          const habitColumnWidth = 190
+          const marginBetween = 16
+          const availableWidth = containerWidth - habitColumnWidth - marginBetween
+          const daysThatFit = Math.ceil(availableWidth / 36)
+          const newVisibleDays = Math.max(3, daysThatFit)
           setHabitsPageVisibleDays(newVisibleDays)
         }
       }
     }
     
-    // Use requestAnimationFrame to ensure DOM is rendered
+    // Wait for DOM to be ready, then calculate and setup ResizeObserver
     const timeoutId = setTimeout(() => {
       calculateVisibleDays()
-    }, 0)
+      
+      // Use ResizeObserver for more accurate container width tracking
+      if (habitsPageTimelineContainerRef.current && typeof ResizeObserver !== 'undefined') {
+        resizeObserver = new ResizeObserver(() => {
+          calculateVisibleDays()
+        })
+        resizeObserver.observe(habitsPageTimelineContainerRef.current)
+      }
+    }, 100)
     
+    // Fallback to window resize listener
     window.addEventListener('resize', calculateVisibleDays)
+    
     return () => {
       clearTimeout(timeoutId)
       window.removeEventListener('resize', calculateVisibleDays)
+      if (resizeObserver) {
+        resizeObserver.disconnect()
+      }
     }
   }, [setHabitsPageVisibleDays])
 
@@ -305,93 +335,84 @@ export function HabitsPage({
         </div>
         
         {/* Timeline with month, dates, and boxes for all habits */}
-        <div ref={habitsPageTimelineContainerRef} className="w-full overflow-x-auto scrollbar-hide -mx-4 px-4">
+        <div ref={habitsPageTimelineContainerRef} className="w-full">
           {/* Month row - positioned around middle of month */}
-          <div className="flex mb-2 relative" style={{ height: '24px' }}>
-            {(() => {
-              if (!timelineDates || timelineDates.length === 0) {
-                return null
-              }
-              
-              const middleIndex = Math.floor(timelineDates.length / 2)
-              let targetDate = timelineDates[middleIndex]
-              
-              if (!targetDate) {
-                return null
-              }
-              
-              const targetMonth = targetDate.getMonth()
-              const targetYear = targetDate.getFullYear()
-              const monthMiddle = new Date(targetYear, targetMonth, 15)
-              monthMiddle.setHours(0, 0, 0, 0)
-              
-              if (!timelineDates[0]) {
-                return null
-              }
-              
-              let closestIndex = 0
-              let closestDistance = Math.abs(timelineDates[0].getTime() - monthMiddle.getTime())
-              
-              timelineDates.forEach((date, index) => {
-                if (!date) return
-                const distance = Math.abs(date.getTime() - monthMiddle.getTime())
-                if (distance < closestDistance) {
-                  closestDistance = distance
-                  closestIndex = index
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-1 mb-2 relative" style={{ height: '24px' }}>
+            {/* Spacer for habit name column - responsive width - hidden on mobile/tablet */}
+            <div className="hidden md:block w-[190px] flex-shrink-0"></div>
+            
+            {/* Month label positioned in dates area - full width on mobile/tablet */}
+            <div className="flex gap-1 relative w-full md:flex-1 md:min-w-0">
+              {(() => {
+                if (!timelineDates || timelineDates.length === 0) {
+                  return null
                 }
-              })
-              
-              const edgeThreshold = 2
-              let adjustedIndex = closestIndex
-              if (closestIndex < edgeThreshold) {
-                adjustedIndex = Math.min(edgeThreshold, timelineDates.length - 1)
-              } else if (closestIndex > timelineDates.length - 1 - edgeThreshold) {
-                adjustedIndex = Math.max(timelineDates.length - 1 - edgeThreshold, 0)
-              }
-              
-              // Position month label accounting for habit name column - responsive width
-              // Mobile: 140px, Desktop: 190px
-              const positionMobile = 140 + adjustedIndex * 36 + 16
-              const positionDesktop = 190 + adjustedIndex * 36 + 16
-              
-              const monthNames = localeCode === 'cs-CZ' 
-                ? ['Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen', 'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec']
-                : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-              
-              const monthName = monthNames[targetMonth]
-              
-              return (
-                <>
+                
+                const middleIndex = Math.floor(timelineDates.length / 2)
+                let targetDate = timelineDates[middleIndex]
+                
+                if (!targetDate) {
+                  return null
+                }
+                
+                const targetMonth = targetDate.getMonth()
+                const targetYear = targetDate.getFullYear()
+                const monthMiddle = new Date(targetYear, targetMonth, 15)
+                monthMiddle.setHours(0, 0, 0, 0)
+                
+                if (!timelineDates[0]) {
+                  return null
+                }
+                
+                let closestIndex = 0
+                let closestDistance = Math.abs(timelineDates[0].getTime() - monthMiddle.getTime())
+                
+                timelineDates.forEach((date, index) => {
+                  if (!date) return
+                  const distance = Math.abs(date.getTime() - monthMiddle.getTime())
+                  if (distance < closestDistance) {
+                    closestDistance = distance
+                    closestIndex = index
+                  }
+                })
+                
+                const edgeThreshold = 2
+                let adjustedIndex = closestIndex
+                if (closestIndex < edgeThreshold) {
+                  adjustedIndex = Math.min(edgeThreshold, timelineDates.length - 1)
+                } else if (closestIndex > timelineDates.length - 1 - edgeThreshold) {
+                  adjustedIndex = Math.max(timelineDates.length - 1 - edgeThreshold, 0)
+                }
+                
+                // Position month label within dates area - relative to start of dates
+                const monthNames = localeCode === 'cs-CZ' 
+                  ? ['Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen', 'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec']
+                  : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+                
+                const monthName = monthNames[targetMonth]
+                
+                return (
                   <div 
-                    className="text-sm font-medium text-gray-700 absolute md:hidden"
+                    className="text-sm font-medium text-gray-700 absolute"
                     style={{ 
-                      left: `${positionMobile}px`,
+                      left: `${adjustedIndex * 36 + 16}px`,
                       transform: 'translateX(-50%)'
                     }}
                   >
                     {monthName}
                   </div>
-                  <div 
-                    className="hidden md:block text-sm font-medium text-gray-700 absolute"
-                    style={{ 
-                      left: `${positionDesktop}px`,
-                      transform: 'translateX(-50%)'
-                    }}
-                  >
-                    {monthName}
-                  </div>
-                </>
-              )
-            })()}
+                )
+              })()}
+            </div>
           </div>
           
           {/* Dates row - aligned with boxes (after habit name column) */}
-          <div className="flex gap-1 mb-2 relative min-w-max">
-            {/* Spacer for habit name column - responsive width */}
-            <div className="w-[140px] md:w-[190px] flex-shrink-0"></div>
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-1 mb-2 relative w-full">
+            {/* Spacer for habit name column - responsive width - hidden on mobile/tablet */}
+            <div className="hidden md:block w-[190px] flex-shrink-0"></div>
             
-            {/* Dates aligned with boxes */}
-            <div className="flex gap-1">
+            {/* Dates aligned with boxes - full width on mobile/tablet */}
+            <div className="flex gap-1 relative w-full md:flex-1 md:min-w-0 md:ml-4">
               {timelineDates.map((date, index) => {
                 const dateStr = getLocalDateString(date)
                 const isToday = dateStr === getLocalDateString(today)
@@ -412,7 +433,7 @@ export function HabitsPage({
                 const dayAbbr = dayNamesShort[dayOfWeek].substring(0, 2).toUpperCase()
                 
                 return (
-                  <div key={dateStr} className="relative w-[32px] flex-shrink-0">
+                  <div key={dateStr} className="relative w-[32px] md:flex-1 md:min-w-[32px] md:max-w-[32px] flex-shrink-0">
                     {isMonthStart && (
                       <div 
                         className="absolute left-0 top-0 bottom-0 w-px bg-gray-300 -ml-0.5 z-10"
@@ -452,16 +473,28 @@ export function HabitsPage({
             }).map((habit) => {
               const isSelected = selectedHabitId === habit.id
               return (
-                <div key={habit.id} className="flex flex-col md:flex-row items-start md:items-center gap-1 min-w-max w-full">
-                  {/* Habit name container - responsive width to match dates spacer */}
+                <div key={habit.id} className="flex flex-col md:flex-row items-start md:items-center gap-1 w-full">
+                  {/* Habit name and settings container - responsive width */}
                   <div className="w-[140px] md:w-[190px] flex items-center gap-2 flex-shrink-0">
-                    <div className="text-left text-sm font-medium text-gray-700 truncate flex-1 min-w-0" title={habit.name}>
+                    <button
+                      onClick={() => handleOpenHabitModal(habit)}
+                      className="md:pointer-events-none text-left text-sm font-medium text-gray-700 truncate flex-1 min-w-0 hover:text-primary-600 transition-colors cursor-pointer md:cursor-default"
+                      title={habit.name}
+                    >
                       {habit.name}
-                    </div>
+                    </button>
+                    {/* Settings icon button - visible on desktop, hidden on mobile */}
+                    <button
+                      onClick={() => handleOpenHabitModal(habit)}
+                      className="hidden md:flex btn-playful-base p-1.5 flex-shrink-0"
+                      title={t('habits.settings') || 'Nastavení'}
+                    >
+                      <Settings className="w-4 h-4 text-black" />
+                    </button>
                   </div>
                   
-                  {/* Boxes row */}
-                  <div className="flex gap-1 relative flex-1 min-w-0">
+                  {/* Boxes row - full width on mobile/tablet, flex on desktop */}
+                  <div className="flex gap-1 relative w-full md:flex-1 md:min-w-0 ml-0 md:ml-4">
                     {timelineDates.map((date, index) => {
                       const dateStr = getLocalDateString(date)
                       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
@@ -477,7 +510,7 @@ export function HabitsPage({
                       const isMonthStart = index > 0 && date.getMonth() !== timelineDates[index - 1].getMonth()
                       
                       return (
-                        <div key={dateStr} className="relative w-[32px] flex-shrink-0">
+                        <div key={dateStr} className="relative w-[32px] md:flex-1 md:min-w-[32px] md:max-w-[32px] flex-shrink-0">
                           {isMonthStart && (
                             <div 
                               className="absolute left-0 top-0 bottom-0 w-px bg-gray-300 -ml-0.5 z-10"
@@ -509,15 +542,6 @@ export function HabitsPage({
                       )
                     })}
                   </div>
-                  
-                  {/* Settings icon button - positioned to the right */}
-                  <button
-                    onClick={() => handleOpenHabitModal(habit)}
-                    className="btn-playful-base p-1.5 flex-shrink-0 ml-auto"
-                    title={t('habits.settings') || 'Nastavení'}
-                  >
-                    <Settings className="w-4 h-4 text-black" />
-                  </button>
                 </div>
               )
             })}
