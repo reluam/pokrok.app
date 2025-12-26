@@ -297,13 +297,26 @@ export function groupMetricsByUnits(metrics: Array<{
     // If units are null/empty, no conversion needed
     const fromUnit = metric.unit || ''
     const toUnit = group.unit || ''
-    const convertedCurrent = fromUnit && toUnit ? convertUnit(metric.current_value, fromUnit, toUnit) : metric.current_value
-    const convertedTarget = fromUnit && toUnit ? convertUnit(metric.target_value, fromUnit, toUnit) : metric.target_value
-    const convertedInitial = fromUnit && toUnit ? convertUnit(metric.initial_value || 0, fromUnit, toUnit) : (metric.initial_value || 0)
     
-    group.totalCurrent += convertedCurrent
-    group.totalTarget += convertedTarget
-    group.totalInitial += convertedInitial
+    // Ensure values are numbers before conversion
+    const currentValue = parseFloat(String(metric.current_value || 0))
+    const targetValue = parseFloat(String(metric.target_value || 0))
+    const initialValue = parseFloat(String(metric.initial_value || 0))
+    
+    const convertedCurrent = fromUnit && toUnit && !isNaN(currentValue) ? convertUnit(currentValue, fromUnit, toUnit) : (isNaN(currentValue) ? 0 : currentValue)
+    const convertedTarget = fromUnit && toUnit && !isNaN(targetValue) ? convertUnit(targetValue, fromUnit, toUnit) : (isNaN(targetValue) ? 0 : targetValue)
+    const convertedInitial = fromUnit && toUnit && !isNaN(initialValue) ? convertUnit(initialValue, fromUnit, toUnit) : (isNaN(initialValue) ? 0 : initialValue)
+    
+    // Only add if values are valid numbers
+    if (!isNaN(convertedCurrent) && isFinite(convertedCurrent)) {
+      group.totalCurrent += convertedCurrent
+    }
+    if (!isNaN(convertedTarget) && isFinite(convertedTarget)) {
+      group.totalTarget += convertedTarget
+    }
+    if (!isNaN(convertedInitial) && isFinite(convertedInitial)) {
+      group.totalInitial += convertedInitial
+    }
   }
   
   // Convert all groups to best display unit

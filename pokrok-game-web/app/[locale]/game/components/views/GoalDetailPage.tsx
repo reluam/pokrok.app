@@ -327,12 +327,21 @@ export function GoalDetailPage({
     if (increasingMetrics.length > 0) {
       const groupedIncreasing = groupMetricsByUnits(increasingMetrics)
       groupedIncreasing.forEach((group) => {
-        const range = group.totalTarget - group.totalInitial
-        if (range === 0) {
-          aggregatedProgresses.push(group.totalCurrent >= group.totalTarget ? 100 : 0)
+        // Ensure values are numbers and handle NaN/undefined
+        const totalInitial = parseFloat(String(group.totalInitial || 0))
+        const totalTarget = parseFloat(String(group.totalTarget || 0))
+        const totalCurrent = parseFloat(String(group.totalCurrent || 0))
+        
+        const range = totalTarget - totalInitial
+        if (isNaN(range) || range === 0) {
+          aggregatedProgresses.push(totalCurrent >= totalTarget ? 100 : 0)
         } else {
-          const progress = ((group.totalCurrent - group.totalInitial) / range) * 100
-          aggregatedProgresses.push(Math.min(Math.max(progress, 0), 100))
+          const progress = ((totalCurrent - totalInitial) / range) * 100
+          if (isNaN(progress) || !isFinite(progress)) {
+            aggregatedProgresses.push(0)
+          } else {
+            aggregatedProgresses.push(Math.min(Math.max(progress, 0), 100))
+          }
         }
       })
     }
@@ -341,12 +350,21 @@ export function GoalDetailPage({
     if (decreasingMetrics.length > 0) {
       const groupedDecreasing = groupMetricsByUnits(decreasingMetrics)
       groupedDecreasing.forEach((group) => {
-        const range = group.totalInitial - group.totalTarget
-        if (range === 0) {
-          aggregatedProgresses.push(group.totalCurrent <= group.totalTarget ? 100 : 0)
+        // Ensure values are numbers and handle NaN/undefined
+        const totalInitial = parseFloat(String(group.totalInitial || 0))
+        const totalTarget = parseFloat(String(group.totalTarget || 0))
+        const totalCurrent = parseFloat(String(group.totalCurrent || 0))
+        
+        const range = totalInitial - totalTarget
+        if (isNaN(range) || range === 0) {
+          aggregatedProgresses.push(totalCurrent <= totalTarget ? 100 : 0)
         } else {
-          const progress = ((group.totalInitial - group.totalCurrent) / range) * 100
-          aggregatedProgresses.push(Math.min(Math.max(progress, 0), 100))
+          const progress = ((totalInitial - totalCurrent) / range) * 100
+          if (isNaN(progress) || !isFinite(progress)) {
+            aggregatedProgresses.push(0)
+          } else {
+            aggregatedProgresses.push(Math.min(Math.max(progress, 0), 100))
+          }
         }
       })
     }
@@ -362,7 +380,15 @@ export function GoalDetailPage({
       // Group neutral metrics by units and calculate progress
       const groupedNeutral = groupMetricsByUnits(neutralMetrics)
       groupedNeutral.forEach((group) => {
-        aggregatedProgresses.push(group.totalCurrent >= group.totalTarget ? 100 : 0)
+        // Ensure values are numbers and handle NaN/undefined
+        const totalCurrent = parseFloat(String(group.totalCurrent || 0))
+        const totalTarget = parseFloat(String(group.totalTarget || 0))
+        
+        if (isNaN(totalCurrent) || isNaN(totalTarget)) {
+          aggregatedProgresses.push(0)
+        } else {
+          aggregatedProgresses.push(totalCurrent >= totalTarget ? 100 : 0)
+        }
       })
     }
     
@@ -795,12 +821,22 @@ export function GoalDetailPage({
                   if (increasingMetrics.length > 0) {
                     const groupedIncreasing = groupMetricsByUnits(increasingMetrics)
                     groupedIncreasing.forEach((group, index) => {
-                      const range = group.totalTarget - group.totalInitial
+                      // Ensure values are numbers and handle NaN/undefined
+                      const totalInitial = parseFloat(String(group.totalInitial || 0))
+                      const totalTarget = parseFloat(String(group.totalTarget || 0))
+                      const totalCurrent = parseFloat(String(group.totalCurrent || 0))
+                      
+                      const range = totalTarget - totalInitial
                       let progress = 0
-                      if (range === 0) {
-                        progress = group.totalCurrent >= group.totalTarget ? 100 : 0
+                      if (isNaN(range) || range === 0) {
+                        progress = totalCurrent >= totalTarget ? 100 : 0
                       } else {
-                        progress = Math.min(Math.max(((group.totalCurrent - group.totalInitial) / range) * 100, 0), 100)
+                        const calculatedProgress = ((totalCurrent - totalInitial) / range) * 100
+                        if (isNaN(calculatedProgress) || !isFinite(calculatedProgress)) {
+                          progress = 0
+                        } else {
+                          progress = Math.min(Math.max(calculatedProgress, 0), 100)
+                        }
                       }
                       
                       const metricNames = group.metrics.length > 1 
@@ -832,12 +868,22 @@ export function GoalDetailPage({
                   if (decreasingMetrics.length > 0) {
                     const groupedDecreasing = groupMetricsByUnits(decreasingMetrics)
                     groupedDecreasing.forEach((group, index) => {
-                      const range = group.totalInitial - group.totalTarget // Note: reversed for decreasing
+                      // Ensure values are numbers and handle NaN/undefined
+                      const totalInitial = parseFloat(String(group.totalInitial || 0))
+                      const totalTarget = parseFloat(String(group.totalTarget || 0))
+                      const totalCurrent = parseFloat(String(group.totalCurrent || 0))
+                      
+                      const range = totalInitial - totalTarget // Note: reversed for decreasing
                       let progress = 0
-                      if (range === 0) {
-                        progress = group.totalCurrent <= group.totalTarget ? 100 : 0
+                      if (isNaN(range) || range === 0) {
+                        progress = totalCurrent <= totalTarget ? 100 : 0
                       } else {
-                        progress = Math.min(Math.max(((group.totalInitial - group.totalCurrent) / range) * 100, 0), 100)
+                        const calculatedProgress = ((totalInitial - totalCurrent) / range) * 100
+                        if (isNaN(calculatedProgress) || !isFinite(calculatedProgress)) {
+                          progress = 0
+                        } else {
+                          progress = Math.min(Math.max(calculatedProgress, 0), 100)
+                        }
                       }
                       
                       const metricNames = group.metrics.length > 1 
