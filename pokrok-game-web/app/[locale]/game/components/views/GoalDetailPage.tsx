@@ -301,43 +301,82 @@ export function GoalDetailPage({
   const completedSteps = goalSteps.filter(s => s.completed).length
   const remainingSteps = totalSteps - completedSteps
 
-  // Calculate progress locally based on current metrics and steps
+  // Calculate progress locally based on aggregated metrics and steps
   const calculateLocalProgress = React.useMemo(() => {
-    // Calculate metric progress (same logic as server)
-    const metricProgresses = metrics.map((metric: any) => {
-      const currentValue = parseFloat(metric.current_value || 0)
-      const targetValue = parseFloat(metric.target_value || 0)
-      const initialValue = parseFloat(metric.initial_value || 0)
-      
-      // If target == initial, check if current >= target (100%) or < target (0%)
-      if (targetValue === initialValue) {
-        return currentValue >= targetValue ? 100 : 0
-      }
-      
-      // If range > 0 (going up), progress = (current - initial) / (target - initial) * 100
-      if (targetValue > initialValue) {
-        const range = targetValue - initialValue
-        const progress = ((currentValue - initialValue) / range) * 100
-        return Math.min(Math.max(progress, 0), 100)
-      }
-      
-      // If range < 0 (going down, e.g., 100 to 0), progress = (initial - current) / (initial - target) * 100
-      if (targetValue < initialValue) {
-        const range = initialValue - targetValue
-        const progress = ((initialValue - currentValue) / range) * 100
-        return Math.min(Math.max(progress, 0), 100)
-      }
-      
-      return 0
+    if (!metrics || metrics.length === 0) {
+      // No metrics, return step progress only
+      return totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0
+    }
+    
+    // Separate metrics by direction: increasing (target > initial) vs decreasing (target < initial)
+    const increasingMetrics = metrics.filter((m: any) => {
+      const target = parseFloat(m.target_value || 0)
+      const initial = parseFloat(m.initial_value || 0)
+      return target > initial
     })
+    
+    const decreasingMetrics = metrics.filter((m: any) => {
+      const target = parseFloat(m.target_value || 0)
+      const initial = parseFloat(m.initial_value || 0)
+      return target < initial
+    })
+    
+    const aggregatedProgresses: number[] = []
+    
+    // Process increasing metrics - aggregate by units
+    if (increasingMetrics.length > 0) {
+      const groupedIncreasing = groupMetricsByUnits(increasingMetrics)
+      groupedIncreasing.forEach((group) => {
+        const range = group.totalTarget - group.totalInitial
+        if (range === 0) {
+          aggregatedProgresses.push(group.totalCurrent >= group.totalTarget ? 100 : 0)
+        } else {
+          const progress = ((group.totalCurrent - group.totalInitial) / range) * 100
+          aggregatedProgresses.push(Math.min(Math.max(progress, 0), 100))
+        }
+      })
+    }
+    
+    // Process decreasing metrics - aggregate by units
+    if (decreasingMetrics.length > 0) {
+      const groupedDecreasing = groupMetricsByUnits(decreasingMetrics)
+      groupedDecreasing.forEach((group) => {
+        const range = group.totalInitial - group.totalTarget
+        if (range === 0) {
+          aggregatedProgresses.push(group.totalCurrent <= group.totalTarget ? 100 : 0)
+        } else {
+          const progress = ((group.totalInitial - group.totalCurrent) / range) * 100
+          aggregatedProgresses.push(Math.min(Math.max(progress, 0), 100))
+        }
+      })
+    }
+    
+    // Handle metrics where target == initial (neither increasing nor decreasing)
+    const neutralMetrics = metrics.filter((m: any) => {
+      const target = parseFloat(m.target_value || 0)
+      const initial = parseFloat(m.initial_value || 0)
+      return target === initial
+    })
+    
+    if (neutralMetrics.length > 0) {
+      // Group neutral metrics by units and calculate progress
+      const groupedNeutral = groupMetricsByUnits(neutralMetrics)
+      groupedNeutral.forEach((group) => {
+        aggregatedProgresses.push(group.totalCurrent >= group.totalTarget ? 100 : 0)
+      })
+    }
     
     // Calculate step progress
     const stepProgress = totalSteps > 0 
       ? (completedSteps / totalSteps) * 100 
       : 0
     
-    // Average of all metrics + steps (steps have same weight as one metric)
-    const allProgresses = [...metricProgresses, stepProgress]
+    // Average of aggregated metric groups + steps (steps have same weight as one aggregated group)
+    const allProgresses = [...aggregatedProgresses]
+    if (stepProgress > 0 || allProgresses.length > 0) {
+      allProgresses.push(stepProgress)
+    }
+    
     if (allProgresses.length === 0) return 0
     
     const sum = allProgresses.reduce((acc, p) => acc + p, 0)
