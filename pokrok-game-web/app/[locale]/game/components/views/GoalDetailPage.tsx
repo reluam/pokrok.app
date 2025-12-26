@@ -398,8 +398,9 @@ export function GoalDetailPage({
       : 0
     
     // Average of aggregated metric groups + steps (steps have same weight as one aggregated group)
+    // Only include step progress if there are actual steps (totalSteps > 0)
     const allProgresses = [...aggregatedProgresses]
-    if (stepProgress > 0 || allProgresses.length > 0) {
+    if (totalSteps > 0) {
       allProgresses.push(stepProgress)
     }
     
