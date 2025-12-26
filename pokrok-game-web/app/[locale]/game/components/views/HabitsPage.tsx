@@ -45,26 +45,27 @@ export function HabitsPage({
         const containerWidth = rect.width
         if (containerWidth === 0) return // Skip if container not yet rendered
         
-        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
-        const isTablet = typeof window !== 'undefined' && window.innerWidth >= 768 && window.innerWidth < 1024
+        // Check if we're on desktop (>= 1024px) where habit names are on the left
+        // On mobile/tablet (< 1024px), habit names are above boxes
+        const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024
         
         // Each day is 32px wide + 4px gap (gap-1) = 36px total per day
-        if (isMobile || isTablet) {
-          // On mobile/tablet: habit names are above boxes, so use full width
-          // Subtract padding from container (p-4 = 16px on each side = 32px total)
-          const padding = 32
-          const availableWidth = containerWidth - padding
-          const daysThatFit = Math.ceil(availableWidth / 36)
-          const newVisibleDays = Math.max(3, daysThatFit)
-          setHabitsPageVisibleDays(newVisibleDays)
-        } else {
+        if (isDesktop) {
           // On desktop: habit names are on the left, boxes on the right
           // Subtract space for habit name column (190px on desktop)
           // Subtract space for margin between name/settings and boxes (16px on desktop - ml-4)
           const habitColumnWidth = 190
           const marginBetween = 16
           const availableWidth = containerWidth - habitColumnWidth - marginBetween
-          const daysThatFit = Math.ceil(availableWidth / 36)
+          const daysThatFit = Math.floor(availableWidth / 36) // Use floor to prevent overflow
+          const newVisibleDays = Math.max(3, daysThatFit)
+          setHabitsPageVisibleDays(newVisibleDays)
+        } else {
+          // On mobile/tablet: habit names are above boxes, so use full width
+          // Subtract padding from container (p-4 = 16px on each side = 32px total)
+          const padding = 32
+          const availableWidth = containerWidth - padding
+          const daysThatFit = Math.floor(availableWidth / 36) // Use floor to prevent overflow
           const newVisibleDays = Math.max(3, daysThatFit)
           setHabitsPageVisibleDays(newVisibleDays)
         }
@@ -337,12 +338,12 @@ export function HabitsPage({
         {/* Timeline with month, dates, and boxes for all habits */}
         <div ref={habitsPageTimelineContainerRef} className="w-full">
           {/* Month row - positioned around middle of month */}
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-1 mb-2 relative" style={{ height: '24px' }}>
+          <div className="flex flex-col lg:flex-row items-start lg:items-center gap-1 mb-2 relative" style={{ height: '24px' }}>
             {/* Spacer for habit name column - responsive width - hidden on mobile/tablet */}
-            <div className="hidden md:block w-[190px] flex-shrink-0"></div>
+            <div className="hidden lg:block w-[190px] flex-shrink-0"></div>
             
             {/* Month label positioned in dates area - full width on mobile/tablet */}
-            <div className="flex gap-1 relative w-full md:flex-1 md:min-w-0">
+            <div className="flex gap-1 relative w-full lg:flex-1 lg:min-w-0">
               {(() => {
                 if (!timelineDates || timelineDates.length === 0) {
                   return null
@@ -407,12 +408,12 @@ export function HabitsPage({
           </div>
           
           {/* Dates row - aligned with boxes (after habit name column) */}
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-1 mb-2 relative w-full">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center gap-1 mb-2 relative w-full">
             {/* Spacer for habit name column - responsive width - hidden on mobile/tablet */}
-            <div className="hidden md:block w-[190px] flex-shrink-0"></div>
+            <div className="hidden lg:block w-[190px] flex-shrink-0"></div>
             
             {/* Dates aligned with boxes - full width on mobile/tablet */}
-            <div className="flex gap-1 relative w-full md:flex-1 md:min-w-0 md:ml-4">
+            <div className="flex gap-1 relative w-full lg:flex-1 lg:min-w-0 lg:ml-4">
               {timelineDates.map((date, index) => {
                 const dateStr = getLocalDateString(date)
                 const isToday = dateStr === getLocalDateString(today)
@@ -433,7 +434,7 @@ export function HabitsPage({
                 const dayAbbr = dayNamesShort[dayOfWeek].substring(0, 2).toUpperCase()
                 
                 return (
-                  <div key={dateStr} className="relative w-[32px] md:flex-1 md:min-w-[32px] md:max-w-[32px] flex-shrink-0">
+                  <div key={dateStr} className="relative w-[32px] flex-shrink-0">
                     {isMonthStart && (
                       <div 
                         className="absolute left-0 top-0 bottom-0 w-px bg-gray-300 -ml-0.5 z-10"
@@ -473,20 +474,20 @@ export function HabitsPage({
             }).map((habit) => {
               const isSelected = selectedHabitId === habit.id
               return (
-                <div key={habit.id} className="flex flex-col md:flex-row items-start md:items-center gap-1 w-full">
+                <div key={habit.id} className="flex flex-col lg:flex-row items-start lg:items-center gap-1 w-full">
                   {/* Habit name and settings container - responsive width */}
-                  <div className="w-[140px] md:w-[190px] flex items-center gap-2 flex-shrink-0">
+                  <div className="w-[140px] lg:w-[190px] flex items-center gap-2 flex-shrink-0">
                     <button
                       onClick={() => handleOpenHabitModal(habit)}
-                      className="md:pointer-events-none text-left text-sm font-medium text-gray-700 truncate flex-1 min-w-0 hover:text-primary-600 transition-colors cursor-pointer md:cursor-default"
+                      className="lg:pointer-events-none text-left text-sm font-medium text-gray-700 truncate flex-1 min-w-0 hover:text-primary-600 transition-colors cursor-pointer lg:cursor-default"
                       title={habit.name}
                     >
                       {habit.name}
                     </button>
-                    {/* Settings icon button - visible on desktop, hidden on mobile */}
+                    {/* Settings icon button - visible on desktop, hidden on mobile/tablet */}
                     <button
                       onClick={() => handleOpenHabitModal(habit)}
-                      className="hidden md:flex btn-playful-base p-1.5 flex-shrink-0"
+                      className="hidden lg:flex btn-playful-base p-1.5 flex-shrink-0"
                       title={t('habits.settings') || 'Nastavení'}
                     >
                       <Settings className="w-4 h-4 text-black" />
@@ -494,7 +495,7 @@ export function HabitsPage({
                   </div>
                   
                   {/* Boxes row - full width on mobile/tablet, flex on desktop */}
-                  <div className="flex gap-1 relative w-full md:flex-1 md:min-w-0 ml-0 md:ml-4">
+                  <div className="flex gap-1 relative w-full lg:flex-1 lg:min-w-0 ml-0 lg:ml-4">
                     {timelineDates.map((date, index) => {
                       const dateStr = getLocalDateString(date)
                       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
@@ -510,7 +511,7 @@ export function HabitsPage({
                       const isMonthStart = index > 0 && date.getMonth() !== timelineDates[index - 1].getMonth()
                       
                       return (
-                        <div key={dateStr} className="relative w-[32px] md:flex-1 md:min-w-[32px] md:max-w-[32px] flex-shrink-0">
+                        <div key={dateStr} className="relative w-[32px] flex-shrink-0">
                           {isMonthStart && (
                             <div 
                               className="absolute left-0 top-0 bottom-0 w-px bg-gray-300 -ml-0.5 z-10"
