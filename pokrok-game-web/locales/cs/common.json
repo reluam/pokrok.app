@@ -42,7 +42,38 @@
     "nextYear": "Další rok",
     "backToCurrent": "Zpět na aktuální rok",
     "statistics": "Statistiky",
-    "dragToReorder": "Přetáhněte pro změnu pořadí"
+    "dragToReorder": "Přetáhněte pro změnu pořadí",
+    "metrics": {
+      "title": "Metriky",
+      "metric": "metrika",
+      "metrics": "metriky",
+      "create": "Vytvořit metriku",
+      "edit": "Upravit metriku",
+      "name": "Název metriky",
+      "namePlaceholder": "Např. Prodané knihy",
+      "type": "Typ metriky",
+      "types": {
+        "number": "Číslo",
+        "currency": "Měna",
+        "distance": "Vzdálenost",
+        "weight": "Hmotnost",
+        "time": "Čas",
+        "percentage": "Procento",
+        "custom": "Vlastní"
+      },
+      "targetValue": "Cílová hodnota",
+      "initialValue": "Začáteční hodnota",
+      "incrementalValue": "Inkrementální hodnota",
+      "unit": "Jednotka",
+      "unitPlaceholder": "Např. ks, kg, km",
+      "selectUnit": "Vybrat jednotku...",
+      "addValue": "Přidat hodnotu",
+      "currentValue": "Aktuální hodnota",
+      "target": "Cíl",
+      "progress": "Pokrok",
+      "remains": "Zbývá",
+      "noMetrics": "Zatím žádné metriky"
+    }
   },
   "homepage": {
     "tagline": "Aplikace pro plánování života",
@@ -278,37 +309,6 @@
     "step": "krok",
     "addStep": "Přidat krok",
     "remaining": "zbývá",
-    "metrics": {
-      "title": "Metriky",
-      "metric": "metrika",
-      "metrics": "metriky",
-      "create": "Vytvořit metriku",
-      "edit": "Upravit metriku",
-      "name": "Název metriky",
-      "namePlaceholder": "Např. Prodané knihy",
-      "type": "Typ metriky",
-      "types": {
-        "number": "Číslo",
-        "currency": "Měna",
-        "distance": "Vzdálenost",
-        "weight": "Hmotnost",
-        "time": "Čas",
-        "percentage": "Procento",
-        "custom": "Vlastní"
-      },
-      "targetValue": "Cílová hodnota",
-      "initialValue": "Začáteční hodnota",
-      "incrementalValue": "Inkrementální hodnota",
-      "unit": "Jednotka",
-      "unitPlaceholder": "Např. ks, kg, km",
-      "selectUnit": "Vybrat jednotku...",
-      "addValue": "Přidat hodnotu",
-      "currentValue": "Aktuální hodnota",
-      "target": "Cíl",
-      "progress": "Pokrok",
-      "remains": "Zbývá",
-      "noMetrics": "Zatím žádné metriky"
-    },
     "milestones": "Milníky",
     "addMilestone": "Přidat milník",
     "noMilestones": "Žádné milníky",
@@ -1529,12 +1529,6 @@
       "habitName": "Návyk",
       "function": "Návyky můžete vázat k oblasti a nastavit jejich frekvenci (denně, týdně, nebo vlastní dny)."
     },
-    "complete": {
-      "title": "Tutoriál dokončen!",
-      "description": "Nyní víte, jak používat Pokrok. Začněte vytvářet své oblasti, cíle, kroky a návyky a posouvejte se směrem k životu plnému smyslu a naplnění!",
-      "message": "Vše je připraveno! Můžete začít používat aplikaci.",
-      "button": "Dokončit"
-    },
     "addButton": {
       "title": "Tlačítko Add",
       "description": "Tlačítkem Add vlevo dole můžete přidat Oblast, Cíl, Krok nebo Návyk.",
@@ -1586,6 +1580,7 @@
     "complete": {
       "title": "Tutoriál dokončen!",
       "description": "Pokud budete kdykoliv tápat, můžete kliknout nahoře v menu na Nápovědu, kde najdete veškeré informace a kde také můžete tutoriál zapnout znovu.",
+      "message": "Vše je připraveno! Můžete začít používat aplikaci.",
       "button": "Dokončit tutoriál"
     },
     "mobile": {
