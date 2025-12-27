@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 
 interface ViewTypeSettingsProps {
-  viewType: 'day' | 'week' | 'month' | 'year' | 'areas' | 'only_the_important' | 'daily_review'
+  viewType: 'day' | 'week' | 'month' | 'year' | 'areas'
   userId: string
 }
 
@@ -49,12 +49,6 @@ const VIEW_SECTIONS: Record<string, ViewSection[]> = {
     { key: 'todayFocus', labelKey: '', defaultVisible: true },
     { key: 'futureSteps', labelKey: '', defaultVisible: true },
     { key: 'overdueSteps', labelKey: '', defaultVisible: true }
-  ],
-  only_the_important: [
-    // No specific sections for now - this is a special view
-  ],
-  daily_review: [
-    // No specific sections for now - this is a special view
   ]
 }
 

@@ -11,7 +11,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { OnlyTheImportantSettings } from './views/settings/OnlyTheImportantSettings'
 import { ViewTypeSettings } from './views/settings/ViewTypeSettings'
 
-type ViewType = 'calendar' | 'areas' | 'only_the_important' | 'daily_review'
+type ViewType = 'day' | 'week' | 'month' | 'year' | 'areas'
 
 interface ViewConfiguration {
   id: string
@@ -47,17 +47,18 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
   const [loading, setLoading] = useState(true)
   const [configurations, setConfigurations] = useState<ViewConfiguration[]>([])
   const [availableWorkflows, setAvailableWorkflows] = useState<Record<string, AvailableWorkflow>>({})
-  const [selectedViewType, setSelectedViewType] = useState<ViewType | null>('calendar')
+  const [selectedViewType, setSelectedViewType] = useState<ViewType | null>('day')
   const [selectedWorkflow, setSelectedWorkflow] = useState<string | null>(null)
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState<string | null>(null)
   const [viewTypeVisibility, setViewTypeVisibility] = useState<Record<ViewType, boolean>>({
-    calendar: true,
-    areas: true,
-    only_the_important: true,
-    daily_review: true
+    day: true,
+    week: true,
+    month: true,
+    year: true,
+    areas: true
   })
-  const [allViewsOrder, setAllViewsOrder] = useState<ViewType[]>(['only_the_important', 'daily_review', 'calendar', 'areas']) // Unified order of all views
+  const [allViewsOrder, setAllViewsOrder] = useState<ViewType[]>(['day', 'week', 'month', 'year', 'areas']) // Unified order of all views
   const [activeId, setActiveId] = useState<string | null>(null)
   const [onlyImportantMaxTasks, setOnlyImportantMaxTasks] = useState<number>(3)
   const [isSavingMaxTasks, setIsSavingMaxTasks] = useState(false)
@@ -76,14 +77,7 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
     loadData()
   }, [])
 
-  // Update max tasks when config changes
-  useEffect(() => {
-    if (selectedViewType === 'only_the_important') {
-      const config = getWorkflowConfig('only_the_important')
-      const currentMaxTasks = config?.settings?.workflowSettings?.important_steps_count || 3
-      setOnlyImportantMaxTasks(currentMaxTasks)
-    }
-  }, [configurations, selectedViewType])
+  // Update max tasks when config changes - removed as only_the_important is no longer used
 
   const loadData = async () => {
     try {
@@ -108,7 +102,7 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
       }
 
       // Load view type visibility settings and order - unified list
-      const viewTypes: ViewType[] = ['calendar', 'areas', 'only_the_important', 'daily_review']
+      const viewTypes: ViewType[] = ['day', 'week', 'month', 'year', 'areas']
       const visibilityPromises = viewTypes.map(async (viewType) => {
         try {
           const response = await fetch(`/api/view-settings?view_type=${viewType}`)
@@ -126,10 +120,11 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
 
       const visibilityResults = await Promise.all(visibilityPromises)
       const visibilityMap: Record<ViewType, boolean> = {
-        calendar: true,
-        areas: true,
-        only_the_important: true,
-        daily_review: true
+        day: true,
+        week: true,
+        month: true,
+        year: true,
+        areas: true
       }
       visibilityResults.forEach(({ viewType, visibleInNav }) => {
         visibilityMap[viewType] = visibleInNav
@@ -145,7 +140,7 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
       })
       
       // Sort all views together by order_index
-      const allViews: ViewType[] = ['only_the_important', 'daily_review', 'calendar', 'areas']
+      const allViews: ViewType[] = ['day', 'week', 'month', 'year', 'areas']
       const viewsWithOrder = allViews
         .filter(vt => orderMap.has(vt))
         .sort((a, b) => (orderMap.get(a) || 0) - (orderMap.get(b) || 0))
@@ -288,10 +283,11 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
   }
 
   const viewTypeLabels: Record<ViewType, { label: string; icon: any }> = {
-    calendar: { label: t('navigation.calendar') || 'Kalendář', icon: Calendar },
-    areas: { label: t('areas.title') || 'Oblasti', icon: LayoutDashboard },
-    only_the_important: { label: t('views.onlyTheImportant.name'), icon: Target },
-    daily_review: { label: t('views.dailyReview.name'), icon: BookOpen }
+    day: { label: t('calendar.day') || 'Denní', icon: CalendarDays },
+    week: { label: t('calendar.week') || 'Týdenní', icon: CalendarRange },
+    month: { label: t('calendar.month') || 'Měsíční', icon: Calendar },
+    year: { label: t('calendar.year') || 'Roční', icon: CalendarCheck },
+    areas: { label: t('areas.title') || 'Oblasti', icon: LayoutDashboard }
   }
 
   // Sortable View Item Component
@@ -473,32 +469,6 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
             <h2 className="text-lg font-bold text-black font-playful flex-1">{t('navigation.title') || 'Navigation'}</h2>
           </div>
           
-          {/* Workflows list */}
-          <div className="space-y-1.5 mb-4">
-            {allWorkflows.map(({ workflow, config }) => {
-              const isActive = selectedWorkflow === workflow.key
-              const isEnabled = config?.enabled || false
-              
-              return (
-                <button
-                  key={workflow.key}
-                  onClick={() => handleMenuClick(workflow.key, null)}
-                  className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                    isActive ? 'active' : ''
-                  }`}
-                >
-                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${isEnabled ? 'bg-green-500' : 'bg-gray-300'}`} />
-                  <span className="font-medium text-sm truncate">{t(workflow.nameKey)}</span>
-                  {workflow.requiresPremium && (
-                    <span className="text-xs bg-yellow-200 text-yellow-800 px-1.5 py-0.5 rounded font-playful flex-shrink-0 ml-auto">
-                      Premium
-                    </span>
-                  )}
-                </button>
-              )
-            })}
-          </div>
-
           {/* All views - unified list without section headers */}
           <div className="pt-4 border-t-2 border-primary-200">
             <DndContext
@@ -682,337 +652,51 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
               {/* Show view type settings */}
               {selectedViewType && (
                 <div>
-                  {/* Calendar view and other views */}
-                  {selectedViewType === 'calendar' ? (
-                    <div>
-                      <h3 className="text-2xl font-bold font-playful mb-4">
-                        {viewTypeLabels[selectedViewType].label}
-                      </h3>
-                      
-                      <div className="bg-white border-2 border-primary-500 rounded-playful-md p-4 space-y-4">
-                        {/* Visibility toggle with description */}
-                        <div className="flex items-center justify-between p-4 bg-primary-50 rounded-playful-sm border-2 border-primary-200">
-                          <div className="flex-1">
-                            <h4 className="text-base font-bold font-playful mb-1">
-                              {t('views.showInNavigation') || 'Zobrazit v navigaci'}
-                            </h4>
-                            <p className="text-sm text-gray-600 font-playful">
-                              {t('views.showInNavigationDescription') || 'Pokud je zapnuto, tento view se zobrazí v navigačním panelu na hlavním panelu.'}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => toggleViewTypeVisibility(selectedViewType, viewTypeVisibility[selectedViewType] !== false)}
-                            disabled={isUpdating === `view-${selectedViewType}`}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ml-4 ${
-                              viewTypeVisibility[selectedViewType] !== false ? 'bg-primary-500' : 'bg-gray-300'
-                            } disabled:opacity-50 disabled:cursor-not-allowed`}
-                            title={viewTypeVisibility[selectedViewType] !== false ? t('views.hide') || 'Skrýt v navigaci' : t('views.show') || 'Zobrazit v navigaci'}
-                          >
-                            <span
-                              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                viewTypeVisibility[selectedViewType] !== false ? 'translate-x-6' : 'translate-x-1'
-                              }`}
-                            />
-                          </button>
-                        </div>
-                        
-                        <div className="p-4 bg-primary-50 rounded-playful-sm border-2 border-primary-200">
-                          <p className="text-sm text-gray-600 font-playful">
-                            {t('views.calendar.description')}
-                          </p>
-                        </div>
+                  <h3 className="text-2xl font-bold font-playful mb-4">
+                    {viewTypeLabels[selectedViewType].label}
+                  </h3>
+                  
+                  <div className="bg-white border-2 border-primary-500 rounded-playful-md p-4 space-y-4">
+                    {/* Visibility toggle with description */}
+                    <div className="flex items-center justify-between p-4 bg-primary-50 rounded-playful-sm border-2 border-primary-200">
+                      <div className="flex-1">
+                        <h4 className="text-base font-bold font-playful mb-1">
+                          {t('views.showInNavigation') || 'Zobrazit v navigaci'}
+                        </h4>
+                        <p className="text-sm text-gray-600 font-playful">
+                          {t('views.showInNavigationDescription') || 'Pokud je zapnuto, tento view se zobrazí v navigačním panelu na hlavním panelu.'}
+                        </p>
                       </div>
+                      <button
+                        onClick={() => toggleViewTypeVisibility(selectedViewType, viewTypeVisibility[selectedViewType] !== false)}
+                        disabled={isUpdating === `view-${selectedViewType}`}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ml-4 ${
+                          viewTypeVisibility[selectedViewType] !== false ? 'bg-primary-500' : 'bg-gray-300'
+                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                        title={viewTypeVisibility[selectedViewType] !== false ? t('views.hide') || 'Skrýt v navigaci' : t('views.show') || 'Zobrazit v navigaci'}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            viewTypeVisibility[selectedViewType] !== false ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
                     </div>
-                  ) : (
-                    // Other views (areas, only_the_important, daily_review)
-                    <div>
-                      <h3 className="text-2xl font-bold font-playful mb-4">
-                        {viewTypeLabels[selectedViewType].label}
-                      </h3>
-                      
-                      <div className="bg-white border-2 border-primary-500 rounded-playful-md p-4 space-y-4">
-                        {/* Visibility toggle with description */}
-                        <div className="flex items-center justify-between p-4 bg-primary-50 rounded-playful-sm border-2 border-primary-200">
-                          <div className="flex-1">
-                            <h4 className="text-base font-bold font-playful mb-1">
-                              {t('views.showInNavigation') || 'Zobrazit v navigaci'}
-                            </h4>
-                            <p className="text-sm text-gray-600 font-playful">
-                              {t('views.showInNavigationDescription') || 'Pokud je zapnuto, tento view se zobrazí v navigačním panelu na hlavním panelu.'}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => toggleViewTypeVisibility(selectedViewType, viewTypeVisibility[selectedViewType] !== false)}
-                            disabled={isUpdating === `view-${selectedViewType}`}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ml-4 ${
-                              viewTypeVisibility[selectedViewType] !== false ? 'bg-primary-500' : 'bg-gray-300'
-                            } disabled:opacity-50 disabled:cursor-not-allowed`}
-                            title={viewTypeVisibility[selectedViewType] !== false ? t('views.hide') || 'Skrýt v navigaci' : t('views.show') || 'Zobrazit v navigaci'}
-                          >
-                            <span
-                              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                viewTypeVisibility[selectedViewType] !== false ? 'translate-x-6' : 'translate-x-1'
-                              }`}
-                            />
-                          </button>
-                        </div>
 
-                        {/* Section visibility settings - only for views that have sections */}
-                        {player?.user_id && selectedViewType === 'areas' && (
-                          <ViewTypeSettings viewType={selectedViewType as 'areas'} userId={player.user_id} />
-                        )}
-                        {selectedViewType === 'only_the_important' && (() => {
-                          const config = getWorkflowConfig('only_the_important')
-
-                          const handleSaveMaxTasks = async () => {
-                            if (!config) {
-                              // Create new configuration if it doesn't exist
-                              setIsSavingMaxTasks(true)
-                              try {
-                                const response = await fetch('/api/view-configurations', {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({
-                                    workflow_key: 'only_the_important',
-                                    enabled: true,
-                                    settings: {
-                                      workflowSettings: { important_steps_count: onlyImportantMaxTasks }
-                                    }
-                                  })
-                                })
-                                if (response.ok) {
-                                  loadData()
-                                }
-                              } catch (error) {
-                                console.error('Error saving max tasks:', error)
-                              } finally {
-                                setIsSavingMaxTasks(false)
-                              }
-                              return
-                            }
-
-                            setIsSavingMaxTasks(true)
-                            try {
-                              const updatedSettings = {
-                                ...config.settings,
-                                workflowSettings: { important_steps_count: onlyImportantMaxTasks }
-                              }
-                              const response = await fetch(`/api/view-configurations/${config.id}`, {
-                                method: 'PUT',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ settings: updatedSettings })
-                              })
-                              if (response.ok) {
-                                loadData()
-                              }
-                            } catch (error) {
-                              console.error('Error saving max tasks:', error)
-                            } finally {
-                              setIsSavingMaxTasks(false)
-                            }
-                          }
-
-                          return (
-                            <div className="space-y-4">
-                              <div className="p-4 bg-primary-50 rounded-playful-sm border-2 border-primary-200">
-                                <p className="text-sm text-gray-600 font-playful mb-4">
-                                  {t('views.onlyTheImportant.description')}
-                                </p>
-                                
-                                <div>
-                                  <label className="block text-sm font-bold text-black font-playful mb-2">
-                                    {t('workflows.onlyTheImportant.settings.maxTasks') || 'Maximální počet tasků'}
-                                  </label>
-                                  <div className="flex items-center gap-3">
-                                    <input
-                                      type="number"
-                                      min="1"
-                                      max="10"
-                                      value={onlyImportantMaxTasks}
-                                      onChange={(e) => setOnlyImportantMaxTasks(parseInt(e.target.value) || 3)}
-                                      onBlur={handleSaveMaxTasks}
-                                      className="w-24 p-2 border-2 border-primary-500 rounded-playful-md font-playful bg-white"
-                                      disabled={isSavingMaxTasks}
-                                    />
-                                    <button
-                                      onClick={handleSaveMaxTasks}
-                                      disabled={isSavingMaxTasks}
-                                      className="btn-playful-primary px-3 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                      {isSavingMaxTasks ? t('common.saving') || 'Ukládám...' : t('common.save') || 'Uložit'}
-                                    </button>
-                                  </div>
-                                  <p className="text-xs text-gray-600 mt-1 font-playful">
-                                    {t('workflows.onlyTheImportant.settings.maxTasksDescription') || 'Maximální počet důležitých tasků, které se zobrazí v tomto view.'}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          )
-                        })()}
-                        {selectedViewType === 'daily_review' && (
-                          <div className="p-4 bg-primary-50 rounded-playful-sm border-2 border-primary-200">
-                            <p className="text-sm text-gray-600 font-playful">
-                              {t('views.dailyReview.description')}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
+                    {/* Section visibility settings - only for views that have sections */}
+                    {player?.user_id && (selectedViewType === 'day' || selectedViewType === 'week' || selectedViewType === 'month' || selectedViewType === 'year' || selectedViewType === 'areas') && (
+                      <ViewTypeSettings viewType={selectedViewType} userId={player.user_id} />
+                    )}
+                  </div>
                 </div>
               )}
               
-              {!selectedViewType && !selectedWorkflow && (
-                <>
-                  <h3 className="text-2xl font-bold font-playful mb-6">
-                    {t('workflows.title')}
-                  </h3>
-                  
-                  <p className="text-sm text-gray-600 font-playful mb-6">
-                    {t('workflows.description') || 'Aktivujte workflows, které chcete zobrazit v navigaci jako samostatné views.'}
+              {!selectedViewType && (
+                <div className="text-center py-12">
+                  <p className="text-gray-600 font-playful">
+                    {t('views.selectView') || 'Vyberte view z levého menu pro úpravu nastavení.'}
                   </p>
-                  
-                  {allWorkflows.length === 0 ? (
-                    <div className="bg-white border-2 border-primary-500 rounded-playful-md p-6 text-center">
-                      <p className="text-gray-600 font-playful">
-                        {t('workflows.noWorkflowsAvailable') || 'Nejsou k dispozici žádné workflows.'}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {allWorkflows.map(({ workflow, config }) => {
-                        const isEnabled = config?.enabled || false
-                        const isUpdatingThis = isUpdating === workflow.key || isUpdating === config?.id
-                        const showThisSettings = showSettings === config?.id
-
-                        const workflowItem = (
-                          <div key={workflow.key} className="bg-white border-2 border-primary-500 rounded-playful-md">
-                            {/* Workflow header - clickable to show/hide settings */}
-                            <div 
-                              className="flex items-center justify-between p-4 cursor-pointer hover:bg-primary-50 transition-colors"
-                              onClick={() => {
-                                if (isEnabled && config) {
-                                  setShowSettings(showThisSettings ? null : config.id)
-                                }
-                              }}
-                            >
-                              <div className="flex-1 flex items-center gap-3">
-                                <div className="flex items-center gap-2 flex-1 min-w-0">
-                                  <h3 className="font-bold text-base font-playful truncate">
-                                    {t(workflow.nameKey)}
-                                  </h3>
-                                  {workflow.requiresPremium && (
-                                    <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded font-playful flex-shrink-0">
-                                      Premium
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                              
-                              <div className="flex items-center gap-3 flex-shrink-0">
-                                {/* Status indicator */}
-                                <div className={`w-3 h-3 rounded-full ${isEnabled ? 'bg-green-500' : 'bg-gray-300'}`} />
-                                
-                                {/* Settings button */}
-                                {isEnabled && config && (
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      setShowSettings(showThisSettings ? null : config.id)
-                                    }}
-                                    className="btn-playful-secondary px-2 py-1 text-xs"
-                                    title={t('views.configure')}
-                                  >
-                                    <Settings className="w-4 h-4" />
-                                  </button>
-                                )}
-                                
-                                {/* Toggle button */}
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    toggleWorkflow(workflow.key, isEnabled)
-                                  }}
-                                  disabled={isUpdatingThis || (workflow.requiresPremium && !isPremium)}
-                                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ${
-                                    isEnabled ? 'bg-primary-500' : 'bg-gray-300'
-                                  } disabled:opacity-50 disabled:cursor-not-allowed`}
-                                  title={isEnabled ? t('views.deactivate') : t('views.activate')}
-                                >
-                                  <span
-                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                      isEnabled ? 'translate-x-6' : 'translate-x-1'
-                                    }`}
-                                  />
-                                </button>
-                              </div>
-                            </div>
-                            
-                            {/* Workflow description */}
-                            <div className="px-4 pb-3">
-                              <p className="text-sm text-gray-600 font-playful">
-                                {t(workflow.descriptionKey)}
-                              </p>
-                            </div>
-
-                            {/* Settings Panel */}
-                            {showThisSettings && config && isEnabled && (
-                              <div className="px-4 pb-4 pt-2 border-t-2 border-primary-200 space-y-4">
-                                {/* Workflow-specific Settings */}
-                                {workflow.key === 'only_the_important' && (
-                                  <div>
-                                    <h4 className="text-sm font-bold text-black font-playful mb-2">
-                                      {t('workflows.onlyTheImportant.settings.title')}
-                                    </h4>
-                                    <OnlyTheImportantSettings
-                                      importantStepsCount={config.settings?.workflowSettings?.important_steps_count || 3}
-                                      onSave={(workflowSettings) => handleSaveSettings(config.id, { workflowSettings })}
-                                      onCancel={() => setShowSettings(null)}
-                                      isSaving={isUpdating === config.id}
-                                    />
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        )
-
-                        // Wrap in Protect if requires premium
-                        if (workflow.requiresPremium) {
-                          return (
-                            <Protect key={workflow.key} plan="premium" fallback={
-                              <div className="bg-gray-100 border-2 border-gray-300 rounded-playful-md p-4 opacity-60">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <h3 className="font-bold text-base font-playful">
-                                        {t(workflow.nameKey)}
-                                      </h3>
-                                      <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded font-playful">
-                                        Premium
-                                      </span>
-                                    </div>
-                                    <p className="text-sm text-gray-600 font-playful">
-                                      {t(workflow.descriptionKey)}
-                                    </p>
-                                  </div>
-                                </div>
-                                <p className="text-sm text-gray-600 font-playful mt-2">
-                                  {t('settings.subscription.upgradePrompt')}
-                                </p>
-                              </div>
-                            }>
-                              {workflowItem}
-                            </Protect>
-                          )
-                        }
-
-                        return workflowItem
-                      })}
-                    </div>
-                  )}
-                </>
+                </div>
               )}
             </>
           )}

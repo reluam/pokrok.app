@@ -1,24 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth-helpers'
 
-// Available workflows definitions
-// Workflows are now standalone views, not tied to specific view types
-export const AVAILABLE_WORKFLOWS = {
-  only_the_important: {
-    key: 'only_the_important',
-    nameKey: 'views.onlyTheImportant.name',
-    descriptionKey: 'views.onlyTheImportant.description',
-    requiresPremium: true,
-    icon: 'Target' // Use Target icon for "Only the important"
-  },
-  daily_review: {
-    key: 'daily_review',
-    nameKey: 'views.dailyReview.name',
-    descriptionKey: 'views.dailyReview.description',
+// Available calendar view types
+export const AVAILABLE_VIEWS = {
+  day: {
+    key: 'day',
+    nameKey: 'calendar.day',
+    descriptionKey: 'views.dailyDesc',
     requiresPremium: false,
-    icon: 'BookOpen' // Use BookOpen icon for "Daily review"
+    icon: 'Calendar'
+  },
+  week: {
+    key: 'week',
+    nameKey: 'calendar.week',
+    descriptionKey: 'views.weeklyDesc',
+    requiresPremium: false,
+    icon: 'Calendar'
+  },
+  month: {
+    key: 'month',
+    nameKey: 'calendar.month',
+    descriptionKey: 'views.monthlyDesc',
+    requiresPremium: false,
+    icon: 'Calendar'
+  },
+  year: {
+    key: 'year',
+    nameKey: 'calendar.year',
+    descriptionKey: 'views.yearlyDesc',
+    requiresPremium: false,
+    icon: 'Calendar'
   }
-  // Přidat další workflows podle potřeby
 }
 
 export async function GET(request: NextRequest) {
@@ -27,7 +39,7 @@ export async function GET(request: NextRequest) {
     const authResult = await requireAuth(request)
     if (authResult instanceof NextResponse) return authResult
 
-    return NextResponse.json(Object.values(AVAILABLE_WORKFLOWS))
+    return NextResponse.json(Object.values(AVAILABLE_VIEWS))
   } catch (error) {
     console.error('Error fetching available views:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

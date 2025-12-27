@@ -1,8 +1,5 @@
 'use client'
 
-import { useState } from 'react'
-import { useTranslations } from 'next-intl'
-import { CalendarDays, CalendarRange, Calendar, CalendarCheck } from 'lucide-react'
 import { DayView } from './DayView'
 import { WeekView } from './WeekView'
 import { MonthView } from './MonthView'
@@ -37,6 +34,7 @@ interface CalendarViewProps {
   areas?: any[]
   userId?: string | null
   visibleSections?: Record<string, boolean>
+  viewType?: CalendarViewType // View type passed from parent based on navigation
 }
 
 export function CalendarView({
@@ -65,50 +63,14 @@ export function CalendarView({
   setSelectedYear,
   areas = [],
   userId,
-  visibleSections
+  visibleSections,
+  viewType = 'day' // Default to day if not specified
 }: CalendarViewProps) {
-  const t = useTranslations()
-  const [currentViewType, setCurrentViewType] = useState<CalendarViewType>('day')
-
-  const viewOptions: Array<{ type: CalendarViewType; icon: any; labelKey: string }> = [
-    { type: 'day', icon: CalendarDays, labelKey: 'navigation.focusDay' },
-    { type: 'week', icon: CalendarRange, labelKey: 'navigation.focusWeek' },
-    { type: 'month', icon: Calendar, labelKey: 'navigation.focusMonth' },
-    { type: 'year', icon: CalendarCheck, labelKey: 'navigation.focusYear' }
-  ]
-
   return (
     <div className="w-full h-full flex flex-col bg-primary-50">
-      {/* View type switcher */}
-      <div className="flex-shrink-0 bg-white border-b-2 border-primary-500 py-2">
-        <div className="flex items-center justify-start md:justify-center gap-2 overflow-x-auto scrollbar-hide px-4">
-          <div className="flex items-center gap-2 min-w-max md:min-w-0">
-            {viewOptions.map((option) => {
-              const IconComponent = option.icon
-              const isActive = currentViewType === option.type
-              
-              return (
-                <button
-                  key={option.type}
-                  onClick={() => setCurrentViewType(option.type)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-playful-sm transition-all border-2 font-playful text-sm whitespace-nowrap flex-shrink-0 ${
-                    isActive
-                      ? 'bg-primary-500 text-white border-primary-500'
-                      : 'bg-white text-black border-primary-300 hover:bg-primary-50'
-                  }`}
-                >
-                  <IconComponent className="w-4 h-4" />
-                  <span>{t(option.labelKey)}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-
       {/* Render selected view */}
       <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
-        {currentViewType === 'day' && (
+        {viewType === 'day' && (
           <DayView
             goals={goals}
             habits={habits}
@@ -131,7 +93,7 @@ export function CalendarView({
           />
         )}
         
-        {currentViewType === 'week' && (
+        {viewType === 'week' && (
           <WeekView
             player={player}
             goals={goals}
@@ -151,7 +113,7 @@ export function CalendarView({
           />
         )}
         
-        {currentViewType === 'month' && (
+        {viewType === 'month' && (
           <MonthView
             goals={goals}
             habits={habits}
@@ -169,7 +131,7 @@ export function CalendarView({
           />
         )}
         
-        {currentViewType === 'year' && (
+        {viewType === 'year' && (
           <YearView
             goals={goals}
             habits={habits}

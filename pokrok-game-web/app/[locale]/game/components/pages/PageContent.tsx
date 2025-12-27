@@ -1293,6 +1293,15 @@ export function PageContent(props: PageContentProps) {
             case 'focus-month':
             case 'focus-year':
             case 'focus-calendar':
+              // Map mainPanelSection to viewType
+              const getViewType = (section: string): 'day' | 'week' | 'month' | 'year' => {
+                if (section === 'focus-day') return 'day'
+                if (section === 'focus-week') return 'week'
+                if (section === 'focus-month') return 'month'
+                if (section === 'focus-year') return 'year'
+                return 'day' // Default fallback
+              }
+              
               return (
                 <CalendarView
                   goals={goals}
@@ -1321,6 +1330,7 @@ export function PageContent(props: PageContentProps) {
                   areas={areas}
                   userId={userId}
                   visibleSections={visibleSections}
+                  viewType={getViewType(mainPanelSection)}
                 />
               )
             case 'goals':
