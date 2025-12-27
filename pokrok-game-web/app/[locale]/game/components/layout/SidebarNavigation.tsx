@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Target, Plus, Footprints, CheckSquare, Settings, Calendar, CalendarRange, CalendarDays, CalendarCheck, BookOpen } from 'lucide-react'
+import { LayoutDashboard, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Target, Plus, Footprints, CheckSquare, Settings, Calendar, CalendarRange, CalendarDays, CalendarCheck } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
 
 interface SidebarNavigationProps {
@@ -89,11 +89,9 @@ export function SidebarNavigation({
   // Load view type visibility settings and order
   const [viewTypeVisibility, setViewTypeVisibility] = useState<Record<string, boolean>>({
     calendar: true,
-    areas: true,
-    only_the_important: true,
-    daily_review: true
+    areas: true
   })
-  const [allViewsOrder, setAllViewsOrder] = useState<string[]>(['only_the_important', 'daily_review', 'calendar', 'areas'])
+  const [allViewsOrder, setAllViewsOrder] = useState<string[]>(['calendar', 'areas'])
 
   useEffect(() => {
     const loadViewSettings = async () => {
@@ -116,7 +114,7 @@ export function SidebarNavigation({
           })
           
           // Set defaults for missing views
-          const defaultViews = ['calendar', 'areas', 'only_the_important', 'daily_review']
+          const defaultViews = ['calendar', 'areas']
           defaultViews.forEach(viewType => {
             if (!(viewType in visibilityMap)) {
               visibilityMap[viewType] = true
@@ -126,7 +124,7 @@ export function SidebarNavigation({
           setViewTypeVisibility(visibilityMap)
           
           // Sort all views by order_index
-          const allViews = ['only_the_important', 'daily_review', 'calendar', 'areas']
+          const allViews = ['calendar', 'areas']
           const viewsWithOrder = allViews
             .filter(vt => orderMap.has(vt))
             .sort((a, b) => (orderMap.get(a) || 0) - (orderMap.get(b) || 0))
@@ -175,68 +173,101 @@ export function SidebarNavigation({
         <nav className={`${sidebarCollapsed ? 'space-y-2 flex flex-col items-center' : 'space-y-2'}`}>
           {!sidebarCollapsed ? (
             <>
-              {/* All views in one list - no section headers */}
+              {/* Calendar views - Day, Week, Month, Year */}
               <div className="space-y-1.5 mb-4">
-                {allViewsOrder.map((viewType) => {
-                  const isVisible = viewTypeVisibility[viewType] !== false
-                  if (!isVisible) return null
-                  
-                  // Map view types to section keys and configs
-                  let sectionKey: string
-                  let icon: any
-                  let labelKey: string
-                  
-                  if (viewType === 'calendar') {
-                    sectionKey = 'focus-calendar'
-                    icon = Calendar
-                    labelKey = 'navigation.calendar'
-                  } else if (viewType === 'only_the_important') {
-                    sectionKey = 'focus-only_the_important'
-                    icon = Target
-                    labelKey = 'views.onlyTheImportant.name'
-                  } else if (viewType === 'daily_review') {
-                    sectionKey = 'focus-daily_review'
-                    icon = BookOpen
-                    labelKey = 'views.dailyReview.name'
-                  } else if (viewType === 'areas') {
-                    // Areas will be handled separately below
-                    return null
-                  } else {
-                    return null
-                  }
-                  
-                  const isActive = mainPanelSection === sectionKey || 
-                    (viewType === 'calendar' && ['focus-day', 'focus-week', 'focus-month', 'focus-year'].includes(mainPanelSection))
-                  
-                  const IconComponent = icon
-                  const label = t(labelKey) || viewType
-                  
-                  return (
-                    <button
-                      key={viewType}
-                      onClick={() => setMainPanelSection(sectionKey)}
-                      className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                        isActive ? 'active' : ''
-                      }`}
-                    >
-                      <IconComponent className="w-4 h-4 flex-shrink-0" />
-                      <span className="font-medium text-sm">{label}</span>
-                    </button>
-                  )
-                })}
+                {/* Day view */}
+                <button
+                  onClick={() => setMainPanelSection('focus-day')}
+                  className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
+                    mainPanelSection === 'focus-day' ? 'active' : ''
+                  }`}
+                >
+                  <Calendar className="w-4 h-4 flex-shrink-0" />
+                  <span className="font-medium text-sm">{t('calendar.day') || 'Denní'}</span>
+                </button>
+                
+                {/* Week view */}
+                <button
+                  onClick={() => setMainPanelSection('focus-week')}
+                  className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
+                    mainPanelSection === 'focus-week' ? 'active' : ''
+                  }`}
+                >
+                  <CalendarRange className="w-4 h-4 flex-shrink-0" />
+                  <span className="font-medium text-sm">{t('calendar.week') || 'Týdenní'}</span>
+                </button>
+                
+                {/* Month view */}
+                <button
+                  onClick={() => setMainPanelSection('focus-month')}
+                  className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
+                    mainPanelSection === 'focus-month' ? 'active' : ''
+                  }`}
+                >
+                  <CalendarDays className="w-4 h-4 flex-shrink-0" />
+                  <span className="font-medium text-sm">{t('calendar.month') || 'Měsíční'}</span>
+                </button>
+                
+                {/* Year view */}
+                <button
+                  onClick={() => setMainPanelSection('focus-year')}
+                  className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
+                    mainPanelSection === 'focus-year' ? 'active' : ''
+                  }`}
+                >
+                  <CalendarCheck className="w-4 h-4 flex-shrink-0" />
+                  <span className="font-medium text-sm">{t('calendar.year') || 'Roční'}</span>
+                </button>
               </div>
+              
+              {/* Areas - handled separately below */}
+              {allViewsOrder.map((viewType) => {
+                if (viewType !== 'areas') return null
+                const isVisible = viewTypeVisibility[viewType] !== false
+                if (!isVisible) return null
+                return null // Areas are handled separately below
+              })}
             </>
           ) : (
-            // Collapsed sidebar - show Calendar icon
-            <button
-              onClick={() => setMainPanelSection('focus-calendar')}
-              className={`btn-playful-nav flex items-center justify-center w-10 h-10 ${
-                ['focus-day', 'focus-week', 'focus-month', 'focus-year', 'focus-calendar'].includes(mainPanelSection) ? 'active' : ''
-              }`}
-              title={t('navigation.calendar') || 'Calendar'}
-            >
-              <Calendar className="w-5 h-5 flex-shrink-0" />
-            </button>
+            // Collapsed sidebar - show calendar view icons
+            <>
+              <button
+                onClick={() => setMainPanelSection('focus-day')}
+                className={`btn-playful-nav flex items-center justify-center w-10 h-10 ${
+                  mainPanelSection === 'focus-day' ? 'active' : ''
+                }`}
+                title={t('calendar.day') || 'Denní'}
+              >
+                <Calendar className="w-5 h-5 flex-shrink-0" />
+              </button>
+              <button
+                onClick={() => setMainPanelSection('focus-week')}
+                className={`btn-playful-nav flex items-center justify-center w-10 h-10 ${
+                  mainPanelSection === 'focus-week' ? 'active' : ''
+                }`}
+                title={t('calendar.week') || 'Týdenní'}
+              >
+                <CalendarRange className="w-5 h-5 flex-shrink-0" />
+              </button>
+              <button
+                onClick={() => setMainPanelSection('focus-month')}
+                className={`btn-playful-nav flex items-center justify-center w-10 h-10 ${
+                  mainPanelSection === 'focus-month' ? 'active' : ''
+                }`}
+                title={t('calendar.month') || 'Měsíční'}
+              >
+                <CalendarDays className="w-5 h-5 flex-shrink-0" />
+              </button>
+              <button
+                onClick={() => setMainPanelSection('focus-year')}
+                className={`btn-playful-nav flex items-center justify-center w-10 h-10 ${
+                  mainPanelSection === 'focus-year' ? 'active' : ''
+                }`}
+                title={t('calendar.year') || 'Roční'}
+              >
+                <CalendarCheck className="w-5 h-5 flex-shrink-0" />
+              </button>
+            </>
           )}
           
           {/* Active Workflows - after Focus, before Areas */}

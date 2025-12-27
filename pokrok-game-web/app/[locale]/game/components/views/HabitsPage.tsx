@@ -125,11 +125,34 @@ export function HabitsPage({
       
       // Get start date from database (start_date field), not from earliest completion
       // This ensures we only count from when the habit was actually created/started
-      const habitStartDateStr = (habit as any).start_date || habit.created_at
+      // If start_date is not set, use created_at, but ensure we count from the earliest possible date
+      let habitStartDateStr = (habit as any).start_date || habit.created_at
+      
+      // If no start_date is set, check if there are any completions before created_at
+      // This handles cases where habits were created before start_date was added
+      if (!(habit as any).start_date && habit.habit_completions) {
+        const completionDates = Object.keys(habit.habit_completions)
+          .filter(date => habit.habit_completions[date] === true)
+          .map(date => new Date(date))
+          .filter(date => !isNaN(date.getTime()))
+        
+        if (completionDates.length > 0) {
+          const earliestCompletion = new Date(Math.min(...completionDates.map(d => d.getTime())))
+          const createdDate = habit.created_at ? new Date(habit.created_at) : new Date()
+          // Use the earlier of the two dates
+          if (earliestCompletion < createdDate) {
+            habitStartDateStr = earliestCompletion.toISOString().split('T')[0]
+          }
+        }
+      }
+      
       const habitStartDate = new Date(habitStartDateStr)
       habitStartDate.setHours(0, 0, 0, 0)
       
       // Go from start date to today (only count days after start_date)
+      // IMPORTANT: Count ALL scheduled days from start_date to today, regardless of streak breaks
+      // If a scheduled day is not completed, it still counts as "planned" but not as "completed"
+      // Streak breaks do NOT reset the total planned/completed counts - they continue accumulating
       const currentDate = new Date(habitStartDate)
       while (currentDate <= today) {
         const date = new Date(currentDate)
@@ -137,11 +160,15 @@ export function HabitsPage({
         const isCompleted = isHabitCompletedForDay(date)
         
         if (isScheduled) {
+          // Count ALL scheduled days, even if not completed (streak breaks don't reset this)
           totalPlanned++
           if (isCompleted) {
+            // Only count completed scheduled days
             totalCompleted++
           }
+          // If scheduled but not completed, it's still counted in totalPlanned but not in totalCompleted
         } else if (isCompleted) {
+          // Completed on a non-scheduled day (outside plan)
           completedOutsidePlan++
         }
         
