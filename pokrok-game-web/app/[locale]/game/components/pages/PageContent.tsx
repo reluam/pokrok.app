@@ -297,41 +297,7 @@ export function PageContent(props: PageContentProps) {
   const habitsPageTimelineContainerRef = React.useRef<HTMLDivElement>(null)
   const [habitsMobileMenuOpen, setHabitsMobileMenuOpen] = React.useState(false)
   
-  // Load active workflows for navigation
-  const [activeWorkflows, setActiveWorkflows] = React.useState<any[]>([])
-  const [availableWorkflows, setAvailableWorkflows] = React.useState<Record<string, any>>({})
-  
-  React.useEffect(() => {
-    if (!userId) return
-    
-    const loadWorkflows = async () => {
-      try {
-        // Load available workflows
-        const workflowsResponse = await fetch('/api/view-configurations/available')
-        if (workflowsResponse.ok) {
-          const workflows = await workflowsResponse.json()
-          const workflowsMap: Record<string, any> = {}
-          workflows.forEach((workflow: any) => {
-            workflowsMap[workflow.key] = workflow
-          })
-          setAvailableWorkflows(workflowsMap)
-        }
-        
-        // Load user configurations - filter only by enabled (no view type filtering)
-        const configResponse = await fetch('/api/view-configurations')
-        if (configResponse.ok) {
-          const configs = await configResponse.json()
-          // Filter workflows that are enabled (workflows are now standalone views, not filtered by view type)
-          const enabled = configs.filter((c: any) => c.enabled)
-          setActiveWorkflows(enabled)
-        }
-      } catch (error) {
-        console.error('Error loading workflows:', error)
-      }
-    }
-    
-    loadWorkflows()
-  }, [userId])
+  // Workflows removed - using individual calendar views instead
   
   // Reset selectedHabitForDetail when navigating to habits page
   React.useEffect(() => {
@@ -709,29 +675,7 @@ export function PageContent(props: PageContentProps) {
         })
         
         const renderMainContent = () => {
-          // Check if it's a workflow view (legacy support - remove later)
-          if (mainPanelSection.startsWith('workflow-')) {
-            const workflowKey = mainPanelSection.replace('workflow-', '')
-            const workflowDef = availableWorkflows[workflowKey]
-            
-            if (!workflowDef) {
-              return (
-                <div className="w-full min-h-full flex items-center justify-center bg-primary-50">
-                  <div className="text-center">
-                    <p className="text-gray-500">{t('navigation.workflowNotFound') || 'Workflow nenalezen'}</p>
-                  </div>
-                </div>
-              )
-            }
-            
-            return (
-              <div className="w-full min-h-full flex items-center justify-center bg-primary-50">
-                <div className="text-center">
-                  <p className="text-gray-500">{t(workflowDef.nameKey)}</p>
-                </div>
-              </div>
-            )
-          }
+          // Legacy workflow views removed - using individual calendar views instead
           
           // Check for only_the_important and daily_review as focus views
           if (mainPanelSection === 'focus-only_the_important') {
@@ -1470,8 +1414,6 @@ export function PageContent(props: PageContentProps) {
               areaButtonRefs={props.areaButtonRefs}
               goalButtonRefs={props.goalButtonRefs}
               onGoalClick={props.onGoalClick}
-              activeWorkflows={activeWorkflows}
-              availableWorkflows={availableWorkflows}
             />
 
             {/* Right content area */}

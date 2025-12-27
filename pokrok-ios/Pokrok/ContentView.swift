@@ -90,7 +90,7 @@ struct PlayfulTabBar: View {
     @ObservedObject private var settingsManager = UserSettingsManager.shared
     
     var body: some View {
-        HStack(spacing: 0, alignment: .center) {
+        HStack(alignment: .center, spacing: 0) {
             // First two tabs (Kroky, Návyky)
             ForEach([Tab.steps, Tab.habits], id: \.self) { tab in
                 TabBarButton(
