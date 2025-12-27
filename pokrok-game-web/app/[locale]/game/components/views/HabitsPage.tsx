@@ -528,7 +528,7 @@ export function HabitsPage({
                                 ? 'box-playful-highlight bg-primary-100 border-primary-500 hover:bg-primary-200 cursor-pointer'
                                 : isScheduled
                                   ? `bg-white border-primary-500 ${isFuture ? 'cursor-not-allowed opacity-50' : 'hover:bg-primary-50 cursor-pointer box-playful-highlight'}`
-                                  : `bg-white border-gray-400 ${isFuture ? 'cursor-not-allowed opacity-50' : 'hover:bg-gray-50 cursor-pointer box-playful-pressed-gray'}`
+                                  : `bg-gray-50 border-gray-400 ${isFuture ? 'cursor-not-allowed opacity-50' : 'hover:bg-gray-100 cursor-pointer box-playful-pressed-gray'}`
                             }`}
                             title={`${dateStr}${isScheduled ? ' - Naplánováno' : ' - Nenaplánováno'}${isCompleted ? ' - Splněno' : ' - Nesplněno'}`}
                           >
@@ -558,7 +558,7 @@ export function HabitsPage({
                 <span>{t('habits.legend.planned') || 'Naplánováno'}</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-playful-sm bg-white border-2 border-gray-400 flex items-center justify-center flex-shrink-0 box-playful-pressed-gray"></div>
+                <div className="w-6 h-6 rounded-playful-sm bg-gray-50 border-2 border-gray-400 flex items-center justify-center flex-shrink-0 box-playful-pressed-gray"></div>
                 <span>{t('habits.legend.notPlanned') || 'Nenaplánováno'}</span>
               </div>
               <div className="flex items-center gap-2">
