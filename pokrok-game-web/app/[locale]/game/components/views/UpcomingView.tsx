@@ -303,9 +303,21 @@ export function UpcomingView({
     <div className="w-full h-full flex flex-col bg-primary-50">
       {/* Header */}
       <div className="flex-shrink-0 bg-primary-50 pb-2 pt-4 px-6">
-        <h1 className="text-2xl font-bold text-black font-playful">
-          {t('views.upcoming.title') || 'Nadcházející'}
-        </h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-black font-playful">
+            {t('views.upcoming.title') || 'Nadcházející'}
+          </h1>
+          {onOpenStepModal && (
+            <button
+              onClick={() => onOpenStepModal()}
+              className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
+              title={t('steps.addStep') || 'Přidat krok'}
+            >
+              <Plus className="w-4 h-4" />
+              <span>{t('steps.addStep') || 'Přidat krok'}</span>
+            </button>
+          )}
+        </div>
       </div>
       
       {/* Content */}
@@ -396,31 +408,51 @@ export function UpcomingView({
               const area = areaMap.get(areaId)
               if (!area) return null
               
-              const isFirstArea = Object.keys(stepsByArea.grouped).indexOf(areaId) === 0
+              // Check if there are any overdue or today's steps in this area
+              let hasOverdueOrTodaySteps = false
+              let hasFutureSteps = false
+              
+              Object.values(goalsMap).forEach(steps => {
+                steps.forEach(({ step }) => {
+                  const stepDate = step.date ? normalizeDate(step.date) : null
+                  const stepDateObj = stepDate ? new Date(stepDate) : null
+                  if (stepDateObj) stepDateObj.setHours(0, 0, 0, 0)
+                  const isToday = stepDateObj && stepDateObj.getTime() === today.getTime()
+                  const isOverdue = (step as any)._isOverdue || false
+                  
+                  if (!step.completed) {
+                    if (isOverdue || isToday) {
+                      hasOverdueOrTodaySteps = true
+                    } else if (stepDateObj && stepDateObj > today) {
+                      hasFutureSteps = true
+                    }
+                  }
+                })
+              })
               
               return (
                 <div key={areaId} className="card-playful-base">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      {area.icon && (() => {
-                        const IconComponent = getIconComponent(area.icon)
-                        return <IconComponent className="w-5 h-5" style={{ color: area.color || '#E8871E' }} />
-                      })()}
-                      <h2 className="text-lg font-bold text-black font-playful">
-                        {area.name}
-                      </h2>
-                    </div>
-                    {onOpenStepModal && isFirstArea && (
-                      <button
-                        onClick={() => onOpenStepModal()}
-                        className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
-                        title={t('steps.addStep') || 'Přidat krok'}
-                      >
-                        <Plus className="w-4 h-4" />
-                        <span>{t('steps.addStep') || 'Přidat krok'}</span>
-                      </button>
-                    )}
+                  <div className="flex items-center gap-2 mb-4">
+                    {area.icon && (() => {
+                      const IconComponent = getIconComponent(area.icon)
+                      return <IconComponent className="w-5 h-5" style={{ color: area.color || '#E8871E' }} />
+                    })()}
+                    <h2 className="text-lg font-bold text-black font-playful">
+                      {area.name}
+                    </h2>
                   </div>
+                  
+                  {/* Show positive message if no overdue or today's steps, but there are future steps */}
+                  {!hasOverdueOrTodaySteps && hasFutureSteps && (
+                    <div className="mb-4 p-4 bg-primary-100 border-2 border-primary-300 rounded-playful-md">
+                      <p className="text-sm font-semibold text-primary-700 mb-1">
+                        {t('views.allDone') || 'Vše je splněno! Dobrá práce! 🎉'}
+                      </p>
+                      <p className="text-xs text-primary-600">
+                        {t('views.futureStepsNote') || 'Níže jsou úkoly do budoucna, které ale ještě vydrží.'}
+                      </p>
+                    </div>
+                  )}
                   
                   <div className="space-y-4">
                     {Object.entries(goalsMap).map(([goalId, steps]) => {
@@ -552,6 +584,28 @@ export function UpcomingView({
                 noAreaStepsByGoal[goalId].push({ step, goal })
               })
               
+              // Check if there are any overdue or today's steps in no-area steps
+              let hasOverdueOrTodaySteps = false
+              let hasFutureSteps = false
+              
+              Object.values(noAreaStepsByGoal).forEach(steps => {
+                steps.forEach(({ step }) => {
+                  const stepDate = step.date ? normalizeDate(step.date) : null
+                  const stepDateObj = stepDate ? new Date(stepDate) : null
+                  if (stepDateObj) stepDateObj.setHours(0, 0, 0, 0)
+                  const isToday = stepDateObj && stepDateObj.getTime() === today.getTime()
+                  const isOverdue = (step as any)._isOverdue || false
+                  
+                  if (!step.completed) {
+                    if (isOverdue || isToday) {
+                      hasOverdueOrTodaySteps = true
+                    } else if (stepDateObj && stepDateObj > today) {
+                      hasFutureSteps = true
+                    }
+                  }
+                })
+              })
+              
               return (
                 <div className="card-playful-base">
                   <div className="flex items-center justify-between mb-4">
@@ -562,6 +616,18 @@ export function UpcomingView({
                       </h2>
                     </div>
                   </div>
+                  
+                  {/* Show positive message if no overdue or today's steps, but there are future steps */}
+                  {!hasOverdueOrTodaySteps && hasFutureSteps && (
+                    <div className="mb-4 p-4 bg-primary-100 border-2 border-primary-300 rounded-playful-md">
+                      <p className="text-sm font-semibold text-primary-700 mb-1">
+                        {t('views.allDone') || 'Vše je splněno! Dobrá práce! 🎉'}
+                      </p>
+                      <p className="text-xs text-primary-600">
+                        {t('views.futureStepsNote') || 'Níže jsou úkoly do budoucna, které ale ještě vydrží.'}
+                      </p>
+                    </div>
+                  )}
                   
                   <div className="space-y-4">
                     {Object.entries(noAreaStepsByGoal).map(([goalId, steps]) => {
