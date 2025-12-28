@@ -1,11 +1,10 @@
 'use client'
 
-import { DayView } from './DayView'
-import { WeekView } from './WeekView'
+import { UpcomingView } from './UpcomingView'
 import { MonthView } from './MonthView'
 import { YearView } from './YearView'
 
-type CalendarViewType = 'day' | 'week' | 'month' | 'year'
+type CalendarViewType = 'upcoming' | 'month' | 'year'
 
 interface CalendarViewProps {
   goals?: any[]
@@ -35,6 +34,7 @@ interface CalendarViewProps {
   userId?: string | null
   visibleSections?: Record<string, boolean>
   viewType?: CalendarViewType // View type passed from parent based on navigation
+  maxUpcomingSteps?: number // Max number of upcoming steps to show
 }
 
 export function CalendarView({
@@ -64,14 +64,15 @@ export function CalendarView({
   areas = [],
   userId,
   visibleSections,
-  viewType = 'day' // Default to day if not specified
+  viewType = 'upcoming', // Default to upcoming if not specified
+  maxUpcomingSteps = 5 // Default max upcoming steps
 }: CalendarViewProps) {
   return (
     <div className="w-full h-full flex flex-col bg-primary-50">
       {/* Render selected view */}
       <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
-        {viewType === 'day' && (
-          <DayView
+        {viewType === 'upcoming' && (
+          <UpcomingView
             goals={goals}
             habits={habits}
             dailySteps={dailySteps}
@@ -90,26 +91,7 @@ export function CalendarView({
             onNavigateToHabits={onNavigateToHabits}
             onNavigateToSteps={onNavigateToSteps}
             userId={userId}
-          />
-        )}
-        
-        {viewType === 'week' && (
-          <WeekView
-            player={player}
-            goals={goals}
-            habits={habits}
-            dailySteps={dailySteps}
-            onHabitsUpdate={onHabitsUpdate}
-            onDailyStepsUpdate={onDailyStepsUpdate}
-            setShowDatePickerModal={setShowDatePickerModal || (() => {})}
-            handleItemClick={handleItemClick || (() => {})}
-            handleHabitToggle={handleHabitToggle || (async () => {})}
-            handleStepToggle={handleStepToggle || (async () => {})}
-            loadingHabits={loadingHabits}
-            loadingSteps={loadingSteps}
-            onOpenStepModal={onOpenStepModal}
-            onNavigateToHabits={onNavigateToHabits}
-            onNavigateToSteps={onNavigateToSteps}
+            maxUpcomingSteps={maxUpcomingSteps}
           />
         )}
         

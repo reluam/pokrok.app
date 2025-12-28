@@ -954,6 +954,7 @@
     "locked": "Locked"
   },
   "calendar": {
+    "upcoming": "Upcoming",
     "days": {
       "sunday": "Sunday",
       "monday": "Monday",
@@ -1126,6 +1127,7 @@
     "title": "Title",
     "description": "Description",
     "date": "Date",
+    "repeating": "Repeating",
     "goal": "Goal",
     "noGoal": "No goal",
     "completed": "Completed",
@@ -1631,8 +1633,9 @@
     "description": "Pokrok offers four different view levels, each suitable for a different purpose. You can find individual views in the navigation menu on the left side of the main panel.",
     "location": "You can find individual views in the navigation menu on the left side of the main panel.",
     "calendar": {
-      "description": "Calendar displays daily, weekly, monthly, and yearly views. You can switch between them using the switcher at the top of the view."
+      "description": "Calendar displays upcoming, monthly, and yearly views. You can switch between them using the switcher at the top of the view."
     },
+    "upcoming": "Upcoming",
     "day": "Day",
     "week": "Week",
     "month": "Month",
@@ -1669,9 +1672,20 @@
         "statistics": "Statistics",
         "goals": "Goals",
         "insights": "Insights",
-        "steps": "Steps"
+        "steps": "Steps",
+        "upcomingSteps": "Upcoming steps"
       }
     },
+    "upcoming": {
+      "title": "Upcoming"
+    },
+    "upcomingDesc": "Displays upcoming steps and habits. Ideal for an overview of what's ahead.",
+    "upcomingSteps": "Upcoming steps",
+    "overdue": "Overdue steps",
+    "noSteps": "No upcoming steps",
+    "maxSteps": "Maximum number of upcoming steps",
+    "loadMore": "Load more",
+    "remaining": "remaining",
     "daily": "Daily",
     "dailyDesc": "Ideal for daily work and routines. Displays steps and habits for a specific day.",
     "weekly": "Weekly",

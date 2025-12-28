@@ -46,7 +46,7 @@ export function WeekHabitsTable({
   const weekHabits = useMemo(() => {
     const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
     
-    return habits.filter(habit => {
+    const filtered = habits.filter(habit => {
       // Always show habits
       if (habit.always_show) return true
       
@@ -62,6 +62,21 @@ export function WeekHabitsTable({
       }
       
       return false
+    })
+    
+    // Sort by order (if exists) or created_at to maintain fixed order
+    // Use id as final tiebreaker for absolute stability
+    return filtered.sort((a: any, b: any) => {
+      // Primary: order (if exists) or created_at timestamp
+      const aOrder = a.order !== undefined ? a.order : (a.created_at ? new Date(a.created_at).getTime() : 0)
+      const bOrder = b.order !== undefined ? b.order : (b.created_at ? new Date(b.created_at).getTime() : 0)
+      
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder
+      }
+      
+      // Tiebreaker: use id for absolute stability (id never changes)
+      return a.id.localeCompare(b.id)
     })
   }, [habits, weekDays])
   

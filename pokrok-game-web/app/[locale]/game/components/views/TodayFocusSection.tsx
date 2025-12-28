@@ -4,6 +4,7 @@ import { useMemo, useEffect, useRef, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
+import { isStepScheduledForDay } from '../utils/stepHelpers'
 import { Check, Target, ArrowRight, ChevronDown, ChevronUp, Plus, CheckSquare, Trash2, Footprints } from 'lucide-react'
 import { getIconEmoji, getIconComponent } from '@/lib/icon-utils'
 
@@ -318,21 +319,32 @@ export function TodayFocusSection({
       })
     }
     
-    // Sort by reminder_time (habits with time come first, sorted by time)
+    // Sort by order (if exists) or created_at to maintain fixed order
+    // Use reminder_time as secondary criterion, then id as final tiebreaker
     return filtered.sort((a: any, b: any) => {
+      // Primary: order (if exists) or created_at timestamp
+      const aOrder = a.order !== undefined ? a.order : (a.created_at ? new Date(a.created_at).getTime() : 0)
+      const bOrder = b.order !== undefined ? b.order : (b.created_at ? new Date(b.created_at).getTime() : 0)
+      
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder
+      }
+      
+      // Secondary: reminder_time (habits with time come first, sorted by time)
       const aTime = a.reminder_time || ''
       const bTime = b.reminder_time || ''
       
-      // If both have times, sort by time
       if (aTime && bTime) {
-        return aTime.localeCompare(bTime)
+        const timeCompare = aTime.localeCompare(bTime)
+        if (timeCompare !== 0) return timeCompare
+      } else if (aTime && !bTime) {
+        return -1
+      } else if (!aTime && bTime) {
+        return 1
       }
-      // If only one has time, it comes first
-      if (aTime && !bTime) return -1
-      if (!aTime && bTime) return 1
       
-      // If neither has time, keep original order
-      return 0
+      // Final tiebreaker: use id for absolute stability (id never changes)
+      return a.id.localeCompare(b.id)
     })
   }, [habits, isWeekView, displayDate])
   
@@ -354,35 +366,25 @@ export function TodayFocusSection({
     
     return dailySteps
       .filter(step => {
-        if (!step.date) return false
-        
-        // In week view, show all steps from the current week (including completed)
-        if (isWeekView && weekStart && weekEnd) {
-          const stepDate = normalizeDate(step.date)
-          const stepDateObj = new Date(stepDate)
-          stepDateObj.setHours(0, 0, 0, 0)
-          
-          // Check if step is within the current week (inclusive)
-          const isInWeek = stepDateObj.getTime() >= weekStart.getTime() && stepDateObj.getTime() <= weekEnd.getTime()
-          
-          // Check if step belongs to a goal (focus goal or area goal)
-          const belongsToGoal = step.goal_id && goalIds.has(step.goal_id)
-          
-          return isInWeek && belongsToGoal
-        }
-        
-        // In day view, filter by exact date only
-        const stepDate = normalizeDate(step.date)
-        const stepDateObj = new Date(stepDate)
-        stepDateObj.setHours(0, 0, 0, 0)
-        
-        // Only include steps for the selected day (not overdue, not future)
-        const isSelectedDay = stepDateObj.getTime() === displayDate.getTime()
-        
         // Check if step belongs to a goal (focus goal or area goal)
         const belongsToGoal = step.goal_id && goalIds.has(step.goal_id)
+        if (!belongsToGoal) return false
         
-        return isSelectedDay && belongsToGoal
+        // In week view, check if step is scheduled for any day in the week
+        if (isWeekView && weekStart && weekEnd) {
+          // Check each day in the week
+          for (let i = 0; i < 7; i++) {
+            const day = new Date(weekStart)
+            day.setDate(weekStart.getDate() + i)
+            if (isStepScheduledForDay(step, day)) {
+              return true
+            }
+          }
+          return false
+        }
+        
+        // In day view, check if step is scheduled for the selected day
+        return isStepScheduledForDay(step, displayDate)
       })
       .sort((a, b) => {
         // Sort by goal focus_order first, then by date
@@ -396,8 +398,9 @@ export function TodayFocusSection({
         }
         
         // If same goal, sort by date (overdue first)
-        const dateA = new Date(normalizeDate(a.date))
-        const dateB = new Date(normalizeDate(b.date))
+        // For repeating steps without date, use created_at
+        const dateA = a.date ? new Date(normalizeDate(a.date)) : (a.created_at ? new Date(a.created_at) : new Date(0))
+        const dateB = b.date ? new Date(normalizeDate(b.date)) : (b.created_at ? new Date(b.created_at) : new Date(0))
         return dateA.getTime() - dateB.getTime()
       })
   }, [dailySteps, activeFocusGoals, displayDate, isWeekView, weekStart, weekEnd, goals])
@@ -414,35 +417,25 @@ export function TodayFocusSection({
     
     const stepsWithoutGoals = dailySteps
       .filter(step => {
-        if (!step.date) return false
-        
-        // In week view, show all steps from the current week (including completed)
-        if (isWeekView && weekStart && weekEnd) {
-          const stepDate = normalizeDate(step.date)
-          const stepDateObj = new Date(stepDate)
-          stepDateObj.setHours(0, 0, 0, 0)
-          
-          // Check if step is within the current week (inclusive)
-          const isInWeek = stepDateObj.getTime() >= weekStart.getTime() && stepDateObj.getTime() <= weekEnd.getTime()
-          
-          // Check if step doesn't belong to any goal (or goal is not in area/focus)
-          const hasNoGoal = !step.goal_id || !goalIds.has(step.goal_id)
-          
-          return isInWeek && hasNoGoal
-        }
-        
-        // In day view, filter by date (including completed)
-        const stepDate = normalizeDate(step.date)
-        const stepDateObj = new Date(stepDate)
-        stepDateObj.setHours(0, 0, 0, 0)
-        
-        // Only include steps from today (not overdue, not future)
-        const isToday = stepDateObj.getTime() === displayDate.getTime()
-        
         // Check if step doesn't belong to any goal (or goal is not in area/focus)
         const hasNoGoal = !step.goal_id || !goalIds.has(step.goal_id)
+        if (!hasNoGoal) return false
         
-        return isToday && hasNoGoal
+        // In week view, check if step is scheduled for any day in the week
+        if (isWeekView && weekStart && weekEnd) {
+          // Check each day in the week
+          for (let i = 0; i < 7; i++) {
+            const day = new Date(weekStart)
+            day.setDate(weekStart.getDate() + i)
+            if (isStepScheduledForDay(step, day)) {
+              return true
+            }
+          }
+          return false
+        }
+        
+        // In day view, check if step is scheduled for the selected day
+        return isStepScheduledForDay(step, displayDate)
       })
     
     // Combine all steps
@@ -456,8 +449,9 @@ export function TodayFocusSection({
       
       // In week view: sort by date first, then by importance
       if (isWeekView) {
-        const dateA = new Date(normalizeDate(a.date))
-        const dateB = new Date(normalizeDate(b.date))
+        // For repeating steps without date, use created_at
+        const dateA = a.date ? new Date(normalizeDate(a.date)) : (a.created_at ? new Date(a.created_at) : new Date(0))
+        const dateB = b.date ? new Date(normalizeDate(b.date)) : (b.created_at ? new Date(b.created_at) : new Date(0))
         if (dateA.getTime() !== dateB.getTime()) {
           return dateA.getTime() - dateB.getTime()
         }
@@ -486,8 +480,9 @@ export function TodayFocusSection({
         }
         
         // If same priority, sort by date
-        const dateA = new Date(normalizeDate(a.date))
-        const dateB = new Date(normalizeDate(b.date))
+        // For repeating steps without date, use created_at
+        const dateA = a.date ? new Date(normalizeDate(a.date)) : (a.created_at ? new Date(a.created_at) : new Date(0))
+        const dateB = b.date ? new Date(normalizeDate(b.date)) : (b.created_at ? new Date(b.created_at) : new Date(0))
         return dateA.getTime() - dateB.getTime()
       })
   }, [focusSteps, dailySteps, activeFocusGoals, displayDate, isWeekView, weekStart, weekEnd, goals])
@@ -554,29 +549,47 @@ export function TodayFocusSection({
       return false
     })
     
-    // Sort by reminder_time (habits with time come first, sorted by time)
+    // Sort by order (if exists) or created_at to maintain fixed order
+    // Use reminder_time as secondary criterion, then id as final tiebreaker
     return filtered.sort((a: any, b: any) => {
+      // Primary: order (if exists) or created_at timestamp
+      const aOrder = a.order !== undefined ? a.order : (a.created_at ? new Date(a.created_at).getTime() : 0)
+      const bOrder = b.order !== undefined ? b.order : (b.created_at ? new Date(b.created_at).getTime() : 0)
+      
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder
+      }
+      
+      // Secondary: reminder_time (habits with time come first, sorted by time)
       const aTime = a.reminder_time || ''
       const bTime = b.reminder_time || ''
       
-      // If both have times, sort by time
       if (aTime && bTime) {
-        return aTime.localeCompare(bTime)
+        const timeCompare = aTime.localeCompare(bTime)
+        if (timeCompare !== 0) return timeCompare
+      } else if (aTime && !bTime) {
+        return -1
+      } else if (!aTime && bTime) {
+        return 1
       }
-      // If only one has time, it comes first
-      if (aTime && !bTime) return -1
-      if (!aTime && bTime) return 1
       
-      // If neither has time, keep original order
-      return 0
+      // Final tiebreaker: use id for absolute stability (id never changes)
+      return a.id.localeCompare(b.id)
     })
   }, [isWeekView, habits, weekDays])
   
   // Calculate overdue and future steps (outside current week/day)
   const { overdueStepsList, futureStepsList } = useMemo(() => {
     // Get all steps that are not in the current week (for week view) or not today (for day view)
+    // Exclude repeating steps (they are shown in the main list)
     const allSteps = dailySteps.filter(step => {
-      if (!step.date || step.completed) return false
+      if (step.completed) return false
+      
+      // Repeating steps are shown in main list, not in overdue/future
+      if (step.frequency && step.frequency !== null) return false
+      
+      // Non-repeating steps must have a date
+      if (!step.date) return false
       
       const stepDate = normalizeDate(step.date)
       const stepDateObj = new Date(stepDate)

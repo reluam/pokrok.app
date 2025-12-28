@@ -76,7 +76,8 @@ export async function GET(request: NextRequest) {
             is_important, is_urgent, aspiration_id, area_id,
             estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
             COALESCE(checklist, '[]'::jsonb) as checklist,
-            COALESCE(require_checklist_complete, false) as require_checklist_complete
+            COALESCE(require_checklist_complete, false) as require_checklist_complete,
+            frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days
           FROM daily_steps
           WHERE goal_id = ${goalId} AND user_id = ${dbUser.id}
           ORDER BY created_at DESC
@@ -184,7 +185,9 @@ export async function POST(request: NextRequest) {
       estimatedTime,
       xpReward,
       checklist,
-      requireChecklistComplete
+      requireChecklistComplete,
+      frequency,
+      selectedDays
     } = body
     
     // Debug logging
@@ -234,11 +237,15 @@ export async function POST(request: NextRequest) {
     const targetUserId = userId || dbUser.id
 
     // Handle date - always work with YYYY-MM-DD strings to avoid timezone issues
+    // For repeating steps (frequency is set), date should be null
     // If date is provided as YYYY-MM-DD string, use it directly
     // If it's a Date object or ISO string, extract YYYY-MM-DD from it using local date components
-    // If no date is provided, use today's date in client's timezone (but we're on server, so use UTC midnight converted)
-    let dateValue: string | Date
-    if (date) {
+    // If no date is provided and not repeating, use today's date in client's timezone (but we're on server, so use UTC midnight converted)
+    let dateValue: string | Date | null = null
+    if (frequency) {
+      // Repeating step - date should be null
+      dateValue = null
+    } else if (date) {
       if (typeof date === 'string' && date.match(/^\d{4}-\d{2}-\d{2}$/)) {
         // Already YYYY-MM-DD format - use directly as string
         // This preserves the client's intended date regardless of server timezone
@@ -282,14 +289,16 @@ export async function POST(request: NextRequest) {
       title,
       description: description || undefined,
       completed: false,
-      date: dateValue, // Pass as string (YYYY-MM-DD) or Date, createDailyStep will handle it
+      date: dateValue, // Pass as string (YYYY-MM-DD) or Date, createDailyStep will handle it (null for repeating steps)
       is_important: isImportant || false,
       is_urgent: isUrgent || false,
       aspiration_id: aspirationId || undefined,
       estimated_time: estimatedTime || 30,
       xp_reward: xpReward || 1,
       checklist: checklist || [],
-      require_checklist_complete: requireChecklistComplete || false
+      require_checklist_complete: requireChecklistComplete || false,
+      frequency: frequency || null,
+      selected_days: selectedDays || []
     }
 
     const step = await createDailyStep(stepData)
@@ -317,7 +326,7 @@ export async function PUT(request: NextRequest) {
     const { dbUser } = authResult
 
     const body = await request.json()
-    const { stepId, completed, completedAt, title, description, goalId, goal_id, areaId, aspirationId, aspiration_id, isImportant, isUrgent, estimatedTime, xpReward, date, checklist, requireChecklistComplete } = body
+    const { stepId, completed, completedAt, title, description, goalId, goal_id, areaId, aspirationId, aspiration_id, isImportant, isUrgent, estimatedTime, xpReward, date, checklist, requireChecklistComplete, frequency, selectedDays } = body
     
     // Debug logging
     console.log('Updating step:', { stepId, goalId, goal_id, areaId, hasGoalId: goalId !== undefined, hasGoal_id: goal_id !== undefined, hasAreaId: areaId !== undefined })
@@ -584,6 +593,8 @@ export async function PUT(request: NextRequest) {
       if (date !== undefined) updates.date = dateValue
       if (checklist !== undefined) updates.checklist = checklist
       if (requireChecklistComplete !== undefined) updates.require_checklist_complete = requireChecklistComplete
+      if (frequency !== undefined) updates.frequency = frequency || null
+      if (selectedDays !== undefined) updates.selected_days = selectedDays || []
 
       if (Object.keys(updates).length === 0) {
         return NextResponse.json({ error: 'No fields to update' }, { status: 400 })

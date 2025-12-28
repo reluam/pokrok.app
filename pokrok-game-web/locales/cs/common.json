@@ -953,6 +953,7 @@
     "locked": "Zamčeno"
   },
   "calendar": {
+    "upcoming": "Nadcházející",
     "days": {
       "sunday": "Neděle",
       "monday": "Pondělí",
@@ -1126,6 +1127,7 @@
     "title": "Název",
     "description": "Popis",
     "date": "Datum",
+    "repeating": "Opakující se",
     "goal": "Cíl",
     "noGoal": "Bez cíle",
     "completed": "Dokončeno",
@@ -1631,8 +1633,9 @@
     "description": "Pokrok nabízí čtyři různé úrovně zobrazení, každá vhodná pro jiný účel. Jednotlivé views najdete v navigation menu vlevo na hlavním panelu.",
     "location": "Jednotlivé views najdete v navigation menu vlevo na hlavním panelu.",
     "calendar": {
-      "description": "Kalendář zobrazuje denní, týdenní, měsíční a roční pohledy. Přepínat mezi nimi můžete pomocí přepínače nahoře v view."
+      "description": "Kalendář zobrazuje nadcházející, měsíční a roční pohledy. Přepínat mezi nimi můžete pomocí přepínače nahoře v view."
     },
+    "upcoming": "Nadcházející",
     "day": "Den",
     "week": "Týden",
     "month": "Měsíc",
@@ -1669,9 +1672,20 @@
         "statistics": "Statistiky",
         "goals": "Cíle",
         "insights": "Přehledy",
-        "steps": "Kroky"
+        "steps": "Kroky",
+        "upcomingSteps": "Nadcházející kroky"
       }
     },
+    "upcoming": {
+      "title": "Nadcházející"
+    },
+    "upcomingDesc": "Zobrazuje nadcházející kroky a návyky. Ideální pro přehled toho, co vás čeká.",
+    "upcomingSteps": "Nadcházející kroky",
+    "overdue": "Zpožděné kroky",
+    "noSteps": "Žádné nadcházející kroky",
+    "maxSteps": "Maximální počet nadcházejících kroků",
+    "loadMore": "Načíst další",
+    "remaining": "zbývá",
     "daily": "Denní",
     "dailyDesc": "Ideální pro každodenní práci a rutiny. Zobrazuje kroky a návyky pro konkrétní den.",
     "weekly": "Týdenní",

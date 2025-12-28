@@ -84,13 +84,12 @@ export function SidebarNavigation({
   
   // Load view type visibility settings and order
   const [viewTypeVisibility, setViewTypeVisibility] = useState<Record<string, boolean>>({
-    day: true,
-    week: true,
+    upcoming: true,
     month: true,
     year: true,
     areas: true
   })
-  const [allViewsOrder, setAllViewsOrder] = useState<string[]>(['day', 'week', 'month', 'year', 'areas'])
+  const [allViewsOrder, setAllViewsOrder] = useState<string[]>(['upcoming', 'month', 'year', 'areas'])
 
   useEffect(() => {
     const loadViewSettings = async () => {
@@ -113,7 +112,7 @@ export function SidebarNavigation({
           })
           
           // Set defaults for missing views
-          const defaultViews = ['day', 'week', 'month', 'year', 'areas']
+          const defaultViews = ['upcoming', 'month', 'year', 'areas']
           defaultViews.forEach(viewType => {
             if (!(viewType in visibilityMap)) {
               visibilityMap[viewType] = true
@@ -123,7 +122,7 @@ export function SidebarNavigation({
           setViewTypeVisibility(visibilityMap)
           
           // Sort all views by order_index
-          const allViews = ['day', 'week', 'month', 'year', 'areas']
+          const allViews = ['upcoming', 'month', 'year', 'areas']
           const viewsWithOrder = allViews
             .filter(vt => orderMap.has(vt))
             .sort((a, b) => (orderMap.get(a) || 0) - (orderMap.get(b) || 0))
@@ -172,31 +171,18 @@ export function SidebarNavigation({
         <nav className={`${sidebarCollapsed ? 'space-y-2 flex flex-col items-center' : 'space-y-2'}`}>
           {!sidebarCollapsed ? (
             <>
-              {/* Calendar views - Day, Week, Month, Year */}
+              {/* Calendar views - Upcoming, Month, Year */}
               <div className="space-y-1.5 mb-4">
-                {/* Day view */}
-                {viewTypeVisibility['day'] !== false && (
+                {/* Upcoming view */}
+                {viewTypeVisibility['upcoming'] !== false && (
                   <button
-                    onClick={() => setMainPanelSection('focus-day')}
+                    onClick={() => setMainPanelSection('focus-upcoming')}
                     className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                      mainPanelSection === 'focus-day' ? 'active' : ''
+                      mainPanelSection === 'focus-upcoming' ? 'active' : ''
                     }`}
                   >
                     <Calendar className="w-4 h-4 flex-shrink-0" />
-                    <span className="font-medium text-sm">{t('calendar.day') || 'Denní'}</span>
-                  </button>
-                )}
-                
-                {/* Week view */}
-                {viewTypeVisibility['week'] !== false && (
-                  <button
-                    onClick={() => setMainPanelSection('focus-week')}
-                    className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                      mainPanelSection === 'focus-week' ? 'active' : ''
-                    }`}
-                  >
-                    <CalendarRange className="w-4 h-4 flex-shrink-0" />
-                    <span className="font-medium text-sm">{t('calendar.week') || 'Týdenní'}</span>
+                    <span className="font-medium text-sm">{t('calendar.upcoming') || 'Nadcházející'}</span>
                   </button>
                 )}
                 
@@ -230,26 +216,15 @@ export function SidebarNavigation({
           ) : (
             // Collapsed sidebar - show calendar view icons
             <>
-              {viewTypeVisibility['day'] !== false && (
+              {viewTypeVisibility['upcoming'] !== false && (
                 <button
-                  onClick={() => setMainPanelSection('focus-day')}
+                  onClick={() => setMainPanelSection('focus-upcoming')}
                   className={`btn-playful-nav flex items-center justify-center w-10 h-10 ${
-                    mainPanelSection === 'focus-day' ? 'active' : ''
+                    mainPanelSection === 'focus-upcoming' ? 'active' : ''
                   }`}
-                  title={t('calendar.day') || 'Denní'}
+                  title={t('calendar.upcoming') || 'Nadcházející'}
                 >
                   <Calendar className="w-5 h-5 flex-shrink-0" />
-                </button>
-              )}
-              {viewTypeVisibility['week'] !== false && (
-                <button
-                  onClick={() => setMainPanelSection('focus-week')}
-                  className={`btn-playful-nav flex items-center justify-center w-10 h-10 ${
-                    mainPanelSection === 'focus-week' ? 'active' : ''
-                  }`}
-                  title={t('calendar.week') || 'Týdenní'}
-                >
-                  <CalendarRange className="w-5 h-5 flex-shrink-0" />
                 </button>
               )}
               {viewTypeVisibility['month'] !== false && (

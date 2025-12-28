@@ -13,6 +13,7 @@ async function ensureTableExists() {
         user_id TEXT NOT NULL,
         view_type TEXT NOT NULL,
         visible_sections JSONB DEFAULT '{}'::jsonb,
+        settings JSONB DEFAULT '{}'::jsonb,
         order_index INTEGER,
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW(),
@@ -30,6 +31,19 @@ async function ensureTableExists() {
       // Column might already exist, ignore error
       if (!error.message?.includes('already exists') && !error.message?.includes('duplicate column')) {
         console.error('Error adding order_index column:', error)
+      }
+    }
+    
+    // Add settings column if it doesn't exist (for existing tables)
+    try {
+      await sql`
+        ALTER TABLE view_settings 
+        ADD COLUMN IF NOT EXISTS settings JSONB DEFAULT '{}'::jsonb
+      `
+    } catch (error: any) {
+      // Column might already exist, ignore error
+      if (!error.message?.includes('already exists') && !error.message?.includes('duplicate column')) {
+        console.error('Error adding settings column:', error)
       }
     }
   } catch (error: any) {
@@ -71,7 +85,8 @@ export async function GET(request: NextRequest) {
           : null
         return NextResponse.json({
           ...result,
-          order_index: orderIndex
+          order_index: orderIndex,
+          settings: result.settings || {}
         })
       } else {
         // Return default settings with _visible_in_navigation = true
@@ -107,7 +122,7 @@ export async function POST(request: NextRequest) {
     const { dbUser } = authResult
 
     const body = await request.json()
-    const { view_type, visible_sections, visible_in_navigation, order_index } = body
+    const { view_type, visible_sections, visible_in_navigation, order_index, settings } = body
 
     console.log('Saving view settings:', { view_type, order_index, hasOrderIndex: order_index !== undefined })
 
@@ -131,23 +146,27 @@ export async function POST(request: NextRequest) {
     }
     const finalSectionsJson = JSON.stringify(finalSections)
     
-    let settings
+    const settingsJson = JSON.stringify(settings || {})
+    
+    let resultSettings
     if (existing.length > 0) {
       // Update existing
       if (order_index !== undefined) {
-        settings = await sql`
+        resultSettings = await sql`
           UPDATE view_settings 
           SET visible_sections = ${finalSectionsJson}::jsonb,
+              settings = ${settingsJson}::jsonb,
               order_index = ${order_index},
               updated_at = NOW()
           WHERE user_id = ${dbUser.id} AND view_type = ${view_type}
           RETURNING *
         `
-        console.log(`Updated existing settings for ${view_type} with order_index ${order_index}:`, settings[0]?.order_index)
+        console.log(`Updated existing settings for ${view_type} with order_index ${order_index}:`, resultSettings[0]?.order_index)
       } else {
-        settings = await sql`
+        resultSettings = await sql`
           UPDATE view_settings 
           SET visible_sections = ${finalSectionsJson}::jsonb,
+              settings = ${settingsJson}::jsonb,
               updated_at = NOW()
           WHERE user_id = ${dbUser.id} AND view_type = ${view_type}
           RETURNING *
@@ -158,24 +177,27 @@ export async function POST(request: NextRequest) {
       const defaultVisibleInNav = visible_in_navigation !== undefined ? visible_in_navigation : true
       const defaultSections = { ...finalSections, _visible_in_navigation: defaultVisibleInNav }
       if (order_index !== undefined) {
-        settings = await sql`
-          INSERT INTO view_settings (user_id, view_type, visible_sections, order_index)
-          VALUES (${dbUser.id}, ${view_type}, ${JSON.stringify(defaultSections)}::jsonb, ${order_index})
+        resultSettings = await sql`
+          INSERT INTO view_settings (user_id, view_type, visible_sections, settings, order_index)
+          VALUES (${dbUser.id}, ${view_type}, ${JSON.stringify(defaultSections)}::jsonb, ${settingsJson}::jsonb, ${order_index})
           RETURNING *
         `
-        console.log(`Created new settings for ${view_type} with order_index ${order_index}:`, settings[0]?.order_index)
+        console.log(`Created new settings for ${view_type} with order_index ${order_index}:`, resultSettings[0]?.order_index)
       } else {
-        settings = await sql`
-          INSERT INTO view_settings (user_id, view_type, visible_sections)
-          VALUES (${dbUser.id}, ${view_type}, ${JSON.stringify(defaultSections)}::jsonb)
+        resultSettings = await sql`
+          INSERT INTO view_settings (user_id, view_type, visible_sections, settings)
+          VALUES (${dbUser.id}, ${view_type}, ${JSON.stringify(defaultSections)}::jsonb, ${settingsJson}::jsonb)
           RETURNING *
         `
       }
     }
 
-    const result = settings[0]
+    const result = resultSettings[0]
     console.log(`Returning settings for ${view_type}:`, { order_index: result?.order_index, type: typeof result?.order_index })
-    return NextResponse.json(result)
+    return NextResponse.json({
+      ...result,
+      settings: result.settings || {}
+    })
   } catch (error: any) {
     console.error('Error saving view settings:', error)
     console.error('Error details:', {
@@ -188,18 +210,9 @@ export async function POST(request: NextRequest) {
 
 function getDefaultVisibleSections(viewType: string): Record<string, boolean> {
   const defaults: Record<string, Record<string, boolean>> = {
-    day: {
-      quickOverview: true,
-      todayFocus: true,
+    upcoming: {
       habits: true,
-      futureSteps: true,
-      overdueSteps: true
-    },
-    week: {
-      quickOverview: true,
-      weeklyFocus: true,
-      habits: true,
-      futureSteps: true,
+      upcomingSteps: true,
       overdueSteps: true
     },
     month: {

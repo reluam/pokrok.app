@@ -8,6 +8,7 @@ import { QuickOverviewWidget } from './QuickOverviewWidget'
 import { TodayFocusSection } from './TodayFocusSection'
 import { Timeline } from './Timeline'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
+import { isStepScheduledForDay } from '../utils/stepHelpers'
 import { ImportantStepsPlanningView } from '../workflows/ImportantStepsPlanningView'
 
 interface DayViewProps {
@@ -168,11 +169,16 @@ export function DayView({
   // Filter steps - overdue (incomplete) + selected day's steps (incomplete) - for display
   // Exclude steps that are already displayed in TodayFocusSection
   let todaySteps = dailySteps.filter(step => {
-    if (!step.date) return false // Exclude steps without date
     if (step.completed) return false // Exclude completed steps
     
     // Exclude steps that are already displayed in TodayFocusSection
     if (displayedStepIds.has(step.id)) return false
+    
+    // Repeating steps are shown in TodayFocusSection, not here
+    if (step.frequency && step.frequency !== null) return false
+    
+    // Non-repeating steps must have a date
+    if (!step.date) return false
     
     const stepDate = normalizeDate(step.date)
     const stepDateObj = new Date(stepDate)
@@ -194,22 +200,15 @@ export function DayView({
   }
   
   // Filter steps for progress calculation - only steps on selected day (exclude overdue)
-  // Include ALL steps (both completed and incomplete) for total count
+  // Include ALL steps (both completed and incomplete) for total count, including repeating steps
   const stepsForProgress = dailySteps.filter(step => {
-    if (!step.date) return false // Exclude steps without date
-    
-    const stepDate = normalizeDate(step.date)
-    const stepDateObj = new Date(stepDate)
-    stepDateObj.setHours(0, 0, 0, 0)
-    
-    // Only include steps on selected day (not overdue)
-    return stepDateObj.getTime() === displayDate.getTime()
+    return isStepScheduledForDay(step, displayDate)
   })
   
-  // Calculate selected day's stats
+  // Calculate selected day's stats (including repeating steps)
   const completedSteps = dailySteps.filter(step => {
-    const stepDate = normalizeDate(step.date)
-    return stepDate === displayDateStr && step.completed
+    if (!isStepScheduledForDay(step, displayDate)) return false
+    return step.completed
   }).length
   
   // Count only habits scheduled for this day (not always_show habits that aren't scheduled)

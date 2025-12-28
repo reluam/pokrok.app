@@ -297,6 +297,27 @@ export function PageContent(props: PageContentProps) {
   const habitsPageTimelineContainerRef = React.useRef<HTMLDivElement>(null)
   const [habitsMobileMenuOpen, setHabitsMobileMenuOpen] = React.useState(false)
   
+  // Max upcoming steps setting
+  const [maxUpcomingSteps, setMaxUpcomingSteps] = React.useState(5)
+  
+  // Load maxUpcomingSteps from settings
+  React.useEffect(() => {
+    const loadUpcomingSettings = async () => {
+      try {
+        const response = await fetch('/api/view-settings?view_type=upcoming')
+        if (response.ok) {
+          const data = await response.json()
+          if (data?.settings?.maxUpcomingSteps) {
+            setMaxUpcomingSteps(data.settings.maxUpcomingSteps)
+          }
+        }
+      } catch (error) {
+        console.error('Error loading upcoming view settings:', error)
+      }
+    }
+    loadUpcomingSettings()
+  }, [])
+  
   // Workflows removed - using individual calendar views instead
   
   // Reset selectedHabitForDetail when navigating to habits page
@@ -1232,18 +1253,16 @@ export function PageContent(props: PageContentProps) {
           }
           
           switch (mainPanelSection) {
-            case 'focus-day':
-            case 'focus-week':
+            case 'focus-upcoming':
             case 'focus-month':
             case 'focus-year':
             case 'focus-calendar':
               // Map mainPanelSection to viewType
-              const getViewType = (section: string): 'day' | 'week' | 'month' | 'year' => {
-                if (section === 'focus-day') return 'day'
-                if (section === 'focus-week') return 'week'
+              const getViewType = (section: string): 'upcoming' | 'month' | 'year' => {
+                if (section === 'focus-upcoming') return 'upcoming'
                 if (section === 'focus-month') return 'month'
                 if (section === 'focus-year') return 'year'
-                return 'day' // Default fallback
+                return 'upcoming' // Default fallback
               }
               
               return (
@@ -1275,6 +1294,7 @@ export function PageContent(props: PageContentProps) {
                   userId={userId}
                   visibleSections={visibleSections}
                   viewType={getViewType(mainPanelSection)}
+                  maxUpcomingSteps={maxUpcomingSteps}
                 />
               )
             case 'goals':
@@ -1423,7 +1443,7 @@ export function PageContent(props: PageContentProps) {
                 <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-bold text-gray-900">
-                      {['focus-day', 'focus-week', 'focus-month', 'focus-year', 'focus-calendar'].includes(mainPanelSection)
+                      {['focus-upcoming', 'focus-month', 'focus-year', 'focus-calendar'].includes(mainPanelSection)
                         ? t('navigation.calendar') || 'Kalendář'
                         : mainPanelSection.startsWith('area-')
                         ? areas.find((a: any) => `area-${a.id}` === mainPanelSection)?.name || t('navigation.areas')
@@ -1448,36 +1468,20 @@ export function PageContent(props: PageContentProps) {
                           />
                           <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-[101] min-w-[200px]">
                             <nav className="py-2">
-                              {/* Focus Day */}
+                              {/* Focus Upcoming */}
                               <button
                                 onClick={() => {
-                                  setMainPanelSection('focus-day')
+                                  setMainPanelSection('focus-upcoming')
                                   setMobileMenuOpen(false)
                                 }}
                                 className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                                  mainPanelSection === 'focus-day'
+                                  mainPanelSection === 'focus-upcoming'
                                     ? 'bg-primary-600 text-white'
                                     : 'text-gray-700 hover:bg-gray-100'
                                 }`}
                               >
                                 <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
-                                <span className="font-medium">{t('navigation.focusDay') || 'Denní'}</span>
-                              </button>
-                              
-                              {/* Focus Week */}
-                              <button
-                                onClick={() => {
-                                  setMainPanelSection('focus-week')
-                                  setMobileMenuOpen(false)
-                                }}
-                                className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
-                                  mainPanelSection === 'focus-week'
-                                    ? 'bg-primary-600 text-white'
-                                    : 'text-gray-700 hover:bg-gray-100'
-                                }`}
-                              >
-                                <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
-                                <span className="font-medium">{t('navigation.focusWeek') || 'Týdenní'}</span>
+                                <span className="font-medium">{t('calendar.upcoming') || 'Nadcházející'}</span>
                               </button>
                               
                               {/* Focus Month */}

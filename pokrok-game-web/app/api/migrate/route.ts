@@ -200,6 +200,35 @@ async function runMigrations() {
       await sql`ALTER TABLE daily_steps ADD COLUMN xp_reward INTEGER DEFAULT 1`
     }
     
+    // Add frequency and selected_days columns for repeating steps
+    if (!dailyStepsColumnNames.includes('frequency')) {
+      await sql`ALTER TABLE daily_steps ADD COLUMN frequency VARCHAR(20) DEFAULT NULL CHECK (frequency IN ('daily', 'weekly', 'monthly') OR frequency IS NULL)`
+    }
+    
+    if (!dailyStepsColumnNames.includes('selected_days')) {
+      await sql`ALTER TABLE daily_steps ADD COLUMN selected_days JSONB DEFAULT '[]'::jsonb`
+    }
+    
+    // Make date nullable for repeating steps
+    try {
+      await sql`ALTER TABLE daily_steps ALTER COLUMN date DROP NOT NULL`
+    } catch (e: any) {
+      // Column might already be nullable, ignore error
+    }
+    
+    // Update existing steps to have frequency = null and selected_days = [] (non-repeating)
+    // This ensures all existing steps are displayed correctly
+    try {
+      await sql`
+        UPDATE daily_steps 
+        SET frequency = NULL, selected_days = '[]'::jsonb 
+        WHERE frequency IS NULL OR selected_days IS NULL
+      `
+    } catch (e: any) {
+      // Ignore error if columns don't exist yet or update fails
+      console.log('Note: Could not update existing steps:', e?.message)
+    }
+    
     // Add date_format column to user_settings table
     const userSettingsColumns = await sql`
       SELECT column_name 

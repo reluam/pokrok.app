@@ -1205,11 +1205,11 @@ export async function getDailyStepsByUserId(
           TO_CHAR(date, 'YYYY-MM-DD') as date,
           is_important, is_urgent, aspiration_id, area_id,
           estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
-          checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete
+          checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete,
+          frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days
         FROM daily_steps 
         WHERE user_id = ${userId}
-        AND date >= ${startOfDay}
-        AND date <= ${endOfDay}
+        AND (date >= ${startOfDay} AND date <= ${endOfDay} OR frequency IS NOT NULL)
         ORDER BY 
           CASE WHEN completed THEN 1 ELSE 0 END,
           is_important DESC,
@@ -1224,14 +1224,14 @@ export async function getDailyStepsByUserId(
           TO_CHAR(date, 'YYYY-MM-DD') as date,
           is_important, is_urgent, aspiration_id, area_id,
           estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
-          checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete
+          checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete,
+          frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days
         FROM daily_steps 
         WHERE user_id = ${userId}
-        AND date >= ${startDate}::date
-        AND date <= ${endDate}::date
+        AND (date >= ${startDate}::date AND date <= ${endDate}::date OR frequency IS NOT NULL)
         ORDER BY 
           CASE WHEN completed THEN 1 ELSE 0 END,
-          date ASC,
+          date ASC NULLS LAST,
           is_important DESC,
           is_urgent DESC,
           created_at DESC
@@ -1244,12 +1244,13 @@ export async function getDailyStepsByUserId(
           TO_CHAR(date, 'YYYY-MM-DD') as date,
           is_important, is_urgent, aspiration_id, area_id,
           estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
-          checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete
+          checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete,
+          frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days
         FROM daily_steps 
         WHERE user_id = ${userId}
         ORDER BY 
           CASE WHEN completed THEN 1 ELSE 0 END,
-          date ASC,
+          date ASC NULLS LAST,
           is_important DESC,
           is_urgent DESC,
           created_at DESC
@@ -1370,8 +1371,12 @@ export async function createDailyStep(stepData: Omit<Partial<DailyStep>, 'date'>
   const id = crypto.randomUUID()
   
   // Format date as YYYY-MM-DD string to avoid timezone issues
+  // For repeating steps (frequency is set), date should be null
   let dateValue: string | null = null
-  if (stepData.date) {
+  if (stepData.frequency) {
+    // Repeating step - date should be null
+    dateValue = null
+  } else if (stepData.date) {
     if (stepData.date instanceof Date) {
       // Use local date components to avoid timezone issues
       const year = stepData.date.getFullYear()
@@ -1391,12 +1396,14 @@ export async function createDailyStep(stepData: Omit<Partial<DailyStep>, 'date'>
   
   // Use TO_CHAR to return date as YYYY-MM-DD string
   const checklistJson = stepData.checklist ? JSON.stringify(stepData.checklist) : '[]'
+  const selectedDaysJson = stepData.selected_days ? JSON.stringify(stepData.selected_days) : '[]'
   
   const step = await sql`
     INSERT INTO daily_steps (
       id, user_id, goal_id, title, description, completed, date, 
       is_important, is_urgent, aspiration_id, area_id,
-      estimated_time, xp_reward, deadline, checklist
+      estimated_time, xp_reward, deadline, checklist, require_checklist_complete,
+      frequency, selected_days
     ) VALUES (
       ${id}, ${stepData.user_id}, ${stepData.goal_id || null}, ${stepData.title}, 
       ${stepData.description || null}, ${stepData.completed || false}, 
@@ -1404,13 +1411,15 @@ export async function createDailyStep(stepData: Omit<Partial<DailyStep>, 'date'>
       ${stepData.is_urgent || false}, ${stepData.aspiration_id || null}, ${stepData.area_id || null}, 
       ${stepData.estimated_time || 30},
       ${stepData.xp_reward || 1}, ${stepData.deadline || null},
-      ${checklistJson}::jsonb
+      ${checklistJson}::jsonb, ${stepData.require_checklist_complete || false},
+      ${stepData.frequency || null}, ${selectedDaysJson}::jsonb
     ) RETURNING 
       id, user_id, goal_id, title, description, completed, 
       TO_CHAR(date, 'YYYY-MM-DD') as date,
       is_important, is_urgent, aspiration_id, area_id,
       estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
-      checklist
+      checklist, require_checklist_complete,
+      frequency, selected_days
   `
   return step[0] as DailyStep
 }
@@ -1612,6 +1621,14 @@ export async function updateDailyStepFields(stepId: string, updates: Partial<Dai
       setParts.push(`require_checklist_complete = $${values.length + 1}`)
       values.push(updates.require_checklist_complete)
     }
+    if (updates.frequency !== undefined) {
+      setParts.push(`frequency = $${values.length + 1}`)
+      values.push(updates.frequency)
+    }
+    if (updates.selected_days !== undefined) {
+      setParts.push(`selected_days = $${values.length + 1}::jsonb`)
+      values.push(JSON.stringify(updates.selected_days))
+    }
     
     // Always update updated_at
     setParts.push('updated_at = NOW()')
@@ -1620,7 +1637,7 @@ export async function updateDailyStepFields(stepId: string, updates: Partial<Dai
       // Only updated_at, no actual updates
       // Still fetch and return the step
     } else {
-      const query = `UPDATE daily_steps SET ${setParts.join(', ')} WHERE id = $${values.length + 1} RETURNING id, user_id, goal_id, title, description, completed, TO_CHAR(date, 'YYYY-MM-DD') as date, is_important, is_urgent, aspiration_id, area_id, estimated_time, xp_reward, deadline, completed_at, created_at, updated_at, COALESCE(checklist, '[]'::jsonb) as checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete`
+      const query = `UPDATE daily_steps SET ${setParts.join(', ')} WHERE id = $${values.length + 1} RETURNING id, user_id, goal_id, title, description, completed, TO_CHAR(date, 'YYYY-MM-DD') as date, is_important, is_urgent, aspiration_id, area_id, estimated_time, xp_reward, deadline, completed_at, created_at, updated_at, COALESCE(checklist, '[]'::jsonb) as checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete, frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days`
       values.push(stepId)
       
       const result = await sql.query(query, values)
@@ -1644,7 +1661,8 @@ export async function updateDailyStepFields(stepId: string, updates: Partial<Dai
         is_important, is_urgent, aspiration_id, area_id,
         estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
         COALESCE(checklist, '[]'::jsonb) as checklist,
-        COALESCE(require_checklist_complete, false) as require_checklist_complete
+        COALESCE(require_checklist_complete, false) as require_checklist_complete,
+        frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days
       FROM daily_steps
       WHERE id = ${stepId}
     `
@@ -1717,9 +1735,25 @@ export async function updateDailyStepGeneral(stepId: string, stepData: Omit<Part
       const completedAtValue = stepData.completed_at instanceof Date ? stepData.completed_at.toISOString() : stepData.completed_at
       await sql`UPDATE daily_steps SET completed_at = ${completedAtValue}, updated_at = NOW() WHERE id = ${stepId}`
     }
+    if (stepData.frequency !== undefined) {
+      await sql`UPDATE daily_steps SET frequency = ${stepData.frequency}, updated_at = NOW() WHERE id = ${stepId}`
+    }
+    if (stepData.selected_days !== undefined) {
+      const selectedDaysJson = JSON.stringify(stepData.selected_days)
+      await sql`UPDATE daily_steps SET selected_days = ${selectedDaysJson}::jsonb, updated_at = NOW() WHERE id = ${stepId}`
+    }
     
     // Get the updated step
-    const updatedStep = await sql`SELECT * FROM daily_steps WHERE id = ${stepId}`
+    const updatedStep = await sql`
+      SELECT id, user_id, goal_id, title, description, completed, 
+        TO_CHAR(date, 'YYYY-MM-DD') as date,
+        is_important, is_urgent, aspiration_id, area_id,
+        estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+        COALESCE(checklist, '[]'::jsonb) as checklist,
+        COALESCE(require_checklist_complete, false) as require_checklist_complete,
+        frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days
+      FROM daily_steps WHERE id = ${stepId}
+    `
     
     if (updatedStep.length === 0) {
       throw new Error('Step not found')

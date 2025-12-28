@@ -3,17 +3,10 @@ import { requireAuth } from '@/lib/auth-helpers'
 
 // Available calendar view types
 export const AVAILABLE_VIEWS = {
-  day: {
-    key: 'day',
-    nameKey: 'calendar.day',
-    descriptionKey: 'views.dailyDesc',
-    requiresPremium: false,
-    icon: 'Calendar'
-  },
-  week: {
-    key: 'week',
-    nameKey: 'calendar.week',
-    descriptionKey: 'views.weeklyDesc',
+  upcoming: {
+    key: 'upcoming',
+    nameKey: 'calendar.upcoming',
+    descriptionKey: 'views.upcomingDesc',
     requiresPremium: false,
     icon: 'Calendar'
   },

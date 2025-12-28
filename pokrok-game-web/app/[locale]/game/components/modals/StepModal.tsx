@@ -74,7 +74,10 @@ export function StepModal({
     deadline: '',
     estimated_time: 0,
     checklist: [],
-    require_checklist_complete: false
+    require_checklist_complete: false,
+    isRepeating: false,
+    frequency: null,
+    selected_days: []
   }
 
   return createPortal(
@@ -138,19 +141,8 @@ export function StepModal({
                   />
                 </div>
 
+                {/* Goal and Area - side by side */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-black mb-2 font-playful">
-                      {t('steps.date')}
-                    </label>
-                    <input
-                      type="date"
-                      value={stepModalData.date}
-                      onChange={(e) => setStepModalData({...stepModalData, date: e.target.value})}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
-                    />
-                  </div>
-
                   {/* Goal selection - only show if no area is selected */}
                   {!stepModalData.areaId && (
                     <div>
@@ -200,6 +192,154 @@ export function StepModal({
                           <option key={area.id} value={area.id}>{area.name}</option>
                         ))}
                       </select>
+                    </div>
+                  )}
+                </div>
+
+                {/* Date and Repeating - with background box */}
+                <div className="bg-primary-50 rounded-playful-md p-4 border-2 border-primary-200">
+                  <div className="grid grid-cols-2 gap-4 mb-3">
+                    <div>
+                      <label className="block text-sm font-semibold text-black mb-2 font-playful">
+                        {t('steps.repeating')}
+                      </label>
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={stepModalData.isRepeating || false}
+                        onClick={() => {
+                          const isRepeating = !stepModalData.isRepeating
+                          setStepModalData({
+                            ...stepModalData,
+                            isRepeating,
+                            frequency: isRepeating ? (stepModalData.frequency || 'daily') : null,
+                            selected_days: isRepeating ? (stepModalData.selected_days || []) : []
+                          })
+                        }}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
+                          stepModalData.isRepeating ? 'bg-primary-500' : 'bg-gray-300'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            stepModalData.isRepeating ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-sm font-semibold text-black mb-2 font-playful">
+                        {t('steps.date')}
+                      </label>
+                      {!stepModalData.isRepeating ? (
+                        <input
+                          type="date"
+                          value={stepModalData.date}
+                          onChange={(e) => setStepModalData({...stepModalData, date: e.target.value})}
+                          className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
+                        />
+                      ) : (
+                        <select
+                          value={stepModalData.frequency || 'daily'}
+                          onChange={(e) => {
+                            const frequency = e.target.value as 'daily' | 'weekly' | 'monthly'
+                            setStepModalData({
+                              ...stepModalData,
+                              frequency,
+                              selected_days: frequency === 'daily' ? [] : (stepModalData.selected_days || [])
+                            })
+                          }}
+                          className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
+                        >
+                          <option value="daily">{t('habits.frequency.daily') || 'Denně'}</option>
+                          <option value="weekly">{t('habits.frequency.weekly') || 'Týdně'}</option>
+                          <option value="monthly">{t('habits.frequency.monthly') || 'Měsíčně'}</option>
+                        </select>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Selected days for weekly - shown below when frequency is weekly */}
+                  {stepModalData.isRepeating && stepModalData.frequency === 'weekly' && (
+                    <div className="mt-3 pt-3 border-t-2 border-primary-200">
+                      <label className="block text-xs font-semibold text-black mb-2 font-playful">
+                        {t('habits.selectDaysOfWeek') || 'Vyberte dny v týdnu'}
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => {
+                          const dayLabels: { [key: string]: string } = {
+                            monday: 'Po',
+                            tuesday: 'Út',
+                            wednesday: 'St',
+                            thursday: 'Čt',
+                            friday: 'Pá',
+                            saturday: 'So',
+                            sunday: 'Ne'
+                          }
+                          const selectedDays = stepModalData.selected_days || []
+                          const isSelected = selectedDays.includes(day)
+                          return (
+                            <button
+                              key={day}
+                              type="button"
+                              onClick={() => {
+                                const newDays = isSelected
+                                  ? selectedDays.filter((d: string) => d !== day)
+                                  : [...selectedDays, day]
+                                setStepModalData({
+                                  ...stepModalData,
+                                  selected_days: newDays
+                                })
+                              }}
+                              className={`px-3 py-1.5 rounded-playful-sm font-medium transition-colors border-2 ${
+                                isSelected
+                                  ? 'bg-primary-500 text-white border-primary-500'
+                                  : 'bg-white text-black border-primary-500 hover:bg-primary-50'
+                              }`}
+                            >
+                              {dayLabels[day]}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Selected days for monthly - shown below when frequency is monthly */}
+                  {stepModalData.isRepeating && stepModalData.frequency === 'monthly' && (
+                    <div className="mt-3 pt-3 border-t-2 border-primary-200">
+                      <label className="block text-xs font-semibold text-black mb-2 font-playful">
+                        {t('habits.selectDaysOfMonth') || 'Vyberte dny v měsíci'}
+                      </label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {Array.from({ length: 31 }, (_, i) => i + 1).map(day => {
+                          const dayStr = day.toString()
+                          const selectedDays = stepModalData.selected_days || []
+                          const isSelected = selectedDays.includes(dayStr)
+                          return (
+                            <button
+                              key={day}
+                              type="button"
+                              onClick={() => {
+                                const newDays = isSelected
+                                  ? selectedDays.filter((d: string) => d !== dayStr)
+                                  : [...selectedDays, dayStr]
+                                setStepModalData({
+                                  ...stepModalData,
+                                  selected_days: newDays
+                                })
+                              }}
+                              className={`px-2 py-1 text-xs rounded-playful-sm border-2 transition-all ${
+                                isSelected
+                                  ? 'bg-primary-500 text-black border-primary-500'
+                                  : 'bg-white text-black border-primary-500 hover:bg-primary-50'
+                              }`}
+                            >
+                              {day}.
+                            </button>
+                          )
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>

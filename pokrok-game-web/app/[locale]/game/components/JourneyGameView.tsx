@@ -1339,7 +1339,10 @@ export function JourneyGameView({
         deadline: step.deadline ? (typeof step.deadline === 'string' ? step.deadline.split('T')[0] : new Date(step.deadline).toISOString().split('T')[0]) : '',
         estimated_time: step.estimated_time || 0,
         checklist: step.checklist || [],
-        require_checklist_complete: step.require_checklist_complete || false
+        require_checklist_complete: step.require_checklist_complete || false,
+        isRepeating: !!(step.frequency && step.frequency !== null),
+        frequency: step.frequency || null,
+        selected_days: step.selected_days || []
       })
     } else {
       // Create new step - always use today's date as default
@@ -1362,7 +1365,10 @@ export function JourneyGameView({
         deadline: '',
         estimated_time: 0,
         checklist: [],
-        require_checklist_complete: false
+        require_checklist_complete: false,
+        isRepeating: false,
+        frequency: null,
+        selected_days: []
       })
     }
     setShowStepModal(true)
@@ -1397,12 +1403,14 @@ export function JourneyGameView({
         areaId: (stepModalData.areaId && stepModalData.areaId.trim() !== '') ? stepModalData.areaId : null,
         title: stepModalData.title,
         description: stepModalData.description || '',
-        date: stepModalData.date || getLocalDateString(new Date()),
+        date: stepModalData.isRepeating ? null : (stepModalData.date || getLocalDateString(new Date())),
         isImportant: stepModalData.is_important,
         isUrgent: stepModalData.is_urgent,
         estimatedTime: stepModalData.estimated_time,
         checklist: stepModalData.checklist,
-        requireChecklistComplete: stepModalData.require_checklist_complete
+        requireChecklistComplete: stepModalData.require_checklist_complete,
+        frequency: stepModalData.isRepeating ? (stepModalData.frequency || null) : null,
+        selectedDays: stepModalData.isRepeating ? (stepModalData.selected_days || []) : []
       }
       
       console.log('🚀 Saving step:', {

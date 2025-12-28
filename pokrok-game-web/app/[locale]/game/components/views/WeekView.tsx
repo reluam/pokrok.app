@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { Check, X, ChevronLeft, ChevronRight, Footprints } from 'lucide-react'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
+import { isStepScheduledForDay } from '../utils/stepHelpers'
 import { TodayFocusSection } from './TodayFocusSection'
 import { getIconComponent } from '@/lib/icon-utils'
 
@@ -97,10 +98,9 @@ export function WeekView({
     ).length
     const totalHabits = dayHabits.length
     
-    // Steps for this day
+    // Steps for this day (including repeating steps)
     const daySteps = dailySteps.filter(step => {
-      if (!step.date) return false
-      return normalizeDate(step.date) === dateStr
+      return isStepScheduledForDay(step, date)
     })
     
     const completedSteps = daySteps.filter(s => s.completed).length
@@ -233,11 +233,9 @@ export function WeekView({
         return false
       })
       
-      // Filter steps for selected day
+      // Filter steps for selected day (including repeating steps)
       const daySteps = dailySteps.filter(step => {
-        if (!step.date) return false
-        const stepDate = normalizeDate(step.date)
-        return stepDate === dateStr
+        return isStepScheduledForDay(step, selectedDayDate)
       })
       
       return {
@@ -264,11 +262,9 @@ export function WeekView({
           return false
         })
         
-        // Get steps for this day
+        // Get steps for this day (including repeating steps)
         const daySteps = dailySteps.filter(step => {
-          if (!step.date) return false
-          const stepDate = normalizeDate(step.date)
-          return stepDate === dateStr
+          return isStepScheduledForDay(step, day)
         })
         
         weekHabits.push(...dayHabits)

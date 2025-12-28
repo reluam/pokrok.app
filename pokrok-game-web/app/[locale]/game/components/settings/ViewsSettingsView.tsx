@@ -6,7 +6,7 @@ import { useUser } from '@clerk/nextjs'
 import { CheckCircle, Circle, Settings } from 'lucide-react'
 import { ViewTypeSettings } from '../views/settings/ViewTypeSettings'
 
-type ViewType = 'day' | 'week' | 'month' | 'year'
+type ViewType = 'upcoming' | 'month' | 'year' | 'areas'
 
 interface ViewConfiguration {
   id: string
@@ -60,7 +60,7 @@ export function ViewsSettingsView() {
       }
 
       // Load view settings for each view type
-      const viewTypes: ViewType[] = ['day', 'week', 'month', 'year']
+      const viewTypes: ViewType[] = ['upcoming', 'month', 'year', 'areas']
       const configs: ViewConfiguration[] = []
       
       for (const viewType of viewTypes) {

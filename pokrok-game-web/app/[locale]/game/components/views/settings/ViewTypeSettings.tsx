@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 
 interface ViewTypeSettingsProps {
-  viewType: 'day' | 'week' | 'month' | 'year' | 'areas'
+  viewType: 'upcoming' | 'month' | 'year' | 'areas'
   userId: string
 }
 
@@ -15,18 +15,9 @@ interface ViewSection {
 }
 
 const VIEW_SECTIONS: Record<string, ViewSection[]> = {
-  day: [
-    { key: 'quickOverview', labelKey: '', defaultVisible: true },
-    { key: 'todayFocus', labelKey: '', defaultVisible: true },
+  upcoming: [
     { key: 'habits', labelKey: '', defaultVisible: true },
-    { key: 'futureSteps', labelKey: '', defaultVisible: true },
-    { key: 'overdueSteps', labelKey: '', defaultVisible: true }
-  ],
-  week: [
-    { key: 'quickOverview', labelKey: '', defaultVisible: true },
-    { key: 'weeklyFocus', labelKey: '', defaultVisible: true },
-    { key: 'habits', labelKey: '', defaultVisible: true },
-    { key: 'futureSteps', labelKey: '', defaultVisible: true },
+    { key: 'upcomingSteps', labelKey: '', defaultVisible: true },
     { key: 'overdueSteps', labelKey: '', defaultVisible: true }
   ],
   month: [
@@ -55,6 +46,7 @@ const VIEW_SECTIONS: Record<string, ViewSection[]> = {
 export function ViewTypeSettings({ viewType, userId }: ViewTypeSettingsProps) {
   const t = useTranslations()
   const [visibleSections, setVisibleSections] = useState<Record<string, boolean>>({})
+  const [settings, setSettings] = useState<Record<string, any>>({}) // For numeric settings like maxUpcomingSteps
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
@@ -81,6 +73,17 @@ export function ViewTypeSettings({ viewType, userId }: ViewTypeSettingsProps) {
           })
           setVisibleSections(defaults)
         }
+        // Load other settings (like maxUpcomingSteps)
+        if (data && data.settings) {
+          setSettings(data.settings)
+        } else {
+          // Defaults for upcoming view
+          if (viewType === 'upcoming') {
+            setSettings({ maxUpcomingSteps: 5 })
+          } else {
+            setSettings({})
+          }
+        }
       } else {
         // Use defaults
         const defaults: Record<string, boolean> = {}
@@ -88,6 +91,11 @@ export function ViewTypeSettings({ viewType, userId }: ViewTypeSettingsProps) {
           defaults[section.key] = section.defaultVisible
         })
         setVisibleSections(defaults)
+        if (viewType === 'upcoming') {
+          setSettings({ maxUpcomingSteps: 5 })
+        } else {
+          setSettings({})
+        }
       }
     } catch (error) {
       console.error('Error loading view settings:', error)
@@ -97,6 +105,11 @@ export function ViewTypeSettings({ viewType, userId }: ViewTypeSettingsProps) {
         defaults[section.key] = section.defaultVisible
       })
       setVisibleSections(defaults)
+      if (viewType === 'upcoming') {
+        setSettings({ maxUpcomingSteps: 5 })
+      } else {
+        setSettings({})
+      }
     } finally {
       setLoading(false)
     }
@@ -114,7 +127,8 @@ export function ViewTypeSettings({ viewType, userId }: ViewTypeSettingsProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           view_type: viewType,
-          visible_sections: updated
+          visible_sections: updated,
+          settings: settings
         })
       })
 
@@ -127,6 +141,36 @@ export function ViewTypeSettings({ viewType, userId }: ViewTypeSettingsProps) {
       console.error('Error saving view settings:', error)
       // Revert on error
       setVisibleSections(visibleSections)
+    } finally {
+      setSaving(false)
+    }
+  }
+  
+  const updateSetting = async (settingKey: string, value: any) => {
+    const updated = { ...settings, [settingKey]: value }
+    setSettings(updated)
+
+    try {
+      setSaving(true)
+      const response = await fetch('/api/view-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          view_type: viewType,
+          visible_sections: visibleSections,
+          settings: updated
+        })
+      })
+
+      if (!response.ok) {
+        // Revert on error
+        setSettings(settings)
+        console.error('Error saving view settings')
+      }
+    } catch (error) {
+      console.error('Error saving view settings:', error)
+      // Revert on error
+      setSettings(settings)
     } finally {
       setSaving(false)
     }
@@ -179,6 +223,24 @@ export function ViewTypeSettings({ viewType, userId }: ViewTypeSettingsProps) {
             </div>
           )
         })}
+        
+        {/* Max upcoming steps setting for upcoming view */}
+        {viewType === 'upcoming' && (
+          <div className="p-3 bg-gray-50 rounded-playful-sm border border-gray-200">
+            <label className="block text-sm font-playful text-gray-700 mb-2">
+              {t('views.maxSteps') || 'Maximální počet nadcházejících kroků'}
+            </label>
+            <input
+              type="number"
+              min="1"
+              max="20"
+              value={settings.maxUpcomingSteps || 5}
+              onChange={(e) => updateSetting('maxUpcomingSteps', parseInt(e.target.value) || 5)}
+              disabled={saving}
+              className="w-full px-3 py-2 text-sm border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-black disabled:opacity-50"
+            />
+          </div>
+        )}
       </div>
     </div>
   )
