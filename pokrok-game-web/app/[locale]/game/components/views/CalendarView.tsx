@@ -78,7 +78,6 @@ export function CalendarView({
             dailySteps={dailySteps}
             selectedDayDate={selectedDayDate || new Date()}
             setSelectedDayDate={setSelectedDayDate || (() => {})}
-            setShowDatePickerModal={setShowDatePickerModal || (() => {})}
             handleItemClick={handleItemClick || (() => {})}
             handleHabitToggle={handleHabitToggle || (async () => {})}
             handleStepToggle={handleStepToggle || (async () => {})}
@@ -88,8 +87,6 @@ export function CalendarView({
             loadingHabits={loadingHabits}
             loadingSteps={loadingSteps}
             player={player}
-            onNavigateToHabits={onNavigateToHabits}
-            onNavigateToSteps={onNavigateToSteps}
             userId={userId}
             maxUpcomingSteps={maxUpcomingSteps}
           />

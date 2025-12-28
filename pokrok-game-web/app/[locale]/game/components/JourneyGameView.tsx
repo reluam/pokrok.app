@@ -325,7 +325,10 @@ export function JourneyGameView({
     deadline: '',
     estimated_time: 0,
     checklist: [] as Array<{ id: string; title: string; completed: boolean }>,
-    require_checklist_complete: false
+    require_checklist_complete: false,
+    isRepeating: false,
+    frequency: null as string | null,
+    selected_days: [] as string[]
   })
   const [checklistSaving, setChecklistSaving] = useState(false)
   const checklistSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -1488,7 +1491,10 @@ export function JourneyGameView({
           deadline: '',
           estimated_time: 0,
           checklist: [],
-          require_checklist_complete: false
+          require_checklist_complete: false,
+          isRepeating: false,
+          frequency: null,
+          selected_days: []
         })
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
@@ -2755,7 +2761,10 @@ export function JourneyGameView({
           deadline: '',
           estimated_time: 0,
           checklist: [],
-          require_checklist_complete: false
+          require_checklist_complete: false,
+          isRepeating: false,
+          frequency: null,
+          selected_days: []
         })
         
         // Close editing form if it was open for this step
@@ -3797,7 +3806,10 @@ export function JourneyGameView({
             deadline: '',
             estimated_time: 0,
             checklist: [],
-            require_checklist_complete: false
+            require_checklist_complete: false,
+            isRepeating: false,
+            frequency: null,
+            selected_days: []
           })
         }}
         onSave={handleSaveStepModal}

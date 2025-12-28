@@ -161,7 +161,7 @@ export interface DailyStep {
   description?: string
   completed: boolean
   completed_at?: Date
-  date: Date
+  date: Date | null
   is_important: boolean
   is_urgent: boolean
   created_at: Date
@@ -174,6 +174,8 @@ export interface DailyStep {
   xp_reward?: number
   checklist?: ChecklistItem[]
   require_checklist_complete?: boolean
+  frequency?: string | null
+  selected_days?: string[]
 }
 
 export interface Metric {
@@ -1367,7 +1369,7 @@ export async function createGoal(goalData: Partial<Goal>): Promise<Goal> {
   return goal[0] as Goal
 }
 
-export async function createDailyStep(stepData: Omit<Partial<DailyStep>, 'date'> & { date?: Date | string }): Promise<DailyStep> {
+export async function createDailyStep(stepData: Omit<Partial<DailyStep>, 'date'> & { date?: Date | string, frequency?: string | null, selected_days?: string[] }): Promise<DailyStep> {
   const id = crypto.randomUUID()
   
   // Format date as YYYY-MM-DD string to avoid timezone issues

@@ -289,7 +289,7 @@ export async function POST(request: NextRequest) {
       title,
       description: description || undefined,
       completed: false,
-      date: dateValue, // Pass as string (YYYY-MM-DD) or Date, createDailyStep will handle it (null for repeating steps)
+      date: dateValue || undefined, // Pass as string (YYYY-MM-DD) or Date, or undefined for repeating steps
       is_important: isImportant || false,
       is_urgent: isUrgent || false,
       aspiration_id: aspirationId || undefined,

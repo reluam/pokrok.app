@@ -11,7 +11,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { OnlyTheImportantSettings } from './views/settings/OnlyTheImportantSettings'
 import { ViewTypeSettings } from './views/settings/ViewTypeSettings'
 
-type ViewType = 'day' | 'week' | 'month' | 'year' | 'areas'
+type ViewType = 'upcoming' | 'month' | 'year' | 'areas'
 
 interface ViewConfiguration {
   id: string
@@ -47,18 +47,17 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
   const [loading, setLoading] = useState(true)
   const [configurations, setConfigurations] = useState<ViewConfiguration[]>([])
   const [availableWorkflows, setAvailableWorkflows] = useState<Record<string, AvailableWorkflow>>({})
-  const [selectedViewType, setSelectedViewType] = useState<ViewType | null>('day')
+  const [selectedViewType, setSelectedViewType] = useState<ViewType | null>('upcoming')
   const [selectedWorkflow, setSelectedWorkflow] = useState<string | null>(null)
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState<string | null>(null)
   const [viewTypeVisibility, setViewTypeVisibility] = useState<Record<ViewType, boolean>>({
-    day: true,
-    week: true,
+    upcoming: true,
     month: true,
     year: true,
     areas: true
   })
-  const [allViewsOrder, setAllViewsOrder] = useState<ViewType[]>(['day', 'week', 'month', 'year', 'areas']) // Unified order of all views
+  const [allViewsOrder, setAllViewsOrder] = useState<ViewType[]>(['upcoming', 'month', 'year', 'areas']) // Unified order of all views
   const [activeId, setActiveId] = useState<string | null>(null)
   const [onlyImportantMaxTasks, setOnlyImportantMaxTasks] = useState<number>(3)
   const [isSavingMaxTasks, setIsSavingMaxTasks] = useState(false)
@@ -102,7 +101,7 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
       }
 
       // Load view type visibility settings and order - unified list
-      const viewTypes: ViewType[] = ['day', 'week', 'month', 'year', 'areas']
+      const viewTypes: ViewType[] = ['upcoming', 'month', 'year', 'areas']
       const visibilityPromises = viewTypes.map(async (viewType) => {
         try {
           const response = await fetch(`/api/view-settings?view_type=${viewType}`)
@@ -120,8 +119,7 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
 
       const visibilityResults = await Promise.all(visibilityPromises)
       const visibilityMap: Record<ViewType, boolean> = {
-        day: true,
-        week: true,
+        upcoming: true,
         month: true,
         year: true,
         areas: true
@@ -140,7 +138,7 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
       })
       
       // Sort all views together by order_index
-      const allViews: ViewType[] = ['day', 'week', 'month', 'year', 'areas']
+      const allViews: ViewType[] = ['upcoming', 'month', 'year', 'areas']
       const viewsWithOrder = allViews
         .filter(vt => orderMap.has(vt))
         .sort((a, b) => (orderMap.get(a) || 0) - (orderMap.get(b) || 0))
@@ -283,9 +281,8 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
   }
 
   const viewTypeLabels: Record<ViewType, { label: string; icon: any }> = {
-    day: { label: t('calendar.day') || 'Denní', icon: CalendarDays },
-    week: { label: t('calendar.week') || 'Týdenní', icon: CalendarRange },
-    month: { label: t('calendar.month') || 'Měsíční', icon: Calendar },
+    upcoming: { label: t('calendar.upcoming') || 'Nadcházející', icon: Calendar },
+    month: { label: t('calendar.month') || 'Měsíční', icon: CalendarDays },
     year: { label: t('calendar.year') || 'Roční', icon: CalendarCheck },
     areas: { label: t('areas.title') || 'Oblasti', icon: LayoutDashboard }
   }
@@ -684,7 +681,7 @@ export function WorkflowsView({ player, onBack, onNavigateToMain }: WorkflowsVie
                     </div>
 
                     {/* Section visibility settings - only for views that have sections */}
-                    {player?.user_id && (selectedViewType === 'day' || selectedViewType === 'week' || selectedViewType === 'month' || selectedViewType === 'year' || selectedViewType === 'areas') && (
+                    {player?.user_id && (selectedViewType === 'upcoming' || selectedViewType === 'month' || selectedViewType === 'year' || selectedViewType === 'areas') && (
                       <ViewTypeSettings viewType={selectedViewType} userId={player.user_id} />
                     )}
                   </div>
