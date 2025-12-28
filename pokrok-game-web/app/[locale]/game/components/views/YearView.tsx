@@ -338,7 +338,7 @@ export function YearView({
   return (
     <div className="w-full h-full flex flex-col bg-primary-50 overflow-y-auto">
       {/* Roadmap Timeline */}
-      <div className="p-6 border-b-2 border-primary-500 bg-primary-50">
+      <div className="px-6 pt-6 pb-1 bg-primary-50">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
           <button
@@ -369,6 +369,65 @@ export function YearView({
             )}
           </div>
           
+      </div>
+      
+      {/* Statistics */}
+      <div className="px-6 pt-3 pb-6 bg-primary-50 border-b-2 border-primary-500">
+        <h3 className="text-xl font-bold text-black font-playful mb-4">
+          {t('common.statistics') || 'Statistiky'}
+        </h3>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* Completed Habits */}
+          <div className="box-playful-highlight p-4 bg-white">
+            <div className="text-sm text-gray-600 font-playful mb-1">
+              {t('habits.completed') || 'Splněné návyky'}
+            </div>
+            <div className="text-2xl font-bold text-primary-600 font-playful">
+              {stats.completedHabits}
+              </div>
+            </div>
+            
+          {/* Goals completed in target */}
+          <div className="box-playful-highlight p-4 bg-white">
+            <div className="text-sm text-gray-600 font-playful mb-1">
+              {t('goals.completedInTarget') || 'Cíle splněné v targetu'}
+                </div>
+            <div className="text-2xl font-bold text-green-600 font-playful">
+              {stats.goalsCompletedInTarget}
+                </div>
+                </div>
+          
+          {/* Goals completed after target */}
+          <div className="box-playful-highlight p-4 bg-white">
+            <div className="text-sm text-gray-600 font-playful mb-1">
+              {t('goals.completedAfterTarget') || 'Cíle splněné po targetu'}
+                  </div>
+            <div className="text-2xl font-bold text-orange-600 font-playful">
+              {stats.goalsCompletedAfterTarget}
+              </div>
+            </div>
+            
+          {/* Steps completed in target */}
+          <div className="box-playful-highlight p-4 bg-white">
+            <div className="text-sm text-gray-600 font-playful mb-1">
+              {t('steps.completedInTarget') || 'Kroky splněné v targetu'}
+            </div>
+            <div className="text-2xl font-bold text-green-600 font-playful">
+              {stats.stepsCompletedInTarget}
+                  </div>
+                </div>
+          
+          {/* Steps completed after target */}
+          <div className="box-playful-highlight p-4 bg-white">
+            <div className="text-sm text-gray-600 font-playful mb-1">
+              {t('steps.completedAfterTarget') || 'Kroky splněné po targetu'}
+            </div>
+            <div className="text-2xl font-bold text-orange-600 font-playful">
+              {stats.stepsCompletedAfterTarget}
+              </div>
+          </div>
+        </div>
       </div>
       
       {/* Goals Roadmap */}
@@ -731,65 +790,6 @@ export function YearView({
               </p>
             </div>
           )}
-        </div>
-      </div>
-              
-      {/* Statistics */}
-      <div className="p-6 bg-primary-50">
-        <h3 className="text-xl font-bold text-black font-playful mb-4">
-          {t('common.statistics') || 'Statistiky'}
-        </h3>
-        
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {/* Completed Habits */}
-          <div className="box-playful-highlight p-4">
-            <div className="text-sm text-gray-600 font-playful mb-1">
-              {t('habits.completed') || 'Splněné návyky'}
-            </div>
-            <div className="text-2xl font-bold text-primary-600 font-playful">
-              {stats.completedHabits}
-              </div>
-            </div>
-            
-          {/* Goals completed in target */}
-          <div className="box-playful-highlight p-4">
-            <div className="text-sm text-gray-600 font-playful mb-1">
-              {t('goals.completedInTarget') || 'Cíle splněné v targetu'}
-                </div>
-            <div className="text-2xl font-bold text-green-600 font-playful">
-              {stats.goalsCompletedInTarget}
-                </div>
-                </div>
-          
-          {/* Goals completed after target */}
-          <div className="box-playful-highlight p-4">
-            <div className="text-sm text-gray-600 font-playful mb-1">
-              {t('goals.completedAfterTarget') || 'Cíle splněné po targetu'}
-                  </div>
-            <div className="text-2xl font-bold text-orange-600 font-playful">
-              {stats.goalsCompletedAfterTarget}
-              </div>
-            </div>
-            
-          {/* Steps completed in target */}
-          <div className="box-playful-highlight p-4">
-            <div className="text-sm text-gray-600 font-playful mb-1">
-              {t('steps.completedInTarget') || 'Kroky splněné v targetu'}
-            </div>
-            <div className="text-2xl font-bold text-green-600 font-playful">
-              {stats.stepsCompletedInTarget}
-                  </div>
-                </div>
-          
-          {/* Steps completed after target */}
-          <div className="box-playful-highlight p-4">
-            <div className="text-sm text-gray-600 font-playful mb-1">
-              {t('steps.completedAfterTarget') || 'Kroky splněné po targetu'}
-            </div>
-            <div className="text-2xl font-bold text-orange-600 font-playful">
-              {stats.stepsCompletedAfterTarget}
-              </div>
-          </div>
         </div>
       </div>
     </div>

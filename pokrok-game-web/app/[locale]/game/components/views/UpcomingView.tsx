@@ -154,7 +154,10 @@ export function UpcomingView({
         
         const isOverdue = stepDate < today
         const goal = step.goal_id ? goalMap.get(step.goal_id) : null
-        const area = goal?.area_id ? areaMap.get(goal.area_id) : null
+        // Get area from goal if exists, otherwise from step directly
+        const area = goal?.area_id 
+          ? areaMap.get(goal.area_id) 
+          : (step.area_id ? areaMap.get(step.area_id) : null)
         
         stepsWithDates.push({
           step,
@@ -173,7 +176,10 @@ export function UpcomingView({
         const nextDate = getNextOccurrenceDate(step, today)
         if (nextDate && nextDate <= oneMonthFromToday) {
           const goal = step.goal_id ? goalMap.get(step.goal_id) : null
-          const area = goal?.area_id ? areaMap.get(goal.area_id) : null
+          // Get area from goal if exists, otherwise from step directly
+          const area = goal?.area_id 
+            ? areaMap.get(goal.area_id) 
+            : (step.area_id ? areaMap.get(step.area_id) : null)
           
           stepsWithDates.push({
             step: {

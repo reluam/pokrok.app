@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Target, Plus, Footprints, CheckSquare, Settings, Calendar, CalendarRange, CalendarDays, CalendarCheck } from 'lucide-react'
+import { LayoutDashboard, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Target, Plus, Footprints, CheckSquare, Settings, Calendar, CalendarRange, CalendarDays, CalendarCheck, BarChart3, ListTodo } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
 
 interface SidebarNavigationProps {
@@ -181,7 +181,7 @@ export function SidebarNavigation({
                       mainPanelSection === 'focus-upcoming' ? 'active' : ''
                     }`}
                   >
-                    <Calendar className="w-4 h-4 flex-shrink-0" />
+                    <ListTodo className="w-4 h-4 flex-shrink-0" />
                     <span className="font-medium text-sm">{t('calendar.upcoming') || 'Nadcházející'}</span>
                   </button>
                 )}
@@ -195,7 +195,7 @@ export function SidebarNavigation({
                     }`}
                   >
                     <CalendarDays className="w-4 h-4 flex-shrink-0" />
-                    <span className="font-medium text-sm">{t('calendar.month') || 'Měsíční'}</span>
+                    <span className="font-medium text-sm">{t('calendar.month') || 'Přehled'}</span>
                   </button>
                 )}
                 
@@ -207,8 +207,8 @@ export function SidebarNavigation({
                       mainPanelSection === 'focus-year' ? 'active' : ''
                     }`}
                   >
-                    <CalendarCheck className="w-4 h-4 flex-shrink-0" />
-                    <span className="font-medium text-sm">{t('calendar.year') || 'Roční'}</span>
+                    <BarChart3 className="w-4 h-4 flex-shrink-0" />
+                    <span className="font-medium text-sm">{t('calendar.year') || 'Statistiky'}</span>
                   </button>
                 )}
               </div>
@@ -224,7 +224,7 @@ export function SidebarNavigation({
                   }`}
                   title={t('calendar.upcoming') || 'Nadcházející'}
                 >
-                  <Calendar className="w-5 h-5 flex-shrink-0" />
+                  <ListTodo className="w-5 h-5 flex-shrink-0" />
                 </button>
               )}
               {viewTypeVisibility['month'] !== false && (
@@ -233,7 +233,7 @@ export function SidebarNavigation({
                   className={`btn-playful-nav flex items-center justify-center w-10 h-10 ${
                     mainPanelSection === 'focus-month' ? 'active' : ''
                   }`}
-                  title={t('calendar.month') || 'Měsíční'}
+                  title={t('calendar.month') || 'Přehled'}
                 >
                   <CalendarDays className="w-5 h-5 flex-shrink-0" />
                 </button>
@@ -244,9 +244,9 @@ export function SidebarNavigation({
                   className={`btn-playful-nav flex items-center justify-center w-10 h-10 ${
                     mainPanelSection === 'focus-year' ? 'active' : ''
                   }`}
-                  title={t('calendar.year') || 'Roční'}
+                  title={t('calendar.year') || 'Statistiky'}
                 >
-                  <CalendarCheck className="w-5 h-5 flex-shrink-0" />
+                  <BarChart3 className="w-5 h-5 flex-shrink-0" />
                 </button>
               )}
             </>
