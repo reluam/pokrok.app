@@ -296,14 +296,14 @@ export function UpcomingView({
   return (
     <div className="w-full h-full flex flex-col bg-primary-50">
       {/* Header */}
-      <div className="flex-shrink-0 bg-white border-b-2 border-primary-500 py-4 px-6">
+      <div className="flex-shrink-0 bg-primary-50 pb-2 pt-4 px-6">
         <h1 className="text-2xl font-bold text-black font-playful">
           {t('views.upcoming.title') || 'Nadcházející'}
         </h1>
       </div>
       
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pt-2 space-y-6">
         {/* Today's Habits - only show if there are habits */}
         {todaysHabits.length > 0 && (
           <div>
