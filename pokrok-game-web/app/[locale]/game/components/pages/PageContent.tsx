@@ -7,6 +7,7 @@ import { HabitsPage } from '../views/HabitsPage'
 import { HabitDetailPage } from '../views/HabitDetailPage'
 import { GoalDetailPage } from '../views/GoalDetailPage'
 import { UnifiedDayView } from '../views/UnifiedDayView'
+import { AreaStepsView } from '../views/AreaStepsView'
 import { CalendarView } from '../views/CalendarView'
 import { DayView } from '../views/DayView'
 import { WeekView } from '../views/WeekView'
@@ -866,27 +867,8 @@ export function PageContent(props: PageContentProps) {
                           </div>
                         </div>
                         
-                        {/* Controls and statistics - on the right */}
+                        {/* Controls - on the right */}
                         <div className="flex items-center gap-3 flex-shrink-0">
-                          {/* Area statistics */}
-                          <div className="flex items-center gap-4 text-gray-600">
-                            {areaGoals.length > 0 && (
-                              <div className="text-sm">
-                                <span className="font-semibold">{areaGoals.length}</span> {areaGoals.length === 1 ? (localeCode === 'cs-CZ' ? 'cíl' : 'goal') : (localeCode === 'cs-CZ' ? 'cílů' : 'goals')}
-                              </div>
-                            )}
-                            {areaSteps.length > 0 && (
-                              <div className="text-sm">
-                                <span className="font-semibold">{areaSteps.length}</span> {areaSteps.length === 1 ? (localeCode === 'cs-CZ' ? 'krok' : 'step') : (localeCode === 'cs-CZ' ? 'kroků' : 'steps')}
-                              </div>
-                            )}
-                            {areaHabits.length > 0 && (
-                              <div className="text-sm">
-                                <span className="font-semibold">{areaHabits.length}</span> {areaHabits.length === 1 ? (localeCode === 'cs-CZ' ? 'návyk' : 'habit') : (localeCode === 'cs-CZ' ? 'návyků' : 'habits')}
-                              </div>
-                            )}
-                          </div>
-                          
                           {/* Color picker button */}
                           <button
                             ref={areaColorRef}
@@ -928,24 +910,16 @@ export function PageContent(props: PageContentProps) {
                     </div>
                   </div>
                     
-                    {/* Unified Day View - filtered by area */}
+                    {/* Area Steps View */}
                     <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
-                      <UnifiedDayView
-                        player={player}
+                      <AreaStepsView
                         goals={areaGoals}
-                        habits={areaHabits}
                         dailySteps={areaSteps}
                         handleItemClick={handleItemClick}
-                        handleHabitToggle={handleHabitToggle}
                         handleStepToggle={handleStepToggle}
-                        loadingHabits={loadingHabits}
                         loadingSteps={loadingSteps}
                         onOpenStepModal={handleOpenStepModal}
-                        onNavigateToHabits={onNavigateToHabits}
-                        onNavigateToSteps={onNavigateToSteps}
-                        onStepDateChange={handleStepDateChange}
-                        onStepTimeChange={handleStepTimeChange}
-                        onDailyStepsUpdate={onDailyStepsUpdate}
+                        maxUpcomingSteps={15}
                       />
                     </div>
                 </div>
