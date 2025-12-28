@@ -1681,6 +1681,7 @@
     },
     "upcomingDesc": "Displays upcoming steps and habits. Ideal for an overview of what's ahead.",
     "upcomingSteps": "Upcoming steps",
+    "otherSteps": "Other steps",
     "overdue": "Overdue steps",
     "noSteps": "No upcoming steps",
     "maxSteps": "Maximum number of upcoming steps",

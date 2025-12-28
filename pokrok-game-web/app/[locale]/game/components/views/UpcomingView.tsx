@@ -12,6 +12,7 @@ interface UpcomingViewProps {
   goals?: any[]
   habits: any[]
   dailySteps: any[]
+  areas?: any[]
   selectedDayDate: Date
   setSelectedDayDate: (date: Date) => void
   handleItemClick: (item: any, type: 'step' | 'habit' | 'goal' | 'stat') => void
@@ -31,6 +32,7 @@ export function UpcomingView({
   goals = [],
   habits,
   dailySteps,
+  areas = [],
   selectedDayDate,
   setSelectedDayDate,
   handleItemClick,
@@ -48,13 +50,6 @@ export function UpcomingView({
   const t = useTranslations()
   const locale = useLocale()
   
-  // State for number of displayed steps
-  const [displayedStepsCount, setDisplayedStepsCount] = useState(maxUpcomingSteps)
-  
-  // Reset displayed steps count when maxUpcomingSteps changes
-  useEffect(() => {
-    setDisplayedStepsCount(maxUpcomingSteps)
-  }, [maxUpcomingSteps])
   
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -116,9 +111,34 @@ export function UpcomingView({
     return null
   }
   
-  // Get upcoming steps - sorted by date, with important first within each day
+  // Calculate one month from today
+  const oneMonthFromToday = useMemo(() => {
+    const date = new Date(today)
+    date.setMonth(date.getMonth() + 1)
+    return date
+  }, [today])
+
+  // Create maps for quick lookup
+  const goalMap = useMemo(() => {
+    const map = new Map<string, any>()
+    goals.forEach(goal => {
+      map.set(goal.id, goal)
+    })
+    return map
+  }, [goals])
+
+  const areaMap = useMemo(() => {
+    const map = new Map<string, any>()
+    areas.forEach(area => {
+      map.set(area.id, area)
+    })
+    return map
+  }, [areas])
+
+  // Get upcoming steps - sorted by date, with overdue first, then important first within each day
+  // Limited to 15 steps total and max one month ahead
   const upcomingSteps = useMemo(() => {
-    const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean }> = []
+    const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isOverdue: boolean; goal: any; area: any }> = []
     
     // Process non-repeating steps
     dailySteps
@@ -129,14 +149,21 @@ export function UpcomingView({
         const stepDate = new Date(normalizeDate(step.date))
         stepDate.setHours(0, 0, 0, 0)
         
-        // Only include future steps (today and later)
-        if (stepDate >= today) {
-          stepsWithDates.push({
-            step,
-            date: stepDate,
-            isImportant: step.is_important || false
-          })
-        }
+        // Filter out steps more than one month ahead
+        if (stepDate > oneMonthFromToday) return
+        
+        const isOverdue = stepDate < today
+        const goal = step.goal_id ? goalMap.get(step.goal_id) : null
+        const area = goal?.area_id ? areaMap.get(goal.area_id) : null
+        
+        stepsWithDates.push({
+          step,
+          date: stepDate,
+          isImportant: step.is_important || false,
+          isOverdue,
+          goal,
+          area
+        })
       })
     
     // Process repeating steps - find next occurrence that is NOT completed
@@ -144,7 +171,10 @@ export function UpcomingView({
       .filter(step => step.frequency && step.frequency !== null)
       .forEach(step => {
         const nextDate = getNextOccurrenceDate(step, today)
-        if (nextDate) {
+        if (nextDate && nextDate <= oneMonthFromToday) {
+          const goal = step.goal_id ? goalMap.get(step.goal_id) : null
+          const area = goal?.area_id ? areaMap.get(goal.area_id) : null
+          
           stepsWithDates.push({
             step: {
               ...step,
@@ -152,13 +182,21 @@ export function UpcomingView({
               completed: false // Reset completed flag for the specific occurrence
             },
             date: nextDate,
-            isImportant: step.is_important || false
+            isImportant: step.is_important || false,
+            isOverdue: false, // Repeating steps are never overdue
+            goal,
+            area
           })
         }
       })
     
-    // Sort: by date first, then by importance within same date
+    // Sort: overdue first, then by date, then by importance within same date
     stepsWithDates.sort((a, b) => {
+      // Overdue steps first
+      if (a.isOverdue && !b.isOverdue) return -1
+      if (!a.isOverdue && b.isOverdue) return 1
+      
+      // Same overdue status - sort by date
       const dateDiff = a.date.getTime() - b.date.getTime()
       if (dateDiff !== 0) return dateDiff
       
@@ -168,36 +206,39 @@ export function UpcomingView({
       return 0
     })
     
-    // Return all steps (we'll slice them in render)
-    return stepsWithDates.map(item => item.step)
-  }, [dailySteps, today])
+    // Limit to 15 steps total
+    const limitedSteps = stepsWithDates.slice(0, 15)
+    
+    // Return steps with additional metadata
+    return limitedSteps.map(item => ({
+      ...item.step,
+      _isOverdue: item.isOverdue,
+      _goal: item.goal,
+      _area: item.area
+    }))
+  }, [dailySteps, today, oneMonthFromToday, goalMap, areaMap])
   
-  // Get displayed steps (limited by displayedStepsCount)
-  const displayedUpcomingSteps = useMemo(() => {
-    return upcomingSteps.slice(0, displayedStepsCount)
-  }, [upcomingSteps, displayedStepsCount])
-  
-  // Check if there are more steps to load
-  const hasMoreSteps = upcomingSteps.length > displayedStepsCount
-  
-  // Get overdue steps (same as before)
-  const overdueSteps = useMemo(() => {
-    return dailySteps.filter(step => {
-      if (step.completed) return false
-      if (step.frequency && step.frequency !== null) return false // Skip repeating steps
-      if (!step.date) return false
+  // Group steps by area
+  const stepsByArea = useMemo(() => {
+    const grouped: Record<string, Array<{ step: any; goal: any }>> = {}
+    const noAreaSteps: Array<{ step: any; goal: any }> = []
+    
+    upcomingSteps.forEach(step => {
+      const area = (step as any)._area
+      const goal = (step as any)._goal
       
-      const stepDate = normalizeDate(step.date)
-      const stepDateObj = new Date(stepDate)
-      stepDateObj.setHours(0, 0, 0, 0)
-      
-      return stepDateObj < today
-    }).sort((a, b) => {
-      const dateA = new Date(normalizeDate(a.date))
-      const dateB = new Date(normalizeDate(b.date))
-      return dateA.getTime() - dateB.getTime()
+      if (area) {
+        if (!grouped[area.id]) {
+          grouped[area.id] = []
+        }
+        grouped[area.id].push({ step, goal })
+      } else {
+        noAreaSteps.push({ step, goal })
+      }
     })
-  }, [dailySteps, today])
+    
+    return { grouped, noAreaSteps }
+  }, [upcomingSteps])
   
   // Helper function to check if a date is in the current or next week (Monday to Sunday)
   const isDateInCurrentOrNextWeek = (date: Date): boolean => {
@@ -259,11 +300,9 @@ export function UpcomingView({
       
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
-        {/* Today's Habits */}
-        <div>
-          {todaysHabits.length === 0 ? (
-            <p className="text-sm text-gray-600">{t('habits.noHabits') || 'Žádné návyky na dnes'}</p>
-          ) : (
+        {/* Today's Habits - only show if there are habits */}
+        {todaysHabits.length > 0 && (
+          <div>
             <div className="flex flex-wrap gap-3">
               {todaysHabits.map((habit) => {
                 const isCompleted = habit.habit_completions && habit.habit_completions[todayStr] === true
@@ -314,219 +353,280 @@ export function UpcomingView({
                 )
               })}
             </div>
-          )}
-        </div>
-        
-        {/* Upcoming Steps */}
-        <div className="card-playful-base">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Footprints className="w-5 h-5 text-primary-600" />
-              <h2 className="text-lg font-bold text-black font-playful">
-                {t('views.upcomingSteps') || 'Nadcházející kroky'}
-              </h2>
-            </div>
-            {onOpenStepModal && (
-              <button
-                onClick={() => onOpenStepModal()}
-                className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
-                title={t('steps.addStep') || 'Přidat krok'}
-              >
-                <Plus className="w-4 h-4" />
-                <span>{t('steps.addStep') || 'Přidat krok'}</span>
-              </button>
-            )}
           </div>
-          
-          {upcomingSteps.length === 0 ? (
-            <p className="text-sm text-gray-600">{t('views.noSteps') || 'Žádné nadcházející kroky'}</p>
-          ) : (
-            <>
-              <div className="space-y-2">
-                {displayedUpcomingSteps.map((step) => {
-                const isLoading = loadingSteps.has(step.id)
-                const stepDate = step.date ? normalizeDate(step.date) : null
-                const stepDateObj = stepDate ? new Date(stepDate) : null
-                if (stepDateObj) stepDateObj.setHours(0, 0, 0, 0)
-                const isToday = stepDateObj && stepDateObj.getTime() === today.getTime()
-                const stepDateFormatted = stepDate ? formatStepDate(stepDate) : null
-                
-                return (
-                  <div
-                    key={step.id}
-                    onClick={() => handleItemClick(step, 'step')}
-                    className={`${step.is_important ? 'box-playful-highlight' : 'box-playful-pressed'} flex items-center gap-3 p-3 cursor-pointer ${
-                      step.completed
-                        ? 'border-primary-500 bg-white opacity-50'
-                        : isToday
-                          ? 'border-primary-500 bg-white hover:bg-primary-50'
-                          : 'border-primary-500 bg-white hover:bg-primary-50'
-                    } ${isLoading ? 'opacity-50' : ''}`}
-                  >
-                    {/* Checkbox */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleStepToggle(step.id, !step.completed)
-                      }}
-                      disabled={isLoading}
-                      className={`w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
-                        step.completed 
-                          ? 'bg-white border-primary-500' 
-                          : isToday
-                            ? 'border-primary-500 hover:bg-primary-100'
-                            : 'border-primary-500 hover:bg-primary-100'
-                      }`}
-                    >
-                      {isLoading ? (
-                        <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                      ) : step.completed ? (
-                        <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                      ) : null}
-                    </button>
-                    
-                    {/* Title */}
-                    <span className={`flex-1 text-sm truncate flex items-center gap-2 ${
-                      step.completed 
-                        ? 'line-through text-gray-400' 
-                        : isToday
-                          ? 'text-primary-600'
-                          : 'text-black'
-                    } ${step.is_important && !step.completed ? 'font-bold' : 'font-medium'}`}>
-                      {step.title}
-                      {step.checklist && step.checklist.length > 0 && (
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
-                          step.checklist.filter((c: any) => c.completed).length === step.checklist.length
-                            ? 'bg-primary-100 text-primary-600 border-primary-500'
-                            : 'bg-gray-100 text-gray-500 border-gray-300'
-                        }`}>
-                          {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
-                        </span>
-                      )}
-                    </span>
-                    
-                    {/* Meta info - hidden on mobile */}
-                    <button
-                      className={`hidden sm:block w-20 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
-                        isToday
-                          ? 'text-primary-600 hover:bg-primary-100 border-primary-500' 
-                          : 'text-gray-600 hover:bg-gray-100 border-gray-300'
-                      }`}
-                    >
-                      {stepDateFormatted || '-'}
-                    </button>
-                    <button 
-                      className={`hidden sm:block w-14 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
-                        isToday
-                          ? 'text-primary-600 hover:bg-primary-100 border-primary-500' 
-                          : 'text-gray-600 hover:bg-gray-100 border-gray-300'
-                      }`}
-                    >
-                      {step.estimated_time ? `${step.estimated_time} min` : '-'}
-                    </button>
-                  </div>
-                )
-              })}
-              </div>
-              
-              {/* Load more button */}
-              {hasMoreSteps && (
-                <button
-                  onClick={() => setDisplayedStepsCount(prev => prev + maxUpcomingSteps)}
-                  className="w-full mt-3 px-4 py-2 text-sm font-semibold text-black bg-white hover:bg-primary-50 border-2 border-primary-500 rounded-playful-md transition-colors"
-                >
-                  {t('views.loadMore') || 'Načíst další'} ({upcomingSteps.length - displayedStepsCount} {t('views.remaining') || 'zbývá'})
-                </button>
-              )}
-            </>
-          )}
-        </div>
+        )}
         
-        {/* Overdue Steps */}
-        {overdueSteps.length > 0 && (
+        {/* Steps by Area */}
+        {upcomingSteps.length === 0 ? (
           <div className="card-playful-base">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Footprints className="w-5 h-5 text-red-600" />
+                <Footprints className="w-5 h-5 text-primary-600" />
                 <h2 className="text-lg font-bold text-black font-playful">
-                  {t('views.overdue') || 'Zpožděné kroky'}
+                  {t('views.upcomingSteps') || 'Nadcházející kroky'}
                 </h2>
               </div>
+              {onOpenStepModal && (
+                <button
+                  onClick={() => onOpenStepModal()}
+                  className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
+                  title={t('steps.addStep') || 'Přidat krok'}
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>{t('steps.addStep') || 'Přidat krok'}</span>
+                </button>
+              )}
             </div>
-            <div className="space-y-2">
-              {overdueSteps.map((step) => {
-                const isLoading = loadingSteps.has(step.id)
-                const stepDate = step.date ? normalizeDate(step.date) : null
-                const stepDateFormatted = stepDate ? formatStepDate(stepDate) : null
-                
-                return (
-                  <div
-                    key={step.id}
-                    onClick={() => handleItemClick(step, 'step')}
-                    className={`${step.is_important ? 'box-playful-highlight' : 'box-playful-pressed'} flex items-center gap-3 p-3 cursor-pointer border-red-500 bg-red-50 hover:bg-red-100 ${
-                      isLoading ? 'opacity-50' : ''
-                    }`}
-                  >
-                    {/* Checkbox */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleStepToggle(step.id, !step.completed)
-                      }}
-                      disabled={isLoading}
-                      className={`w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
-                        step.completed 
-                          ? 'bg-white border-primary-500' 
-                          : 'border-primary-500 hover:bg-primary-100'
-                      }`}
-                    >
-                      {isLoading ? (
-                        <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                      ) : step.completed ? (
-                        <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                      ) : null}
-                    </button>
-                    
-                    {/* Title */}
-                    <span className={`flex-1 text-sm truncate flex items-center gap-2 ${
-                      step.completed 
-                        ? 'line-through text-gray-400' 
-                        : 'text-red-600'
-                    } ${step.is_important && !step.completed ? 'font-bold' : 'font-medium'}`}>
-                      {step.title}
-                      {step.checklist && step.checklist.length > 0 && (
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
-                          step.checklist.filter((c: any) => c.completed).length === step.checklist.length
-                            ? 'bg-primary-100 text-primary-600 border-primary-500'
-                            : 'bg-gray-100 text-gray-500 border-gray-300'
-                        }`}>
-                          {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
-                        </span>
-                      )}
-                    </span>
-                    
-                    {/* Meta info - hidden on mobile */}
-                    <button 
-                      className="hidden sm:block w-20 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-red-600 hover:bg-red-100 border-red-300"
-                    >
-                      ❗{stepDateFormatted || '-'}
-                    </button>
-                    <button 
-                      className="hidden sm:block w-14 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-red-600 hover:bg-red-100 border-red-300"
-                    >
-                      {step.estimated_time ? `${step.estimated_time} min` : '-'}
-                    </button>
-                  </div>
-                )
-              })}
-            </div>
+            <p className="text-sm text-gray-600">{t('views.noSteps') || 'Žádné nadcházející kroky'}</p>
           </div>
+        ) : (
+          <>
+            {/* Render steps grouped by area */}
+            {Object.entries(stepsByArea.grouped).map(([areaId, steps]) => {
+              const area = areaMap.get(areaId)
+              if (!area) return null
+              
+              return (
+                <div key={areaId} className="card-playful-base">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      {area.icon && (() => {
+                        const IconComponent = getIconComponent(area.icon)
+                        return <IconComponent className="w-5 h-5" style={{ color: area.color || '#E8871E' }} />
+                      })()}
+                      <h2 className="text-lg font-bold text-black font-playful">
+                        {area.name}
+                      </h2>
+                    </div>
+                    {onOpenStepModal && Object.keys(stepsByArea.grouped).indexOf(areaId) === 0 && (
+                      <button
+                        onClick={() => onOpenStepModal()}
+                        className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
+                        title={t('steps.addStep') || 'Přidat krok'}
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>{t('steps.addStep') || 'Přidat krok'}</span>
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {steps.map(({ step, goal }) => {
+                      const isLoading = loadingSteps.has(step.id)
+                      const stepDate = step.date ? normalizeDate(step.date) : null
+                      const stepDateObj = stepDate ? new Date(stepDate) : null
+                      if (stepDateObj) stepDateObj.setHours(0, 0, 0, 0)
+                      const isToday = stepDateObj && stepDateObj.getTime() === today.getTime()
+                      const isOverdue = (step as any)._isOverdue || false
+                      const stepDateFormatted = stepDate ? formatStepDate(stepDate) : null
+                      
+                      return (
+                        <div
+                          key={step.id}
+                          onClick={() => handleItemClick(step, 'step')}
+                          className={`box-playful-pressed flex items-center gap-3 p-3 cursor-pointer ${
+                            step.completed
+                              ? 'border-primary-500 bg-white opacity-50'
+                              : isOverdue
+                                ? 'border-red-500 bg-red-50 hover:bg-red-100'
+                                : isToday
+                                  ? 'border-primary-500 bg-white hover:bg-primary-50'
+                                  : 'border-primary-500 bg-white hover:bg-primary-50'
+                          } ${isLoading ? 'opacity-50' : ''}`}
+                        >
+                          {/* Checkbox */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleStepToggle(step.id, !step.completed)
+                            }}
+                            disabled={isLoading}
+                            className={`w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
+                              step.completed 
+                                ? 'bg-white border-primary-500' 
+                                : 'border-primary-500 hover:bg-primary-100'
+                            }`}
+                          >
+                            {isLoading ? (
+                              <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                            ) : step.completed ? (
+                              <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                            ) : null}
+                          </button>
+                          
+                          {/* Title and Goal */}
+                          <div className="flex-1 min-w-0">
+                            <span className={`text-sm truncate flex items-center gap-2 ${
+                              step.completed 
+                                ? 'line-through text-gray-400' 
+                                : isOverdue
+                                  ? 'text-red-600'
+                                  : 'text-black'
+                            } ${step.is_important && !step.completed ? 'font-bold' : 'font-medium'}`}>
+                              {step.title}
+                              {step.checklist && step.checklist.length > 0 && (
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
+                                  step.checklist.filter((c: any) => c.completed).length === step.checklist.length
+                                    ? 'bg-primary-100 text-primary-600 border-primary-500'
+                                    : 'bg-gray-100 text-gray-500 border-gray-300'
+                                }`}>
+                                  {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
+                                </span>
+                              )}
+                            </span>
+                            {goal && (
+                              <div className="text-xs text-gray-500 mt-0.5 truncate">
+                                {goal.title}
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Meta info - hidden on mobile */}
+                          <button
+                            className={`hidden sm:block w-28 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
+                              isOverdue
+                                ? 'text-red-600 hover:bg-red-100 border-red-300'
+                                : isToday
+                                  ? 'text-primary-600 hover:bg-primary-100 border-primary-500' 
+                                  : 'text-gray-600 hover:bg-gray-100 border-gray-300'
+                            }`}
+                          >
+                            {isOverdue ? '❗' : ''}{stepDateFormatted || '-'}
+                          </button>
+                          <button 
+                            className={`hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
+                              isOverdue
+                                ? 'text-red-600 hover:bg-red-100 border-red-300'
+                                : 'text-gray-600 hover:bg-gray-100 border-gray-300'
+                            }`}
+                          >
+                            {step.estimated_time ? `${step.estimated_time} min` : '-'}
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
+            
+            {/* Steps without area */}
+            {stepsByArea.noAreaSteps.length > 0 && (
+              <div className="card-playful-base">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Footprints className="w-5 h-5 text-primary-600" />
+                    <h2 className="text-lg font-bold text-black font-playful">
+                      {t('views.otherSteps') || 'Ostatní kroky'}
+                    </h2>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  {stepsByArea.noAreaSteps.map(({ step, goal }) => {
+                    const isLoading = loadingSteps.has(step.id)
+                    const stepDate = step.date ? normalizeDate(step.date) : null
+                    const stepDateObj = stepDate ? new Date(stepDate) : null
+                    if (stepDateObj) stepDateObj.setHours(0, 0, 0, 0)
+                    const isToday = stepDateObj && stepDateObj.getTime() === today.getTime()
+                    const isOverdue = (step as any)._isOverdue || false
+                    const stepDateFormatted = stepDate ? formatStepDate(stepDate) : null
+                    
+                    return (
+                      <div
+                        key={step.id}
+                        onClick={() => handleItemClick(step, 'step')}
+                        className={`box-playful-pressed flex items-center gap-3 p-3 cursor-pointer ${
+                          step.completed
+                            ? 'border-primary-500 bg-white opacity-50'
+                            : isOverdue
+                              ? 'border-red-500 bg-red-50 hover:bg-red-100'
+                              : isToday
+                                ? 'border-primary-500 bg-white hover:bg-primary-50'
+                                : 'border-primary-500 bg-white hover:bg-primary-50'
+                        } ${isLoading ? 'opacity-50' : ''}`}
+                      >
+                        {/* Checkbox */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleStepToggle(step.id, !step.completed)
+                          }}
+                          disabled={isLoading}
+                          className={`w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
+                            step.completed 
+                              ? 'bg-white border-primary-500' 
+                              : 'border-primary-500 hover:bg-primary-100'
+                          }`}
+                        >
+                          {isLoading ? (
+                            <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          ) : step.completed ? (
+                            <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                          ) : null}
+                        </button>
+                        
+                        {/* Title and Goal */}
+                        <div className="flex-1 min-w-0">
+                          <span className={`text-sm truncate flex items-center gap-2 ${
+                            step.completed 
+                              ? 'line-through text-gray-400' 
+                              : isOverdue
+                                ? 'text-red-600'
+                                : 'text-black'
+                          } ${step.is_important && !step.completed ? 'font-bold' : 'font-medium'}`}>
+                            {step.title}
+                            {step.checklist && step.checklist.length > 0 && (
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
+                                step.checklist.filter((c: any) => c.completed).length === step.checklist.length
+                                  ? 'bg-primary-100 text-primary-600 border-primary-500'
+                                  : 'bg-gray-100 text-gray-500 border-gray-300'
+                              }`}>
+                                {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
+                              </span>
+                            )}
+                          </span>
+                          {goal && (
+                            <div className="text-xs text-gray-500 mt-0.5 truncate">
+                              {goal.title}
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Meta info - hidden on mobile */}
+                        <button
+                          className={`hidden sm:block w-28 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
+                            isOverdue
+                              ? 'text-red-600 hover:bg-red-100 border-red-300'
+                              : isToday
+                                ? 'text-primary-600 hover:bg-primary-100 border-primary-500' 
+                                : 'text-gray-600 hover:bg-gray-100 border-gray-300'
+                          }`}
+                        >
+                          {isOverdue ? '❗' : ''}{stepDateFormatted || '-'}
+                        </button>
+                        <button 
+                          className={`hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
+                            isOverdue
+                              ? 'text-red-600 hover:bg-red-100 border-red-300'
+                              : 'text-gray-600 hover:bg-gray-100 border-gray-300'
+                          }`}
+                        >
+                          {step.estimated_time ? `${step.estimated_time} min` : '-'}
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

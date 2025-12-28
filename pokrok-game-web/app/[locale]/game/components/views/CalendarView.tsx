@@ -76,6 +76,7 @@ export function CalendarView({
             goals={goals}
             habits={habits}
             dailySteps={dailySteps}
+            areas={areas}
             selectedDayDate={selectedDayDate || new Date()}
             setSelectedDayDate={setSelectedDayDate || (() => {})}
             handleItemClick={handleItemClick || (() => {})}
