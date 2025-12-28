@@ -62,8 +62,13 @@ export function YearView({
     ? ['Led', 'Úno', 'Bře', 'Dub', 'Kvě', 'Čer', 'Čvc', 'Srp', 'Zář', 'Říj', 'Lis', 'Pro']
     : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   
-  // Quarter names
-  const quarterNames = ['Q1', 'Q2', 'Q3', 'Q4']
+  // Quarter names - seasons
+  const quarterNames = localeCode === 'cs-CZ'
+    ? ['Jaro', 'Léto', 'Podzim', 'Zima']
+    : ['Spring', 'Summer', 'Fall', 'Winter']
+  
+  // Quarter names short - fallback if seasons don't fit
+  const quarterNamesShort = ['Q1', 'Q2', 'Q3', 'Q4']
   
   // Calculate goals for each month - active goals that have target_date in this month or are active during this month
   const monthlyGoalsData = useMemo(() => {
@@ -331,9 +336,9 @@ export function YearView({
   }, [habits, goals, dailySteps, displayYear, areas])
   
   return (
-    <div className="w-full h-full flex flex-col bg-background overflow-y-auto">
+    <div className="w-full h-full flex flex-col bg-primary-50 overflow-y-auto">
       {/* Roadmap Timeline */}
-      <div className="p-6 border-b-2 border-primary-500 bg-gradient-to-br from-white to-primary-50">
+      <div className="p-6 border-b-2 border-primary-500 bg-primary-50">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
           <button
@@ -364,62 +369,10 @@ export function YearView({
             )}
           </div>
           
-        {/* Month labels timeline with vertical lines - aligned with progress bars */}
-        <div className="relative mb-4">
-          {/* Container for month labels - same structure as goals section */}
-          <div className="flex items-center gap-4">
-            {/* Spacer matching goal title width */}
-            <div className="flex-shrink-0 min-w-[200px]"></div>
-            {/* Month labels container - same width as progress bars */}
-            <div className="flex-1 relative">
-              {showQuarters ? (
-                /* Quarter labels */
-                <div className="flex relative">
-                  {quarterNames.map((quarterName, index) => {
-                    const quarterStartMonth = index * 3
-                    const isCurrentQuarter = displayYear === currentYear && 
-                      currentMonth >= quarterStartMonth && currentMonth < quarterStartMonth + 3
-                    return (
-                      <div
-                        key={index}
-                        className="flex-1 relative"
-                      >
-                        <div className={`text-center text-xs font-playful ${
-                          isCurrentQuarter ? 'font-bold text-primary-600' : 'text-gray-500'
-                        }`}>
-                          {quarterName}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              ) : (
-                /* Month labels */
-                <div className="flex relative">
-                  {monthNamesShort.map((monthName, index) => {
-                    const isCurrentMonth = displayYear === currentYear && index === currentMonth
-                    return (
-                      <div
-                        key={index}
-                        className="flex-1 relative"
-                      >
-                        <div className={`text-center text-xs font-playful ${
-                          isCurrentMonth ? 'font-bold text-primary-600' : 'text-gray-500'
-                        }`}>
-                          {monthName}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
       </div>
       
       {/* Goals Roadmap */}
-      <div className="p-6 bg-white border-b-2 border-primary-500 -mt-4">
+      <div className="p-6 bg-primary-50 border-b-2 border-primary-500 -mt-4">
         <h3 className="text-xl font-bold text-black font-playful mb-6">
           {t('goals.title') || 'Cíle'}
         </h3>
@@ -476,23 +429,77 @@ export function YearView({
             })
             
             return sortedAreas.map((areaGroup) => (
-              <div key={areaGroup.areaId} className="space-y-4">
-                {/* Area header */}
-                <div className="flex items-center gap-3">
-                  <div 
-                    className="w-4 h-4 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: areaGroup.areaColor }}
-                  />
-                  <h4 className="text-lg font-semibold text-gray-700 font-playful">
-                    {areaGroup.areaName}
-                  </h4>
-                  <span className="text-sm text-gray-500 font-playful">
-                    ({areaGroup.goals.length} {areaGroup.goals.length === 1 ? (t('goals.goal') || 'cíl') : (t('goals.goals') || 'cílů')})
-                  </span>
-                </div>
-                
-                {/* Goals in this area */}
-                <div className="space-y-4 pl-7">
+              <div key={areaGroup.areaId} className="card-playful-base bg-white">
+                <div className="space-y-4">
+                  {/* Area header */}
+                  <div className="flex items-center gap-3">
+                    <div 
+                      className="w-4 h-4 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: areaGroup.areaColor }}
+                    />
+                    <h4 className="text-lg font-semibold text-gray-700 font-playful">
+                      {areaGroup.areaName}
+                    </h4>
+                    <span className="text-sm text-gray-500 font-playful">
+                      ({areaGroup.goals.length} {areaGroup.goals.length === 1 ? (t('goals.goal') || 'cíl') : (t('goals.goals') || 'cílů')})
+                    </span>
+                  </div>
+                  
+                  {/* Goals in this area */}
+                  <div className="space-y-4 pl-7">
+                    {/* Quarter/Month labels for this area */}
+                    <div className="relative mb-2">
+                      <div className="flex items-center gap-4">
+                        {/* Spacer matching goal title width */}
+                        <div className="flex-shrink-0 min-w-[200px]"></div>
+                        {/* Labels container - same width as progress bars */}
+                        <div className="flex-1 relative">
+                          {showQuarters ? (
+                            /* Quarter labels */
+                            <div className="flex relative">
+                              {quarterNames.map((quarterName, index) => {
+                                const quarterStartMonth = index * 3
+                                const isCurrentQuarter = displayYear === currentYear && 
+                                  currentMonth >= quarterStartMonth && currentMonth < quarterStartMonth + 3
+                                return (
+                                  <div
+                                    key={index}
+                                    className="flex-1 relative"
+                                  >
+                                    <div className={`text-center text-xs font-playful ${
+                                      isCurrentQuarter ? 'font-bold text-primary-600' : 'text-gray-500'
+                                    }`}>
+                                      <span className="hidden sm:inline">{quarterName}</span>
+                                      <span className="sm:hidden">{quarterNamesShort[index]}</span>
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          ) : (
+                            /* Month labels */
+                            <div className="flex relative">
+                              {monthNamesShort.map((monthName, index) => {
+                                const isCurrentMonth = displayYear === currentYear && index === currentMonth
+                                return (
+                                  <div
+                                    key={index}
+                                    className="flex-1 relative"
+                                  >
+                                    <div className={`text-center text-xs font-playful ${
+                                      isCurrentMonth ? 'font-bold text-primary-600' : 'text-gray-500'
+                                    }`}>
+                                      {monthName}
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
                   {areaGroup.goals.map((goal: any) => {
                     const yearStart = new Date(displayYear, 0, 1)
                     const yearEnd = new Date(displayYear, 11, 31, 23, 59, 59)
@@ -622,6 +629,7 @@ export function YearView({
                           </div>
                         )
                       })}
+                  </div>
                 </div>
               </div>
             ))
@@ -635,7 +643,7 @@ export function YearView({
                 </div>
       
       {/* Insights Section */}
-      <div className="p-6 bg-white border-b-2 border-primary-500">
+      <div className="p-6 bg-primary-50 border-b-2 border-primary-500">
         <h3 className="text-xl font-bold text-black font-playful mb-4">
           {t('yearView.insights') || 'Poznatky z roku'}
         </h3>
@@ -727,7 +735,7 @@ export function YearView({
       </div>
               
       {/* Statistics */}
-      <div className="p-6 bg-white">
+      <div className="p-6 bg-primary-50">
         <h3 className="text-xl font-bold text-black font-playful mb-4">
           {t('common.statistics') || 'Statistiky'}
         </h3>
