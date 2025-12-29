@@ -537,298 +537,186 @@ export function HelpView({
         )
 
       case 'overview':
-        const isWeekView = !focusSelectedDay
-        const displayDate = focusSelectedDay || focusWeekStart
-        const todayStr = getLocalDateString(today)
-        
         return (
           <div className="space-y-6">
             <div className="box-playful-highlight-primary p-6">
-              <h2 className="text-2xl font-bold text-black font-playful text-black font-playful mb-2">{t('focusHelp.title')}</h2>
-              <p className="text-gray-600 font-playful font-playful">{t('focusHelp.subtitle')}</p>
-              </div>
-
-            {/* Weekly Focus - Interactive Timeline */}
-            <div className="box-playful-highlight p-6">
-              <h3 className="font-semibold text-black font-playful mb-4 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-primary-600" />
-                {isWeekView ? t('focusHelp.weeklyFocus') : t('focusHelp.dailyFocus')}
-              </h3>
-              
-              {/* Timeline */}
-              <div className="box-playful-highlight p-4 mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <button
-                    onClick={handleFocusPrevWeek}
-                    className="btn-playful-base p-2 text-gray-600 font-playful"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  
-                  <div className="flex items-center gap-2 flex-1 justify-center">
-                    <div className="relative flex items-center w-full max-w-xl">
-                      <div className="absolute left-4 right-4 h-0.5 bg-gray-200 top-3" />
-                      
-                      <div className="relative flex justify-between w-full">
-                        {focusWeekDays.map((day) => {
-                          const dateStr = getLocalDateString(day)
-                          const isToday = dateStr === todayStr
-                          const isSelected = focusSelectedDay && getLocalDateString(focusSelectedDay) === dateStr
-                          const isPast = day < today
-                          const isFuture = day > today
-                          
-                          // Example stats for help
-                          let completionPercentage = 0
-                          if (isPast) {
-                            completionPercentage = day.getDate() % 3 === 0 ? 100 : day.getDate() % 3 === 1 ? 75 : 0
-                          }
-                          
-                          let dotColor = 'bg-gray-200'
-                          if (isToday) {
-                            dotColor = isSelected ? 'bg-primary-500 ring-4 ring-primary-200' : 'bg-primary-500'
-                          } else if (isPast) {
-                            if (completionPercentage === 100) {
-                              dotColor = isSelected ? 'bg-primary-600 ring-4 ring-primary-200' : 'bg-primary-600'
-                            } else if (completionPercentage === 0) {
-                              dotColor = isSelected ? 'bg-white ring-4 ring-primary-200' : 'bg-white'
-                            } else {
-                              dotColor = 'bg-transparent'
-                            }
-                          }
-                          
-                          return (
-                            <button
-                              key={dateStr}
-                              onClick={() => handleFocusDayClick(day)}
-                              className="flex flex-col items-center group"
-                            >
-                              <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all relative z-10 ${dotColor === 'bg-transparent' ? 'bg-white' : dotColor}`}>
-                                {isPast && completionPercentage === 100 && (
-                                  <Check className="w-3 h-3 text-white" strokeWidth={3} />
-                                )}
-                                {isPast && completionPercentage === 0 && (
-                                  <X className="w-6 h-6 text-primary-600 font-playful" strokeWidth={2.5} />
-                                )}
-                                {isPast && completionPercentage > 0 && completionPercentage < 100 && (
-                                  <svg className="w-6 h-6 absolute inset-0" viewBox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10" fill="none" stroke="#e5e7eb" strokeWidth="2" />
-                                    <circle
-                                      cx="12"
-                                      cy="12"
-                                      r="10"
-                                      fill="none"
-                                      stroke="#ea580c"
-                                      strokeWidth="4"
-                                      strokeDasharray={`${2 * Math.PI * 10 * (completionPercentage / 100)} ${2 * Math.PI * 10 * (1 - completionPercentage / 100)}`}
-                                      strokeDashoffset={0}
-                                      transform="rotate(-90 12 12)"
-                                      strokeLinecap="round"
-                                    />
-                                  </svg>
-                                )}
-                              </div>
-                              
-                              <span className={`text-xs font-semibold mt-1 uppercase font-playful ${isSelected ? 'text-primary-600' : 'text-gray-600 font-playful'}`}>
-                                {dayNamesShort[day.getDay()]}
-                              </span>
-                              
-                              <span className={`text-lg font-bold font-playful ${isSelected ? 'text-primary-600' : 'text-black'}`}>
-                                {day.getDate()}
-                              </span>
-                              
-                              <span className={`text-[10px] font-playful ${isSelected ? 'text-primary-600' : 'text-gray-600 font-playful'}`}>
-                                {isPast ? `${completionPercentage === 100 ? 5 : completionPercentage === 75 ? 3 : 0}/5` : '—'}
-                              </span>
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <button
-                    onClick={handleFocusNextWeek}
-                    disabled={focusWeekStart >= getWeekStart(today)}
-                    className={`btn-playful-base p-2 ${
-                      focusWeekStart >= getWeekStart(today)
-                        ? 'opacity-50 cursor-not-allowed'
-                        : 'text-gray-600 font-playful'
-                    }`}
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-              </div>
+              <h2 className="text-2xl font-bold text-black font-playful mb-2">{t('focusHelp.title') || 'Nadcházející'}</h2>
+              <p className="text-gray-600 font-playful">{t('focusHelp.subtitle') || 'Přehled nadcházejících úkolů a návyků'}</p>
             </div>
 
-              {/* Focus Content - Week or Day View */}
-              {isWeekView ? (
-            <div className="space-y-4">
-                  {/* Habits Section */}
-                  <div className="box-playful-highlight p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="w-6 h-6 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
-                      <h4 className="font-semibold text-black font-playful">{t('focusHelp.habits')}</h4>
-                    </div>
-                    <div className="flex items-center gap-1 mb-2 sm:pl-[100px]">
-                      {focusWeekDays.map((day) => (
-                        <div key={getLocalDateString(day)} className="w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded text-gray-400 flex-shrink-0">
-                          <span className="uppercase leading-none">{dayNamesShort[day.getDay()]}</span>
-                          <span className="text-[8px] leading-none">{day.getDate()}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="space-y-3 sm:space-y-1">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-1">
-                        <span className="text-left text-[11px] font-medium text-gray-600 font-playful sm:w-[100px] sm:flex-shrink-0">
-                          {t('gettingStarted.step3.example1')}
-                        </span>
-                        <div className="flex gap-1">
-                          <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center shadow-sm flex-shrink-0">
-                            <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                          </div>
-                          <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center shadow-sm flex-shrink-0">
-                            <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                          </div>
-                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
-                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
-                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
-                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
-                          <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
-                        </div>
-                      </div>
-                    </div>
-              </div>
-
-                  {/* Steps Section */}
-                  <div className="box-playful-highlight p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="w-6 h-6 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-sm font-bold flex-shrink-0">2</span>
-                      <h4 className="font-semibold text-black font-playful">{t('focusHelp.steps')}</h4>
-                </div>
-                    <div className="space-y-2">
-                      {/* Today's Steps */}
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="w-5 h-5 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-xs font-bold flex-shrink-0">2a</span>
-                          <span className="text-xs font-medium text-gray-600 font-playful font-playful">{t('focusHelp.todaySteps')}</span>
-                  </div>
-                        <div className="flex items-center gap-3 p-3 box-playful-highlight border-2 border-primary-500 bg-primary-100 ml-7">
-                          <div className="w-6 h-6 rounded-playful-sm border-2 border-primary-500 bg-primary-500 flex items-center justify-center flex-shrink-0">
-                            <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                          </div>
-                          <span className="flex-1 text-sm font-medium text-primary-600 font-playful">
-                            {t('gettingStarted.step2.example1')}
-                          </span>
-                </div>
-              </div>
-
-                      {/* Overdue Steps */}
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2b</span>
-                          <span className="text-xs font-medium text-gray-600 font-playful font-playful">{t('focusHelp.overdueSteps')}</span>
-                        </div>
-                        <div className="flex items-center gap-3 p-3 box-playful-highlight border-2 border-red-500 bg-red-50 ml-7">
-                          <div className="w-6 h-6 rounded-lg border-2 border-red-400 flex items-center justify-center flex-shrink-0">
-                          </div>
-                          <span className="flex-1 text-sm font-medium text-red-600">
-                            {t('focusHelp.exampleOverdueStep')}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {/* Future Steps */}
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="w-5 h-5 bg-gray-400 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2c</span>
-                          <span className="text-xs font-medium text-gray-600 font-playful font-playful">{t('focusHelp.futureSteps')}</span>
-                        </div>
-                        <div className="flex items-center gap-3 p-3 box-playful-highlight border-2 border-primary-500 bg-white ml-7">
-                          <div className="w-6 h-6 rounded-lg border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
-                          </div>
-                          <span className="flex-1 text-sm font-medium text-gray-500">
-                            {t('gettingStarted.step2.example2')}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {/* Day View - Habits */}
-                  <div className="box-playful-highlight p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="w-6 h-6 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
-                      <h4 className="font-semibold text-black font-playful">{t('focusHelp.habits')}</h4>
-                    </div>
-                    <div className="flex items-center gap-1 mb-1">
-                      <div className="w-[100px] flex-shrink-0" />
-                      <div className="w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded-playful-sm bg-primary-100 border-2 border-primary-500 text-primary-600 font-semibold">
-                        <span className="uppercase leading-none">{dayNamesShort[focusSelectedDay!.getDay()]}</span>
-                        <span className="text-[8px] leading-none">{focusSelectedDay!.getDate()}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-1">
-                        <span className="w-[100px] text-left text-[11px] font-medium text-gray-600 font-playful flex-shrink-0">
-                          {t('gettingStarted.step3.example1')}
-                        </span>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center shadow-sm">
-                          <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Day View - Steps */}
-                  <div className="box-playful-highlight p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="w-6 h-6 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-sm font-bold flex-shrink-0">2</span>
-                      <h4 className="font-semibold text-black font-playful">{t('focusHelp.steps')}</h4>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-3 p-3 box-playful-highlight border-2 border-primary-500 bg-primary-100">
-                        <div className="w-6 h-6 rounded-playful-sm border-2 border-primary-500 bg-primary-500 flex items-center justify-center flex-shrink-0">
-                          <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                        </div>
-                        <span className="flex-1 text-sm font-medium text-primary-600 font-playful">
-                          {t('gettingStarted.step2.example1')}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+            {/* Upcoming View - Feed and Areas */}
+            <div className="box-playful-highlight p-6">
+              <h3 className="font-semibold text-black font-playful mb-4 flex items-center gap-2">
+                <ListTodo className="w-5 h-5 text-primary-600" />
+                {t('focusHelp.upcomingView') || 'Upcoming View'}
+              </h3>
               
-              {/* Description below focus */}
+              {/* View Mode Switcher */}
+              <div className="mb-6 p-4 bg-white border-2 border-primary-300 rounded-playful-md">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-sm font-semibold text-black">{locale === 'cs' ? 'Přepínač zobrazení:' : 'View mode:'}</span>
+                  <div className="flex items-center gap-2 bg-white border-2 border-primary-300 rounded-playful-md p-1">
+                    <button className="px-3 py-1 text-sm font-semibold bg-primary-500 text-white rounded-playful-sm">
+                      {locale === 'cs' ? 'Feed' : 'Feed'}
+                    </button>
+                    <button className="px-3 py-1 text-sm font-semibold text-gray-600 rounded-playful-sm">
+                      {locale === 'cs' ? 'Oblasti' : 'Areas'}
+                    </button>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-600">
+                  {locale === 'cs' 
+                    ? 'Přepínejte mezi Feed zobrazením (seřazené kroky podle data) a Oblasti zobrazením (skupované podle oblastí a cílů).'
+                    : 'Switch between Feed view (steps sorted by date) and Areas view (grouped by areas and goals).'}
+                </p>
+              </div>
+
+              {/* Feed View */}
+              <div className="space-y-4 mb-6">
+                <h4 className="font-semibold text-black font-playful flex items-center gap-2">
+                  <span className="w-6 h-6 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
+                  {locale === 'cs' ? 'Feed zobrazení' : 'Feed View'}
+                </h4>
+                <div className="space-y-2">
+                  {/* Today's Habits */}
+                  <div className="p-3 bg-white rounded-playful-md">
+                    <p className="text-xs font-medium text-gray-600 mb-2">{locale === 'cs' ? 'Dnešní návyky' : "Today's habits"}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <div className="flex items-center gap-2 p-2 bg-white rounded-playful-md hover:outline-2 hover:outline hover:outline-primary-500">
+                        <div className="w-5 h-5 rounded-playful-sm border-2 border-primary-500 bg-primary-500 flex items-center justify-center">
+                          <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                        </div>
+                        <span className="text-xs">{locale === 'cs' ? 'Ranní cvičení' : 'Morning exercise'}</span>
+                      </div>
+                      <div className="flex items-center gap-2 p-2 bg-white rounded-playful-md hover:outline-2 hover:outline hover:outline-primary-500">
+                        <div className="w-5 h-5 rounded-playful-sm border-2 border-primary-500"></div>
+                        <span className="text-xs">{locale === 'cs' ? 'Čtení' : 'Reading'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Steps in Feed */}
+                  <div className="space-y-2">
+                    {/* Overdue Step */}
+                    <div className="flex items-center gap-3 p-3 bg-red-50 rounded-playful-md hover:outline-2 hover:outline hover:outline-red-300">
+                      <div className="w-6 h-6 rounded-playful-sm border-2 border-primary-500"></div>
+                      <div className="flex-1">
+                        <span className="text-sm font-medium text-red-600">{locale === 'cs' ? 'Dokončit projekt' : 'Finish project'}</span>
+                        <div className="flex items-center gap-1 mt-1">
+                          <Target className="w-3 h-3 text-primary-600" />
+                          <span className="text-xs text-gray-500">{locale === 'cs' ? 'Kariéra' : 'Career'}</span>
+                        </div>
+                      </div>
+                      <button className="hidden sm:block w-28 text-xs text-center border-2 border-red-300 text-red-600 rounded-playful-sm px-1 py-0.5">
+                        ❗{locale === 'cs' ? 'Včera' : 'Yesterday'}
+                      </button>
+                    </div>
+
+                    {/* Today's Step */}
+                    <div className="flex items-center gap-3 p-3 bg-white rounded-playful-md hover:outline-2 hover:outline hover:outline-primary-500">
+                      <div className="w-6 h-6 rounded-playful-sm border-2 border-primary-500 bg-primary-500 flex items-center justify-center">
+                        <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-sm font-medium text-black">{locale === 'cs' ? 'Napsat email' : 'Write email'}</span>
+                        <div className="flex items-center gap-1 mt-1">
+                          <Target className="w-3 h-3 text-primary-600" />
+                          <span className="text-xs text-gray-500">{locale === 'cs' ? 'Kariéra' : 'Career'}</span>
+                        </div>
+                      </div>
+                      <button className="hidden sm:block w-28 text-xs text-center border-2 border-primary-500 text-primary-600 rounded-playful-sm px-1 py-0.5">
+                        {locale === 'cs' ? 'Dnes' : 'Today'}
+                      </button>
+                    </div>
+
+                    {/* Future Step */}
+                    <div className="flex items-center gap-3 p-3 bg-white rounded-playful-md hover:outline-2 hover:outline hover:outline-gray-300">
+                      <div className="w-6 h-6 rounded-playful-sm border-2 border-primary-500"></div>
+                      <div className="flex-1">
+                        <span className="text-sm font-medium text-black">{locale === 'cs' ? 'Příprava prezentace' : 'Prepare presentation'}</span>
+                        <div className="flex items-center gap-1 mt-1">
+                          <Target className="w-3 h-3 text-primary-600" />
+                          <span className="text-xs text-gray-500">{locale === 'cs' ? 'Kariéra' : 'Career'}</span>
+                        </div>
+                      </div>
+                      <button className="hidden sm:block w-28 text-xs text-center border-2 border-gray-300 text-gray-600 rounded-playful-sm px-1 py-0.5">
+                        {locale === 'cs' ? 'Pondělí' : 'Monday'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-600 mt-2">
+                  {locale === 'cs' 
+                    ? 'Feed zobrazuje kroky seřazené podle data (zpožděné → dnešní → budoucí). Při scrollování se automaticky načítají další kroky.'
+                    : 'Feed displays steps sorted by date (overdue → today → future). More steps load automatically when scrolling.'}
+                </p>
+              </div>
+
+              {/* Areas View */}
+              <div className="space-y-4 mb-6">
+                <h4 className="font-semibold text-black font-playful flex items-center gap-2">
+                  <span className="w-6 h-6 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-sm font-bold flex-shrink-0">2</span>
+                  {locale === 'cs' ? 'Oblasti zobrazení' : 'Areas View'}
+                </h4>
+                <div className="space-y-3">
+                  {/* Area Example */}
+                  <div className="p-4 bg-white rounded-playful-md border-2 border-primary-500">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Target className="w-5 h-5 text-primary-600" />
+                      <h5 className="font-semibold text-black">{locale === 'cs' ? 'Kariéra' : 'Career'}</h5>
+                    </div>
+                    {/* Goal */}
+                    <div className="mb-2">
+                      <h6 className="text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1">
+                        <Target className="w-3 h-3 text-primary-600" />
+                        {locale === 'cs' ? 'Povýšení' : 'Promotion'}
+                      </h6>
+                      <div className="flex items-center gap-3 p-3 bg-white rounded-playful-md">
+                        <div className="w-6 h-6 rounded-playful-sm border-2 border-primary-500"></div>
+                        <span className="text-sm font-medium text-black">{locale === 'cs' ? 'Dokončit projekt' : 'Finish project'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-600 mt-2">
+                  {locale === 'cs' 
+                    ? 'Oblasti zobrazení skupuje kroky podle oblastí a cílů. Každá oblast má vlastní sekci s cíli a jejich kroky.'
+                    : 'Areas view groups steps by areas and goals. Each area has its own section with goals and their steps.'}
+                </p>
+              </div>
+
+              {/* Description */}
               <div className="mt-6 box-playful-highlight p-4">
-                <h4 className="font-semibold text-black font-playful mb-3">{t('focusHelp.descriptionTitle')}</h4>
-                <div className="space-y-3 text-sm text-gray-600 font-playful font-playful">
+                <h4 className="font-semibold text-black font-playful mb-3">{locale === 'cs' ? 'Jak to funguje' : 'How it works'}</h4>
+                <div className="space-y-3 text-sm text-gray-600 font-playful">
                   <div className="flex items-start gap-3">
                     <span className="w-6 h-6 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
                     <div>
-                      <p className="font-medium text-gray-900 mb-1">{t('focusHelp.habits')}</p>
-                      <p>{t('focusHelp.habitsDescription')}</p>
+                      <p className="font-medium text-gray-900 mb-1">{locale === 'cs' ? 'Dnešní návyky' : "Today's habits"}</p>
+                      <p>{locale === 'cs' 
+                        ? 'Zobrazují se návyky naplánované na dnešní den. Kliknutím je můžete označit jako splněné.'
+                        : 'Shows habits scheduled for today. Click to mark them as completed.'}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <span className="w-6 h-6 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
                     <div>
-                      <p className="font-medium text-gray-900 mb-1">{t('focusHelp.steps')}</p>
-                      <p className="mb-2">{t('focusHelp.stepsDescription')}</p>
+                      <p className="font-medium text-gray-900 mb-1">{locale === 'cs' ? 'Kroky' : 'Steps'}</p>
+                      <p className="mb-2">{locale === 'cs' 
+                        ? 'Kroky jsou seřazené podle priority: zpožděné (červené), dnešní (primární barva), budoucí (šedé).'
+                        : 'Steps are sorted by priority: overdue (red), today (primary color), future (gray).'}</p>
                       <div className="ml-4 space-y-1.5 text-xs">
                         <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-[10px] font-bold flex-shrink-0">2a</span>
-                          <span>{t('focusHelp.todayStepsDescription')}</span>
+                          <span className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">2a</span>
+                          <span>{locale === 'cs' ? 'Zpožděné kroky - kroky, které měly být dokončeny dříve' : 'Overdue steps - steps that should have been completed earlier'}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">2b</span>
-                          <span>{t('focusHelp.overdueStepsDescription')}</span>
+                          <span className="w-5 h-5 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-[10px] font-bold flex-shrink-0">2b</span>
+                          <span>{locale === 'cs' ? 'Dnešní kroky - kroky naplánované na dnešek' : "Today's steps - steps scheduled for today"}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="w-5 h-5 bg-gray-400 text-white rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">2c</span>
-                          <span>{t('focusHelp.futureStepsDescription')}</span>
+                          <span>{locale === 'cs' ? 'Budoucí kroky - kroky naplánované na později' : 'Future steps - steps scheduled for later'}</span>
                         </div>
                       </div>
                     </div>
@@ -836,8 +724,10 @@ export function HelpView({
                   <div className="flex items-start gap-3">
                     <span className="w-6 h-6 bg-primary-500 text-white rounded-full font-playful flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
                     <div>
-                      <p className="font-medium text-gray-900 mb-1">{t('focusHelp.timeline')}</p>
-                      <p>{t('focusHelp.timelineDescription')}</p>
+                      <p className="font-medium text-gray-900 mb-1">{locale === 'cs' ? 'Opakující se kroky' : 'Recurring steps'}</p>
+                      <p>{locale === 'cs' 
+                        ? 'Kroky můžete nastavit jako opakující se (denně, týdně, měsíčně). Zobrazí se vždy další nehotový výskyt.'
+                        : 'Steps can be set as recurring (daily, weekly, monthly). Always shows the next uncompleted occurrence.'}</p>
                     </div>
                   </div>
                 </div>
@@ -1074,7 +964,7 @@ export function HelpView({
             <div className="box-playful-highlight p-4">
               <h4 className="font-semibold text-black font-playful mb-2">{t('stepsHelp.whatAreSteps')}</h4>
               <p className="text-sm text-gray-600 font-playful mb-3">{t('stepsHelp.whatAreStepsDesc')}</p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 mb-3">
                 <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Calendar className="w-3 h-3" /> {t('stepsHelp.scheduled')}
                 </span>
@@ -1084,6 +974,15 @@ export function HelpView({
                 <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
                   <Clock className="w-3 h-3" /> {t('stepsHelp.timeEstimate')}
                 </span>
+                <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
+                  <Zap className="w-3 h-3" /> {locale === 'cs' ? 'Opakující se' : 'Recurring'}
+                </span>
+              </div>
+              <div className="mt-3 p-3 bg-primary-50 rounded-playful-md border border-primary-200">
+                <p className="text-xs text-gray-700 font-medium mb-1">{locale === 'cs' ? 'Opakující se kroky' : 'Recurring Steps'}</p>
+                <p className="text-xs text-gray-600">{locale === 'cs' 
+                  ? 'Kroky můžete nastavit jako opakující se (denně, týdně, měsíčně). V Upcoming view se zobrazí vždy další nehotový výskyt.'
+                  : 'Steps can be set as recurring (daily, weekly, monthly). In Upcoming view, always shows the next uncompleted occurrence.'}</p>
               </div>
               </div>
 

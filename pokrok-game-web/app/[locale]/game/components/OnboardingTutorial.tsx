@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations, useLocale } from 'next-intl'
-import { X, ArrowRight, ArrowLeft, Target, Footprints, CheckSquare, LayoutDashboard, Calendar, TrendingUp, CheckCircle2, Plus, CalendarDays, CalendarRange, CalendarCheck, ChevronDown } from 'lucide-react'
+import { X, ArrowRight, ArrowLeft, Target, Footprints, CheckSquare, LayoutDashboard, Calendar, TrendingUp, CheckCircle2, Plus, CalendarDays, CalendarRange, CalendarCheck, ChevronDown, ListTodo, BarChart3, Menu, HelpCircle, Settings, Check } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
 
 interface OnboardingTutorialProps {
@@ -93,26 +93,26 @@ export function OnboardingTutorial({
   const slides = [
     {
       title: t('onboarding.intro.title') || 'Co je Pokrok?',
-      description: t('onboarding.intro.description') || 'Pokrok není jen další aplikace pro produktivitu. Je to nástroj pro organizaci vašeho života a dosahování smysluplných cílů, které vám přinášejí skutečnou hodnotu a naplnění.',
+      description: t('onboarding.intro.description') || 'Nástroj pro organizaci života a dosahování smysluplných cílů.',
       icon: Target,
       content: (
         <div className="space-y-4">
-          <div className="p-6 bg-gradient-to-br from-primary-50 to-primary-100 rounded-lg border-2 border-primary-300">
-            <p className="text-gray-700 text-base leading-relaxed mb-4">
-              {t('onboarding.intro.detailed') || 'Pokrok vám pomáhá získat jasnost v tom, co je pro vás v životě skutečně důležité. Umožňuje vám organizovat vaše cíle, rozdělit je na dosažitelné kroky a sledovat, jak se posouváte směrem k životu, jaký chcete žít.'}
-            </p>
-            <div className="mt-4 p-4 bg-white rounded-lg border border-primary-200">
-              <p className="text-sm text-gray-700 font-medium">
-                {t('onboarding.intro.philosophy') || 'Zaměřujeme se na smysluplnost, ne jen na produktivitu. Každý cíl, krok a návyk by měl mít svůj důvod a přispívat k životu, jaký chcete mít.'}
-              </p>
-            </div>
-          </div>
+          <p className="text-gray-700 text-base leading-relaxed">
+            {locale === 'cs' 
+              ? 'Pokrok je nástroj pro organizaci života a dosahování smysluplných cílů, které vám přinášejí skutečnou hodnotu a naplnění.'
+              : 'Pokrok is a tool for organizing your life and achieving meaningful goals that bring you real value and fulfillment.'}
+          </p>
+          <p className="text-gray-700 text-base leading-relaxed">
+            {locale === 'cs' 
+              ? 'Umožňuje vám organizovat vaše cíle, rozdělit je na dosažitelné kroky a sledovat, jak se posouváte směrem k životu, jaký chcete žít.'
+              : 'It allows you to organize your goals, break them down into achievable steps, and track how you are moving towards the life you want to live.'}
+          </p>
         </div>
       )
     },
     {
-      title: t('onboarding.creating.title') || 'Co vše se dá tvořit?',
-      description: t('onboarding.creating.description') || 'V Pokroku můžete vytvářet čtyři hlavní typy stavebních prvků, které vám pomohou organizovat váš život.',
+      title: t('onboarding.creating.title') || 'Stavební bloky',
+      description: t('onboarding.creating.description') || 'Čtyři typy prvků pro organizaci života.',
       icon: Plus,
       content: (
         <div className="space-y-4">
@@ -120,115 +120,45 @@ export function OnboardingTutorial({
             <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
               <LayoutDashboard className="w-8 h-8 text-primary-600 mb-2" />
               <h4 className="font-bold text-sm mb-1">{t('onboarding.creating.areas') || 'Oblasti'}</h4>
-              <p className="text-xs text-gray-600">{t('onboarding.creating.areasDesc') || 'Organizujte své cíle, kroky a návyky do oblastí'}</p>
+              <p className="text-xs text-gray-600 mb-2">{t('onboarding.creating.areasDesc') || 'Organizujte své cíle, kroky a návyky do oblastí'}</p>
+              <p className="text-xs text-gray-500">{locale === 'cs' 
+                ? 'Větší životní oblasti nebo projekty. Každá oblast má vlastní zobrazení s kroky a návyky.'
+                : 'Larger life areas or projects. Each area has its own view with steps and habits.'}</p>
             </div>
             <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
               <Target className="w-8 h-8 text-primary-600 mb-2" />
               <h4 className="font-bold text-sm mb-1">{t('onboarding.creating.goals') || 'Cíle'}</h4>
-              <p className="text-xs text-gray-600">{t('onboarding.creating.goalsDesc') || 'Dlouhodobé cíle, které chcete dosáhnout'}</p>
+              <p className="text-xs text-gray-600 mb-2">{t('onboarding.creating.goalsDesc') || 'Dlouhodobé cíle, které chcete dosáhnout'}</p>
+              <p className="text-xs text-gray-500">{locale === 'cs' 
+                ? 'Smysluplné výsledky s termínem. Přidejte kroky a sledujte pokrok v čase.'
+                : 'Meaningful outcomes with deadlines. Add steps and track progress over time.'}</p>
             </div>
             <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
               <Footprints className="w-8 h-8 text-primary-600 mb-2" />
               <h4 className="font-bold text-sm mb-1">{t('onboarding.creating.steps') || 'Kroky'}</h4>
-              <p className="text-xs text-gray-600">{t('onboarding.creating.stepsDesc') || 'Konkrétní akce vedoucí k vašim cílům'}</p>
+              <p className="text-xs text-gray-600 mb-2">{t('onboarding.creating.stepsDesc') || 'Konkrétní akce vedoucí k vašim cílům'}</p>
+              <p className="text-xs text-gray-500">{locale === 'cs' 
+                ? 'Můžete je naplánovat na datum nebo nastavit jako opakující se (denně, týdně, měsíčně).'
+                : 'You can schedule them for a date or set them as recurring (daily, weekly, monthly).'}</p>
             </div>
             <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
               <CheckSquare className="w-8 h-8 text-primary-600 mb-2" />
               <h4 className="font-bold text-sm mb-1">{t('onboarding.creating.habits') || 'Návyky'}</h4>
-              <p className="text-xs text-gray-600">{t('onboarding.creating.habitsDesc') || 'Opakující se rutiny, které budujete dlouhodobě'}</p>
+              <p className="text-xs text-gray-600 mb-2">{t('onboarding.creating.habitsDesc') || 'Opakující se rutiny, které budujete dlouhodobě'}</p>
+              <p className="text-xs text-gray-500">{locale === 'cs' 
+                ? 'Nastavte frekvenci: denně, týdně nebo vlastní dny v týdnu/měsíci. Sledujte plnění v tabulce.'
+                : 'Set frequency: daily, weekly, or custom days of week/month. Track completion in a table.'}</p>
             </div>
-          </div>
-        </div>
-      )
-    },
-    {
-      title: t('onboarding.plusButton.title') || 'Plus tlačítko v navigaci',
-      description: t('onboarding.plusButton.description') || 'Na levé straně hlavního panelu najdete Plus tlačítko. Přes něj můžete každý den vytvářet nové building blocky - oblasti, cíle, kroky a návyky.',
-      icon: Plus,
-      content: (
-        <div className="space-y-4">
-          {/* Mock sidebar */}
-          <div className="flex gap-4">
-            {/* Sidebar mock */}
-            <div className="w-64 bg-white border-r-4 border-primary-500 flex flex-col" style={{ minHeight: '400px' }}>
-              {/* Navigation items */}
-              <div className="p-4 flex-1">
-                <h2 className="text-lg font-bold text-black mb-4 font-playful">{t('navigation.title') || 'Navigace'}</h2>
-                <div className="space-y-1.5">
-                  <div className="px-3 py-2 text-sm text-gray-600 border-l-2 border-transparent">
-                    <CalendarDays className="w-4 h-4 inline mr-2" />
-                    {t('navigation.focusDay') || 'Den'}
-                  </div>
-                  <div className="px-3 py-2 text-sm text-gray-600 border-l-2 border-transparent">
-                    <CalendarRange className="w-4 h-4 inline mr-2" />
-                    {t('navigation.focusWeek') || 'Týden'}
-                  </div>
-                  <div className="px-3 py-2 text-sm text-gray-600 border-l-2 border-transparent">
-                    <Calendar className="w-4 h-4 inline mr-2" />
-                    {t('navigation.focusMonth') || 'Měsíc'}
-                  </div>
-                </div>
-              </div>
-              
-              {/* Plus button at bottom */}
-              <div className="p-4 border-t-2 border-primary-500 relative">
-                {/* Dropdown menu (shown as open) - positioned above button */}
-                <div className="absolute left-4 bottom-full mb-2 z-50 bg-white border-2 border-primary-500 rounded-playful-md min-w-[160px] shadow-lg">
-                  <button className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary-50 flex items-center gap-2 border-b border-primary-200">
-                    <LayoutDashboard className="w-4 h-4 text-primary-600" />
-                    <span>{t('onboarding.plusButton.createArea') || 'Vytvořit oblast'}</span>
-                  </button>
-                  <button className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary-50 flex items-center gap-2 border-b border-primary-200">
-                    <Target className="w-4 h-4 text-primary-600" />
-                    <span>{t('onboarding.plusButton.createGoal') || 'Vytvořit cíl'}</span>
-                  </button>
-                  <button className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary-50 flex items-center gap-2 border-b border-primary-200">
-                    <Footprints className="w-4 h-4 text-primary-600" />
-                    <span>{t('onboarding.plusButton.createStep') || 'Vytvořit krok'}</span>
-                  </button>
-                  <button className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary-50 flex items-center gap-2">
-                    <CheckSquare className="w-4 h-4 text-primary-600" />
-                    <span>{t('onboarding.plusButton.createHabit') || 'Vytvořit návyk'}</span>
-                  </button>
-                </div>
-                
-                <button className="w-full px-4 py-2.5 flex items-center justify-center gap-2 bg-white text-primary-600 rounded-playful-md hover:bg-primary-50 transition-colors border-2 border-primary-500 font-semibold">
-                  <Plus className="w-5 h-5" strokeWidth={2} />
-                  <span>{t('common.add') || 'Vytvořit'}</span>
-                </button>
-              </div>
-            </div>
-            
-            {/* Main content area mock */}
-            <div className="flex-1 bg-primary-50 p-6">
-              <p className="text-sm text-gray-600">
-                {t('onboarding.plusButton.mainContent') || 'Hlavní panel aplikace'}
-              </p>
-            </div>
-          </div>
-          
-          <div className="p-3 bg-primary-50 rounded-lg border border-primary-200">
-            <p className="text-xs text-gray-700">
-              {t('onboarding.plusButton.hint') || 'Plus tlačítko najdete na spodku levého navigačního panelu. Po kliknutí se zobrazí menu s možnostmi pro vytváření.'}
-            </p>
           </div>
         </div>
       )
     },
     {
       title: t('onboarding.areas.title') || 'Oblasti',
-      description: t('onboarding.areas.description') || 'Oblasti si vytváříte sami a ideálně to mají být větší životní oblasti nebo rozsáhlejší projekty. Shlukují cíle, kroky a návyky do logických skupin. Každá oblast má vlastní zobrazení a filtry, které vám pomohou soustředit se na konkrétní část vašeho života.',
+      description: t('onboarding.areas.description') || 'Větší životní oblasti nebo projekty. Shlukují cíle, kroky a návyky.',
       icon: LayoutDashboard,
       content: (
         <div className="space-y-3">
-          <div className="p-3 bg-primary-50 rounded-lg border border-primary-200 mb-3">
-            <p className="text-xs text-gray-700 font-medium mb-1">
-              {t('onboarding.areas.createYourself') || 'Oblasti si vytváříte sami'}
-            </p>
-            <p className="text-xs text-gray-600">
-              {t('onboarding.areas.examples') || 'Ideálně to mají být větší životní oblasti (např. Zdraví, Kariéra, Vztahy) nebo rozsáhlejší projekty (např. Nový byt, Vlastní firma).'}
-            </p>
-          </div>
           <div className="grid grid-cols-3 gap-3">
             {mockAreas.map((area) => {
               const IconComponent = getIconComponent(area.icon)
@@ -248,22 +178,17 @@ export function OnboardingTutorial({
               )
             })}
           </div>
-          <div className="p-3 bg-primary-50 rounded-lg border border-primary-200">
-            <p className="text-xs text-gray-700">
-              {t('onboarding.areas.function') || 'Oblasti umožňují filtrovat a zobrazit pouze relevantní obsah pro danou oblast vašeho života.'}
-            </p>
-          </div>
         </div>
       )
     },
     {
       title: t('onboarding.goals.title') || 'Cíle',
-      description: t('onboarding.goals.description') || 'Cíle jsou smysluplné výsledky, které chcete dosáhnout. Nejsou to jen úkoly - jsou to cesty k životu, jaký chcete žít. Ke každému cíli můžete přidat kroky a metriky, díky čemuž vidíte, jak se blížíte k jeho dosažení.',
+      description: t('onboarding.goals.description') || 'Smysluplné výsledky, které chcete dosáhnout. Přidejte kroky a sledujte pokrok.',
       icon: Target,
       content: (
         <div className="space-y-4">
-          {/* Mock Goal Detail Page - scaled down */}
-          <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm scale-90 origin-top">
+          {/* Mock Goal Detail Page */}
+          <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
             {(() => {
               const goal = mockGoals[0]
               const IconComponent = getIconComponent(goal.icon)
@@ -351,7 +276,7 @@ export function OnboardingTutorial({
                   
                   {/* Info text */}
                   <p className="text-xs text-gray-600 pt-2 border-t border-gray-200">
-                    {t('onboarding.goals.detail') || 'V detailu cíle můžete přidávat kroky, nastavovat metriky a sledovat pokrok v čase. Každý krok vás přibližuje k životu, jaký chcete žít.'}
+                    {t('onboarding.goals.detail') || 'Přidávejte kroky a sledujte pokrok v čase.'}
                   </p>
                 </div>
               )
@@ -362,136 +287,325 @@ export function OnboardingTutorial({
     },
     {
       title: t('onboarding.steps.title') || 'Kroky',
-      description: t('onboarding.steps.description') || 'Kroky slouží dvojímu účelu: jsou to jednotlivé kroky vedoucí k dosažení cíle, ale zároveň také To-Do úkoly, které můžete plánovat na konkrétní dny.',
+      description: t('onboarding.steps.description') || 'Konkrétní akce vedoucí k cílům. Můžete je naplánovat na datum nebo nastavit jako opakující se.',
       icon: Footprints,
       content: (
         <div className="space-y-3">
-          <div className="p-3 bg-primary-50 rounded-lg border border-primary-200">
-            <p className="text-xs text-gray-700 mb-2">
-              {t('onboarding.steps.function') || 'Kroky můžete přiřadit k cílům a naplánovat je na konkrétní datum. Každý krok může mít odhadovaný čas a může být označen jako splněný.'}
-            </p>
-          </div>
           {mockSteps.map((step) => (
-            <div key={step.id} className={`p-3 bg-white rounded-lg border-2 ${step.completed ? 'border-green-500 bg-green-50' : 'border-primary-500'} shadow-sm`}>
-              <div className="flex items-center gap-3">
-                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${step.completed ? 'bg-green-500 border-green-500' : 'border-primary-500'}`}>
-                  {step.completed && <CheckCircle2 className="w-3 h-3 text-white" />}
-                </div>
-                <div className="flex-1">
-                  <span className={`text-sm font-medium ${step.completed ? 'line-through text-gray-500' : 'text-black'}`}>
-                    {step.title}
-                  </span>
-                  <div className="text-xs text-gray-500 mt-0.5">
-                    {t('onboarding.steps.date') || 'Datum:'} {step.date}
-                  </div>
-                </div>
-                <div className="text-xs text-gray-500">
-                  {step.estimated_time} min
-                </div>
+            <div key={step.id} className={`flex items-center gap-3 p-3 rounded-playful-md ${
+              step.completed ? 'opacity-50 bg-white' : 'bg-white'
+            }`}>
+              {/* Checkbox */}
+              <button
+                className={`w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
+                  step.completed 
+                    ? 'bg-primary-500 border-primary-500' 
+                    : 'border-primary-500 hover:bg-primary-100'
+                }`}
+              >
+                {step.completed && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+              </button>
+              
+              {/* Step info */}
+              <div className="flex-1 min-w-0">
+                <span className={`text-sm ${
+                  step.completed 
+                    ? 'line-through text-gray-400' 
+                    : 'text-black'
+                } font-medium`}>
+                  {step.title}
+                </span>
               </div>
+              
+              {/* Date and time */}
+              <button className="hidden sm:block w-28 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-gray-600 hover:bg-gray-100 border-gray-300">
+                {step.date}
+              </button>
+              <button className="hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-gray-600 hover:bg-gray-100 border-gray-300">
+                {step.estimated_time} min
+              </button>
             </div>
           ))}
+          <div className="mt-4 p-3 bg-primary-50 border-2 border-primary-200 rounded-playful-md">
+            <p className="text-xs text-gray-700">
+              <span className="font-semibold">{locale === 'cs' ? 'Tip: ' : 'Tip: '}</span>
+              {locale === 'cs' 
+                ? 'Můžete je naplánovat na datum nebo nastavit jako opakující se.'
+                : 'You can schedule them for a date or set them as recurring.'}
+            </p>
+          </div>
         </div>
       )
     },
     {
       title: t('onboarding.habits.title') || 'Návyky',
-      description: t('onboarding.habits.description') || 'Návyky jsou opakovatelné akce, které můžete vázat k oblasti. V tabulce plnění vidíte, jak často jste návyk dodržovali.',
+      description: t('onboarding.habits.description') || 'Opakovatelné akce. Nastavte frekvenci a sledujte plnění.',
       icon: CheckSquare,
       content: (
-        <div className="space-y-4">
-          <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
-            <div className="mb-3">
-              <h4 className="text-sm font-bold mb-2">{t('onboarding.habits.tableTitle') || 'Tabulka plnění návyků'}</h4>
-              <div className="flex items-center gap-2 mb-2 text-xs text-gray-600">
-                <span className="w-24">{t('onboarding.habits.habitName') || 'Návyk'}</span>
-                <div className="flex gap-1">
-                  {(locale === 'en' 
-                    ? ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']
-                    : ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne']
-                  ).map((day) => (
-                    <div key={day} className="w-8 h-8 flex items-center justify-center text-xs font-medium text-gray-500">
-                      {day}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            {mockHabits.slice(0, 2).map((habit) => (
-              <div key={habit.id} className="flex items-center gap-2 mb-2">
-                <span className="w-24 text-sm font-medium text-gray-700 truncate">{habit.name}</span>
-                <div className="flex gap-1">
-                  {['2025-01-13', '2025-01-14', '2025-01-15', '2025-01-16', '2025-01-17', '2025-01-18', '2025-01-19'].map((date) => {
-                    const isCompleted = (habit.habit_completions as Record<string, boolean>)[date] === true
-                    return (
-                      <div
-                        key={date}
-                        className={`w-8 h-8 rounded border-2 flex items-center justify-center ${
-                          isCompleted ? 'bg-primary-500 border-primary-500' : 'bg-gray-100 border-gray-300'
-                        }`}
-                      >
-                        {isCompleted && <CheckCircle2 className="w-4 h-4 text-white" />}
+        <div className="space-y-3">
+          <div className="flex flex-wrap gap-3">
+            {mockHabits.slice(0, 3).map((habit) => {
+              const isCompleted = habit.habit_completions && (habit.habit_completions as Record<string, boolean>)['2025-01-15'] === true
+              const IconComponent = habit.icon ? getIconComponent(habit.icon) : null
+              
+              return (
+                <div
+                  key={habit.id}
+                  className={`flex items-center gap-2 p-3 rounded-playful-md cursor-pointer transition-all flex-shrink-0 ${
+                    isCompleted
+                      ? 'bg-primary-100 opacity-75'
+                      : 'bg-white'
+                  }`}
+                >
+                  <button
+                    className={`flex-shrink-0 w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors ${
+                      isCompleted
+                        ? 'bg-primary-500 border-primary-500'
+                        : 'border-primary-500 hover:bg-primary-50'
+                    }`}
+                  >
+                    {isCompleted && <Check className="w-4 h-4 text-white" />}
+                  </button>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {IconComponent && (
+                      <div className="flex-shrink-0">
+                        <IconComponent className="w-5 h-5 text-primary-600" />
                       </div>
-                    )
-                  })}
+                    )}
+                    <span className={`text-sm font-medium text-black whitespace-nowrap ${
+                      isCompleted ? 'line-through' : ''
+                    }`}>
+                      {habit.name}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
-          <div className="p-3 bg-primary-50 rounded-lg border border-primary-200">
+          <div className="mt-4 p-3 bg-primary-50 border-2 border-primary-200 rounded-playful-md">
             <p className="text-xs text-gray-700">
-              {t('onboarding.habits.function') || 'Návyky můžete vázat k oblasti a nastavit jejich frekvenci (denně, týdně, nebo vlastní dny).'}
+              <span className="font-semibold">{locale === 'cs' ? 'Tip: ' : 'Tip: '}</span>
+              {t('onboarding.habits.function') || 'Nastavte frekvenci: denně, týdně nebo vlastní dny v týdnu/měsíci.'}
             </p>
           </div>
         </div>
       )
     },
     {
-      title: t('onboarding.views.title') || 'Úrovně zobrazení',
-      description: t('onboarding.views.description') || 'Pokrok nabízí čtyři různé úrovně zobrazení, každá vhodná pro jiný účel. Jednotlivé views najdete v navigation menu vlevo na hlavním panelu.',
+      title: locale === 'cs' ? 'Horní menu' : 'Top Menu',
+      description: locale === 'cs' ? 'Hlavní navigace v horní části obrazovky' : 'Main navigation at the top of the screen',
+      icon: Menu,
+      content: (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 p-3 bg-white rounded border-2 border-primary-200">
+            <button className="flex items-center gap-2 px-3 py-2 text-sm font-semibold bg-white border-2 border-primary-500 rounded-playful-md">
+              <LayoutDashboard className="w-5 h-5 text-primary-600" />
+              <span>{locale === 'cs' ? 'Hlavní panel' : 'Main Panel'}</span>
+            </button>
+            <button className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-white rounded-playful-md">
+              <Target className="w-5 h-5" />
+              <span>{locale === 'cs' ? 'Cíle' : 'Goals'}</span>
+            </button>
+            <button className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-white rounded-playful-md">
+              <CheckSquare className="w-5 h-5" />
+              <span>{locale === 'cs' ? 'Návyky' : 'Habits'}</span>
+            </button>
+            <button className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-white rounded-playful-md">
+              <Footprints className="w-5 h-5" />
+              <span>{locale === 'cs' ? 'Kroky' : 'Steps'}</span>
+            </button>
+            <button className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-white rounded-playful-md">
+              <HelpCircle className="w-5 h-5" />
+              <span>{locale === 'cs' ? 'Nápověda' : 'Help'}</span>
+            </button>
+            <button className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-white rounded-playful-md">
+              <Settings className="w-5 h-5" />
+              <span>{locale === 'cs' ? 'Nastavení' : 'Settings'}</span>
+            </button>
+          </div>
+          <div className="mt-4 p-3 bg-primary-50 border-2 border-primary-200 rounded-playful-md">
+            <p className="text-xs text-gray-700">
+              <span className="font-semibold">{locale === 'cs' ? 'Tip: ' : 'Tip: '}</span>
+              {locale === 'cs' 
+                ? 'Horní menu umožňuje rychlý přístup k hlavním sekcím aplikace: Hlavní panel, Cíle, Návyky, Kroky, Nápověda a Nastavení.'
+                : 'Top menu provides quick access to main app sections: Main Panel, Goals, Habits, Steps, Help, and Settings.'}
+            </p>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: locale === 'cs' ? 'Levé navigační menu' : 'Left Navigation Menu',
+      description: locale === 'cs' ? 'Menu, které se mění podle kontextu stránky' : 'Menu that changes based on page context',
+      icon: Menu,
+      content: (
+        <div className="space-y-4">
+          <div className="w-64 bg-white border-r-4 border-primary-500 flex flex-col" style={{ minHeight: '200px' }}>
+            <div className="p-4 flex-1">
+              <h5 className="text-xs font-semibold text-gray-500 mb-2 uppercase">{locale === 'cs' ? 'Hlavní' : 'Main'}</h5>
+              <div className="space-y-1">
+                <div className="px-3 py-2 text-sm text-primary-600 bg-white border-l-2 border-primary-500">
+                  <ListTodo className="w-4 h-4 inline mr-2" />
+                  {locale === 'cs' ? 'Nadcházející' : 'Upcoming'}
+                </div>
+                <div className="px-3 py-2 text-sm text-gray-600 border-l-2 border-transparent">
+                  <CalendarDays className="w-4 h-4 inline mr-2" />
+                  {locale === 'cs' ? 'Přehled' : 'Overview'}
+                </div>
+                <div className="px-3 py-2 text-sm text-gray-600 border-l-2 border-transparent">
+                  <BarChart3 className="w-4 h-4 inline mr-2" />
+                  {locale === 'cs' ? 'Statistiky' : 'Statistics'}
+                </div>
+              </div>
+              <h5 className="text-xs font-semibold text-gray-500 mb-2 mt-4 uppercase">{locale === 'cs' ? 'Správa' : 'Management'}</h5>
+              <div className="space-y-1">
+                <div className="px-3 py-2 text-sm text-gray-600 border-l-2 border-transparent">
+                  <Target className="w-4 h-4 inline mr-2" />
+                  {locale === 'cs' ? 'Cíle' : 'Goals'}
+                </div>
+                <div className="px-3 py-2 text-sm text-gray-600 border-l-2 border-transparent">
+                  <CheckSquare className="w-4 h-4 inline mr-2" />
+                  {locale === 'cs' ? 'Návyky' : 'Habits'}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 p-3 bg-primary-50 border-2 border-primary-200 rounded-playful-md">
+            <p className="text-xs text-gray-700">
+              <span className="font-semibold">{locale === 'cs' ? 'Tip: ' : 'Tip: '}</span>
+              {locale === 'cs' 
+                ? 'Levé menu se mění podle kontextu stránky. Na hlavním panelu obsahuje hlavní zobrazení (Nadcházející, Přehled, Statistiky) a sekce pro správu (Cíle, Návyky). V jiných stránkách slouží jako kategorie a filtry pro zobrazení obsahu.'
+                : 'Left menu changes based on page context. On the main panel, it contains main views (Upcoming, Overview, Statistics) and management sections (Goals, Habits). On other pages, it serves as categories and filters for displaying content.'}
+            </p>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: t('onboarding.plusButton.title') || 'Tlačítko Add',
+      description: t('onboarding.plusButton.description') || 'Vytvářejte nové prvky přes tlačítko Add v navigaci.',
+      icon: Plus,
+      content: (
+        <div className="space-y-4">
+          {/* Mock sidebar */}
+          <div className="flex gap-4">
+            {/* Sidebar mock */}
+            <div className="w-64 bg-white border-r-4 border-primary-500 flex flex-col" style={{ minHeight: '400px' }}>
+              {/* Navigation items */}
+              <div className="p-4 flex-1">
+                <h2 className="text-lg font-bold text-black mb-4 font-playful">{t('navigation.title') || 'Navigace'}</h2>
+                <div className="space-y-1.5">
+                  <div className="px-3 py-2 text-sm text-gray-600 border-l-2 border-transparent">
+                    <ListTodo className="w-4 h-4 inline mr-2" />
+                    {locale === 'cs' ? 'Nadcházející' : 'Upcoming'}
+                  </div>
+                  <div className="px-3 py-2 text-sm text-gray-600 border-l-2 border-transparent">
+                    <CalendarDays className="w-4 h-4 inline mr-2" />
+                    {locale === 'cs' ? 'Přehled' : 'Overview'}
+                  </div>
+                  <div className="px-3 py-2 text-sm text-gray-600 border-l-2 border-transparent">
+                    <BarChart3 className="w-4 h-4 inline mr-2" />
+                    {locale === 'cs' ? 'Statistiky' : 'Statistics'}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Plus button at bottom */}
+              <div className="p-4 border-t-2 border-primary-500 relative">
+                {/* Dropdown menu (shown as open) - positioned above button */}
+                <div className="absolute left-4 bottom-full mb-2 z-50 bg-white border-2 border-primary-500 rounded-playful-md min-w-[160px] shadow-lg">
+                  <button className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary-50 flex items-center gap-2 border-b border-primary-200">
+                    <LayoutDashboard className="w-4 h-4 text-primary-600" />
+                    <span>{t('onboarding.plusButton.createArea') || 'Vytvořit oblast'}</span>
+                  </button>
+                  <button className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary-50 flex items-center gap-2 border-b border-primary-200">
+                    <Target className="w-4 h-4 text-primary-600" />
+                    <span>{t('onboarding.plusButton.createGoal') || 'Vytvořit cíl'}</span>
+                  </button>
+                  <button className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary-50 flex items-center gap-2 border-b border-primary-200">
+                    <Footprints className="w-4 h-4 text-primary-600" />
+                    <span>{t('onboarding.plusButton.createStep') || 'Vytvořit krok'}</span>
+                  </button>
+                  <button className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary-50 flex items-center gap-2">
+                    <CheckSquare className="w-4 h-4 text-primary-600" />
+                    <span>{t('onboarding.plusButton.createHabit') || 'Vytvořit návyk'}</span>
+                  </button>
+                </div>
+                
+                <button className="w-full px-4 py-2.5 flex items-center justify-center gap-2 bg-white text-primary-600 rounded-playful-md hover:bg-primary-50 transition-colors border-2 border-primary-500 font-semibold">
+                  <Plus className="w-5 h-5" strokeWidth={2} />
+                  <span>{t('common.add') || 'Vytvořit'}</span>
+                </button>
+              </div>
+            </div>
+            
+            {/* Main content area mock */}
+            <div className="flex-1 bg-white p-6">
+              <p className="text-sm text-gray-600">
+                {t('onboarding.plusButton.mainContent') || 'Hlavní panel aplikace'}
+              </p>
+            </div>
+          </div>
+          
+          <div className="mt-4 p-3 bg-primary-50 border-2 border-primary-200 rounded-playful-md">
+            <p className="text-xs text-gray-700">
+              {locale === 'cs' 
+                ? 'Tlačítko Add je v dolní části levého navigačního menu. Kliknutím otevřete menu pro vytvoření všech čtyř stavebních bloků.'
+                : 'The Add button is at the bottom of the left navigation menu. Click to open the menu for creating all four building blocks.'}
+            </p>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: t('onboarding.views.title') || 'Zobrazení',
+      description: t('onboarding.views.description') || 'Čtyři hlavní zobrazení pro různé účely.',
       icon: Calendar,
       content: (
         <div className="space-y-3">
-          <div className="p-3 bg-primary-50 rounded-lg border border-primary-200 mb-3">
-            <p className="text-xs text-gray-700">
-              {t('onboarding.views.location') || 'Jednotlivé views najdete v navigation menu vlevo na hlavním panelu.'}
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3">
+            <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <ListTodo className="w-5 h-5 text-primary-600" />
+                <h4 className="font-bold text-sm">{locale === 'cs' ? 'Nadcházející' : 'Upcoming'}</h4>
+              </div>
+              <p className="text-xs text-gray-600">
+                {locale === 'cs' 
+                  ? 'Feed nebo Oblasti zobrazení. Zobrazuje dnešní návyky a nadcházející kroky seřazené podle data.'
+                  : 'Feed or Areas view. Shows today\'s habits and upcoming steps sorted by date.'}
+              </p>
+            </div>
             <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
                 <CalendarDays className="w-5 h-5 text-primary-600" />
-                <h4 className="font-bold text-sm">{t('onboarding.views.daily') || 'Denní'}</h4>
+                <h4 className="font-bold text-sm">{locale === 'cs' ? 'Přehled' : 'Overview'}</h4>
               </div>
               <p className="text-xs text-gray-600">
-                {t('onboarding.views.dailyDesc') || 'Ideální pro každodenní práci a rutiny. Zobrazuje kroky a návyky pro konkrétní den.'}
+                {locale === 'cs' 
+                  ? 'Měsíční kalendář s kroky a návyky.'
+                  : 'Monthly calendar with steps and habits.'}
               </p>
             </div>
             <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
-                <CalendarRange className="w-5 h-5 text-primary-600" />
-                <h4 className="font-bold text-sm">{t('onboarding.views.weekly') || 'Týdenní'}</h4>
+                <BarChart3 className="w-5 h-5 text-primary-600" />
+                <h4 className="font-bold text-sm">{locale === 'cs' ? 'Statistiky' : 'Statistics'}</h4>
               </div>
               <p className="text-xs text-gray-600">
-                {t('onboarding.views.weeklyDesc') || 'Přehled jednotlivých kroků v týdnu. Umožňuje plánovat a organizovat úkoly na celý týden.'}
+                {locale === 'cs' 
+                  ? 'Roční přehled pokroku v cílech a návycích.'
+                  : 'Yearly overview of progress in goals and habits.'}
               </p>
             </div>
             <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
-                <Calendar className="w-5 h-5 text-primary-600" />
-                <h4 className="font-bold text-sm">{t('onboarding.views.monthly') || 'Měsíční'}</h4>
+                <LayoutDashboard className="w-5 h-5 text-primary-600" />
+                <h4 className="font-bold text-sm">{locale === 'cs' ? 'Oblasti' : 'Areas'}</h4>
               </div>
               <p className="text-xs text-gray-600">
-                {t('onboarding.views.monthlyDesc') || 'Slouží k většímu overview. Zobrazuje kalendář s kroky a návyky pro celý měsíc.'}
-              </p>
-            </div>
-            <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
-              <div className="flex items-center gap-2 mb-2">
-                <CalendarCheck className="w-5 h-5 text-primary-600" />
-                <h4 className="font-bold text-sm">{t('onboarding.views.yearly') || 'Roční'}</h4>
-              </div>
-              <p className="text-xs text-gray-600">
-                {t('onboarding.views.yearlyDesc') || 'Přehled posunu v jednotlivých cílech. Zobrazuje timeline s progress bary pro všechny cíle.'}
+                {locale === 'cs' 
+                  ? 'Zobrazuje všechny kroky a cíle, které jsou přiřazené k dané oblasti.'
+                  : 'Shows all steps and goals assigned to a specific area.'}
               </p>
             </div>
           </div>
@@ -499,8 +613,8 @@ export function OnboardingTutorial({
       )
     },
     {
-      title: t('onboarding.complete.title') || 'Tutoriál dokončen!',
-      description: t('onboarding.complete.description') || 'Nyní víte, jak používat Pokrok. Začněte vytvářet své oblasti, cíle, kroky a návyky a posouvejte se směrem k životu plnému smyslu a naplnění!',
+      title: t('onboarding.complete.title') || 'Hotovo!',
+      description: t('onboarding.complete.description') || 'Začněte vytvářet oblasti, cíle, kroky a návyky.',
       icon: CheckCircle2,
       content: (
         <div className="text-center py-8">
@@ -584,13 +698,13 @@ export function OnboardingTutorial({
           <p className="text-gray-700 text-lg mb-6 font-playful">{currentSlideData.description}</p>
           
           {/* Mock component preview */}
-          <div className="bg-gray-50 rounded-lg p-6 border-2 border-gray-200">
+          <div>
             {currentSlideData.content}
           </div>
         </div>
 
         {/* Footer with navigation */}
-        <div className="flex items-center justify-between p-6 border-t-2 border-primary-200 bg-gray-50">
+        <div className="flex items-center justify-between p-6 border-t-2 border-primary-200 bg-white">
           <button
             onClick={handlePrevious}
             disabled={currentSlide === 0}

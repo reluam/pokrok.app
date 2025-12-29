@@ -1689,6 +1689,8 @@
     "remaining": "remaining",
     "allDone": "All done! Great job! 🎉",
     "futureStepsNote": "Below are future tasks that can wait.",
+    "feed": "Feed",
+    "areas": "Areas",
     "daily": "Daily",
     "dailyDesc": "Ideal for daily work and routines. Displays steps and habits for a specific day.",
     "weekly": "Weekly",
