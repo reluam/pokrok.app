@@ -1169,6 +1169,7 @@
       "gettingStarted": "První kroky",
       "overview": "Jak používat",
       "focus": "Focus",
+      "views": "Zobrazení",
       "goals": "Cíle",
       "steps": "Kroky",
       "habits": "Návyky"
@@ -1287,6 +1288,10 @@
       "futureStepsDescription": "Budoucí kroky - kroky naplánované na budoucí dny (šedý border)",
       "timeline": "Timeline",
       "timelineDescription": "Kliknutím na den v timeline se přepnete na denní přehled. V denním přehledu uvidíte pouze kroky a návyky pro vybraný den. Kliknutím na stejný den znovu se vrátíte zpět na týdenní přehled."
+    },
+    "viewsHelp": {
+      "title": "Zobrazení",
+      "subtitle": "Čtyři hlavní zobrazení pro různé účely"
     },
     "goalsHelp": {
       "title": "Cíle",

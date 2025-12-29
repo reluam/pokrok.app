@@ -1169,6 +1169,7 @@
       "gettingStarted": "Getting Started",
       "overview": "How to Use",
       "focus": "Focus",
+      "views": "Views",
       "goals": "Goals",
       "steps": "Steps",
       "habits": "Habits"
@@ -1287,6 +1288,10 @@
       "futureStepsDescription": "Future steps - steps scheduled for future days (gray border)",
       "timeline": "Timeline",
       "timelineDescription": "Clicking on a day in the timeline switches to the daily overview. In the daily overview, you'll see only steps and habits for the selected day. Clicking on the same day again returns to the weekly overview."
+    },
+    "viewsHelp": {
+      "title": "Views",
+      "subtitle": "Four main views for different purposes"
     },
     "goalsHelp": {
       "title": "Goals",
