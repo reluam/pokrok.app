@@ -418,13 +418,17 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
         // Redirect to main panel to show onboarding
         if (onNavigateToMain) {
           onNavigateToMain()
-          // Reload page to refresh onboarding status
+          // Reload page to refresh onboarding status after a short delay
+          // This ensures the API call completes before reload
           setTimeout(() => {
             window.location.reload()
-          }, 200)
+          }, 500)
         } else {
           // Fallback: use router if onNavigateToMain is not available
-          router.push(`/${locale}/game`)
+          setTimeout(() => {
+            router.push(`/${locale}/game`)
+            window.location.reload()
+          }, 500)
         }
       } else {
         const error = await response.json()

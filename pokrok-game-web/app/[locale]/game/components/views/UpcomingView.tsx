@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
@@ -50,6 +50,75 @@ export function UpcomingView({
   const t = useTranslations()
   const locale = useLocale()
   
+  // View mode: 'feed' or 'areas'
+  const [viewMode, setViewMode] = useState<'feed' | 'areas'>('feed')
+  const [feedDisplayCount, setFeedDisplayCount] = useState(20) // Number of steps to display in feed
+  const [isLoadingViewMode, setIsLoadingViewMode] = useState(true)
+  const loadMoreRef = useRef<HTMLDivElement>(null)
+
+  // Load saved view mode preference
+  useEffect(() => {
+    const loadViewMode = async () => {
+      if (!userId) {
+        setIsLoadingViewMode(false)
+        return
+      }
+      
+      try {
+        const response = await fetch(`/api/view-settings?view_type=upcoming`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data?.settings?.upcomingViewMode && (data.settings.upcomingViewMode === 'feed' || data.settings.upcomingViewMode === 'areas')) {
+            setViewMode(data.settings.upcomingViewMode)
+          }
+        }
+      } catch (error) {
+        console.error('Error loading view mode preference:', error)
+      } finally {
+        setIsLoadingViewMode(false)
+      }
+    }
+    
+    loadViewMode()
+  }, [userId])
+
+  // Save view mode preference when it changes
+  useEffect(() => {
+    if (isLoadingViewMode || !userId) return
+    
+    const saveViewMode = async () => {
+      try {
+        const response = await fetch(`/api/view-settings?view_type=upcoming`)
+        let currentSettings = {}
+        
+        if (response.ok) {
+          const data = await response.json()
+          currentSettings = data?.settings || {}
+        }
+        
+        // Update settings with new view mode
+        const updatedSettings = {
+          ...currentSettings,
+          upcomingViewMode: viewMode
+        }
+        
+        await fetch('/api/view-settings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            view_type: 'upcoming',
+            settings: updatedSettings
+          })
+        })
+      } catch (error) {
+        console.error('Error saving view mode preference:', error)
+      }
+    }
+    
+    saveViewMode()
+  }, [viewMode, userId, isLoadingViewMode])
   
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -134,6 +203,93 @@ export function UpcomingView({
     })
     return map
   }, [areas])
+
+  // Get all steps for Feed view - sorted by date, with overdue first, then important first within each day
+  // No limit, but filtered to max one month ahead
+  const allFeedSteps = useMemo(() => {
+    const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isOverdue: boolean; goal: any; area: any }> = []
+    
+    // Process non-repeating steps
+    dailySteps
+      .filter(step => !step.frequency || step.frequency === null)
+      .forEach(step => {
+        if (!step.date || step.completed) return
+        
+        const stepDate = new Date(normalizeDate(step.date))
+        stepDate.setHours(0, 0, 0, 0)
+        
+        // Filter out steps more than one month ahead
+        if (stepDate > oneMonthFromToday) return
+        
+        const isOverdue = stepDate < today
+        const goal = step.goal_id ? goalMap.get(step.goal_id) : null
+        // Get area from goal if exists, otherwise from step directly
+        const area = goal?.area_id 
+          ? areaMap.get(goal.area_id) 
+          : (step.area_id ? areaMap.get(step.area_id) : null)
+        
+        stepsWithDates.push({
+          step,
+          date: stepDate,
+          isImportant: step.is_important || false,
+          isOverdue,
+          goal,
+          area
+        })
+      })
+    
+    // Process repeating steps - find next occurrence that is NOT completed
+    dailySteps
+      .filter(step => step.frequency && step.frequency !== null)
+      .forEach(step => {
+        const nextDate = getNextOccurrenceDate(step, today)
+        if (nextDate && nextDate <= oneMonthFromToday) {
+          const goal = step.goal_id ? goalMap.get(step.goal_id) : null
+          // Get area from goal if exists, otherwise from step directly
+          const area = goal?.area_id 
+            ? areaMap.get(goal.area_id) 
+            : (step.area_id ? areaMap.get(step.area_id) : null)
+          
+          stepsWithDates.push({
+            step: {
+              ...step,
+              date: getLocalDateString(nextDate), // Add the calculated date for display
+              completed: false // Reset completed flag for the specific occurrence
+            },
+            date: nextDate,
+            isImportant: step.is_important || false,
+            isOverdue: false, // Repeating steps are never overdue
+            goal,
+            area
+          })
+        }
+      })
+    
+    // Sort: overdue first, then by date, then by importance within same date
+    stepsWithDates.sort((a, b) => {
+      // Overdue steps first
+      if (a.isOverdue && !b.isOverdue) return -1
+      if (!a.isOverdue && b.isOverdue) return 1
+      
+      // Same overdue status - sort by date
+      const dateDiff = a.date.getTime() - b.date.getTime()
+      if (dateDiff !== 0) return dateDiff
+      
+      // Same date - important first
+      if (a.isImportant && !b.isImportant) return -1
+      if (!a.isImportant && b.isImportant) return 1
+      return 0
+    })
+    
+    // Return all steps with additional metadata (no limit)
+    return stepsWithDates.map(item => ({
+      ...item.step,
+      _isOverdue: item.isOverdue,
+      _goal: item.goal,
+      _area: item.area,
+      _date: item.date
+    }))
+  }, [dailySteps, today, oneMonthFromToday, goalMap, areaMap])
 
   // Get upcoming steps - sorted by date, with overdue first, then important first within each day
   // Limited to 15 steps total and max one month ahead
@@ -298,25 +454,89 @@ export function UpcomingView({
       year: 'numeric'
     })
   }
+
+  // Lazy loading for Feed view
+  useEffect(() => {
+    if (viewMode !== 'feed') return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          // Load more steps when the observer element is visible
+          setFeedDisplayCount((prev) => Math.min(prev + 20, allFeedSteps.length))
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current)
+    }
+
+    return () => {
+      if (loadMoreRef.current) {
+        observer.unobserve(loadMoreRef.current)
+      }
+    }
+  }, [viewMode, allFeedSteps.length])
+
+  // Reset display count when switching to feed view
+  useEffect(() => {
+    if (viewMode === 'feed') {
+      setFeedDisplayCount(20)
+    }
+  }, [viewMode])
+
+  // Get displayed feed steps (limited by feedDisplayCount)
+  const displayedFeedSteps = useMemo(() => {
+    return allFeedSteps.slice(0, feedDisplayCount)
+  }, [allFeedSteps, feedDisplayCount])
   
   return (
     <div className="w-full h-full flex flex-col bg-primary-50">
       {/* Header */}
       <div className="flex-shrink-0 bg-primary-50 pb-2 pt-4 px-6">
-        <div className="flex items-center justify-between">
+        <div className="grid grid-cols-3 items-center">
           <h1 className="text-2xl font-bold text-black font-playful">
             {t('views.upcoming.title') || 'Nadcházející'}
           </h1>
-          {onOpenStepModal && (
-            <button
-              onClick={() => onOpenStepModal()}
-              className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
-              title={t('steps.addStep') || 'Přidat krok'}
-            >
-              <Plus className="w-4 h-4" />
-              <span>{t('steps.addStep') || 'Přidat krok'}</span>
-            </button>
-          )}
+          {/* View mode switcher - centered */}
+          <div className="flex justify-center">
+            <div className="flex items-center gap-2 bg-white border-2 border-primary-300 rounded-playful-md p-1">
+              <button
+                onClick={() => setViewMode('feed')}
+                className={`px-3 py-1 text-sm font-semibold rounded-playful-sm transition-colors ${
+                  viewMode === 'feed'
+                    ? 'bg-primary-500 text-white'
+                    : 'text-gray-600 hover:bg-primary-50'
+                }`}
+              >
+                {t('views.feed') || 'Feed'}
+              </button>
+              <button
+                onClick={() => setViewMode('areas')}
+                className={`px-3 py-1 text-sm font-semibold rounded-playful-sm transition-colors ${
+                  viewMode === 'areas'
+                    ? 'bg-primary-500 text-white'
+                    : 'text-gray-600 hover:bg-primary-50'
+                }`}
+              >
+                {t('views.areas') || 'Oblasti'}
+              </button>
+            </div>
+          </div>
+          <div className="flex justify-end">
+            {onOpenStepModal && (
+              <button
+                onClick={() => onOpenStepModal()}
+                className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
+                title={t('steps.addStep') || 'Přidat krok'}
+              >
+                <Plus className="w-4 h-4" />
+                <span>{t('steps.addStep') || 'Přidat krok'}</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
       
@@ -334,10 +554,10 @@ export function UpcomingView({
                   <div
                     key={habit.id}
                     onClick={() => handleItemClick(habit, 'habit')}
-                    className={`flex items-center gap-2 p-3 rounded-playful-md border-2 cursor-pointer transition-all flex-shrink-0 ${
+                    className={`flex items-center gap-2 p-3 rounded-playful-md cursor-pointer transition-all flex-shrink-0 ${
                       isCompleted
-                        ? 'bg-primary-100 border-primary-300 opacity-75'
-                        : 'bg-white border-primary-500 hover:bg-primary-50'
+                        ? 'bg-primary-100 opacity-75 hover:outline-2 hover:outline hover:outline-primary-300 hover:outline-offset-[-2px]'
+                        : 'bg-white hover:bg-primary-50 hover:outline-2 hover:outline hover:outline-primary-500 hover:outline-offset-[-2px]'
                     } ${isLoading ? 'opacity-50' : ''}`}
                   >
                     <button
@@ -352,9 +572,14 @@ export function UpcomingView({
                           : 'border-primary-500 hover:bg-primary-50'
                       }`}
                     >
-                      {isCompleted && (
+                      {isLoading ? (
+                        <svg className="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      ) : isCompleted ? (
                         <Check className="w-4 h-4 text-white" />
-                      )}
+                      ) : null}
                     </button>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       {habit.icon && (
@@ -378,8 +603,178 @@ export function UpcomingView({
           </div>
         )}
         
-        {/* Steps by Area */}
-        {upcomingSteps.length === 0 ? (
+        {/* Feed View or Areas View */}
+        {viewMode === 'feed' ? (
+          /* Feed View */
+          displayedFeedSteps.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-sm text-gray-600">{t('views.noSteps') || 'Žádné nadcházející kroky'}</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {/* Check if there are any overdue or today's steps */}
+              {(() => {
+                const hasOverdueOrTodaySteps = displayedFeedSteps.some((step) => {
+                  if (step.completed) return false
+                  const stepDateObj = (step as any)._date as Date | undefined
+                  if (!stepDateObj) return false
+                  const stepDate = new Date(stepDateObj)
+                  stepDate.setHours(0, 0, 0, 0)
+                  const isToday = stepDate.getTime() === today.getTime()
+                  const isOverdue = (step as any)._isOverdue || false
+                  return isOverdue || isToday
+                })
+                
+                const hasFutureSteps = displayedFeedSteps.some((step) => {
+                  if (step.completed) return false
+                  const stepDateObj = (step as any)._date as Date | undefined
+                  if (!stepDateObj) return false
+                  const stepDate = new Date(stepDateObj)
+                  stepDate.setHours(0, 0, 0, 0)
+                  return stepDate > today && !(step as any)._isOverdue
+                })
+                
+                // Show positive message if no overdue or today's steps, but there are future steps
+                if (!hasOverdueOrTodaySteps && hasFutureSteps) {
+                  return (
+                    <div className="mb-4 p-4 bg-primary-100 border-2 border-primary-300 rounded-playful-md">
+                      <p className="text-sm font-semibold text-primary-700 mb-1">
+                        {t('views.allDone') || 'Vše je splněno! Dobrá práce! 🎉'}
+                      </p>
+                      <p className="text-xs text-primary-600">
+                        {t('views.futureStepsNote') || 'Níže jsou úkoly do budoucna, které ale ještě vydrží.'}
+                      </p>
+                    </div>
+                  )
+                }
+                return null
+              })()}
+              {displayedFeedSteps.map((step) => {
+                const isLoading = loadingSteps.has(step.id)
+                const stepDateObj = (step as any)._date as Date | undefined
+                if (stepDateObj) stepDateObj.setHours(0, 0, 0, 0)
+                const stepDateStr = stepDateObj ? getLocalDateString(stepDateObj) : null
+                const isToday = stepDateObj && stepDateObj.getTime() === today.getTime()
+                const isOverdue = (step as any)._isOverdue || false
+                const stepDateFormatted = stepDateStr ? formatStepDate(stepDateStr) : null
+                const goal = (step as any)._goal
+                const area = (step as any)._area
+                
+                return (
+                  <div
+                    key={step.id}
+                    onClick={() => handleItemClick(step, 'step')}
+                    className={`flex items-center gap-3 p-3 cursor-pointer transition-all rounded-playful-md ${
+                      step.completed
+                        ? 'opacity-50'
+                        : isOverdue
+                          ? 'bg-red-50 hover:bg-red-100 hover:outline-2 hover:outline hover:outline-red-300 hover:outline-offset-[-2px]'
+                          : isToday
+                            ? 'bg-white hover:bg-primary-50 hover:outline-2 hover:outline hover:outline-primary-500 hover:outline-offset-[-2px]'
+                            : 'bg-white hover:bg-primary-50 hover:outline-2 hover:outline hover:outline-gray-300 hover:outline-offset-[-2px]'
+                    } ${isLoading ? 'opacity-50' : ''}`}
+                  >
+                    {/* Checkbox */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleStepToggle(step.id, !step.completed)
+                      }}
+                      disabled={isLoading}
+                      className={`w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
+                        step.completed 
+                          ? 'bg-primary-500 border-primary-500' 
+                          : 'border-primary-500 hover:bg-primary-100'
+                      }`}
+                    >
+                      {isLoading ? (
+                        <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      ) : step.completed ? (
+                        <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                      ) : null}
+                    </button>
+                    
+                    {/* Area icon and color */}
+                    {area && (
+                      <div className="flex-shrink-0">
+                        {area.icon && (() => {
+                          const AreaIconComponent = getIconComponent(area.icon)
+                          return <AreaIconComponent className="w-5 h-5" style={{ color: area.color || '#E8871E' }} />
+                        })()}
+                      </div>
+                    )}
+                    
+                    {/* Step info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-sm truncate ${
+                          step.completed 
+                            ? 'line-through text-gray-400' 
+                            : isOverdue
+                              ? 'text-red-600'
+                              : 'text-black'
+                        } ${step.is_important && !step.completed ? 'font-bold' : 'font-medium'}`}>
+                          {step.title}
+                        </span>
+                        {step.checklist && step.checklist.length > 0 && (
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
+                            step.checklist.filter((c: any) => c.completed).length === step.checklist.length
+                              ? 'bg-primary-100 text-primary-600 border-primary-500'
+                              : 'bg-gray-100 text-gray-500 border-gray-300'
+                          }`}>
+                            {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
+                          </span>
+                        )}
+                      </div>
+                      {/* Goal name */}
+                      {goal && (
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          {goal.icon && (() => {
+                            const GoalIconComponent = getIconComponent(goal.icon)
+                            return <GoalIconComponent className="w-3 h-3 text-primary-600" />
+                          })()}
+                          <span>{goal.title}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Date and time */}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <button
+                        className={`hidden sm:block w-28 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
+                          isOverdue
+                            ? 'text-red-600 hover:bg-red-100 border-red-300'
+                            : isToday
+                              ? 'text-primary-600 hover:bg-primary-100 border-primary-500' 
+                              : 'text-gray-600 hover:bg-gray-100 border-gray-300'
+                        }`}
+                      >
+                        {isOverdue ? '❗' : ''}{stepDateFormatted || '-'}
+                      </button>
+                      <button 
+                        className={`hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-gray-600 hover:bg-gray-100 border-gray-300`}
+                      >
+                        {step.estimated_time ? `${step.estimated_time} min` : '-'}
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+              
+              {/* Lazy loading trigger */}
+              {feedDisplayCount < allFeedSteps.length && (
+                <div ref={loadMoreRef} className="text-center py-4">
+                  <div className="inline-block animate-spin h-5 w-5 border-2 border-primary-500 border-t-transparent rounded-full"></div>
+                </div>
+              )}
+            </div>
+          )
+        ) : (
+          /* Areas View */
+          upcomingSteps.length === 0 ? (
           <div className="card-playful-base">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -747,6 +1142,7 @@ export function UpcomingView({
               )
             })()}
           </>
+        )
         )}
       </div>
     </div>

@@ -97,12 +97,12 @@ export default function GamePage() {
                   setPlayer(gameData.player || null)
                   setGoals(gameData.goals || [])
                   setHabits(gameData.habits || [])
-                  setHasCompletedOnboarding(gameData.user.has_completed_onboarding || false)
+                  setHasCompletedOnboarding(gameData.user.has_completed_onboarding ?? false)
                   
-                  // If onboarding not completed, ensure we're on focus-day
+                  // If onboarding not completed, ensure we're on focus-upcoming
                   if (!gameData.user.has_completed_onboarding) {
                     if (typeof window !== 'undefined') {
-                      localStorage.setItem('journeyGame_mainPanelSection', 'focus-day')
+                      localStorage.setItem('journeyGame_mainPanelSection', 'focus-upcoming')
                     }
                   }
                 }

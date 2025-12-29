@@ -504,12 +504,36 @@ export function JourneyGameView({
   
   // Initialize onboarding
   useEffect(() => {
+    // If hasCompletedOnboarding is explicitly false, activate onboarding
     if (hasCompletedOnboarding === false) {
       setIsOnboardingActive(true)
-      // Ensure we're on focus-calendar
-      setMainPanelSection('focus-calendar')
-    } else if (hasCompletedOnboarding === true) {
+      // Ensure we're on focus-upcoming (was focus-calendar)
+      setMainPanelSection('focus-upcoming')
+    } 
+    // If hasCompletedOnboarding is explicitly true, deactivate onboarding
+    else if (hasCompletedOnboarding === true) {
       setIsOnboardingActive(false)
+    } 
+    // If null or undefined, fetch from API to check status
+    else {
+      const checkOnboardingStatus = async () => {
+        try {
+          const response = await fetch('/api/game/init')
+          if (response.ok) {
+            const gameData = await response.json()
+            const completed = gameData.user?.has_completed_onboarding ?? false
+            if (!completed) {
+              setIsOnboardingActive(true)
+              setMainPanelSection('focus-upcoming')
+            } else {
+              setIsOnboardingActive(false)
+            }
+          }
+        } catch (error) {
+          console.error('Error checking onboarding status:', error)
+        }
+      }
+      checkOnboardingStatus()
     }
   }, [hasCompletedOnboarding])
 
@@ -522,9 +546,12 @@ export function JourneyGameView({
           if (response.ok) {
             const gameData = await response.json()
             // Update onboarding status if it changed
-            if (gameData.user.has_completed_onboarding === false && !isOnboardingActive) {
+            const completed = gameData.user?.has_completed_onboarding ?? false
+            if (!completed && !isOnboardingActive) {
               setIsOnboardingActive(true)
-              setMainPanelSection('focus-calendar')
+              setMainPanelSection('focus-upcoming')
+            } else if (completed && isOnboardingActive) {
+              setIsOnboardingActive(false)
             }
           }
         } catch (error) {
@@ -1329,13 +1356,23 @@ export function JourneyGameView({
     if (step) {
       // Open existing step for editing
       const stepDate = step.date ? (typeof step.date === 'string' && step.date.match(/^\d{4}-\d{2}-\d{2}$/) ? step.date : step.date.split('T')[0]) : getLocalDateString(selectedDayDate)
+      
+      // If step has goal but no area, get area from goal
+      let stepAreaId = step.area_id || ''
+      if (step.goal_id && !stepAreaId) {
+        const stepGoal = goals.find((g: any) => g.id === step.goal_id)
+        if (stepGoal?.area_id) {
+          stepAreaId = stepGoal.area_id
+        }
+      }
+      
       setStepModalData({
         id: step.id,
         title: step.title || '',
         description: step.description || '',
         date: stepDate,
         goalId: step.goal_id || '',
-        areaId: step.area_id || '',
+        areaId: stepAreaId,
         completed: step.completed || false,
         is_important: step.is_important || false,
         is_urgent: step.is_urgent || false,
@@ -1390,20 +1427,28 @@ export function JourneyGameView({
       return
     }
 
-    // Validate mutual exclusivity
-    if (stepModalData.goalId && stepModalData.areaId) {
-      alert('Krok nemůže mít současně přiřazený cíl i oblast')
-      return
-    }
-
     setStepModalSaving(true)
     try {
       const isNewStep = !stepModalData.id
+      
+      // Determine goalId and areaId
+      let finalGoalId = (stepModalData.goalId && stepModalData.goalId.trim() !== '') ? stepModalData.goalId : null
+      let finalAreaId = (stepModalData.areaId && stepModalData.areaId.trim() !== '') ? stepModalData.areaId : null
+      
+      // If goal is selected, get area from goal
+      if (finalGoalId) {
+        const selectedGoal = goals.find((g: any) => g.id === finalGoalId)
+        if (selectedGoal?.area_id) {
+          finalAreaId = selectedGoal.area_id
+        }
+      }
+      // If only area is selected (no goal), keep area as is
+      
       const requestBody = {
         ...(isNewStep ? {} : { stepId: stepModalData.id }),
         userId: currentUserId,
-        goalId: (stepModalData.goalId && stepModalData.goalId.trim() !== '') ? stepModalData.goalId : null,
-        areaId: (stepModalData.areaId && stepModalData.areaId.trim() !== '') ? stepModalData.areaId : null,
+        goalId: finalGoalId,
+        areaId: finalAreaId,
         title: stepModalData.title,
         description: stepModalData.description || '',
         date: stepModalData.isRepeating ? null : (stepModalData.date || getLocalDateString(new Date())),
