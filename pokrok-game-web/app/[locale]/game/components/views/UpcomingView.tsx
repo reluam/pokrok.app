@@ -205,7 +205,7 @@ export function UpcomingView({
   }, [areas])
 
   // Get all steps for Feed view - sorted by date, with overdue first, then important first within each day
-  // No limit, but filtered to max one month ahead
+  // No limit, but filtered to max one month ahead (except overdue steps - show all overdue)
   const allFeedSteps = useMemo(() => {
     const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isOverdue: boolean; goal: any; area: any }> = []
     
@@ -218,10 +218,10 @@ export function UpcomingView({
         const stepDate = new Date(normalizeDate(step.date))
         stepDate.setHours(0, 0, 0, 0)
         
-        // Filter out steps more than one month ahead
-        if (stepDate > oneMonthFromToday) return
-        
         const isOverdue = stepDate < today
+        
+        // Filter out steps more than one month ahead (but keep all overdue steps)
+        if (!isOverdue && stepDate > oneMonthFromToday) return
         const goal = step.goal_id ? goalMap.get(step.goal_id) : null
         // Get area from goal if exists, otherwise from step directly
         const area = goal?.area_id 
@@ -292,7 +292,7 @@ export function UpcomingView({
   }, [dailySteps, today, oneMonthFromToday, goalMap, areaMap])
 
   // Get upcoming steps - sorted by date, with overdue first, then important first within each day
-  // Limited to 15 steps total and max one month ahead
+  // Limited to 15 steps total and max one month ahead (except overdue steps - show all overdue)
   const upcomingSteps = useMemo(() => {
     const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isOverdue: boolean; goal: any; area: any }> = []
     
@@ -305,10 +305,10 @@ export function UpcomingView({
         const stepDate = new Date(normalizeDate(step.date))
         stepDate.setHours(0, 0, 0, 0)
         
-        // Filter out steps more than one month ahead
-        if (stepDate > oneMonthFromToday) return
-        
         const isOverdue = stepDate < today
+        
+        // Filter out steps more than one month ahead (but keep all overdue steps)
+        if (!isOverdue && stepDate > oneMonthFromToday) return
         const goal = step.goal_id ? goalMap.get(step.goal_id) : null
         // Get area from goal if exists, otherwise from step directly
         const area = goal?.area_id 
@@ -368,8 +368,11 @@ export function UpcomingView({
       return 0
     })
     
-    // Limit to 15 steps total
-    const limitedSteps = stepsWithDates.slice(0, 15)
+    // Limit to 15 steps total, but include ALL overdue steps
+    const overdueSteps = stepsWithDates.filter(item => item.isOverdue)
+    const nonOverdueSteps = stepsWithDates.filter(item => !item.isOverdue)
+    const limitedNonOverdue = nonOverdueSteps.slice(0, Math.max(0, 15 - overdueSteps.length))
+    const limitedSteps = [...overdueSteps, ...limitedNonOverdue]
     
     // Return steps with additional metadata
     return limitedSteps.map(item => ({
