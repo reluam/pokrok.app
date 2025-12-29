@@ -63,15 +63,15 @@ const getMockSteps = (locale: string) => {
 const getMockHabits = (locale: string) => {
   if (locale === 'en') {
     return [
-      { id: '1', name: 'Morning workout', frequency: 'daily', area_id: '1', habit_completions: { '2025-01-15': true, '2025-01-14': true, '2025-01-13': false } },
-      { id: '2', name: 'Read 30 minutes', frequency: 'daily', area_id: '1', habit_completions: { '2025-01-15': true, '2025-01-14': true, '2025-01-13': true } },
-      { id: '3', name: 'Meditation', frequency: 'daily', area_id: '1', habit_completions: { '2025-01-15': false, '2025-01-14': true, '2025-01-13': true } }
+      { id: '1', name: 'Morning workout', frequency: 'daily', area_id: '1', icon: 'Dumbbell', habit_completions: { '2025-01-15': true, '2025-01-14': true, '2025-01-13': false } },
+      { id: '2', name: 'Read 30 minutes', frequency: 'daily', area_id: '1', icon: 'BookOpen', habit_completions: { '2025-01-15': true, '2025-01-14': true, '2025-01-13': true } },
+      { id: '3', name: 'Meditation', frequency: 'daily', area_id: '1', icon: 'Heart', habit_completions: { '2025-01-15': false, '2025-01-14': true, '2025-01-13': true } }
     ]
   }
   return [
-    { id: '1', name: 'Ranní cvičení', frequency: 'daily', area_id: '1', habit_completions: { '2025-01-15': true, '2025-01-14': true, '2025-01-13': false } },
-    { id: '2', name: 'Čtení 30 minut', frequency: 'daily', area_id: '1', habit_completions: { '2025-01-15': true, '2025-01-14': true, '2025-01-13': true } },
-    { id: '3', name: 'Meditace', frequency: 'daily', area_id: '1', habit_completions: { '2025-01-15': false, '2025-01-14': true, '2025-01-13': true } }
+    { id: '1', name: 'Ranní cvičení', frequency: 'daily', area_id: '1', icon: 'Dumbbell', habit_completions: { '2025-01-15': true, '2025-01-14': true, '2025-01-13': false } },
+    { id: '2', name: 'Čtení 30 minut', frequency: 'daily', area_id: '1', icon: 'BookOpen', habit_completions: { '2025-01-15': true, '2025-01-14': true, '2025-01-13': true } },
+    { id: '3', name: 'Meditace', frequency: 'daily', area_id: '1', icon: 'Heart', habit_completions: { '2025-01-15': false, '2025-01-14': true, '2025-01-13': true } }
   ]
 }
 
