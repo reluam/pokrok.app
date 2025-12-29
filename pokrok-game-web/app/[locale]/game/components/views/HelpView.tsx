@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { HelpCircle, Target, Footprints, CheckSquare, Plus, ArrowRight, Menu, Rocket, Calendar, Eye, Sparkles, TrendingUp, Clock, Star, Zap, BookOpen, AlertTriangle, Settings, Check, ChevronLeft, ChevronRight, X, LayoutDashboard, Heart, ListTodo, Flame, BarChart3, Edit, Trash2, Briefcase, Smartphone, TrendingUp as TrendingUpIcon, CalendarDays } from 'lucide-react'
+import { HelpCircle, Target, Footprints, CheckSquare, Plus, ArrowRight, Menu, Rocket, Calendar, Eye, Sparkles, TrendingUp, Clock, Star, Zap, BookOpen, AlertTriangle, Settings, Check, ChevronLeft, ChevronRight, X, LayoutDashboard, Heart, ListTodo, Flame, BarChart3, Edit, Trash2, Briefcase, Smartphone, TrendingUp as TrendingUpIcon, CalendarDays, Navigation } from 'lucide-react'
 
 interface HelpViewProps {
   onAddGoal?: () => void
@@ -18,7 +18,7 @@ interface HelpViewProps {
   realSteps?: any[]
 }
 
-type HelpCategory = 'getting-started' | 'overview' | 'goals' | 'steps' | 'habits'
+type HelpCategory = 'getting-started' | 'overview' | 'navigation' | 'areas' | 'goals' | 'steps' | 'habits'
 
 // Compact Step Component
 function Step({ number, text }: { number: number; text: string }) {
@@ -60,6 +60,8 @@ export function HelpView({
   const categories = [
     { id: 'getting-started' as HelpCategory, label: t('categories.gettingStarted'), icon: Rocket },
     { id: 'overview' as HelpCategory, label: t('categories.views'), icon: Eye },
+    { id: 'navigation' as HelpCategory, label: t('categories.navigation'), icon: Navigation },
+    { id: 'areas' as HelpCategory, label: t('categories.areas'), icon: LayoutDashboard },
     { id: 'goals' as HelpCategory, label: t('categories.goals'), icon: Target },
     { id: 'steps' as HelpCategory, label: t('categories.steps'), icon: Footprints },
     { id: 'habits' as HelpCategory, label: t('categories.habits'), icon: CheckSquare },
@@ -685,6 +687,327 @@ export function HelpView({
                     : 'Each area has its own section with goals and their steps. Click on an area in the left menu to view its content.'}
                 </p>
               </div>
+            </div>
+          </div>
+        )
+
+      case 'navigation':
+        return (
+          <div className="space-y-6">
+            <div className="box-playful-highlight-primary p-6">
+              <h2 className="text-2xl font-bold text-black font-playful mb-2">{t('navigationHelp.title') || (locale === 'cs' ? 'Navigace' : 'Navigation')}</h2>
+              <p className="text-gray-600 font-playful">{t('navigationHelp.subtitle') || (locale === 'cs' ? 'Jak se orientovat v aplikaci a najít potřebné funkce' : 'How to navigate the app and find the features you need')}</p>
+            </div>
+
+            {/* Top Menu */}
+            <div className="box-playful-highlight p-6">
+              <h3 className="font-semibold text-black font-playful mb-4 flex items-center gap-2">
+                <Menu className="w-5 h-5 text-primary-600" />
+                {locale === 'cs' ? 'Horní menu' : 'Top Menu'}
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                {locale === 'cs' 
+                  ? 'Horní menu poskytuje rychlý přístup k hlavním sekcím aplikace. Vždy je viditelné v horní části obrazovky.'
+                  : 'The top menu provides quick access to main app sections. It\'s always visible at the top of the screen.'}
+              </p>
+              
+              {/* Top Menu Items */}
+              <div className="space-y-3 mb-4">
+                <div className="p-4 bg-white border-2 border-primary-300 rounded-playful-md">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 bg-primary-100 rounded-playful-md flex items-center justify-center">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9,22 9,12 15,12 15,22"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-black">{locale === 'cs' ? 'Hlavní panel' : 'Main Panel'}</h4>
+                      <p className="text-xs text-gray-600">{locale === 'cs' ? 'Zpět na hlavní přehled s různými zobrazeními' : 'Back to main overview with different views'}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-4 bg-white border-2 border-primary-300 rounded-playful-md">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Target className="w-5 h-5 text-primary-600" />
+                    <div>
+                      <h4 className="font-semibold text-black">{locale === 'cs' ? 'Cíle' : 'Goals'}</h4>
+                      <p className="text-xs text-gray-600">{locale === 'cs' ? 'Správa a přehled všech vašich cílů' : 'Manage and overview all your goals'}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-4 bg-white border-2 border-primary-300 rounded-playful-md">
+                  <div className="flex items-center gap-3 mb-2">
+                    <CheckSquare className="w-5 h-5 text-primary-600" />
+                    <div>
+                      <h4 className="font-semibold text-black">{locale === 'cs' ? 'Návyky' : 'Habits'}</h4>
+                      <p className="text-xs text-gray-600">{locale === 'cs' ? 'Správa a sledování vašich návyků' : 'Manage and track your habits'}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-4 bg-white border-2 border-primary-300 rounded-playful-md">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Footprints className="w-5 h-5 text-primary-600" />
+                    <div>
+                      <h4 className="font-semibold text-black">{locale === 'cs' ? 'Kroky' : 'Steps'}</h4>
+                      <p className="text-xs text-gray-600">{locale === 'cs' ? 'Přehled a správa všech kroků' : 'Overview and management of all steps'}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-4 bg-white border-2 border-primary-300 rounded-playful-md">
+                  <div className="flex items-center gap-3 mb-2">
+                    <BookOpen className="w-5 h-5 text-primary-600" />
+                    <div>
+                      <h4 className="font-semibold text-black">{locale === 'cs' ? 'Nápověda' : 'Help'}</h4>
+                      <p className="text-xs text-gray-600">{locale === 'cs' ? 'Dokumentace a návody k použití' : 'Documentation and usage guides'}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-4 bg-white border-2 border-primary-300 rounded-playful-md">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Settings className="w-5 h-5 text-primary-600" />
+                    <div>
+                      <h4 className="font-semibold text-black">{locale === 'cs' ? 'Nastavení' : 'Settings'}</h4>
+                      <p className="text-xs text-gray-600">{locale === 'cs' ? 'Nastavení aplikace a účtu' : 'App and account settings'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Left Navigation Menu */}
+            <div className="box-playful-highlight p-6">
+              <h3 className="font-semibold text-black font-playful mb-4 flex items-center gap-2">
+                <LayoutDashboard className="w-5 h-5 text-primary-600" />
+                {locale === 'cs' ? 'Levé navigační menu' : 'Left Navigation Menu'}
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                {locale === 'cs' 
+                  ? 'Levé menu se mění podle kontextu stránky. Na hlavním panelu obsahuje hlavní zobrazení a sekce pro správu.'
+                  : 'The left menu changes based on page context. On the main panel, it contains main views and management sections.'}
+              </p>
+              
+              {/* Main Panel Navigation */}
+              <div className="mb-6">
+                <h4 className="font-semibold text-black mb-3">{locale === 'cs' ? 'Na hlavním panelu:' : 'On the main panel:'}</h4>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 p-3 bg-white rounded-playful-md">
+                    <ListTodo className="w-5 h-5 text-primary-600" />
+                    <div>
+                      <h5 className="font-semibold text-black text-sm">{locale === 'cs' ? 'Upcoming (Nadcházející)' : 'Upcoming'}</h5>
+                      <p className="text-xs text-gray-600">{locale === 'cs' ? 'Přehled nadcházejících kroků a návyků' : 'Overview of upcoming steps and habits'}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 p-3 bg-white rounded-playful-md">
+                    <CalendarDays className="w-5 h-5 text-primary-600" />
+                    <div>
+                      <h5 className="font-semibold text-black text-sm">{locale === 'cs' ? 'Overview (Přehled)' : 'Overview'}</h5>
+                      <p className="text-xs text-gray-600">{locale === 'cs' ? 'Měsíční kalendářní přehled' : 'Monthly calendar overview'}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 p-3 bg-white rounded-playful-md">
+                    <BarChart3 className="w-5 h-5 text-primary-600" />
+                    <div>
+                      <h5 className="font-semibold text-black text-sm">{locale === 'cs' ? 'Statistics (Statistiky)' : 'Statistics'}</h5>
+                      <p className="text-xs text-gray-600">{locale === 'cs' ? 'Roční přehled pokroku v cílech' : 'Yearly overview of goal progress'}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 p-3 bg-white rounded-playful-md">
+                    <LayoutDashboard className="w-5 h-5 text-primary-600" />
+                    <div>
+                      <h5 className="font-semibold text-black text-sm">{locale === 'cs' ? 'Areas (Oblasti)' : 'Areas'}</h5>
+                      <p className="text-xs text-gray-600">{locale === 'cs' ? 'Zobrazení podle oblastí' : 'View by areas'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Areas and Goals in Navigation */}
+              <div className="mb-4">
+                <h4 className="font-semibold text-black mb-3">{locale === 'cs' ? 'Oblasti a cíle:' : 'Areas and Goals:'}</h4>
+                <p className="text-sm text-gray-600 mb-3">
+                  {locale === 'cs' 
+                    ? 'Pod hlavními zobrazeními najdete seznam oblastí. Kliknutím na oblast se rozbalí a uvidíte cíle v této oblasti. Kliknutím na cíl se otevře detail cíle.'
+                    : 'Below the main views, you\'ll find a list of areas. Click on an area to expand it and see goals in that area. Click on a goal to open the goal detail.'}
+                </p>
+                <div className="p-4 bg-white border-2 border-primary-300 rounded-playful-md">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <ChevronRight className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm font-medium text-black">{locale === 'cs' ? 'Kariéra' : 'Career'}</span>
+                    </div>
+                    <div className="ml-6 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Target className="w-3 h-3 text-primary-600" />
+                        <span className="text-xs text-gray-600">{locale === 'cs' ? 'Povýšení' : 'Promotion'}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Target className="w-3 h-3 text-primary-600" />
+                        <span className="text-xs text-gray-600">{locale === 'cs' ? 'Naučit se React' : 'Learn React'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Add Button */}
+              <div className="mb-4">
+                <h4 className="font-semibold text-black mb-3">{locale === 'cs' ? 'Tlačítko Přidat:' : 'Add Button:'}</h4>
+                <p className="text-sm text-gray-600 mb-3">
+                  {locale === 'cs' 
+                    ? 'V dolní části levého menu je tlačítko s ikonou plus. Kliknutím na něj můžete přidat novou oblast, cíl, krok nebo návyk.'
+                    : 'At the bottom of the left menu is a button with a plus icon. Clicking it allows you to add a new area, goal, step, or habit.'}
+                </p>
+                <div className="p-4 bg-white border-2 border-primary-300 rounded-playful-md flex items-center justify-center">
+                  <button className="w-10 h-10 bg-primary-500 rounded-playful-md flex items-center justify-center">
+                    <Plus className="w-5 h-5 text-white" />
+                  </button>
+                </div>
+              </div>
+              
+              {/* Other Pages */}
+              <div className="mt-6 p-4 bg-primary-50 rounded-playful-md border-2 border-primary-200">
+                <p className="text-xs text-gray-700">
+                  <span className="font-semibold">{locale === 'cs' ? 'Tip: ' : 'Tip: '}</span>
+                  {locale === 'cs' 
+                    ? 'Na jiných stránkách (Cíle, Návyky, Kroky) slouží levé menu jako kategorie a filtry pro zobrazení obsahu.'
+                    : 'On other pages (Goals, Habits, Steps), the left menu serves as categories and filters for displaying content.'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )
+
+      case 'areas':
+        return (
+          <div className="space-y-6">
+            <div className="box-playful-highlight-primary p-6">
+              <h2 className="text-2xl font-bold text-black font-playful mb-2">{t('areasHelp.title') || (locale === 'cs' ? 'Oblasti' : 'Areas')}</h2>
+              <p className="text-gray-600 font-playful">{t('areasHelp.subtitle') || (locale === 'cs' ? 'Organizujte své cíle, kroky a návyky do logických skupin' : 'Organize your goals, steps, and habits into logical groups')}</p>
+            </div>
+
+            {/* What are areas */}
+            <div className="box-playful-highlight p-6">
+              <h3 className="font-semibold text-black font-playful mb-4 flex items-center gap-2">
+                <LayoutDashboard className="w-5 h-5 text-primary-600" />
+                {locale === 'cs' ? 'Co jsou oblasti?' : 'What are areas?'}
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                {locale === 'cs' 
+                  ? 'Oblasti jsou způsob, jak organizovat své cíle, kroky a návyky do logických skupin. Ideálně by měly představovat větší životní oblasti nebo projekty.'
+                  : 'Areas are a way to organize your goals, steps, and habits into logical groups. Ideally, they should represent larger life areas or projects.'}
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 bg-white rounded-playful-md border-2 border-primary-300">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span 
+                      className="w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0"
+                      style={{ backgroundColor: '#10b981' }}
+                    >
+                      <Flame className="w-4 h-4 text-white" />
+                    </span>
+                    <h4 className="font-semibold text-black">{locale === 'cs' ? 'Zdraví' : 'Health'}</h4>
+                  </div>
+                  <p className="text-xs text-gray-600 mb-2">{locale === 'cs' ? 'Zdravotní cíle a návyky' : 'Health goals and habits'}</p>
+                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <span>2 {locale === 'cs' ? 'Cíle' : 'Goals'}</span>
+                    <span>5 {locale === 'cs' ? 'Kroky' : 'Steps'}</span>
+                    <span>3 {locale === 'cs' ? 'Návyky' : 'Habits'}</span>
+                  </div>
+                </div>
+                <div className="p-4 bg-white rounded-playful-md border-2 border-primary-300">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span 
+                      className="w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0"
+                      style={{ backgroundColor: '#ea580c' }}
+                    >
+                      <Briefcase className="w-4 h-4 text-white" />
+                    </span>
+                    <h4 className="font-semibold text-black">{locale === 'cs' ? 'Kariéra' : 'Career'}</h4>
+                  </div>
+                  <p className="text-xs text-gray-600 mb-2">{locale === 'cs' ? 'Profesní cíle a kroky' : 'Professional goals and steps'}</p>
+                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <span>3 {locale === 'cs' ? 'Cíle' : 'Goals'}</span>
+                    <span>8 {locale === 'cs' ? 'Kroky' : 'Steps'}</span>
+                    <span>1 {locale === 'cs' ? 'Návyk' : 'Habit'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* How to create */}
+            <div className="box-playful-highlight p-6">
+              <h3 className="font-semibold text-black font-playful mb-4">{locale === 'cs' ? 'Jak vytvořit oblast?' : 'How to create an area?'}</h3>
+              <div className="space-y-3">
+                <Step number={1} text={locale === 'cs' ? 'Přejděte do Nastavení (ikona ozubeného kola v horním menu)' : 'Go to Settings (gear icon in the top menu)'} />
+                <Step number={2} text={locale === 'cs' ? 'Vyberte záložku "Životní oblasti"' : 'Select the "Life Areas" tab'} />
+                <Step number={3} text={locale === 'cs' ? 'Klikněte na tlačítko "Přidat oblast"' : 'Click the "Add Area" button'} />
+                <Step number={4} text={locale === 'cs' ? 'Vyplňte název oblasti (např. "Zdraví", "Kariéra")' : 'Fill in the area name (e.g., "Health", "Career")'} />
+                <Step number={5} text={locale === 'cs' ? 'Volitelně přidejte popis, barvu a ikonu' : 'Optionally add description, color, and icon'} />
+                <Step number={6} text={locale === 'cs' ? 'Klikněte na "Uložit"' : 'Click "Save"'} />
+              </div>
+              <div className="mt-4 p-4 bg-primary-50 rounded-playful-md border-2 border-primary-200">
+                <p className="text-xs text-gray-700">
+                  <span className="font-semibold">{locale === 'cs' ? 'Tip: ' : 'Tip: '}</span>
+                  {locale === 'cs' 
+                    ? 'Oblasti můžete také vytvořit pomocí tlačítka Přidat v levém navigačním menu na hlavním panelu.'
+                    : 'You can also create areas using the Add button in the left navigation menu on the main panel.'}
+                </p>
+              </div>
+            </div>
+
+            {/* How to work with areas */}
+            <div className="box-playful-highlight p-6">
+              <h3 className="font-semibold text-black font-playful mb-4">{locale === 'cs' ? 'Jak pracovat s oblastmi?' : 'How to work with areas?'}</h3>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold text-black mb-2">{locale === 'cs' ? 'Přiřazení k oblasti' : 'Assigning to an area'}</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    {locale === 'cs' 
+                      ? 'Při vytváření nebo úpravě cíle, kroku nebo návyku můžete vybrat oblast, ke které patří. Tím se automaticky přiřadí k této oblasti.'
+                      : 'When creating or editing a goal, step, or habit, you can select the area it belongs to. This automatically assigns it to that area.'}
+                  </p>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-black mb-2">{locale === 'cs' ? 'Zobrazení podle oblastí' : 'Viewing by areas'}</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    {locale === 'cs' 
+                      ? 'V levém navigačním menu můžete kliknout na oblast a zobrazit všechny cíle, kroky a návyky v této oblasti. V Upcoming view můžete přepnout na zobrazení "Oblasti" místo "Feed".'
+                      : 'In the left navigation menu, you can click on an area to view all goals, steps, and habits in that area. In Upcoming view, you can switch to "Areas" view instead of "Feed".'}
+                  </p>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-black mb-2">{locale === 'cs' ? 'Úprava a mazání oblastí' : 'Editing and deleting areas'}</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    {locale === 'cs' 
+                      ? 'Oblasti můžete upravit nebo smazat v Nastavení → Životní oblasti. Při mazání oblasti se cíle, kroky a návyky v této oblasti nezmazou, pouze se odebere přiřazení k oblasti.'
+                      : 'You can edit or delete areas in Settings → Life Areas. When deleting an area, goals, steps, and habits in that area are not deleted, only the area assignment is removed.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Tips */}
+            <div className="box-playful-highlight p-6">
+              <h3 className="font-semibold text-black font-playful mb-4 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary-600" /> {locale === 'cs' ? 'Tipy' : 'Tips'}
+              </h3>
+              <ul className="space-y-2">
+                <Tip text={locale === 'cs' ? 'Vytvářejte oblasti pro větší životní oblasti (Zdraví, Kariéra, Vztahy) nebo pro větší projekty' : 'Create areas for larger life areas (Health, Career, Relationships) or for larger projects'} />
+                <Tip text={locale === 'cs' ? 'Není nutné přiřazovat vše k oblasti - cíle, kroky a návyky mohou existovat i bez oblasti' : 'You don\'t have to assign everything to an area - goals, steps, and habits can exist without an area'} />
+                <Tip text={locale === 'cs' ? 'Používejte barvy a ikony pro lepší vizuální rozlišení oblastí' : 'Use colors and icons for better visual distinction of areas'} />
+                <Tip text={locale === 'cs' ? 'Oblasti pomáhají s filtrováním a organizací, zejména když máte mnoho cílů a kroků' : 'Areas help with filtering and organization, especially when you have many goals and steps'} />
+              </ul>
             </div>
           </div>
         )

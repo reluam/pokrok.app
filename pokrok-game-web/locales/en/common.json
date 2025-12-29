@@ -1180,6 +1180,8 @@
       "overview": "How to Use",
       "focus": "Focus",
       "views": "Views",
+      "navigation": "Navigation",
+      "areas": "Areas",
       "goals": "Goals",
       "steps": "Steps",
       "habits": "Habits"
@@ -1302,6 +1304,14 @@
     "viewsHelp": {
       "title": "Views",
       "subtitle": "Four main views for different purposes"
+    },
+    "navigationHelp": {
+      "title": "Navigation",
+      "subtitle": "How to navigate the app and find the features you need"
+    },
+    "areasHelp": {
+      "title": "Areas",
+      "subtitle": "Organize your goals, steps, and habits into logical groups"
     },
     "goalsHelp": {
       "title": "Goals",

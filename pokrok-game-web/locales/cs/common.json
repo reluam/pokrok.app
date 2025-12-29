@@ -1180,6 +1180,8 @@
       "overview": "Jak používat",
       "focus": "Focus",
       "views": "Zobrazení",
+      "navigation": "Navigace",
+      "areas": "Oblasti",
       "goals": "Cíle",
       "steps": "Kroky",
       "habits": "Návyky"
@@ -1302,6 +1304,14 @@
     "viewsHelp": {
       "title": "Zobrazení",
       "subtitle": "Čtyři hlavní zobrazení pro různé účely"
+    },
+    "navigationHelp": {
+      "title": "Navigace",
+      "subtitle": "Jak se orientovat v aplikaci a najít potřebné funkce"
+    },
+    "areasHelp": {
+      "title": "Oblasti",
+      "subtitle": "Organizujte své cíle, kroky a návyky do logických skupin"
     },
     "goalsHelp": {
       "title": "Cíle",

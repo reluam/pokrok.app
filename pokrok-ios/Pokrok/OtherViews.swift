@@ -183,35 +183,68 @@ struct CombinedDatePicker: View {
 struct GoalsView: View {
     @StateObject private var apiManager = APIManager.shared
     @State private var goals: [Goal] = []
+    @State private var aspirations: [Aspiration] = []
     @State private var isLoading = true
     @State private var errorMessage = ""
     @State private var showError = false
     @State private var showAddGoalModal = false
     
+    // Group goals by aspiration
+    private var goalsByAspiration: [(aspiration: Aspiration?, goals: [Goal])] {
+        var grouped: [String?: [Goal]] = [:]
+        
+        // Group goals by aspirationId
+        for goal in goals {
+            let key = goal.aspirationId
+            if grouped[key] == nil {
+                grouped[key] = []
+            }
+            grouped[key]?.append(goal)
+        }
+        
+        // Convert to array of tuples, sorted by aspiration title
+        var result: [(aspiration: Aspiration?, goals: [Goal])] = []
+        
+        // Goals with aspirations first
+        for aspiration in aspirations.sorted(by: { $0.title < $1.title }) {
+            if let goalsForAspiration = grouped[aspiration.id], !goalsForAspiration.isEmpty {
+                result.append((aspiration: aspiration, goals: sortedGoals(goalsForAspiration)))
+            }
+        }
+        
+        // Goals without aspiration at the end
+        if let goalsWithoutAspiration = grouped[nil], !goalsWithoutAspiration.isEmpty {
+            result.append((aspiration: nil, goals: sortedGoals(goalsWithoutAspiration)))
+        }
+        
+        return result
+    }
+    
     var body: some View {
         NavigationView {
             if isLoading {
-                LoadingView(message: "Načítám cíle...")
+                LoadingView(message: "Načítám pokrok...")
                     .transition(.opacity)
                     .animation(.easeInOut, value: isLoading)
             } else {
                 ScrollView {
-                    LazyVStack(spacing: DesignSystem.Spacing.lg) {
-                        // Header with Add Button
-                        headerSection
-                        
-                        // Goals by Category
-                        goalsByCategorySection
-                        
-                        // Empty State
+                    LazyVStack(spacing: DesignSystem.Spacing.md) {
                         if goals.isEmpty {
                             EmptyStateView(
-                                icon: "flag",
+                                icon: "chart.bar",
                                 title: "Zatím nemáte žádné cíle",
-                                subtitle: "Přidejte svůj první cíl a začněte svou cestu",
+                                subtitle: "Přidejte svůj první cíl a začněte sledovat pokrok",
                                 actionTitle: "Přidat první cíl"
                             ) {
                                 showAddGoalModal = true
+                            }
+                            .padding(.top, DesignSystem.Spacing.xl)
+                        } else {
+                            ForEach(Array(goalsByAspiration.enumerated()), id: \.offset) { index, group in
+                                AspirationProgressSection(
+                                    aspiration: group.aspiration,
+                                    goals: group.goals
+                                )
                             }
                         }
                         
@@ -224,14 +257,24 @@ struct GoalsView: View {
                 .background(DesignSystem.Colors.background)
             }
         }
-        .navigationTitle("Cíle")
+        .navigationTitle("Pokrok")
         .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    showAddGoalModal = true
+                }) {
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                }
+            }
+        }
         .onAppear {
-            loadGoals()
+            loadData()
         }
         .sheet(isPresented: $showAddGoalModal) {
             AddGoalModal(onGoalAdded: {
-                loadGoals()
+                loadData()
             })
         }
         .alert("Chyba", isPresented: $showError) {
@@ -241,120 +284,14 @@ struct GoalsView: View {
         }
     }
     
-    // MARK: - Header Section
-    private var headerSection: some View {
-        PlayfulCard(variant: .pink) {
-            VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                HStack {
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text("Moje cíle")
-                            .font(DesignSystem.Typography.title2)
-                            .foregroundColor(DesignSystem.Colors.textPrimary)
-                        
-                        Text("\(goals.count) cílů celkem")
-                            .font(DesignSystem.Typography.caption)
-                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                    }
-                    
-                    Spacer()
-                    
-                    PlayfulButton(
-                        variant: .pink,
-                        size: .sm,
-                        title: "Přidat cíl",
-                        action: {
-                        showAddGoalModal = true
-                        }
-                            )
-                }
-            }
-            .padding(DesignSystem.Spacing.md)
-        }
-    }
-    
-    // MARK: - Goals by Category Section
-    private var goalsByCategorySection: some View {
-        VStack(spacing: DesignSystem.Spacing.lg) {
-            // Short-term Goals
-            if !shortTermGoals.isEmpty {
-                categorySection(
-                    title: "Krátkodobé cíle",
-                    icon: "⚡",
-                    goals: shortTermGoals,
-                    color: DesignSystem.Colors.shortTerm
-                )
-            }
-            
-            // Medium-term Goals
-            if !mediumTermGoals.isEmpty {
-                categorySection(
-                    title: "Střednědobé cíle",
-                    icon: "🎯",
-                    goals: mediumTermGoals,
-                    color: DesignSystem.Colors.mediumTerm
-                )
-            }
-            
-            // Long-term Goals
-            if !longTermGoals.isEmpty {
-                categorySection(
-                    title: "Dlouhodobé cíle",
-                    icon: "🏆",
-                    goals: longTermGoals,
-                    color: DesignSystem.Colors.longTerm
-                )
-            }
-        }
-    }
-    
-    // MARK: - Category Section
-    private func categorySection(title: String, icon: String, goals: [Goal], color: Color) -> some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-            CategoryHeader(
-                title: title,
-                icon: icon,
-                count: goals.count,
-                color: color
-            )
-            
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ], spacing: DesignSystem.Spacing.md) {
-                ForEach(sortedGoals(goals), id: \.id) { goal in
-                    PlayfulGoalCard(
-                        goal: goal,
-                        onTap: {
-                            // TODO: Navigate to goal detail
-                        },
-                        onEdit: {
-                            // TODO: Edit goal
-                        },
-                        onDelete: {
-                            // TODO: Delete goal
-                        }
-                    )
-                }
-            }
-        }
-    }
-    
-    // MARK: - Computed Properties
-    private var shortTermGoals: [Goal] {
-        goals.filter { $0.priority == "short-term" || $0.priority == "meaningful" }
-    }
-    
-    private var mediumTermGoals: [Goal] {
-        goals.filter { $0.priority == "medium-term" || $0.priority == "nice-to-have" }
-    }
-    
-    private var longTermGoals: [Goal] {
-        goals.filter { $0.priority == "long-term" }
-    }
-    
+    // MARK: - Goals Sorting
     private func sortedGoals(_ goals: [Goal]) -> [Goal] {
         goals.sorted { goal1, goal2 in
-            // If both have target dates, sort by target date
+            // Sort by progress percentage (higher first)
+            if goal1.progressPercentage != goal2.progressPercentage {
+                return goal1.progressPercentage > goal2.progressPercentage
+            }
+            // If same progress, sort by target date
             if let date1 = goal1.targetDate, let date2 = goal2.targetDate {
                 return date1 < date2
             }
@@ -374,23 +311,215 @@ struct GoalsView: View {
     }
     
     // MARK: - Data Loading
-    private func loadGoals() {
+    private func loadData() {
         Task {
+            isLoading = true
+            
+            // Load goals and aspirations separately to handle errors independently
+            var goalsResult: [Goal] = []
+            var aspirationsResult: [Aspiration] = []
+            var errorOccurred = false
+            var errorMessages: [String] = []
+            
+            // Load goals
             do {
-                let fetchedGoals = try await apiManager.fetchGoals()
-                
-                await MainActor.run {
-                    self.goals = fetchedGoals
-                    self.isLoading = false
-                }
+                goalsResult = try await apiManager.fetchGoals()
+                // Filter only active goals
+                goalsResult = goalsResult.filter { $0.status == "active" }
             } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                    self.showError = true
-                    self.isLoading = false
+                errorOccurred = true
+                let errorDesc = error.localizedDescription.isEmpty ? "Neznámá chyba" : error.localizedDescription
+                errorMessages.append("Nepodařilo se načíst cíle: \(errorDesc)")
+                print("Error loading goals: \(error)")
+            }
+            
+            // Load aspirations
+            do {
+                aspirationsResult = try await apiManager.fetchAspirations()
+            } catch {
+                errorOccurred = true
+                let errorDesc = error.localizedDescription.isEmpty ? "Neznámá chyba" : error.localizedDescription
+                errorMessages.append("Nepodařilo se načíst oblasti: \(errorDesc)")
+                print("Error loading aspirations: \(error)")
+            }
+            
+            await MainActor.run {
+                self.goals = goalsResult
+                self.aspirations = aspirationsResult
+                self.isLoading = false
+                
+                // Show error only if both failed, or if goals failed (since goals are essential)
+                if errorOccurred {
+                    if goalsResult.isEmpty && aspirationsResult.isEmpty {
+                        // Both failed - show error
+                        self.errorMessage = errorMessages.joined(separator: "\n")
+                        self.showError = true
+                    } else if goalsResult.isEmpty {
+                        // Goals failed but aspirations succeeded - show error
+                        self.errorMessage = errorMessages.first ?? "Nepodařilo se načíst data"
+                        self.showError = true
+                    }
+                    // If only aspirations failed, we can still show goals, so no error needed
                 }
             }
         }
+    }
+}
+
+// MARK: - Aspiration Progress Section Component
+struct AspirationProgressSection: View {
+    let aspiration: Aspiration?
+    let goals: [Goal]
+    
+    private var sectionTitle: String {
+        if let aspiration = aspiration {
+            return aspiration.title
+        }
+        return "Bez oblasti"
+    }
+    
+    private var sectionIcon: String? {
+        aspiration?.icon
+    }
+    
+    private var sectionColor: Color {
+        if let aspiration = aspiration {
+            return Color(hex: aspiration.color)
+        }
+        return DesignSystem.Colors.textSecondary
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+            // Section header with colored accent
+            HStack(spacing: DesignSystem.Spacing.sm) {
+                // Colored indicator
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(sectionColor)
+                    .frame(width: 3, height: 18)
+                
+                if let iconName = sectionIcon {
+                    Text(IconUtils.getEmoji(for: iconName))
+                        .font(.system(size: 16))
+                }
+                
+                Text(sectionTitle)
+                    .font(DesignSystem.Typography.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                
+                Spacer()
+                
+                Text("\(goals.count)")
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule()
+                            .fill(DesignSystem.Colors.surfaceSecondary)
+                    )
+            }
+            .padding(.horizontal, DesignSystem.Spacing.md)
+            .padding(.vertical, DesignSystem.Spacing.sm)
+            
+            // Goals list
+            VStack(spacing: DesignSystem.Spacing.xs) {
+                ForEach(goals, id: \.id) { goal in
+                    NavigationLink(destination: GoalDetailView(goal: goal)) {
+                        CompactGoalProgressRow(goal: goal)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+            }
+            .padding(.leading, DesignSystem.Spacing.md)
+        }
+    }
+}
+
+// MARK: - Compact Goal Progress Row Component
+struct CompactGoalProgressRow: View {
+    let goal: Goal
+    
+    private var progressValue: Double {
+        Double(goal.progressPercentage) / 100.0
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+            // Top row: Icon, title, and percentage
+            HStack(spacing: DesignSystem.Spacing.md) {
+                // Goal icon - use emoji if icon name is provided
+                if let iconName = goal.icon {
+                    Text(IconUtils.getEmoji(for: iconName))
+                        .font(.system(size: 20))
+                        .frame(width: 28, height: 28)
+                } else {
+                    Circle()
+                        .fill(DesignSystem.Colors.dynamicPrimary.opacity(0.15))
+                        .frame(width: 28, height: 28)
+                }
+                
+                // Goal title - can be 2 lines
+                Text(goal.title)
+                    .font(DesignSystem.Typography.body)
+                    .fontWeight(.medium)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                
+                Spacer()
+                
+                // Progress percentage
+                Text("\(goal.progressPercentage)%")
+                    .font(DesignSystem.Typography.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+            }
+            
+            // Second row: Description (if available) and progress bar
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                // Description if available
+                if let description = goal.description, !description.isEmpty {
+                    Text(description)
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                }
+                
+                // Progress bar
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        // Background
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(DesignSystem.Colors.surfaceSecondary)
+                            .frame(height: 8)
+                        
+                        // Progress
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(DesignSystem.Colors.dynamicPrimary)
+                            .frame(width: geometry.size.width * progressValue, height: 8)
+                            .animation(.easeInOut(duration: 0.3), value: progressValue)
+                        
+                        // Outline
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                            .frame(height: 8)
+                    }
+                }
+                .frame(height: 8)
+            }
+        }
+        .padding(DesignSystem.Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(DesignSystem.Colors.surface)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(DesignSystem.Colors.grayBorder, lineWidth: 2)
+                )
+        )
     }
 }
 
@@ -401,13 +530,112 @@ struct StepsView: View {
     @State private var dailySteps: [DailyStep] = []
     @State private var goals: [Goal] = []
     @State private var isLoading = true
+    @State private var isLoadingMore = false
     @State private var errorMessage = ""
     @State private var showError = false
     @State private var showAddStepModal = false
     @State private var selectedStep: DailyStep?
+    @State private var loadedEndDate: Date = Date()
     
     private var selectedDate: Date {
         dateManager.selectedDate
+    }
+    
+    // All steps sorted: overdue → today → future (completed steps excluded)
+    private var sortedAllSteps: [DailyStep] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let oneMonthFromNow = calendar.date(byAdding: .day, value: 30, to: today) ?? today
+        
+        // Filter: exclude completed, only past + today + future (max 1 month)
+        let filteredSteps = dailySteps.filter { step in
+            // Exclude completed steps
+            guard !step.completed else { return false }
+            
+            let stepDate = calendar.startOfDay(for: step.date)
+            return stepDate <= oneMonthFromNow
+        }
+        
+        return filteredSteps.sorted { step1, step2 in
+            let date1 = calendar.startOfDay(for: step1.date)
+            let date2 = calendar.startOfDay(for: step2.date)
+            
+            // Check if overdue (not completed and date < today)
+            let isOverdue1 = date1 < today
+            let isOverdue2 = date2 < today
+            
+            // Check if today
+            let isToday1 = calendar.isDate(date1, inSameDayAs: today)
+            let isToday2 = calendar.isDate(date2, inSameDayAs: today)
+            
+            // Check if future
+            let isFuture1 = date1 > today
+            let isFuture2 = date2 > today
+            
+            // Sorting priority:
+            // 1. Overdue (by date - earlier first)
+            // 2. Today (by date)
+            // 3. Future (by date - earlier first)
+            
+            // Overdue first
+            if isOverdue1 && !isOverdue2 { return true }
+            if isOverdue2 && !isOverdue1 { return false }
+            if isOverdue1 && isOverdue2 {
+                return date1 < date2 // Earlier overdue first
+            }
+            
+            // Today second
+            if isToday1 && !isToday2 { return true }
+            if isToday2 && !isToday1 { return false }
+            
+            // Future third (by date - earlier first)
+            if isFuture1 && isFuture2 {
+                return date1 < date2
+            }
+            
+            // Default: by date
+            return date1 < date2
+                            }
+                        }
+                        
+    // Helper to determine if step is important
+    private func isStepImportant(_ step: DailyStep) -> Bool {
+        // Check isImportant field first
+        if let isImportant = step.isImportant {
+            return isImportant
+        }
+        
+        // Fallback to Goal priority
+        if let goalId = step.goalId,
+           let goal = goals.first(where: { $0.id == goalId }) {
+            return goal.priority == "short-term" || goal.priority == "meaningful"
+        }
+        
+        return false
+    }
+    
+    // Check if there are any overdue or today's steps (completed excluded)
+    private var hasOverdueOrTodaySteps: Bool {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        return sortedAllSteps.contains { step in
+            let stepDate = calendar.startOfDay(for: step.date)
+            let isOverdue = stepDate < today
+            let isToday = calendar.isDate(stepDate, inSameDayAs: today)
+            return isOverdue || isToday
+        }
+    }
+    
+    // Get only future steps
+    private var futureSteps: [DailyStep] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        return sortedAllSteps.filter { step in
+            let stepDate = calendar.startOfDay(for: step.date)
+            return stepDate > today
+        }
     }
     
     var body: some View {
@@ -415,44 +643,111 @@ struct StepsView: View {
             if isLoading {
                 LoadingView(message: "Načítám kroky...")
             } else {
-                ScrollView {
-                    LazyVStack(spacing: DesignSystem.Spacing.lg) {
-                        // Combined Date Picker with Steps and Habits Progress
-                        CombinedDatePicker(
-                            completedSteps: stepsForSelectedDate.filter { $0.completed }.count,
-                            totalSteps: stepsForSelectedDate.count,
-                            completedHabits: HabitsDataProvider.shared.getCompletedHabitsCount(for: selectedDate),
-                            totalHabits: HabitsDataProvider.shared.getTotalHabitsCount(for: selectedDate)
-                        )
-                            .padding(.top, DesignSystem.Spacing.md)
-                        
-                        // Steps for selected date
-                        stepsForSelectedDateSection
-                        
-                        // Overdue steps for selected date
-                        overdueStepsSection
-                        
-                        // Empty State
-                        if stepsForSelectedDate.isEmpty && overdueStepsForSelectedDate.isEmpty {
-                            EmptyStateView(
-                                icon: "calendar",
-                                title: "Zatím nemáte žádné kroky pro tento den",
-                                subtitle: "Přidejte svůj první krok",
-                                actionTitle: "Přidat první krok"
-                            ) {
-                                showAddStepModal = true
-                            }
-                        }
-                        
-                        // Bottom padding for tab bar
-                        Spacer(minLength: 100)
-                    }
+                VStack(spacing: 0) {
+                    // Fixed Date Picker at top
+                    CombinedDatePicker(
+                        completedSteps: stepsForSelectedDate.filter { $0.completed }.count,
+                        totalSteps: stepsForSelectedDate.count,
+                        completedHabits: HabitsDataProvider.shared.getCompletedHabitsCount(for: selectedDate),
+                        totalHabits: HabitsDataProvider.shared.getTotalHabitsCount(for: selectedDate)
+                    )
                     .padding(.horizontal, DesignSystem.Spacing.md)
+                    .padding(.top, DesignSystem.Spacing.md)
+                    .background(DesignSystem.Colors.background)
+                    
+                    // Scrollable steps content
+                    ScrollView {
+                        LazyVStack(spacing: DesignSystem.Spacing.md) {
+                            // Single feed of all steps
+                            if sortedAllSteps.isEmpty {
+                                EmptyStateView(
+                                    icon: "checkmark.circle",
+                                    title: "Zatím nemáte žádné kroky",
+                                    subtitle: "Přidejte svůj první krok",
+                                    actionTitle: "Přidat první krok"
+                                ) {
+                                    showAddStepModal = true
+                                }
+                                .padding(.top, DesignSystem.Spacing.lg)
+                            } else {
+                                VStack(spacing: DesignSystem.Spacing.md) {
+                                    // Show completion message if no overdue or today's steps
+                                    if !hasOverdueOrTodaySteps && !futureSteps.isEmpty {
+                                        PlayfulCard(variant: .yellowGreen) {
+                                            VStack(spacing: DesignSystem.Spacing.sm) {
+                                                HStack {
+                                                    Image(systemName: "checkmark.circle.fill")
+                                                        .font(.system(size: 24))
+                                                        .foregroundColor(DesignSystem.Colors.Playful.yellowGreenDark)
+                                                    Spacer()
+                                                }
+                                                
+                                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                                                    Text("Pro dnešek je vše hotovo!")
+                                                        .font(DesignSystem.Typography.headline)
+                                                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                                                    
+                                                    Text("Níže jsou kroky, které ještě mohou odpočívat chvíli")
+                                                        .font(DesignSystem.Typography.body)
+                                                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                                                }
+                                            }
+                                            .padding(DesignSystem.Spacing.md)
+                                        }
+                                    }
+                                    
+                                    // Steps feed
+                                    LazyVStack(spacing: DesignSystem.Spacing.sm) {
+                                        ForEach(sortedAllSteps, id: \.id) { step in
+                                            let goal = goals.first { $0.id == step.goalId }
+                                            let calendar = Calendar.current
+                                            let today = calendar.startOfDay(for: Date())
+                                            let stepDate = calendar.startOfDay(for: step.date)
+                                            let isOverdue = !step.completed && stepDate < today
+                                            let isFuture = stepDate > today
+                                            
+                                            PlayfulStepCard(
+                                                step: step,
+                                                goalTitle: goal?.title,
+                                                isOverdue: isOverdue,
+                                                isFuture: isFuture,
+                                                onToggle: {
+                                                    toggleStepCompletion(stepId: step.id, completed: !step.completed)
+                                                }
+                                            )
+                                            .onAppear {
+                                                // Load more when approaching end
+                                                if step.id == sortedAllSteps.last?.id {
+                                                    loadMoreStepsIfNeeded()
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                .padding(.top, DesignSystem.Spacing.md)
+                            }
+                            
+                            // Loading indicator for more steps
+                            if isLoadingMore {
+                                HStack {
+                                    Spacer()
+                                    ProgressView()
+                                        .padding()
+                                    Spacer()
+                                }
+                            }
+                            
+                            // Bottom padding for infinite scroll
+                            Spacer(minLength: 100)
+                        }
+                        .padding(.horizontal, DesignSystem.Spacing.md)
+                    }
+                    .background(DesignSystem.Colors.background)
                 }
                 .background(DesignSystem.Colors.background)
             }
         }
-        .navigationTitle("Kroky")
+        .navigationTitle("Feed")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -470,11 +765,11 @@ struct StepsView: View {
         .onChange(of: selectedDate) { _, _ in
             // Optional: reload if needed when date changes
         }
-            .sheet(isPresented: $showAddStepModal) {
+        .sheet(isPresented: $showAddStepModal) {
             AddStepModal(initialDate: selectedDate, onStepAdded: {
-                    loadSteps()
-                })
-            }
+                loadSteps()
+            })
+        }
         .alert("Chyba", isPresented: $showError) {
             Button("OK") { }
         } message: {
@@ -482,100 +777,7 @@ struct StepsView: View {
         }
     }
     
-    // MARK: - Steps for Selected Date Section
-    private var stepsForSelectedDateSection: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-            if !stepsForSelectedDate.isEmpty {
-                Text("Kroky")
-                    .font(DesignSystem.Typography.headline)
-                            .foregroundColor(DesignSystem.Colors.textPrimary)
-                        
-                LazyVStack(spacing: DesignSystem.Spacing.sm) {
-                    ForEach(sortedSteps(stepsForSelectedDate), id: \.id) { step in
-                        let goal = goals.first { $0.id == step.goalId }
-                        let calendar = Calendar.current
-                        let today = calendar.startOfDay(for: Date())
-                        let stepDate = calendar.startOfDay(for: step.date)
-                        let isFuture = stepDate > today
-                        
-                        PlayfulStepCard(
-                            step: step,
-                            goalTitle: goal?.title,
-                            isOverdue: false,
-                            isFuture: isFuture,
-                            onToggle: {
-                                toggleStepCompletion(stepId: step.id, completed: !step.completed)
-                            }
-                            )
-                    }
-                }
-            }
-        }
-    }
-    
-    // MARK: - Overdue Steps Section
-    private var overdueStepsSection: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-            if !overdueStepsForSelectedDate.isEmpty {
-                Text("Zpožděné kroky")
-                    .font(DesignSystem.Typography.headline)
-                    .foregroundColor(DesignSystem.Colors.textPrimary)
-                
-                LazyVStack(spacing: DesignSystem.Spacing.sm) {
-                    ForEach(sortedSteps(overdueStepsForSelectedDate), id: \.id) { step in
-                        let goal = goals.first { $0.id == step.goalId }
-                        
-                        PlayfulStepCard(
-                            step: step,
-                            goalTitle: goal?.title,
-                            isOverdue: true,
-                            isFuture: false,
-                            onToggle: {
-                                toggleStepCompletion(stepId: step.id, completed: !step.completed)
-                            }
-                        )
-                    }
-                }
-            }
-        }
-    }
-    
-    
-    // MARK: - Status Section
-    private func statusSection(title: String, icon: String, steps: [DailyStep], color: Color) -> some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-            CategoryHeader(
-                title: title,
-                icon: icon,
-                count: steps.count,
-                color: color
-            )
-            
-            LazyVStack(spacing: DesignSystem.Spacing.sm) {
-                ForEach(sortedSteps(steps), id: \.id) { step in
-                    let goal = goals.first { $0.id == step.goalId }
-                    PlayfulStepCard(
-                        step: step,
-                        goalTitle: goal?.title,
-                        isOverdue: title == "Zpožděné kroky",
-                        isFuture: title == "Budoucí kroky",
-                        onToggle: {
-                            toggleStepCompletion(stepId: step.id, completed: !step.completed)
-                        }
-                    )
-                }
-            }
-        }
-    }
-    
     // MARK: - Computed Properties
-    
-    private var progressPercentageValue: Double {
-        let completedSteps = stepsForSelectedDate.filter { $0.completed }.count
-        let totalSteps = stepsForSelectedDate.count
-        guard totalSteps > 0 else { return 0 }
-        return min(Double(completedSteps) / Double(totalSteps), 1.0)
-    }
     
     private var stepsForSelectedDate: [DailyStep] {
         let calendar = Calendar.current
@@ -587,27 +789,11 @@ struct StepsView: View {
         }
     }
     
-    private var overdueStepsForSelectedDate: [DailyStep] {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let selectedStartOfDay = calendar.startOfDay(for: selectedDate)
-        
-        return dailySteps.filter { step in
-            let stepStartOfDay = calendar.startOfDay(for: step.date)
-            // Overdue steps are those that were due on or before selected date but not completed and before today
-            return !step.completed && stepStartOfDay <= selectedStartOfDay && stepStartOfDay < today
-        }
-    }
-    
-    private func sortedSteps(_ steps: [DailyStep]) -> [DailyStep] {
-        steps.sorted { $0.date < $1.date }
-    }
-    
     // MARK: - Data Loading
     private func loadSteps() {
         Task {
             do {
-                // Calculate date range: last 30 days to next 30 days (optimized)
+                // Initial load: last 30 days to next 30 days
                 let calendar = Calendar.current
                 let today = Date()
                 let startDate = calendar.date(byAdding: .day, value: -30, to: today) ?? today
@@ -623,6 +809,7 @@ struct StepsView: View {
                     self.dailySteps = fetchedSteps
                     self.goals = fetchedGoals
                     self.isLoading = false
+                    self.loadedEndDate = endDate
                     // Update shared data provider
                     StepsDataProvider.shared.dailySteps = fetchedSteps
                 }
@@ -631,6 +818,46 @@ struct StepsView: View {
                     self.errorMessage = error.localizedDescription
                     self.showError = true
                     self.isLoading = false
+                }
+            }
+        }
+    }
+    
+    // MARK: - Lazy Loading
+    private func loadMoreStepsIfNeeded() {
+        guard !isLoadingMore else { return }
+        
+        let calendar = Calendar.current
+        let today = Date()
+        let oneMonthFromNow = calendar.date(byAdding: .day, value: 30, to: today) ?? today
+        
+        // Check if we need to load more future steps
+        if loadedEndDate < oneMonthFromNow {
+            isLoadingMore = true
+            
+            Task {
+                do {
+                    let newEndDate = calendar.date(byAdding: .day, value: 30, to: loadedEndDate) ?? loadedEndDate
+                    let startDate = calendar.date(byAdding: .day, value: 1, to: loadedEndDate) ?? loadedEndDate
+                    
+                    let fetchedSteps = try await apiManager.fetchSteps(startDate: startDate, endDate: newEndDate)
+                    
+                    await MainActor.run {
+                        // Merge with existing steps (avoid duplicates)
+                        let existingIds = Set(dailySteps.map { $0.id })
+                        let newSteps = fetchedSteps.filter { !existingIds.contains($0.id) }
+                        self.dailySteps.append(contentsOf: newSteps)
+                        self.loadedEndDate = newEndDate
+                        self.isLoadingMore = false
+                        // Update shared data provider
+                        StepsDataProvider.shared.dailySteps = self.dailySteps
+                    }
+                } catch {
+                    await MainActor.run {
+                        self.isLoadingMore = false
+                        // Don't show error for lazy loading failures
+                        print("Error loading more steps: \(error)")
+                    }
                 }
             }
         }
@@ -650,6 +877,8 @@ struct StepsView: View {
                 await MainActor.run {
                     if let index = dailySteps.firstIndex(where: { $0.id == stepId }) {
                         dailySteps[index] = updatedStep
+                        // Update shared data provider
+                        StepsDataProvider.shared.dailySteps = dailySteps
                     }
                 }
             } catch {
@@ -1437,10 +1666,16 @@ struct AreaSettingsRow: View {
     
     var body: some View {
         HStack(spacing: DesignSystem.Spacing.md) {
-            // Color indicator
-            Circle()
-                .fill(Color(hex: aspiration.color))
-                .frame(width: 12, height: 12)
+            // Icon or color indicator
+            if let iconName = aspiration.icon {
+                Text(IconUtils.getEmoji(for: iconName))
+                    .font(.system(size: 20))
+                    .frame(width: 24, height: 24)
+            } else {
+                Circle()
+                    .fill(Color(hex: aspiration.color))
+                    .frame(width: 12, height: 12)
+            }
             
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                 Text(aspiration.title)
@@ -1489,6 +1724,8 @@ struct EditAspirationModal: View {
     @State private var aspirationTitle: String
     @State private var aspirationDescription: String
     @State private var selectedColor: String
+    @State private var selectedIcon: String?
+    @State private var showIconPicker = false
     @State private var isLoading = false
     @State private var errorMessage = ""
     @State private var showError = false
@@ -1502,6 +1739,7 @@ struct EditAspirationModal: View {
         _aspirationTitle = State(initialValue: aspiration.title)
         _aspirationDescription = State(initialValue: aspiration.description ?? "")
         _selectedColor = State(initialValue: aspiration.color)
+        _selectedIcon = State(initialValue: aspiration.icon)
     }
     
     var body: some View {
@@ -1510,6 +1748,7 @@ struct EditAspirationModal: View {
                 VStack(spacing: DesignSystem.Spacing.lg) {
                     titleField
                     descriptionField
+                    iconPicker
                     colorPicker
                     saveButton
                     deleteButton
@@ -1539,6 +1778,9 @@ struct EditAspirationModal: View {
                 Button("OK") { }
             } message: {
                 Text(errorMessage)
+            }
+            .sheet(isPresented: $showIconPicker) {
+                IconPickerView(selectedIcon: $selectedIcon)
             }
         }
     }
@@ -1575,6 +1817,40 @@ struct EditAspirationModal: View {
                         .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
                 )
                 .lineLimit(4...8)
+        }
+    }
+    
+    private var iconPicker: some View {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+            Text("Ikona (volitelné)")
+                .font(DesignSystem.Typography.headline)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
+            
+            Button(action: {
+                showIconPicker = true
+            }) {
+                HStack {
+                    Text(selectedIcon != nil ? IconUtils.getEmoji(for: selectedIcon) : "❌")
+                        .font(.system(size: 24))
+                    
+                    Text(selectedIcon != nil ? IconUtils.availableIcons.first(where: { $0.name == selectedIcon })?.label ?? "Ikona" : "Vyberte ikonu")
+                        .font(DesignSystem.Typography.body)
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                }
+                .padding(DesignSystem.Spacing.md)
+                .background(DesignSystem.Colors.surface)
+                .overlay(
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                        .stroke(DesignSystem.Colors.grayBorder, lineWidth: 2)
+                )
+                .cornerRadius(DesignSystem.CornerRadius.md)
+            }
+            .buttonStyle(PlainButtonStyle())
         }
     }
     
@@ -1643,7 +1919,7 @@ struct EditAspirationModal: View {
                     title: aspirationTitle,
                     description: aspirationDescription.isEmpty ? nil : aspirationDescription,
                     color: selectedColor,
-                    icon: nil
+                    icon: selectedIcon
                 )
                 
                 await MainActor.run {
@@ -1836,6 +2112,8 @@ struct AddGoalModal: View {
     @State private var priority = "meaningful"
     @State private var aspirations: [Aspiration] = []
     @State private var selectedAspirationId: String? = nil
+    @State private var selectedIcon: String? = nil
+    @State private var showIconPicker = false
     @State private var isLoading = false
     @State private var isLoadingAspirations = false
     @State private var errorMessage = ""
@@ -1855,6 +2133,38 @@ struct AddGoalModal: View {
                             placeholder: "Např. Naučit se španělsky",
                             variant: .pink
                         )
+                    }
+                    
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                        Text("Ikona (volitelné)")
+                            .font(DesignSystem.Typography.headline)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                        
+                        Button(action: {
+                            showIconPicker = true
+                        }) {
+                            HStack {
+                                Text(selectedIcon != nil ? IconUtils.getEmoji(for: selectedIcon) : "❌")
+                                    .font(.system(size: 24))
+                                
+                                Text(selectedIcon != nil ? IconUtils.availableIcons.first(where: { $0.name == selectedIcon })?.label ?? "Ikona" : "Vyberte ikonu")
+                                    .font(DesignSystem.Typography.body)
+                                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                            }
+                            .padding(DesignSystem.Spacing.md)
+                            .background(DesignSystem.Colors.surface)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                                    .stroke(DesignSystem.Colors.grayBorder, lineWidth: 2)
+                            )
+                            .cornerRadius(DesignSystem.CornerRadius.md)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
                     
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
@@ -1952,12 +2262,15 @@ struct AddGoalModal: View {
             .task {
                 await loadAspirations()
             }
+            .sheet(isPresented: $showIconPicker) {
+                IconPickerView(selectedIcon: $selectedIcon)
+            }
         }
     }
     
     private func loadAspirations() async {
         await MainActor.run {
-            isLoadingAspirations = true
+        isLoadingAspirations = true
         }
         do {
             let fetchedAspirations = try await apiManager.fetchAspirations()
@@ -1982,7 +2295,7 @@ struct AddGoalModal: View {
                     description: goalDescription.isEmpty ? nil : goalDescription,
                     targetDate: hasTargetDate ? selectedDate : nil,
                     priority: priority,
-                    icon: nil,
+                    icon: selectedIcon,
                     aspirationId: selectedAspirationId
                 )
                 
@@ -2355,8 +2668,8 @@ struct ColorSettingsView: View {
                         title: "Uložit",
                         isLoading: isSaving,
                         action: {
-                            saveSettings()
-                        }
+                        saveSettings()
+                    }
                     )
                 }
             }
@@ -2394,9 +2707,9 @@ struct ColorSettingsView: View {
                     // Aktualizovat local state
                     userSettings = updatedSettings
                     // Zavolat onSave callback
-                    onSave(updatedSettings)
+        onSave(updatedSettings)
                     isSaving = false
-                    dismiss()
+        dismiss()
                 }
             } catch {
                 await MainActor.run {
