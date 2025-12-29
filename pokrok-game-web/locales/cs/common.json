@@ -515,6 +515,16 @@
             "description": "Zapněte tutoriál znovu, pokud chcete znovu projít úvodní průvodce aplikací.",
             "button": "Zapnout tutoriál znovu",
             "error": "Nepodařilo se resetovat tutoriál. Zkuste to prosím znovu."
+          },
+          "currency": {
+            "title": "Výchozí měna",
+            "label": "Výchozí měna pro metriky",
+            "description": "Tato měna bude použita jako výchozí při vytváření nových měnových metrik."
+          },
+          "weightUnit": {
+            "title": "Jednotky hmotnosti",
+            "label": "Preferované jednotky hmotnosti",
+            "description": "Tato jednotka bude použita jako výchozí při vytváření nových metrik hmotnosti."
           }
         },
     "areas": {

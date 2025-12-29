@@ -516,6 +516,16 @@
             "description": "Turn on the tutorial again if you want to go through the introductory guide again.",
             "button": "Turn on tutorial again",
             "error": "Failed to reset tutorial. Please try again."
+          },
+          "currency": {
+            "title": "Default Currency",
+            "label": "Default currency for metrics",
+            "description": "This currency will be used as default when creating new currency metrics."
+          },
+          "weightUnit": {
+            "title": "Weight Units",
+            "label": "Preferred weight units",
+            "description": "This unit will be used as default when creating new weight metrics."
           }
         },
     "areas": {
