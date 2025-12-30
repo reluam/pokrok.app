@@ -1322,7 +1322,9 @@ export function GoalDetailPage({
             })
             
             // Combine both sets
-            const nearestInstances = new Set([...nearestInstancesForRemaining, ...nearestInstancesForDone])
+            const nearestInstances = new Set<string>()
+            nearestInstancesForRemaining.forEach(id => nearestInstances.add(id))
+            nearestInstancesForDone.forEach(id => nearestInstances.add(id))
             
             // Filter steps: exclude hidden templates and show only nearest instances for recurring steps
             const filteredGoalSteps = goalSteps.filter(step => {
