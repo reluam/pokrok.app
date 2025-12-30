@@ -697,7 +697,7 @@ export async function POST(request: NextRequest) {
     console.error('Error creating daily step:', error)
     const errorMessage = error instanceof Error ? error.message : String(error)
     const errorStack = error instanceof Error ? error.stack : undefined
-    console.error('Error details:', { errorMessage, errorStack, body })
+    console.error('Error details:', { errorMessage, errorStack })
     return NextResponse.json({ 
       error: 'Internal server error', 
       details: errorMessage,
