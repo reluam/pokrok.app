@@ -561,8 +561,7 @@ export async function initializeCestaDatabase() {
         checklist JSONB DEFAULT '[]'::jsonb,
         require_checklist_complete BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        CHECK ((area_id IS NULL AND goal_id IS NOT NULL) OR (area_id IS NOT NULL AND goal_id IS NULL) OR (area_id IS NULL AND goal_id IS NULL))
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
     `
 

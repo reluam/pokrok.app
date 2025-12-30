@@ -468,18 +468,17 @@ export async function POST(request: NextRequest) {
         const goalAreaId = goalResult[0].area_id
         // If goal has an area, it should match the provided areaId
         if (goalAreaId && goalAreaId !== areaId) {
-          return NextResponse.json({ 
+      return NextResponse.json({ 
             error: 'Area does not match goal\'s area',
             details: 'The provided area does not match the area assigned to the selected goal'
-          }, { status: 400 })
+      }, { status: 400 })
         }
-        // If goal has no area but areaId is provided, that's also invalid
-        if (!goalAreaId && areaId) {
-          return NextResponse.json({ 
-            error: 'Goal has no area assigned',
-            details: 'The selected goal does not have an area, so area cannot be set'
-          }, { status: 400 })
-        }
+        // If goal has no area but areaId is provided, use the provided areaId
+        // This allows setting area on step even if goal doesn't have one
+        // (The area will be automatically set from goal if goal has one, but if not, user can set it manually)
+      } else {
+        // Goal not found - this should not happen if ownership check passed, but handle gracefully
+        console.error(`Goal ${goalId} not found for user ${dbUser.id}`)
       }
     }
     
@@ -614,7 +613,23 @@ export async function POST(request: NextRequest) {
       is_hidden: frequency ? true : false // Hide recurring step template, show instances
     }
 
-    const step = await createDailyStep(stepData)
+    let step
+    try {
+      step = await createDailyStep(stepData)
+    } catch (createError: any) {
+      console.error('Error in createDailyStep:', createError)
+      // Check if it's a constraint violation
+      if (createError?.code === '23514' || createError?.message?.includes('check constraint') || createError?.message?.includes('CHECK')) {
+        return NextResponse.json({ 
+          error: 'Database constraint violation',
+          details: 'The step cannot be created because of a database constraint. Please run the migration to update the database schema.',
+          hint: 'Visit /api/migrate to run database migrations',
+          errorCode: createError.code,
+          errorMessage: createError.message
+        }, { status: 500 })
+      }
+      throw createError // Re-throw if it's not a constraint error
+    }
     
     // If this is a recurring step, create ALL instances (up to 2 months or end date)
     if (step.frequency && step.frequency !== null) {
@@ -680,7 +695,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(normalizedStep)
   } catch (error) {
     console.error('Error creating daily step:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    const errorStack = error instanceof Error ? error.stack : undefined
+    console.error('Error details:', { errorMessage, errorStack, body })
+    return NextResponse.json({ 
+      error: 'Internal server error', 
+      details: errorMessage,
+      stack: errorStack 
+    }, { status: 500 })
   }
 }
 
@@ -737,10 +759,10 @@ export async function PUT(request: NextRequest) {
         const goalAreaId = goalResult[0].area_id
         // If goal has an area, it should match the provided areaId
         if (goalAreaId && goalAreaId !== areaId) {
-          return NextResponse.json({ 
+      return NextResponse.json({ 
             error: 'Area does not match goal\'s area',
             details: 'The provided area does not match the area assigned to the selected goal'
-          }, { status: 400 })
+      }, { status: 400 })
         }
         // If goal has no area but areaId is provided, that's also invalid
         if (!goalAreaId && areaId) {

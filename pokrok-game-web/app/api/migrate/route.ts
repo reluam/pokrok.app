@@ -362,22 +362,38 @@ async function runMigrations() {
       await sql`ALTER TABLE daily_steps ADD COLUMN area_id VARCHAR(255) REFERENCES areas(id) ON DELETE SET NULL`
     }
     
-    // Add constraint to daily_steps to ensure area_id and goal_id are mutually exclusive
-    // First check if constraint exists
-    const dailyStepsConstraints = await sql`
-      SELECT constraint_name 
-      FROM information_schema.table_constraints 
-      WHERE table_name = 'daily_steps' 
-      AND constraint_name = 'daily_steps_area_goal_exclusive'
-    `
-    
-    if (dailyStepsConstraints.length === 0) {
-      // Add check constraint: either area_id or goal_id can be set, but not both
+    // Remove check constraint if it exists (we now allow both area_id and goal_id to be set)
+    // This allows steps to have both goal_id and area_id (when area comes from goal)
+    try {
+      // Try to drop named constraint
       await sql`
         ALTER TABLE daily_steps 
-        ADD CONSTRAINT daily_steps_area_goal_exclusive 
-        CHECK ((area_id IS NULL AND goal_id IS NOT NULL) OR (area_id IS NOT NULL AND goal_id IS NULL) OR (area_id IS NULL AND goal_id IS NULL))
+        DROP CONSTRAINT IF EXISTS daily_steps_area_goal_exclusive
       `
+      
+      // Also try to find and drop any check constraints that reference area_id and goal_id
+      const checkConstraints = await sql`
+        SELECT conname 
+        FROM pg_constraint 
+        WHERE conrelid = 'daily_steps'::regclass 
+        AND contype = 'c'
+        AND (
+          pg_get_constraintdef(oid) LIKE '%area_id%goal_id%' 
+          OR pg_get_constraintdef(oid) LIKE '%goal_id%area_id%'
+        )
+      `
+      
+      for (const constraint of checkConstraints) {
+        const constraintName = constraint.conname as string
+        if (constraintName) {
+          // Use unsafe for dynamic constraint names
+          await sql.unsafe(`ALTER TABLE daily_steps DROP CONSTRAINT IF EXISTS "${constraintName}"`)
+          console.log(`Dropped constraint: ${constraintName}`)
+        }
+      }
+    } catch (error) {
+      // Log but don't fail - constraint might not exist or might be named differently
+      console.log('Note: Could not drop check constraints (might not exist):', error)
     }
     
     // Add icon column to habits table if it doesn't exist
