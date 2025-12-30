@@ -46,17 +46,9 @@ export default clerkMiddleware(async (auth, req) => {
     
     // Check authentication for protected routes
     if (isProtectedRoute(req)) {
-      // Check auth state - if not authenticated, redirect to sign-in
-      // This prevents redirect loops with invalid tokens
-      const { userId } = auth()
-      if (!userId) {
-        // Not authenticated - redirect to sign-in only if not already there
-        if (!pathname.startsWith('/sign-in') && !pathname.startsWith('/sign-up')) {
-          const signInUrl = new URL('/sign-in', req.url)
-          signInUrl.searchParams.set('redirect_url', pathname)
-          return NextResponse.redirect(signInUrl)
-        }
-      }
+      // Use auth.protect() which handles authentication and redirects
+      // This will redirect to sign-in if not authenticated
+      auth.protect()
     }
     
     // Then run intl middleware for non-API routes

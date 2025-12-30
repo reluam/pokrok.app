@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
 
     // Check if user has premium subscription
     const hasPremium = await hasPremiumSubscription(clerkUserId)
-    
+
     // Try to get workflows, handle case where table doesn't exist yet
     try {
       let workflows = await sql`
@@ -106,21 +106,21 @@ export async function POST(request: NextRequest) {
 
     // Ensure workflows table exists
     try {
-      await sql`
-        CREATE TABLE IF NOT EXISTS workflows (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          user_id TEXT NOT NULL,
-          type TEXT NOT NULL,
-          name TEXT NOT NULL,
-          description TEXT,
-          trigger_time TEXT,
-          enabled BOOLEAN DEFAULT true,
-          completed_at TIMESTAMP,
+    await sql`
+      CREATE TABLE IF NOT EXISTS workflows (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id TEXT NOT NULL,
+        type TEXT NOT NULL,
+        name TEXT NOT NULL,
+        description TEXT,
+        trigger_time TEXT,
+        enabled BOOLEAN DEFAULT true,
+        completed_at TIMESTAMP,
           settings JSONB,
-          created_at TIMESTAMP DEFAULT NOW(),
-          updated_at TIMESTAMP DEFAULT NOW()
-        )
-      `
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `
     } catch (error: any) {
       // Table might already exist
       console.error('Error creating workflows table:', error)
@@ -156,14 +156,14 @@ export async function POST(request: NextRequest) {
       `
     } else {
       workflow = await sql`
-        INSERT INTO workflows (
+      INSERT INTO workflows (
           id, user_id, type, name, description, trigger_time, enabled, settings
-        ) VALUES (
-          ${id}, ${targetUserId}, ${type}, ${name}, ${description || null}, 
+      ) VALUES (
+        ${id}, ${targetUserId}, ${type}, ${name}, ${description || null}, 
           ${trigger_time || '18:00'}, ${enabled !== false}, 
           NULL
-        ) RETURNING *
-      `
+      ) RETURNING *
+    `
     }
     return NextResponse.json(workflow[0])
   } catch (error: any) {

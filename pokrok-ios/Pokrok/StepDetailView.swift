@@ -1,8 +1,10 @@
 import SwiftUI
 
 struct StepDetailView: View {
-    let step: DailyStep
+    let step: DailyStep?
     let goalTitle: String?
+    let initialDate: Date?
+    let onStepAdded: (() -> Void)?
     @Environment(\.dismiss) private var dismiss
     @StateObject private var apiManager = APIManager.shared
     
@@ -26,18 +28,37 @@ struct StepDetailView: View {
     @State private var showDeleteConfirmation = false
     @State private var isDeleting = false
     
-    init(step: DailyStep, goalTitle: String? = nil) {
+    private var isCreating: Bool {
+        step == nil
+    }
+    
+    init(step: DailyStep? = nil, goalTitle: String? = nil, initialDate: Date? = nil, onStepAdded: (() -> Void)? = nil) {
         self.step = step
         self.goalTitle = goalTitle
+        self.initialDate = initialDate
+        self.onStepAdded = onStepAdded
+        
+        if let step = step {
         self._isCompleted = State(initialValue: step.completed)
-        self._editingTitle = State(initialValue: step.title)
-        self._editingDescription = State(initialValue: step.description ?? "")
-        self._editingDate = State(initialValue: step.date)
-        self._editingGoalId = State(initialValue: step.goalId)
-        self._editingIsImportant = State(initialValue: step.isImportant ?? false)
-        self._editingIsUrgent = State(initialValue: false) // Not in model yet
-        self._editingDeadline = State(initialValue: nil) // Not in model yet
-        self._editingEstimatedTime = State(initialValue: 0) // Not in model yet
+            self._editingTitle = State(initialValue: step.title)
+            self._editingDescription = State(initialValue: step.description ?? "")
+            self._editingDate = State(initialValue: step.date)
+            self._editingGoalId = State(initialValue: step.goalId)
+            self._editingIsImportant = State(initialValue: step.isImportant ?? false)
+            self._editingIsUrgent = State(initialValue: false)
+            self._editingDeadline = State(initialValue: nil)
+            self._editingEstimatedTime = State(initialValue: 0)
+        } else {
+            self._isCompleted = State(initialValue: false)
+            self._editingTitle = State(initialValue: "")
+            self._editingDescription = State(initialValue: "")
+            self._editingDate = State(initialValue: initialDate ?? Date())
+            self._editingGoalId = State(initialValue: nil)
+            self._editingIsImportant = State(initialValue: false)
+            self._editingIsUrgent = State(initialValue: false)
+            self._editingDeadline = State(initialValue: nil)
+            self._editingEstimatedTime = State(initialValue: 0)
+        }
     }
     
     // MARK: - Computed Properties
@@ -70,7 +91,7 @@ struct StepDetailView: View {
             
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                 Text("Popis")
-                    .font(DesignSystem.Typography.caption)
+                                    .font(DesignSystem.Typography.caption)
                     .foregroundColor(DesignSystem.Colors.dynamicPrimary)
                 
                 TextEditor(text: $editingDescription)
@@ -174,10 +195,10 @@ struct StepDetailView: View {
                         )
                         .cornerRadius(DesignSystem.CornerRadius.sm)
                 }
-                
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                            
+                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                     Text("Deadline (volitelné)")
-                        .font(DesignSystem.Typography.caption)
+                                        .font(DesignSystem.Typography.caption)
                         .foregroundColor(DesignSystem.Colors.dynamicPrimary)
                     
                     if let deadline = editingDeadline {
@@ -199,7 +220,7 @@ struct StepDetailView: View {
                             editingDeadline = Date()
                         }) {
                             Text("Přidat deadline")
-                                .font(DesignSystem.Typography.caption)
+                                            .font(DesignSystem.Typography.caption)
                                 .foregroundColor(DesignSystem.Colors.dynamicPrimary)
                                 .frame(maxWidth: .infinity)
                                 .padding(DesignSystem.Spacing.sm)
@@ -243,75 +264,81 @@ struct StepDetailView: View {
     }
     
     private var priorityAndStatusCard: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-            Text("Důležitost a stav")
-                .font(DesignSystem.Typography.headline)
-                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
-            
-            VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                Toggle("Důležitý", isOn: $editingIsImportant)
-                    .font(DesignSystem.Typography.body)
-                    .foregroundColor(DesignSystem.Colors.textPrimary)
-                    .tint(DesignSystem.Colors.dynamicPrimary)
-                
-                Toggle("Naléhavý", isOn: $editingIsUrgent)
-                    .font(DesignSystem.Typography.body)
-                    .foregroundColor(DesignSystem.Colors.textPrimary)
-                    .tint(DesignSystem.Colors.dynamicPrimary)
-                
-                Divider()
-                    .background(DesignSystem.Colors.dynamicPrimary.opacity(0.3))
-                
-                HStack {
-                    Text("Dokončeno")
-                        .font(DesignSystem.Typography.body)
-                        .foregroundColor(DesignSystem.Colors.textPrimary)
+        Group {
+            if !isCreating {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                    Text("Důležitost a stav")
+                        .font(DesignSystem.Typography.headline)
+                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
                     
-                    Spacer()
-                    
-                    Button(action: {
-                        toggleCompletion()
-                    }) {
-                        Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
-                            .font(.system(size: 24))
-                            .foregroundColor(isCompleted ? DesignSystem.Colors.success : DesignSystem.Colors.dynamicPrimary)
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                        Toggle("Důležitý", isOn: $editingIsImportant)
+                            .font(DesignSystem.Typography.body)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                            .tint(DesignSystem.Colors.dynamicPrimary)
+                        
+                        Toggle("Naléhavý", isOn: $editingIsUrgent)
+                            .font(DesignSystem.Typography.body)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                            .tint(DesignSystem.Colors.dynamicPrimary)
+                        
+                        Divider()
+                            .background(DesignSystem.Colors.dynamicPrimary.opacity(0.3))
+                        
+                        HStack {
+                            Text("Dokončeno")
+                                .font(DesignSystem.Typography.body)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                toggleCompletion()
+                            }) {
+                                Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(isCompleted ? DesignSystem.Colors.success : DesignSystem.Colors.dynamicPrimary)
+                            }
+                        }
                     }
                 }
+                .padding(DesignSystem.Spacing.md)
+                .background(Color.white)
+                .overlay(
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                        .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                )
+                .cornerRadius(DesignSystem.CornerRadius.md)
+                .shadow(color: DesignSystem.Colors.dynamicPrimary.opacity(1.0), radius: 0, x: 3, y: 3)
             }
         }
-        .padding(DesignSystem.Spacing.md)
-        .background(Color.white)
-        .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
-        )
-        .cornerRadius(DesignSystem.CornerRadius.md)
-        .shadow(color: DesignSystem.Colors.dynamicPrimary.opacity(1.0), radius: 0, x: 3, y: 3)
     }
     
     private var actionButtons: some View {
         HStack(spacing: DesignSystem.Spacing.md) {
-            // Delete button
-            Button(action: {
-                showDeleteConfirmation = true
-            }) {
-                HStack {
-                    Image(systemName: "trash")
-                    Text("Smazat")
+            // Delete button (only for existing steps)
+            if !isCreating {
+                Button(action: {
+                    showDeleteConfirmation = true
+                }) {
+                    HStack {
+                        Image(systemName: "trash")
+                        Text("Smazat")
+                    }
+                    .font(DesignSystem.Typography.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(DesignSystem.Spacing.md)
+                    .background(DesignSystem.Colors.redFull)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                            .stroke(DesignSystem.Colors.redFull, lineWidth: 2)
+                    )
+                    .cornerRadius(DesignSystem.CornerRadius.md)
                 }
-                .font(DesignSystem.Typography.headline)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding(DesignSystem.Spacing.md)
-                .background(DesignSystem.Colors.redFull)
-                .overlay(
-                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                        .stroke(DesignSystem.Colors.redFull, lineWidth: 2)
-                )
-                .cornerRadius(DesignSystem.CornerRadius.md)
+                .buttonStyle(PlainButtonStyle())
+                .disabled(isDeleting)
             }
-            .buttonStyle(PlainButtonStyle())
-            .disabled(isDeleting)
             
             // Save button
             Button(action: {
@@ -322,8 +349,8 @@ struct StepDetailView: View {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                     } else {
-                        Image(systemName: "checkmark")
-                        Text("Uložit")
+                        Image(systemName: isCreating ? "plus" : "checkmark")
+                        Text(isCreating ? "Vytvořit" : "Uložit")
                     }
                 }
                 .font(DesignSystem.Typography.headline)
@@ -359,7 +386,7 @@ struct StepDetailView: View {
             }
             .background(DesignSystem.Colors.background)
         }
-        .navigationTitle("Detail kroku")
+        .navigationTitle(isCreating ? "Nový krok" : "Detail kroku")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -408,6 +435,8 @@ struct StepDetailView: View {
     }
     
     private func toggleCompletion() {
+        guard let step = step else { return }
+        
         Task {
             do {
                 let updatedStep = try await apiManager.updateStepCompletion(
@@ -439,21 +468,50 @@ struct StepDetailView: View {
         
         Task {
             do {
-                _ = try await apiManager.updateStep(
-                    stepId: step.id,
-                    title: editingTitle,
-                    description: editingDescription.isEmpty ? nil : editingDescription,
-                    date: editingDate,
-                    goalId: editingGoalId,
-                    areaId: editingAreaId,
-                    isImportant: editingIsImportant,
-                    isUrgent: editingIsUrgent,
-                    deadline: editingDeadline,
-                    estimatedTime: editingEstimatedTime > 0 ? editingEstimatedTime : nil
-                )
+                if isCreating {
+                    // Create new step
+                    let createRequest = CreateStepRequest(
+                        title: editingTitle,
+                        description: editingDescription.isEmpty ? nil : editingDescription,
+                        date: editingDate,
+                        goalId: editingGoalId
+                    )
+                    let createdStep = try await apiManager.createStep(createRequest)
+                    
+                    // Update the created step with additional fields if needed
+                    if editingIsImportant || editingAreaId != nil || editingDeadline != nil || editingEstimatedTime > 0 {
+                        _ = try await apiManager.updateStep(
+                            stepId: createdStep.id,
+                            title: nil,
+                            description: nil,
+                            date: nil,
+                            goalId: nil,
+                            areaId: editingAreaId,
+                            isImportant: editingIsImportant ? true : nil,
+                            isUrgent: nil,
+                            deadline: editingDeadline,
+                            estimatedTime: editingEstimatedTime > 0 ? editingEstimatedTime : nil
+                        )
+                    }
+                } else if let step = step {
+                    // Update existing step
+                    _ = try await apiManager.updateStep(
+                        stepId: step.id,
+                        title: editingTitle,
+                        description: editingDescription.isEmpty ? nil : editingDescription,
+                        date: editingDate,
+                        goalId: editingGoalId,
+                        areaId: editingAreaId,
+                        isImportant: editingIsImportant,
+                        isUrgent: editingIsUrgent,
+                        deadline: editingDeadline,
+                        estimatedTime: editingEstimatedTime > 0 ? editingEstimatedTime : nil
+                    )
+                }
                 
                 await MainActor.run {
                     isSaving = false
+                    onStepAdded?()
                     dismiss()
                 }
             } catch {
@@ -467,6 +525,8 @@ struct StepDetailView: View {
     }
     
     private func deleteStep() {
+        guard let step = step else { return }
+        
         isDeleting = true
         
         Task {
@@ -488,7 +548,7 @@ struct StepDetailView: View {
     }
 }
 
-#Preview {
+#Preview("Edit") {
     StepDetailView(
         step: DailyStep(
             id: "1",
@@ -503,4 +563,8 @@ struct StepDetailView: View {
         ),
         goalTitle: "Příklad cíle"
     )
+}
+
+#Preview("Create") {
+    StepDetailView(initialDate: Date())
 }

@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct HabitDetailView: View {
-    let habit: Habit
+    let habit: Habit?
+    let onHabitAdded: (() -> Void)?
     @Environment(\.dismiss) private var dismiss
     @StateObject private var apiManager = APIManager.shared
     @State private var aspirations: [Aspiration] = []
@@ -22,16 +23,33 @@ struct HabitDetailView: View {
     @State private var showDeleteConfirmation = false
     @State private var isDeleting = false
     
-    init(habit: Habit) {
+    private var isCreating: Bool {
+        habit == nil
+    }
+    
+    init(habit: Habit? = nil, onHabitAdded: (() -> Void)? = nil) {
         self.habit = habit
-        self._editingName = State(initialValue: habit.name)
-        self._editingDescription = State(initialValue: habit.description ?? "")
-        self._editingFrequency = State(initialValue: habit.frequency)
-        self._editingSelectedDays = State(initialValue: habit.selectedDays ?? [])
-        self._editingAlwaysShow = State(initialValue: habit.alwaysShow)
-        self._editingReminderTime = State(initialValue: habit.reminderTime ?? "09:00")
-        self._editingNotificationEnabled = State(initialValue: habit.reminderTime != nil)
-        self._editingAreaId = State(initialValue: habit.aspirationId)
+        self.onHabitAdded = onHabitAdded
+        
+        if let habit = habit {
+            self._editingName = State(initialValue: habit.name)
+            self._editingDescription = State(initialValue: habit.description ?? "")
+            self._editingFrequency = State(initialValue: habit.frequency)
+            self._editingSelectedDays = State(initialValue: habit.selectedDays ?? [])
+            self._editingAlwaysShow = State(initialValue: habit.alwaysShow)
+            self._editingReminderTime = State(initialValue: habit.reminderTime ?? "09:00")
+            self._editingNotificationEnabled = State(initialValue: habit.reminderTime != nil)
+            self._editingAreaId = State(initialValue: habit.aspirationId)
+        } else {
+            self._editingName = State(initialValue: "")
+            self._editingDescription = State(initialValue: "")
+            self._editingFrequency = State(initialValue: "daily")
+            self._editingSelectedDays = State(initialValue: [])
+            self._editingAlwaysShow = State(initialValue: false)
+            self._editingReminderTime = State(initialValue: "09:00")
+            self._editingNotificationEnabled = State(initialValue: false)
+            self._editingAreaId = State(initialValue: nil)
+        }
     }
     
     var body: some View {
@@ -256,27 +274,29 @@ struct HabitDetailView: View {
                     
                     // Action buttons
                     HStack(spacing: DesignSystem.Spacing.md) {
-                        // Delete button
-                        Button(action: {
-                            showDeleteConfirmation = true
-                        }) {
-                            HStack {
-                                Image(systemName: "trash")
-                                Text("Smazat")
+                        // Delete button (only for existing habits)
+                        if !isCreating {
+                            Button(action: {
+                                showDeleteConfirmation = true
+                            }) {
+                                HStack {
+                                    Image(systemName: "trash")
+                                    Text("Smazat")
+                                }
+                                .font(DesignSystem.Typography.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(DesignSystem.Spacing.md)
+                                .background(DesignSystem.Colors.redFull)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                                        .stroke(DesignSystem.Colors.redFull, lineWidth: 2)
+                                )
+                                .cornerRadius(DesignSystem.CornerRadius.md)
                             }
-                            .font(DesignSystem.Typography.headline)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(DesignSystem.Spacing.md)
-                            .background(DesignSystem.Colors.redFull)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                                    .stroke(DesignSystem.Colors.redFull, lineWidth: 2)
-                            )
-                            .cornerRadius(DesignSystem.CornerRadius.md)
+                            .buttonStyle(PlainButtonStyle())
+                            .disabled(isDeleting)
                         }
-                        .buttonStyle(PlainButtonStyle())
-                        .disabled(isDeleting)
                         
                         // Save button
                         Button(action: {
@@ -287,8 +307,8 @@ struct HabitDetailView: View {
                                     ProgressView()
                                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                                 } else {
-                                    Image(systemName: "checkmark")
-                                    Text("Uložit")
+                                    Image(systemName: isCreating ? "plus" : "checkmark")
+                                    Text(isCreating ? "Vytvořit" : "Uložit")
                                 }
                             }
                             .font(DesignSystem.Typography.headline)
@@ -314,7 +334,7 @@ struct HabitDetailView: View {
             }
             .background(DesignSystem.Colors.background)
         }
-        .navigationTitle("Detail návyku")
+        .navigationTitle(isCreating ? "Nový návyk" : "Detail návyku")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -371,51 +391,54 @@ struct HabitDetailView: View {
                 let reminderTime = editingNotificationEnabled ? editingReminderTime : nil
                 let selectedDays = (editingFrequency == "daily") ? [] : editingSelectedDays
                 
-                _ = try await apiManager.updateHabit(
-                    habitId: habit.id,
-                    name: editingName,
-                    description: editingDescription.isEmpty ? nil : editingDescription,
-                    frequency: editingFrequency,
-                    reminderTime: reminderTime,
-                    selectedDays: selectedDays.isEmpty ? nil : selectedDays,
-                    alwaysShow: editingAlwaysShow,
-                    xpReward: nil,
-                    aspirationId: editingAreaId
-                )
-                
-                await MainActor.run {
-                    isSaving = false
-                    // Reschedule notifications for this habit if reminder time is set
-                    if let reminderTime = reminderTime {
-                        // Create a temporary habit object with updated values for notification scheduling
-                        // We'll use the updated habit from API response if available, otherwise create a mock
-                        // For now, just reschedule with current editing values
-                        let tempHabit = Habit(
-                            id: habit.id,
-                            userId: habit.userId,
-                            name: editingName,
-                            description: editingDescription.isEmpty ? nil : editingDescription,
-                            frequency: editingFrequency,
-                            streak: habit.streak,
-                            maxStreak: habit.maxStreak,
-                            category: habit.category,
-                            difficulty: habit.difficulty,
-                            isCustom: habit.isCustom,
-                            reminderTime: reminderTime,
-                            selectedDays: selectedDays.isEmpty ? nil : selectedDays,
-                            habitCompletions: habit.habitCompletions,
-                            alwaysShow: editingAlwaysShow,
-                            xpReward: habit.xpReward,
-                            aspirationId: editingAreaId,
-                            createdAt: habit.createdAt,
-                            updatedAt: habit.updatedAt
-                        )
-                        NotificationManager.shared.scheduleHabitNotification(habit: tempHabit)
-                    } else {
-                        // Remove notifications if reminder is disabled
-                        NotificationManager.shared.removeHabitNotifications(habitId: habit.id)
+                if isCreating {
+                    // Create new habit
+                    let createdHabit = try await apiManager.createHabit(
+                        name: editingName,
+                        description: editingDescription.isEmpty ? nil : editingDescription,
+                        frequency: editingFrequency,
+                        reminderTime: reminderTime,
+                        selectedDays: selectedDays.isEmpty ? nil : selectedDays,
+                        alwaysShow: editingAlwaysShow,
+                        xpReward: 1,
+                        aspirationId: editingAreaId,
+                        icon: nil // Default icon will be used
+                    )
+                    
+                    await MainActor.run {
+                        isSaving = false
+                        // Schedule notifications for new habit
+                        if let reminderTime = reminderTime {
+                            NotificationManager.shared.scheduleHabitNotification(habit: createdHabit)
+                        }
+                        onHabitAdded?()
+                        dismiss()
                     }
-                    dismiss()
+                } else if let habit = habit {
+                    // Update existing habit
+                    let updatedHabit = try await apiManager.updateHabit(
+                        habitId: habit.id,
+                        name: editingName,
+                        description: editingDescription.isEmpty ? nil : editingDescription,
+                        frequency: editingFrequency,
+                        reminderTime: reminderTime,
+                        selectedDays: selectedDays.isEmpty ? nil : selectedDays,
+                        alwaysShow: editingAlwaysShow,
+                        xpReward: nil,
+                        aspirationId: editingAreaId
+                    )
+                    
+                    await MainActor.run {
+                        isSaving = false
+                        // Reschedule notifications for this habit if reminder time is set
+                        if let reminderTime = reminderTime {
+                            NotificationManager.shared.scheduleHabitNotification(habit: updatedHabit)
+                        } else {
+                            // Remove notifications if reminder is disabled
+                            NotificationManager.shared.removeHabitNotifications(habitId: habit.id)
+                        }
+                        dismiss()
+                    }
                 }
             } catch {
                 await MainActor.run {
@@ -428,6 +451,8 @@ struct HabitDetailView: View {
     }
     
     private func deleteHabit() {
+        guard let habit = habit else { return }
+        
         // Note: API doesn't have delete habit endpoint yet, so we'll just show an error
         errorMessage = "Mazání návyků zatím není podporováno"
         showError = true

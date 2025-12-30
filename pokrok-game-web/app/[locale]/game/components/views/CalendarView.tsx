@@ -96,11 +96,11 @@ export function CalendarView({
             player={player}
             userId={userId}
             maxUpcomingSteps={maxUpcomingSteps}
-          />
+              />
         )}
-        
+
         {viewType === 'month' && (
-          <MonthView
+              <MonthView
             goals={goals}
             habits={habits}
             dailySteps={dailySteps}
@@ -114,11 +114,11 @@ export function CalendarView({
             loadingHabits={loadingHabits}
             loadingSteps={loadingSteps}
             animatingSteps={animatingSteps}
-          />
+              />
         )}
-        
+
         {viewType === 'year' && (
-          <YearView
+              <YearView
             goals={goals}
             habits={habits}
             dailySteps={dailySteps}
@@ -127,7 +127,7 @@ export function CalendarView({
             handleItemClick={handleItemClick || (() => {})}
             player={player}
             areas={areas}
-          />
+              />
         )}
       </div>
     </div>

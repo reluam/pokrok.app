@@ -393,6 +393,9 @@ class APIManager: ObservableObject {
             requestBody["goalId"] = goalId
         }
         
+        // Note: CreateStepRequest currently only supports basic fields
+        // For full support, we'd need to extend CreateStepRequest model
+        
         let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
         request.httpBody = jsonData
         
@@ -633,6 +636,83 @@ class APIManager: ObservableObject {
     }
     
     // MARK: - Habits API
+    
+    func createHabit(name: String, description: String?, frequency: String, reminderTime: String?, selectedDays: [String]?, alwaysShow: Bool, xpReward: Int?, aspirationId: String?, icon: String?) async throws -> Habit {
+        guard let url = URL(string: "\(baseURL)/habits") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add Clerk token if available
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        // Create request body
+        var requestBody: [String: Any] = [
+            "name": name,
+            "frequency": frequency,
+            "alwaysShow": alwaysShow,
+            "category": "custom",
+            "difficulty": "medium",
+            "isCustom": true
+        ]
+        
+        if let description = description {
+            requestBody["description"] = description
+        } else {
+            requestBody["description"] = name
+        }
+        
+        if let reminderTime = reminderTime {
+            requestBody["reminderTime"] = reminderTime
+            requestBody["notificationEnabled"] = true
+        } else {
+            requestBody["notificationEnabled"] = false
+        }
+        
+        if let selectedDays = selectedDays, !selectedDays.isEmpty {
+            requestBody["selectedDays"] = selectedDays
+        }
+        
+        if let xpReward = xpReward {
+            requestBody["xpReward"] = xpReward
+        } else {
+            requestBody["xpReward"] = 1
+        }
+        
+        if let aspirationId = aspirationId {
+            requestBody["aspirationId"] = aspirationId
+            requestBody["areaId"] = aspirationId
+        }
+        
+        if let icon = icon {
+            requestBody["icon"] = icon
+        } else {
+            // Default icon if none provided
+            requestBody["icon"] = "target"
+        }
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+        request.httpBody = jsonData
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
+            throw APIError.requestFailed
+        }
+        
+        let decoder = createJSONDecoder()
+        let createdHabit = try decoder.decode(Habit.self, from: data)
+        return createdHabit
+    }
     
     func fetchHabits() async throws -> [Habit] {
         guard let url = URL(string: "\(baseURL)/habits") else {

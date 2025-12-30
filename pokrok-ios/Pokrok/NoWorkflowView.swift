@@ -91,9 +91,11 @@ struct NoWorkflowView: View {
             loadData()
         }
         .sheet(isPresented: $showAddStepModal) {
-            AddStepModal(onStepAdded: {
-                loadData()
-            })
+            NavigationView {
+                StepDetailView(initialDate: Date(), onStepAdded: {
+                    loadData()
+                })
+            }
         }
         .sheet(isPresented: $showFilters) {
             FilterSettingsView(filters: $filters)

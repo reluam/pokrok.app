@@ -26,6 +26,7 @@
 		72941CC72F03FACE00114387 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72941CC52F03FACE00114387 /* NotificationManager.swift */; };
 		72941CC82F03FACE00114387 /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72941CC62F03FACE00114387 /* NotificationSettingsView.swift */; };
 		72941CC92F03FACE00114387 /* NotificationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72941CC42F03FACE00114387 /* NotificationDelegate.swift */; };
+		72941CCB2F04188500114387 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72941CCA2F04188500114387 /* HelpView.swift */; };
 		72FEB5372EEC222300A10A89 /* PlayfulComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FEB5362EEC222300A10A89 /* PlayfulComponents.swift */; };
 		72FEB53E2EEC223100A10A89 /* WidgetSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FEB53C2EEC223100A10A89 /* WidgetSettings.swift */; };
 		72FEB53F2EEC223100A10A89 /* WidgetSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FEB53D2EEC223100A10A89 /* WidgetSettingsView.swift */; };
@@ -88,6 +89,7 @@
 		72941CC42F03FACE00114387 /* NotificationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDelegate.swift; sourceTree = "<group>"; };
 		72941CC52F03FACE00114387 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		72941CC62F03FACE00114387 /* NotificationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsView.swift; sourceTree = "<group>"; };
+		72941CCA2F04188500114387 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		72FEB5362EEC222300A10A89 /* PlayfulComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayfulComponents.swift; sourceTree = "<group>"; };
 		72FEB5382EEC223100A10A89 /* Animations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Animations.swift; sourceTree = "<group>"; };
 		72FEB5392EEC223100A10A89 /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
@@ -166,6 +168,7 @@
 		A1234567890ABCDEF015 /* Pokrok */ = {
 			isa = PBXGroup;
 			children = (
+				72941CCA2F04188500114387 /* HelpView.swift */,
 				72941CC42F03FACE00114387 /* NotificationDelegate.swift */,
 				72941CC52F03FACE00114387 /* NotificationManager.swift */,
 				72941CC62F03FACE00114387 /* NotificationSettingsView.swift */,
@@ -338,6 +341,7 @@
 				7254029C2EA4265300697B62 /* DailyPlanningView.swift in Sources */,
 				7254029D2EA4265300697B62 /* NoWorkflowView.swift in Sources */,
 				A1234567890ABCDEF001 /* PokrokApp.swift in Sources */,
+				72941CCB2F04188500114387 /* HelpView.swift in Sources */,
 				72FEB53E2EEC223100A10A89 /* WidgetSettings.swift in Sources */,
 				72FEB53F2EEC223100A10A89 /* WidgetSettingsView.swift in Sources */,
 				72FEB5402EEC223100A10A89 /* GoalDetailView.swift in Sources */,

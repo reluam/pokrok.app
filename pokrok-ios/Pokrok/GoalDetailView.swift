@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct GoalDetailView: View {
-    let goal: Goal
+    let goal: Goal?
+    let onGoalAdded: (() -> Void)?
     @Environment(\.dismiss) private var dismiss
     @StateObject private var apiManager = APIManager.shared
     
@@ -24,15 +25,31 @@ struct GoalDetailView: View {
     @State private var isDeleting = false
     @State private var deleteWithSteps = false
     
-    init(goal: Goal) {
+    private var isCreating: Bool {
+        goal == nil
+    }
+    
+    init(goal: Goal? = nil, onGoalAdded: (() -> Void)? = nil) {
         self.goal = goal
-        self._editingTitle = State(initialValue: goal.title)
-        self._editingDescription = State(initialValue: goal.description ?? "")
-        self._editingTargetDate = State(initialValue: goal.targetDate)
-        self._editingStartDate = State(initialValue: nil) // Not in model yet
-        self._editingStatus = State(initialValue: goal.status)
-        self._editingAreaId = State(initialValue: goal.aspirationId)
-        self._editingIcon = State(initialValue: goal.icon)
+        self.onGoalAdded = onGoalAdded
+        
+        if let goal = goal {
+            self._editingTitle = State(initialValue: goal.title)
+            self._editingDescription = State(initialValue: goal.description ?? "")
+            self._editingTargetDate = State(initialValue: goal.targetDate)
+            self._editingStartDate = State(initialValue: nil)
+            self._editingStatus = State(initialValue: goal.status)
+            self._editingAreaId = State(initialValue: goal.aspirationId)
+            self._editingIcon = State(initialValue: goal.icon)
+        } else {
+            self._editingTitle = State(initialValue: "")
+            self._editingDescription = State(initialValue: "")
+            self._editingTargetDate = State(initialValue: nil)
+            self._editingStartDate = State(initialValue: nil)
+            self._editingStatus = State(initialValue: "active")
+            self._editingAreaId = State(initialValue: nil)
+            self._editingIcon = State(initialValue: nil)
+        }
     }
     
     var body: some View {
@@ -224,44 +241,46 @@ struct GoalDetailView: View {
                     .cornerRadius(DesignSystem.CornerRadius.md)
                     .shadow(color: DesignSystem.Colors.dynamicPrimary.opacity(1.0), radius: 0, x: 3, y: 3)
                     
-                    // Progress Card
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                        Text("Pokrok")
-                            .font(DesignSystem.Typography.headline)
-                            .foregroundColor(DesignSystem.Colors.dynamicPrimary)
-                        
-                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                            HStack {
-                                Text("Pokrok")
-                                    .font(DesignSystem.Typography.caption)
-                                    .foregroundColor(DesignSystem.Colors.dynamicPrimary)
-                                
-                                Spacer()
-                                
-                                Text("\(goal.progressPercentage)%")
-                                    .font(DesignSystem.Typography.caption)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(DesignSystem.Colors.dynamicPrimary)
-                            }
+                    // Progress Card (only for existing goals)
+                    if let goal = goal {
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                            Text("Pokrok")
+                                .font(DesignSystem.Typography.headline)
+                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
                             
-                            PlayfulProgressBar(
-                                progress: Double(goal.progressPercentage) / 100,
-                                height: 12,
-                                variant: .yellowGreen
-                            )
+                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                                HStack {
+                                    Text("Pokrok")
+                                        .font(DesignSystem.Typography.caption)
+                                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                                    
+                                    Spacer()
+                                    
+                                    Text("\(goal.progressPercentage)%")
+                                        .font(DesignSystem.Typography.caption)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                                }
+                                
+                                PlayfulProgressBar(
+                                    progress: Double(goal.progressPercentage) / 100,
+                                    height: 12,
+                                    variant: .yellowGreen
+                                )
+                            }
                         }
+                        .padding(DesignSystem.Spacing.md)
+                        .background(Color.white)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                                .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                        )
+                        .cornerRadius(DesignSystem.CornerRadius.md)
+                        .shadow(color: DesignSystem.Colors.dynamicPrimary.opacity(1.0), radius: 0, x: 3, y: 3)
                     }
-                    .padding(DesignSystem.Spacing.md)
-                    .background(Color.white)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                            .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
-                    )
-                    .cornerRadius(DesignSystem.CornerRadius.md)
-                    .shadow(color: DesignSystem.Colors.dynamicPrimary.opacity(1.0), radius: 0, x: 3, y: 3)
                     
-                    // Steps Section
-                    if !steps.isEmpty {
+                    // Steps Section (only for existing goals)
+                    if let goal = goal, !steps.isEmpty {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
                             Text("Kroky k cíli")
                                 .font(DesignSystem.Typography.headline)
@@ -310,27 +329,29 @@ struct GoalDetailView: View {
                     
                     // Action buttons
                     HStack(spacing: DesignSystem.Spacing.md) {
-                        // Delete button
-                        Button(action: {
-                            showDeleteConfirmation = true
-                        }) {
-                            HStack {
-                                Image(systemName: "trash")
-                                Text("Smazat")
+                        // Delete button (only for existing goals)
+                        if !isCreating {
+                            Button(action: {
+                                showDeleteConfirmation = true
+                            }) {
+                                HStack {
+                                    Image(systemName: "trash")
+                                    Text("Smazat")
+                                }
+                                .font(DesignSystem.Typography.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(DesignSystem.Spacing.md)
+                                .background(DesignSystem.Colors.redFull)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                                        .stroke(DesignSystem.Colors.redFull, lineWidth: 2)
+                                )
+                                .cornerRadius(DesignSystem.CornerRadius.md)
                             }
-                            .font(DesignSystem.Typography.headline)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(DesignSystem.Spacing.md)
-                            .background(DesignSystem.Colors.redFull)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                                    .stroke(DesignSystem.Colors.redFull, lineWidth: 2)
-                            )
-                            .cornerRadius(DesignSystem.CornerRadius.md)
+                            .buttonStyle(PlainButtonStyle())
+                            .disabled(isDeleting)
                         }
-                        .buttonStyle(PlainButtonStyle())
-                        .disabled(isDeleting)
                         
                         // Save button
                         Button(action: {
@@ -341,8 +362,8 @@ struct GoalDetailView: View {
                                     ProgressView()
                                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                                 } else {
-                                    Image(systemName: "checkmark")
-                                    Text("Uložit")
+                                    Image(systemName: isCreating ? "plus" : "checkmark")
+                                    Text(isCreating ? "Vytvořit" : "Uložit")
                                 }
                             }
                             .font(DesignSystem.Typography.headline)
@@ -368,7 +389,7 @@ struct GoalDetailView: View {
             }
             .background(DesignSystem.Colors.background)
         }
-        .navigationTitle("Detail cíle")
+        .navigationTitle(isCreating ? "Nový cíl" : "Detail cíle")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -404,14 +425,23 @@ struct GoalDetailView: View {
         Task {
             do {
                 async let aspirationsTask = apiManager.fetchAspirations()
-                async let stepsTask = apiManager.fetchSteps()
                 
-                let (fetchedAspirations, allSteps) = try await (aspirationsTask, stepsTask)
-                
-                await MainActor.run {
-                    self.aspirations = fetchedAspirations
-                    self.steps = allSteps.filter { $0.goalId == goal.id }.sorted { $0.date < $1.date }
-                    self.isLoading = false
+                if let goal = goal {
+                    async let stepsTask = apiManager.fetchSteps()
+                    let (fetchedAspirations, allSteps) = try await (aspirationsTask, stepsTask)
+                    
+                    await MainActor.run {
+                        self.aspirations = fetchedAspirations
+                        self.steps = allSteps.filter { $0.goalId == goal.id }.sorted { $0.date < $1.date }
+                        self.isLoading = false
+                    }
+                } else {
+                    let fetchedAspirations = try await aspirationsTask
+                    
+                    await MainActor.run {
+                        self.aspirations = fetchedAspirations
+                        self.isLoading = false
+                    }
                 }
             } catch {
                 await MainActor.run {
@@ -434,16 +464,31 @@ struct GoalDetailView: View {
         
         Task {
             do {
-                _ = try await apiManager.updateGoal(
-                    goalId: goal.id,
-                    title: editingTitle,
-                    description: editingDescription.isEmpty ? nil : editingDescription,
-                    targetDate: editingTargetDate,
-                    aspirationId: editingAreaId
-                )
+                if isCreating {
+                    // Create new goal
+                    let createRequest = CreateGoalRequest(
+                        title: editingTitle,
+                        description: editingDescription.isEmpty ? nil : editingDescription,
+                        targetDate: editingTargetDate,
+                        priority: "meaningful",
+                        icon: editingIcon,
+                        aspirationId: editingAreaId
+                    )
+                    _ = try await apiManager.createGoal(createRequest)
+                } else if let goal = goal {
+                    // Update existing goal
+                    _ = try await apiManager.updateGoal(
+                        goalId: goal.id,
+                        title: editingTitle,
+                        description: editingDescription.isEmpty ? nil : editingDescription,
+                        targetDate: editingTargetDate,
+                        aspirationId: editingAreaId
+                    )
+                }
                 
                 await MainActor.run {
                     isSaving = false
+                    onGoalAdded?()
                     dismiss()
                 }
             } catch {
@@ -457,6 +502,8 @@ struct GoalDetailView: View {
     }
     
     private func deleteGoal() {
+        guard let goal = goal else { return }
+        
         isDeleting = true
         
         Task {

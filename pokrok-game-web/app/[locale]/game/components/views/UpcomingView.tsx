@@ -277,8 +277,8 @@ export function UpcomingView({
     if (!step.frequency || step.frequency === null) {
       // Non-repeating step - return its date if it's in the future
       if (step.date) {
-        const stepDate = new Date(normalizeDate(step.date))
-        stepDate.setHours(0, 0, 0, 0)
+      const stepDate = new Date(normalizeDate(step.date))
+      stepDate.setHours(0, 0, 0, 0)
         return stepDate >= fromDate ? stepDate : null
       }
       return null
@@ -369,7 +369,7 @@ export function UpcomingView({
           goal,
           area
         })
-      })
+    })
     
     // Process repeating steps - show actual instances from database
     // Filter out recurring step templates (is_hidden = true)
@@ -479,7 +479,7 @@ export function UpcomingView({
       _date: item.date
     }))
   }, [dailySteps, today, oneMonthFromToday, goalMap, areaMap])
-
+  
   // Get upcoming steps - sorted by date, with overdue first, then important first within each day
   // Limited to 15 steps total and max one month ahead (except overdue steps - show all overdue)
   const upcomingSteps = useMemo(() => {
@@ -494,8 +494,8 @@ export function UpcomingView({
         // Include only non-recurring steps that are NOT instances of recurring steps
         // Instances have title containing " - " and are handled separately
         if (!step.frequency && step.date && !step.completed && !step.title.includes(' - ')) {
-          const stepDate = new Date(normalizeDate(step.date))
-          stepDate.setHours(0, 0, 0, 0)
+      const stepDate = new Date(normalizeDate(step.date))
+      stepDate.setHours(0, 0, 0, 0)
           const isOverdue = stepDate < today
           // Include if overdue or within one month
           return isOverdue || stepDate <= oneMonthFromToday
@@ -1281,8 +1281,8 @@ export function UpcomingView({
                       step.completed
                                       ? 'bg-white border-primary-500' 
                                       : 'border-primary-500 hover:bg-primary-100'
-                                  }`}
-                                >
+                    }`}
+                  >
                                   {isLoading ? (
                                     <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -1467,7 +1467,7 @@ export function UpcomingView({
                                 ? 'border-primary-500 bg-white hover:bg-primary-50'
                                 : 'border-primary-500 bg-white hover:bg-primary-50'
                         } ${isLoading ? 'opacity-50' : ''}`}
-                      >
+                >
                         {/* Checkbox */}
                   <button
                     onClick={(e) => {
@@ -1479,8 +1479,8 @@ export function UpcomingView({
                       step.completed
                               ? 'bg-white border-primary-500' 
                               : 'border-primary-500 hover:bg-primary-100'
-                          }`}
-                        >
+                    }`}
+                  >
                           {isLoading ? (
                             <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

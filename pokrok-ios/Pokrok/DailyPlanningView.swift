@@ -200,9 +200,11 @@ struct DailyPlanningView: View {
             loadData()
         }
         .sheet(isPresented: $showAddStepModal) {
-            AddStepModal(initialDate: selectedDate, onStepAdded: {
-                loadData()
-            })
+            NavigationView {
+                StepDetailView(initialDate: selectedDate, onStepAdded: {
+                    loadData()
+                })
+            }
         }
         .sheet(isPresented: $showHabitAspirationModal) {
             if let habit = selectedHabitForAspiration {

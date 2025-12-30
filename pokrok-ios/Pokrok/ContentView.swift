@@ -59,13 +59,19 @@ struct ContentView: View {
                     AddAspirationModal(onAspirationAdded: {})
                 }
                 .sheet(isPresented: $showAddGoalModal) {
-                    AddGoalModal(onGoalAdded: {})
+                    NavigationView {
+                        GoalDetailView(onGoalAdded: {})
+                    }
                 }
                 .sheet(isPresented: $showAddStepModal) {
-                    AddStepModal(initialDate: Date(), onStepAdded: {})
+                    NavigationView {
+                        StepDetailView(initialDate: Date(), onStepAdded: {})
+                    }
                 }
                 .sheet(isPresented: $showAddHabitModal) {
-                    AddHabitModal(onHabitAdded: {})
+                    NavigationView {
+                        HabitDetailView(onHabitAdded: {})
+                    }
                 }
                 .sheet(isPresented: $showAddMenu) {
                     AddMenuSheet(

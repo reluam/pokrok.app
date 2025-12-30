@@ -50,9 +50,11 @@ struct OverviewView: View {
             loadData()
         }
         .sheet(isPresented: $showAddGoalModal) {
-            AddGoalModal(onGoalAdded: {
-                loadData()
-            })
+            NavigationView {
+                GoalDetailView(onGoalAdded: {
+                    loadData()
+                })
+            }
         }
         .alert("Chyba", isPresented: $showError) {
             Button("OK") { }

@@ -273,9 +273,11 @@ struct GoalsView: View {
             loadData()
         }
         .sheet(isPresented: $showAddGoalModal) {
-            AddGoalModal(onGoalAdded: {
-                loadData()
+            NavigationView {
+                GoalDetailView(onGoalAdded: {
+                    loadData()
             })
+            }
         }
         .alert("Chyba", isPresented: $showError) {
             Button("OK") { }
@@ -764,9 +766,11 @@ struct StepsView: View {
             // Optional: reload if needed when date changes
         }
         .sheet(isPresented: $showAddStepModal) {
-            AddStepModal(initialDate: selectedDate, onStepAdded: {
-                loadSteps()
-            })
+            NavigationView {
+                StepDetailView(initialDate: selectedDate, onStepAdded: {
+                    loadSteps()
+                })
+            }
         }
         .alert("Chyba", isPresented: $showError) {
             Button("OK") { }
@@ -1336,6 +1340,7 @@ struct SettingsView: View {
     @State private var userSettings: UserSettings?
     @State private var isLoadingSettings = true
     @State private var showColorSettings = false
+    @State private var showHelpView = false
     @State private var showAddAspirationModal = false
     @State private var showEditAspirationModal = false
     @State private var selectedAspiration: Aspiration?
@@ -1392,6 +1397,9 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $showNotificationSettings) {
             NotificationSettingsView()
+        }
+        .sheet(isPresented: $showHelpView) {
+            HelpView()
         }
         .sheet(isPresented: $showAddAspirationModal) {
             AddAspirationModal(onAspirationAdded: {
@@ -1485,7 +1493,9 @@ struct SettingsView: View {
                 icon: "questionmark.circle",
                 title: "Nápověda",
                 subtitle: "FAQ a podpora",
-                action: {}
+                action: {
+                    showHelpView = true
+                }
             )
             
             ModernSettingsRow(

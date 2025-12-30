@@ -202,12 +202,12 @@ export function WeekHabitsTable({
                             ? 'bg-orange-100 hover:bg-orange-200 cursor-pointer opacity-70'
                             : 'bg-gray-100 hover:bg-gray-200 cursor-pointer opacity-70'
                         : !isScheduled 
-                          ? isCompleted
-                            ? 'bg-orange-100 hover:bg-orange-200 cursor-pointer'
-                            : 'bg-gray-100 cursor-default'
-                          : isCompleted
-                            ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
-                            : 'bg-gray-200 hover:bg-orange-200 cursor-pointer'
+                        ? isCompleted
+                          ? 'bg-orange-100 hover:bg-orange-200 cursor-pointer'
+                          : 'bg-gray-100 cursor-default'
+                        : isCompleted
+                          ? 'bg-orange-500 hover:bg-orange-600 cursor-pointer shadow-sm'
+                          : 'bg-gray-200 hover:bg-orange-200 cursor-pointer'
                     } ${isSelected ? 'ring-2 ring-orange-400 ring-offset-1' : ''}`}
                     title={!isAfterHabitStart && isScheduled ? 'Klikni pro splnění (posune start_date)' : isScheduled ? (isCompleted ? 'Splněno - klikni pro zrušení' : 'Klikni pro splnění') : 'Nenaplánováno'}
                   >
@@ -309,12 +309,12 @@ export function WeekHabitsTable({
                               ? 'bg-orange-100 hover:bg-orange-200 active:bg-orange-300 cursor-pointer opacity-70'
                               : 'bg-gray-100 hover:bg-gray-200 active:bg-gray-300 cursor-pointer opacity-70'
                           : !isScheduled 
-                            ? isCompleted
-                              ? 'bg-orange-100 hover:bg-orange-200 active:bg-orange-300 cursor-pointer'
-                              : 'bg-gray-100 cursor-default'
-                            : isCompleted
-                              ? 'bg-orange-500 hover:bg-orange-600 active:bg-orange-700 cursor-pointer shadow-sm'
-                              : 'bg-gray-200 hover:bg-orange-200 active:bg-orange-300 cursor-pointer'
+                          ? isCompleted
+                            ? 'bg-orange-100 hover:bg-orange-200 active:bg-orange-300 cursor-pointer'
+                            : 'bg-gray-100 cursor-default'
+                          : isCompleted
+                            ? 'bg-orange-500 hover:bg-orange-600 active:bg-orange-700 cursor-pointer shadow-sm'
+                            : 'bg-gray-200 hover:bg-orange-200 active:bg-orange-300 cursor-pointer'
                       } ${isSelected ? 'ring-1 ring-orange-400' : ''}`}
                       title={!isAfterHabitStart && isScheduled ? 'Klikni pro splnění (posune start_date)' : isScheduled ? (isCompleted ? 'Splněno - klikni pro zrušení' : 'Klikni pro splnění') : 'Nenaplánováno'}
                     >

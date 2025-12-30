@@ -448,16 +448,16 @@ export async function POST(request: NextRequest) {
         } else {
           // String or other - try to parse
           const dateObj = typeof date === 'string' ? new Date(date) : new Date()
-          // Use UTC components to preserve the date as intended
-          if (typeof date === 'string' && date.includes('Z')) {
-            // UTC ISO string - extract date part directly
-            dateValue = date.split('T')[0]
-          } else {
-            // Local date - extract date components
-            const year = dateObj.getFullYear()
-            const month = String(dateObj.getMonth() + 1).padStart(2, '0')
-            const day = String(dateObj.getDate()).padStart(2, '0')
-            dateValue = `${year}-${month}-${day}`
+        // Use UTC components to preserve the date as intended
+        if (typeof date === 'string' && date.includes('Z')) {
+          // UTC ISO string - extract date part directly
+          dateValue = date.split('T')[0]
+        } else {
+          // Local date - extract date components
+          const year = dateObj.getFullYear()
+          const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+          const day = String(dateObj.getDate()).padStart(2, '0')
+          dateValue = `${year}-${month}-${day}`
           }
         }
       }
@@ -499,7 +499,7 @@ export async function POST(request: NextRequest) {
     if (recurringEndDate && typeof recurringEndDate === 'string' && recurringEndDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
       recurringEndDateValue = recurringEndDate
     }
-    
+
     const stepData = {
       user_id: targetUserId,
       goal_id: normalizedGoalId,
@@ -1317,17 +1317,17 @@ export async function DELETE(request: NextRequest) {
     } else {
       // This is a regular step or an instance - just delete it
       // If it's an instance, it won't affect other instances
-      const result = await sql`
-        DELETE FROM daily_steps 
-        WHERE id = ${stepId} AND user_id = ${dbUser.id}
-        RETURNING *
-      `
+    const result = await sql`
+      DELETE FROM daily_steps 
+      WHERE id = ${stepId} AND user_id = ${dbUser.id}
+      RETURNING *
+    `
 
-      if (result.length === 0) {
-        return NextResponse.json({ error: 'Step not found' }, { status: 404 })
-      }
+    if (result.length === 0) {
+      return NextResponse.json({ error: 'Step not found' }, { status: 404 })
+    }
 
-      return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true })
     }
   } catch (error) {
     console.error('Error deleting daily step:', error)

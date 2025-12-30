@@ -1734,6 +1734,34 @@
     "monthlyDesc": "Slouží k většímu overview. Zobrazuje kalendář s kroky a návyky pro celý měsíc.",
     "yearly": "Roční",
     "yearlyDesc": "Přehled posunu v jednotlivých cílech. Zobrazuje timeline s progress bary pro všechny cíle."
+  },
+  "contact": {
+    "title": "Kontakt",
+    "form": {
+      "name": "Jméno",
+      "email": "E-mail",
+      "type": "Typ",
+      "typeBug": "Bug",
+      "typeRequest": "Požadavek",
+      "typeOther": "Jiné",
+      "message": "Zpráva",
+      "send": "Odeslat",
+      "sending": "Odesílám..."
+    },
+    "validation": {
+      "allFieldsRequired": "Všechna pole jsou povinná",
+      "invalidEmail": "Neplatná e-mailová adresa"
+    },
+    "success": {
+      "title": "Zpráva odeslána!",
+      "message": "Děkujeme za vaši zprávu. Odpovíme vám co nejdříve."
+    },
+    "error": {
+      "submitFailed": "Nepodařilo se odeslat zprávu"
+    }
+  },
+  "help": {
+    "contact": "Kontakt"
   }
 }
 

@@ -189,34 +189,34 @@ export function StepModal({
                   </div>
 
                   {/* Goal selection - right side */}
-                  <div>
-                    <label className="block text-sm font-semibold text-black mb-2 font-playful">
-                      {t('steps.goal')}
-                    </label>
-                    <select
+                    <div>
+                      <label className="block text-sm font-semibold text-black mb-2 font-playful">
+                        {t('steps.goal')}
+                      </label>
+                      <select
                       value={stepModalData.goalId || ''}
-                      onChange={(e) => {
-                        const newGoalId = e.target.value
+                        onChange={(e) => {
+                          const newGoalId = e.target.value
                         const selectedGoal = goals.find((g: any) => g.id === newGoalId)
-                        setStepModalData({
-                          ...stepModalData, 
-                          goalId: newGoalId,
+                          setStepModalData({
+                            ...stepModalData, 
+                            goalId: newGoalId,
                           // Automatically set area from goal if goal is selected
                           areaId: selectedGoal?.area_id || stepModalData.areaId
-                        })
-                      }}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
-                    >
-                      <option value="">{t('steps.noGoal')}</option>
+                          })
+                        }}
+                        className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
+                      >
+                        <option value="">{t('steps.noGoal')}</option>
                       {/* Filter goals by selected area if area is selected */}
                       {(stepModalData.areaId 
                         ? goals.filter((goal: any) => goal.area_id === stepModalData.areaId)
                         : goals
                       ).map((goal: any) => (
-                        <option key={goal.id} value={goal.id}>{goal.title}</option>
-                      ))}
-                    </select>
-                  </div>
+                          <option key={goal.id} value={goal.id}>{goal.title}</option>
+                        ))}
+                      </select>
+                    </div>
                 </div>
 
                 {/* Date and Repeating - with background box */}
@@ -262,22 +262,22 @@ export function StepModal({
                           className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
                         />
                       ) : (
-                        <select
+                      <select
                           value={stepModalData.frequency || 'daily'}
-                          onChange={(e) => {
+                        onChange={(e) => {
                             const frequency = e.target.value as 'daily' | 'weekly' | 'monthly'
-                            setStepModalData({
-                              ...stepModalData,
+                          setStepModalData({
+                            ...stepModalData, 
                               frequency,
                               selected_days: frequency === 'daily' ? [] : (stepModalData.selected_days || [])
-                            })
-                          }}
-                          className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
-                        >
+                          })
+                        }}
+                        className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
+                      >
                           <option value="daily">{t('habits.frequency.daily') || 'Denně'}</option>
                           <option value="weekly">{t('habits.frequency.weekly') || 'Týdně'}</option>
                           <option value="monthly">{t('habits.frequency.monthly') || 'Měsíčně'}</option>
-                        </select>
+                      </select>
                       )}
                     </div>
                   </div>
@@ -362,7 +362,7 @@ export function StepModal({
                             </button>
                           )
                         })}
-                      </div>
+                </div>
                     </div>
                   )}
                   

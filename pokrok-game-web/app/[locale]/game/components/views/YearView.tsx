@@ -202,7 +202,7 @@ export function YearView({
             if (habitDate >= yearStart && habitDate <= yearEnd) {
               completedHabits++
               habitCompletionsByHabit[habit.id] = (habitCompletionsByHabit[habit.id] || 0) + 1
-            }
+          }
         }
       })
     }

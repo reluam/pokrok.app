@@ -1734,6 +1734,34 @@
     "monthlyDesc": "Serves for a larger overview. Displays a calendar with steps and habits for the entire month.",
     "yearly": "Yearly",
     "yearlyDesc": "Overview of progress in individual goals. Displays a timeline with progress bars for all goals."
+  },
+  "contact": {
+    "title": "Contact",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "type": "Type",
+      "typeBug": "Bug",
+      "typeRequest": "Request",
+      "typeOther": "Other",
+      "message": "Message",
+      "send": "Send",
+      "sending": "Sending..."
+    },
+    "validation": {
+      "allFieldsRequired": "All fields are required",
+      "invalidEmail": "Invalid email address"
+    },
+    "success": {
+      "title": "Message sent!",
+      "message": "Thank you for your message. We will respond as soon as possible."
+    },
+    "error": {
+      "submitFailed": "Failed to send message"
+    }
+  },
+  "help": {
+    "contact": "Contact"
   }
 }
 

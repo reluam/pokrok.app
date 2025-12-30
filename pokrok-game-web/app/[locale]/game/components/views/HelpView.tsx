@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { HelpCircle, Target, Footprints, CheckSquare, Plus, ArrowRight, Menu, Rocket, Calendar, Eye, Sparkles, TrendingUp, Clock, Star, Zap, BookOpen, AlertTriangle, Settings, Check, ChevronLeft, ChevronRight, X, LayoutDashboard, Heart, ListTodo, Flame, BarChart3, Edit, Trash2, Briefcase, Smartphone, TrendingUp as TrendingUpIcon, CalendarDays, Navigation } from 'lucide-react'
+import { HelpCircle, Target, Footprints, CheckSquare, Plus, ArrowRight, Menu, Rocket, Calendar, Eye, Sparkles, TrendingUp, Clock, Star, Zap, BookOpen, AlertTriangle, Settings, Check, ChevronLeft, ChevronRight, X, LayoutDashboard, Heart, ListTodo, Flame, BarChart3, Edit, Trash2, Briefcase, Smartphone, TrendingUp as TrendingUpIcon, CalendarDays, Navigation, Mail } from 'lucide-react'
+import { ContactModal } from '../modals/ContactModal'
 
 interface HelpViewProps {
   onAddGoal?: () => void
@@ -56,6 +57,7 @@ export function HelpView({
   const locale = useLocale()
   const [selectedCategory, setSelectedCategory] = useState<HelpCategory>('getting-started')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [showContactModal, setShowContactModal] = useState(false)
 
   const categories = [
     { id: 'getting-started' as HelpCategory, label: t('categories.gettingStarted'), icon: Rocket },
@@ -1644,6 +1646,14 @@ export function HelpView({
                 </button>
               )
             })}
+            {/* Contact button */}
+            <button
+              onClick={() => setShowContactModal(true)}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-playful-md transition-all text-left text-sm font-playful text-black hover:bg-primary-50 mt-2 border-t-2 border-primary-200 pt-2"
+            >
+              <Mail className="w-4 h-4" />
+              <span className="font-medium">{t('contact') || tCommon('contact.title') || 'Kontakt'}</span>
+            </button>
           </nav>
         </div>
       </div>
@@ -1689,6 +1699,17 @@ export function HelpView({
                           </button>
                         )
                       })}
+                      {/* Contact button */}
+                      <button
+                        onClick={() => {
+                          setShowContactModal(true)
+                          setMobileMenuOpen(false)
+                        }}
+                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left font-playful text-black hover:bg-primary-50 border-t-2 border-primary-200 mt-1"
+                      >
+                        <Mail className="w-4 h-4" />
+                        <span className="font-medium">{t('contact') || tCommon('contact.title') || 'Kontakt'}</span>
+                      </button>
                     </nav>
                   </div>
                 </>
@@ -1701,6 +1722,12 @@ export function HelpView({
           {renderContent()}
         </div>
       </div>
+
+      {/* Contact Modal */}
+      <ContactModal
+        show={showContactModal}
+        onClose={() => setShowContactModal(false)}
+      />
     </div>
   )
 }
