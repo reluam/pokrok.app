@@ -19,17 +19,13 @@ const intlMiddleware = createMiddleware({
 
 export default clerkMiddleware(async (auth, req) => {
   try {
-    // Check authentication first
-    if (isProtectedRoute(req)) {
-      auth.protect()
-    }
+    const pathname = req.nextUrl.pathname
     
-    // For API routes, just return (don't run intl middleware)
-    if (req.nextUrl.pathname.startsWith('/api/')) {
+    // For API routes, check auth but don't redirect - let API handle it
+    if (pathname.startsWith('/api/')) {
+      // Don't protect API routes here - let each API route handle auth
       return NextResponse.next()
     }
-    
-    const pathname = req.nextUrl.pathname
     
     // Redirect sign-in and sign-up routes with locale prefix to versions without prefix
     // This ensures all language versions redirect to pokrok.app/sign-in and pokrok.app/sign-up
@@ -48,6 +44,21 @@ export default clerkMiddleware(async (auth, req) => {
       return NextResponse.next()
     }
     
+    // Check authentication for protected routes
+    if (isProtectedRoute(req)) {
+      // Check auth state - if not authenticated, redirect to sign-in
+      // This prevents redirect loops with invalid tokens
+      const { userId } = auth()
+      if (!userId) {
+        // Not authenticated - redirect to sign-in only if not already there
+        if (!pathname.startsWith('/sign-in') && !pathname.startsWith('/sign-up')) {
+          const signInUrl = new URL('/sign-in', req.url)
+          signInUrl.searchParams.set('redirect_url', pathname)
+          return NextResponse.redirect(signInUrl)
+        }
+      }
+    }
+    
     // Then run intl middleware for non-API routes
     return intlMiddleware(req)
   } catch (error) {
@@ -64,6 +75,12 @@ export default clerkMiddleware(async (auth, req) => {
       // For API routes, just continue
       if (req.nextUrl.pathname.startsWith('/api/')) {
         return NextResponse.next()
+      }
+      
+      // For protected routes, redirect to sign-in on error
+      if (isProtectedRoute(req)) {
+        const signInUrl = new URL('/sign-in', req.url)
+        return NextResponse.redirect(signInUrl)
       }
       
       // Try intl middleware as fallback
