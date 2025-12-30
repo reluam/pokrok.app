@@ -58,6 +58,94 @@ async function createRecurringStepInstance(recurringStep: any, targetDate: Date,
   `
 }
 
+// Helper function to create multiple instances in batch (much faster)
+async function createRecurringStepInstancesBatch(
+  recurringStep: any, 
+  targetDates: Date[], 
+  userId: string
+): Promise<number> {
+  if (targetDates.length === 0) return 0
+  
+  // Prepare all instance data
+  const instances = targetDates.map(targetDate => {
+    const year = targetDate.getFullYear()
+    const month = String(targetDate.getMonth() + 1).padStart(2, '0')
+    const day = String(targetDate.getDate()).padStart(2, '0')
+    const dateStr = `${year}-${month}-${day}`
+    
+    const dateFormatted = targetDate.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' })
+    const instanceTitle = `${recurringStep.title} - ${dateFormatted}`
+    
+    return {
+      id: crypto.randomUUID(),
+      dateStr,
+      instanceTitle,
+      targetDate
+    }
+  })
+  
+  // Check which instances already exist (batch check)
+  const titles = instances.map(i => i.instanceTitle)
+  const dateStrings = instances.map(i => i.dateStr)
+  
+  const existingInstances = await sql`
+    SELECT title, date::text as date
+    FROM daily_steps
+    WHERE user_id = ${userId}
+    AND title = ANY(${titles})
+    AND date::text = ANY(${dateStrings})
+  `
+  
+  // Create a set of existing (title, date) pairs for fast lookup
+  const existingSet = new Set(
+    existingInstances.map((e: any) => `${e.title}|${e.date}`)
+  )
+  
+  // Filter out existing instances
+  const newInstances = instances.filter(
+    inst => !existingSet.has(`${inst.instanceTitle}|${inst.dateStr}`)
+  )
+  
+  if (newInstances.length === 0) return 0
+  
+  // Prepare batch insert using UNNEST for better performance
+  const checklistJson = recurringStep.checklist ? JSON.stringify(recurringStep.checklist) : '[]'
+  const ids = newInstances.map(i => i.id)
+  const instanceTitles = newInstances.map(i => i.instanceTitle)
+  const instanceDates = newInstances.map(i => i.dateStr)
+  
+  // Execute batch insert using UNNEST
+  await sql`
+    INSERT INTO daily_steps (
+      id, user_id, goal_id, title, description, completed, date, 
+      is_important, is_urgent, aspiration_id, area_id,
+      estimated_time, xp_reward, deadline, checklist, require_checklist_complete,
+      frequency, selected_days
+    )
+    SELECT 
+      unnest(${ids}::text[]) as id,
+      ${userId} as user_id,
+      ${recurringStep.goal_id || null} as goal_id,
+      unnest(${instanceTitles}::text[]) as title,
+      ${recurringStep.description || null} as description,
+      false as completed,
+      unnest(${instanceDates}::text[])::date as date,
+      ${recurringStep.is_important || false} as is_important,
+      ${recurringStep.is_urgent || false} as is_urgent,
+      ${recurringStep.aspiration_id || null} as aspiration_id,
+      ${recurringStep.area_id || null} as area_id,
+      ${recurringStep.estimated_time || 30} as estimated_time,
+      ${recurringStep.xp_reward || 1} as xp_reward,
+      ${recurringStep.deadline || null} as deadline,
+      ${checklistJson}::jsonb as checklist,
+      ${recurringStep.require_checklist_complete || false} as require_checklist_complete,
+      NULL as frequency,
+      '[]'::jsonb as selected_days
+  `
+  
+  return newInstances.length
+}
+
 // Helper function to normalize date from database to YYYY-MM-DD string
 // PostgreSQL DATE type is stored without time, so we need to preserve it exactly as stored
 function normalizeDateFromDB(date: any): string | null {
@@ -223,40 +311,24 @@ export async function GET(request: NextRequest) {
           maxDate.setMonth(maxDate.getMonth() + 2)
           const finalEndDate = endDate && endDate < maxDate ? endDate : maxDate
           
+          // Collect all dates that should have instances
+          const targetDates: Date[] = []
           let checkDate = new Date(startDate)
-          let lastCreatedDate: Date | null = null
-          let instanceCount = 0
           const maxInstances = 60 // Safety limit (2 months)
           
-          // Create instances from start date to end date (or 2 months)
-          while (checkDate <= finalEndDate && instanceCount < maxInstances) {
+          while (checkDate <= finalEndDate && targetDates.length < maxInstances) {
             if (isStepScheduledForDay(template, checkDate)) {
-              const year = checkDate.getFullYear()
-              const month = String(checkDate.getMonth() + 1).padStart(2, '0')
-              const day = String(checkDate.getDate()).padStart(2, '0')
-              const dateStr = `${year}-${month}-${day}`
-              
-              const dateFormatted = checkDate.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' })
-              const instanceTitle = `${template.title} - ${dateFormatted}`
-              
-              const existingInstance = await sql`
-                SELECT id FROM daily_steps
-                WHERE user_id = ${targetUserId}
-                AND title = ${instanceTitle}
-                AND date = CAST(${dateStr}::text AS DATE)
-              `
-              
-              if (existingInstance.length === 0) {
-                await createRecurringStepInstance(template, checkDate, targetUserId)
-                lastCreatedDate = checkDate
-                instanceCount++
-              }
+              targetDates.push(new Date(checkDate))
             }
             checkDate.setDate(checkDate.getDate() + 1)
           }
           
+          // Create all instances in batch (much faster)
+          const createdCount = await createRecurringStepInstancesBatch(template, targetDates, targetUserId)
+          
           // Update last_instance_date on the recurring step
-          if (lastCreatedDate) {
+          if (targetDates.length > 0) {
+            const lastCreatedDate = targetDates[targetDates.length - 1]
             const year = lastCreatedDate.getFullYear()
             const month = String(lastCreatedDate.getMonth() + 1).padStart(2, '0')
             const day = String(lastCreatedDate.getDate()).padStart(2, '0')
@@ -536,46 +608,29 @@ export async function POST(request: NextRequest) {
           endDate.setHours(23, 59, 59, 999)
         }
         
-        // Calculate max date (1 year from start or end date, whichever is earlier)
+        // Calculate max date (2 months from start or end date, whichever is earlier)
         const maxDate = new Date(startDate)
-        maxDate.setFullYear(maxDate.getFullYear() + 1)
+        maxDate.setMonth(maxDate.getMonth() + 2)
         const finalEndDate = endDate && endDate < maxDate ? endDate : maxDate
         
+        // Collect all dates that should have instances
+        const targetDates: Date[] = []
         let checkDate = new Date(startDate)
-        let lastInstanceDate: Date | null = null
-        let instanceCount = 0
-        const maxInstances = 365 // Safety limit
+        const maxInstances = 60 // Safety limit (2 months)
         
-        // Create all instances from start date to end date (or 1 year)
-        while (checkDate <= finalEndDate && instanceCount < maxInstances) {
+        while (checkDate <= finalEndDate && targetDates.length < maxInstances) {
           if (isStepScheduledForDay(step, checkDate)) {
-            // Use local date components (not UTC) for date string
-            const year = checkDate.getFullYear()
-            const month = String(checkDate.getMonth() + 1).padStart(2, '0')
-            const day = String(checkDate.getDate()).padStart(2, '0')
-            const dateStr = `${year}-${month}-${day}`
-            
-            const dateFormatted = checkDate.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' })
-            const instanceTitle = `${step.title} - ${dateFormatted}`
-            
-            const existingInstance = await sql`
-              SELECT id FROM daily_steps
-              WHERE user_id = ${targetUserId}
-              AND title = ${instanceTitle}
-              AND date = CAST(${dateStr}::text AS DATE)
-            `
-            
-            if (existingInstance.length === 0) {
-              await createRecurringStepInstance(step, checkDate, targetUserId)
-              lastInstanceDate = checkDate
-              instanceCount++
-            }
+            targetDates.push(new Date(checkDate))
           }
           checkDate.setDate(checkDate.getDate() + 1)
         }
         
+        // Create all instances in batch (much faster)
+        const createdCount = await createRecurringStepInstancesBatch(step, targetDates, targetUserId)
+        
         // Update last_instance_date on the recurring step
-        if (lastInstanceDate) {
+        if (targetDates.length > 0) {
+          const lastInstanceDate = targetDates[targetDates.length - 1]
           const year = lastInstanceDate.getFullYear()
           const month = String(lastInstanceDate.getMonth() + 1).padStart(2, '0')
           const day = String(lastInstanceDate.getDate()).padStart(2, '0')
@@ -588,7 +643,7 @@ export async function POST(request: NextRequest) {
           `
         }
         
-        console.log(`Created ${instanceCount} instances for recurring step ${step.title}`)
+        console.log(`Created ${createdCount} instances for recurring step ${step.title}`)
       } catch (instanceError) {
         console.error('Error creating recurring step instances:', instanceError)
         // Don't fail the request - step was created successfully, instances can be created later
@@ -929,8 +984,8 @@ export async function PUT(request: NextRequest) {
             let nextDateForInstance = new Date(completionDateForInstance)
             nextDateForInstance.setDate(nextDateForInstance.getDate() + 1)
             
-            // Check up to 365 days ahead to find next occurrence
-            for (let i = 0; i < 365; i++) {
+            // Check up to 60 days ahead to find next occurrence
+            for (let i = 0; i < 60; i++) {
               if (isStepScheduledForDay(originalStep, nextDateForInstance)) {
                 // Check if instance already exists
                 const dateStr = nextDateForInstance.toISOString().split('T')[0]
