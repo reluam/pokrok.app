@@ -8,9 +8,11 @@
 
 ### Workflow:
 
+**DEFAULTNÍ WORKFLOW - Vždy pushuj na staging:**
+
 1. **Lokální vývoj:**
    ```bash
-   # Vytvoř feature branch z staging
+   # Vytvoř feature branch z staging (volitelné)
    git checkout staging
    git pull origin staging
    git checkout -b feature/nazev-feature
@@ -20,18 +22,24 @@
    git commit -m "Popis změn"
    ```
 
-2. **Testování na staging:**
+2. **Testování na staging (DEFAULT):**
    ```bash
-   # Pushni na staging
+   # Použij defaultní deploy skript
+   ./scripts/deploy.sh
+   
+   # Nebo ručně:
    git checkout staging
-   git merge feature/nazev-feature
+   git merge feature/nazev-feature  # pokud jsi na feature branchi
    git push origin staging
    ```
    → Vercel automaticky vytvoří deployment na staging URL
 
-3. **Nasazení na produkci:**
+3. **Nasazení na produkci (POUZE po testování):**
    ```bash
-   # Po úspěšném testování merge staging do main
+   # Použij production deploy skript (s bezpečnostními kontrolami)
+   ./scripts/deploy-production.sh
+   
+   # Nebo ručně:
    git checkout main
    git pull origin main
    git merge staging
@@ -82,8 +90,8 @@ V **Project Settings** → **Environment Variables** nastav:
 ## Helper Skripty
 
 V projektu jsou připravené helper skripty v `scripts/`:
-- `deploy-staging.sh` - Push na staging
-- `deploy-production.sh` - Push na produkci (s potvrzením)
+- `deploy.sh` - **Defaultní deploy** - Push na staging (používej tento pro běžné testování)
+- `deploy-production.sh` - Push na produkci (s potvrzením - použij pouze po testování na staging)
 
 ## Tipy
 

@@ -2,13 +2,16 @@
 
 # Deploy to Production
 # Usage: ./scripts/deploy-production.sh
+# 
+# NOTE: Default deployment goes to staging. Use this script ONLY for production.
 
 set -e
 
-echo "🚀 Deploying to Production..."
-
-# Safety check
+echo "🚀 Deploying to PRODUCTION..."
+echo ""
 echo "⚠️  WARNING: You are about to deploy to PRODUCTION!"
+echo "⚠️  Make sure you have tested everything on staging first!"
+echo ""
 read -p "Are you sure you want to continue? (yes/no) " -r
 if [[ ! $REPLY =~ ^[Yy][Ee][Ss]$ ]]; then
     echo "❌ Deployment cancelled."
