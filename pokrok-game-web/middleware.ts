@@ -21,6 +21,18 @@ export default clerkMiddleware(async (auth, req) => {
   try {
     const pathname = req.nextUrl.pathname
     
+    // Handle OPTIONS requests (CORS preflight) - return 200 with CORS headers
+    if (req.method === 'OPTIONS') {
+      return new NextResponse(null, {
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+      })
+    }
+    
     // For API routes, check auth but don't redirect - let API handle it
     if (pathname.startsWith('/api/')) {
       // Don't protect API routes here - let each API route handle auth
