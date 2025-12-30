@@ -1293,8 +1293,11 @@ export function GoalDetailPage({
             })
             
             // Get only the nearest instance for each recurring step
-            // Prefer non-completed instances, but show completed if no non-completed exist
-            const nearestInstances = new Set<string>()
+            // For "Remaining steps", prefer non-completed instances (today's or overdue)
+            // For "Done steps", show completed instances only if no non-completed exist
+            const nearestInstancesForRemaining = new Set<string>()
+            const nearestInstancesForDone = new Set<string>()
+            
             instancesByRecurringStep.forEach((instances, recurringStepId) => {
               // Sort instances by date (oldest first, instances without date go to end)
               instances.sort((a, b) => {
@@ -1303,15 +1306,23 @@ export function GoalDetailPage({
                 return dateA - dateB
               })
               
-              // Prefer non-completed instances
+              // Separate completed and non-completed instances
               const nonCompletedInstances = instances.filter((inst: any) => !inst.completed)
-              const instancesToConsider = nonCompletedInstances.length > 0 ? nonCompletedInstances : instances
+              const completedInstances = instances.filter((inst: any) => inst.completed)
               
-              // Add only the first (nearest) instance
-              if (instancesToConsider.length > 0) {
-                nearestInstances.add(instancesToConsider[0].id)
+              // For "Remaining steps": prefer non-completed instances (today's or overdue)
+              if (nonCompletedInstances.length > 0) {
+                nearestInstancesForRemaining.add(nonCompletedInstances[0].id)
+              }
+              
+              // For "Done steps": show completed instances only if no non-completed exist
+              if (nonCompletedInstances.length === 0 && completedInstances.length > 0) {
+                nearestInstancesForDone.add(completedInstances[0].id)
               }
             })
+            
+            // Combine both sets
+            const nearestInstances = new Set([...nearestInstancesForRemaining, ...nearestInstancesForDone])
             
             // Filter steps: exclude hidden templates and show only nearest instances for recurring steps
             const filteredGoalSteps = goalSteps.filter(step => {
