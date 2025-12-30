@@ -1258,10 +1258,13 @@ export function GoalDetailPage({
             
             // Filter recurring steps to show only the nearest instance
             // Group instances by their original recurring step template
+            // Include both completed and non-completed instances to find the nearest one
             const recurringStepInstances = goalSteps.filter(step => {
-              // Show instances (non-recurring steps with title containing " - " and date)
-              // Exclude completed instances and hidden steps
-              if (!step.frequency && step.date && step.title && step.title.includes(' - ') && !step.completed && step.is_hidden !== true) {
+              // Show instances (non-recurring steps with title containing " - ")
+              // Include both completed and non-completed instances
+              // Include instances with or without date
+              // Exclude hidden steps
+              if (!step.frequency && step.title && step.title.includes(' - ') && step.is_hidden !== true) {
                 return true
               }
               return false
@@ -1290,18 +1293,23 @@ export function GoalDetailPage({
             })
             
             // Get only the nearest instance for each recurring step
+            // Prefer non-completed instances, but show completed if no non-completed exist
             const nearestInstances = new Set<string>()
             instancesByRecurringStep.forEach((instances, recurringStepId) => {
-              // Sort instances by date (oldest first)
+              // Sort instances by date (oldest first, instances without date go to end)
               instances.sort((a, b) => {
-                const dateA = a.date ? new Date(normalizeDate(a.date)).getTime() : 0
-                const dateB = b.date ? new Date(normalizeDate(b.date)).getTime() : 0
+                const dateA = a.date ? new Date(normalizeDate(a.date)).getTime() : Number.MAX_SAFE_INTEGER
+                const dateB = b.date ? new Date(normalizeDate(b.date)).getTime() : Number.MAX_SAFE_INTEGER
                 return dateA - dateB
               })
               
+              // Prefer non-completed instances
+              const nonCompletedInstances = instances.filter((inst: any) => !inst.completed)
+              const instancesToConsider = nonCompletedInstances.length > 0 ? nonCompletedInstances : instances
+              
               // Add only the first (nearest) instance
-              if (instances.length > 0) {
-                nearestInstances.add(instances[0].id)
+              if (instancesToConsider.length > 0) {
+                nearestInstances.add(instancesToConsider[0].id)
               }
             })
             
