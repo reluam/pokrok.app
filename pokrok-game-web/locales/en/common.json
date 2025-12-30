@@ -1471,7 +1471,8 @@
       "fri": "Fr",
       "sat": "Sa",
       "sun": "Su"
-    }
+    },
+    "contact": "Contact"
   },
   "areas": {
     "title": "Areas",
@@ -1759,9 +1760,6 @@
     "error": {
       "submitFailed": "Failed to send message"
     }
-  },
-  "help": {
-    "contact": "Contact"
   }
 }
 

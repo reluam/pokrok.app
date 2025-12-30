@@ -165,27 +165,34 @@ export function StepModal({
                     <label className="block text-sm font-semibold text-black mb-2 font-playful">
                       {t('details.goal.area') || 'Oblast'}
                     </label>
-                    <select
-                      value={stepModalData.areaId || ''}
-                      onChange={(e) => {
-                        const newAreaId = e.target.value
-                        setStepModalData({
-                          ...stepModalData, 
-                          areaId: newAreaId,
-                          // If area is cleared and goal has area, keep goal's area
-                          // If area is selected and current goal doesn't belong to it, clear goal
-                          goalId: newAreaId && stepModalData.goalId ? 
-                            (goals.find((g: any) => g.id === stepModalData.goalId)?.area_id === newAreaId ? stepModalData.goalId : '') 
-                            : stepModalData.goalId
-                        })
-                      }}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
-                    >
-                      <option value="">{t('details.goal.noArea') || 'Bez oblasti'}</option>
-                      {areas.map((area) => (
-                        <option key={area.id} value={area.id}>{area.name}</option>
-                      ))}
-                    </select>
+                    {stepModalData.goalId ? (
+                      // If goal is selected, show area as read-only (locked)
+                      <div className="w-full px-4 py-2.5 text-sm border-2 border-primary-300 rounded-playful-md bg-gray-100 text-gray-600">
+                        {(() => {
+                          const selectedGoal = goals.find((g: any) => g.id === stepModalData.goalId)
+                          const goalArea = selectedGoal?.area_id ? areas.find((a: any) => a.id === selectedGoal.area_id) : null
+                          return goalArea ? goalArea.name : (t('details.goal.noArea') || 'Bez oblasti')
+                        })()}
+                      </div>
+                    ) : (
+                      // If no goal is selected, allow area selection
+                      <select
+                        value={stepModalData.areaId || ''}
+                        onChange={(e) => {
+                          const newAreaId = e.target.value
+                          setStepModalData({
+                            ...stepModalData, 
+                            areaId: newAreaId
+                          })
+                        }}
+                        className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
+                      >
+                        <option value="">{t('details.goal.noArea') || 'Bez oblasti'}</option>
+                        {areas.map((area) => (
+                          <option key={area.id} value={area.id}>{area.name}</option>
+                        ))}
+                      </select>
+                    )}
                   </div>
 
                   {/* Goal selection - right side */}
@@ -202,16 +209,17 @@ export function StepModal({
                             ...stepModalData, 
                             goalId: newGoalId,
                           // Automatically set area from goal if goal is selected
-                          areaId: selectedGoal?.area_id || stepModalData.areaId
+                          // If goal is cleared, keep area only if it was manually selected (not from previous goal)
+                          areaId: selectedGoal?.area_id || (newGoalId === '' ? stepModalData.areaId : '')
                           })
                         }}
                         className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
                       >
                         <option value="">{t('steps.noGoal')}</option>
-                      {/* Filter goals by selected area if area is selected */}
-                      {(stepModalData.areaId 
-                        ? goals.filter((goal: any) => goal.area_id === stepModalData.areaId)
-                        : goals
+                      {/* Show all goals (not filtered by area) when goal is selected, filter when no goal */}
+                      {(stepModalData.goalId || !stepModalData.areaId
+                        ? goals
+                        : goals.filter((goal: any) => goal.area_id === stepModalData.areaId)
                       ).map((goal: any) => (
                           <option key={goal.id} value={goal.id}>{goal.title}</option>
                         ))}

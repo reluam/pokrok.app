@@ -1451,17 +1451,29 @@ export function JourneyGameView({
     } else {
       // Create new step - always use today's date as default
       const defaultDate = date || getLocalDateString(new Date())
-      // Check if we're on an area page and should assign the step to that area
+      
+      // Check if we're creating step from a goal (selectedGoalId is set)
+      let defaultGoalId = ''
       let defaultAreaId = ''
-      if (mainPanelSection?.startsWith('area-')) {
+      
+      if (selectedGoalId) {
+        // If creating step from goal, automatically set goalId and areaId from goal
+        const selectedGoal = goals.find((g: any) => g.id === selectedGoalId)
+        if (selectedGoal) {
+          defaultGoalId = selectedGoalId
+          defaultAreaId = selectedGoal.area_id || ''
+        }
+      } else if (mainPanelSection?.startsWith('area-')) {
+        // Check if we're on an area page and should assign the step to that area
         defaultAreaId = mainPanelSection.replace('area-', '')
       }
+      
       setStepModalData({
         id: null,
         title: '',
         description: '',
         date: defaultDate,
-        goalId: '',
+        goalId: defaultGoalId,
         areaId: defaultAreaId,
         completed: false,
         is_important: false,

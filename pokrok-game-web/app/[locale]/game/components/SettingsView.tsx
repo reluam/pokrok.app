@@ -1033,8 +1033,8 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
   return (
     <div className="w-full h-full flex bg-background">
       {/* Left sidebar - Navigation - Hidden on mobile */}
-      <div className="hidden md:flex w-64 border-r-2 border-primary-500 bg-white flex-shrink-0">
-        <div className="p-4">
+      <div className="hidden md:flex w-64 border-r-2 border-primary-500 bg-white flex-shrink-0 flex flex-col">
+        <div className="p-4 flex-1">
           <h2 className="text-lg font-bold text-black font-playful mb-4">Nastavení</h2>
           <nav className="space-y-1">
             {tabs.map((tab) => {
@@ -1055,6 +1055,40 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
               )
             })}
           </nav>
+        </div>
+        
+        {/* Language flags */}
+        <div className="p-4 border-t-2 border-primary-500">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-sm font-semibold text-black font-playful">🌐</span>
+            <span className="text-xs font-semibold text-gray-600 font-playful">{t('settings.user.language.title')}</span>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleLocaleChange('cs')}
+              disabled={isSavingLocale}
+              className={`flex-1 px-3 py-2 rounded-playful-md border-2 transition-all font-playful text-lg ${
+                (preferredLocale || locale) === 'cs'
+                  ? 'bg-primary-500 text-black border-primary-500 font-semibold'
+                  : 'bg-white text-black border-primary-300 hover:bg-primary-50 hover:border-primary-500'
+              } ${isSavingLocale ? 'opacity-50 cursor-not-allowed' : ''}`}
+              title="Čeština"
+            >
+              🇨🇿
+            </button>
+            <button
+              onClick={() => handleLocaleChange('en')}
+              disabled={isSavingLocale}
+              className={`flex-1 px-3 py-2 rounded-playful-md border-2 transition-all font-playful text-lg ${
+                (preferredLocale || locale) === 'en'
+                  ? 'bg-primary-500 text-black border-primary-500 font-semibold'
+                  : 'bg-white text-black border-primary-300 hover:bg-primary-50 hover:border-primary-500'
+              } ${isSavingLocale ? 'opacity-50 cursor-not-allowed' : ''}`}
+              title="English"
+            >
+              🇬🇧
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1083,8 +1117,8 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
                     className="fixed inset-0 z-[100]" 
                     onClick={() => setMobileMenuOpen(false)}
                   />
-                  <div className="fixed right-4 top-16 box-playful-highlight bg-white z-[101] min-w-[200px]">
-                    <nav className="py-2">
+                  <div className="fixed right-4 top-16 box-playful-highlight bg-white z-[101] min-w-[200px] flex flex-col">
+                    <nav className="py-2 flex-1">
                       {tabs.map((tab) => {
                         const Icon = tab.icon
                         return (
@@ -1106,6 +1140,46 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
                         )
                       })}
                     </nav>
+                    
+                    {/* Language flags */}
+                    <div className="p-4 border-t-2 border-primary-500">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm font-semibold text-black font-playful">🌐</span>
+                        <span className="text-xs font-semibold text-gray-600 font-playful">{t('settings.user.language.title')}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            handleLocaleChange('cs')
+                            setMobileMenuOpen(false)
+                          }}
+                          disabled={isSavingLocale}
+                          className={`flex-1 px-3 py-2 rounded-playful-md border-2 transition-all font-playful text-lg ${
+                            (preferredLocale || locale) === 'cs'
+                              ? 'bg-primary-500 text-black border-primary-500 font-semibold'
+                              : 'bg-white text-black border-primary-300 hover:bg-primary-50 hover:border-primary-500'
+                          } ${isSavingLocale ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          title="Čeština"
+                        >
+                          🇨🇿
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleLocaleChange('en')
+                            setMobileMenuOpen(false)
+                          }}
+                          disabled={isSavingLocale}
+                          className={`flex-1 px-3 py-2 rounded-playful-md border-2 transition-all font-playful text-lg ${
+                            (preferredLocale || locale) === 'en'
+                              ? 'bg-primary-500 text-black border-primary-500 font-semibold'
+                              : 'bg-white text-black border-primary-300 hover:bg-primary-50 hover:border-primary-500'
+                          } ${isSavingLocale ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          title="English"
+                        >
+                          🇬🇧
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </>
               )}

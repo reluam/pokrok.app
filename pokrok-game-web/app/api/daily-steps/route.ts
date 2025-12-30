@@ -456,12 +456,31 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Validate mutual exclusivity: areaId and goalId cannot both be set
+    // If goal is selected, area should come from goal (allow both to be set)
+    // Only validate if area is set but goal is not (which is fine)
+    // If both are set, verify that area matches goal's area
     if (areaId && goalId) {
-      return NextResponse.json({ 
-        error: 'Step cannot have both area and goal assigned',
-        details: 'A step must be assigned to either an area or a goal, not both'
-      }, { status: 400 })
+      // Get goal to verify area matches
+      const goalResult = await sql`
+        SELECT area_id FROM goals WHERE id = ${goalId} AND user_id = ${dbUser.id}
+      `
+      if (goalResult.length > 0) {
+        const goalAreaId = goalResult[0].area_id
+        // If goal has an area, it should match the provided areaId
+        if (goalAreaId && goalAreaId !== areaId) {
+          return NextResponse.json({ 
+            error: 'Area does not match goal\'s area',
+            details: 'The provided area does not match the area assigned to the selected goal'
+          }, { status: 400 })
+        }
+        // If goal has no area but areaId is provided, that's also invalid
+        if (!goalAreaId && areaId) {
+          return NextResponse.json({ 
+            error: 'Goal has no area assigned',
+            details: 'The selected goal does not have an area, so area cannot be set'
+          }, { status: 400 })
+        }
+      }
     }
     
     // Normalize areaId - empty string should be treated as null
@@ -705,12 +724,32 @@ export async function PUT(request: NextRequest) {
       }
     }
     
-    // Validate mutual exclusivity: areaId and goalId cannot both be set
-    if (areaId && (goalId || goal_id)) {
-      return NextResponse.json({ 
-        error: 'Step cannot have both area and goal assigned',
-        details: 'A step must be assigned to either an area or a goal, not both'
-      }, { status: 400 })
+    // If goal is selected, area should come from goal (allow both to be set)
+    // Only validate if area is set but goal is not (which is fine)
+    // If both are set, verify that area matches goal's area
+    const finalGoalId = goalId || goal_id
+    if (areaId && finalGoalId) {
+      // Get goal to verify area matches
+      const goalResult = await sql`
+        SELECT area_id FROM goals WHERE id = ${finalGoalId} AND user_id = ${dbUser.id}
+      `
+      if (goalResult.length > 0) {
+        const goalAreaId = goalResult[0].area_id
+        // If goal has an area, it should match the provided areaId
+        if (goalAreaId && goalAreaId !== areaId) {
+          return NextResponse.json({ 
+            error: 'Area does not match goal\'s area',
+            details: 'The provided area does not match the area assigned to the selected goal'
+          }, { status: 400 })
+        }
+        // If goal has no area but areaId is provided, that's also invalid
+        if (!goalAreaId && areaId) {
+          return NextResponse.json({ 
+            error: 'Goal has no area assigned',
+            details: 'The selected goal does not have an area, so area cannot be set'
+          }, { status: 400 })
+        }
+      }
     }
     
     // Check what type of update this is
