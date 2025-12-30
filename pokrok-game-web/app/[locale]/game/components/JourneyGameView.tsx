@@ -328,7 +328,10 @@ export function JourneyGameView({
     require_checklist_complete: false,
     isRepeating: false,
     frequency: null as string | null,
-    selected_days: [] as string[]
+    selected_days: [] as string[],
+    recurring_start_date: null as string | null,
+    recurring_end_date: null as string | null,
+    recurring_display_mode: 'next_only' as string
   })
   const [checklistSaving, setChecklistSaving] = useState(false)
   const checklistSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -1472,7 +1475,7 @@ export function JourneyGameView({
         selected_days: [],
         recurring_start_date: null,
         recurring_end_date: null,
-        recurring_display_mode: 'all'
+        recurring_display_mode: 'next_only'
       })
     }
     setShowStepModal(true)
@@ -1512,10 +1515,8 @@ export function JourneyGameView({
       let dateValue: string | null = null
       if (!stepModalData.isRepeating) {
         if (stepModalData.date) {
-          if (typeof stepModalData.date === 'string') {
+          if (stepModalData.date && typeof stepModalData.date === 'string') {
             dateValue = stepModalData.date
-          } else if (stepModalData.date instanceof Date) {
-            dateValue = getLocalDateString(stepModalData.date)
           } else {
             dateValue = getLocalDateString(new Date())
           }
@@ -1634,7 +1635,10 @@ export function JourneyGameView({
           require_checklist_complete: false,
           isRepeating: false,
           frequency: null,
-          selected_days: []
+          selected_days: [],
+          recurring_start_date: null,
+          recurring_end_date: null,
+          recurring_display_mode: 'next_only'
         })
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
@@ -2904,7 +2908,10 @@ export function JourneyGameView({
           require_checklist_complete: false,
           isRepeating: false,
           frequency: null,
-          selected_days: []
+          selected_days: [],
+          recurring_start_date: null,
+          recurring_end_date: null,
+          recurring_display_mode: 'next_only'
         })
         
         // Close editing form if it was open for this step
@@ -3946,7 +3953,10 @@ export function JourneyGameView({
             require_checklist_complete: false,
             isRepeating: false,
             frequency: null,
-            selected_days: []
+            selected_days: [],
+            recurring_start_date: null,
+            recurring_end_date: null,
+            recurring_display_mode: 'next_only'
           })
         }}
         onSave={handleSaveStepModal}

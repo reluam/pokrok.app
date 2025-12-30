@@ -65,7 +65,7 @@ export function verifyOwnership(userId: string, dbUser: User): boolean {
  */
 export async function verifyEntityOwnership(
   entityId: string,
-  tableName: 'habits' | 'goals' | 'daily_steps' | 'areas' | 'player' | 'workflows' | 'automations',
+  tableName: 'habits' | 'goals' | 'daily_steps' | 'areas' | 'player' | 'workflows' | 'automations' | 'aspirations',
   dbUser: User
 ): Promise<boolean> {
   try {
@@ -92,6 +92,9 @@ export async function verifyEntityOwnership(
         break
       case 'automations':
         result = await sql`SELECT user_id FROM automations WHERE id = ${entityId} LIMIT 1`
+        break
+      case 'aspirations':
+        result = await sql`SELECT user_id FROM aspirations WHERE id = ${entityId} LIMIT 1`
         break
       default:
         return false
