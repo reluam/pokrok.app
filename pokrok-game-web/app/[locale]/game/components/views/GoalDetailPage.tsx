@@ -1413,7 +1413,9 @@ export function GoalDetailPage({
                         {step.title}
                       </span>
                       {isRecurringInstance && originalRecurringStep && (
-                        <Repeat className="w-4 h-4 text-primary-600 flex-shrink-0" title={t('steps.recurring.recurring') || 'Opakující se krok'} />
+                        <span title={t('steps.recurring.recurring') || 'Opakující se krok'}>
+                          <Repeat className="w-4 h-4 text-primary-600 flex-shrink-0" />
+                        </span>
                       )}
                       {step.checklist && step.checklist.length > 0 && (
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
