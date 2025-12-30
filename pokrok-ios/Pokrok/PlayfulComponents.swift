@@ -154,18 +154,9 @@ struct PlayfulButton: View {
             .background(variant.backgroundColor)
             .overlay(
                 RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2) // Changed to 2px border matching web
+                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 3) // Thicker border
             )
             .cornerRadius(DesignSystem.CornerRadius.md)
-            .background(
-                // Offset shadow effect (3px 3px) matching web design
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                    .fill(isPressed || isAnimating ? Color.clear : DesignSystem.Shadows.buttonHighlight)
-                    .offset(
-                        x: isPressed || isAnimating ? 0 : DesignSystem.Shadows.buttonHighlightOffset,
-                        y: isPressed || isAnimating ? 0 : DesignSystem.Shadows.buttonHighlightOffset
-                    )
-            )
             .scaleEffect(isAnimating ? 0.95 : (isPressed ? 0.98 : 1.0))
             .opacity(isDisabled ? 0.6 : 1.0)
         }
@@ -189,7 +180,7 @@ struct PlayfulCard<Content: View>: View {
     
     init(
         variant: PlayfulCardVariant = .pink,
-        borderWidth: CGFloat = 2, // Changed from 3 to 2 to match web design
+        borderWidth: CGFloat = 3, // Thicker border
         cornerRadius: CGFloat = DesignSystem.CornerRadius.lg,
         animated: Bool = true,
         onTap: (() -> Void)? = nil,
@@ -240,18 +231,9 @@ struct PlayfulCard<Content: View>: View {
             .background(cardBackground)
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: borderWidth) // Use dynamic primary color for border
+                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: max(borderWidth, 3)) // Thicker border (minimum 3px)
             )
             .cornerRadius(cornerRadius)
-            .background(
-                // Offset shadow effect (3px 3px) matching web design
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(animated && isPressed ? Color.clear : DesignSystem.Shadows.card)
-                    .offset(
-                        x: animated && isPressed ? 0 : DesignSystem.Shadows.cardOffsetX,
-                        y: animated && isPressed ? 0 : DesignSystem.Shadows.cardOffsetY
-                    )
-            )
             .scaleEffect(animated && isPressed ? 0.98 : 1.0)
     }
     
@@ -280,12 +262,16 @@ struct PlayfulCheckbox: View {
         case pink
         case yellowGreen
         case purple
+        case red
+        case gray
         
         var color: Color {
             switch self {
             case .pink: return DesignSystem.Colors.dynamicPrimary // Dynamická primary barva místo růžové
             case .yellowGreen: return DesignSystem.Colors.Playful.yellowGreen
             case .purple: return DesignSystem.Colors.Playful.purple
+            case .red: return DesignSystem.Colors.redFull // Full red for overdue steps
+            case .gray: return DesignSystem.Colors.grayBorder // Gray for future steps
             }
         }
     }
@@ -323,15 +309,15 @@ struct PlayfulCheckbox: View {
             }
         }) {
             ZStack {
-                // Background - when checked, use primary color, otherwise surface color
+                // Background - when checked, use variant color, otherwise surface color
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(isChecked ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.surface)
+                    .fill(isChecked ? color.color : DesignSystem.Colors.surface)
                     .frame(width: size, height: size)
                 
-                // Border - 2px border matching web design
+                // Border - use variant color for border
                 RoundedRectangle(cornerRadius: 6)
                     .stroke(
-                        isChecked ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.dynamicPrimary,
+                        color.color,
                         lineWidth: 2 // Changed from 3 to 2 to match web
                     )
                     .frame(width: size, height: size)
@@ -379,7 +365,7 @@ struct PlayfulBadge: View {
             .background(variant.backgroundColor)
             .overlay(
                 RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2) // Use dynamic primary color
+                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 3) // Thicker border
             )
             .cornerRadius(DesignSystem.CornerRadius.sm)
     }
@@ -411,7 +397,7 @@ struct PlayfulInput: View {
             .background(variant.backgroundColor)
             .overlay(
                 RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2) // Changed to 2px to match web
+                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 3) // Thicker border
             )
             .cornerRadius(DesignSystem.CornerRadius.md)
     }
@@ -443,15 +429,15 @@ struct PlayfulProgressBar: View {
                     .fill(DesignSystem.Colors.surfaceSecondary)
                     .frame(height: height)
                 
-                // Progress
+                // Progress - use full primary color for fill
                 RoundedRectangle(cornerRadius: height / 2)
-                    .fill(variant.backgroundColor)
+                    .fill(DesignSystem.Colors.dynamicPrimary)
                     .frame(width: geometry.size.width * progress, height: height)
                     .animation(.easeInOut(duration: 0.3), value: progress)
                 
-                // Outline
+                // Outline - use full primary color
                 RoundedRectangle(cornerRadius: height / 2)
-                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2) // Use dynamic primary color
+                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 3) // Thicker border with full primary color
                     .frame(height: height)
             }
         }
@@ -491,10 +477,9 @@ struct PlayfulGoalCard: View {
                     
                     // Icon and action buttons row
                     HStack(alignment: .center, spacing: DesignSystem.Spacing.md) {
-                        // Icon
+                        // Icon - use LucideIcon instead of emoji
                         if let icon = goal.icon {
-                            Text(icon)
-                                .font(.title2)
+                            LucideIcon(icon, size: 24, color: DesignSystem.Colors.dynamicPrimary)
                         }
                         
                         Spacer()
@@ -591,7 +576,7 @@ struct PlayfulStepCard: View {
     // Custom background color based on state (matching web design)
     private var cardBackgroundColor: Color {
         if step.completed {
-            return DesignSystem.Colors.primaryLightBackground // bg-primary-100
+            return DesignSystem.Colors.greenLight // bg-green-50
         } else if isOverdue {
             return DesignSystem.Colors.redLight // bg-red-50
         } else if isFuture {
@@ -601,15 +586,16 @@ struct PlayfulStepCard: View {
         }
     }
     
-    // Border color based on state
+    // Border color based on state (matching web design)
     private var cardBorderColor: Color {
         if step.completed {
-            return DesignSystem.Colors.dynamicPrimary
+            return DesignSystem.Colors.greenBorder // border-green-200
         } else if isOverdue {
-            return Color.red.opacity(0.5) // red border for overdue
+            return DesignSystem.Colors.redFull // Full red for overdue steps
         } else if isFuture {
-            return DesignSystem.Colors.grayBorder // gray border for future
+            return DesignSystem.Colors.grayBorder // border-gray-200 for future
         } else {
+            // Today's steps use full primary color
             return DesignSystem.Colors.dynamicPrimary
         }
     }
@@ -629,9 +615,11 @@ struct PlayfulStepCard: View {
         if step.completed {
             return .yellowGreen
         } else if isOverdue {
-            return .pink
+            return .red // Red checkbox for overdue steps
+        } else if isFuture {
+            return .gray // Gray checkbox for future steps
         } else {
-            return .purple
+            return .pink // Primary color for today's steps
         }
     }
     
@@ -643,15 +631,51 @@ struct PlayfulStepCard: View {
         } else if isFuture {
             return "Budoucí"
         } else {
-            return "Čekající"
+            return "" // Remove "Čekající" tag
         }
     }
     
     private var textColor: Color {
-        if isFuture {
+        if isOverdue {
+            return DesignSystem.Colors.redText // text-red-600 for overdue
+        } else if isFuture {
             return DesignSystem.Colors.textSecondary
         } else {
             return DesignSystem.Colors.textPrimary
+        }
+    }
+    
+    // Format date: show day name if in current or next week (up to today), otherwise show date
+    private var formattedDate: String {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let stepDate = calendar.startOfDay(for: step.date)
+        
+        // Get start of current week (Monday)
+        let weekday = calendar.component(.weekday, from: today)
+        // Convert to Monday = 0, Sunday = 6
+        let daysFromMonday = (weekday + 5) % 7
+        let currentWeekStart = calendar.date(byAdding: .day, value: -daysFromMonday, to: today)!
+        
+        // Get end of next week (Sunday) - 13 days from current week start
+        let nextWeekEnd = calendar.date(byAdding: .day, value: 13, to: currentWeekStart)!
+        
+        // Check if step date is in current week or next week (but not beyond today if future)
+        // For overdue steps, show day name if in current or next week
+        // For future steps, show day name only if in current or next week AND <= today (but that doesn't make sense for future)
+        // Actually, for future steps, we want to show day name if in current or next week
+        if stepDate >= currentWeekStart && stepDate <= nextWeekEnd {
+            // Show day name
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "cs_CZ")
+            formatter.dateFormat = "EEEE"
+            return formatter.string(from: step.date).capitalized
+        } else {
+            // Show date
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "cs_CZ")
+            formatter.dateStyle = .short
+            return formatter.string(from: step.date)
         }
     }
     
@@ -673,89 +697,86 @@ struct PlayfulStepCard: View {
     var body: some View {
         NavigationLink(destination: StepDetailView(step: step)) {
             HStack(spacing: DesignSystem.Spacing.md) {
-                    // Checkbox - touch-friendly size for mobile
-                    PlayfulCheckbox(
-                        isChecked: $isChecked,
-                        color: checkboxVariant,
-                        size: 36
-                    )
-                    .onChange(of: isChecked) { oldValue, newValue in
-                        if newValue != step.completed {
-                            onToggle()
-                        }
-                    }
-                    .onAppear {
-                        isChecked = step.completed
-                    }
-                    
-                    // Content
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text(step.title)
-                            .font(DesignSystem.Typography.subheadline)
-                            .fontWeight(.medium)
-                            .foregroundColor(textColor)
-                            .strikethrough(step.completed)
-                            .lineLimit(2)
-                        
-                        if let description = step.description, !description.isEmpty {
-                            Text(description)
-                                .font(DesignSystem.Typography.caption)
-                                .foregroundColor(DesignSystem.Colors.textSecondary)
-                                .lineLimit(2)
-                        }
-                        
-                        HStack {
-                            if let goalTitle = goalTitle {
-                                HStack(spacing: DesignSystem.Spacing.xs) {
-                                    Image(systemName: "target")
-                                        .font(.system(size: 10, weight: .medium))
-                                        .foregroundColor(DesignSystem.Colors.textLight)
-                                    Text(goalTitle)
-                                        .font(DesignSystem.Typography.caption2)
-                                        .foregroundColor(DesignSystem.Colors.textSecondary)
-                                }
-                            }
-                            
-                            Spacer()
-                            
-                            Text(step.date, style: .date)
-                                .font(DesignSystem.Typography.caption2)
-                                .foregroundColor(DesignSystem.Colors.textSecondary)
-                        }
-                    }
-                    
-                    Spacer()
-                    
-                    // Status badge
-                    VStack {
-                        PlayfulBadge(
-                            text: statusText,
-                            variant: cardVariant,
-                            size: PlayfulButton.Size.sm
+            // Checkbox - simpler design matching web
+            Button(action: {
+                isChecked.toggle()
+                onToggle()
+            }) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(isChecked ? (isOverdue ? DesignSystem.Colors.redFull : DesignSystem.Colors.greenFull) : Color.clear)
+                        .frame(width: 20, height: 20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(isChecked ? (isOverdue ? DesignSystem.Colors.redFull : DesignSystem.Colors.greenFull) : (isOverdue ? DesignSystem.Colors.redFull : DesignSystem.Colors.grayBorder), lineWidth: 2)
                         )
-                        
-                        Spacer()
+                    
+                    if isChecked {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(.white)
                     }
                 }
-                .padding(DesignSystem.Spacing.md)
-                .background(cardBackgroundColor)
-                .overlay(
-                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
-                        .stroke(cardBorderColor, lineWidth: 2)
-                )
-                .cornerRadius(DesignSystem.CornerRadius.lg)
-                .background(
-                    // Offset shadow effect (3px 3px) matching web design
-                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
-                        .fill(DesignSystem.Colors.dynamicPrimary.opacity(1.0))
-                        .offset(
-                            x: DesignSystem.Shadows.cardOffsetX,
-                            y: DesignSystem.Shadows.cardOffsetY
-                        )
-                )
-                .opacity(isFuture ? 0.5 : 1.0)
             }
-        .buttonStyle(PlainButtonStyle())
+            .buttonStyle(PlainButtonStyle())
+            .onAppear {
+                isChecked = step.completed
+            }
+            .onChange(of: step.completed) { _, newValue in
+                isChecked = newValue
+            }
+                
+                // Content - simpler layout matching web
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                    Text(step.title)
+                        .font(DesignSystem.Typography.body)
+                        .fontWeight(.medium)
+                        .foregroundColor(textColor)
+                        .strikethrough(step.completed)
+                        .lineLimit(2)
+                    
+                    if let description = step.description, !description.isEmpty {
+                        Text(description)
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                            .lineLimit(2)
+                    }
+                    
+                    // Tags row - matching web design
+                    HStack(spacing: DesignSystem.Spacing.xs) {
+                        if step.isImportant == true {
+                            Text("Důležitý")
+                                .font(DesignSystem.Typography.caption2)
+                                .foregroundColor(DesignSystem.Colors.redText)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(DesignSystem.Colors.redLight)
+                                .cornerRadius(4)
+                        }
+                        
+                        if isOverdue || isFuture {
+                            Text(formattedDate)
+                                .font(DesignSystem.Typography.caption2)
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(DesignSystem.Colors.surfaceSecondary)
+                                .cornerRadius(4)
+                        }
+                    }
+                }
+                
+                Spacer()
+            }
+            .padding(DesignSystem.Spacing.md)
+            .background(cardBackgroundColor)
+            .overlay(
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                    .stroke(cardBorderColor, lineWidth: 2)
+            )
+            .cornerRadius(DesignSystem.CornerRadius.md)
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -795,84 +816,58 @@ struct PlayfulHabitCard: View {
     }
     
     var body: some View {
-        HStack(spacing: DesignSystem.Spacing.md) {
-                // Checkbox - touch-friendly size for mobile
-                PlayfulCheckbox(
-                    isChecked: $isChecked,
-                    color: .yellowGreen,
-                    size: 36
-                )
-                .onChange(of: isChecked) { oldValue, newValue in
-                    if newValue != isCompleted {
-                        onToggle()
+        NavigationLink(destination: HabitDetailView(habit: habit)) {
+            HStack(spacing: DesignSystem.Spacing.lg) {
+                // Checkbox - larger for better tapability
+                Button(action: {
+                    isChecked.toggle()
+                    onToggle()
+                }) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(isChecked ? DesignSystem.Colors.dynamicPrimary : Color.clear)
+                            .frame(width: 32, height: 32)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(isChecked ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.grayBorder, lineWidth: 2.5)
+                            )
+                        
+                        if isChecked {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(.white)
+                        }
                     }
                 }
+                .buttonStyle(PlainButtonStyle())
                 .onAppear {
                     isChecked = isCompleted
                 }
+                .onChange(of: isCompleted) { _, newValue in
+                    isChecked = newValue
+                }
                 
-                // Content
+                // Content - simpler layout matching web
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                     Text(habit.name)
-                        .font(DesignSystem.Typography.subheadline)
+                        .font(DesignSystem.Typography.body)
                         .fontWeight(.medium)
-                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                        .foregroundColor(isCompleted ? DesignSystem.Colors.textSecondary : DesignSystem.Colors.textPrimary)
                         .strikethrough(isCompleted)
                         .lineLimit(2)
-                    
-                    if let description = habit.description, !description.isEmpty {
-                        Text(description)
-                            .font(DesignSystem.Typography.caption)
-                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                            .lineLimit(2)
-                    }
-                    
-                    // Streak info
-                    HStack(spacing: DesignSystem.Spacing.md) {
-                        if habit.streak > 0 {
-                            HStack(spacing: DesignSystem.Spacing.xs) {
-                                Image(systemName: "flame.fill")
-                                    .font(.system(size: 10, weight: .medium))
-                                    .foregroundColor(DesignSystem.Colors.Playful.yellow)
-                                Text("\(habit.streak) dní")
-                                    .font(DesignSystem.Typography.caption2)
-                                    .foregroundColor(DesignSystem.Colors.textSecondary)
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        if habit.maxStreak > 0 {
-                            HStack(spacing: DesignSystem.Spacing.xs) {
-                                Image(systemName: "star.fill")
-                                    .font(.system(size: 10, weight: .medium))
-                                    .foregroundColor(DesignSystem.Colors.Playful.yellow)
-                                Text("Max: \(habit.maxStreak)")
-                                    .font(DesignSystem.Typography.caption2)
-                                    .foregroundColor(DesignSystem.Colors.textSecondary)
-                            }
-                        }
-                    }
                 }
                 
                 Spacer()
             }
-            .padding(DesignSystem.Spacing.md)
+            .padding(DesignSystem.Spacing.lg)
             .background(cardBackgroundColor)
             .overlay(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
                     .stroke(cardBorderColor, lineWidth: 2)
             )
-            .cornerRadius(DesignSystem.CornerRadius.lg)
-            .background(
-                // Offset shadow effect (3px 3px) matching web design
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
-                    .fill(DesignSystem.Colors.dynamicPrimary.opacity(1.0))
-                    .offset(
-                        x: DesignSystem.Shadows.cardOffsetX,
-                        y: DesignSystem.Shadows.cardOffsetY
-                    )
-            )
+            .cornerRadius(DesignSystem.CornerRadius.md)
+        }
+        .buttonStyle(.plain)
     }
 }
 

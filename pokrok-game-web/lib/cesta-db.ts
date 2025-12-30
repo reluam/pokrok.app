@@ -1208,7 +1208,12 @@ export async function getDailyStepsByUserId(
           is_important, is_urgent, aspiration_id, area_id,
           estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
           checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete,
-          frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days
+          frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days,
+          TO_CHAR(last_instance_date, 'YYYY-MM-DD') as last_instance_date,
+          TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date,
+          TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
+          TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
+          recurring_display_mode, COALESCE(is_hidden, false) as is_hidden
         FROM daily_steps 
         WHERE user_id = ${userId}
         AND (date >= ${startOfDay} AND date <= ${endOfDay} OR frequency IS NOT NULL)
@@ -1227,7 +1232,12 @@ export async function getDailyStepsByUserId(
           is_important, is_urgent, aspiration_id, area_id,
           estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
           checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete,
-          frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days
+          frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days,
+          TO_CHAR(last_instance_date, 'YYYY-MM-DD') as last_instance_date,
+          TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date,
+          TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
+          TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
+          recurring_display_mode, COALESCE(is_hidden, false) as is_hidden
         FROM daily_steps 
         WHERE user_id = ${userId}
         AND (date >= ${startDate}::date AND date <= ${endDate}::date OR frequency IS NOT NULL)
@@ -1247,7 +1257,12 @@ export async function getDailyStepsByUserId(
           is_important, is_urgent, aspiration_id, area_id,
           estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
           checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete,
-          frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days
+          frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days,
+          TO_CHAR(last_instance_date, 'YYYY-MM-DD') as last_instance_date,
+          TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date,
+          TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
+          TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
+          recurring_display_mode, COALESCE(is_hidden, false) as is_hidden
         FROM daily_steps 
         WHERE user_id = ${userId}
         ORDER BY 
@@ -1405,7 +1420,7 @@ export async function createDailyStep(stepData: Omit<Partial<DailyStep>, 'date'>
       id, user_id, goal_id, title, description, completed, date, 
       is_important, is_urgent, aspiration_id, area_id,
       estimated_time, xp_reward, deadline, checklist, require_checklist_complete,
-      frequency, selected_days
+      frequency, selected_days, recurring_start_date, recurring_end_date, recurring_display_mode, is_hidden
     ) VALUES (
       ${id}, ${stepData.user_id}, ${stepData.goal_id || null}, ${stepData.title}, 
       ${stepData.description || null}, ${stepData.completed || false}, 
@@ -1414,14 +1429,19 @@ export async function createDailyStep(stepData: Omit<Partial<DailyStep>, 'date'>
       ${stepData.estimated_time || 30},
       ${stepData.xp_reward || 1}, ${stepData.deadline || null},
       ${checklistJson}::jsonb, ${stepData.require_checklist_complete || false},
-      ${stepData.frequency || null}, ${selectedDaysJson}::jsonb
+      ${stepData.frequency || null}, ${selectedDaysJson}::jsonb,
+      ${(stepData as any).recurring_start_date || null}, ${(stepData as any).recurring_end_date || null},
+      ${(stepData as any).recurring_display_mode || 'all'}, ${(stepData as any).is_hidden || false}
     ) RETURNING 
       id, user_id, goal_id, title, description, completed, 
       TO_CHAR(date, 'YYYY-MM-DD') as date,
       is_important, is_urgent, aspiration_id, area_id,
       estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
       checklist, require_checklist_complete,
-      frequency, selected_days
+      frequency, selected_days,
+      TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
+      TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
+      recurring_display_mode, is_hidden
   `
   return step[0] as DailyStep
 }

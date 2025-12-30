@@ -19,6 +19,13 @@ struct PokrokApp: App {
                     // Load user settings for primary color
                     UserSettingsManager.shared.loadSettings()
                     
+                    // Setup notifications
+                    NotificationManager.shared.setupNotificationCategories()
+                    _ = NotificationDelegate.shared // Initialize delegate
+                    
+                    // Schedule initial steps notifications
+                    NotificationManager.shared.scheduleStepsNotifications()
+                    
                     // Start automatic token refresh
                     startTokenRefreshTimer()
                 }

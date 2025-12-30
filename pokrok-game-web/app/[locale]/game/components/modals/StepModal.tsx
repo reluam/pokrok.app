@@ -1,8 +1,9 @@
 'use client'
 
 import { createPortal } from 'react-dom'
-import { useTranslations } from 'next-intl'
-import { X, Trash2 } from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
+import { useState } from 'react'
+import { X, Trash2, ChevronDown } from 'lucide-react'
 import { getLocalDateString } from '../utils/dateHelpers'
 import { PlayfulButton } from '@/components/design-system/Button/PlayfulButton'
 
@@ -58,6 +59,19 @@ export function StepModal({
   setStepModalData,
 }: StepModalProps) {
   const t = useTranslations()
+  const locale = useLocale()
+  const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
+  
+  // State for date pickers
+  const [startDatePickerOpen, setStartDatePickerOpen] = useState(false)
+  const [startDatePickerPosition, setStartDatePickerPosition] = useState<{ top: number; left: number } | null>(null)
+  const [startDatePickerMonth, setStartDatePickerMonth] = useState(new Date())
+  const [selectedStartDate, setSelectedStartDate] = useState<Date | null>(null)
+  
+  const [endDatePickerOpen, setEndDatePickerOpen] = useState(false)
+  const [endDatePickerPosition, setEndDatePickerPosition] = useState<{ top: number; left: number } | null>(null)
+  const [endDatePickerMonth, setEndDatePickerMonth] = useState(new Date())
+  const [selectedEndDate, setSelectedEndDate] = useState<Date | null>(null)
 
   if (!show || typeof window === 'undefined') return null
 
@@ -77,7 +91,10 @@ export function StepModal({
     require_checklist_complete: false,
     isRepeating: false,
     frequency: null,
-    selected_days: []
+    selected_days: [],
+    recurring_start_date: null,
+    recurring_end_date: null,
+    recurring_display_mode: 'next_only'
   }
 
   return createPortal(
@@ -346,6 +363,72 @@ export function StepModal({
                           )
                         })}
                       </div>
+                    </div>
+                  )}
+                  
+                  {/* Recurring options - Start date, End date, Display mode */}
+                  {stepModalData.isRepeating && (
+                    <div className="mt-4 pt-4 border-t-2 border-primary-200 space-y-3">
+                      <div className="grid grid-cols-2 gap-4">
+                        {/* Start Date */}
+                        <div>
+                          <label className="block text-xs font-semibold text-black mb-2 font-playful">
+                            {t('steps.recurring.startDate') || 'Začátek opakování'}
+                          </label>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              const rect = (e.target as HTMLElement).getBoundingClientRect()
+                              const top = Math.min(rect.bottom + 5, window.innerHeight - 380)
+                              const left = Math.min(rect.left, window.innerWidth - 250)
+                              setStartDatePickerPosition({ top, left })
+                              setStartDatePickerOpen(true)
+                              const currentDate = stepModalData.recurring_start_date 
+                                ? new Date(stepModalData.recurring_start_date)
+                                : new Date()
+                              setSelectedStartDate(currentDate)
+                              setStartDatePickerMonth(new Date(currentDate))
+                            }}
+                            className="w-full px-3 py-2 text-sm border-2 border-primary-500 rounded-playful-md bg-white text-black text-left hover:bg-primary-50"
+                          >
+                            {stepModalData.recurring_start_date 
+                              ? new Date(stepModalData.recurring_start_date).toLocaleDateString(localeCode, { day: 'numeric', month: 'numeric', year: 'numeric' })
+                              : new Date().toLocaleDateString(localeCode, { day: 'numeric', month: 'numeric', year: 'numeric' })
+                            }
+                          </button>
+                        </div>
+                        
+                        {/* End Date */}
+                        <div>
+                          <label className="block text-xs font-semibold text-black mb-2 font-playful">
+                            {t('steps.recurring.endDate') || 'Konec opakování'}
+                          </label>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              const rect = (e.target as HTMLElement).getBoundingClientRect()
+                              const top = Math.min(rect.bottom + 5, window.innerHeight - 380)
+                              const left = Math.min(rect.left, window.innerWidth - 250)
+                              setEndDatePickerPosition({ top, left })
+                              setEndDatePickerOpen(true)
+                              const currentDate = stepModalData.recurring_end_date 
+                                ? new Date(stepModalData.recurring_end_date)
+                                : new Date()
+                              setSelectedEndDate(stepModalData.recurring_end_date ? currentDate : null)
+                              setEndDatePickerMonth(stepModalData.recurring_end_date ? new Date(currentDate) : new Date())
+                            }}
+                            className="w-full px-3 py-2 text-sm border-2 border-primary-500 rounded-playful-md bg-white text-black text-left hover:bg-primary-50"
+                          >
+                            {stepModalData.recurring_end_date 
+                              ? new Date(stepModalData.recurring_end_date).toLocaleDateString(localeCode, { day: 'numeric', month: 'numeric', year: 'numeric' })
+                              : (t('steps.recurring.never') || 'Nikdy')
+                            }
+                          </button>
+                        </div>
+                      </div>
+                      
                     </div>
                   )}
                 </div>
@@ -688,7 +771,7 @@ export function StepModal({
           </div>
 
           <div className="p-6 border-t-2 border-primary-500 flex items-center justify-between gap-3">
-            {stepModalData.id && onDelete && (
+            {stepModalData.id && onDelete ? (
               <button
                 onClick={onDelete}
                 disabled={isSaving}
@@ -697,6 +780,8 @@ export function StepModal({
                 <Trash2 className="w-4 h-4" />
                 {t('common.delete') || 'Smazat'}
               </button>
+            ) : (
+              <div></div>
             )}
             <div className="flex items-center gap-3 ml-auto">
               <button
@@ -723,6 +808,311 @@ export function StepModal({
           </div>
         </div>
       </div>
+      
+      {/* Start Date Picker Modal */}
+      {startDatePickerOpen && startDatePickerPosition && (
+        <>
+          <div 
+            className="fixed inset-0 z-40"
+            onClick={() => {
+              setStartDatePickerOpen(false)
+              setStartDatePickerPosition(null)
+            }}
+          />
+          <div 
+            className="fixed z-50 box-playful-highlight p-4 bg-white"
+            style={{
+              top: `${Math.min(startDatePickerPosition.top, window.innerHeight - 380)}px`,
+              left: `${Math.min(Math.max(startDatePickerPosition.left - 100, 10), window.innerWidth - 250)}px`,
+              width: '230px'
+            }}
+          >
+            <div className="text-sm font-bold text-black mb-3 font-playful">{t('steps.recurring.startDate') || 'Začátek opakování'}</div>
+            
+            {/* Day names */}
+            <div className="grid grid-cols-7 gap-0.5 mb-1">
+              {locale === 'cs' 
+                ? ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(day => (
+                    <div key={day} className="text-center text-xs text-gray-600 font-medium py-1">
+                      {day}
+                </div>
+                  ))
+                : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(day => (
+                    <div key={day} className="text-center text-xs text-gray-600 font-medium py-1">
+                      {day}
+            </div>
+                  ))
+              }
+          </div>
+            
+            {/* Calendar days */}
+            <div className="grid grid-cols-7 gap-0.5 mb-3">
+              {(() => {
+                const year = startDatePickerMonth.getFullYear()
+                const month = startDatePickerMonth.getMonth()
+                const firstDay = new Date(year, month, 1)
+                const lastDay = new Date(year, month + 1, 0)
+                const startDay = (firstDay.getDay() + 6) % 7 // Monday = 0
+                const days: (Date | null)[] = []
+                
+                // Empty cells before first day
+                for (let i = 0; i < startDay; i++) {
+                  days.push(null)
+                }
+                
+                // Days of month
+                for (let d = 1; d <= lastDay.getDate(); d++) {
+                  days.push(new Date(year, month, d))
+                }
+                
+                const today = new Date()
+                today.setHours(0, 0, 0, 0)
+                const selectedDate = selectedStartDate ? new Date(selectedStartDate) : null
+                if (selectedDate) selectedDate.setHours(0, 0, 0, 0)
+                
+                return days.map((day, i) => {
+                  if (!day) {
+                    return <div key={`empty-${i}`} className="w-7 h-7" />
+                  }
+                  
+                  const isToday = day.getTime() === today.getTime()
+                  const isSelected = selectedDate && day.getTime() === selectedDate.getTime()
+                  
+                  return (
+                    <button
+                      key={day.getTime()}
+                      onClick={() => setSelectedStartDate(day)}
+                      className={`w-7 h-7 rounded-playful-sm text-xs font-medium transition-colors border-2 ${
+                        isSelected
+                          ? 'bg-white text-black font-bold border-primary-500'
+                          : isToday
+                            ? 'bg-primary-100 text-primary-600 font-bold border-primary-500'
+                            : 'hover:bg-primary-50 text-black border-gray-300'
+                      }`}
+                    >
+                      {day.getDate()}
+                    </button>
+                  )
+                })
+              })()}
+            </div>
+            
+            {/* Month navigation */}
+            <div className="flex items-center justify-between mb-3">
+              <button
+                onClick={() => {
+                  const newMonth = new Date(startDatePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() - 1)
+                  setStartDatePickerMonth(newMonth)
+                }}
+                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
+              >
+                <ChevronDown className="w-4 h-4 rotate-90 text-black" />
+              </button>
+              <span className="text-xs font-semibold text-black">
+                {startDatePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
+              </span>
+              <button
+                onClick={() => {
+                  const newMonth = new Date(startDatePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() + 1)
+                  setStartDatePickerMonth(newMonth)
+                }}
+                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
+              >
+                <ChevronDown className="w-4 h-4 -rotate-90 text-black" />
+              </button>
+            </div>
+            
+            {/* Actions */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  if (selectedStartDate) {
+                    setStepModalData({
+                      ...stepModalData,
+                      recurring_start_date: getLocalDateString(selectedStartDate)
+                    })
+                  }
+                  setStartDatePickerOpen(false)
+                  setStartDatePickerPosition(null)
+                }}
+                className="btn-playful-base flex-1 px-3 py-1.5 bg-white text-black text-xs font-semibold hover:bg-primary-50"
+              >
+                {t('common.save') || 'Uložit'}
+              </button>
+              <button
+                onClick={() => {
+                  setStartDatePickerOpen(false)
+                  setStartDatePickerPosition(null)
+                }}
+                className="btn-playful-base px-3 py-1.5 bg-white text-black text-xs font-semibold hover:bg-primary-50"
+              >
+                {t('common.cancel') || 'Zrušit'}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+      
+      {/* End Date Picker Modal */}
+      {endDatePickerOpen && endDatePickerPosition && (
+        <>
+          <div 
+            className="fixed inset-0 z-40"
+            onClick={() => {
+              setEndDatePickerOpen(false)
+              setEndDatePickerPosition(null)
+            }}
+          />
+          <div 
+            className="fixed z-50 box-playful-highlight p-4 bg-white"
+            style={{
+              top: `${Math.min(endDatePickerPosition.top, window.innerHeight - 380)}px`,
+              left: `${Math.min(Math.max(endDatePickerPosition.left - 100, 10), window.innerWidth - 250)}px`,
+              width: '230px'
+            }}
+          >
+            <div className="text-sm font-bold text-black mb-3 font-playful">{t('steps.recurring.endDate') || 'Konec opakování'}</div>
+            
+            {/* Day names */}
+            <div className="grid grid-cols-7 gap-0.5 mb-1">
+              {locale === 'cs' 
+                ? ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(day => (
+                    <div key={day} className="text-center text-xs text-gray-600 font-medium py-1">
+                      {day}
+                </div>
+                  ))
+                : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(day => (
+                    <div key={day} className="text-center text-xs text-gray-600 font-medium py-1">
+                      {day}
+            </div>
+                  ))
+              }
+          </div>
+            
+            {/* Calendar days */}
+            <div className="grid grid-cols-7 gap-0.5 mb-3">
+              {(() => {
+                const year = endDatePickerMonth.getFullYear()
+                const month = endDatePickerMonth.getMonth()
+                const firstDay = new Date(year, month, 1)
+                const lastDay = new Date(year, month + 1, 0)
+                const startDay = (firstDay.getDay() + 6) % 7 // Monday = 0
+                const days: (Date | null)[] = []
+                
+                // Empty cells before first day
+                for (let i = 0; i < startDay; i++) {
+                  days.push(null)
+                }
+                
+                // Days of month
+                for (let d = 1; d <= lastDay.getDate(); d++) {
+                  days.push(new Date(year, month, d))
+                }
+                
+                const today = new Date()
+                today.setHours(0, 0, 0, 0)
+                const selectedDate = selectedEndDate ? new Date(selectedEndDate) : null
+                if (selectedDate) selectedDate.setHours(0, 0, 0, 0)
+                
+                return days.map((day, i) => {
+                  if (!day) {
+                    return <div key={`empty-${i}`} className="w-7 h-7" />
+                  }
+                  
+                  const isToday = day.getTime() === today.getTime()
+                  const isSelected = selectedDate && day.getTime() === selectedDate.getTime()
+                  
+                  return (
+                    <button
+                      key={day.getTime()}
+                      onClick={() => setSelectedEndDate(day)}
+                      className={`w-7 h-7 rounded-playful-sm text-xs font-medium transition-colors border-2 ${
+                        isSelected
+                          ? 'bg-white text-black font-bold border-primary-500'
+                          : isToday
+                            ? 'bg-primary-100 text-primary-600 font-bold border-primary-500'
+                            : 'hover:bg-primary-50 text-black border-gray-300'
+                      }`}
+                    >
+                      {day.getDate()}
+                    </button>
+                  )
+                })
+              })()}
+            </div>
+            
+            {/* Month navigation */}
+            <div className="flex items-center justify-between mb-3">
+              <button
+                onClick={() => {
+                  const newMonth = new Date(endDatePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() - 1)
+                  setEndDatePickerMonth(newMonth)
+                }}
+                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
+              >
+                <ChevronDown className="w-4 h-4 rotate-90 text-black" />
+              </button>
+              <span className="text-xs font-semibold text-black">
+                {endDatePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
+              </span>
+              <button
+                onClick={() => {
+                  const newMonth = new Date(endDatePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() + 1)
+                  setEndDatePickerMonth(newMonth)
+                }}
+                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
+              >
+                <ChevronDown className="w-4 h-4 -rotate-90 text-black" />
+              </button>
+            </div>
+            
+            {/* Actions */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  if (selectedEndDate) {
+                    setStepModalData({
+                      ...stepModalData,
+                      recurring_end_date: getLocalDateString(selectedEndDate)
+                    })
+                  }
+                  setEndDatePickerOpen(false)
+                  setEndDatePickerPosition(null)
+                }}
+                className="btn-playful-base flex-1 px-3 py-1.5 bg-white text-black text-xs font-semibold hover:bg-primary-50"
+              >
+                {t('common.save') || 'Uložit'}
+              </button>
+              <button
+                onClick={() => {
+                  setEndDatePickerOpen(false)
+                  setEndDatePickerPosition(null)
+                }}
+                className="btn-playful-base px-3 py-1.5 bg-white text-black text-xs font-semibold hover:bg-primary-50"
+              >
+                {t('common.cancel') || 'Zrušit'}
+              </button>
+              <button
+                onClick={() => {
+                  setStepModalData({
+                    ...stepModalData,
+                    recurring_end_date: null
+                  })
+                  setEndDatePickerOpen(false)
+                  setEndDatePickerPosition(null)
+                }}
+                className="btn-playful-base px-3 py-1.5 bg-white text-black text-xs font-semibold hover:bg-primary-50"
+              >
+                {t('steps.recurring.never') || 'Nikdy'}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </>,
     document.body
   )

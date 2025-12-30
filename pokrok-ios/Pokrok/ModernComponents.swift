@@ -20,8 +20,7 @@ struct ModernGoalCard: View {
                                 .lineLimit(2)
                             
                             if let icon = goal.icon {
-                                Text(icon)
-                                    .font(.title2)
+                                LucideIcon(icon, size: 24, color: DesignSystem.Colors.dynamicPrimary)
                             }
                         }
                         

@@ -603,7 +603,7 @@ struct HabitAspirationEditorView: View {
                     
                     // Aspiration Selection
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Aspirace")
+                        Text("Oblast")
                             .font(.headline)
                             .padding(.horizontal)
                         
@@ -612,13 +612,13 @@ struct HabitAspirationEditorView: View {
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .padding()
                         } else if aspirations.isEmpty {
-                            Text("Žádné aspirace")
+                            Text("Žádné oblasti")
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                                 .padding(.horizontal)
                         } else {
-                            Picker("Aspirace", selection: $selectedAspirationId) {
-                                Text("Bez aspirace").tag(nil as String?)
+                            Picker("Oblast", selection: $selectedAspirationId) {
+                                Text("Bez oblasti").tag(nil as String?)
                                 ForEach(aspirations, id: \.id) { aspiration in
                                     Text(aspiration.title).tag(aspiration.id as String?)
                                 }
@@ -631,7 +631,7 @@ struct HabitAspirationEditorView: View {
                     Spacer()
                 }
             }
-            .navigationTitle("Upravit aspiraci")
+            .navigationTitle("Upravit oblast")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

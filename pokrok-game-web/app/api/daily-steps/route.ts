@@ -2,8 +2,61 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createDailyStep, getDailyStepsByUserId, updateDailyStepFields, updateGoalProgressCombined, getGoalById } from '@/lib/cesta-db'
 import { requireAuth, verifyEntityOwnership, verifyOwnership } from '@/lib/auth-helpers'
 import { neon } from '@neondatabase/serverless'
+import { isStepScheduledForDay } from '@/app/[locale]/game/components/utils/stepHelpers'
 
 const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
+
+// Helper function to create instance from recurring step
+async function createRecurringStepInstance(recurringStep: any, targetDate: Date, userId: string): Promise<void> {
+  // Use local date components (not UTC) to match client's timezone
+  const year = targetDate.getFullYear()
+  const month = String(targetDate.getMonth() + 1).padStart(2, '0')
+  const day = String(targetDate.getDate()).padStart(2, '0')
+  const dateStr = `${year}-${month}-${day}`
+  
+  const dateFormatted = targetDate.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' })
+  const instanceTitle = `${recurringStep.title} - ${dateFormatted}`
+  
+  // Check if instance already exists
+  const existingInstance = await sql`
+    SELECT id FROM daily_steps
+    WHERE user_id = ${userId}
+    AND title = ${instanceTitle}
+    AND date = CAST(${dateStr}::text AS DATE)
+  `
+  
+  if (existingInstance.length > 0) {
+    return // Instance already exists
+  }
+  
+  // Create instance
+  const instanceId = crypto.randomUUID()
+  const checklistJson = recurringStep.checklist ? JSON.stringify(recurringStep.checklist) : '[]'
+  
+  await sql`
+    INSERT INTO daily_steps (
+      id, user_id, goal_id, title, description, completed, date, 
+      is_important, is_urgent, aspiration_id, area_id,
+      estimated_time, xp_reward, deadline, checklist, require_checklist_complete,
+      frequency, selected_days
+    ) VALUES (
+      ${instanceId}, ${userId}, ${recurringStep.goal_id || null}, ${instanceTitle}, 
+      ${recurringStep.description || null}, false, 
+      CAST(${dateStr}::text AS DATE), 
+      ${recurringStep.is_important || false}, 
+      ${recurringStep.is_urgent || false}, 
+      ${recurringStep.aspiration_id || null}, 
+      ${recurringStep.area_id || null}, 
+      ${recurringStep.estimated_time || 30},
+      ${recurringStep.xp_reward || 1}, 
+      ${recurringStep.deadline || null},
+      ${checklistJson}::jsonb, 
+      ${recurringStep.require_checklist_complete || false},
+      NULL, -- frequency = null (not recurring)
+      '[]'::jsonb -- selected_days = empty (not recurring)
+    )
+  `
+}
 
 // Helper function to normalize date from database to YYYY-MM-DD string
 // PostgreSQL DATE type is stored without time, so we need to preserve it exactly as stored
@@ -77,7 +130,12 @@ export async function GET(request: NextRequest) {
             estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
             COALESCE(checklist, '[]'::jsonb) as checklist,
             COALESCE(require_checklist_complete, false) as require_checklist_complete,
-            frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days
+            frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days,
+            TO_CHAR(last_instance_date, 'YYYY-MM-DD') as last_instance_date,
+            TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date,
+            TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
+            TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
+            recurring_display_mode, COALESCE(is_hidden, false) as is_hidden
           FROM daily_steps
           WHERE goal_id = ${goalId} AND user_id = ${dbUser.id}
           ORDER BY created_at DESC
@@ -117,6 +175,115 @@ export async function GET(request: NextRequest) {
     } else {
       // All steps (fallback - should be avoided for performance)
       steps = await getDailyStepsByUserId(targetUserId)
+    }
+    
+    // Check if we need to create more instances for recurring steps
+    // Find all recurring step templates (is_hidden = true, frequency != null)
+    const recurringStepTemplates = await sql`
+      SELECT 
+        id, user_id, goal_id, title, description, 
+        frequency, selected_days,
+        is_important, is_urgent, aspiration_id, area_id,
+        estimated_time, xp_reward, deadline,
+        checklist, require_checklist_complete,
+        TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
+        TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
+        TO_CHAR(last_instance_date, 'YYYY-MM-DD') as last_instance_date
+      FROM daily_steps
+      WHERE user_id = ${targetUserId}
+      AND is_hidden = true
+      AND frequency IS NOT NULL
+    `
+    
+    // For each recurring step template, check if we need to create more instances
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const thirtyDaysFromNow = new Date(today)
+    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30)
+    
+    for (const template of recurringStepTemplates) {
+      try {
+        const lastInstanceDate = template.last_instance_date 
+          ? new Date(template.last_instance_date) 
+          : (template.recurring_start_date ? new Date(template.recurring_start_date) : today)
+        lastInstanceDate.setHours(0, 0, 0, 0)
+        
+        // If last instance is within 30 days, create more instances
+        if (lastInstanceDate <= thirtyDaysFromNow) {
+          const startDate = lastInstanceDate > today ? lastInstanceDate : new Date(today)
+          startDate.setDate(startDate.getDate() + 1) // Start from day after last instance
+          
+          const endDate = template.recurring_end_date ? new Date(template.recurring_end_date) : null
+          if (endDate) {
+            endDate.setHours(23, 59, 59, 999)
+          }
+          
+          // Calculate max date (2 months from start or end date, whichever is earlier)
+          const maxDate = new Date(startDate)
+          maxDate.setMonth(maxDate.getMonth() + 2)
+          const finalEndDate = endDate && endDate < maxDate ? endDate : maxDate
+          
+          let checkDate = new Date(startDate)
+          let lastCreatedDate: Date | null = null
+          let instanceCount = 0
+          const maxInstances = 60 // Safety limit (2 months)
+          
+          // Create instances from start date to end date (or 2 months)
+          while (checkDate <= finalEndDate && instanceCount < maxInstances) {
+            if (isStepScheduledForDay(template, checkDate)) {
+              const year = checkDate.getFullYear()
+              const month = String(checkDate.getMonth() + 1).padStart(2, '0')
+              const day = String(checkDate.getDate()).padStart(2, '0')
+              const dateStr = `${year}-${month}-${day}`
+              
+              const dateFormatted = checkDate.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' })
+              const instanceTitle = `${template.title} - ${dateFormatted}`
+              
+              const existingInstance = await sql`
+                SELECT id FROM daily_steps
+                WHERE user_id = ${targetUserId}
+                AND title = ${instanceTitle}
+                AND date = CAST(${dateStr}::text AS DATE)
+              `
+              
+              if (existingInstance.length === 0) {
+                await createRecurringStepInstance(template, checkDate, targetUserId)
+                lastCreatedDate = checkDate
+                instanceCount++
+              }
+            }
+            checkDate.setDate(checkDate.getDate() + 1)
+          }
+          
+          // Update last_instance_date on the recurring step
+          if (lastCreatedDate) {
+            const year = lastCreatedDate.getFullYear()
+            const month = String(lastCreatedDate.getMonth() + 1).padStart(2, '0')
+            const day = String(lastCreatedDate.getDate()).padStart(2, '0')
+            const lastInstanceDateStr = `${year}-${month}-${day}`
+            
+            await sql`
+              UPDATE daily_steps
+              SET last_instance_date = CAST(${lastInstanceDateStr}::text AS DATE)
+              WHERE id = ${template.id}
+            `
+          }
+        }
+      } catch (error) {
+        console.error(`Error creating instances for recurring step ${template.id}:`, error)
+        // Continue with other templates
+      }
+    }
+    
+    // Reload steps after creating new instances (if any were created)
+    if (recurringStepTemplates.length > 0) {
+      if (startDate && endDate) {
+        steps = await getDailyStepsByUserId(targetUserId, undefined, startDate, endDate)
+      } else if (date) {
+        steps = await getDailyStepsByUserId(targetUserId, new Date(date))
+      } else {
+        steps = await getDailyStepsByUserId(targetUserId)
+      }
     }
     
     // Normalize all date fields to YYYY-MM-DD strings to avoid timezone issues
@@ -187,7 +354,10 @@ export async function POST(request: NextRequest) {
       checklist,
       requireChecklistComplete,
       frequency,
-      selectedDays
+      selectedDays,
+      recurringStartDate,
+      recurringEndDate,
+      recurringDisplayMode
     } = body
     
     // Debug logging
@@ -255,19 +425,40 @@ export async function POST(request: NextRequest) {
         // This assumes the ISO string represents the client's local date
         dateValue = date.split('T')[0]
       } else {
-        // Date object or other format - convert to YYYY-MM-DD string using local components
-        const dateObj = typeof date === 'string' ? new Date(date) : date
-        // Use UTC components to preserve the date as intended
-        // When client sends ISO string, the date part represents their local date
-        if (typeof date === 'string' && date.includes('Z')) {
-          // UTC ISO string - extract date part directly
-          dateValue = date.split('T')[0]
-        } else {
-          // Local date - extract date components
-          const year = dateObj.getFullYear()
-          const month = String(dateObj.getMonth() + 1).padStart(2, '0')
-          const day = String(dateObj.getDate()).padStart(2, '0')
+        // Date object or other format - convert to YYYY-MM-DD string
+        if (date instanceof Date) {
+          // Date object - extract date components
+          const year = date.getFullYear()
+          const month = String(date.getMonth() + 1).padStart(2, '0')
+          const day = String(date.getDate()).padStart(2, '0')
           dateValue = `${year}-${month}-${day}`
+        } else if (typeof date === 'object' && date !== null) {
+          // Object (not Date) - try to convert to string first
+          const dateStr = String(date)
+          if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            dateValue = dateStr
+          } else {
+            // Fallback: use today's date
+            const now = new Date()
+            const year = now.getUTCFullYear()
+            const month = String(now.getUTCMonth() + 1).padStart(2, '0')
+            const day = String(now.getUTCDate()).padStart(2, '0')
+            dateValue = `${year}-${month}-${day}`
+          }
+        } else {
+          // String or other - try to parse
+          const dateObj = typeof date === 'string' ? new Date(date) : new Date()
+          // Use UTC components to preserve the date as intended
+          if (typeof date === 'string' && date.includes('Z')) {
+            // UTC ISO string - extract date part directly
+            dateValue = date.split('T')[0]
+          } else {
+            // Local date - extract date components
+            const year = dateObj.getFullYear()
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+            const day = String(dateObj.getDate()).padStart(2, '0')
+            dateValue = `${year}-${month}-${day}`
+          }
         }
       }
     } else {
@@ -282,6 +473,33 @@ export async function POST(request: NextRequest) {
       dateValue = `${year}-${month}-${day}`
     }
 
+    // Handle recurring dates
+    let recurringStartDateValue: string | null = null
+    if (recurringStartDate) {
+      if (typeof recurringStartDate === 'string' && recurringStartDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        recurringStartDateValue = recurringStartDate
+      } else {
+        // Default to today if invalid
+        const today = new Date()
+        const year = today.getFullYear()
+        const month = String(today.getMonth() + 1).padStart(2, '0')
+        const day = String(today.getDate()).padStart(2, '0')
+        recurringStartDateValue = `${year}-${month}-${day}`
+      }
+    } else if (frequency) {
+      // Default to today if not provided
+      const today = new Date()
+      const year = today.getFullYear()
+      const month = String(today.getMonth() + 1).padStart(2, '0')
+      const day = String(today.getDate()).padStart(2, '0')
+      recurringStartDateValue = `${year}-${month}-${day}`
+    }
+    
+    let recurringEndDateValue: string | null = null
+    if (recurringEndDate && typeof recurringEndDate === 'string' && recurringEndDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      recurringEndDateValue = recurringEndDate
+    }
+    
     const stepData = {
       user_id: targetUserId,
       goal_id: normalizedGoalId,
@@ -298,10 +516,84 @@ export async function POST(request: NextRequest) {
       checklist: checklist || [],
       require_checklist_complete: requireChecklistComplete || false,
       frequency: frequency || null,
-      selected_days: selectedDays || []
+      selected_days: selectedDays || [],
+      recurring_start_date: recurringStartDateValue,
+      recurring_end_date: recurringEndDateValue,
+      recurring_display_mode: 'next_only', // Always show only nearest instance
+      is_hidden: frequency ? true : false // Hide recurring step template, show instances
     }
 
     const step = await createDailyStep(stepData)
+    
+    // If this is a recurring step, create ALL instances (up to 2 months or end date)
+    if (step.frequency && step.frequency !== null) {
+      try {
+        const startDate = recurringStartDateValue ? new Date(recurringStartDateValue) : new Date()
+        startDate.setHours(0, 0, 0, 0)
+        
+        const endDate = recurringEndDateValue ? new Date(recurringEndDateValue) : null
+        if (endDate) {
+          endDate.setHours(23, 59, 59, 999)
+        }
+        
+        // Calculate max date (1 year from start or end date, whichever is earlier)
+        const maxDate = new Date(startDate)
+        maxDate.setFullYear(maxDate.getFullYear() + 1)
+        const finalEndDate = endDate && endDate < maxDate ? endDate : maxDate
+        
+        let checkDate = new Date(startDate)
+        let lastInstanceDate: Date | null = null
+        let instanceCount = 0
+        const maxInstances = 365 // Safety limit
+        
+        // Create all instances from start date to end date (or 1 year)
+        while (checkDate <= finalEndDate && instanceCount < maxInstances) {
+          if (isStepScheduledForDay(step, checkDate)) {
+            // Use local date components (not UTC) for date string
+            const year = checkDate.getFullYear()
+            const month = String(checkDate.getMonth() + 1).padStart(2, '0')
+            const day = String(checkDate.getDate()).padStart(2, '0')
+            const dateStr = `${year}-${month}-${day}`
+            
+            const dateFormatted = checkDate.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' })
+            const instanceTitle = `${step.title} - ${dateFormatted}`
+            
+            const existingInstance = await sql`
+              SELECT id FROM daily_steps
+              WHERE user_id = ${targetUserId}
+              AND title = ${instanceTitle}
+              AND date = CAST(${dateStr}::text AS DATE)
+            `
+            
+            if (existingInstance.length === 0) {
+              await createRecurringStepInstance(step, checkDate, targetUserId)
+              lastInstanceDate = checkDate
+              instanceCount++
+            }
+          }
+          checkDate.setDate(checkDate.getDate() + 1)
+        }
+        
+        // Update last_instance_date on the recurring step
+        if (lastInstanceDate) {
+          const year = lastInstanceDate.getFullYear()
+          const month = String(lastInstanceDate.getMonth() + 1).padStart(2, '0')
+          const day = String(lastInstanceDate.getDate()).padStart(2, '0')
+          const lastInstanceDateStr = `${year}-${month}-${day}`
+          
+          await sql`
+            UPDATE daily_steps
+            SET last_instance_date = CAST(${lastInstanceDateStr}::text AS DATE)
+            WHERE id = ${step.id}
+          `
+        }
+        
+        console.log(`Created ${instanceCount} instances for recurring step ${step.title}`)
+      } catch (instanceError) {
+        console.error('Error creating recurring step instances:', instanceError)
+        // Don't fail the request - step was created successfully, instances can be created later
+      }
+    }
     
     // Normalize date before returning
     const normalizedDate = normalizeDateFromDB(step.date)
@@ -326,7 +618,7 @@ export async function PUT(request: NextRequest) {
     const { dbUser } = authResult
 
     const body = await request.json()
-    const { stepId, completed, completedAt, title, description, goalId, goal_id, areaId, aspirationId, aspiration_id, isImportant, isUrgent, estimatedTime, xpReward, date, checklist, requireChecklistComplete, frequency, selectedDays } = body
+    const { stepId, completed, completedAt, completionDate, title, description, goalId, goal_id, areaId, aspirationId, aspiration_id, isImportant, isUrgent, estimatedTime, xpReward, date, checklist, requireChecklistComplete, frequency, selectedDays, lastInstanceDate } = body
     
     // Debug logging
     console.log('Updating step:', { stepId, goalId, goal_id, areaId, hasGoalId: goalId !== undefined, hasGoal_id: goal_id !== undefined, hasAreaId: areaId !== undefined })
@@ -371,7 +663,316 @@ export async function PUT(request: NextRequest) {
     const isDateOnly = date !== undefined && title === undefined && completed === undefined
     
     if (isCompletionOnly) {
-      // This is a completion toggle
+      // First, get the current step to check if it's recurring
+      const currentStepResult = await sql`
+        SELECT 
+          id, user_id, goal_id, title, description, completed, 
+          TO_CHAR(date, 'YYYY-MM-DD') as date,
+          is_important, is_urgent, aspiration_id, area_id,
+          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+          COALESCE(checklist, '[]'::jsonb) as checklist,
+          COALESCE(require_checklist_complete, false) as require_checklist_complete,
+          frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days,
+          TO_CHAR(last_instance_date, 'YYYY-MM-DD') as last_instance_date,
+          TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date,
+          TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
+          TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
+          recurring_display_mode, COALESCE(is_hidden, false) as is_hidden
+        FROM daily_steps
+        WHERE id = ${stepId} AND user_id = ${dbUser.id}
+      `
+      
+      if (currentStepResult.length === 0) {
+        return NextResponse.json({ error: 'Step not found' }, { status: 404 })
+      }
+      
+      const currentStep = currentStepResult[0]
+      
+      // If this is a recurring step being completed, create a new instance instead
+      if (completed && currentStep.frequency && currentStep.frequency !== null) {
+        // Determine completion date
+        let completionDateValue: string
+        if (completionDate) {
+          // Use provided completion date
+          if (completionDate instanceof Date) {
+            const year = completionDate.getFullYear()
+            const month = String(completionDate.getMonth() + 1).padStart(2, '0')
+            const day = String(completionDate.getDate()).padStart(2, '0')
+            completionDateValue = `${year}-${month}-${day}`
+          } else if (typeof completionDate === 'string') {
+            if (completionDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+              completionDateValue = completionDate
+            } else if (completionDate.includes('T')) {
+              completionDateValue = completionDate.split('T')[0]
+            } else {
+              completionDateValue = new Date().toISOString().split('T')[0]
+            }
+          } else {
+            completionDateValue = new Date().toISOString().split('T')[0]
+          }
+        } else if (completedAt) {
+          // Use completedAt if provided (extract date part)
+          if (typeof completedAt === 'string' && completedAt.includes('T')) {
+            completionDateValue = completedAt.split('T')[0]
+          } else {
+            completionDateValue = new Date().toISOString().split('T')[0]
+          }
+        } else {
+          // Use current date if not provided
+          completionDateValue = new Date().toISOString().split('T')[0]
+        }
+        
+        // Format completion date for display in title
+        const completionDateObj = new Date(completionDateValue)
+        const formattedDate = completionDateObj.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' })
+        
+        // Create new step instance with title "Original Title - Date"
+        const newStepTitle = `${currentStep.title} - ${formattedDate}`
+        const newStepId = crypto.randomUUID()
+        const checklistJson = currentStep.checklist ? JSON.stringify(currentStep.checklist) : '[]'
+        
+        // Create the completed instance
+        const newStepResult = await sql`
+          INSERT INTO daily_steps (
+            id, user_id, goal_id, title, description, completed, date, 
+            is_important, is_urgent, aspiration_id, area_id,
+            estimated_time, xp_reward, deadline, completed_at, checklist, require_checklist_complete,
+            frequency, selected_days
+          ) VALUES (
+            ${newStepId}, ${dbUser.id}, ${currentStep.goal_id || null}, ${newStepTitle}, 
+            ${currentStep.description || null}, true, 
+            CAST(${completionDateValue}::text AS DATE), 
+            ${currentStep.is_important || false}, 
+            ${currentStep.is_urgent || false}, 
+            ${currentStep.aspiration_id || null}, 
+            ${currentStep.area_id || null}, 
+            ${currentStep.estimated_time || 30},
+            ${currentStep.xp_reward || 1}, 
+            ${currentStep.deadline || null},
+            ${completedAt ? new Date(completedAt) : new Date()},
+            ${checklistJson}::jsonb, 
+            ${currentStep.require_checklist_complete || false},
+            NULL, -- frequency = null (not recurring)
+            '[]'::jsonb -- selected_days = empty (not recurring)
+          ) RETURNING 
+            id, user_id, goal_id, title, description, completed, 
+            TO_CHAR(date, 'YYYY-MM-DD') as date,
+            is_important, is_urgent, aspiration_id, area_id,
+            estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+            COALESCE(checklist, '[]'::jsonb) as checklist,
+            COALESCE(require_checklist_complete, false) as require_checklist_complete,
+            frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days
+        `
+        
+        const newStep = newStepResult[0]
+        
+        // Update goal progress if step has a goal_id
+        let updatedGoal = null
+        if (newStep.goal_id) {
+          try {
+            const goal = await getGoalById(newStep.goal_id)
+            if (goal) {
+              if (goal.progress_calculation_type === 'metrics') {
+                // Only update from metrics, not steps
+              } else {
+                await updateGoalProgressCombined(newStep.goal_id)
+                updatedGoal = await getGoalById(newStep.goal_id)
+              }
+            }
+          } catch (progressError: any) {
+            console.error('Error updating goal progress after step completion:', progressError)
+            // Don't fail the request if progress update fails
+          }
+        }
+        
+        const normalizedResult = {
+          ...newStep,
+          date: normalizeDateFromDB(newStep.date)
+        }
+        
+        // Update last_completed_instance_date
+        await sql`
+          UPDATE daily_steps
+          SET last_completed_instance_date = CAST(${completionDateValue}::text AS DATE)
+          WHERE id = ${currentStep.id}
+        `
+        
+        // If completion date is today or in the future, create next occurrence
+        const completionDateForNext = new Date(completionDateValue)
+        completionDateForNext.setHours(0, 0, 0, 0)
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        
+        if (completionDateForNext >= today) {
+          // Find next occurrence starting from completion date + 1 day
+          let nextDate = new Date(completionDateForNext)
+          nextDate.setDate(nextDate.getDate() + 1)
+          
+          // Check up to 60 days ahead to find next occurrence
+          for (let i = 0; i < 60; i++) {
+            if (isStepScheduledForDay(currentStep, nextDate)) {
+              // Check if instance already exists
+              const dateStr = nextDate.toISOString().split('T')[0]
+              const dateFormatted = nextDate.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' })
+              const instanceTitle = `${currentStep.title} - ${dateFormatted}`
+              
+              const existingInstance = await sql`
+                SELECT id FROM daily_steps
+                WHERE user_id = ${dbUser.id}
+                AND title = ${instanceTitle}
+                AND date = CAST(${dateStr}::text AS DATE)
+              `
+              
+              if (existingInstance.length === 0) {
+                await createRecurringStepInstance(currentStep, nextDate, dbUser.id)
+                // Update last_instance_date
+                await sql`
+                  UPDATE daily_steps
+                  SET last_instance_date = CAST(${dateStr}::text AS DATE)
+                  WHERE id = ${currentStep.id}
+                `
+                console.log(`Created next instance for recurring step ${currentStep.title} on ${dateStr}`)
+              }
+              break // Only create next occurrence
+            }
+            nextDate.setDate(nextDate.getDate() + 1)
+          }
+        }
+        
+        return NextResponse.json({
+          ...normalizedResult,
+          goal: updatedGoal
+        })
+      }
+      
+      // Check if this is an instance of a recurring step being completed
+      // If so, create next occurrence after completion
+      // Note: This handles instances, but we still need to update the instance itself below
+      const isInstanceOfRecurring = completed && currentStep.title && currentStep.title.includes(' - ')
+      if (isInstanceOfRecurring) {
+        // This is an instance - find the original recurring step
+        const titlePrefix = currentStep.title.split(' - ')[0]
+        const originalStepResult = await sql`
+          SELECT 
+            id, user_id, goal_id, title, description, completed, 
+            TO_CHAR(date, 'YYYY-MM-DD') as date,
+            is_important, is_urgent, aspiration_id, area_id,
+            estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+            COALESCE(checklist, '[]'::jsonb) as checklist,
+            COALESCE(require_checklist_complete, false) as require_checklist_complete,
+            frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days,
+            TO_CHAR(last_instance_date, 'YYYY-MM-DD') as last_instance_date,
+            TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date,
+            TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
+            TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
+            recurring_display_mode, is_hidden
+          FROM daily_steps
+          WHERE user_id = ${dbUser.id}
+          AND title = ${titlePrefix}
+          AND frequency IS NOT NULL
+        `
+        
+        if (originalStepResult.length > 0) {
+          const originalStep = originalStepResult[0]
+          
+          // Determine completion date
+          // For instances, use the instance's date as completion date if no explicit completionDate is provided
+          let completionDateValue: string
+          if (completionDate) {
+            if (completionDate instanceof Date) {
+              const year = completionDate.getFullYear()
+              const month = String(completionDate.getMonth() + 1).padStart(2, '0')
+              const day = String(completionDate.getDate()).padStart(2, '0')
+              completionDateValue = `${year}-${month}-${day}`
+            } else if (typeof completionDate === 'string') {
+              if (completionDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                completionDateValue = completionDate
+              } else if (completionDate.includes('T')) {
+                completionDateValue = completionDate.split('T')[0]
+              } else {
+                completionDateValue = new Date().toISOString().split('T')[0]
+              }
+            } else {
+              completionDateValue = new Date().toISOString().split('T')[0]
+            }
+          } else if (completedAt) {
+            // Use completedAt if provided (extract date part)
+            if (typeof completedAt === 'string' && completedAt.includes('T')) {
+              completionDateValue = completedAt.split('T')[0]
+            } else {
+              completionDateValue = new Date().toISOString().split('T')[0]
+            }
+          } else if (currentStep.date) {
+            // For instances, use the instance's date as completion date
+            completionDateValue = currentStep.date
+          } else {
+            completionDateValue = new Date().toISOString().split('T')[0]
+          }
+          
+          console.log(`[Instance completion] Step: ${currentStep.title}, completionDateValue: ${completionDateValue}, provided completionDate: ${completionDate}, currentStep.date: ${currentStep.date}`)
+          
+          // Update last_completed_instance_date on the original recurring step
+          await sql`
+            UPDATE daily_steps
+            SET last_completed_instance_date = CAST(${completionDateValue}::text AS DATE)
+            WHERE id = ${originalStep.id}
+          `
+          
+          // If completion date is today or in the future, create next occurrence
+          const completionDateForInstance = new Date(completionDateValue)
+          completionDateForInstance.setHours(0, 0, 0, 0)
+          const today = new Date()
+          today.setHours(0, 0, 0, 0)
+          
+          if (completionDateForInstance >= today) {
+            // Find next occurrence starting from completion date + 1 day
+            let nextDateForInstance = new Date(completionDateForInstance)
+            nextDateForInstance.setDate(nextDateForInstance.getDate() + 1)
+            
+            // Check up to 365 days ahead to find next occurrence
+            for (let i = 0; i < 365; i++) {
+              if (isStepScheduledForDay(originalStep, nextDateForInstance)) {
+                // Check if instance already exists
+                const dateStr = nextDateForInstance.toISOString().split('T')[0]
+                const dateFormatted = nextDateForInstance.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' })
+                const instanceTitle = `${originalStep.title} - ${dateFormatted}`
+                
+                const existingInstance = await sql`
+                  SELECT id FROM daily_steps
+                  WHERE user_id = ${dbUser.id}
+                  AND title = ${instanceTitle}
+                  AND date = CAST(${dateStr}::text AS DATE)
+                `
+                
+                if (existingInstance.length === 0) {
+                  await createRecurringStepInstance(originalStep, nextDateForInstance, dbUser.id)
+                  // Update last_instance_date
+                  await sql`
+                    UPDATE daily_steps
+                    SET last_instance_date = CAST(${dateStr}::text AS DATE)
+                    WHERE id = ${originalStep.id}
+                  `
+                  console.log(`Created next instance for recurring step ${originalStep.title} on ${dateStr}`)
+                }
+                break // Only create next occurrence
+              }
+              nextDateForInstance.setDate(nextDateForInstance.getDate() + 1)
+            }
+          }
+        }
+        // Continue to update the instance itself below
+      }
+      
+      // Handle lastInstanceDate update if provided (for recurring steps)
+      if (lastInstanceDate !== undefined) {
+        await sql`
+          UPDATE daily_steps
+          SET last_instance_date = CAST(${lastInstanceDate}::text AS DATE)
+          WHERE id = ${stepId} AND user_id = ${dbUser.id}
+        `
+      }
+      
+      // For non-recurring steps or uncompleting, update normally
       // Return date as YYYY-MM-DD string using TO_CHAR
       // ✅ SECURITY: Přidat user_id do WHERE pro dodatečnou ochranu
       const result = await sql`
@@ -387,7 +988,10 @@ export async function PUT(request: NextRequest) {
           is_important, is_urgent, aspiration_id, area_id,
           estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
           COALESCE(checklist, '[]'::jsonb) as checklist,
-          COALESCE(require_checklist_complete, false) as require_checklist_complete
+          COALESCE(require_checklist_complete, false) as require_checklist_complete,
+          frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days,
+          TO_CHAR(last_instance_date, 'YYYY-MM-DD') as last_instance_date,
+          TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date
       `
       
       if (result.length === 0) {
@@ -621,7 +1225,29 @@ export async function PUT(request: NextRequest) {
     }
   } catch (error: any) {
     console.error('Error updating daily step:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Error stack:', error?.stack)
+    console.error('Error message:', error?.message)
+    console.error('Error name:', error?.name)
+    if (error?.code) {
+      console.error('Error code:', error.code)
+    }
+    if (error?.detail) {
+      console.error('Error detail:', error.detail)
+    }
+    if (error?.hint) {
+      console.error('Error hint:', error.hint)
+    }
+    if (error?.position) {
+      console.error('Error position:', error.position)
+    }
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error?.message || 'Unknown error',
+      code: error?.code,
+      detail: error?.detail,
+      hint: error?.hint,
+      stack: process.env.NODE_ENV === 'development' ? error?.stack : undefined
+    }, { status: 500 })
   }
 }
 
@@ -652,18 +1278,57 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     
-    // ✅ SECURITY: Přidat user_id do WHERE pro dodatečnou ochranu
-    const result = await sql`
-      DELETE FROM daily_steps 
+    // Get the step to check if it's a recurring step template or an instance
+    const stepToDelete = await sql`
+      SELECT id, title, is_hidden, frequency, completed
+      FROM daily_steps 
       WHERE id = ${stepId} AND user_id = ${dbUser.id}
-      RETURNING *
     `
-
-    if (result.length === 0) {
+    
+    if (stepToDelete.length === 0) {
       return NextResponse.json({ error: 'Step not found' }, { status: 404 })
     }
+    
+    const step = stepToDelete[0]
+    
+    // Check if this is a recurring step template (is_hidden = true, frequency != null)
+    const isRecurringTemplate = step.is_hidden === true && step.frequency !== null
+    
+    if (isRecurringTemplate) {
+      // Delete the template and all non-completed instances
+      // Keep completed instances (they have completed = true)
+      const titlePrefix = step.title
+      
+      // Delete the template
+      await sql`
+        DELETE FROM daily_steps 
+        WHERE id = ${stepId} AND user_id = ${dbUser.id}
+      `
+      
+      // Delete all non-completed instances (title starts with template title + " - ")
+      await sql`
+        DELETE FROM daily_steps
+        WHERE user_id = ${dbUser.id}
+        AND title LIKE ${titlePrefix + ' - %'}
+        AND completed = false
+      `
+      
+      return NextResponse.json({ success: true, message: 'Recurring step template and all non-completed instances deleted' })
+    } else {
+      // This is a regular step or an instance - just delete it
+      // If it's an instance, it won't affect other instances
+      const result = await sql`
+        DELETE FROM daily_steps 
+        WHERE id = ${stepId} AND user_id = ${dbUser.id}
+        RETURNING *
+      `
 
-    return NextResponse.json({ success: true })
+      if (result.length === 0) {
+        return NextResponse.json({ error: 'Step not found' }, { status: 404 })
+      }
+
+      return NextResponse.json({ success: true })
+    }
   } catch (error) {
     console.error('Error deleting daily step:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

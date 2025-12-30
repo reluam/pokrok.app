@@ -193,21 +193,21 @@ export function YearView({
     let completedHabits = 0
     const habitCompletionsByHabit: Record<string, number> = {}
     
-    habits.forEach(habit => {
+  habits.forEach(habit => {
       habitCompletionsByHabit[habit.id] = 0
-      if (habit.habit_completions) {
-        Object.keys(habit.habit_completions).forEach(dateStr => {
-          if (habit.habit_completions[dateStr] === true) {
-            const habitDate = new Date(dateStr)
+    if (habit.habit_completions) {
+      Object.keys(habit.habit_completions).forEach(dateStr => {
+        if (habit.habit_completions[dateStr] === true) {
+          const habitDate = new Date(dateStr)
             if (habitDate >= yearStart && habitDate <= yearEnd) {
               completedHabits++
               habitCompletionsByHabit[habit.id] = (habitCompletionsByHabit[habit.id] || 0) + 1
             }
-          }
-        })
-      }
-    })
-    
+        }
+      })
+    }
+  })
+  
     // Find most and least completed habits
     const habitStats = Object.entries(habitCompletionsByHabit)
       .map(([habitId, count]) => {
@@ -227,10 +227,10 @@ export function YearView({
     let totalSteps = 0
     let totalCompletedSteps = 0
     
-    dailySteps.forEach(step => {
+  dailySteps.forEach(step => {
       if (step.date) {
-        const stepDate = normalizeDate(step.date)
-        const stepDateObj = new Date(stepDate)
+      const stepDate = normalizeDate(step.date)
+      const stepDateObj = new Date(stepDate)
         if (stepDateObj >= yearStart && stepDateObj <= yearEnd) {
           totalSteps++
           const areaId = step.area_id || 'no-area'
@@ -610,8 +610,8 @@ export function YearView({
                     
                     // Get goal color from area group
                     const goalColor = areaGroup.areaColor
-                      
-                    return (
+              
+              return (
                       <div key={goal.id} className="relative">
                 <div className="flex items-center gap-4">
                   <span 
@@ -723,7 +723,7 @@ export function YearView({
                   <> ({stats.topArea.completed} / {stats.topArea.total})</>
                 )}
               </p>
-            </div>
+              </div>
           )}
           
           {/* Most completed habit */}
@@ -747,8 +747,8 @@ export function YearView({
                 </span>{' '}
                 {t('yearView.leastCompletedHabit') || 'byl nejméně dodržovaný návyk'} ({stats.leastCompletedHabit.count} {t('yearView.completions') || 'splnění'})
               </p>
-            </div>
-          )}
+                  </div>
+                )}
           
           {/* Goals with no progress */}
           {stats.goalsWithNoProgress.length > 0 && (
@@ -788,8 +788,8 @@ export function YearView({
               <p className="text-sm text-gray-500 font-playful text-center">
                 {t('yearView.noInsights') || 'Zatím nemáme dostatek dat pro poznatky. Pokračujte v práci na svých cílech!'}
               </p>
-            </div>
-          )}
+              </div>
+            )}
         </div>
       </div>
     </div>

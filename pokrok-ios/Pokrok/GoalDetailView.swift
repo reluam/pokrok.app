@@ -4,170 +4,362 @@ struct GoalDetailView: View {
     let goal: Goal
     @Environment(\.dismiss) private var dismiss
     @StateObject private var apiManager = APIManager.shared
+    
+    // Editing states
+    @State private var editingTitle: String
+    @State private var editingDescription: String
+    @State private var editingTargetDate: Date?
+    @State private var editingStartDate: Date?
+    @State private var editingStatus: String
+    @State private var editingAreaId: String?
+    @State private var editingIcon: String?
+    
+    @State private var aspirations: [Aspiration] = []
     @State private var steps: [DailyStep] = []
     @State private var isLoading = true
+    @State private var isSaving = false
     @State private var showError = false
     @State private var errorMessage = ""
+    @State private var showDeleteConfirmation = false
+    @State private var isDeleting = false
+    @State private var deleteWithSteps = false
+    
+    init(goal: Goal) {
+        self.goal = goal
+        self._editingTitle = State(initialValue: goal.title)
+        self._editingDescription = State(initialValue: goal.description ?? "")
+        self._editingTargetDate = State(initialValue: goal.targetDate)
+        self._editingStartDate = State(initialValue: nil) // Not in model yet
+        self._editingStatus = State(initialValue: goal.status)
+        self._editingAreaId = State(initialValue: goal.aspirationId)
+        self._editingIcon = State(initialValue: goal.icon)
+    }
     
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                    // Header Card
-                    ModernCard {
-                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                            HStack {
+                    // Basic Information Card
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                            Text("Název")
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                            
+                            TextField("Název cíle", text: $editingTitle)
+                                .font(DesignSystem.Typography.headline)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
+                                .padding(DesignSystem.Spacing.sm)
+                                .background(Color.white)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                        .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                                )
+                                .cornerRadius(DesignSystem.CornerRadius.sm)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                            Text("Popis")
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                            
+                            TextEditor(text: $editingDescription)
+                                .font(DesignSystem.Typography.body)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
+                                .frame(minHeight: 80)
+                                .padding(DesignSystem.Spacing.sm)
+                                .background(Color.white)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                        .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                                )
+                                .cornerRadius(DesignSystem.CornerRadius.sm)
+                        }
+                        
+                        // Area
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                            Text("Oblast")
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                            
+                            Picker("Oblast", selection: Binding(
+                                get: { editingAreaId ?? "" },
+                                set: { editingAreaId = $0.isEmpty ? nil : $0 }
+                            )) {
+                                Text("Bez oblasti").tag("")
+                                ForEach(aspirations, id: \.id) { aspiration in
+                                    Text(aspiration.title).tag(aspiration.id)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                            .tint(DesignSystem.Colors.dynamicPrimary)
+                            .padding(DesignSystem.Spacing.sm)
+                            .background(Color.white)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                            )
+                            .cornerRadius(DesignSystem.CornerRadius.sm)
+                        }
+                    }
+                    .padding(DesignSystem.Spacing.md)
+                    .background(Color.white)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                            .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                    )
+                    .cornerRadius(DesignSystem.CornerRadius.md)
+                    .shadow(color: DesignSystem.Colors.dynamicPrimary.opacity(1.0), radius: 0, x: 3, y: 3)
+                    
+                    // Date and Status Card
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                        Text("Datum a stav")
+                            .font(DesignSystem.Typography.headline)
+                            .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                        
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                            // Status
+                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                                Text("Stav")
+                                    .font(DesignSystem.Typography.caption)
+                                    .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                                
+                                Picker("Stav", selection: $editingStatus) {
+                                    Text("Aktivní").tag("active")
+                                    Text("Dokončeno").tag("completed")
+                                    Text("Pozastaveno").tag("paused")
+                                }
+                                .pickerStyle(.segmented)
+                                .tint(DesignSystem.Colors.dynamicPrimary)
+                            }
+                            
+                            // Dates
+                            HStack(spacing: DesignSystem.Spacing.md) {
+                                // Start Date
                                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                                    Text(goal.title)
-                                        .font(DesignSystem.Typography.title2)
-                                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                                    Text("Datum startu")
+                                        .font(DesignSystem.Typography.caption)
+                                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
                                     
-                                    if let description = goal.description, !description.isEmpty {
-                                        Text(description)
-                                            .font(DesignSystem.Typography.caption)
-                                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                                    if let startDate = editingStartDate {
+                                        DatePicker("", selection: Binding(
+                                            get: { startDate },
+                                            set: { editingStartDate = $0 }
+                                        ), displayedComponents: .date)
+                                        .datePickerStyle(.compact)
+                                        .tint(DesignSystem.Colors.dynamicPrimary)
+                                        .padding(DesignSystem.Spacing.sm)
+                                        .background(Color.white)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                                .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                                        )
+                                        .cornerRadius(DesignSystem.CornerRadius.sm)
+                                    } else {
+                                        Button(action: {
+                                            editingStartDate = Date()
+                                        }) {
+                                            Text("Přidat datum startu")
+                                                .font(DesignSystem.Typography.caption)
+                                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                                                .frame(maxWidth: .infinity)
+                                                .padding(DesignSystem.Spacing.sm)
+                                                .background(Color.white)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                                        .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                                                )
+                                                .cornerRadius(DesignSystem.CornerRadius.sm)
+                                        }
                                     }
                                 }
+                                
+                                // Target Date
+                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                                    Text("Cílové datum")
+                                        .font(DesignSystem.Typography.caption)
+                                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                                    
+                                    if let targetDate = editingTargetDate {
+                                        DatePicker("", selection: Binding(
+                                            get: { targetDate },
+                                            set: { editingTargetDate = $0 }
+                                        ), displayedComponents: .date)
+                                        .datePickerStyle(.compact)
+                                        .tint(DesignSystem.Colors.dynamicPrimary)
+                                        .padding(DesignSystem.Spacing.sm)
+                                        .background(Color.white)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                                .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                                        )
+                                        .cornerRadius(DesignSystem.CornerRadius.sm)
+                                    } else {
+                                        Button(action: {
+                                            editingTargetDate = Date()
+                                        }) {
+                                            Text("Přidat cílové datum")
+                                                .font(DesignSystem.Typography.caption)
+                                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                                                .frame(maxWidth: .infinity)
+                                                .padding(DesignSystem.Spacing.sm)
+                                                .background(Color.white)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                                        .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                                                )
+                                                .cornerRadius(DesignSystem.CornerRadius.sm)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .padding(DesignSystem.Spacing.md)
+                    .background(Color.white)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                            .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                    )
+                    .cornerRadius(DesignSystem.CornerRadius.md)
+                    .shadow(color: DesignSystem.Colors.dynamicPrimary.opacity(1.0), radius: 0, x: 3, y: 3)
+                    
+                    // Progress Card
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                        Text("Pokrok")
+                            .font(DesignSystem.Typography.headline)
+                            .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                        
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                            HStack {
+                                Text("Pokrok")
+                                    .font(DesignSystem.Typography.caption)
+                                    .foregroundColor(DesignSystem.Colors.dynamicPrimary)
                                 
                                 Spacer()
                                 
-                                StatusBadge(
-                                    text: "\(goal.progressPercentage)%",
-                                    color: goal.status == "completed" ? DesignSystem.Colors.success : DesignSystem.Colors.primary,
-                                    backgroundColor: goal.status == "completed" ? DesignSystem.Colors.success.opacity(0.1) : DesignSystem.Colors.primary.opacity(0.1)
-                                )
+                                Text("\(goal.progressPercentage)%")
+                                    .font(DesignSystem.Typography.caption)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(DesignSystem.Colors.dynamicPrimary)
                             }
                             
-                            // Progress Bar
-                            ModernProgressBar(
+                            PlayfulProgressBar(
                                 progress: Double(goal.progressPercentage) / 100,
                                 height: 12,
-                                foregroundColor: goal.status == "completed" ? DesignSystem.Colors.success : DesignSystem.Colors.primary
+                                variant: .yellowGreen
                             )
-                            
-                            // Target Date
-                            if let targetDate = goal.targetDate {
-                                HStack {
-                                    ModernIcon(
-                                        systemName: "calendar",
-                                        size: 16,
-                                        color: DesignSystem.Colors.textTertiary
-                                    )
-                                    Text("Cíl do: \(targetDate, style: .date)")
-                                        .font(DesignSystem.Typography.caption)
-                                        .foregroundColor(DesignSystem.Colors.textSecondary)
-                                    
-                                    Spacer()
-                                    
-                                    StatusBadge(
-                                        text: goal.status == "completed" ? "Dokončeno" : "Aktivní",
-                                        color: goal.status == "completed" ? DesignSystem.Colors.success : DesignSystem.Colors.primary,
-                                        backgroundColor: goal.status == "completed" ? DesignSystem.Colors.success.opacity(0.1) : DesignSystem.Colors.primary.opacity(0.1)
-                                    )
-                                }
-                            }
                         }
-                        .padding(DesignSystem.Spacing.md)
                     }
+                    .padding(DesignSystem.Spacing.md)
+                    .background(Color.white)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                            .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                    )
+                    .cornerRadius(DesignSystem.CornerRadius.md)
+                    .shadow(color: DesignSystem.Colors.dynamicPrimary.opacity(1.0), radius: 0, x: 3, y: 3)
                     
                     // Steps Section
                     if !steps.isEmpty {
-                        ModernCard {
-                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                                Text("Kroky k cíli")
-                                    .font(DesignSystem.Typography.headline)
-                                    .foregroundColor(DesignSystem.Colors.textPrimary)
-                                
-                                LazyVStack(spacing: DesignSystem.Spacing.sm) {
-                                    ForEach(steps.prefix(10), id: \.id) { step in
-                                        HStack {
-                                            Image(systemName: step.completed ? "checkmark.circle.fill" : "circle")
-                                                .font(.system(size: 16))
-                                                .foregroundColor(step.completed ? DesignSystem.Colors.success : DesignSystem.Colors.textTertiary)
-                                            
-                                            VStack(alignment: .leading, spacing: 2) {
-                                                Text(step.title)
-                                                    .font(DesignSystem.Typography.caption)
-                                                    .foregroundColor(step.completed ? DesignSystem.Colors.textTertiary : DesignSystem.Colors.textPrimary)
-                                                    .strikethrough(step.completed)
-                                                
-                                                Text(step.date, style: .date)
-                                                    .font(DesignSystem.Typography.caption2)
-                                                    .foregroundColor(DesignSystem.Colors.textSecondary)
-                                            }
-                                            
-                                            Spacer()
-                                        }
-                                        .padding(.vertical, DesignSystem.Spacing.xs)
-                                    }
-                                    
-                                    if steps.count > 10 {
-                                        Text("... a \(steps.count - 10) dalších kroků")
-                                            .font(DesignSystem.Typography.caption)
-                                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                                            .padding(.top, DesignSystem.Spacing.xs)
-                                    }
-                                }
-                            }
-                            .padding(DesignSystem.Spacing.md)
-                        }
-                    }
-                    
-                    // Metadata Card
-                    ModernCard {
-                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                            Text("Informace")
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                            Text("Kroky k cíli")
                                 .font(DesignSystem.Typography.headline)
-                                .foregroundColor(DesignSystem.Colors.textPrimary)
+                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
                             
-                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                                HStack {
-                                    Text("Vytvořeno:")
-                                        .font(DesignSystem.Typography.caption)
-                                        .foregroundColor(DesignSystem.Colors.textSecondary)
-                                    Spacer()
-                                    if let createdAt = goal.createdAt {
-                                        Text(createdAt, style: .date)
-                                            .font(DesignSystem.Typography.caption)
-                                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                            LazyVStack(spacing: DesignSystem.Spacing.sm) {
+                                ForEach(steps.prefix(10), id: \.id) { step in
+                                    HStack {
+                                        Image(systemName: step.completed ? "checkmark.circle.fill" : "circle")
+                                            .font(.system(size: 16))
+                                            .foregroundColor(step.completed ? DesignSystem.Colors.success : DesignSystem.Colors.dynamicPrimary)
+                                        
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(step.title)
+                                                .font(DesignSystem.Typography.caption)
+                                                .foregroundColor(step.completed ? DesignSystem.Colors.textTertiary : DesignSystem.Colors.textPrimary)
+                                                .strikethrough(step.completed)
+                                            
+                                            Text(step.date, style: .date)
+                                                .font(DesignSystem.Typography.caption2)
+                                                .foregroundColor(DesignSystem.Colors.textSecondary)
+                                        }
+                                        
+                                        Spacer()
                                     }
+                                    .padding(.vertical, DesignSystem.Spacing.xs)
                                 }
                                 
-                                HStack {
-                                    Text("Aktualizováno:")
+                                if steps.count > 10 {
+                                    Text("... a \(steps.count - 10) dalších kroků")
                                         .font(DesignSystem.Typography.caption)
                                         .foregroundColor(DesignSystem.Colors.textSecondary)
-                                    Spacer()
-                                    if let updatedAt = goal.updatedAt {
-                                        Text(updatedAt, style: .date)
-                                            .font(DesignSystem.Typography.caption)
-                                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                                    }
-                                }
-                                
-                                HStack {
-                                    Text("Celkem kroků:")
-                                        .font(DesignSystem.Typography.caption)
-                                        .foregroundColor(DesignSystem.Colors.textSecondary)
-                                    Spacer()
-                                    Text("\(steps.count)")
-                                        .font(DesignSystem.Typography.caption)
-                                        .foregroundColor(DesignSystem.Colors.textSecondary)
-                                }
-                                
-                                HStack {
-                                    Text("Dokončené kroky:")
-                                        .font(DesignSystem.Typography.caption)
-                                        .foregroundColor(DesignSystem.Colors.textSecondary)
-                                    Spacer()
-                                    Text("\(steps.filter { $0.completed }.count)")
-                                        .font(DesignSystem.Typography.caption)
-                                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                                        .padding(.top, DesignSystem.Spacing.xs)
                                 }
                             }
                         }
                         .padding(DesignSystem.Spacing.md)
+                        .background(Color.white)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                                .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                        )
+                        .cornerRadius(DesignSystem.CornerRadius.md)
+                        .shadow(color: DesignSystem.Colors.dynamicPrimary.opacity(1.0), radius: 0, x: 3, y: 3)
                     }
+                    
+                    // Action buttons
+                    HStack(spacing: DesignSystem.Spacing.md) {
+                        // Delete button
+                        Button(action: {
+                            showDeleteConfirmation = true
+                        }) {
+                            HStack {
+                                Image(systemName: "trash")
+                                Text("Smazat")
+                            }
+                            .font(DesignSystem.Typography.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(DesignSystem.Spacing.md)
+                            .background(DesignSystem.Colors.redFull)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                                    .stroke(DesignSystem.Colors.redFull, lineWidth: 2)
+                            )
+                            .cornerRadius(DesignSystem.CornerRadius.md)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .disabled(isDeleting)
+                        
+                        // Save button
+                        Button(action: {
+                            saveGoal()
+                        }) {
+                            HStack {
+                                if isSaving {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                } else {
+                                    Image(systemName: "checkmark")
+                                    Text("Uložit")
+                                }
+                            }
+                            .font(DesignSystem.Typography.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(DesignSystem.Spacing.md)
+                            .background(DesignSystem.Colors.dynamicPrimary)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                            )
+                            .cornerRadius(DesignSystem.CornerRadius.md)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .disabled(isSaving || editingTitle.trimmingCharacters(in: .whitespaces).isEmpty)
+                    }
+                    .shadow(color: DesignSystem.Colors.dynamicPrimary.opacity(1.0), radius: 0, x: 3, y: 3)
                     
                     Spacer(minLength: 100)
                 }
@@ -186,23 +378,39 @@ struct GoalDetailView: View {
             }
         }
         .onAppear {
-            loadSteps()
+            loadData()
         }
         .alert("Chyba", isPresented: $showError) {
             Button("OK") { }
         } message: {
             Text(errorMessage)
         }
+        .alert("Smazat cíl", isPresented: $showDeleteConfirmation) {
+            Button("Zrušit", role: .cancel) { }
+            Button("Smazat bez kroků", role: .destructive) {
+                deleteWithSteps = false
+                deleteGoal()
+            }
+            Button("Smazat včetně kroků", role: .destructive) {
+                deleteWithSteps = true
+                deleteGoal()
+            }
+        } message: {
+            Text("Opravdu chcete smazat tento cíl? Můžete zvolit, zda smazat i všechny kroky k tomuto cíli.")
+        }
     }
     
-    private func loadSteps() {
+    private func loadData() {
         Task {
             do {
-                let allSteps = try await apiManager.fetchSteps()
-                let goalSteps = allSteps.filter { $0.goalId == goal.id }
+                async let aspirationsTask = apiManager.fetchAspirations()
+                async let stepsTask = apiManager.fetchSteps()
+                
+                let (fetchedAspirations, allSteps) = try await (aspirationsTask, stepsTask)
                 
                 await MainActor.run {
-                    self.steps = goalSteps.sorted { $0.date < $1.date }
+                    self.aspirations = fetchedAspirations
+                    self.steps = allSteps.filter { $0.goalId == goal.id }.sorted { $0.date < $1.date }
                     self.isLoading = false
                 }
             } catch {
@@ -210,6 +418,60 @@ struct GoalDetailView: View {
                     self.errorMessage = error.localizedDescription
                     self.showError = true
                     self.isLoading = false
+                }
+            }
+        }
+    }
+    
+    private func saveGoal() {
+        guard !editingTitle.trimmingCharacters(in: .whitespaces).isEmpty else {
+            errorMessage = "Název cíle je povinný"
+            showError = true
+            return
+        }
+        
+        isSaving = true
+        
+        Task {
+            do {
+                _ = try await apiManager.updateGoal(
+                    goalId: goal.id,
+                    title: editingTitle,
+                    description: editingDescription.isEmpty ? nil : editingDescription,
+                    targetDate: editingTargetDate,
+                    aspirationId: editingAreaId
+                )
+                
+                await MainActor.run {
+                    isSaving = false
+                    dismiss()
+                }
+            } catch {
+                await MainActor.run {
+                    isSaving = false
+                    errorMessage = error.localizedDescription
+                    showError = true
+                }
+            }
+        }
+    }
+    
+    private func deleteGoal() {
+        isDeleting = true
+        
+        Task {
+            do {
+                try await apiManager.deleteGoal(goalId: goal.id, deleteSteps: deleteWithSteps)
+                
+                await MainActor.run {
+                    isDeleting = false
+                    dismiss()
+                }
+            } catch {
+                await MainActor.run {
+                    isDeleting = false
+                    errorMessage = error.localizedDescription
+                    showError = true
                 }
             }
         }

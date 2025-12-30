@@ -894,7 +894,7 @@ export function JourneyGameView({
     }
   }
 
-  const handleStepToggle = async (stepId: string, completed: boolean) => {
+  const handleStepToggle = async (stepId: string, completed: boolean, completionDate?: string) => {
     // Check if we're on goal detail page or in Focus section
     const isGoalDetailPage = selectedGoalId !== null
     const isFocusSection = mainPanelSection === 'overview'
@@ -951,7 +951,8 @@ export function JourneyGameView({
         body: JSON.stringify({
           stepId: stepId,
           completed: completed,
-          completedAt: completed ? new Date().toISOString() : null
+          completedAt: completed ? new Date().toISOString() : null,
+          completionDate: completionDate || undefined
         }),
       })
 
@@ -1026,26 +1027,75 @@ export function JourneyGameView({
       setLoadingSteps(prev => new Set(prev).add(stepId))
       
       try {
+        // Check if this is a recurring step or instance
+        const step = dailySteps.find(s => s.id === stepId)
+        const isRecurring = step?.frequency && step.frequency !== null
+        const isInstance = step?.title && step.title.includes(' - ')
+        
+        // For recurring steps or instances, use completionDate instead of completedAt
+        const requestBody: any = {
+          stepId: stepId,
+          completed: completed
+        }
+        
+        if (completed) {
+          if (isRecurring || isInstance) {
+            // Use completionDate for recurring steps (YYYY-MM-DD format)
+            // Use provided completionDate if available, otherwise use today
+            const completionDateValue = completionDate || getLocalDateString(new Date())
+            requestBody.completionDate = completionDateValue
+          } else {
+            // Use completedAt for regular steps (ISO string)
+            requestBody.completedAt = new Date().toISOString()
+          }
+        } else {
+          requestBody.completedAt = null
+        }
+        
         const response = await fetch('/api/daily-steps', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            stepId: stepId,
-            completed: completed,
-            completedAt: completed ? new Date().toISOString() : null
-          }),
+          body: JSON.stringify(requestBody),
         })
 
           if (response.ok) {
             const updatedStep = await response.json()
-            // Update the step in dailySteps array
-            const updatedSteps = dailySteps.map(step => 
-              step.id === updatedStep.id ? updatedStep : step
-            )
-            if (onDailyStepsUpdate) {
-              onDailyStepsUpdate(updatedSteps)
+            
+            // If this was a recurring step or instance, reload all steps to get the newly created instance
+            if (completed && (isRecurring || isInstance)) {
+              // Reload all steps to get the newly created instance
+              const currentUserId = userId || player?.user_id
+              if (currentUserId && onDailyStepsUpdate) {
+                const reloadResponse = await fetch(`/api/daily-steps?userId=${currentUserId}`)
+                if (reloadResponse.ok) {
+                  const allSteps = await reloadResponse.json()
+                  onDailyStepsUpdate(Array.isArray(allSteps) ? allSteps : [])
+                } else {
+                  // Fallback: update only the completed step
+                  const updatedSteps = dailySteps.map(step => 
+                    step.id === updatedStep.id ? updatedStep : step
+                  )
+                  onDailyStepsUpdate(updatedSteps)
+                }
+              } else {
+                // Fallback: update only the completed step
+                const updatedSteps = dailySteps.map(step => 
+                  step.id === updatedStep.id ? updatedStep : step
+                )
+                if (onDailyStepsUpdate) {
+                  onDailyStepsUpdate(updatedSteps)
+                }
+              }
+            } else {
+              // For non-recurring steps, just update the step in the array
+              const updatedSteps = dailySteps.map(step => 
+                step.id === updatedStep.id ? updatedStep : step
+              )
+              if (onDailyStepsUpdate) {
+                onDailyStepsUpdate(updatedSteps)
+              }
             }
             // Update selected item if it's the same step
             if (selectedItem && selectedItem.id === stepId) {
@@ -1066,8 +1116,10 @@ export function JourneyGameView({
               }))
             }
           } else {
-            console.error('Failed to update step')
-            alert('Nepodařilo se aktualizovat krok')
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+            console.error('Failed to update step:', errorData)
+            console.error('Response status:', response.status)
+            alert(`Nepodařilo se aktualizovat krok: ${errorData.error || errorData.details || 'Neznámá chyba'}`)
           }
       } catch (error) {
         console.error('Error updating step:', error)
@@ -1353,6 +1405,12 @@ export function JourneyGameView({
 
   // Handle step modal
   const handleOpenStepModal = (date?: string, step?: any) => {
+    // Handle case where step is passed as first parameter (from StepsManagementView)
+    if (date && typeof date === 'object' && !step) {
+      step = date
+      date = undefined
+    }
+    
     if (step) {
       // Open existing step for editing
       const stepDate = step.date ? (typeof step.date === 'string' && step.date.match(/^\d{4}-\d{2}-\d{2}$/) ? step.date : step.date.split('T')[0]) : getLocalDateString(selectedDayDate)
@@ -1382,7 +1440,10 @@ export function JourneyGameView({
         require_checklist_complete: step.require_checklist_complete || false,
         isRepeating: !!(step.frequency && step.frequency !== null),
         frequency: step.frequency || null,
-        selected_days: step.selected_days || []
+        selected_days: step.selected_days || [],
+        recurring_start_date: step.recurring_start_date || null,
+        recurring_end_date: step.recurring_end_date || null,
+        recurring_display_mode: step.recurring_display_mode || 'all'
       })
     } else {
       // Create new step - always use today's date as default
@@ -1408,7 +1469,10 @@ export function JourneyGameView({
         require_checklist_complete: false,
         isRepeating: false,
         frequency: null,
-        selected_days: []
+        selected_days: [],
+        recurring_start_date: null,
+        recurring_end_date: null,
+        recurring_display_mode: 'all'
       })
     }
     setShowStepModal(true)
@@ -1444,6 +1508,22 @@ export function JourneyGameView({
       }
       // If only area is selected (no goal), keep area as is
       
+      // Ensure date is always a string (YYYY-MM-DD) or null
+      let dateValue: string | null = null
+      if (!stepModalData.isRepeating) {
+        if (stepModalData.date) {
+          if (typeof stepModalData.date === 'string') {
+            dateValue = stepModalData.date
+          } else if (stepModalData.date instanceof Date) {
+            dateValue = getLocalDateString(stepModalData.date)
+          } else {
+            dateValue = getLocalDateString(new Date())
+          }
+        } else {
+          dateValue = getLocalDateString(new Date())
+        }
+      }
+      
       const requestBody = {
         ...(isNewStep ? {} : { stepId: stepModalData.id }),
         userId: currentUserId,
@@ -1451,14 +1531,17 @@ export function JourneyGameView({
         areaId: finalAreaId,
         title: stepModalData.title,
         description: stepModalData.description || '',
-        date: stepModalData.isRepeating ? null : (stepModalData.date || getLocalDateString(new Date())),
+        date: dateValue,
         isImportant: stepModalData.is_important,
         isUrgent: stepModalData.is_urgent,
         estimatedTime: stepModalData.estimated_time,
         checklist: stepModalData.checklist,
         requireChecklistComplete: stepModalData.require_checklist_complete,
         frequency: stepModalData.isRepeating ? (stepModalData.frequency || null) : null,
-        selectedDays: stepModalData.isRepeating ? (stepModalData.selected_days || []) : []
+        selectedDays: stepModalData.isRepeating ? (stepModalData.selected_days || []) : [],
+        recurringStartDate: stepModalData.isRepeating ? (stepModalData.recurring_start_date || null) : null,
+        recurringEndDate: stepModalData.isRepeating ? (stepModalData.recurring_end_date || null) : null,
+        recurringDisplayMode: stepModalData.isRepeating ? (stepModalData.recurring_display_mode || 'all') : 'all'
       }
       
       console.log('🚀 Saving step:', {
@@ -1487,15 +1570,27 @@ export function JourneyGameView({
       if (response.ok) {
         const updatedStep = await response.json()
         
-        // Update dailySteps in parent component
-        if (onDailyStepsUpdate) {
-          if (isNewStep) {
-            onDailyStepsUpdate([...dailySteps, updatedStep])
-          } else {
-            const updatedSteps = dailySteps.map(step => 
-              step.id === updatedStep.id ? updatedStep : step
-            )
-            onDailyStepsUpdate(updatedSteps)
+        // If this was a recurring step, reload all steps to get the instance
+        if (isNewStep && updatedStep.frequency && updatedStep.frequency !== null) {
+          // Reload all steps to get the newly created instance
+          const reloadResponse = await fetch(`/api/daily-steps?userId=${currentUserId}`)
+          if (reloadResponse.ok) {
+            const allSteps = await reloadResponse.json()
+            if (onDailyStepsUpdate) {
+              onDailyStepsUpdate(Array.isArray(allSteps) ? allSteps : [])
+            }
+          }
+        } else {
+          // Update dailySteps in parent component
+          if (onDailyStepsUpdate) {
+            if (isNewStep) {
+              onDailyStepsUpdate([...dailySteps, updatedStep])
+            } else {
+              const updatedSteps = dailySteps.map(step => 
+                step.id === updatedStep.id ? updatedStep : step
+              )
+              onDailyStepsUpdate(updatedSteps)
+            }
           }
         }
         
@@ -2837,28 +2932,25 @@ export function JourneyGameView({
         }
         
         // Immediately update local dailySteps state by filtering out deleted step
+        // Also handle recurring step template deletion - remove all non-completed instances
+        let updatedSteps = dailySteps.filter((s: any) => s.id !== stepId)
+        
+        // If this was a recurring step template, also remove all non-completed instances
+        if (stepToDelete && stepToDelete.is_hidden === true && stepToDelete.frequency !== null) {
+          const titlePrefix = stepToDelete.title
+          updatedSteps = updatedSteps.filter((s: any) => {
+            // Keep completed instances, remove non-completed instances
+            if (s.title && s.title.startsWith(titlePrefix + ' - ')) {
+              return s.completed === true
+            }
+            return true
+          })
+        }
+        
         if (onDailyStepsUpdate) {
-          const updatedSteps = dailySteps.filter((s: any) => s.id !== stepId)
           onDailyStepsUpdate(updatedSteps)
         }
         
-        // Also reload steps data from API to ensure consistency
-        const currentDate = new Date().toISOString().split('T')[0]
-        const userIdForFetch = player?.user_id || userId
-        if (userIdForFetch) {
-          try {
-            const stepsResponse = await fetch(`/api/daily-steps?userId=${userIdForFetch}&date=${currentDate}`)
-            if (stepsResponse.ok) {
-              const steps = await stepsResponse.json()
-              // Update dailySteps in parent component with fresh data
-              if (onDailyStepsUpdate) {
-                onDailyStepsUpdate(steps)
-              }
-            }
-          } catch (error) {
-            // Non-critical error - local state was already updated
-          }
-        }
       } else {
         const errorData = await response.json().catch(() => ({}))
         console.error('Failed to delete step, status:', response.status, errorData)

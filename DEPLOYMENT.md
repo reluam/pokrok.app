@@ -64,18 +64,34 @@ git push origin staging
 2. Nastav **Production Branch** na `main`
 3. V **Preview Deployments** zkontroluj, že jsou povolené
 
-### 3. Nastavení Staging Environment (volitelné)
+### 3. Nastavení Staging Environment (DOPORUČENO)
 
-Pro lepší organizaci můžeš vytvořit samostatný Vercel projekt pro staging:
+**Pro správné fungování `test.pokrok.app` použij Preview Domain:**
 
-1. Vytvoř nový projekt v Vercelu
-2. Připoj stejný Git repository
-3. Nastav **Production Branch** na `staging`
-4. Přidej custom domain (např. `staging.tvojedomena.cz`)
+1. **Přidej Preview Domain:**
+   - V produkčním projektu jdi do **Settings** → **Domains**
+   - Klikni na **"Add Domain"**
+   - Zadej: `test.pokrok.app`
+   - Vyber **"Preview"** (ne Production)
+   - Vercel ti ukáže DNS záznamy, které musíš nastavit
 
-Nebo použij Preview Deployments:
-- Každý push do `staging` vytvoří preview URL
-- Můžeš si nastavit custom domain pro staging branch v Project Settings
+2. **Nastav DNS záznamy:**
+   - Pro `test.pokrok.app` přidej DNS záznamy podle instrukcí Vercelu (obvykle CNAME nebo A record)
+
+3. **Přiřaď Preview Domain k staging branch:**
+   - V **Settings** → **Domains** najdi `test.pokrok.app`
+   - Klikni na **"Configure"** nebo **"Edit"**
+   - V sekci **"Assign to Branch"** vyber `staging`
+   - Ulož změny
+
+**Výsledek:**
+- **Produkce**: `pokrok.app` → main branch (production deployment)
+- **Staging**: `test.pokrok.app` → staging branch (preview deployment s custom domain)
+
+**Výhody tohoto řešení:**
+- ✅ Jednodušší správa - jeden projekt
+- ✅ Sdílené nastavení (environment variables, build settings)
+- ✅ Preview deployments jsou navrženy pro testování
 
 ### 4. Environment Variables
 

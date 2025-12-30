@@ -59,7 +59,7 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
         )
         if (response.ok) {
           const steps = await response.json()
-          setDailySteps(steps)
+          setDailySteps(Array.isArray(steps) ? steps : [])
         } else {
           console.error('Failed to load daily steps, status:', response.status)
         }

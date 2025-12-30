@@ -2,16 +2,16 @@ import SwiftUI
 import Clerk
 
 enum Tab: String, CaseIterable {
-    case steps = "Kroky"
+    case steps = "Feed"
     case habits = "Návyky"
-    case goals = "Cíle"
+    case goals = "Pokrok"
     case settings = "Nastavení"
     
     var icon: String {
         switch self {
         case .steps: return "checkmark.circle.fill"
         case .habits: return "repeat.circle.fill"
-        case .goals: return "flag.fill"
+        case .goals: return "chart.bar.fill"
         case .settings: return "gear"
         }
     }
@@ -179,7 +179,8 @@ struct TabBarButton: View {
                     .font(DesignSystem.Typography.caption2)
                     .foregroundColor(isSelected ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.textSecondary)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: .infinity)
+            .frame(height: 56) // Match tab bar height
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
@@ -224,7 +225,7 @@ struct AddMenuSheet: View {
                         ) {
                             dismiss()
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                showAddAspirationModal = true
+                            showAddAspirationModal = true
                             }
                         }
                         
@@ -235,7 +236,7 @@ struct AddMenuSheet: View {
                         ) {
                             dismiss()
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                showAddGoalModal = true
+                            showAddGoalModal = true
                             }
                         }
                         
@@ -246,7 +247,7 @@ struct AddMenuSheet: View {
                         ) {
                             dismiss()
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                showAddStepModal = true
+                            showAddStepModal = true
                             }
                         }
                         
@@ -257,7 +258,7 @@ struct AddMenuSheet: View {
                         ) {
                             dismiss()
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                showAddHabitModal = true
+                            showAddHabitModal = true
                             }
                         }
                     }
@@ -334,14 +335,14 @@ struct AddMenuButton: View {
                     .overlay(
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
                             .stroke(settingsManager.primaryColor, lineWidth: 2)
-                    )
-                    .background(
-                        // Offset shadow effect matching playful design
-                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+            )
+            .background(
+                // Offset shadow effect matching playful design
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
                             .fill(DesignSystem.Shadows.card)
-                            .offset(
-                                x: DesignSystem.Shadows.cardOffsetX,
-                                y: DesignSystem.Shadows.cardOffsetY
+                    .offset(
+                        x: DesignSystem.Shadows.cardOffsetX,
+                        y: DesignSystem.Shadows.cardOffsetY
                             )
                     )
             )

@@ -52,10 +52,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     
-    // ✅ SECURITY: Ověření vlastnictví areaId, pokud je poskytnut
+    // ✅ SECURITY: Ověření vlastnictví areaId (which is actually aspirationId), pokud je poskytnut
     if (areaId) {
-      const areaOwned = await verifyEntityOwnership(areaId, 'areas', dbUser)
-      if (!areaOwned) {
+      // iOS app sends areaId but it's actually an aspiration ID, so check aspirations table
+      const aspirationOwned = await verifyEntityOwnership(areaId, 'aspirations', dbUser)
+      if (!aspirationOwned) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
       }
     }
@@ -110,6 +111,7 @@ export async function POST(request: NextRequest) {
       progress_percentage: progressPercentage || 0,
       progress_type: progressType || 'percentage',
       icon: icon || 'Target',
+      // iOS app sends areaId which refers to areas table (not aspirations)
       area_id: areaId || undefined
     }
 
@@ -141,10 +143,11 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     
-    // ✅ SECURITY: Ověření vlastnictví areaId, pokud je poskytnut
+    // ✅ SECURITY: Ověření vlastnictví areaId (which is actually aspirationId), pokud je poskytnut
     if (areaId) {
-      const areaOwned = await verifyEntityOwnership(areaId, 'areas', dbUser)
-      if (!areaOwned) {
+      // iOS app sends areaId but it's actually an aspiration ID, so check aspirations table
+      const aspirationOwned = await verifyEntityOwnership(areaId, 'aspirations', dbUser)
+      if (!aspirationOwned) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
       }
     }
@@ -164,6 +167,7 @@ export async function PUT(request: NextRequest) {
         : undefined,
       status,
       icon,
+      // iOS app sends areaId which refers to areas table (not aspirations)
       area_id: areaId !== undefined ? areaId : undefined
     }
 

@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations, useLocale } from 'next-intl'
-import { Edit, X, Plus, Calendar, Target, Check, Filter, ChevronDown, ChevronUp } from 'lucide-react'
+import { Edit, X, Plus, Calendar, Target, Check, Filter, ChevronDown, ChevronUp, Repeat } from 'lucide-react'
 import { getLocalDateString } from '../utils/dateHelpers'
 
 interface StepsManagementViewProps {
@@ -15,6 +15,7 @@ interface StepsManagementViewProps {
   onOpenStepModal?: (step?: any) => void
   hideHeader?: boolean
   showCompleted?: boolean
+  showRepeatingSteps?: boolean
   goalFilter?: string | null
   dateFilter?: string | null
 }
@@ -28,6 +29,7 @@ export function StepsManagementView({
   onOpenStepModal,
   hideHeader = false,
   showCompleted: showCompletedProp,
+  showRepeatingSteps: showRepeatingStepsProp,
   goalFilter: goalFilterProp,
   dateFilter: dateFilterProp
 }: StepsManagementViewProps) {
@@ -36,6 +38,7 @@ export function StepsManagementView({
   
   // Filters - use props if provided, otherwise use local state
   const [showCompleted, setShowCompleted] = useState(false)
+  const [showRepeatingSteps, setShowRepeatingSteps] = useState(false)
   const [stepsGoalFilter, setStepsGoalFilter] = useState<string | null>(null)
   const [stepsDateFilter, setStepsDateFilter] = useState<string | null>(null)
   const [loadingSteps, setLoadingSteps] = useState<Set<string>>(new Set())
@@ -43,6 +46,7 @@ export function StepsManagementView({
   
   // Use props if provided
   const effectiveShowCompleted = showCompletedProp !== undefined ? showCompletedProp : showCompleted
+  const effectiveShowRepeatingSteps = showRepeatingStepsProp !== undefined ? showRepeatingStepsProp : showRepeatingSteps
   const effectiveGoalFilter = goalFilterProp !== undefined ? goalFilterProp : stepsGoalFilter
   const effectiveDateFilter = dateFilterProp !== undefined ? dateFilterProp : stepsDateFilter
 
@@ -195,7 +199,26 @@ export function StepsManagementView({
       })
 
       if (response.ok) {
-        await reloadSteps()
+        // Update local state by removing deleted step
+        // Also handle recurring step template deletion - remove all non-completed instances
+        let updatedSteps = dailySteps.filter((s: any) => s.id !== editingStep.id)
+        
+        // If this was a recurring step template, also remove all non-completed instances
+        if (editingStep && editingStep.is_hidden === true && editingStep.frequency !== null) {
+          const titlePrefix = editingStep.title
+          updatedSteps = updatedSteps.filter((s: any) => {
+            // Keep completed instances, remove non-completed instances
+            if (s.title && s.title.startsWith(titlePrefix + ' - ')) {
+              return s.completed === true
+            }
+            return true
+          })
+        }
+        
+        if (onDailyStepsUpdate) {
+          onDailyStepsUpdate(updatedSteps)
+        }
+        
         setEditingStep(null)
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
@@ -294,6 +317,24 @@ export function StepsManagementView({
 
   const filteredSteps = useMemo(() => {
     return sortedSteps.filter((step: any) => {
+      // Always show recurring step templates (is_hidden === true AND frequency !== null)
+      // These are the templates where users configure recurring settings
+      const isRecurringTemplate = step.is_hidden === true && step.frequency !== null
+      if (isRecurringTemplate) {
+        // Always show recurring templates, but still apply other filters
+        // Skip the hidden check for recurring templates
+      } else if (step.is_hidden === true) {
+        // Filter out other hidden steps (non-recurring templates)
+        return false
+      }
+      
+      // Filter repeating step instances based on showRepeatingSteps
+      // Instances have title containing " - " and are not recurring steps themselves
+      const isRecurringInstance = !step.frequency && step.title && typeof step.title === 'string' && step.title.includes(' - ')
+      if (!effectiveShowRepeatingSteps && isRecurringInstance) {
+        return false
+      }
+      
       if (!effectiveShowCompleted && step.completed) {
         return false
       }
@@ -318,7 +359,7 @@ export function StepsManagementView({
       }
       return true
     })
-  }, [sortedSteps, effectiveShowCompleted, effectiveGoalFilter, effectiveDateFilter])
+  }, [sortedSteps, effectiveShowCompleted, effectiveShowRepeatingSteps, effectiveGoalFilter, effectiveDateFilter])
 
   return (
     <div className="w-full h-full flex flex-col bg-primary-50">
@@ -379,6 +420,22 @@ export function StepsManagementView({
             <span className="text-sm text-black font-playful">{t('steps.filters.showCompleted')}</span>
           </label>
           
+          {/* Show Repeating Steps Checkbox */}
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={effectiveShowRepeatingSteps}
+              onChange={(e) => {
+                if (showRepeatingStepsProp === undefined) {
+                  setShowRepeatingSteps(e.target.checked)
+                }
+              }}
+              disabled={showRepeatingStepsProp !== undefined}
+              className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+            />
+            <span className="text-sm text-black font-playful">{t('steps.filters.showRepeatingSteps') || 'Opakující se kroky'}</span>
+          </label>
+          
           {/* Goal Filter */}
           <select
             value={effectiveGoalFilter || ''}
@@ -424,6 +481,22 @@ export function StepsManagementView({
               className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
             />
             <span className="text-sm text-black font-playful">{t('steps.filters.showCompleted')}</span>
+          </label>
+          
+          {/* Show Repeating Steps Checkbox */}
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={effectiveShowRepeatingSteps}
+              onChange={(e) => {
+                if (showRepeatingStepsProp === undefined) {
+                  setShowRepeatingSteps(e.target.checked)
+                }
+              }}
+              disabled={showRepeatingStepsProp !== undefined}
+              className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+            />
+            <span className="text-sm text-black font-playful">{t('steps.filters.showRepeatingSteps') || 'Opakující se kroky'}</span>
           </label>
           
           {/* Goal Filter */}
@@ -510,50 +583,69 @@ export function StepsManagementView({
                     >
                       <td className="px-4 py-2 first:pl-6">
                         <div className="flex items-center justify-center">
-                          <button
-                            onClick={async (e) => {
-                              e.stopPropagation()
-                              if (!loadingSteps.has(step.id)) {
-                                await handleToggleStepCompleted(step.id, !step.completed)
-                              }
-                            }}
-                            disabled={loadingSteps.has(step.id)}
-                            className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
-                          >
-                            {loadingSteps.has(step.id) ? (
-                              <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                            ) : step.completed ? (
-                              <Check className="w-5 h-5 text-primary-600" strokeWidth={3} />
-                            ) : (
-                              <div className="w-5 h-5 border-2 border-primary-500 rounded-playful-sm"></div>
-                            )}
-                          </button>
+                          {step.frequency && step.frequency !== null ? (
+                            // Recurring steps cannot be completed from this page
+                            <div className="w-5 h-5 border-2 border-gray-300 rounded-playful-sm bg-gray-100 opacity-50 cursor-not-allowed" title={t('steps.recurringCannotComplete') || 'Recurring steps cannot be completed from this page'} />
+                          ) : (
+                            <button
+                              onClick={async (e) => {
+                                e.stopPropagation()
+                                if (!loadingSteps.has(step.id)) {
+                                  await handleToggleStepCompleted(step.id, !step.completed)
+                                }
+                              }}
+                              disabled={loadingSteps.has(step.id)}
+                              className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
+                            >
+                              {loadingSteps.has(step.id) ? (
+                                <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                              ) : step.completed ? (
+                                <Check className="w-5 h-5 text-primary-600" strokeWidth={3} />
+                              ) : (
+                                <div className="w-5 h-5 border-2 border-primary-500 rounded-playful-sm"></div>
+                              )}
+                            </button>
+                          )}
                         </div>
                       </td>
                       <td className="px-4 py-2">
-                        <span className={`font-semibold text-sm font-playful ${step.completed ? 'line-through text-gray-500' : 'text-black'}`}>
-                          {step.title}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          {step.frequency && step.frequency !== null && (
+                            <Repeat className="w-4 h-4 text-primary-600 flex-shrink-0" />
+                          )}
+                          <span className={`font-semibold text-sm font-playful ${step.completed ? 'line-through text-gray-500' : 'text-black'}`}>
+                            {step.title}
+                          </span>
+                        </div>
                         {step.description && (
                           <p className="text-xs text-gray-600 mt-0.5 line-clamp-1 font-playful">{step.description}</p>
                         )}
                       </td>
                       <td className="px-4 py-2 last:pr-6">
-                        <span
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                            setQuickEditStepPosition({ top: rect.bottom + 4, left: rect.left })
-                            setQuickEditStepId(step.id)
-                            setQuickEditStepField('date')
-                          }}
-                          className="text-xs text-gray-600 font-playful cursor-pointer hover:text-primary-600 transition-colors flex items-center gap-1"
-                        >
-                          <Calendar className="w-3 h-3" />
-                          {stepDate ? (
+                        {step.frequency && step.frequency !== null ? (
+                          // Recurring step - show frequency instead of date
+                          <div className="flex items-center gap-1 text-xs text-gray-500">
+                            <Repeat className="w-3 h-3" />
+                            <span>{step.frequency === 'daily' ? (localeCode === 'cs' ? 'Denně' : 'Daily') : 
+                                   step.frequency === 'weekly' ? (localeCode === 'cs' ? 'Týdně' : 'Weekly') :
+                                   step.frequency === 'monthly' ? (localeCode === 'cs' ? 'Měsíčně' : 'Monthly') : ''}</span>
+                          </div>
+                        ) : (
+                          <span
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                              setQuickEditStepPosition({ top: rect.bottom + 4, left: rect.left })
+                              setQuickEditStepId(step.id)
+                              setQuickEditStepField('date')
+                            }}
+                            className="text-xs text-gray-600 font-playful cursor-pointer hover:text-primary-600 transition-colors flex items-center gap-1"
+                          >
+                            <Calendar className="w-3 h-3" />
+                            {stepDate ? (
                             (() => {
                               try {
                                 const dateParts = stepDate.split('-')
@@ -568,7 +660,8 @@ export function StepsManagementView({
                           ) : (
                             <span className="text-gray-400">Bez data</span>
                           )}
-                        </span>
+                          </span>
+                        )}
                       </td>
                     </tr>
                   )

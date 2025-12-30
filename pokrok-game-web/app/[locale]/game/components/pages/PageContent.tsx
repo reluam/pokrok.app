@@ -334,6 +334,29 @@ export function PageContent(props: PageContentProps) {
       setSelectedGoalForDetail(null)
     }
   }, [currentPage])
+
+  // Load all steps without date limit when on steps page
+  React.useEffect(() => {
+    if (currentPage === 'steps' && onDailyStepsUpdate && (userId || player?.user_id)) {
+      const loadAllSteps = async () => {
+        const currentUserId = userId || player?.user_id
+        if (!currentUserId) return
+
+        try {
+          // Load ALL steps without date filter to include all overdue, today, and future steps
+          const response = await fetch(`/api/daily-steps?userId=${currentUserId}`)
+          if (response.ok) {
+            const steps = await response.json()
+            onDailyStepsUpdate(steps)
+          }
+        } catch (error) {
+          console.error('Error loading all steps for steps page:', error)
+        }
+      }
+
+      loadAllSteps()
+    }
+  }, [currentPage, userId, player?.user_id, onDailyStepsUpdate])
   
   // Expose reset function for external use (e.g., from HeaderNavigation)
   React.useEffect(() => {
@@ -352,6 +375,7 @@ export function PageContent(props: PageContentProps) {
   
   // Filters state for Steps page
   const [stepsShowCompleted, setStepsShowCompleted] = React.useState(false)
+  const [stepsShowRepeatingSteps, setStepsShowRepeatingSteps] = React.useState(false)
   const [stepsGoalFilter, setStepsGoalFilter] = React.useState<string | null>(null)
   const [stepsDateFilter, setStepsDateFilter] = React.useState<string | null>(null)
   const [stepsMobileMenuOpen, setStepsMobileMenuOpen] = React.useState(false)
@@ -1253,6 +1277,8 @@ export function PageContent(props: PageContentProps) {
                   setSelectedItem={setSelectedItem}
                   setSelectedItemType={setSelectedItemType}
                   onOpenStepModal={handleOpenStepModal}
+                  onStepDateChange={onStepDateChange}
+                  onStepTimeChange={onStepTimeChange}
                   loadingHabits={loadingHabits}
                   loadingSteps={loadingSteps}
                   animatingSteps={animatingSteps}
@@ -1346,7 +1372,7 @@ export function PageContent(props: PageContentProps) {
                     onDailyStepsUpdate={onDailyStepsUpdate}
                     userId={userId}
                     player={player}
-                    onOpenStepModal={(step) => {
+                    onOpenStepModal={(step?: any) => {
                       if (step) {
                         handleOpenStepModal(undefined, step)
                       } else {
@@ -2312,7 +2338,11 @@ export function PageContent(props: PageContentProps) {
 
       case 'steps': {
         const filteredSteps = dailySteps.filter((step: any) => {
+          // Default: show all incomplete steps (overdue, today, future) regardless of date
+          // Only filter by completed status if showCompleted is false
           if (!stepsShowCompleted && step.completed) return false
+          
+          // Filter by goal if specified
           if (stepsGoalFilter) {
             if (stepsGoalFilter === 'none') {
               // Filter for steps without a goal
@@ -2326,10 +2356,14 @@ export function PageContent(props: PageContentProps) {
               }
             }
           }
+          
+          // Only filter by date if date filter is explicitly set
+          // Default behavior: show all steps regardless of date (overdue, today, future)
           if (stepsDateFilter) {
             const stepDate = step.date ? (step.date.includes('T') ? step.date.split('T')[0] : step.date) : null
             if (stepDate !== stepsDateFilter) return false
           }
+          
           return true
         })
         const stepsCount = filteredSteps.length
@@ -2355,6 +2389,19 @@ export function PageContent(props: PageContentProps) {
                       className="w-4 h-4 text-primary-600 border-primary-500 rounded-playful-sm focus:ring-primary-500"
                     />
                     <span className="text-xs font-medium text-black">{t('steps.filters.showCompleted')}</span>
+                  </label>
+                </div>
+                
+                {/* Show Repeating Steps Checkbox */}
+                <div className="mb-3">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={stepsShowRepeatingSteps}
+                      onChange={(e) => setStepsShowRepeatingSteps(e.target.checked)}
+                      className="w-4 h-4 text-primary-600 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+                    />
+                    <span className="text-xs font-medium text-black">{t('steps.filters.showRepeatingSteps') || 'Opakující se kroky'}</span>
                   </label>
                 </div>
                 
@@ -2449,6 +2496,17 @@ export function PageContent(props: PageContentProps) {
                                   <span className="text-sm font-medium text-black">{t('steps.filters.showCompleted')}</span>
                                 </label>
                                 
+                                {/* Show Repeating Steps Checkbox */}
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={stepsShowRepeatingSteps}
+                                    onChange={(e) => setStepsShowRepeatingSteps(e.target.checked)}
+                                    className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+                                  />
+                                  <span className="text-sm font-medium text-black">{t('steps.filters.showRepeatingSteps') || 'Opakující se kroky'}</span>
+                                </label>
+                                
                                 {/* Goal Filter */}
                                 <div>
                                   <label className="text-xs font-semibold text-black mb-1.5 block">{t('steps.filters.goal.title') || 'Cíl'}</label>
@@ -2520,6 +2578,7 @@ export function PageContent(props: PageContentProps) {
                 onOpenStepModal={handleOpenStepModal}
                 hideHeader={true}
                 showCompleted={stepsShowCompleted}
+                showRepeatingSteps={stepsShowRepeatingSteps}
                 goalFilter={stepsGoalFilter}
                 dateFilter={stepsDateFilter}
               />

@@ -334,7 +334,6 @@ struct WeekView: View {
         let completedTasks = completedSteps + completedHabits
         let progress = totalTasks > 0 ? Double(completedTasks) / Double(totalTasks) : 0.0
         let isToday = calendar.isDate(date, inSameDayAs: Date())
-        let isSelected = selectedDay != nil && calendar.isDate(selectedDay!, inSameDayAs: date)
         
         return PlayfulCard(variant: .pink) {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {

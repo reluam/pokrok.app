@@ -1106,6 +1106,7 @@
     "completedAfterTarget": "Completed after target",
     "filters": {
       "showCompleted": "Show completed",
+      "showRepeatingSteps": "Repeating steps",
       "status": {
         "all": "All",
         "completed": "Completed",
@@ -1171,7 +1172,16 @@
     "checklistNoItemsDescription": "Add sub-tasks for this step",
     "checklistItemPlaceholder": "Item name...",
     "checklistAddItem": "Add item",
-    "checklistRequireComplete": "Require all items to be completed before finishing the step"
+    "checklistRequireComplete": "Require all items to be completed before finishing the step",
+    "recurring": {
+      "startDate": "Recurring start date",
+      "endDate": "Recurring end date",
+      "never": "Never",
+      "displayMode": "Display mode",
+      "allInstances": "Show all occurrences",
+      "nextOnly": "Show nearest occurrence"
+    },
+    "recurringCannotComplete": "Recurring steps cannot be completed from this page"
   },
   "help": {
     "title": "Help",

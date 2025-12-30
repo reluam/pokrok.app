@@ -76,7 +76,7 @@ struct AspirationsOverviewView: View {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                 HStack {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                        Text("Aspirace")
+                        Text("Oblasti")
                             .font(DesignSystem.Typography.title2)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
                         
@@ -113,9 +113,9 @@ struct AspirationsOverviewView: View {
             if aspirations.isEmpty {
                 EmptyStateView(
                     icon: "sparkles",
-                    title: "Žádné aspirace",
-                    subtitle: "Vytvořte svou první aspiraci, která vás povede k vašim životním cílům",
-                    actionTitle: "Přidat aspiraci",
+                    title: "Žádné oblasti",
+                    subtitle: "Vytvořte svou první oblast, která vás povede k vašim životním cílům",
+                    actionTitle: "Přidat oblast",
                     action: {
                         showAddAspirationModal = true
                     }
@@ -440,6 +440,8 @@ struct AddAspirationModal: View {
     @State private var aspirationTitle = ""
     @State private var aspirationDescription = ""
     @State private var selectedColor = "#3B82F6"
+    @State private var selectedIcon: String? = nil
+    @State private var showIconPicker = false
     @State private var isLoading = false
     @State private var errorMessage = ""
     @State private var showError = false
@@ -454,7 +456,7 @@ struct AddAspirationModal: View {
                     // Title Field
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                         HStack {
-                            Text("Název aspirace")
+                            Text("Název oblasti")
                                 .font(DesignSystem.Typography.headline)
                                 .foregroundColor(DesignSystem.Colors.textPrimary)
                             Text("*")
@@ -476,7 +478,7 @@ struct AddAspirationModal: View {
                         Text("Popis (volitelné)")
                             .font(DesignSystem.Typography.headline)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
-                        TextField("Popište svou aspiraci podrobněji...", text: $aspirationDescription, axis: .vertical)
+                        TextField("Popište svou oblast podrobněji...", text: $aspirationDescription, axis: .vertical)
                             .font(DesignSystem.Typography.body)
                             .padding(DesignSystem.Spacing.md)
                             .frame(minHeight: 100, alignment: .top)
@@ -487,6 +489,44 @@ struct AddAspirationModal: View {
                                     .stroke(DesignSystem.Colors.textTertiary.opacity(0.3), lineWidth: 1)
                             )
                             .lineLimit(4...8)
+                    }
+                    
+                    // Icon Picker
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                        Text("Ikona (volitelné)")
+                            .font(DesignSystem.Typography.headline)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                        
+                        Button(action: {
+                            showIconPicker = true
+                        }) {
+                            HStack {
+                                if let iconName = selectedIcon {
+                                    LucideIcon(iconName, size: 24, color: DesignSystem.Colors.dynamicPrimary)
+                                } else {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .font(.system(size: 24))
+                                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                                }
+                                
+                                Text(selectedIcon != nil ? IconUtils.availableIcons.first(where: { $0.name == selectedIcon })?.label ?? "Ikona" : "Vyberte ikonu")
+                                    .font(DesignSystem.Typography.body)
+                                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                            }
+                            .padding(DesignSystem.Spacing.md)
+                            .background(DesignSystem.Colors.surface)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                                    .stroke(DesignSystem.Colors.textTertiary.opacity(0.3), lineWidth: 1)
+                            )
+                            .cornerRadius(DesignSystem.CornerRadius.md)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
                     
                     // Color Picker
@@ -522,7 +562,7 @@ struct AddAspirationModal: View {
                                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
                                     .scaleEffect(0.8)
                             } else {
-                                Text("Přidat aspiraci")
+                                Text("Přidat oblast")
                                     .font(DesignSystem.Typography.headline)
                                     .fontWeight(.semibold)
                             }
@@ -539,7 +579,7 @@ struct AddAspirationModal: View {
                 .padding(DesignSystem.Spacing.lg)
             }
             .background(DesignSystem.Colors.background)
-            .navigationTitle("Nová aspirace")
+            .navigationTitle("Nová oblast")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -554,6 +594,9 @@ struct AddAspirationModal: View {
             } message: {
                 Text(errorMessage)
             }
+            .sheet(isPresented: $showIconPicker) {
+                IconPickerView(selectedIcon: $selectedIcon)
+            }
         }
     }
     
@@ -566,7 +609,7 @@ struct AddAspirationModal: View {
                     title: aspirationTitle,
                     description: aspirationDescription.isEmpty ? nil : aspirationDescription,
                     color: selectedColor,
-                    icon: nil
+                    icon: selectedIcon
                 )
                 
                 _ = try await apiManager.createAspiration(aspirationRequest)

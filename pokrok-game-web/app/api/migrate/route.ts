@@ -209,6 +209,28 @@ async function runMigrations() {
       await sql`ALTER TABLE daily_steps ADD COLUMN selected_days JSONB DEFAULT '[]'::jsonb`
     }
     
+    // Add last_instance_date and last_completed_instance_date for recurring steps
+    if (!dailyStepsColumnNames.includes('last_instance_date')) {
+      await sql`ALTER TABLE daily_steps ADD COLUMN last_instance_date DATE DEFAULT NULL`
+    }
+    if (!dailyStepsColumnNames.includes('last_completed_instance_date')) {
+      await sql`ALTER TABLE daily_steps ADD COLUMN last_completed_instance_date DATE DEFAULT NULL`
+    }
+    
+    // Add recurring_start_date, recurring_end_date, recurring_display_mode, and is_hidden for recurring steps
+    if (!dailyStepsColumnNames.includes('recurring_start_date')) {
+      await sql`ALTER TABLE daily_steps ADD COLUMN recurring_start_date DATE DEFAULT NULL`
+    }
+    if (!dailyStepsColumnNames.includes('recurring_end_date')) {
+      await sql`ALTER TABLE daily_steps ADD COLUMN recurring_end_date DATE DEFAULT NULL`
+    }
+    if (!dailyStepsColumnNames.includes('recurring_display_mode')) {
+      await sql`ALTER TABLE daily_steps ADD COLUMN recurring_display_mode VARCHAR(20) DEFAULT 'all' CHECK (recurring_display_mode IN ('all', 'next_only') OR recurring_display_mode IS NULL)`
+    }
+    if (!dailyStepsColumnNames.includes('is_hidden')) {
+      await sql`ALTER TABLE daily_steps ADD COLUMN is_hidden BOOLEAN DEFAULT FALSE`
+    }
+    
     // Make date nullable for repeating steps
     try {
       await sql`ALTER TABLE daily_steps ALTER COLUMN date DROP NOT NULL`

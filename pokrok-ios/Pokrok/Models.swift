@@ -82,7 +82,7 @@ struct Goal: Codable, Identifiable {
     let status: String
     let progressPercentage: Int
     let icon: String?
-    let aspirationId: String?
+    let aspirationId: String? // Maps to area_id from API (iOS uses "areas" which are stored as area_id)
     let createdAt: Date?
     let updatedAt: Date?
     
@@ -95,7 +95,7 @@ struct Goal: Codable, Identifiable {
         case status
         case progressPercentage = "progress_percentage"
         case icon
-        case aspirationId = "aspiration_id"
+        case aspirationId = "area_id" // API returns area_id, map it to aspirationId for iOS
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }
@@ -108,6 +108,7 @@ struct DailyStep: Codable, Identifiable {
     let date: Date
     let completed: Bool
     let goalId: String?
+    let isImportant: Bool?
     let createdAt: Date?
     let updatedAt: Date?
     
@@ -118,6 +119,7 @@ struct DailyStep: Codable, Identifiable {
         case date
         case completed
         case goalId = "goal_id"
+        case isImportant = "is_important"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }

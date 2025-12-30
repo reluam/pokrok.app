@@ -92,11 +92,11 @@ struct DesignSystem {
         }
         
         // MARK: Outline & Text Colors
-        // Adaptive colors: dark brown in light mode, light in dark mode
+        // Adaptive colors: dark brown in light mode, light gray in dark mode with good contrast
         static let outline: Color = Color(UIColor { traitCollection in
             switch traitCollection.userInterfaceStyle {
             case .dark:
-                return UIColor(red: 228.0/255.0, green: 228.0/255.0, blue: 231.0/255.0, alpha: 1.0) // Lighter gray outline for better visibility
+                return UIColor(red: 58.0/255.0, green: 58.0/255.0, blue: 60.0/255.0, alpha: 1.0) // Medium gray outline for dark mode
             default:
                 return UIColor(red: 93.0/255.0, green: 64.0/255.0, blue: 55.0/255.0, alpha: 1.0) // Dark brown outline
             }
@@ -105,16 +105,16 @@ struct DesignSystem {
         static let textPrimary: Color = Color(UIColor { traitCollection in
             switch traitCollection.userInterfaceStyle {
             case .dark:
-                return UIColor(red: 244.0/255.0, green: 244.0/255.0, blue: 245.0/255.0, alpha: 1.0) // Light text
+                return UIColor(red: 255.0/255.0, green: 255.0/255.0, blue: 255.0/255.0, alpha: 1.0) // White text for good contrast
             default:
-                return UIColor(red: 93.0/255.0, green: 64.0/255.0, blue: 55.0/255.0, alpha: 1.0) // Dark brown text
+                return UIColor(red: 0.0/255.0, green: 0.0/255.0, blue: 0.0/255.0, alpha: 1.0) // Black text (matching web)
             }
         })
         
         static let textSecondary: Color = Color(UIColor { traitCollection in
             switch traitCollection.userInterfaceStyle {
             case .dark:
-                return UIColor(red: 190.0/255.0, green: 190.0/255.0, blue: 195.0/255.0, alpha: 1.0) // Lighter gray text for better readability
+                return UIColor(red: 174.0/255.0, green: 174.0/255.0, blue: 178.0/255.0, alpha: 1.0) // Light gray text for good readability
             default:
                 return UIColor(red: 141.0/255.0, green: 110.0/255.0, blue: 99.0/255.0, alpha: 1.0) // Lighter brown text
             }
@@ -123,27 +123,29 @@ struct DesignSystem {
         static let textLight: Color = Color(UIColor { traitCollection in
             switch traitCollection.userInterfaceStyle {
             case .dark:
-                return UIColor(red: 161.0/255.0, green: 161.0/255.0, blue: 170.0/255.0, alpha: 1.0) // Medium gray text for better readability
+                return UIColor(red: 142.0/255.0, green: 142.0/255.0, blue: 147.0/255.0, alpha: 1.0) // Medium gray text
             default:
                 return UIColor(red: 161.0/255.0, green: 136.0/255.0, blue: 127.0/255.0, alpha: 1.0) // Light brown text
             }
         })
         
         // MARK: Background Colors
-        // Adaptive backgrounds: light in light mode, dark in dark mode
+        // Adaptive backgrounds: light in light mode, dark in dark mode with good contrast
         static let background: Color = Color(UIColor { traitCollection in
             switch traitCollection.userInterfaceStyle {
             case .dark:
-                return UIColor(red: 10.0/255.0, green: 10.0/255.0, blue: 12.0/255.0, alpha: 1.0) // Very dark background for better contrast
+                // Dark background with subtle warm tint (similar to iOS dark mode)
+                return UIColor(red: 18.0/255.0, green: 18.0/255.0, blue: 20.0/255.0, alpha: 1.0) // Dark gray with slight warm tint
             default:
-                return UIColor(red: 255.0/255.0, green: 249.0/255.0, blue: 245.0/255.0, alpha: 1.0) // Warm white with slight yellow tint
+                return UIColor(red: 255.0/255.0, green: 250.0/255.0, blue: 245.0/255.0, alpha: 1.0) // #FFFAF5 (matching web)
             }
         })
         
         static let surface: Color = Color(UIColor { traitCollection in
             switch traitCollection.userInterfaceStyle {
             case .dark:
-                return UIColor(red: 24.0/255.0, green: 24.0/255.0, blue: 27.0/255.0, alpha: 1.0) // Dark surface with better contrast
+                // Darker surface for cards (slightly lighter than background)
+                return UIColor(red: 28.0/255.0, green: 28.0/255.0, blue: 30.0/255.0, alpha: 1.0) // Dark gray surface
             default:
                 return UIColor.white
             }
@@ -152,7 +154,8 @@ struct DesignSystem {
         static let surfaceSecondary: Color = Color(UIColor { traitCollection in
             switch traitCollection.userInterfaceStyle {
             case .dark:
-                return UIColor(red: 39.0/255.0, green: 39.0/255.0, blue: 42.0/255.0, alpha: 1.0) // Slightly lighter surface for better readability
+                // Darker secondary surface (for tags, badges, etc.)
+                return UIColor(red: 38.0/255.0, green: 38.0/255.0, blue: 42.0/255.0, alpha: 1.0) // Slightly lighter dark gray
             default:
                 return UIColor(red: 255.0/255.0, green: 245.0/255.0, blue: 240.0/255.0, alpha: 1.0) // Very light pink tint
             }
@@ -185,9 +188,9 @@ struct DesignSystem {
             return Color(UIColor { traitCollection in
                 switch traitCollection.userInterfaceStyle {
                 case .dark:
-                    // Dark mode: mix with dark surface instead of white
-                    let darkSurface = Color(red: 39.0/255.0, green: 39.0/255.0, blue: 42.0/255.0)
-                    return UIColor(primaryColor.mix(with: darkSurface, by: 0.6)) // Less mixing for better visibility
+                    // Dark mode: mix with dark surface
+                    let darkSurface = Color(red: 28.0/255.0, green: 28.0/255.0, blue: 30.0/255.0)
+                    return UIColor(primaryColor.mix(with: darkSurface, by: 0.5)) // Subtle primary tint
                 default:
                     // Light mode: mix with white
                     return UIColor(primaryColor.mix(with: .white, by: 0.7))
@@ -222,39 +225,169 @@ struct DesignSystem {
         static let info = Playful.purple
         
         // MARK: State-specific colors (matching web design)
-        // Primary light - for completed items (bg-primary-100)
+        // Primary light - for completed items (bg-primary-100 = #fde4c4)
         static var primaryLightBackground: Color {
             let primaryColor = UserSettingsManager.shared.primaryColor
             return Color(UIColor { traitCollection in
                 switch traitCollection.userInterfaceStyle {
                 case .dark:
-                    // Dark mode: mix with dark surface for better visibility
-                    let darkBg = Color(red: 39.0/255.0, green: 39.0/255.0, blue: 42.0/255.0)
-                    return UIColor(primaryColor.mix(with: darkBg, by: 0.25)) // Increased opacity for better visibility
+                    // Dark mode: mix primary color with dark background
+                    let darkBg = Color(red: 28.0/255.0, green: 28.0/255.0, blue: 30.0/255.0)
+                    return UIColor(primaryColor.mix(with: darkBg, by: 0.3)) // Subtle primary tint on dark background
                 default:
-                    // Light mode: mix with white
-                    return UIColor(primaryColor.mix(with: .white, by: 0.85))
+                    // Light mode: bg-primary-100 (#fde4c4)
+                    return UIColor(red: 253.0/255.0, green: 228.0/255.0, blue: 196.0/255.0, alpha: 1.0)
                 }
             })
         }
+        
+        // Green light - for completed items (bg-green-50 = #ecfdf5)
+        static let greenLight: Color = Color(UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 22.0/255.0, green: 101.0/255.0, blue: 52.0/255.0, alpha: 1.0) // Dark green background for dark mode
+            default:
+                return UIColor(red: 236.0/255.0, green: 253.0/255.0, blue: 245.0/255.0, alpha: 1.0) // bg-green-50
+            }
+        })
+        
+        // Green border - for completed items (border-green-200 = #a7f3d0)
+        static let greenBorder: Color = Color(UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 34.0/255.0, green: 197.0/255.0, blue: 94.0/255.0, alpha: 1.0) // Green border for dark mode
+            default:
+                return UIColor(red: 167.0/255.0, green: 243.0/255.0, blue: 208.0/255.0, alpha: 1.0) // border-green-200
+            }
+        })
+        
+        // Red text - for overdue items (text-red-600 = #dc2626)
+        static let redText: Color = Color(UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 248.0/255.0, green: 113.0/255.0, blue: 113.0/255.0, alpha: 1.0) // Light red for dark mode (good contrast)
+            default:
+                return UIColor(red: 220.0/255.0, green: 38.0/255.0, blue: 38.0/255.0, alpha: 1.0) // text-red-600
+            }
+        })
         
         // Red light - for overdue items (bg-red-50)
         static let redLight: Color = Color(UIColor { traitCollection in
             switch traitCollection.userInterfaceStyle {
             case .dark:
-                return UIColor(red: 80.0/255.0, green: 25.0/255.0, blue: 25.0/255.0, alpha: 1.0) // Slightly lighter dark red for better visibility
+                return UIColor(red: 69.0/255.0, green: 10.0/255.0, blue: 10.0/255.0, alpha: 1.0) // Dark red background for dark mode
             default:
-                return UIColor(red: 254.0/255.0, green: 242.0/255.0, blue: 242.0/255.0, alpha: 1.0) // Light red
+                return UIColor(red: 254.0/255.0, green: 242.0/255.0, blue: 242.0/255.0, alpha: 1.0) // Light red (bg-red-50)
             }
         })
         
-        // Gray borders for future/not scheduled items
+        // Red border - for overdue items (border-red-200)
+        static let redBorder: Color = Color(UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 239.0/255.0, green: 68.0/255.0, blue: 68.0/255.0, alpha: 1.0) // Red border for dark mode
+            default:
+                return UIColor(red: 254.0/255.0, green: 202.0/255.0, blue: 202.0/255.0, alpha: 1.0) // Red border (border-red-200)
+            }
+        })
+        
+        // Full red - for overdue items borders (red-500 = #ef4444)
+        static let redFull: Color = Color(UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 239.0/255.0, green: 68.0/255.0, blue: 68.0/255.0, alpha: 1.0) // Red for dark mode (same as light mode for consistency)
+            default:
+                return UIColor(red: 239.0/255.0, green: 68.0/255.0, blue: 68.0/255.0, alpha: 1.0) // Full red (red-500)
+            }
+        })
+        
+        // Green full - for completed items (green-500 = #22c55e)
+        static let greenFull: Color = Color(UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 34.0/255.0, green: 197.0/255.0, blue: 94.0/255.0, alpha: 1.0) // Green for dark mode (same as light mode for consistency)
+            default:
+                return UIColor(red: 34.0/255.0, green: 197.0/255.0, blue: 94.0/255.0, alpha: 1.0) // Full green (green-500)
+            }
+        })
+        
+        // Blue text - for time tags (blue-600 = #2563eb)
+        static let blueText: Color = Color(UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 96.0/255.0, green: 165.0/255.0, blue: 250.0/255.0, alpha: 1.0) // Light blue for dark mode
+            default:
+                return UIColor(red: 37.0/255.0, green: 99.0/255.0, blue: 235.0/255.0, alpha: 1.0) // text-blue-600
+            }
+        })
+        
+        // Blue light - for time tags background (bg-blue-100 = #dbeafe)
+        static let blueLight: Color = Color(UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 30.0/255.0, green: 58.0/255.0, blue: 138.0/255.0, alpha: 1.0) // Dark blue background for dark mode
+            default:
+                return UIColor(red: 219.0/255.0, green: 234.0/255.0, blue: 254.0/255.0, alpha: 1.0) // bg-blue-100
+            }
+        })
+        
+        // Purple text - for XP tags (purple-600 = #9333ea)
+        static let purpleText: Color = Color(UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 196.0/255.0, green: 181.0/255.0, blue: 253.0/255.0, alpha: 1.0) // Light purple for dark mode
+            default:
+                return UIColor(red: 147.0/255.0, green: 51.0/255.0, blue: 234.0/255.0, alpha: 1.0) // text-purple-600
+            }
+        })
+        
+        // Purple light - for XP tags background (bg-purple-100 = #f3e8ff)
+        static let purpleLightTag: Color = Color(UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 88.0/255.0, green: 28.0/255.0, blue: 135.0/255.0, alpha: 1.0) // Dark purple background for dark mode
+            default:
+                return UIColor(red: 243.0/255.0, green: 232.0/255.0, blue: 255.0/255.0, alpha: 1.0) // bg-purple-100
+            }
+        })
+        
+        // Gray borders for future/not scheduled items (border-gray-200 = #e5e7eb)
         static let grayBorder: Color = Color(UIColor { traitCollection in
             switch traitCollection.userInterfaceStyle {
             case .dark:
-                return UIColor(red: 82.0/255.0, green: 82.0/255.0, blue: 91.0/255.0, alpha: 1.0) // Lighter gray border for better visibility
+                return UIColor(red: 58.0/255.0, green: 58.0/255.0, blue: 60.0/255.0, alpha: 1.0) // Medium gray border for dark mode
             default:
-                return UIColor(red: 156.0/255.0, green: 163.0/255.0, blue: 175.0/255.0, alpha: 1.0) // Light gray border (gray-400)
+                return UIColor(red: 229.0/255.0, green: 231.0/255.0, blue: 235.0/255.0, alpha: 1.0) // border-gray-200
+            }
+        })
+        
+        // Orange border - for today's steps (border-primary-200 = #fbc98d)
+        static let orangeBorder: Color = Color(UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 209.0/255.0, green: 106.0/255.0, blue: 10.0/255.0, alpha: 1.0) // Darker orange for dark mode
+            default:
+                return UIColor(red: 251.0/255.0, green: 201.0/255.0, blue: 141.0/255.0, alpha: 1.0) // border-primary-200
+            }
+        })
+        
+        // Purple light - for areas (bg-purple-100 = #ede9fe)
+        static let purpleLight: Color = Color(UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 76.0/255.0, green: 29.0/255.0, blue: 149.0/255.0, alpha: 1.0) // Darker purple for dark mode
+            default:
+                return UIColor(red: 237.0/255.0, green: 233.0/255.0, blue: 254.0/255.0, alpha: 1.0) // bg-purple-100
+            }
+        })
+        
+        // Purple border - for areas (border-purple-200 = #ddd6fe)
+        static let purpleBorder: Color = Color(UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 124.0/255.0, green: 58.0/255.0, blue: 237.0/255.0, alpha: 1.0) // Darker purple border for dark mode
+            default:
+                return UIColor(red: 221.0/255.0, green: 214.0/255.0, blue: 254.0/255.0, alpha: 1.0) // border-purple-200
             }
         })
         

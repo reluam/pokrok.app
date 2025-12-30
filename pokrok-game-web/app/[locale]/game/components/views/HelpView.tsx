@@ -484,7 +484,7 @@ export function HelpView({
             <div className="box-playful-highlight-primary p-6">
               <h2 className="text-2xl font-bold text-black font-playful mb-2">{t('viewsHelp.title') || (locale === 'cs' ? 'Zobrazení' : 'Views')}</h2>
               <p className="text-gray-600 font-playful">{t('viewsHelp.subtitle') || (locale === 'cs' ? 'Čtyři hlavní zobrazení pro různé účely' : 'Four main views for different purposes')}</p>
-            </div>
+              </div>
 
             {/* Upcoming View */}
             <div className="box-playful-highlight p-6">
@@ -505,7 +505,7 @@ export function HelpView({
                   <div className="flex items-center gap-2 bg-white border-2 border-primary-300 rounded-playful-md p-1">
                     <button className="px-3 py-1 text-sm font-semibold bg-primary-500 text-white rounded-playful-sm">
                       {locale === 'cs' ? 'Feed' : 'Feed'}
-                    </button>
+                  </button>
                     <button className="px-3 py-1 text-sm font-semibold text-gray-600 rounded-playful-sm">
                       {locale === 'cs' ? 'Oblasti' : 'Areas'}
                     </button>
@@ -526,7 +526,7 @@ export function HelpView({
                   <div className="flex flex-wrap gap-2">
                     <div className="flex items-center gap-2 p-2 bg-white rounded-playful-md hover:outline-2 hover:outline hover:outline-primary-500">
                       <div className="w-5 h-5 rounded-playful-sm border-2 border-primary-500 bg-primary-500 flex items-center justify-center">
-                        <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                                  <Check className="w-3 h-3 text-white" strokeWidth={3} />
                       </div>
                       <span className="text-xs">{locale === 'cs' ? 'Ranní cvičení' : 'Morning exercise'}</span>
                     </div>
@@ -535,8 +535,8 @@ export function HelpView({
                       <span className="text-xs">{locale === 'cs' ? 'Čtení' : 'Reading'}</span>
                     </div>
                   </div>
-                </div>
-
+                              </div>
+                              
                 {/* Steps */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-3 p-3 bg-red-50 rounded-playful-md hover:outline-2 hover:outline hover:outline-red-300">
@@ -546,18 +546,18 @@ export function HelpView({
                     </div>
                     <button className="hidden sm:block w-28 text-xs text-center border-2 border-red-300 text-red-600 rounded-playful-sm px-1 py-0.5">
                       ❗{locale === 'cs' ? 'Včera' : 'Yesterday'}
-                    </button>
-                  </div>
+                            </button>
+                      </div>
                   <div className="flex items-center gap-3 p-3 bg-white rounded-playful-md hover:outline-2 hover:outline hover:outline-primary-500">
                     <div className="w-6 h-6 rounded-playful-sm border-2 border-primary-500 bg-primary-500 flex items-center justify-center">
                       <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                     </div>
                     <div className="flex-1">
                       <span className="text-sm font-medium text-black">{locale === 'cs' ? 'Napsat email' : 'Write email'}</span>
-                    </div>
+                  </div>
                     <button className="hidden sm:block w-28 text-xs text-center border-2 border-primary-500 text-primary-600 rounded-playful-sm px-1 py-0.5">
                       {locale === 'cs' ? 'Dnes' : 'Today'}
-                    </button>
+                  </button>
                   </div>
                 </div>
               </div>
@@ -590,16 +590,16 @@ export function HelpView({
                       i === 14 ? 'bg-primary-100 border-primary-500' : 'bg-white border-gray-200'
                     }`}>
                       {i + 1}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
                 <p className="text-xs text-gray-600 mt-2">
                   {locale === 'cs' 
                     ? 'Kliknutím na den zobrazíte detailní přehled kroků a návyků pro daný den.'
                     : 'Click on a day to view detailed overview of steps and habits for that day.'}
                 </p>
-              </div>
-            </div>
+                          </div>
+                          </div>
 
             {/* Statistics View */}
             <div className="box-playful-highlight p-6">
@@ -622,7 +622,7 @@ export function HelpView({
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-sm font-medium text-black">{locale === 'cs' ? 'Naučit se React' : 'Learn React'}</span>
                         <span className="text-xs text-gray-500">40%</span>
-                      </div>
+                        </div>
                       <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div className="h-full bg-primary-500 rounded-full" style={{ width: '40%' }} />
                       </div>
@@ -646,8 +646,8 @@ export function HelpView({
                     ? 'Zobrazuje pokrok v jednotlivých cílech s vizualizací dokončených kroků.'
                     : 'Shows progress in individual goals with visualization of completed steps.'}
                 </p>
+                    </div>
               </div>
-            </div>
 
             {/* Areas View */}
             <div className="box-playful-highlight p-6">
@@ -668,7 +668,7 @@ export function HelpView({
                     <div className="flex items-center gap-2 mb-3">
                       <Target className="w-5 h-5 text-primary-600" />
                       <h5 className="font-semibold text-black">{locale === 'cs' ? 'Kariéra' : 'Career'}</h5>
-                    </div>
+                </div>
                     <div className="mb-2">
                       <h6 className="text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1">
                         <Target className="w-3 h-3 text-primary-600" />
@@ -677,10 +677,10 @@ export function HelpView({
                       <div className="flex items-center gap-3 p-3 bg-white rounded-playful-md">
                         <div className="w-6 h-6 rounded-playful-sm border-2 border-primary-500"></div>
                         <span className="text-sm font-medium text-black">{locale === 'cs' ? 'Dokončit projekt' : 'Finish project'}</span>
-                      </div>
-                    </div>
                   </div>
+                          </div>
                 </div>
+              </div>
                 <p className="text-xs text-gray-600 mt-3">
                   {locale === 'cs' 
                     ? 'Každá oblast má vlastní sekci s cíli a jejich kroky. Kliknutím na oblast v levém menu zobrazíte její obsah.'
@@ -721,11 +721,11 @@ export function HelpView({
                         <polyline points="9,22 9,12 15,12 15,22"/>
                       </svg>
                     </div>
-                    <div>
+                      <div>
                       <h4 className="font-semibold text-black">{locale === 'cs' ? 'Hlavní panel' : 'Main Panel'}</h4>
                       <p className="text-xs text-gray-600">{locale === 'cs' ? 'Zpět na hlavní přehled s různými zobrazeními' : 'Back to main overview with different views'}</p>
-                    </div>
-                  </div>
+                        </div>
+                          </div>
                 </div>
                 
                 <div className="p-4 bg-white border-2 border-primary-300 rounded-playful-md">
@@ -735,18 +735,18 @@ export function HelpView({
                       <h4 className="font-semibold text-black">{locale === 'cs' ? 'Cíle' : 'Goals'}</h4>
                       <p className="text-xs text-gray-600">{locale === 'cs' ? 'Správa a přehled všech vašich cílů' : 'Manage and overview all your goals'}</p>
                     </div>
-                  </div>
-                </div>
-                
+                        </div>
+                      </div>
+                      
                 <div className="p-4 bg-white border-2 border-primary-300 rounded-playful-md">
                   <div className="flex items-center gap-3 mb-2">
                     <CheckSquare className="w-5 h-5 text-primary-600" />
-                    <div>
+                      <div>
                       <h4 className="font-semibold text-black">{locale === 'cs' ? 'Návyky' : 'Habits'}</h4>
                       <p className="text-xs text-gray-600">{locale === 'cs' ? 'Správa a sledování vašich návyků' : 'Manage and track your habits'}</p>
-                    </div>
-                  </div>
-                </div>
+                        </div>
+                          </div>
+                        </div>
                 
                 <div className="p-4 bg-white border-2 border-primary-300 rounded-playful-md">
                   <div className="flex items-center gap-3 mb-2">
@@ -754,9 +754,9 @@ export function HelpView({
                     <div>
                       <h4 className="font-semibold text-black">{locale === 'cs' ? 'Kroky' : 'Steps'}</h4>
                       <p className="text-xs text-gray-600">{locale === 'cs' ? 'Přehled a správa všech kroků' : 'Overview and management of all steps'}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
                 
                 <div className="p-4 bg-white border-2 border-primary-300 rounded-playful-md">
                   <div className="flex items-center gap-3 mb-2">
@@ -764,9 +764,9 @@ export function HelpView({
                     <div>
                       <h4 className="font-semibold text-black">{locale === 'cs' ? 'Nápověda' : 'Help'}</h4>
                       <p className="text-xs text-gray-600">{locale === 'cs' ? 'Dokumentace a návody k použití' : 'Documentation and usage guides'}</p>
-                    </div>
-                  </div>
                 </div>
+                    </div>
+                      </div>
                 
                 <div className="p-4 bg-white border-2 border-primary-300 rounded-playful-md">
                   <div className="flex items-center gap-3 mb-2">
@@ -775,11 +775,11 @@ export function HelpView({
                       <h4 className="font-semibold text-black">{locale === 'cs' ? 'Nastavení' : 'Settings'}</h4>
                       <p className="text-xs text-gray-600">{locale === 'cs' ? 'Nastavení aplikace a účtu' : 'App and account settings'}</p>
                     </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </div>
-
+                  
             {/* Left Navigation Menu */}
             <div className="box-playful-highlight p-6">
               <h3 className="font-semibold text-black font-playful mb-4 flex items-center gap-2">
@@ -795,14 +795,14 @@ export function HelpView({
               {/* Main Panel Navigation */}
               <div className="mb-6">
                 <h4 className="font-semibold text-black mb-3">{locale === 'cs' ? 'Na hlavním panelu:' : 'On the main panel:'}</h4>
-                <div className="space-y-2">
+                    <div className="space-y-2">
                   <div className="flex items-center gap-3 p-3 bg-white rounded-playful-md">
                     <ListTodo className="w-5 h-5 text-primary-600" />
                     <div>
                       <h5 className="font-semibold text-black text-sm">{locale === 'cs' ? 'Upcoming (Nadcházející)' : 'Upcoming'}</h5>
                       <p className="text-xs text-gray-600">{locale === 'cs' ? 'Přehled nadcházejících kroků a návyků' : 'Overview of upcoming steps and habits'}</p>
-                    </div>
-                  </div>
+                        </div>
+                      </div>
                   
                   <div className="flex items-center gap-3 p-3 bg-white rounded-playful-md">
                     <CalendarDays className="w-5 h-5 text-primary-600" />
@@ -840,22 +840,22 @@ export function HelpView({
                 </p>
                 <div className="p-4 bg-white border-2 border-primary-300 rounded-playful-md">
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2">
                       <ChevronRight className="w-4 h-4 text-gray-400" />
                       <span className="text-sm font-medium text-black">{locale === 'cs' ? 'Kariéra' : 'Career'}</span>
-                    </div>
+                        </div>
                     <div className="ml-6 space-y-1">
-                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2">
                         <Target className="w-3 h-3 text-primary-600" />
                         <span className="text-xs text-gray-600">{locale === 'cs' ? 'Povýšení' : 'Promotion'}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
+                        </div>
+                        <div className="flex items-center gap-2">
                         <Target className="w-3 h-3 text-primary-600" />
                         <span className="text-xs text-gray-600">{locale === 'cs' ? 'Naučit se React' : 'Learn React'}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
               </div>
               
               {/* Add Button */}
@@ -968,14 +968,14 @@ export function HelpView({
             <div className="box-playful-highlight p-6">
               <h3 className="font-semibold text-black font-playful mb-4">{locale === 'cs' ? 'Jak pracovat s oblastmi?' : 'How to work with areas?'}</h3>
               <div className="space-y-4">
-                <div>
+                    <div>
                   <h4 className="font-semibold text-black mb-2">{locale === 'cs' ? 'Přiřazení k oblasti' : 'Assigning to an area'}</h4>
                   <p className="text-sm text-gray-600 mb-3">
                     {locale === 'cs' 
                       ? 'Při vytváření nebo úpravě cíle, kroku nebo návyku můžete vybrat oblast, ke které patří. Tím se automaticky přiřadí k této oblasti.'
                       : 'When creating or editing a goal, step, or habit, you can select the area it belongs to. This automatically assigns it to that area.'}
                   </p>
-                </div>
+                    </div>
                 
                 <div>
                   <h4 className="font-semibold text-black mb-2">{locale === 'cs' ? 'Zobrazení podle oblastí' : 'Viewing by areas'}</h4>
@@ -984,7 +984,7 @@ export function HelpView({
                       ? 'V levém navigačním menu můžete kliknout na oblast a zobrazit všechny cíle, kroky a návyky v této oblasti. V Upcoming view můžete přepnout na zobrazení "Oblasti" místo "Feed".'
                       : 'In the left navigation menu, you can click on an area to view all goals, steps, and habits in that area. In Upcoming view, you can switch to "Areas" view instead of "Feed".'}
                   </p>
-                </div>
+                  </div>
                 
                 <div>
                   <h4 className="font-semibold text-black mb-2">{locale === 'cs' ? 'Úprava a mazání oblastí' : 'Editing and deleting areas'}</h4>

@@ -399,8 +399,7 @@ struct AspirationProgressSection: View {
                     .frame(width: 3, height: 18)
                 
                 if let iconName = sectionIcon {
-                    Text(IconUtils.getEmoji(for: iconName))
-                        .font(.system(size: 16))
+                    LucideIcon(iconName, size: 16, color: DesignSystem.Colors.textPrimary)
                 }
                 
                 Text(sectionTitle)
@@ -449,10 +448,9 @@ struct CompactGoalProgressRow: View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
             // Top row: Icon, title, and percentage
             HStack(spacing: DesignSystem.Spacing.md) {
-                // Goal icon - use emoji if icon name is provided
+                // Goal icon - use LucideIcon if icon name is provided
                 if let iconName = goal.icon {
-                    Text(IconUtils.getEmoji(for: iconName))
-                        .font(.system(size: 20))
+                    LucideIcon(iconName, size: 20, color: DesignSystem.Colors.dynamicPrimary)
                         .frame(width: 28, height: 28)
                 } else {
                     Circle()
@@ -666,8 +664,8 @@ struct StepsView: View {
                                     subtitle: "Přidejte svůj první krok",
                                     actionTitle: "Přidat první krok"
                                 ) {
-                                    showAddStepModal = true
-                                }
+                            showAddStepModal = true
+                        }
                                 .padding(.top, DesignSystem.Spacing.lg)
                             } else {
                                 VStack(spacing: DesignSystem.Spacing.md) {
@@ -690,31 +688,31 @@ struct StepsView: View {
                                                     Text("Níže jsou kroky, které ještě mohou odpočívat chvíli")
                                                         .font(DesignSystem.Typography.body)
                                                         .foregroundColor(DesignSystem.Colors.textSecondary)
-                                                }
-                                            }
-                                            .padding(DesignSystem.Spacing.md)
-                                        }
-                                    }
-                                    
+                }
+            }
+            .padding(DesignSystem.Spacing.md)
+        }
+    }
+    
                                     // Steps feed
-                                    LazyVStack(spacing: DesignSystem.Spacing.sm) {
+                LazyVStack(spacing: DesignSystem.Spacing.sm) {
                                         ForEach(sortedAllSteps, id: \.id) { step in
-                                            let goal = goals.first { $0.id == step.goalId }
+                        let goal = goals.first { $0.id == step.goalId }
                                             let calendar = Calendar.current
                                             let today = calendar.startOfDay(for: Date())
                                             let stepDate = calendar.startOfDay(for: step.date)
                                             let isOverdue = !step.completed && stepDate < today
                                             let isFuture = stepDate > today
                                             
-                                            PlayfulStepCard(
-                                                step: step,
-                                                goalTitle: goal?.title,
+                        PlayfulStepCard(
+                            step: step,
+                            goalTitle: goal?.title,
                                                 isOverdue: isOverdue,
                                                 isFuture: isFuture,
-                                                onToggle: {
-                                                    toggleStepCompletion(stepId: step.id, completed: !step.completed)
-                                                }
-                                            )
+                            onToggle: {
+                                toggleStepCompletion(stepId: step.id, completed: !step.completed)
+                            }
+                        )
                                             .onAppear {
                                                 // Load more when approaching end
                                                 if step.id == sortedAllSteps.last?.id {
@@ -812,6 +810,8 @@ struct StepsView: View {
                     self.loadedEndDate = endDate
                     // Update shared data provider
                     StepsDataProvider.shared.dailySteps = fetchedSteps
+                    // Update steps notifications with count
+                    updateStepsNotifications(steps: fetchedSteps)
                 }
             } catch {
                 await MainActor.run {
@@ -860,6 +860,30 @@ struct StepsView: View {
                     }
                 }
             }
+        }
+    }
+    
+    // MARK: - Notifications
+    private func updateStepsNotifications(steps: [DailyStep]) {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        // Group steps by date
+        let stepsByDate = Dictionary(grouping: steps) { step in
+            calendar.startOfDay(for: step.date)
+        }
+        
+        // Update notifications for next 30 days
+        for dayOffset in 0..<30 {
+            guard let date = calendar.date(byAdding: .day, value: dayOffset, to: today) else { continue }
+            let dayStart = calendar.startOfDay(for: date)
+            let daySteps = stepsByDate[dayStart] ?? []
+            let incompleteSteps = daySteps.filter { !$0.completed }
+            
+            NotificationManager.shared.updateStepsNotificationContent(
+                stepsCount: incompleteSteps.count,
+                for: date
+            )
         }
     }
     
@@ -977,8 +1001,8 @@ class HabitsDataProvider: ObservableObject {
             if habit.alwaysShow {
                 return true
             }
-            switch habit.frequency {
-            case "daily":
+        switch habit.frequency {
+        case "daily":
                 return true
             case "weekly", "custom":
                 if let selectedDays = habit.selectedDays, !selectedDays.isEmpty {
@@ -986,7 +1010,7 @@ class HabitsDataProvider: ObservableObject {
                     return normalizedSelectedDays.contains(dayCsName) || normalizedSelectedDays.contains(dayEnName)
                 }
                 return false
-            default:
+        default:
                 return false
             }
         }.count
@@ -1072,8 +1096,8 @@ struct HabitsView: View {
             if !habitsForSelectedDate.isEmpty {
                 Text("Návyky")
                     .font(DesignSystem.Typography.headline)
-                    .foregroundColor(DesignSystem.Colors.textPrimary)
-                
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                        
                 LazyVStack(spacing: DesignSystem.Spacing.sm) {
                     ForEach(habitsForSelectedDate, id: \.id) { habit in
                         PlayfulHabitCard(
@@ -1196,6 +1220,8 @@ struct HabitsView: View {
                     self.isLoading = false
                     // Update shared data provider
                     HabitsDataProvider.shared.habits = fetchedHabits
+                    // Schedule habit notifications
+                    NotificationManager.shared.scheduleAllHabitNotifications(habits: fetchedHabits)
                 }
             } catch {
                 await MainActor.run {
@@ -1263,7 +1289,7 @@ struct HabitCardView: View {
                                     .font(.system(size: 12, weight: .medium))
                                     .foregroundColor(DesignSystem.Colors.Playful.yellow)
                                 Text("\(habit.streak)")
-                                .font(DesignSystem.Typography.caption)
+                                    .font(DesignSystem.Typography.caption)
                                     .foregroundColor(DesignSystem.Colors.textPrimary)
                             }
                         }
@@ -1317,6 +1343,7 @@ struct SettingsView: View {
     @State private var isLoadingAspirations = false
     @State private var errorMessage = ""
     @State private var showError = false
+    @State private var showNotificationSettings = false
     
     var body: some View {
         NavigationView {
@@ -1362,6 +1389,9 @@ struct SettingsView: View {
                     saveUserSettings(settings)
                 }
             )
+        }
+        .sheet(isPresented: $showNotificationSettings) {
+            NotificationSettingsView()
         }
         .sheet(isPresented: $showAddAspirationModal) {
             AddAspirationModal(onAspirationAdded: {
@@ -1439,7 +1469,9 @@ struct SettingsView: View {
                 icon: "bell",
                 title: "Notifikace",
                 subtitle: "Správa oznámení",
-                action: {}
+                action: {
+                    showNotificationSettings = true
+                }
             )
             
             ModernSettingsRow(
@@ -1668,8 +1700,7 @@ struct AreaSettingsRow: View {
         HStack(spacing: DesignSystem.Spacing.md) {
             // Icon or color indicator
             if let iconName = aspiration.icon {
-                Text(IconUtils.getEmoji(for: iconName))
-                    .font(.system(size: 20))
+                LucideIcon(iconName, size: 20, color: DesignSystem.Colors.textPrimary)
                     .frame(width: 24, height: 24)
             } else {
                 Circle()
@@ -1788,7 +1819,7 @@ struct EditAspirationModal: View {
     private var titleField: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
             HStack {
-                Text("Název aspirace")
+                Text("Název oblasti")
                     .font(DesignSystem.Typography.headline)
                     .foregroundColor(DesignSystem.Colors.textPrimary)
                 Text("*")
@@ -1806,7 +1837,7 @@ struct EditAspirationModal: View {
             Text("Popis (volitelné)")
                 .font(DesignSystem.Typography.headline)
                 .foregroundColor(DesignSystem.Colors.textPrimary)
-            TextField("Popište svou aspiraci podrobněji...", text: $aspirationDescription, axis: .vertical)
+            TextField("Popište svou oblast podrobněji...", text: $aspirationDescription, axis: .vertical)
                 .font(DesignSystem.Typography.body)
                 .padding(DesignSystem.Spacing.md)
                 .frame(minHeight: 100, alignment: .top)
@@ -1830,8 +1861,13 @@ struct EditAspirationModal: View {
                 showIconPicker = true
             }) {
                 HStack {
-                    Text(selectedIcon != nil ? IconUtils.getEmoji(for: selectedIcon) : "❌")
-                        .font(.system(size: 24))
+                    if let iconName = selectedIcon {
+                        LucideIcon(iconName, size: 24, color: DesignSystem.Colors.dynamicPrimary)
+                    } else {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                    }
                     
                     Text(selectedIcon != nil ? IconUtils.availableIcons.first(where: { $0.name == selectedIcon })?.label ?? "Ikona" : "Vyberte ikonu")
                         .font(DesignSystem.Typography.body)
@@ -2144,8 +2180,13 @@ struct AddGoalModal: View {
                             showIconPicker = true
                         }) {
                             HStack {
-                                Text(selectedIcon != nil ? IconUtils.getEmoji(for: selectedIcon) : "❌")
-                                    .font(.system(size: 24))
+                                if let iconName = selectedIcon {
+                                    LucideIcon(iconName, size: 24, color: DesignSystem.Colors.dynamicPrimary)
+                                } else {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .font(.system(size: 24))
+                                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                                }
                                 
                                 Text(selectedIcon != nil ? IconUtils.availableIcons.first(where: { $0.name == selectedIcon })?.label ?? "Ikona" : "Vyberte ikonu")
                                     .font(DesignSystem.Typography.body)
@@ -2185,7 +2226,7 @@ struct AddGoalModal: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Aspirace (volitelné)")
+                        Text("Oblast (volitelné)")
                             .font(.headline)
                         
                         if isLoadingAspirations {
@@ -2193,13 +2234,13 @@ struct AddGoalModal: View {
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .padding()
                         } else if aspirations.isEmpty {
-                            Text("Žádné aspirace")
+                            Text("Žádné oblasti")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                                 .padding(.vertical, 8)
                         } else {
-                            Picker("Aspirace", selection: $selectedAspirationId) {
-                                Text("Bez aspirace").tag(nil as String?)
+                            Picker("Oblast", selection: $selectedAspirationId) {
+                                Text("Bez oblasti").tag(nil as String?)
                                 ForEach(aspirations, id: \.id) { aspiration in
                                     Text(aspiration.title).tag(aspiration.id as String?)
                                 }
@@ -2249,8 +2290,8 @@ struct AddGoalModal: View {
                         isLoading: isLoading,
                         isDisabled: goalTitle.isEmpty,
                         action: {
-                        addGoal()
-                    }
+                            addGoal()
+                        }
                     )
                 }
             }
@@ -2354,7 +2395,7 @@ struct AddStepModal: View {
                             text: $stepTitle,
                             placeholder: "Např. Pravidelně šetřit",
                             variant: .purple
-                            )
+                        )
                     }
                     
                     // Description Field
@@ -2428,7 +2469,7 @@ struct AddStepModal: View {
                         isLoading: isLoading,
                         isDisabled: stepTitle.isEmpty,
                         action: {
-                        addStep()
+                            addStep()
                         }
                     )
                     .padding(.top, DesignSystem.Spacing.md)
@@ -2668,8 +2709,8 @@ struct ColorSettingsView: View {
                         title: "Uložit",
                         isLoading: isSaving,
                         action: {
-                        saveSettings()
-                    }
+                            saveSettings()
+                        }
                     )
                 }
             }
@@ -2709,7 +2750,7 @@ struct ColorSettingsView: View {
                     // Zavolat onSave callback
         onSave(updatedSettings)
                     isSaving = false
-        dismiss()
+                    dismiss()
                 }
             } catch {
                 await MainActor.run {

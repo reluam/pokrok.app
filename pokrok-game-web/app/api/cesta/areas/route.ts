@@ -83,13 +83,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Normalize icon - use LayoutDashboard as default if empty or invalid
-    const normalizedIcon = (icon && typeof icon === 'string' && icon.trim()) ? icon.trim() : 'LayoutDashboard'
+    // Normalize icon - allow null/undefined, use LayoutDashboard only if explicitly empty string
+    const normalizedIcon = (icon && typeof icon === 'string' && icon.trim()) ? icon.trim() : (icon === null || icon === undefined ? null : 'LayoutDashboard')
     const normalizedColor = (color && typeof color === 'string' && color.trim()) ? color.trim() : '#3B82F6'
     const normalizedDescription = (description && typeof description === 'string' && description.trim()) ? description.trim() : null
 
-    // Validate icon length (max 50 characters)
-    if (normalizedIcon.length > 50) {
+    // Validate icon length (max 50 characters) if provided
+    if (normalizedIcon && normalizedIcon.length > 50) {
       return NextResponse.json({ 
         error: 'Icon name is too long',
         details: `Icon name must be 50 characters or less. Current length: ${normalizedIcon.length} characters.`
@@ -189,11 +189,11 @@ export async function PUT(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Normalize icon
-    const normalizedIcon = (icon && typeof icon === 'string' && icon.trim()) ? icon.trim() : 'LayoutDashboard'
+    // Normalize icon - allow null/undefined, use LayoutDashboard only if explicitly empty string
+    const normalizedIcon = (icon && typeof icon === 'string' && icon.trim()) ? icon.trim() : (icon === null || icon === undefined ? null : 'LayoutDashboard')
     
-    // Validate icon length
-    if (normalizedIcon.length > 50) {
+    // Validate icon length if provided
+    if (normalizedIcon && normalizedIcon.length > 50) {
       return NextResponse.json({ 
         error: 'Icon name is too long',
         details: `Icon name must be 50 characters or less. Current length: ${normalizedIcon.length} characters. Please choose a shorter icon name.`
@@ -220,7 +220,7 @@ export async function PUT(request: NextRequest) {
           name = ${name || ''},
           description = ${description !== undefined ? description : null},
           color = ${color || '#3B82F6'},
-          icon = ${normalizedIcon},
+          icon = ${normalizedIcon !== undefined ? normalizedIcon : null},
           "order" = ${order !== undefined ? order : 0},
           updated_at = NOW()
         WHERE id = ${id}

@@ -132,8 +132,9 @@ class APIManager: ObservableObject {
             requestBody["icon"] = icon
         }
         
+        // API expects areaId, not aspirationId
         if let aspirationId = goal.aspirationId {
-            requestBody["aspirationId"] = aspirationId
+            requestBody["areaId"] = aspirationId
         }
         
         let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
@@ -186,8 +187,9 @@ class APIManager: ObservableObject {
             requestBody["target_date"] = ISO8601DateFormatter().string(from: targetDate)
         }
         
+        // API expects areaId, not aspirationId
         if let aspirationId = aspirationId {
-            requestBody["aspirationId"] = aspirationId
+            requestBody["areaId"] = aspirationId
         }
         
         let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
@@ -207,6 +209,40 @@ class APIManager: ObservableObject {
         let decoder = createJSONDecoder()
         let updatedGoal = try decoder.decode(Goal.self, from: data)
         return updatedGoal
+    }
+    
+    func deleteGoal(goalId: String, deleteSteps: Bool = false) async throws {
+        guard let url = URL(string: "\(baseURL)/goals") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add Clerk token if available
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        // Create request body
+        let requestBody: [String: Any] = [
+            "goalId": goalId,
+            "deleteSteps": deleteSteps
+        ]
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+        request.httpBody = jsonData
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.requestFailed
+        }
     }
     
     // MARK: - Steps API
@@ -418,6 +454,117 @@ class APIManager: ObservableObject {
         let decoder = createJSONDecoder()
         let updatedStep = try decoder.decode(DailyStep.self, from: data)
         return updatedStep
+    }
+    
+    func updateStep(stepId: String, title: String?, description: String?, date: Date?, goalId: String?, areaId: String?, isImportant: Bool?, isUrgent: Bool?, deadline: Date?, estimatedTime: Int?) async throws -> DailyStep {
+        guard let url = URL(string: "\(baseURL)/daily-steps") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add Clerk token if available
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        // Create request body
+        var requestBody: [String: Any] = [
+            "stepId": stepId
+        ]
+        
+        if let title = title {
+            requestBody["title"] = title
+        }
+        
+        if let description = description {
+            requestBody["description"] = description
+        }
+        
+        if let date = date {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            requestBody["date"] = formatter.string(from: date)
+        }
+        
+        if let goalId = goalId {
+            requestBody["goalId"] = goalId
+        }
+        
+        if let areaId = areaId {
+            requestBody["areaId"] = areaId
+        }
+        
+        if let isImportant = isImportant {
+            requestBody["isImportant"] = isImportant
+        }
+        
+        if let isUrgent = isUrgent {
+            requestBody["isUrgent"] = isUrgent
+        }
+        
+        if let deadline = deadline {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            requestBody["deadline"] = formatter.string(from: deadline)
+        }
+        
+        if let estimatedTime = estimatedTime {
+            requestBody["estimatedTime"] = estimatedTime
+        }
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+        request.httpBody = jsonData
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.requestFailed
+        }
+        
+        // Parse response - API returns step directly, not wrapped
+        let decoder = createJSONDecoder()
+        let updatedStep = try decoder.decode(DailyStep.self, from: data)
+        return updatedStep
+    }
+    
+    func deleteStep(stepId: String) async throws {
+        guard var urlComponents = URLComponents(string: "\(baseURL)/daily-steps") else {
+            throw APIError.invalidURL
+        }
+        
+        urlComponents.queryItems = [
+            URLQueryItem(name: "stepId", value: stepId)
+        ]
+        
+        guard let url = urlComponents.url else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add Clerk token if available
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.requestFailed
+        }
     }
     
     // MARK: - User API
@@ -632,7 +779,8 @@ class APIManager: ObservableObject {
     // MARK: - Aspirations API
     
     func fetchAspirations() async throws -> [Aspiration] {
-        guard let url = URL(string: "\(baseURL)/aspirations") else {
+        // Use /api/cesta/areas endpoint instead of /aspirations
+        guard let url = URL(string: "\(baseURL)/cesta/areas") else {
             throw APIError.invalidURL
         }
         
@@ -652,17 +800,52 @@ class APIManager: ObservableObject {
         }
         
         guard httpResponse.statusCode == 200 else {
+            let errorString = String(data: data, encoding: .utf8) ?? "Unknown error"
+            print("Error fetching areas: Status \(httpResponse.statusCode), Response: \(errorString)")
             throw APIError.requestFailed
         }
         
-        // Parse response - API returns array directly, not wrapped
+        // Parse response - API returns { areas: [...] }
         let decoder = createJSONDecoder()
-        let aspirations = try decoder.decode([Aspiration].self, from: data)
-        return aspirations
+        struct AreasResponse: Codable {
+            let areas: [AreaResponse]
+        }
+        struct AreaResponse: Codable {
+            let id: String
+            let user_id: String
+            let name: String
+            let description: String?
+            let color: String
+            let icon: String?
+            let order: Int?
+            let created_at: String?
+            let updated_at: String?
+        }
+        
+        let responseData = try decoder.decode(AreasResponse.self, from: data)
+        
+        // Convert AreaResponse to Aspiration (areas use "name" instead of "title")
+        // Use decoder to parse dates properly
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        return responseData.areas.map { area in
+            Aspiration(
+                id: area.id,
+                userId: area.user_id,
+                title: area.name, // Map name to title
+                description: area.description,
+                color: area.color,
+                icon: area.icon,
+                createdAt: area.created_at != nil ? dateFormatter.date(from: area.created_at!) ?? ISO8601DateFormatter().date(from: area.created_at!) : nil,
+                updatedAt: area.updated_at != nil ? dateFormatter.date(from: area.updated_at!) ?? ISO8601DateFormatter().date(from: area.updated_at!) : nil
+            )
+        }
     }
     
     func createAspiration(_ aspiration: CreateAspirationRequest) async throws -> Aspiration {
-        guard let url = URL(string: "\(baseURL)/aspirations") else {
+        // Use /api/cesta/areas endpoint instead of /aspirations
+        guard let url = URL(string: "\(baseURL)/cesta/areas") else {
             throw APIError.invalidURL
         }
         
@@ -675,9 +858,9 @@ class APIManager: ObservableObject {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         
-        // Create request body
+        // Create request body - areas endpoint expects "name" instead of "title"
         var requestBody: [String: Any] = [
-            "title": aspiration.title
+            "name": aspiration.title // Map title to name
         ]
         
         if let description = aspiration.description {
@@ -702,17 +885,49 @@ class APIManager: ObservableObject {
         }
         
         guard httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
+            let errorString = String(data: data, encoding: .utf8) ?? "Unknown error"
+            print("Error creating area: Status \(httpResponse.statusCode), Response: \(errorString)")
             throw APIError.requestFailed
         }
         
-        // Parse response - API returns aspiration directly, not wrapped
+        // Parse response - API returns { area: {...} }
+        struct AreaResponse: Codable {
+            let area: AreaData
+        }
+        struct AreaData: Codable {
+            let id: String
+            let user_id: String
+            let name: String
+            let description: String?
+            let color: String
+            let icon: String?
+            let order: Int?
+            let created_at: String?
+            let updated_at: String?
+        }
+        
         let decoder = createJSONDecoder()
-        let createdAspiration = try decoder.decode(Aspiration.self, from: data)
-        return createdAspiration
+        let responseData = try decoder.decode(AreaResponse.self, from: data)
+        
+        // Convert AreaData to Aspiration
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        return Aspiration(
+            id: responseData.area.id,
+            userId: responseData.area.user_id,
+            title: responseData.area.name, // Map name to title
+            description: responseData.area.description,
+            color: responseData.area.color,
+            icon: responseData.area.icon,
+            createdAt: responseData.area.created_at != nil ? dateFormatter.date(from: responseData.area.created_at!) ?? ISO8601DateFormatter().date(from: responseData.area.created_at!) : nil,
+            updatedAt: responseData.area.updated_at != nil ? dateFormatter.date(from: responseData.area.updated_at!) ?? ISO8601DateFormatter().date(from: responseData.area.updated_at!) : nil
+        )
     }
     
     func updateAspiration(aspirationId: String, title: String?, description: String?, color: String?, icon: String?) async throws -> Aspiration {
-        guard let url = URL(string: "\(baseURL)/aspirations") else {
+        // Use /api/cesta/areas endpoint instead of /aspirations
+        guard let url = URL(string: "\(baseURL)/cesta/areas") else {
             throw APIError.invalidURL
         }
         
@@ -725,13 +940,13 @@ class APIManager: ObservableObject {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         
-        // Create request body
+        // Create request body - areas endpoint expects "id" and "name" instead of "aspirationId" and "title"
         var requestBody: [String: Any] = [
-            "aspirationId": aspirationId
+            "id": aspirationId
         ]
         
         if let title = title {
-            requestBody["title"] = title
+            requestBody["name"] = title // Map title to name
         }
         
         if let description = description {
@@ -756,25 +971,49 @@ class APIManager: ObservableObject {
         }
         
         guard httpResponse.statusCode == 200 else {
+            let errorString = String(data: data, encoding: .utf8) ?? "Unknown error"
+            print("Error updating area: Status \(httpResponse.statusCode), Response: \(errorString)")
             throw APIError.requestFailed
         }
         
-        // Parse response - API returns aspiration directly, not wrapped
+        // Parse response - API returns { area: {...} }
+        struct AreaResponse: Codable {
+            let area: AreaData
+        }
+        struct AreaData: Codable {
+            let id: String
+            let user_id: String
+            let name: String
+            let description: String?
+            let color: String
+            let icon: String?
+            let order: Int?
+            let created_at: String?
+            let updated_at: String?
+        }
+        
         let decoder = createJSONDecoder()
-        let updatedAspiration = try decoder.decode(Aspiration.self, from: data)
-        return updatedAspiration
+        let responseData = try decoder.decode(AreaResponse.self, from: data)
+        
+        // Convert AreaData to Aspiration
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        return Aspiration(
+            id: responseData.area.id,
+            userId: responseData.area.user_id,
+            title: responseData.area.name, // Map name to title
+            description: responseData.area.description,
+            color: responseData.area.color,
+            icon: responseData.area.icon,
+            createdAt: responseData.area.created_at != nil ? dateFormatter.date(from: responseData.area.created_at!) ?? ISO8601DateFormatter().date(from: responseData.area.created_at!) : nil,
+            updatedAt: responseData.area.updated_at != nil ? dateFormatter.date(from: responseData.area.updated_at!) ?? ISO8601DateFormatter().date(from: responseData.area.updated_at!) : nil
+        )
     }
     
     func deleteAspiration(aspirationId: String) async throws {
-        guard var urlComponents = URLComponents(string: "\(baseURL)/aspirations") else {
-            throw APIError.invalidURL
-        }
-        
-        urlComponents.queryItems = [
-            URLQueryItem(name: "aspirationId", value: aspirationId)
-        ]
-        
-        guard let url = urlComponents.url else {
+        // Use /api/cesta/areas endpoint instead of /aspirations
+        guard let url = URL(string: "\(baseURL)/cesta/areas") else {
             throw APIError.invalidURL
         }
         
@@ -787,13 +1026,23 @@ class APIManager: ObservableObject {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         
-        let (_, response) = try await URLSession.shared.data(for: request)
+        // Create request body - areas endpoint expects "id" instead of query param
+        let requestBody: [String: Any] = [
+            "id": aspirationId
+        ]
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+        request.httpBody = jsonData
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIError.requestFailed
         }
         
         guard httpResponse.statusCode == 200 || httpResponse.statusCode == 204 else {
+            let errorString = String(data: data, encoding: .utf8) ?? "Unknown error"
+            print("Error deleting area: Status \(httpResponse.statusCode), Response: \(errorString)")
             throw APIError.requestFailed
         }
     }

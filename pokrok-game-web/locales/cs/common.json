@@ -1106,6 +1106,7 @@
     "completedAfterTarget": "Splněné po targetu",
     "filters": {
       "showCompleted": "Zobrazit dokončené",
+      "showRepeatingSteps": "Opakující se kroky",
       "status": {
         "all": "Všechny",
         "completed": "Dokončené",
@@ -1171,7 +1172,16 @@
     "checklistNoItemsDescription": "Přidejte pod-úkoly pro tento krok",
     "checklistItemPlaceholder": "Název položky...",
     "checklistAddItem": "Přidat položku",
-    "checklistRequireComplete": "Vyžadovat splnění všech položek před dokončením kroku"
+    "checklistRequireComplete": "Vyžadovat splnění všech položek před dokončením kroku",
+    "recurring": {
+      "startDate": "Začátek opakování",
+      "endDate": "Konec opakování",
+      "never": "Nikdy",
+      "displayMode": "Zobrazit",
+      "allInstances": "Všechny výskyty",
+      "nextOnly": "Pouze nejbližší"
+    },
+    "recurringCannotComplete": "Opakující se kroky nelze dokončit z této stránky"
   },
   "help": {
     "title": "Nápověda",

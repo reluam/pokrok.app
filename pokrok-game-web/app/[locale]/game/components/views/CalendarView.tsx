@@ -18,7 +18,9 @@ interface CalendarViewProps {
   handleStepToggle?: (stepId: string, completed: boolean) => Promise<void>
   setSelectedItem?: (item: any) => void
   setSelectedItemType?: (type: 'step' | 'habit' | 'goal' | 'stat' | null) => void
-  onOpenStepModal?: (date?: string) => void
+  onOpenStepModal?: (date?: string, step?: any) => void
+  onStepDateChange?: (stepId: string, newDate: string) => Promise<void>
+  onStepTimeChange?: (stepId: string, minutes: number) => Promise<void>
   loadingHabits?: Set<string>
   loadingSteps?: Set<string>
   animatingSteps?: Set<string>
@@ -50,6 +52,8 @@ export function CalendarView({
   setSelectedItem,
   setSelectedItemType,
   onOpenStepModal,
+  onStepDateChange,
+  onStepTimeChange,
   loadingHabits = new Set(),
   loadingSteps = new Set(),
   animatingSteps = new Set(),
@@ -85,6 +89,8 @@ export function CalendarView({
             setSelectedItem={setSelectedItem || (() => {})}
             setSelectedItemType={setSelectedItemType || (() => {})}
             onOpenStepModal={onOpenStepModal}
+            onStepDateChange={onStepDateChange}
+            onStepTimeChange={onStepTimeChange}
             loadingHabits={loadingHabits}
             loadingSteps={loadingSteps}
             player={player}
@@ -127,4 +133,3 @@ export function CalendarView({
     </div>
   )
 }
-
