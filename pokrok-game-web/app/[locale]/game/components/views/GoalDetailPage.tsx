@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { ChevronLeft, ChevronRight, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Check, Plus, Edit, Pencil, Minus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Check, Plus, Edit, Pencil, Minus, Repeat } from 'lucide-react'
 import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { MetricModal } from '../modals/MetricModal'
@@ -603,17 +603,17 @@ export function GoalDetailPage({
                     <span className="text-xs text-gray-500 font-playful mb-0.5">
                       {t('common.endDate') || 'Cílové datum'}
                     </span>
-                    <span 
-                      ref={goalDateRef}
-                      onClick={handleGoalDateClick}
+                <span 
+                  ref={goalDateRef}
+                  onClick={handleGoalDateClick}
                       className="text-sm font-medium font-playful cursor-pointer hover:text-primary-600 transition-colors text-gray-600"
-                    >
-                      {goal.status === 'completed' && goal.updated_at
+                >
+                  {goal.status === 'completed' && goal.updated_at
                         ? formatDateBeautiful(goal.updated_at)
-                        : goal.target_date
+                    : goal.target_date
                         ? formatDateBeautiful(goal.target_date)
                         : <span className="text-gray-400 italic">{t('goals.addDate') || 'Přidat datum'}</span>}
-                    </span>
+                </span>
                   </div>
                 </div>
               </div>
@@ -766,7 +766,7 @@ export function GoalDetailPage({
                   onClick={() => setIsProgressExpanded(!isProgressExpanded)}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-medium text-black font-playful">{t('details.goal.progress')}</span>
+                  <span className="text-lg font-medium text-black font-playful">{t('details.goal.progress')}</span>
                     <ChevronDown 
                       className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${
                         isProgressExpanded ? 'transform rotate-180' : ''
@@ -802,7 +802,7 @@ export function GoalDetailPage({
                         <span className="text-gray-500 font-playful text-xs">
                           {Math.round(stepsProgress)}%
                         </span>
-                      </div>
+                </div>
                       <div className="w-full bg-gray-100 border border-gray-300 rounded-playful-sm h-2 overflow-hidden">
                         <div 
                           className="bg-gray-400 h-full rounded-playful-sm transition-all duration-300"
@@ -870,8 +870,8 @@ export function GoalDetailPage({
                             </span>
                             <span className="text-gray-500 font-playful text-xs">
                               {Math.round(progress)}%
-                            </span>
-                          </div>
+                  </span>
+                </div>
                           <div className="w-full bg-gray-100 border border-gray-300 rounded-playful-sm h-2 overflow-hidden">
                             <div 
                               className="bg-gray-400 h-full rounded-playful-sm transition-all duration-300"
@@ -921,14 +921,14 @@ export function GoalDetailPage({
                             </span>
                             <span className="text-gray-500 font-playful text-xs">
                               {Math.round(progress)}%
-                            </span>
-                          </div>
+                  </span>
+                </div>
                           <div className="w-full bg-gray-100 border border-gray-300 rounded-playful-sm h-2 overflow-hidden">
                             <div 
                               className="bg-gray-400 h-full rounded-playful-sm transition-all duration-300"
                               style={{ width: `${Math.round(progress)}%` }}
                             />
-                          </div>
+              </div>
                         </div>
                       )
                     })
@@ -1256,12 +1256,77 @@ export function GoalDetailPage({
               return `${day.toString().padStart(2, '0')}.${month.toString().padStart(2, '0')}.${year}`
             }
             
+            // Filter recurring steps to show only the nearest instance
+            // Group instances by their original recurring step template
+            const recurringStepInstances = goalSteps.filter(step => {
+              // Show instances (non-recurring steps with title containing " - " and date)
+              // Exclude completed instances and hidden steps
+              if (!step.frequency && step.date && step.title && step.title.includes(' - ') && !step.completed && step.is_hidden !== true) {
+                return true
+              }
+              return false
+            })
+            
+            // Group instances by original recurring step
+            const instancesByRecurringStep = new Map<string, any[]>()
+            recurringStepInstances.forEach(step => {
+              if (!step.title) return
+              const titlePrefix = step.title.split(' - ')[0]
+              const originalStep = goalSteps.find(s => 
+                s.frequency && 
+                s.frequency !== null && 
+                s.title === titlePrefix &&
+                s.user_id === step.user_id &&
+                s.is_hidden === true // Recurring step template is hidden
+              )
+              
+              if (originalStep) {
+                const key = originalStep.id
+                if (!instancesByRecurringStep.has(key)) {
+                  instancesByRecurringStep.set(key, [])
+                }
+                instancesByRecurringStep.get(key)!.push(step)
+              }
+            })
+            
+            // Get only the nearest instance for each recurring step
+            const nearestInstances = new Set<string>()
+            instancesByRecurringStep.forEach((instances, recurringStepId) => {
+              // Sort instances by date (oldest first)
+              instances.sort((a, b) => {
+                const dateA = a.date ? new Date(normalizeDate(a.date)).getTime() : 0
+                const dateB = b.date ? new Date(normalizeDate(b.date)).getTime() : 0
+                return dateA - dateB
+              })
+              
+              // Add only the first (nearest) instance
+              if (instances.length > 0) {
+                nearestInstances.add(instances[0].id)
+              }
+            })
+            
+            // Filter steps: exclude hidden templates and show only nearest instances for recurring steps
+            const filteredGoalSteps = goalSteps.filter(step => {
+              // Exclude hidden recurring step templates
+              if (step.is_hidden === true && step.frequency !== null) {
+                return false
+              }
+              
+              // For recurring step instances, show only the nearest one
+              if (!step.frequency && step.title && step.title.includes(' - ')) {
+                return nearestInstances.has(step.id)
+              }
+              
+              // Include all other steps
+              return true
+            })
+            
             // Categorize steps into Remaining and Done
             // Steps that are animating should stay in Remaining until animation completes
-            const remainingSteps = goalSteps.filter(s => !s.completed || animatingSteps.has(s.id))
-            const doneSteps = goalSteps.filter(s => s.completed && !animatingSteps.has(s.id))
+            const remainingSteps = filteredGoalSteps.filter(s => !s.completed || animatingSteps.has(s.id))
+            const doneSteps = filteredGoalSteps.filter(s => s.completed && !animatingSteps.has(s.id))
             
-            const totalSteps = goalSteps.length
+            const totalSteps = filteredGoalSteps.length
             const remainingCount = remainingSteps.length
             const doneCount = doneSteps.length
             const remainingPercentage = totalSteps > 0 ? Math.round((remainingCount / totalSteps) * 100) : 0
@@ -1276,6 +1341,19 @@ export function GoalDetailPage({
               const isToday = stepDate && stepDate.toDateString() === today.toDateString()
               const stepDateFormatted = stepDate ? formatStepDate(stepDate) : null
               const isAnimating = animatingSteps.has(step.id)
+              
+              // Check if this is a recurring step instance
+              const isRecurringInstance = !step.frequency && step.title && step.title.includes(' - ')
+              // Find the original recurring step template
+              const originalRecurringStep = isRecurringInstance ? goalSteps.find(s => {
+                if (!step.title) return false
+                const titlePrefix = step.title.split(' - ')[0]
+                return s.frequency && 
+                       s.frequency !== null && 
+                       s.title === titlePrefix &&
+                       s.user_id === step.user_id &&
+                       s.is_hidden === true
+              }) : null
               
               return (
                 <div
@@ -1334,6 +1412,9 @@ export function GoalDetailPage({
                       }`}>
                         {step.title}
                       </span>
+                      {isRecurringInstance && originalRecurringStep && (
+                        <Repeat className="w-4 h-4 text-primary-600 flex-shrink-0" title={t('steps.recurring.recurring') || 'Opakující se krok'} />
+                      )}
                       {step.checklist && step.checklist.length > 0 && (
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
                           step.checklist.filter((c: any) => c.completed).length === step.checklist.length
@@ -1373,7 +1454,7 @@ export function GoalDetailPage({
                     className="flex items-center gap-2 flex-1 cursor-pointer"
                     onClick={() => setStepsExpanded(!stepsExpanded)}
                   >
-                    <button
+                  <button
                       onClick={(e) => {
                         e.stopPropagation()
                         setStepsExpanded(!stepsExpanded)

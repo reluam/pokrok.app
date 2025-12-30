@@ -1179,7 +1179,8 @@
       "never": "Never",
       "displayMode": "Display mode",
       "allInstances": "Show all occurrences",
-      "nextOnly": "Show nearest occurrence"
+      "nextOnly": "Show nearest occurrence",
+      "recurring": "Recurring step"
     },
     "recurringCannotComplete": "Recurring steps cannot be completed from this page"
   },

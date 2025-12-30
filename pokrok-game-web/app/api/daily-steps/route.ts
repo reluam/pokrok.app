@@ -58,6 +58,85 @@ async function createRecurringStepInstance(recurringStep: any, targetDate: Date,
   `
 }
 
+// Helper function to check if recurring step should be marked as completed
+// This happens when:
+// 1. The recurring step has an end_date
+// 2. All instances are either completed or deleted (no incomplete instances remain)
+// 3. At least one instance was completed
+async function checkAndCompleteRecurringStepIfFinished(
+  instanceTitle: string,
+  userId: string,
+  wasInstanceCompleted?: boolean // Optional: if we know the instance was completed before deletion
+): Promise<void> {
+  try {
+    // Extract title prefix (everything before " - ")
+    if (!instanceTitle || !instanceTitle.includes(' - ')) {
+      return // Not an instance
+    }
+    
+    const titlePrefix = instanceTitle.split(' - ')[0]
+    
+    // Find the original recurring step template
+    const originalStepResult = await sql`
+      SELECT 
+        id, title, completed, 
+        TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date
+      FROM daily_steps
+      WHERE user_id = ${userId}
+      AND title = ${titlePrefix}
+      AND frequency IS NOT NULL
+      AND is_hidden = true
+    `
+    
+    if (originalStepResult.length === 0) {
+      return // Original step not found
+    }
+    
+    const originalStep = originalStepResult[0]
+    
+    // Check if recurring step has an end_date
+    if (!originalStep.recurring_end_date) {
+      return // No end date, step continues indefinitely
+    }
+    
+    // Check if original step is already completed
+    if (originalStep.completed) {
+      return // Already completed
+    }
+    
+    // Find all remaining instances of this recurring step
+    // Instances have title starting with "TitlePrefix - "
+    const remainingInstances = await sql`
+      SELECT id, completed
+      FROM daily_steps
+      WHERE user_id = ${userId}
+      AND title LIKE ${titlePrefix + ' - %'}
+      AND frequency IS NULL
+    `
+    
+    // Check if all remaining instances are completed
+    const allRemainingCompleted = remainingInstances.length === 0 || 
+      remainingInstances.every((instance: any) => instance.completed === true)
+    
+    // Check if at least one instance is completed (either in remaining instances or the one we just processed)
+    const atLeastOneCompleted = remainingInstances.some((instance: any) => instance.completed === true) ||
+      wasInstanceCompleted === true
+    
+    // If all remaining instances are completed (or none exist) and at least one was completed, mark original as completed
+    if (allRemainingCompleted && atLeastOneCompleted) {
+      await sql`
+        UPDATE daily_steps
+        SET completed = true, completed_at = NOW()
+        WHERE id = ${originalStep.id}
+      `
+      console.log(`Marked recurring step ${originalStep.title} as completed (all instances finished)`)
+    }
+  } catch (error) {
+    console.error('Error checking if recurring step should be completed:', error)
+    // Don't throw - this is a side effect, shouldn't fail the main operation
+  }
+}
+
 // Helper function to create multiple instances in batch (much faster)
 async function createRecurringStepInstancesBatch(
   recurringStep: any, 
@@ -1075,6 +1154,11 @@ export async function PUT(request: NextRequest) {
               nextDateForInstance.setDate(nextDateForInstance.getDate() + 1)
             }
           }
+          
+          // Check if recurring step should be marked as completed
+          // (if it has end_date and all instances are completed)
+          // We know the instance is being completed, so pass wasInstanceCompleted = true
+          await checkAndCompleteRecurringStepIfFinished(currentStep.title, dbUser.id, true)
         }
         // Continue to update the instance itself below
       }
@@ -1433,17 +1517,35 @@ export async function DELETE(request: NextRequest) {
     } else {
       // This is a regular step or an instance - just delete it
       // If it's an instance, it won't affect other instances
-    const result = await sql`
-      DELETE FROM daily_steps 
-      WHERE id = ${stepId} AND user_id = ${dbUser.id}
-      RETURNING *
-    `
+      
+      // First, check if this is an instance and if it was completed (before deletion)
+      const stepBeforeDelete = await sql`
+        SELECT title, completed
+        FROM daily_steps
+        WHERE id = ${stepId} AND user_id = ${dbUser.id}
+      `
+      
+      if (stepBeforeDelete.length === 0) {
+        return NextResponse.json({ error: 'Step not found' }, { status: 404 })
+      }
+      
+      const stepToDelete = stepBeforeDelete[0]
+      const wasInstance = stepToDelete.title && stepToDelete.title.includes(' - ')
+      const wasCompleted = stepToDelete.completed === true
+      
+      // Delete the step
+      await sql`
+        DELETE FROM daily_steps 
+        WHERE id = ${stepId} AND user_id = ${dbUser.id}
+      `
+      
+      // If this was an instance of a recurring step, check if the recurring step should be marked as completed
+      // Pass wasInstanceCompleted to indicate if the deleted instance was completed
+      if (wasInstance) {
+        await checkAndCompleteRecurringStepIfFinished(stepToDelete.title, dbUser.id, wasCompleted)
+      }
 
-    if (result.length === 0) {
-      return NextResponse.json({ error: 'Step not found' }, { status: 404 })
-    }
-
-    return NextResponse.json({ success: true })
+      return NextResponse.json({ success: true })
     }
   } catch (error) {
     console.error('Error deleting daily step:', error)

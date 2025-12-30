@@ -1179,7 +1179,8 @@
       "never": "Nikdy",
       "displayMode": "Zobrazit",
       "allInstances": "Všechny výskyty",
-      "nextOnly": "Pouze nejbližší"
+      "nextOnly": "Pouze nejbližší",
+      "recurring": "Opakující se krok"
     },
     "recurringCannotComplete": "Opakující se kroky nelze dokončit z této stránky"
   },
