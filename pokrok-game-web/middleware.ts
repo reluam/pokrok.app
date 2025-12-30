@@ -26,7 +26,7 @@ export default clerkMiddleware(async (auth, req) => {
     
     // For API routes, just return (don't run intl middleware)
     if (req.nextUrl.pathname.startsWith('/api/')) {
-      return
+      return NextResponse.next()
     }
     
     const pathname = req.nextUrl.pathname
@@ -48,23 +48,30 @@ export default clerkMiddleware(async (auth, req) => {
       return NextResponse.next()
     }
     
-    // Try to get user's preferred locale from database and redirect if needed
-    // Note: We're removing database lookup from middleware to avoid failures
-    // Locale preference is handled client-side or in page components instead
-    // This prevents middleware failures on Vercel
-    
     // Then run intl middleware for non-API routes
     return intlMiddleware(req)
   } catch (error) {
-    // If middleware fails, log error but don't crash
-    console.error('Middleware error:', error)
-    // Fallback to intl middleware to ensure app still works
+    // If middleware fails, log error with more details
+    console.error('Middleware error:', {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      pathname: req.nextUrl.pathname,
+      url: req.url
+    })
+    
+    // Fallback: try to continue with basic response
     try {
+      // For API routes, just continue
+      if (req.nextUrl.pathname.startsWith('/api/')) {
+        return NextResponse.next()
+      }
+      
+      // Try intl middleware as fallback
       return intlMiddleware(req)
     } catch (intlError) {
       console.error('Intl middleware also failed:', intlError)
-      // Last resort: return undefined to let Next.js handle it
-      return
+      // Last resort: return a basic response to prevent complete failure
+      return NextResponse.next()
     }
   }
 })
