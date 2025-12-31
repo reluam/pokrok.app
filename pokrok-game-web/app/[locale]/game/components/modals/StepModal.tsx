@@ -3,7 +3,7 @@
 import { createPortal } from 'react-dom'
 import { useTranslations, useLocale } from 'next-intl'
 import { useState } from 'react'
-import { X, Trash2, ChevronDown } from 'lucide-react'
+import { X, Trash2, ChevronDown, Copy } from 'lucide-react'
 import { getLocalDateString } from '../utils/dateHelpers'
 import { PlayfulButton } from '@/components/design-system/Button/PlayfulButton'
 
@@ -115,15 +115,37 @@ export function StepModal({
               <h2 className="text-2xl font-bold text-black font-playful">
                 {stepModalData.id ? t('steps.edit') : t('steps.create')}
               </h2>
-              <button
-                onClick={() => {
-                  onClose()
-                  setStepModalData(defaultStepData)
-                }}
-                className="btn-playful-base p-1.5 w-8 h-8 flex items-center justify-center"
-              >
-                <X className="w-5 h-5 text-black" />
-              </button>
+              <div className="flex items-center gap-2">
+                {stepModalData.id && (
+                  <button
+                    onClick={() => {
+                      // Duplicate the step
+                      const duplicatedData = {
+                        ...stepModalData,
+                        id: null, // New step
+                        title: `${stepModalData.title} - duplicate`,
+                        completed: false, // Reset completion status
+                        date: stepModalData.date || getLocalDateString(new Date()), // Use current date if no date set
+                      }
+                      setStepModalData(duplicatedData)
+                      // Modal stays open with duplicated data
+                    }}
+                    className="btn-playful-base p-1.5 w-8 h-8 flex items-center justify-center"
+                    title={t('steps.duplicate') || 'Duplikovat krok'}
+                  >
+                    <Copy className="w-5 h-5 text-black" />
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    onClose()
+                    setStepModalData(defaultStepData)
+                  }}
+                  className="btn-playful-base p-1.5 w-8 h-8 flex items-center justify-center"
+                >
+                  <X className="w-5 h-5 text-black" />
+                </button>
+              </div>
             </div>
           </div>
 

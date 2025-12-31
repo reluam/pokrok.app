@@ -1135,6 +1135,7 @@
     "add": "Přidat krok",
     "create": "Vytvořit krok",
     "edit": "Upravit krok",
+    "duplicate": "Duplikovat krok",
     "title": "Název",
     "description": "Popis",
     "date": "Datum",
