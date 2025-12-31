@@ -45,7 +45,16 @@ export async function POST(request: NextRequest) {
     const typeLabel = typeLabels[type] || type
 
     // Initialize Resend
-    const resend = getResend()
+    let resend
+    try {
+      resend = getResend()
+    } catch (resendError) {
+      console.error('Error initializing Resend:', resendError)
+      return NextResponse.json(
+        { error: 'Email service not configured', details: resendError instanceof Error ? resendError.message : String(resendError) },
+        { status: 500 }
+      )
+    }
 
     // Send email to admin
     const adminEmailResult = await resend.emails.send({
@@ -154,8 +163,14 @@ Tento e-mail byl automaticky odeslán jako potvrzení přijetí vaší zprávy.
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error processing contact form:', error)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    const errorStack = error instanceof Error ? error.stack : undefined
+    console.error('Error details:', { errorMessage, errorStack })
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        details: errorMessage
+      },
       { status: 500 }
     )
   }
