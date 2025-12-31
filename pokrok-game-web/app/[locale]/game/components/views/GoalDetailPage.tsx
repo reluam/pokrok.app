@@ -1260,11 +1260,12 @@ export function GoalDetailPage({
             // Group instances by their original recurring step template
             // Include both completed and non-completed instances to find the nearest one
             const recurringStepInstances = goalSteps.filter(step => {
-              // Show instances (non-recurring steps with title containing " - ")
+              // Show instances (non-recurring steps with title containing " - " followed by date pattern DD.MM.YYYY)
               // Include both completed and non-completed instances
               // Include instances with or without date
               // Exclude hidden steps
-              if (!step.frequency && step.title && step.title.includes(' - ') && step.is_hidden !== true) {
+              // Instances have parent_recurring_step_id set
+              if (!step.frequency && step.parent_recurring_step_id && step.is_hidden !== true) {
                 return true
               }
               return false
@@ -1273,13 +1274,10 @@ export function GoalDetailPage({
             // Group instances by original recurring step
             const instancesByRecurringStep = new Map<string, any[]>()
             recurringStepInstances.forEach(step => {
-              if (!step.title) return
-              const titlePrefix = step.title.split(' - ')[0]
+              if (!step.parent_recurring_step_id) return
               const originalStep = goalSteps.find(s => 
-                s.frequency && 
-                s.frequency !== null && 
-                s.title === titlePrefix &&
-                s.user_id === step.user_id &&
+                s.id === step.parent_recurring_step_id &&
+                s.frequency !== null &&
                 s.is_hidden === true // Recurring step template is hidden
               )
               
@@ -1322,7 +1320,8 @@ export function GoalDetailPage({
               }
               
               // For recurring step instances, apply different logic for remaining vs done
-              if (!step.frequency && step.title && step.title.includes(' - ')) {
+              // Instances have parent_recurring_step_id set
+              if (!step.frequency && step.parent_recurring_step_id) {
                 // For non-completed instances: show only the nearest one (for Remaining section)
                 if (!step.completed) {
                   return nearestInstancesForRemaining.has(step.id)
@@ -1357,15 +1356,12 @@ export function GoalDetailPage({
               const isAnimating = animatingSteps.has(step.id)
               
               // Check if this is a recurring step instance
-              const isRecurringInstance = !step.frequency && step.title && step.title.includes(' - ')
+              // Instances have parent_recurring_step_id set
+              const isRecurringInstance = !step.frequency && step.parent_recurring_step_id
               // Find the original recurring step template
               const originalRecurringStep = isRecurringInstance ? goalSteps.find(s => {
-                if (!step.title) return false
-                const titlePrefix = step.title.split(' - ')[0]
-                return s.frequency && 
-                       s.frequency !== null && 
-                       s.title === titlePrefix &&
-                       s.user_id === step.user_id &&
+                return s.id === step.parent_recurring_step_id &&
+                       s.frequency !== null &&
                        s.is_hidden === true
               }) : null
               

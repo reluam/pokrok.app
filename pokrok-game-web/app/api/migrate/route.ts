@@ -231,6 +231,11 @@ async function runMigrations() {
       await sql`ALTER TABLE daily_steps ADD COLUMN is_hidden BOOLEAN DEFAULT FALSE`
     }
     
+    // Add parent_recurring_step_id to link instances to their recurring step template
+    if (!dailyStepsColumnNames.includes('parent_recurring_step_id')) {
+      await sql`ALTER TABLE daily_steps ADD COLUMN parent_recurring_step_id VARCHAR(255) REFERENCES daily_steps(id) ON DELETE CASCADE`
+    }
+    
     // Make date nullable for repeating steps
     try {
       await sql`ALTER TABLE daily_steps ALTER COLUMN date DROP NOT NULL`

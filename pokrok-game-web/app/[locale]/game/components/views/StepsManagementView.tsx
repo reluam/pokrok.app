@@ -316,7 +316,7 @@ export function StepsManagementView({
   }, [dailySteps])
 
   const filteredSteps = useMemo(() => {
-    return sortedSteps.filter((step: any) => {
+    let steps = sortedSteps.filter((step: any) => {
       // Always show recurring step templates (is_hidden === true AND frequency !== null)
       // These are the templates where users configure recurring settings
       const isRecurringTemplate = step.is_hidden === true && step.frequency !== null
@@ -329,8 +329,8 @@ export function StepsManagementView({
       }
       
       // Filter repeating step instances based on showRepeatingSteps
-      // Instances have title containing " - " and are not recurring steps themselves
-      const isRecurringInstance = !step.frequency && step.title && typeof step.title === 'string' && step.title.includes(' - ')
+      // Instances have parent_recurring_step_id set and are not recurring steps themselves
+      const isRecurringInstance = !step.frequency && step.parent_recurring_step_id
       if (!effectiveShowRepeatingSteps && isRecurringInstance) {
         return false
       }
@@ -359,6 +359,58 @@ export function StepsManagementView({
       }
       return true
     })
+    
+    // If "Show Repeating Steps" is disabled, show only the nearest incomplete instance for each recurring step
+    if (!effectiveShowRepeatingSteps) {
+      // Group instances by parent_recurring_step_id
+      const instancesByParent = new Map<string, any[]>()
+      const nonInstanceSteps: any[] = []
+      
+      steps.forEach(step => {
+        if (step.parent_recurring_step_id) {
+          const parentId = step.parent_recurring_step_id
+          if (!instancesByParent.has(parentId)) {
+            instancesByParent.set(parentId, [])
+          }
+          instancesByParent.get(parentId)!.push(step)
+        } else {
+          nonInstanceSteps.push(step)
+        }
+      })
+      
+      // For each recurring step, keep only the nearest incomplete instance
+      const nearestInstances: any[] = []
+      instancesByParent.forEach((instances, parentId) => {
+        // Filter out completed instances
+        const incompleteInstances = instances.filter(s => !s.completed)
+        
+        if (incompleteInstances.length > 0) {
+          // Sort by date (oldest first) to get the nearest one
+          incompleteInstances.sort((a, b) => {
+            const dateA = a.date ? new Date(a.date).getTime() : Infinity
+            const dateB = b.date ? new Date(b.date).getTime() : Infinity
+            return dateA - dateB
+          })
+          // Keep only the nearest (first) incomplete instance
+          nearestInstances.push(incompleteInstances[0])
+        } else {
+          // If all instances are completed, show the nearest completed one
+          instances.sort((a, b) => {
+            const dateA = a.date ? new Date(a.date).getTime() : Infinity
+            const dateB = b.date ? new Date(b.date).getTime() : Infinity
+            return dateA - dateB
+          })
+          if (instances.length > 0) {
+            nearestInstances.push(instances[0])
+          }
+        }
+      })
+      
+      // Combine non-instance steps with nearest instances
+      steps = [...nonInstanceSteps, ...nearestInstances]
+    }
+    
+    return steps
   }, [sortedSteps, effectiveShowCompleted, effectiveShowRepeatingSteps, effectiveGoalFilter, effectiveDateFilter])
 
   return (

@@ -38,7 +38,7 @@ async function createRecurringStepInstance(recurringStep: any, targetDate: Date,
       id, user_id, goal_id, title, description, completed, date, 
       is_important, is_urgent, aspiration_id, area_id,
       estimated_time, xp_reward, deadline, checklist, require_checklist_complete,
-      frequency, selected_days
+      frequency, selected_days, parent_recurring_step_id
     ) VALUES (
       ${instanceId}, ${userId}, ${recurringStep.goal_id || null}, ${instanceTitle}, 
       ${recurringStep.description || null}, false, 
@@ -53,7 +53,8 @@ async function createRecurringStepInstance(recurringStep: any, targetDate: Date,
       ${checklistJson}::jsonb, 
       ${recurringStep.require_checklist_complete || false},
       NULL, -- frequency = null (not recurring)
-      '[]'::jsonb -- selected_days = empty (not recurring)
+      '[]'::jsonb, -- selected_days = empty (not recurring)
+      ${recurringStep.id} -- parent_recurring_step_id = link to template
     )
   `
 }
@@ -199,7 +200,7 @@ async function createRecurringStepInstancesBatch(
       id, user_id, goal_id, title, description, completed, date, 
       is_important, is_urgent, aspiration_id, area_id,
       estimated_time, xp_reward, deadline, checklist, require_checklist_complete,
-      frequency, selected_days
+      frequency, selected_days, parent_recurring_step_id
     )
     SELECT 
       unnest(${ids}::text[]) as id,
@@ -219,7 +220,8 @@ async function createRecurringStepInstancesBatch(
       ${checklistJson}::jsonb as checklist,
       ${recurringStep.require_checklist_complete || false} as require_checklist_complete,
       NULL as frequency,
-      '[]'::jsonb as selected_days
+      '[]'::jsonb as selected_days,
+      ${recurringStep.id} as parent_recurring_step_id
   `
   
   return newInstances.length
@@ -302,7 +304,8 @@ export async function GET(request: NextRequest) {
             TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date,
             TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
             TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
-            recurring_display_mode, COALESCE(is_hidden, false) as is_hidden
+            recurring_display_mode, COALESCE(is_hidden, false) as is_hidden,
+            parent_recurring_step_id
           FROM daily_steps
           WHERE goal_id = ${goalId} AND user_id = ${dbUser.id}
           ORDER BY created_at DESC
@@ -932,7 +935,7 @@ export async function PUT(request: NextRequest) {
             id, user_id, goal_id, title, description, completed, date, 
             is_important, is_urgent, aspiration_id, area_id,
             estimated_time, xp_reward, deadline, completed_at, checklist, require_checklist_complete,
-            frequency, selected_days
+            frequency, selected_days, parent_recurring_step_id
           ) VALUES (
             ${newStepId}, ${dbUser.id}, ${currentStep.goal_id || null}, ${newStepTitle}, 
             ${currentStep.description || null}, true, 
@@ -948,7 +951,8 @@ export async function PUT(request: NextRequest) {
             ${checklistJson}::jsonb, 
             ${currentStep.require_checklist_complete || false},
             NULL, -- frequency = null (not recurring)
-            '[]'::jsonb -- selected_days = empty (not recurring)
+            '[]'::jsonb, -- selected_days = empty (not recurring)
+            ${currentStep.id} -- parent_recurring_step_id = link to template
           ) RETURNING 
             id, user_id, goal_id, title, description, completed, 
             TO_CHAR(date, 'YYYY-MM-DD') as date,
@@ -956,7 +960,8 @@ export async function PUT(request: NextRequest) {
             estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
             COALESCE(checklist, '[]'::jsonb) as checklist,
             COALESCE(require_checklist_complete, false) as require_checklist_complete,
-            frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days
+            frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days,
+            parent_recurring_step_id
         `
         
         const newStep = newStepResult[0]

@@ -1212,7 +1212,8 @@ export async function getDailyStepsByUserId(
           TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date,
           TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
           TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
-          recurring_display_mode, COALESCE(is_hidden, false) as is_hidden
+          recurring_display_mode, COALESCE(is_hidden, false) as is_hidden,
+          parent_recurring_step_id
         FROM daily_steps 
         WHERE user_id = ${userId}
         AND (date >= ${startOfDay} AND date <= ${endOfDay} OR frequency IS NOT NULL)
@@ -1236,7 +1237,8 @@ export async function getDailyStepsByUserId(
           TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date,
           TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
           TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
-          recurring_display_mode, COALESCE(is_hidden, false) as is_hidden
+          recurring_display_mode, COALESCE(is_hidden, false) as is_hidden,
+          parent_recurring_step_id
         FROM daily_steps 
         WHERE user_id = ${userId}
         AND (date >= ${startDate}::date AND date <= ${endDate}::date OR frequency IS NOT NULL)
@@ -1261,7 +1263,8 @@ export async function getDailyStepsByUserId(
           TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date,
           TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
           TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
-          recurring_display_mode, COALESCE(is_hidden, false) as is_hidden
+          recurring_display_mode, COALESCE(is_hidden, false) as is_hidden,
+          parent_recurring_step_id
         FROM daily_steps 
         WHERE user_id = ${userId}
         ORDER BY 

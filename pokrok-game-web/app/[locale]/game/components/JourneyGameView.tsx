@@ -1033,7 +1033,8 @@ export function JourneyGameView({
         // Check if this is a recurring step or instance
         const step = dailySteps.find(s => s.id === stepId)
         const isRecurring = step?.frequency && step.frequency !== null
-        const isInstance = step?.title && step.title.includes(' - ')
+        // Instances have parent_recurring_step_id set
+        const isInstance = step?.parent_recurring_step_id !== null && step?.parent_recurring_step_id !== undefined
         
         // For recurring steps or instances, use completionDate instead of completedAt
         const requestBody: any = {
@@ -1593,17 +1594,38 @@ export function JourneyGameView({
               onDailyStepsUpdate(Array.isArray(allSteps) ? allSteps : [])
             }
           }
-        } else {
-          // Update dailySteps in parent component
-          if (onDailyStepsUpdate) {
-            if (isNewStep) {
-              onDailyStepsUpdate([...dailySteps, updatedStep])
-            } else {
-              const updatedSteps = dailySteps.map(step => 
-                step.id === updatedStep.id ? updatedStep : step
-              )
-              onDailyStepsUpdate(updatedSteps)
+        } else if (isNewStep) {
+          // For new steps (including duplicates), reload all steps to ensure consistency
+          // This ensures the new step appears in the list even if it's outside the current date range
+          // Use the same date range as initial load to ensure consistency
+          const today = new Date()
+          today.setHours(0, 0, 0, 0)
+          const veryOldDate = new Date(today)
+          veryOldDate.setFullYear(veryOldDate.getFullYear() - 10)
+          const endDate = new Date(today)
+          endDate.setDate(endDate.getDate() + 30)
+          
+          const reloadResponse = await fetch(
+            `/api/daily-steps?userId=${currentUserId}&startDate=${veryOldDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`
+          )
+          if (reloadResponse.ok) {
+            const allSteps = await reloadResponse.json()
+            if (onDailyStepsUpdate) {
+              onDailyStepsUpdate(Array.isArray(allSteps) ? allSteps : [])
             }
+          } else {
+            // Fallback: add the step to the current list
+            if (onDailyStepsUpdate) {
+              onDailyStepsUpdate([...dailySteps, updatedStep])
+            }
+          }
+        } else {
+          // Update existing step
+          if (onDailyStepsUpdate) {
+            const updatedSteps = dailySteps.map(step => 
+              step.id === updatedStep.id ? updatedStep : step
+            )
+            onDailyStepsUpdate(updatedSteps)
           }
         }
         
