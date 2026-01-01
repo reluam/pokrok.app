@@ -53,8 +53,10 @@ class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
                 // For now, just dismiss
                 break
             case "steps":
-                // Could navigate to steps view
-                // For now, just dismiss
+                // Navigate to Feed (steps view)
+                DispatchQueue.main.async {
+                    NavigationManager.shared.navigateToFeed()
+                }
                 break
             default:
                 break

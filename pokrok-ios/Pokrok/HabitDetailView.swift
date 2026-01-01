@@ -67,7 +67,7 @@ struct HabitDetailView: View {
                                 .font(DesignSystem.Typography.headline)
                                 .foregroundColor(DesignSystem.Colors.textPrimary)
                                 .padding(DesignSystem.Spacing.sm)
-                                .background(Color.white)
+                                .background(DesignSystem.Colors.surface)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                                         .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
@@ -85,7 +85,7 @@ struct HabitDetailView: View {
                                 .foregroundColor(DesignSystem.Colors.textPrimary)
                                 .frame(minHeight: 80)
                                 .padding(DesignSystem.Spacing.sm)
-                                .background(Color.white)
+                                .background(DesignSystem.Colors.surface)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                                         .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
@@ -111,7 +111,7 @@ struct HabitDetailView: View {
                             .pickerStyle(.menu)
                             .tint(DesignSystem.Colors.dynamicPrimary)
                             .padding(DesignSystem.Spacing.sm)
-                            .background(Color.white)
+                            .background(DesignSystem.Colors.surface)
                             .overlay(
                                 RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                                     .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
@@ -120,13 +120,20 @@ struct HabitDetailView: View {
                         }
                     }
                     .padding(DesignSystem.Spacing.md)
-                    .background(Color.white)
+                    .background(DesignSystem.Colors.surface)
                     .overlay(
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
                             .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
                     )
                     .cornerRadius(DesignSystem.CornerRadius.md)
-                    .shadow(color: DesignSystem.Colors.dynamicPrimary.opacity(1.0), radius: 0, x: 3, y: 3)
+                    .shadow(color: Color(UIColor { traitCollection in
+                        switch traitCollection.userInterfaceStyle {
+                        case .dark:
+                            return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(0.2))
+                        default:
+                            return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(1.0))
+                        }
+                    }), radius: 0, x: 3, y: 3)
                     
                     // Frequency Card
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
@@ -177,7 +184,7 @@ struct HabitDetailView: View {
                                                     .foregroundColor(isSelected ? .white : DesignSystem.Colors.dynamicPrimary)
                                                     .frame(maxWidth: .infinity)
                                                     .padding(.vertical, DesignSystem.Spacing.xs)
-                                                    .background(isSelected ? DesignSystem.Colors.dynamicPrimary : Color.white)
+                                                    .background(isSelected ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.surface)
                                                     .overlay(
                                                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                                                             .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
@@ -206,7 +213,7 @@ struct HabitDetailView: View {
                                                     .fontWeight(.medium)
                                                     .foregroundColor(isSelected ? .white : DesignSystem.Colors.dynamicPrimary)
                                                     .frame(width: 32, height: 32)
-                                                    .background(isSelected ? DesignSystem.Colors.dynamicPrimary : Color.white)
+                                                    .background(isSelected ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.surface)
                                                     .overlay(
                                                         RoundedRectangle(cornerRadius: 4)
                                                             .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
@@ -227,13 +234,20 @@ struct HabitDetailView: View {
                             .tint(DesignSystem.Colors.dynamicPrimary)
                     }
                     .padding(DesignSystem.Spacing.md)
-                    .background(Color.white)
+                    .background(DesignSystem.Colors.surface)
                     .overlay(
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
                             .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
                     )
                     .cornerRadius(DesignSystem.CornerRadius.md)
-                    .shadow(color: DesignSystem.Colors.dynamicPrimary.opacity(1.0), radius: 0, x: 3, y: 3)
+                    .shadow(color: Color(UIColor { traitCollection in
+                        switch traitCollection.userInterfaceStyle {
+                        case .dark:
+                            return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(0.2))
+                        default:
+                            return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(1.0))
+                        }
+                    }), radius: 0, x: 3, y: 3)
                     
                     // Reminder Card
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
@@ -264,13 +278,20 @@ struct HabitDetailView: View {
                         }
                     }
                     .padding(DesignSystem.Spacing.md)
-                    .background(Color.white)
+                    .background(DesignSystem.Colors.surface)
                     .overlay(
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
                             .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
                     )
                     .cornerRadius(DesignSystem.CornerRadius.md)
-                    .shadow(color: DesignSystem.Colors.dynamicPrimary.opacity(1.0), radius: 0, x: 3, y: 3)
+                    .shadow(color: Color(UIColor { traitCollection in
+                        switch traitCollection.userInterfaceStyle {
+                        case .dark:
+                            return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(0.2))
+                        default:
+                            return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(1.0))
+                        }
+                    }), radius: 0, x: 3, y: 3)
                     
                     // Action buttons
                     HStack(spacing: DesignSystem.Spacing.md) {
@@ -325,7 +346,14 @@ struct HabitDetailView: View {
                         .buttonStyle(PlainButtonStyle())
                         .disabled(isSaving || editingName.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
-                    .shadow(color: DesignSystem.Colors.dynamicPrimary.opacity(1.0), radius: 0, x: 3, y: 3)
+                    .shadow(color: Color(UIColor { traitCollection in
+                        switch traitCollection.userInterfaceStyle {
+                        case .dark:
+                            return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(0.2))
+                        default:
+                            return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(1.0))
+                        }
+                    }), radius: 0, x: 3, y: 3)
                     
                     Spacer(minLength: 100)
                 }
@@ -409,7 +437,7 @@ struct HabitDetailView: View {
                         isSaving = false
                         // Schedule notifications for new habit
                         if let reminderTime = reminderTime {
-                            NotificationManager.shared.scheduleHabitNotification(habit: createdHabit)
+                            NotificationManager.shared.scheduleHabitNotificationForToday(habit: createdHabit)
                         }
                         onHabitAdded?()
                         dismiss()
@@ -432,7 +460,7 @@ struct HabitDetailView: View {
                         isSaving = false
                         // Reschedule notifications for this habit if reminder time is set
                         if let reminderTime = reminderTime {
-                            NotificationManager.shared.scheduleHabitNotification(habit: updatedHabit)
+                            NotificationManager.shared.scheduleHabitNotificationForToday(habit: updatedHabit)
                         } else {
                             // Remove notifications if reminder is disabled
                             NotificationManager.shared.removeHabitNotifications(habitId: habit.id)

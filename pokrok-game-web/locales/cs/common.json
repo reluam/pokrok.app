@@ -231,7 +231,9 @@
     "signUp": "REGISTROVAT SE",
     "signIn": "PŘIHLÁSIT SE",
     "or": "nebo",
-    "continueAsGuest": "POKRAČOVAT JAKO HOST"
+    "continueAsGuest": "POKRAČOVAT JAKO HOST",
+    "devVersion": "Vývojová verze",
+    "devVersionTooltip": "Vývojová verze - Aplikace je stále ve vývoji, mohou se vyskytovat chyby a bugy. Aplikace se může ještě změnit."
   },
   "goals": {
     "title": "CÍLE",
@@ -1513,7 +1515,7 @@
     "step": "Krok",
     "intro": {
       "title": "Co je Pokrok?",
-      "description": "Pokrok není jen další aplikace pro produktivitu. Je to nástroj pro organizaci vašeho života a dosahování smysluplných cílů, které vám přinášejí skutečnou hodnotu a naplnění.",
+      "description": "Pokrok je nástroj pro organizaci vašeho života a dosahování smysluplných cílů, které vám přinášejí skutečnou hodnotu a naplnění.",
       "detailed": "Pokrok vám pomáhá získat jasnost v tom, co je pro vás v životě skutečně důležité. Umožňuje vám organizovat vaše cíle, rozdělit je na dosažitelné kroky a sledovat, jak se posouváte směrem k životu, jaký chcete žít.",
       "philosophy": "Zaměřujeme se na smysluplnost, ne jen na produktivitu. Každý cíl, krok a návyk by měl mít svůj důvod a přispívat k životu, jaký chcete mít."
     },

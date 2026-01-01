@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
 import { useTranslations, useLocale } from 'next-intl'
 import { Target, CheckCircle, Calendar, Eye, BarChart3, ArrowRight, Check, ListTodo, Flame, TrendingUp, LayoutDashboard, Heart } from 'lucide-react'
+import { DevVersionTooltip } from './components/DevVersionTooltip'
 
 // Force dynamic rendering - this page requires user authentication check
 export const dynamic = 'force-dynamic'
@@ -34,11 +35,24 @@ export default function HomePage() {
       <nav className="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 md:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 md:gap-3">
               <Target className="w-6 h-6 md:w-8 md:h-8 text-orange-600" />
               <span className="text-lg md:text-2xl font-bold text-gray-900">{t('app.name')}</span>
+              <div className="flex items-center gap-1.5">
+                <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-orange-100 text-orange-700 text-xs md:text-sm font-semibold rounded-md border border-orange-300">
+                  {locale === 'cs' ? 'ALFA' : 'ALPHA'}
+                </span>
+                <span className="text-xs md:text-sm text-gray-500 font-mono">v0.1.0</span>
+                <DevVersionTooltip iconSize="w-3 h-3 md:w-4 md:h-4" />
+              </div>
             </div>
             <div className="flex items-center gap-2 md:gap-4">
+              <Link 
+                href={`#pricing`}
+                className="text-sm md:text-base text-gray-700 hover:text-orange-600 font-medium transition-colors"
+              >
+                {locale === 'cs' ? 'Ceník' : 'Pricing'}
+              </Link>
               <Link 
                 href={`/${locale}/sign-in`}
                 className="text-sm md:text-base text-gray-700 hover:text-orange-600 font-medium transition-colors"
@@ -65,15 +79,17 @@ export default function HomePage() {
           <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 mb-8 md:mb-12 max-w-3xl mx-auto leading-relaxed px-2">
             {t('homepage.hero.description') || 'Pokrok vám pomůže získat jasnost a smysluplnost v tom, jak dosáhnout toho, co v životě chcete. Rozdělte velké cíle na malé kroky, budujte návyky a sledujte svůj pokrok.'}
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center px-2">
+          <div className="flex flex-col gap-3 md:gap-4 justify-center items-center px-2">
             <Link href={`/${locale}/sign-up`} className="w-full sm:w-auto">
               <button className="w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-semibold text-base md:text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2">
                 {t('homepage.startFree') || 'Začít zdarma'}
                 <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
               </button>
             </Link>
-            <div className="text-xs sm:text-sm text-gray-500 text-center">
-              {t('homepage.trialInfo') || '14denní zkušební verze zdarma • Bez platební karty'}
+            <div className="text-xs sm:text-sm text-gray-600 text-center max-w-md">
+              {locale === 'cs' 
+                ? 'Aplikace nabízí free verzi a po dobu trvání alfy budou zdarma všechny funkce.'
+                : 'The app offers a free version and during the alpha period all features are free.'}
             </div>
           </div>
         </div>
@@ -354,6 +370,137 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Pricing Section */}
+      <section id="pricing" className="bg-white py-12 md:py-20">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-8 md:mb-12">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4">
+                {locale === 'cs' ? 'Ceník' : 'Pricing'}
+              </h2>
+              <p className="text-base sm:text-lg md:text-xl text-gray-600 px-2">
+                {locale === 'cs' 
+                  ? 'Jednoduché a transparentní ceny'
+                  : 'Simple and transparent pricing'}
+              </p>
+            </div>
+
+            {/* Alpha Notice */}
+            <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-6 md:p-8 mb-8 md:mb-12">
+              <div className="flex items-start gap-3 md:gap-4">
+                <div className="flex-shrink-0">
+                  <span className="inline-block px-3 py-1 bg-orange-600 text-white text-sm font-bold rounded-md">
+                    {locale === 'cs' ? 'ALFA VERZE' : 'ALPHA'}
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2 md:mb-3">
+                    {locale === 'cs' 
+                      ? 'Momentálně je celá aplikace zdarma'
+                      : 'Currently the entire app is free'}
+                  </h3>
+                  <p className="text-sm md:text-base text-gray-700 mb-3 md:mb-4">
+                    {locale === 'cs'
+                      ? 'V současnosti běžíme v alfa verzi aplikace. Po dobu trvání alfy jsou všechny funkce zdarma a dostupné všem uživatelům. Využijte této příležitosti a vyzkoušejte všechny funkce bez omezení.'
+                      : 'We are currently running in alpha version. During the alpha period, all features are free and available to all users. Take advantage of this opportunity and try all features without limitations.'}
+                  </p>
+                  <div className="bg-white rounded-lg p-4 md:p-5 border border-orange-200">
+                    <h4 className="font-semibold text-gray-900 mb-2 md:mb-3">
+                      {locale === 'cs' ? 'Co je možné v aplikaci dělat:' : 'What you can do in the app:'}
+                    </h4>
+                    <ul className="space-y-2 text-sm md:text-base text-gray-700">
+                      {[
+                        locale === 'cs' ? 'Organizovat cíle, kroky a návyky do oblastí' : 'Organize goals, steps and habits into areas',
+                        locale === 'cs' ? 'Vytvářet krátkodobé i dlouhodobé cíle s termíny' : 'Create short-term and long-term goals with deadlines',
+                        locale === 'cs' ? 'Plánovat kroky na konkrétní dny nebo jako opakující se' : 'Plan steps for specific days or as recurring',
+                        locale === 'cs' ? 'Budovat návyky s denní, týdenní nebo měsíční frekvencí' : 'Build habits with daily, weekly or monthly frequency',
+                        locale === 'cs' ? 'Sledovat pokrok v kalendáři a statistikách' : 'Track progress in calendar and statistics',
+                        locale === 'cs' ? 'Používat všechny zobrazení (Feed, Oblasti, Kalendář, Statistiky)' : 'Use all views (Feed, Areas, Calendar, Statistics)'
+                      ].map((item, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <Check className="w-4 h-4 md:w-5 md:h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Future Pricing */}
+            <div className="bg-gray-50 rounded-xl p-6 md:p-8 border-2 border-gray-200">
+              <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6 text-center">
+                {locale === 'cs' ? 'Ceník po ukončení alfy' : 'Pricing after alpha'}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                {/* Free Tier */}
+                <div className="bg-white rounded-lg p-6 md:p-8 border-2 border-gray-300">
+                  <h4 className="text-xl md:text-2xl font-bold text-gray-900 mb-2 md:mb-3">
+                    {locale === 'cs' ? 'Free' : 'Free'}
+                  </h4>
+                  <div className="mb-4 md:mb-6">
+                    <span className="text-3xl md:text-4xl font-bold text-gray-900">$0</span>
+                    <span className="text-gray-600">/{locale === 'cs' ? 'měsíc' : 'month'}</span>
+                  </div>
+                  <ul className="space-y-2 md:space-y-3 mb-6 text-sm md:text-base text-gray-700">
+                    {[
+                      locale === 'cs' ? 'Historie aktuálního měsíce' : 'Current month history',
+                      locale === 'cs' ? 'Plánovač úkolů a přehled měsíce (jen aktuální měsíc)' : 'Task planner and month overview (current month only)',
+                      locale === 'cs' ? '3 oblasti s neomezenými cíli, kroky a návyky' : '3 Areas with unlimited goals, steps and habits',
+                      locale === 'cs' ? 'Základní zobrazení a filtrování' : 'Basic views and filtering'
+                    ].map((item, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <Check className="w-4 h-4 md:w-5 md:h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Paid Tier */}
+                <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-6 md:p-8 border-2 border-orange-600 text-white relative">
+                  <div className="absolute top-4 right-4">
+                    <span className="px-2 py-1 bg-white text-orange-600 text-xs font-bold rounded">
+                      {locale === 'cs' ? 'DOPORUČENO' : 'RECOMMENDED'}
+                    </span>
+                  </div>
+                  <h4 className="text-xl md:text-2xl font-bold mb-2 md:mb-3">
+                    {locale === 'cs' ? 'Premium' : 'Premium'}
+                  </h4>
+                  <div className="mb-4 md:mb-6">
+                    <span className="text-3xl md:text-4xl font-bold">$8</span>
+                    <span className="opacity-90">/{locale === 'cs' ? 'měsíc' : 'month'}</span>
+                    <div className="text-sm md:text-base opacity-90 mt-1">
+                      {locale === 'cs' ? 'nebo $78 ročně' : 'or $78/year'}
+                    </div>
+                  </div>
+                  <ul className="space-y-2 md:space-y-3 mb-6 text-sm md:text-base">
+                    {[
+                      locale === 'cs' ? 'Historie za celou dobu' : 'All time history',
+                      locale === 'cs' ? 'Statistiky' : 'Statistics',
+                      locale === 'cs' ? 'Neomezené oblasti' : 'Unlimited Areas',
+                      locale === 'cs' ? 'Neomezené cíle, kroky a návyky' : 'Unlimited goals, steps and habits',
+                      locale === 'cs' ? 'Detailní přehled a filtrování pro cíle, návyky a kroky' : 'Detailed overview and filtering for goals, habits and steps'
+                    ].map((item, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <Check className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              <p className="text-center text-sm md:text-base text-gray-600 mt-6 md:mt-8">
+                {locale === 'cs'
+                  ? 'Přesné detaily cen budou zveřejněny před ukončením alfy.'
+                  : 'Exact pricing details will be announced before the end of alpha.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Philosophy Section - Moved before CTA */}
       <section className="bg-gradient-to-br from-orange-50 to-orange-100 py-12 md:py-20">
         <div className="container mx-auto px-4">
@@ -392,8 +539,10 @@ export default function HomePage() {
                 <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
               </button>
             </Link>
-            <p className="text-orange-100 text-xs sm:text-sm mt-3 md:mt-4 px-2">
-              {t('homepage.trialInfo') || '14denní zkušební verze zdarma • Bez platební karty'}
+            <p className="text-orange-100 text-xs sm:text-sm mt-3 md:mt-4 px-2 max-w-md">
+              {locale === 'cs' 
+                ? 'Aplikace nabízí free verzi a po dobu trvání alfy budou zdarma všechny funkce.'
+                : 'The app offers a free version and during the alpha period all features are free.'}
             </p>
           </div>
         </div>

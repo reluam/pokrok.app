@@ -6,12 +6,14 @@ import BackgroundTasks
 struct PokrokApp: App {
     @State private var clerk = Clerk.shared
     @State private var refreshTimer: Timer?
+    @AppStorage("appearanceMode") private var appearanceMode: String = "system"
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(\.clerk, clerk)
                 .environmentObject(UserSettingsManager.shared)
+                .preferredColorScheme(appearanceMode == "system" ? nil : (appearanceMode == "dark" ? .dark : .light))
                 .task {
                     clerk.configure(publishableKey: "pk_live_Y2xlcmsucG9rcm9rLmFwcCQ")
                     try? await clerk.load()
@@ -33,6 +35,17 @@ struct PokrokApp: App {
                     // Refresh token when app becomes active
                     Task {
                         await APIManager.shared.refreshTokenForWidget()
+                        
+                        // Schedule today's habit notifications when app becomes active
+                        // This ensures notifications are scheduled even if user doesn't open HabitsView
+                        do {
+                            let habits = try await APIManager.shared.fetchHabits()
+                            await MainActor.run {
+                                NotificationManager.shared.scheduleAllHabitNotifications(habits: habits)
+                            }
+                        } catch {
+                            print("Error loading habits for notifications: \(error.localizedDescription)")
+                        }
                     }
                 }
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in

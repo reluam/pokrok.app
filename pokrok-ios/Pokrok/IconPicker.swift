@@ -256,7 +256,7 @@ struct IconOption: View {
                     LucideIcon(iconName, size: 32, color: isSelected ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.textPrimary)
                 } else {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 32))
+                    .font(.system(size: 32))
                         .foregroundColor(isSelected ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.textSecondary)
                 }
                 

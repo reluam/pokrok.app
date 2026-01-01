@@ -119,16 +119,23 @@ export function StepModal({
                 {stepModalData.id && (
                   <button
                     onClick={() => {
-                      // Duplicate the step
+                      // Duplicate the step - copy all properties but reset id and completion
                       const duplicatedData = {
                         ...stepModalData,
-                        id: null, // New step
+                        id: null, // New step - this is critical for creating new step
                         title: `${stepModalData.title} - duplicate`,
                         completed: false, // Reset completion status
                         date: stepModalData.date || getLocalDateString(new Date()), // Use current date if no date set
+                        // Reset recurring step properties if it was a recurring step
+                        isRepeating: false, // Don't duplicate as recurring step
+                        frequency: null,
+                        selected_days: [],
+                        recurring_start_date: null,
+                        recurring_end_date: null,
+                        recurring_display_mode: 'next_only'
                       }
                       setStepModalData(duplicatedData)
-                      // Modal stays open with duplicated data
+                      // Modal stays open with duplicated data for editing
                     }}
                     className="btn-playful-base p-1.5 w-8 h-8 flex items-center justify-center"
                     title={t('steps.duplicate') || 'Duplikovat krok'}

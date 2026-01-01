@@ -20,6 +20,7 @@ enum Tab: String, CaseIterable {
 struct ContentView: View {
     @Environment(\.clerk) private var clerk
     @ObservedObject private var settingsManager = UserSettingsManager.shared
+    @ObservedObject private var navigationManager = NavigationManager.shared
     @State private var selectedTab: Tab = .steps
     @State private var showAddAspirationModal = false
     @State private var showAddGoalModal = false
@@ -80,6 +81,12 @@ struct ContentView: View {
                         showAddStepModal: $showAddStepModal,
                         showAddHabitModal: $showAddHabitModal
                     )
+                }
+                .onChange(of: navigationManager.navigateToTab) { _, newTab in
+                    if let tab = newTab {
+                        selectedTab = tab
+                        navigationManager.navigateToTab = nil
+                    }
                 }
             } else {
                 // Authentication screen for unauthenticated users

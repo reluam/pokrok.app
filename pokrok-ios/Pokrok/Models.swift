@@ -49,8 +49,63 @@ struct CreateGoalRequest: Codable {
 struct CreateStepRequest: Codable {
     let title: String
     let description: String?
-    let date: Date
+    let date: Date?
     let goalId: String?
+    let areaId: String?
+    let isRepeating: Bool?
+    let frequency: String?
+    let selectedDays: [String]?
+    let recurringStartDate: Date?
+    let recurringEndDate: Date?
+    let recurringDisplayMode: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case title
+        case description
+        case date
+        case goalId
+        case areaId
+        case isRepeating
+        case frequency
+        case selectedDays = "selected_days"
+        case recurringStartDate = "recurring_start_date"
+        case recurringEndDate = "recurring_end_date"
+        case recurringDisplayMode = "recurring_display_mode"
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(title, forKey: .title)
+        try container.encodeIfPresent(description, forKey: .description)
+        
+        // Encode date as string if present
+        if let date = date {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            try container.encode(formatter.string(from: date), forKey: .date)
+        }
+        
+        try container.encodeIfPresent(goalId, forKey: .goalId)
+        try container.encodeIfPresent(areaId, forKey: .areaId)
+        try container.encodeIfPresent(isRepeating, forKey: .isRepeating)
+        try container.encodeIfPresent(frequency, forKey: .frequency)
+        try container.encodeIfPresent(selectedDays, forKey: .selectedDays)
+        
+        // Encode recurring dates as strings if present
+        if let startDate = recurringStartDate {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            try container.encode(formatter.string(from: startDate), forKey: .recurringStartDate)
+        }
+        
+        if let endDate = recurringEndDate {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            try container.encode(formatter.string(from: endDate), forKey: .recurringEndDate)
+        }
+        
+        try container.encodeIfPresent(recurringDisplayMode, forKey: .recurringDisplayMode)
+    }
 }
 
 // MARK: - Response Models
@@ -105,10 +160,27 @@ struct DailyStep: Codable, Identifiable {
     let id: String
     let title: String
     let description: String?
-    let date: Date
+    let date: Date? // Made optional because recurring steps can have null date
     let completed: Bool
     let goalId: String?
     let isImportant: Bool?
+    let isUrgent: Bool?
+    let areaId: String? // Maps to area_id from API
+    let aspirationId: String? // Maps to aspiration_id from API (alternative to area_id)
+    let estimatedTime: Int?
+    let xpReward: Int?
+    let deadline: Date?
+    let completedAt: Date?
+    let checklist: [ChecklistItem]?
+    let requireChecklistComplete: Bool?
+    let frequency: String?
+    let selectedDays: [String]?
+    let lastInstanceDate: Date?
+    let lastCompletedInstanceDate: Date?
+    let recurringStartDate: Date?
+    let recurringEndDate: Date?
+    let recurringDisplayMode: String?
+    let isHidden: Bool?
     let createdAt: Date?
     let updatedAt: Date?
     
@@ -120,9 +192,33 @@ struct DailyStep: Codable, Identifiable {
         case completed
         case goalId = "goal_id"
         case isImportant = "is_important"
+        case isUrgent = "is_urgent"
+        case areaId = "area_id"
+        case aspirationId = "aspiration_id"
+        case estimatedTime = "estimated_time"
+        case xpReward = "xp_reward"
+        case deadline
+        case completedAt = "completed_at"
+        case checklist
+        case requireChecklistComplete = "require_checklist_complete"
+        case frequency
+        case selectedDays = "selected_days"
+        case lastInstanceDate = "last_instance_date"
+        case lastCompletedInstanceDate = "last_completed_instance_date"
+        case recurringStartDate = "recurring_start_date"
+        case recurringEndDate = "recurring_end_date"
+        case recurringDisplayMode = "recurring_display_mode"
+        case isHidden = "is_hidden"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }
+}
+
+// MARK: - Checklist Item Model
+struct ChecklistItem: Codable, Identifiable {
+    let id: String
+    let title: String
+    let completed: Bool
 }
 
 // MARK: - API Response Models
@@ -409,6 +505,43 @@ struct CreateAspirationRequest: Codable {
     let description: String?
     let color: String?
     let icon: String?
+}
+
+// MARK: - Goal Metric Model
+struct GoalMetric: Codable, Identifiable {
+    let id: String
+    let userId: String
+    let goalId: String
+    let name: String
+    let description: String?
+    let type: String // 'number' | 'currency' | 'percentage' | 'distance' | 'time' | 'weight' | 'custom'
+    let unit: String
+    let targetValue: Decimal
+    let currentValue: Decimal
+    let initialValue: Decimal?
+    let incrementalValue: Decimal?
+    let createdAt: Date?
+    let updatedAt: Date?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case goalId = "goal_id"
+        case name
+        case description
+        case type
+        case unit
+        case targetValue = "target_value"
+        case currentValue = "current_value"
+        case initialValue = "initial_value"
+        case incrementalValue = "incremental_value"
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+}
+
+struct MetricsResponse: Codable {
+    let metrics: [GoalMetric]
 }
 
 enum APIError: Error, LocalizedError {

@@ -52,8 +52,8 @@ struct OverviewView: View {
         .sheet(isPresented: $showAddGoalModal) {
             NavigationView {
                 GoalDetailView(onGoalAdded: {
-                    loadData()
-                })
+                loadData()
+            })
             }
         }
         .alert("Chyba", isPresented: $showError) {

@@ -74,7 +74,8 @@ struct DailyPlanningView: View {
         let selectedStartOfDay = calendar.startOfDay(for: today)
         
         return dailySteps.filter { step in
-            let stepStartOfDay = calendar.startOfDay(for: step.date)
+            guard let stepDate = step.date else { return false }
+            let stepStartOfDay = calendar.startOfDay(for: stepDate)
             return calendar.isDate(stepStartOfDay, inSameDayAs: selectedStartOfDay)
         }
     }
@@ -202,8 +203,8 @@ struct DailyPlanningView: View {
         .sheet(isPresented: $showAddStepModal) {
             NavigationView {
                 StepDetailView(initialDate: selectedDate, onStepAdded: {
-                    loadData()
-                })
+                loadData()
+            })
             }
         }
         .sheet(isPresented: $showHabitAspirationModal) {
@@ -331,11 +332,12 @@ struct DailyPlanningView: View {
                 .buttonStyle(PlainButtonStyle())
             } else {
                 LazyVStack(spacing: DesignSystem.Spacing.sm) {
-                    ForEach(Array(todaySteps.enumerated()), id: \.element.id) { index, step in
+                    ForEach(Array(todaySteps.filter { $0.date != nil }.enumerated()), id: \.element.id) { index, step in
                         let goal = goals.first { $0.id == step.goalId }
                         let calendar = Calendar.current
                         let today = calendar.startOfDay(for: Date())
-                        let stepDate = calendar.startOfDay(for: step.date)
+                        if let stepDateValue = step.date {
+                            let stepDate = calendar.startOfDay(for: stepDateValue)
                         let isOverdue = stepDate < today && !step.completed
                         let isFuture = stepDate > today
                         
@@ -348,6 +350,7 @@ struct DailyPlanningView: View {
                                 toggleStepCompletion(stepId: step.id, completed: !step.completed)
                             }
                         )
+                        }
                     }
                 }
             }
@@ -490,7 +493,8 @@ struct DailyPlanningView: View {
         let selectedStartOfDay = calendar.startOfDay(for: today)
         
         let stepsForProgress = dailySteps.filter { step in
-            let stepStartOfDay = calendar.startOfDay(for: step.date)
+            guard let stepDate = step.date else { return false }
+            let stepStartOfDay = calendar.startOfDay(for: stepDate)
             return calendar.isDate(stepStartOfDay, inSameDayAs: selectedStartOfDay)
         }
         

@@ -227,18 +227,8 @@ struct DesignSystem {
         // MARK: State-specific colors (matching web design)
         // Primary light - for completed items (bg-primary-100 = #fde4c4)
         static var primaryLightBackground: Color {
-            let primaryColor = UserSettingsManager.shared.primaryColor
-            return Color(UIColor { traitCollection in
-                switch traitCollection.userInterfaceStyle {
-                case .dark:
-                    // Dark mode: mix primary color with dark background
-                    let darkBg = Color(red: 28.0/255.0, green: 28.0/255.0, blue: 30.0/255.0)
-                    return UIColor(primaryColor.mix(with: darkBg, by: 0.3)) // Subtle primary tint on dark background
-                default:
-                    // Light mode: bg-primary-100 (#fde4c4)
-                    return UIColor(red: 253.0/255.0, green: 228.0/255.0, blue: 196.0/255.0, alpha: 1.0)
-                }
-            })
+            // Use the same background as the date header at the top
+            return DesignSystem.Colors.dynamicPrimaryLight
         }
         
         // Green light - for completed items (bg-green-50 = #ecfdf5)

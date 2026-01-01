@@ -93,8 +93,8 @@ struct NoWorkflowView: View {
         .sheet(isPresented: $showAddStepModal) {
             NavigationView {
                 StepDetailView(initialDate: Date(), onStepAdded: {
-                    loadData()
-                })
+                loadData()
+            })
             }
         }
         .sheet(isPresented: $showFilters) {
@@ -198,8 +198,9 @@ struct NoWorkflowView: View {
                 }
             }
             
-            // Date filters
-            let stepDate = Calendar.current.startOfDay(for: step.date)
+            // Date filters - skip steps without date
+            guard let stepDateValue = step.date else { return false }
+            let stepDate = Calendar.current.startOfDay(for: stepDateValue)
             let isToday = stepDate == today
             let isOverdue = stepDate < today
             let isFuture = stepDate > today
@@ -226,7 +227,13 @@ struct NoWorkflowView: View {
         case "title":
             steps.sort { $0.title < $1.title }
         default: // "date"
-            steps.sort { $0.date < $1.date }
+            steps.sort { step1, step2 in
+                guard let date1 = step1.date, let date2 = step2.date else {
+                    if step1.date == nil && step2.date == nil { return false }
+                    return step1.date != nil // Steps with date come first
+                }
+                return date1 < date2
+            }
         }
         
         return steps
@@ -323,8 +330,12 @@ struct NoWorkflowStepRow: View {
     @State private var isAnimating = false
     
     private var statusInfo: (text: String, color: Color) {
+        guard let stepDateValue = step.date else {
+            return ("Bez data", DesignSystem.Colors.textSecondary)
+        }
+        
         let today = Calendar.current.startOfDay(for: Date())
-        let stepDate = Calendar.current.startOfDay(for: step.date)
+        let stepDate = Calendar.current.startOfDay(for: stepDateValue)
         
         if stepDate < today {
             return ("Zpožděno", DesignSystem.Colors.error)
@@ -381,9 +392,11 @@ struct NoWorkflowStepRow: View {
                         
                         Spacer()
                         
-                        Text(formatDate(step.date))
+                        if let stepDate = step.date {
+                            Text(formatDate(stepDate))
                             .font(DesignSystem.Typography.caption)
                             .foregroundColor(DesignSystem.Colors.textSecondary)
+                        }
                     }
                 }
                 

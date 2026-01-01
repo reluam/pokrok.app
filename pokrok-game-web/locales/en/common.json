@@ -240,7 +240,9 @@
     "signUp": "SIGN UP",
     "signIn": "SIGN IN",
     "or": "or",
-    "continueAsGuest": "CONTINUE AS GUEST"
+    "continueAsGuest": "CONTINUE AS GUEST",
+    "devVersion": "Development version",
+    "devVersionTooltip": "Development version - The application is still in development, errors and bugs may occur. The application may still change."
   },
   "goals": {
     "title": "GOALS",
@@ -1513,7 +1515,7 @@
     "step": "Step",
     "intro": {
       "title": "What is Pokrok?",
-      "description": "Pokrok is not just another productivity app. It's a tool for organizing your life and achieving meaningful goals that bring you real value and fulfillment.",
+      "description": "Pokrok is a tool for organizing your life and achieving meaningful goals that bring you real value and fulfillment.",
       "detailed": "Pokrok helps you gain clarity about what truly matters to you in life. It allows you to organize your goals, break them down into achievable steps, and track how you're moving toward the life you want to live.",
       "philosophy": "We focus on meaning, not just productivity. Every goal, step, and habit should have its purpose and contribute to the life you want to have."
     },

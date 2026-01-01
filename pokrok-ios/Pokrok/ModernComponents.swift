@@ -240,9 +240,11 @@ struct ModernStepCard: View {
                             
                             Spacer()
                             
-                            Text(step.date, style: .date)
+                            if let stepDate = step.date {
+                                Text(stepDate, style: .date)
                                 .font(DesignSystem.Typography.caption2)
                                 .foregroundColor(DesignSystem.Colors.textSecondary)
+                            }
                         }
                     }
                     

@@ -245,6 +245,45 @@ class APIManager: ObservableObject {
         }
     }
     
+    // MARK: - Goal Metrics API
+    
+    func fetchGoalMetrics(goalId: String) async throws -> [GoalMetric] {
+        guard var urlComponents = URLComponents(string: "\(baseURL)/goal-metrics") else {
+            throw APIError.invalidURL
+        }
+        
+        urlComponents.queryItems = [
+            URLQueryItem(name: "goalId", value: goalId)
+        ]
+        
+        guard let url = urlComponents.url else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add Clerk token if available
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.requestFailed
+        }
+        
+        let decoder = createJSONDecoder()
+        let metricsResponse = try decoder.decode(MetricsResponse.self, from: data)
+        return metricsResponse.metrics
+    }
+    
     // MARK: - Steps API
     
     func fetchSteps(startDate: Date? = nil, endDate: Date? = nil) async throws -> [DailyStep] {
@@ -292,10 +331,26 @@ class APIManager: ObservableObject {
             throw APIError.requestFailed
         }
         
-        // Parse response - API returns array directly, not wrapped
+        // Parse response - try both formats: wrapped in object or direct array
         let decoder = createJSONDecoder()
+        
+        do {
+            // Try to decode as wrapped response first (new format)
+            let response = try decoder.decode(StepsResponse.self, from: data)
+            return response.steps
+        } catch {
+            // Fallback to direct array (old format)
+            do {
         let steps = try decoder.decode([DailyStep].self, from: data)
         return steps
+            } catch {
+                // If both fail, print error for debugging
+                if let jsonString = String(data: data, encoding: .utf8) {
+                    print("Failed to decode steps. Response: \(jsonString)")
+                }
+                throw error
+            }
+        }
     }
     
     func fetchStepsForDate(date: Date) async throws -> [DailyStep] {
@@ -347,12 +402,21 @@ class APIManager: ObservableObject {
         let decoder = createJSONDecoder()
         
         do {
+            // Try to decode as wrapped response first (new format)
+            let response = try decoder.decode(StepsResponse.self, from: data)
+            return response.steps
+        } catch {
+            // Fallback to direct array (old format)
+        do {
             let steps = try decoder.decode([DailyStep].self, from: data)
             return steps
         } catch {
-            // Try to decode as error response (for debugging, but not used)
-            _ = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+                // If both fail, print error for debugging
+                if let jsonString = String(data: data, encoding: .utf8) {
+                    print("Failed to decode steps for date. Response: \(jsonString)")
+                }
             throw error
+            }
         }
     }
     
@@ -373,30 +437,18 @@ class APIManager: ObservableObject {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         
-        // Format date as YYYY-MM-DD string (API expects this format)
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        let dateString = formatter.string(from: step.date)
+        // Create request body with userId - we need to add userId separately
+        // First encode the step request
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .useDefaultKeys
+        var jsonData = try encoder.encode(step)
         
-        // Create request body with userId
-        var requestBody: [String: Any] = [
-            "userId": user.id,
-            "title": step.title,
-            "date": dateString
-        ]
+        // Parse the JSON to add userId
+        var requestBody = try JSONSerialization.jsonObject(with: jsonData) as! [String: Any]
+        requestBody["userId"] = user.id
         
-        if let description = step.description {
-            requestBody["description"] = description
-        }
-        
-        if let goalId = step.goalId {
-            requestBody["goalId"] = goalId
-        }
-        
-        // Note: CreateStepRequest currently only supports basic fields
-        // For full support, we'd need to extend CreateStepRequest model
-        
-        let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+        // Re-encode with userId
+        jsonData = try JSONSerialization.data(withJSONObject: requestBody)
         request.httpBody = jsonData
         
         let (data, response) = try await URLSession.shared.data(for: request)

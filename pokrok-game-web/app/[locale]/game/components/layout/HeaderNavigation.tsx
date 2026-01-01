@@ -1,7 +1,8 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { HelpCircle, Settings, Menu } from 'lucide-react'
+import { DevVersionTooltip } from '../common/DevVersionTooltip'
 
 interface HeaderNavigationProps {
   currentPage: 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas'
@@ -27,6 +28,7 @@ export function HeaderNavigation({
   setMobileTopMenuOpen,
 }: HeaderNavigationProps) {
   const t = useTranslations()
+  const locale = useLocale()
 
   return (
     <>
@@ -37,10 +39,10 @@ export function HeaderNavigation({
         <div className="relative z-10 py-3 px-4 sm:px-6">
           {/* Single Row: Section Name and Menu */}
           <div className="flex items-center justify-between">
-            {/* Left - Section Name (mobile) or Full Menu (desktop) */}
+            {/* Left - Main Panel button and Alpha version badge */}
             <div className="flex items-center gap-3 sm:gap-4">
-              {/* Desktop: Full menu buttons */}
-              <div className="hidden md:flex items-center gap-2">
+              {/* Desktop: Main Panel button and Alpha version */}
+              <div className="hidden md:flex items-center gap-3">
                 <button
                   onClick={() => {
                     // Load last opened view from localStorage
@@ -71,10 +73,15 @@ export function HeaderNavigation({
                   </svg>
                   <span>{t('game.menu.mainPanel')}</span>
                 </button>
+                {/* Version badge with warning */}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-gray-500 font-mono">v0.1.0</span>
+                  <DevVersionTooltip iconSize="w-3 h-3" />
+                </div>
               </div>
               
-              {/* Mobile: Section name only */}
-              <div className="md:hidden">
+              {/* Mobile: Section name and Alpha version */}
+              <div className="md:hidden flex items-center gap-2">
                 {currentPage === 'main' && (
                   <span className="text-sm font-semibold text-black font-playful">
                     {t('game.menu.mainPanel')}
@@ -130,6 +137,11 @@ export function HeaderNavigation({
                     Úspěchy
                   </span>
                 )}
+                {/* Version badge with warning - Mobile */}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] text-gray-500 font-mono">v0.1.0</span>
+                  <DevVersionTooltip iconSize="w-2.5 h-2.5" />
+                </div>
               </div>
             </div>
 

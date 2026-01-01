@@ -505,7 +505,7 @@ struct AddAspirationModal: View {
                                     LucideIcon(iconName, size: 24, color: DesignSystem.Colors.dynamicPrimary)
                                 } else {
                                     Image(systemName: "xmark.circle.fill")
-                                        .font(.system(size: 24))
+                                    .font(.system(size: 24))
                                         .foregroundColor(DesignSystem.Colors.textSecondary)
                                 }
                                 

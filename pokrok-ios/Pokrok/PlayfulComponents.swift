@@ -647,9 +647,14 @@ struct PlayfulStepCard: View {
     
     // Format date: show day name if in current or next week (up to today), otherwise show date
     private var formattedDate: String {
+        guard let stepDateValue = step.date else {
+            // For steps without date, return empty string or placeholder
+            return ""
+        }
+        
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
-        let stepDate = calendar.startOfDay(for: step.date)
+        let stepDate = calendar.startOfDay(for: stepDateValue)
         
         // Get start of current week (Monday)
         let weekday = calendar.component(.weekday, from: today)
@@ -669,13 +674,13 @@ struct PlayfulStepCard: View {
             let formatter = DateFormatter()
             formatter.locale = Locale(identifier: "cs_CZ")
             formatter.dateFormat = "EEEE"
-            return formatter.string(from: step.date).capitalized
+            return formatter.string(from: stepDateValue).capitalized
         } else {
             // Show date
             let formatter = DateFormatter()
             formatter.locale = Locale(identifier: "cs_CZ")
             formatter.dateStyle = .short
-            return formatter.string(from: step.date)
+            return formatter.string(from: stepDateValue)
         }
     }
     
@@ -817,55 +822,55 @@ struct PlayfulHabitCard: View {
     
     var body: some View {
         NavigationLink(destination: HabitDetailView(habit: habit)) {
-            HStack(spacing: DesignSystem.Spacing.lg) {
-                // Checkbox - larger for better tapability
-                Button(action: {
-                    isChecked.toggle()
-                    onToggle()
-                }) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(isChecked ? DesignSystem.Colors.dynamicPrimary : Color.clear)
-                            .frame(width: 32, height: 32)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(isChecked ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.grayBorder, lineWidth: 2.5)
-                            )
-                        
-                        if isChecked {
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 18, weight: .bold))
-                                .foregroundColor(.white)
-                        }
+        HStack(spacing: DesignSystem.Spacing.lg) {
+            // Checkbox - larger for better tapability
+            Button(action: {
+                isChecked.toggle()
+                onToggle()
+            }) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(isChecked ? DesignSystem.Colors.dynamicPrimary : Color.clear)
+                        .frame(width: 32, height: 32)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(isChecked ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.grayBorder, lineWidth: 2.5)
+                        )
+                    
+                    if isChecked {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(.white)
                     }
                 }
-                .buttonStyle(PlainButtonStyle())
-                .onAppear {
-                    isChecked = isCompleted
-                }
-                .onChange(of: isCompleted) { _, newValue in
-                    isChecked = newValue
-                }
-                
-                // Content - simpler layout matching web
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                    Text(habit.name)
-                        .font(DesignSystem.Typography.body)
-                        .fontWeight(.medium)
-                        .foregroundColor(isCompleted ? DesignSystem.Colors.textSecondary : DesignSystem.Colors.textPrimary)
-                        .strikethrough(isCompleted)
-                        .lineLimit(2)
-                }
-                
-                Spacer()
             }
-            .padding(DesignSystem.Spacing.lg)
-            .background(cardBackgroundColor)
-            .overlay(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                    .stroke(cardBorderColor, lineWidth: 2)
-            )
-            .cornerRadius(DesignSystem.CornerRadius.md)
+            .buttonStyle(PlainButtonStyle())
+            .onAppear {
+                isChecked = isCompleted
+            }
+            .onChange(of: isCompleted) { _, newValue in
+                isChecked = newValue
+            }
+            
+            // Content - simpler layout matching web
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                Text(habit.name)
+                    .font(DesignSystem.Typography.body)
+                    .fontWeight(.medium)
+                    .foregroundColor(isCompleted ? DesignSystem.Colors.textSecondary : DesignSystem.Colors.textPrimary)
+                    .strikethrough(isCompleted)
+                    .lineLimit(2)
+            }
+            
+            Spacer()
+        }
+        .padding(DesignSystem.Spacing.lg)
+        .background(cardBackgroundColor)
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                .stroke(cardBorderColor, lineWidth: 2)
+        )
+        .cornerRadius(DesignSystem.CornerRadius.md)
         }
         .buttonStyle(.plain)
     }

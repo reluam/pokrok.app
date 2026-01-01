@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations, useLocale } from 'next-intl'
-import { X, ArrowRight, ArrowLeft, Target, Footprints, CheckSquare, LayoutDashboard, Calendar, TrendingUp, CheckCircle2, Plus, CalendarDays, CalendarRange, CalendarCheck, ChevronDown, ListTodo, BarChart3, Menu, HelpCircle, Settings, Check } from 'lucide-react'
+import { X, ArrowRight, ArrowLeft, Target, Footprints, CheckSquare, LayoutDashboard, Calendar, TrendingUp, CheckCircle2, Plus, CalendarDays, CalendarRange, CalendarCheck, ChevronDown, ListTodo, BarChart3, Menu, HelpCircle, Settings, Check, Languages } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
+import { locales, type Locale } from '@/i18n/config'
 
 interface OnboardingTutorialProps {
   isActive: boolean
@@ -83,6 +84,8 @@ export function OnboardingTutorial({
   const t = useTranslations()
   const locale = useLocale()
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [selectedLocale, setSelectedLocale] = useState<Locale>(locale as Locale)
+  const [isSavingLocale, setIsSavingLocale] = useState(false)
   
   // Get localized mock data
   const mockAreas = getMockAreas(locale)
@@ -92,15 +95,50 @@ export function OnboardingTutorial({
 
   const slides = [
     {
+      title: locale === 'cs' ? 'Vyberte jazyk' : 'Choose language',
+      description: locale === 'cs' ? 'Zvolte si jazyk, ve kterém chcete používat aplikaci.' : 'Choose the language you want to use the app in.',
+      icon: Languages,
+      content: (
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+            <button
+              onClick={() => setSelectedLocale('cs')}
+              disabled={isSavingLocale}
+              className={`p-6 rounded-lg border-2 transition-all font-playful ${
+                selectedLocale === 'cs'
+                  ? 'bg-primary-500 text-white border-primary-600 shadow-lg scale-105'
+                  : 'bg-white text-black border-primary-300 hover:bg-primary-50 hover:border-primary-500'
+              } ${isSavingLocale ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+            >
+              <div className="text-4xl mb-2">🇨🇿</div>
+              <div className="text-lg font-semibold">Čeština</div>
+            </button>
+            <button
+              onClick={() => setSelectedLocale('en')}
+              disabled={isSavingLocale}
+              className={`p-6 rounded-lg border-2 transition-all font-playful ${
+                selectedLocale === 'en'
+                  ? 'bg-primary-500 text-white border-primary-600 shadow-lg scale-105'
+                  : 'bg-white text-black border-primary-300 hover:bg-primary-50 hover:border-primary-500'
+              } ${isSavingLocale ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+            >
+              <div className="text-4xl mb-2">🇬🇧</div>
+              <div className="text-lg font-semibold">English</div>
+            </button>
+          </div>
+        </div>
+      )
+    },
+    {
       title: t('onboarding.intro.title') || 'Co je Pokrok?',
       description: t('onboarding.intro.description') || 'Nástroj pro organizaci života a dosahování smysluplných cílů.',
       icon: Target,
       content: (
         <div className="space-y-4">
           <p className="text-gray-700 text-base leading-relaxed">
-            {locale === 'cs' 
-              ? 'Pokrok je nástroj pro organizaci života a dosahování smysluplných cílů, které vám přinášejí skutečnou hodnotu a naplnění.'
-              : 'Pokrok is a tool for organizing your life and achieving meaningful goals that bring you real value and fulfillment.'}
+            {t('onboarding.intro.description') || (locale === 'cs' 
+              ? 'Pokrok je nástroj pro organizaci vašeho života a dosahování smysluplných cílů, které vám přinášejí skutečnou hodnotu a naplnění.'
+              : 'Pokrok is a tool for organizing your life and achieving meaningful goals that bring you real value and fulfillment.')}
           </p>
           <p className="text-gray-700 text-base leading-relaxed">
             {locale === 'cs' 
@@ -627,7 +665,57 @@ export function OnboardingTutorial({
     }
   ]
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    // If we're on the first slide (language selection), save the locale first
+    if (currentSlide === 0) {
+      if (selectedLocale !== locale) {
+        setIsSavingLocale(true)
+        try {
+          const response = await fetch('/api/user/locale', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ locale: selectedLocale })
+          })
+
+          if (response.ok) {
+            // Redirect to the new locale - use window.location for immediate redirect
+            const currentPath = window.location.pathname
+            
+            // Handle locale switching with 'as-needed' prefix strategy
+            // Extract path without locale prefix (e.g., /cs/game -> /game)
+            let pathWithoutLocale = currentPath
+            for (const loc of locales) {
+              if (currentPath.startsWith(`/${loc}/`)) {
+                pathWithoutLocale = currentPath.substring(loc.length + 1) // Remove /cs or /en, keep the rest including /
+                break
+              } else if (currentPath === `/${loc}`) {
+                pathWithoutLocale = '/'
+                break
+              }
+            }
+            
+            // Build new path - en is default (no prefix), cs needs prefix
+            const newPath = selectedLocale === 'en' 
+              ? pathWithoutLocale 
+              : `/${selectedLocale}${pathWithoutLocale}`
+            
+            // Use window.location.href for immediate navigation with full page reload
+            // This ensures the new locale is properly loaded and onboarding continues
+            window.location.href = newPath
+            return // Don't continue with slide change, page will reload
+          } else {
+            console.error('Failed to update locale')
+            setIsSavingLocale(false)
+            // Continue to next slide even if locale update failed
+          }
+        } catch (error) {
+          console.error('Error updating locale:', error)
+          setIsSavingLocale(false)
+          // Continue to next slide even if locale update failed
+        }
+      }
+    }
+    
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(currentSlide + 1)
     } else {

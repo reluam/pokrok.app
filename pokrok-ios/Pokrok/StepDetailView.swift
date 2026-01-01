@@ -18,6 +18,12 @@ struct StepDetailView: View {
     @State private var editingIsUrgent: Bool
     @State private var editingDeadline: Date?
     @State private var editingEstimatedTime: Int
+    @State private var editingIsRepeating: Bool
+    @State private var editingFrequency: String?
+    @State private var editingSelectedDays: [String]
+    @State private var editingRecurringStartDate: Date?
+    @State private var editingRecurringEndDate: Date?
+    @State private var editingRecurringDisplayMode: String
     
     @State private var goals: [Goal] = []
     @State private var aspirations: [Aspiration] = []
@@ -27,9 +33,11 @@ struct StepDetailView: View {
     @State private var errorMessage = ""
     @State private var showDeleteConfirmation = false
     @State private var isDeleting = false
+    @State private var showDuplicatedStep = false
+    @State private var duplicatedStep: DailyStep?
     
     private var isCreating: Bool {
-        step == nil
+        step == nil || (step?.id.isEmpty ?? false)
     }
     
     init(step: DailyStep? = nil, goalTitle: String? = nil, initialDate: Date? = nil, onStepAdded: (() -> Void)? = nil) {
@@ -42,12 +50,19 @@ struct StepDetailView: View {
         self._isCompleted = State(initialValue: step.completed)
             self._editingTitle = State(initialValue: step.title)
             self._editingDescription = State(initialValue: step.description ?? "")
-            self._editingDate = State(initialValue: step.date)
+            self._editingDate = State(initialValue: step.date ?? Date())
             self._editingGoalId = State(initialValue: step.goalId)
             self._editingIsImportant = State(initialValue: step.isImportant ?? false)
-            self._editingIsUrgent = State(initialValue: false)
-            self._editingDeadline = State(initialValue: nil)
-            self._editingEstimatedTime = State(initialValue: 0)
+            self._editingIsUrgent = State(initialValue: step.isUrgent ?? false)
+            self._editingDeadline = State(initialValue: step.deadline)
+            self._editingEstimatedTime = State(initialValue: step.estimatedTime ?? 0)
+            self._editingAreaId = State(initialValue: step.areaId ?? step.aspirationId)
+            self._editingIsRepeating = State(initialValue: step.frequency != nil)
+            self._editingFrequency = State(initialValue: step.frequency)
+            self._editingSelectedDays = State(initialValue: step.selectedDays ?? [])
+            self._editingRecurringStartDate = State(initialValue: step.recurringStartDate)
+            self._editingRecurringEndDate = State(initialValue: step.recurringEndDate)
+            self._editingRecurringDisplayMode = State(initialValue: step.recurringDisplayMode ?? "next_only")
         } else {
             self._isCompleted = State(initialValue: false)
             self._editingTitle = State(initialValue: "")
@@ -58,6 +73,12 @@ struct StepDetailView: View {
             self._editingIsUrgent = State(initialValue: false)
             self._editingDeadline = State(initialValue: nil)
             self._editingEstimatedTime = State(initialValue: 0)
+            self._editingIsRepeating = State(initialValue: false)
+            self._editingFrequency = State(initialValue: nil)
+            self._editingSelectedDays = State(initialValue: [])
+            self._editingRecurringStartDate = State(initialValue: nil)
+            self._editingRecurringEndDate = State(initialValue: nil)
+            self._editingRecurringDisplayMode = State(initialValue: "next_only")
         }
     }
     
@@ -71,8 +92,8 @@ struct StepDetailView: View {
     }
     
     private var basicInformationCard: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                 Text("Název")
                     .font(DesignSystem.Typography.caption)
                     .foregroundColor(DesignSystem.Colors.dynamicPrimary)
@@ -81,7 +102,7 @@ struct StepDetailView: View {
                     .font(DesignSystem.Typography.headline)
                     .foregroundColor(DesignSystem.Colors.textPrimary)
                     .padding(DesignSystem.Spacing.sm)
-                    .background(Color.white)
+                    .background(DesignSystem.Colors.surface)
                     .overlay(
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                             .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
@@ -99,7 +120,7 @@ struct StepDetailView: View {
                     .foregroundColor(DesignSystem.Colors.textPrimary)
                     .frame(minHeight: 80)
                     .padding(DesignSystem.Spacing.sm)
-                    .background(Color.white)
+                    .background(DesignSystem.Colors.surface)
                     .overlay(
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                             .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
@@ -122,12 +143,12 @@ struct StepDetailView: View {
                         Text("Bez oblasti").tag("")
                         ForEach(aspirations, id: \.id) { aspiration in
                             Text(aspiration.title).tag(aspiration.id)
+                            }
                         }
-                    }
                     .pickerStyle(.menu)
                     .tint(DesignSystem.Colors.dynamicPrimary)
                     .padding(DesignSystem.Spacing.sm)
-                    .background(Color.white)
+                    .background(DesignSystem.Colors.surface)
                     .overlay(
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                             .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
@@ -153,7 +174,7 @@ struct StepDetailView: View {
                     .pickerStyle(.menu)
                     .tint(DesignSystem.Colors.dynamicPrimary)
                     .padding(DesignSystem.Spacing.sm)
-                    .background(Color.white)
+                    .background(DesignSystem.Colors.surface)
                     .overlay(
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                             .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
@@ -161,39 +182,241 @@ struct StepDetailView: View {
                     .cornerRadius(DesignSystem.CornerRadius.sm)
                 }
             }
-        }
-        .padding(DesignSystem.Spacing.md)
-        .background(Color.white)
+                            }
+                            .padding(DesignSystem.Spacing.md)
+        .background(DesignSystem.Colors.surface)
         .overlay(
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
                 .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
         )
         .cornerRadius(DesignSystem.CornerRadius.md)
-        .shadow(color: DesignSystem.Colors.dynamicPrimary.opacity(1.0), radius: 0, x: 3, y: 3)
+        .shadow(color: Color(UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(0.2))
+            default:
+                return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(1.0))
+            }
+        }), radius: 0, x: 3, y: 3)
     }
     
     private var dateAndTimeCard: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
             Text("Datum a čas")
-                .font(DesignSystem.Typography.headline)
+                                .font(DesignSystem.Typography.headline)
                 .foregroundColor(DesignSystem.Colors.dynamicPrimary)
             
+            // Repeating toggle
+            HStack {
+                Text("Opakování")
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                
+                Spacer()
+                
+                Toggle("", isOn: $editingIsRepeating)
+                    .tint(DesignSystem.Colors.dynamicPrimary)
+                    .onChange(of: editingIsRepeating) { newValue in
+                        if !newValue {
+                            editingFrequency = nil
+                            editingSelectedDays = []
+                            editingRecurringStartDate = nil
+                            editingRecurringEndDate = nil
+                        } else {
+                            editingFrequency = editingFrequency ?? "daily"
+                            editingRecurringStartDate = editingRecurringStartDate ?? Date()
+                        }
+                    }
+            }
+            .padding(DesignSystem.Spacing.sm)
+            .background(DesignSystem.Colors.surface)
+            .overlay(
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+            )
+            .cornerRadius(DesignSystem.CornerRadius.sm)
+            
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                    Text("Datum")
-                        .font(DesignSystem.Typography.caption)
-                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                if !editingIsRepeating {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                        Text("Datum")
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                        
+                        DatePicker("Datum", selection: $editingDate, displayedComponents: .date)
+                            .datePickerStyle(.compact)
+                            .tint(DesignSystem.Colors.dynamicPrimary)
+                            .padding(DesignSystem.Spacing.sm)
+                            .background(DesignSystem.Colors.surface)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                            )
+                            .cornerRadius(DesignSystem.CornerRadius.sm)
+                    }
+                } else {
+                    // Frequency selector
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                        Text("Frekvence")
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                        
+                        Picker("Frekvence", selection: Binding(
+                            get: { editingFrequency ?? "daily" },
+                            set: { 
+                                editingFrequency = $0
+                                if $0 == "daily" {
+                                    editingSelectedDays = []
+                                }
+                            }
+                        )) {
+                            Text("Denně").tag("daily")
+                            Text("Týdně").tag("weekly")
+                            Text("Měsíčně").tag("monthly")
+                        }
+                        .pickerStyle(.segmented)
+                        .tint(DesignSystem.Colors.dynamicPrimary)
+                    }
                     
-                    DatePicker("Datum", selection: $editingDate, displayedComponents: .date)
+                    // Selected days for weekly
+                    if editingFrequency == "weekly" {
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                            Text("Vyberte dny v týdnu")
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                            
+                            let weekDays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+                            let dayLabels = ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"]
+                            
+                            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: DesignSystem.Spacing.xs) {
+                                ForEach(Array(weekDays.enumerated()), id: \.element) { index, day in
+                                    Button(action: {
+                                        if editingSelectedDays.contains(day) {
+                                            editingSelectedDays.removeAll { $0 == day }
+                                        } else {
+                                            editingSelectedDays.append(day)
+                                        }
+                                    }) {
+                                        Text(dayLabels[index])
+                                            .font(DesignSystem.Typography.caption)
+                                            .foregroundColor(editingSelectedDays.contains(day) ? .white : DesignSystem.Colors.dynamicPrimary)
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, DesignSystem.Spacing.xs)
+                                            .background(editingSelectedDays.contains(day) ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.surface)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                                            )
+                                            .cornerRadius(DesignSystem.CornerRadius.sm)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Selected days for monthly
+                    if editingFrequency == "monthly" {
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                            Text("Vyberte dny v měsíci")
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                            
+                            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: DesignSystem.Spacing.xs) {
+                                ForEach(1...31, id: \.self) { day in
+                                    let dayStr = String(day)
+                                    Button(action: {
+                                        if editingSelectedDays.contains(dayStr) {
+                                            editingSelectedDays.removeAll { $0 == dayStr }
+                                        } else {
+                                            editingSelectedDays.append(dayStr)
+                                        }
+                                    }) {
+                                        Text(dayStr)
+                                            .font(DesignSystem.Typography.caption2)
+                                            .foregroundColor(editingSelectedDays.contains(dayStr) ? .white : DesignSystem.Colors.dynamicPrimary)
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, DesignSystem.Spacing.xs)
+                                            .background(editingSelectedDays.contains(dayStr) ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.surface)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                                            )
+                                            .cornerRadius(DesignSystem.CornerRadius.sm)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Recurring start date
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                        Text("Začátek opakování")
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                        
+                        DatePicker("", selection: Binding(
+                            get: { editingRecurringStartDate ?? Date() },
+                            set: { editingRecurringStartDate = $0 }
+                        ), displayedComponents: .date)
                         .datePickerStyle(.compact)
                         .tint(DesignSystem.Colors.dynamicPrimary)
                         .padding(DesignSystem.Spacing.sm)
-                        .background(Color.white)
+                        .background(DesignSystem.Colors.surface)
                         .overlay(
                             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                                 .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
                         )
                         .cornerRadius(DesignSystem.CornerRadius.sm)
+                    }
+                    
+                    // Recurring end date
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                        Text("Konec opakování")
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                        
+                        if let endDate = editingRecurringEndDate {
+                            HStack {
+                                DatePicker("", selection: Binding(
+                                    get: { endDate },
+                                    set: { editingRecurringEndDate = $0 }
+                                ), displayedComponents: .date)
+                                .datePickerStyle(.compact)
+                                .tint(DesignSystem.Colors.dynamicPrimary)
+                                
+                                Button(action: {
+                                    editingRecurringEndDate = nil
+                                }) {
+                                    Text("Nikdy")
+                                        .font(DesignSystem.Typography.caption)
+                                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                                }
+                            }
+                            .padding(DesignSystem.Spacing.sm)
+                            .background(DesignSystem.Colors.surface)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                            )
+                            .cornerRadius(DesignSystem.CornerRadius.sm)
+                        } else {
+                            Button(action: {
+                                editingRecurringEndDate = Date()
+                            }) {
+                                Text("Přidat konec opakování")
+                                    .font(DesignSystem.Typography.caption)
+                                    .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(DesignSystem.Spacing.sm)
+                                    .background(DesignSystem.Colors.surface)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                            .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                                    )
+                                    .cornerRadius(DesignSystem.CornerRadius.sm)
+                            }
+                        }
+                    }
                 }
                             
                             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
@@ -209,7 +432,7 @@ struct StepDetailView: View {
                         .datePickerStyle(.compact)
                         .tint(DesignSystem.Colors.dynamicPrimary)
                         .padding(DesignSystem.Spacing.sm)
-                        .background(Color.white)
+                        .background(DesignSystem.Colors.surface)
                         .overlay(
                             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                                 .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
@@ -224,19 +447,19 @@ struct StepDetailView: View {
                                 .foregroundColor(DesignSystem.Colors.dynamicPrimary)
                                 .frame(maxWidth: .infinity)
                                 .padding(DesignSystem.Spacing.sm)
-                                .background(Color.white)
+                                .background(DesignSystem.Colors.surface)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                                         .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
                                 )
                                 .cornerRadius(DesignSystem.CornerRadius.sm)
-                        }
-                    }
+                                    }
+                                }
                 }
                 
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                     Text("Odhadovaný čas (minuty)")
-                        .font(DesignSystem.Typography.caption)
+                                        .font(DesignSystem.Typography.caption)
                         .foregroundColor(DesignSystem.Colors.dynamicPrimary)
                     
                     TextField("0", value: $editingEstimatedTime, format: .number)
@@ -244,7 +467,7 @@ struct StepDetailView: View {
                         .font(DesignSystem.Typography.body)
                         .foregroundColor(DesignSystem.Colors.textPrimary)
                         .padding(DesignSystem.Spacing.sm)
-                        .background(Color.white)
+                        .background(DesignSystem.Colors.surface)
                         .overlay(
                             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                                 .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
@@ -254,13 +477,20 @@ struct StepDetailView: View {
             }
         }
         .padding(DesignSystem.Spacing.md)
-        .background(Color.white)
+        .background(DesignSystem.Colors.surface)
         .overlay(
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
                 .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
         )
         .cornerRadius(DesignSystem.CornerRadius.md)
-        .shadow(color: DesignSystem.Colors.dynamicPrimary.opacity(1.0), radius: 0, x: 3, y: 3)
+        .shadow(color: Color(UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(0.2))
+            default:
+                return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(1.0))
+            }
+        }), radius: 0, x: 3, y: 3)
     }
     
     private var priorityAndStatusCard: some View {
@@ -303,15 +533,22 @@ struct StepDetailView: View {
                     }
                 }
                 .padding(DesignSystem.Spacing.md)
-                .background(Color.white)
+                .background(DesignSystem.Colors.surface)
                 .overlay(
                     RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
                         .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
                 )
                 .cornerRadius(DesignSystem.CornerRadius.md)
-                .shadow(color: DesignSystem.Colors.dynamicPrimary.opacity(1.0), radius: 0, x: 3, y: 3)
-            }
-        }
+                .shadow(color: Color(UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(0.2))
+            default:
+                return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(1.0))
+                                    }
+        }), radius: 0, x: 3, y: 3)
+                            }
+                        }
     }
     
     private var actionButtons: some View {
@@ -328,7 +565,7 @@ struct StepDetailView: View {
                     .font(DesignSystem.Typography.headline)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(DesignSystem.Spacing.md)
+                        .padding(DesignSystem.Spacing.md)
                     .background(DesignSystem.Colors.redFull)
                     .overlay(
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
@@ -367,7 +604,14 @@ struct StepDetailView: View {
             .buttonStyle(PlainButtonStyle())
             .disabled(isSaving || editingTitle.trimmingCharacters(in: .whitespaces).isEmpty)
         }
-        .shadow(color: DesignSystem.Colors.dynamicPrimary.opacity(1.0), radius: 0, x: 3, y: 3)
+        .shadow(color: Color(UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(0.2))
+            default:
+                return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(1.0))
+            }
+        }), radius: 0, x: 3, y: 3)
     }
     
     var body: some View {
@@ -390,8 +634,33 @@ struct StepDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button("Hotovo") {
-                    dismiss()
+                HStack(spacing: DesignSystem.Spacing.md) {
+                    // Duplicate button (only for existing steps)
+                    if !isCreating {
+                        Button(action: {
+                            duplicateStep()
+                        }) {
+                            Image(systemName: "doc.on.doc")
+                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                        }
+                    }
+                    
+                    Button("Hotovo") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showDuplicatedStep) {
+            if let duplicatedStep = duplicatedStep {
+                NavigationView {
+                    StepDetailView(
+                        step: duplicatedStep,
+                        onStepAdded: {
+                            onStepAdded?()
+                            showDuplicatedStep = false
+                        }
+                    )
                 }
             }
         }
@@ -473,20 +742,27 @@ struct StepDetailView: View {
                     let createRequest = CreateStepRequest(
                         title: editingTitle,
                         description: editingDescription.isEmpty ? nil : editingDescription,
-                        date: editingDate,
-                        goalId: editingGoalId
+                        date: editingIsRepeating ? nil : editingDate,
+                        goalId: editingGoalId,
+                        areaId: editingAreaId,
+                        isRepeating: editingIsRepeating ? true : nil,
+                        frequency: editingIsRepeating ? editingFrequency : nil,
+                        selectedDays: editingIsRepeating && !editingSelectedDays.isEmpty ? editingSelectedDays : nil,
+                        recurringStartDate: editingIsRepeating ? editingRecurringStartDate : nil,
+                        recurringEndDate: editingIsRepeating ? editingRecurringEndDate : nil,
+                        recurringDisplayMode: editingIsRepeating ? editingRecurringDisplayMode : nil
                     )
                     let createdStep = try await apiManager.createStep(createRequest)
                     
                     // Update the created step with additional fields if needed
-                    if editingIsImportant || editingAreaId != nil || editingDeadline != nil || editingEstimatedTime > 0 {
+                    if editingIsImportant || editingDeadline != nil || editingEstimatedTime > 0 {
                         _ = try await apiManager.updateStep(
                             stepId: createdStep.id,
                             title: nil,
                             description: nil,
                             date: nil,
                             goalId: nil,
-                            areaId: editingAreaId,
+                            areaId: nil,
                             isImportant: editingIsImportant ? true : nil,
                             isUrgent: nil,
                             deadline: editingDeadline,
@@ -524,6 +800,44 @@ struct StepDetailView: View {
         }
     }
     
+    private func duplicateStep() {
+        guard let step = step else { return }
+        
+        // Create duplicated step with all properties copied
+        // Use empty id to indicate this is a new step (not an existing one)
+        let duplicatedStep = DailyStep(
+            id: "", // Empty ID indicates new step
+            title: "\(step.title) - duplicate",
+            description: step.description,
+            date: step.date ?? Date(), // Use current date if no date set
+            completed: false, // Reset completion status
+            goalId: step.goalId,
+            isImportant: step.isImportant,
+            isUrgent: step.isUrgent,
+            areaId: step.areaId,
+            aspirationId: step.aspirationId,
+            estimatedTime: step.estimatedTime,
+            xpReward: step.xpReward,
+            deadline: step.deadline,
+            completedAt: nil, // Reset completion date
+            checklist: step.checklist, // Copy checklist
+            requireChecklistComplete: step.requireChecklistComplete,
+            frequency: nil, // Reset recurring properties - don't duplicate as recurring step
+            selectedDays: nil,
+            lastInstanceDate: nil,
+            lastCompletedInstanceDate: nil,
+            recurringStartDate: nil,
+            recurringEndDate: nil,
+            recurringDisplayMode: nil,
+            isHidden: step.isHidden,
+            createdAt: Date(),
+            updatedAt: Date()
+        )
+        
+        self.duplicatedStep = duplicatedStep
+        showDuplicatedStep = true
+    }
+    
     private func deleteStep() {
         guard let step = step else { return }
         
@@ -558,6 +872,23 @@ struct StepDetailView: View {
             completed: false,
             goalId: "goal1",
             isImportant: nil,
+            isUrgent: nil,
+            areaId: nil,
+            aspirationId: nil,
+            estimatedTime: nil,
+            xpReward: nil,
+            deadline: nil,
+            completedAt: nil,
+            checklist: nil,
+            requireChecklistComplete: nil,
+            frequency: nil,
+            selectedDays: nil,
+            lastInstanceDate: nil,
+            lastCompletedInstanceDate: nil,
+            recurringStartDate: nil,
+            recurringEndDate: nil,
+            recurringDisplayMode: nil,
+            isHidden: nil,
             createdAt: Date(),
             updatedAt: Date()
         ),

@@ -51,39 +51,21 @@ class NotificationManager: ObservableObject {
     
     // MARK: - Habit Notifications (Local Alerts)
     
-    func scheduleHabitNotification(habit: Habit) {
-        guard let reminderTime = habit.reminderTime else { return }
-        
-        // Parse time string (format: "HH:mm")
-        let components = reminderTime.split(separator: ":")
-        guard components.count == 2,
-              let hour = Int(components[0]),
-              let minute = Int(components[1]) else {
-            return
-        }
-        
+    /// Checks if a habit should be reminded today based on its frequency and selected days
+    private func shouldRemindToday(habit: Habit) -> Bool {
         let calendar = Calendar.current
-        let now = Date()
-        
-        // Determine which days to schedule based on frequency
-        var datesToSchedule: [Date] = []
+        let today = Date()
+        let todayWeekday = calendar.component(.weekday, from: today)
+        let todayDay = calendar.component(.day, from: today)
         
         switch habit.frequency {
         case "daily":
-            // Schedule for today and next 7 days
-            for dayOffset in 0..<7 {
-                if let date = calendar.date(byAdding: .day, value: dayOffset, to: now) {
-                    var components = calendar.dateComponents([.year, .month, .day], from: date)
-                    components.hour = hour
-                    components.minute = minute
-                    if let scheduledDate = calendar.date(from: components), scheduledDate > now {
-                        datesToSchedule.append(scheduledDate)
-                    }
-                }
-            }
+            return true
             
         case "weekly":
-            guard let selectedDays = habit.selectedDays, !selectedDays.isEmpty else { return }
+            guard let selectedDays = habit.selectedDays, !selectedDays.isEmpty else {
+                return false
+            }
             
             let dayMapping: [String: Int] = [
                 "monday": 2,
@@ -92,85 +74,105 @@ class NotificationManager: ObservableObject {
                 "thursday": 5,
                 "friday": 6,
                 "saturday": 7,
-                "sunday": 1
+                "sunday": 1,
+                "pondělí": 2,
+                "úterý": 3,
+                "středa": 4,
+                "čtvrtek": 5,
+                "pátek": 6,
+                "sobota": 7,
+                "neděle": 1
             ]
             
-            let weekday = calendar.component(.weekday, from: now)
-            
             for dayName in selectedDays {
-                if let targetWeekday = dayMapping[dayName] {
-                    var daysToAdd = targetWeekday - weekday
-                    if daysToAdd <= 0 {
-                        daysToAdd += 7
-                    }
-                    
-                    if let date = calendar.date(byAdding: .day, value: daysToAdd, to: now) {
-                        var components = calendar.dateComponents([.year, .month, .day], from: date)
-                        components.hour = hour
-                        components.minute = minute
-                        if let scheduledDate = calendar.date(from: components), scheduledDate > now {
-                            datesToSchedule.append(scheduledDate)
-                        }
-                    }
+                let normalizedDayName = dayName.lowercased()
+                if let targetWeekday = dayMapping[normalizedDayName], targetWeekday == todayWeekday {
+                    return true
                 }
             }
+            return false
             
         case "monthly":
-            guard let selectedDays = habit.selectedDays, !selectedDays.isEmpty else { return }
-            
-            for dayStr in selectedDays {
-                if let dayNumber = Int(dayStr), dayNumber >= 1 && dayNumber <= 31 {
-                    let currentMonth = calendar.component(.month, from: now)
-                    let currentYear = calendar.component(.year, from: now)
-                    
-                    // Try current month first
-                    var components = DateComponents(year: currentYear, month: currentMonth, day: dayNumber, hour: hour, minute: minute)
-                    if let date = calendar.date(from: components), date > now {
-                        datesToSchedule.append(date)
-                    } else {
-                        // Try next month
-                        if let nextMonth = calendar.date(byAdding: .month, value: 1, to: now) {
-                            let nextMonthNum = calendar.component(.month, from: nextMonth)
-                            let nextYear = calendar.component(.year, from: nextMonth)
-                            components = DateComponents(year: nextYear, month: nextMonthNum, day: dayNumber, hour: hour, minute: minute)
-                            if let date = calendar.date(from: components) {
-                                datesToSchedule.append(date)
-                            }
-                        }
-                    }
-                }
+            guard let selectedDays = habit.selectedDays, !selectedDays.isEmpty else {
+                return false
             }
             
+            for dayStr in selectedDays {
+                if let dayNumber = Int(dayStr), dayNumber == todayDay {
+                    return true
+                }
+            }
+            return false
+            
         default:
+            return false
+        }
+    }
+    
+    /// Schedules a notification for a habit only for today (if applicable)
+    func scheduleHabitNotificationForToday(habit: Habit) {
+        guard let reminderTime = habit.reminderTime else {
             return
         }
         
-        // Remove old notifications for this habit
+        // Check if this habit should be reminded today
+        guard shouldRemindToday(habit: habit) else {
+            return
+        }
+        
+        // Parse time string (format: "HH:mm" or "HH:mm:ss")
+        let components = reminderTime.split(separator: ":")
+        guard components.count >= 2,
+              let hour = Int(components[0]),
+              let minute = Int(components[1]) else {
+            print("Invalid reminder time format for habit \(habit.name): \(reminderTime)")
+            return
+        }
+        
+        let calendar = Calendar.current
+        let today = Date()
+        let todayStart = calendar.startOfDay(for: today)
+        
+        // Create date components for today at the reminder time
+        var dateComponents = calendar.dateComponents([.year, .month, .day], from: todayStart)
+        dateComponents.hour = hour
+        dateComponents.minute = minute
+        
+        guard let notificationDate = calendar.date(from: dateComponents) else {
+            return
+        }
+        
+        // Only schedule if the time hasn't passed yet today
+        guard notificationDate > today else {
+            return
+        }
+        
+        // Remove any existing notification for this habit today
         removeHabitNotifications(habitId: habit.id)
         
-        // Schedule new notifications
-        for (index, date) in datesToSchedule.enumerated() {
-            let content = UNMutableNotificationContent()
-            content.title = habit.name
-            content.body = "Je čas na váš návyk!"
-            content.sound = .default
-            content.categoryIdentifier = "HABIT_ALERT"
-            content.userInfo = [
-                "habitId": habit.id,
-                "habitName": habit.name,
-                "type": "habit"
-            ]
-            
-            let triggerDate = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
-            let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDate, repeats: false)
-            
-            let identifier = "habit_\(habit.id)_\(index)"
-            let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-            
-            UNUserNotificationCenter.current().add(request) { error in
-                if let error = error {
-                    print("Error scheduling habit notification: \(error.localizedDescription)")
-                }
+        // Schedule notification for today
+        let content = UNMutableNotificationContent()
+        content.title = habit.name
+        content.body = "Je čas na váš návyk!"
+        content.sound = .default
+        content.categoryIdentifier = "HABIT_ALERT"
+        content.userInfo = [
+            "habitId": habit.id,
+            "habitName": habit.name,
+            "type": "habit"
+        ]
+        
+        let triggerComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: notificationDate)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerComponents, repeats: false)
+        
+        let identifier = "habit_\(habit.id)_today"
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+        
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Error scheduling habit notification: \(error.localizedDescription)")
+            } else {
+                print("✅ Scheduled notification for habit \(habit.name) today at \(hour):\(String(format: "%02d", minute))")
             }
         }
     }
@@ -187,10 +189,40 @@ class NotificationManager: ObservableObject {
         }
     }
     
+    /// Schedules habit notifications only for today
     func scheduleAllHabitNotifications(habits: [Habit]) {
+        print("📅 Scheduling today's habit notifications for \(habits.count) habits")
+        
+        // Remove all old habit notifications first
+        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+            let habitIdentifiers = requests
+                .filter { $0.identifier.hasPrefix("habit_") }
+                .map { $0.identifier }
+            
+            if !habitIdentifiers.isEmpty {
+                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: habitIdentifiers)
+            }
+        }
+        
+        var scheduledCount = 0
         for habit in habits {
             if habit.reminderTime != nil {
-                scheduleHabitNotification(habit: habit)
+                scheduleHabitNotificationForToday(habit: habit)
+                scheduledCount += 1
+            }
+        }
+        
+        print("✅ Scheduled today's notifications for \(scheduledCount) habits")
+        
+        // Debug: List all pending habit notifications
+        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+            let habitRequests = requests.filter { $0.identifier.hasPrefix("habit_") }
+            print("📋 Total pending habit notifications: \(habitRequests.count)")
+            for request in habitRequests {
+                if let trigger = request.trigger as? UNCalendarNotificationTrigger {
+                    let dateComponents = trigger.dateComponents
+                    print("    • \(request.content.title) at \(dateComponents.hour ?? 0):\(String(format: "%02d", dateComponents.minute ?? 0))")
+                }
             }
         }
     }
@@ -215,14 +247,16 @@ class NotificationManager: ObservableObject {
             
             guard let triggerDate = calendar.date(from: components), triggerDate > now else { continue }
             
+            // Get first step for this date (will be updated later with actual step data)
             let content = UNMutableNotificationContent()
             content.title = "Dnešní kroky"
-            content.body = "Zkontrolujte své kroky na dnes"
+            content.body = "Dnes Vás čeká X kroků. Začněte s prvním krokem."
             content.sound = .default
             content.categoryIdentifier = "STEPS_REMINDER"
             content.userInfo = [
                 "date": ISO8601DateFormatter().string(from: date),
-                "type": "steps"
+                "type": "steps",
+                "navigateTo": "feed"
             ]
             
             let triggerComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: triggerDate)
@@ -239,8 +273,11 @@ class NotificationManager: ObservableObject {
         }
     }
     
-    func updateStepsNotificationContent(stepsCount: Int, for date: Date) {
+    func updateStepsNotificationContent(stepsCount: Int, firstStepTitle: String?, for date: Date) {
         let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let notificationDate = calendar.startOfDay(for: date)
+        let isToday = calendar.isDate(notificationDate, inSameDayAs: today)
         let dateString = ISO8601DateFormatter().string(from: date)
         
         UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
@@ -252,7 +289,20 @@ class NotificationManager: ObservableObject {
             for request in stepsRequests {
                 let updatedContent = UNMutableNotificationContent()
                 updatedContent.title = "Dnešní kroky"
-                updatedContent.body = "Čekají vás dnes \(stepsCount) \(stepsCount == 1 ? "krok" : stepsCount < 5 ? "kroky" : "kroků")"
+                
+                // Build notification body
+                if stepsCount == 0 && isToday {
+                    // All done for today
+                    updatedContent.body = "Pro dnešek máš již vše splněno, dobrá práce!"
+                } else {
+                    let stepsText = stepsCount == 1 ? "krok" : (stepsCount < 5 ? "kroky" : "kroků")
+                    if let firstStep = firstStepTitle, !firstStep.isEmpty {
+                        updatedContent.body = "Dnes Vás čeká \(stepsCount) \(stepsText). Začněte s \(firstStep)."
+                    } else {
+                        updatedContent.body = "Dnes Vás čeká \(stepsCount) \(stepsText). Začněte s prvním krokem."
+                    }
+                }
+                
                 updatedContent.sound = .default
                 updatedContent.categoryIdentifier = "STEPS_REMINDER"
                 updatedContent.userInfo = request.content.userInfo

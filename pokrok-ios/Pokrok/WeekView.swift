@@ -211,11 +211,12 @@ struct WeekView: View {
                     .padding(.vertical, DesignSystem.Spacing.sm)
             } else {
                 LazyVStack(spacing: DesignSystem.Spacing.sm) {
-                    ForEach(daySteps, id: \.id) { step in
+                    ForEach(daySteps.filter { $0.date != nil }, id: \.id) { step in
                         let goal = goals.first { $0.id == step.goalId }
                         let calendar = Calendar.current
                         let today = calendar.startOfDay(for: Date())
-                        let stepDate = calendar.startOfDay(for: step.date)
+                        if let stepDateValue = step.date {
+                            let stepDate = calendar.startOfDay(for: stepDateValue)
                         let isOverdue = stepDate < today && !step.completed
                         let isFuture = stepDate > today
                         
@@ -229,6 +230,7 @@ struct WeekView: View {
                             }
                         )
                         .padding(.horizontal, DesignSystem.Spacing.md)
+                        }
                     }
                 }
             }
@@ -432,7 +434,8 @@ struct WeekView: View {
         let dateStartOfDay = calendar.startOfDay(for: date)
         
         return dailySteps.filter { step in
-            let stepStartOfDay = calendar.startOfDay(for: step.date)
+            guard let stepDate = step.date else { return false }
+            let stepStartOfDay = calendar.startOfDay(for: stepDate)
             return calendar.isDate(stepStartOfDay, inSameDayAs: dateStartOfDay)
         }
     }

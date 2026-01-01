@@ -551,14 +551,22 @@ struct StepsView: View {
         let filteredSteps = dailySteps.filter { step in
             // Exclude completed steps
             guard !step.completed else { return false }
+            // Exclude steps without date (recurring steps without instance)
+            guard let stepDate = step.date else { return false }
             
-            let stepDate = calendar.startOfDay(for: step.date)
-            return stepDate <= oneMonthFromNow
+            let stepStartOfDay = calendar.startOfDay(for: stepDate)
+            return stepStartOfDay <= oneMonthFromNow
         }
         
         return filteredSteps.sorted { step1, step2 in
-            let date1 = calendar.startOfDay(for: step1.date)
-            let date2 = calendar.startOfDay(for: step2.date)
+            // Handle optional dates - steps without date go to the end
+            guard let date1Value = step1.date, let date2Value = step2.date else {
+                if step1.date == nil && step2.date == nil { return false }
+                return step1.date != nil // Steps with date come first
+            }
+            
+            let date1 = calendar.startOfDay(for: date1Value)
+            let date2 = calendar.startOfDay(for: date2Value)
             
             // Check if overdue (not completed and date < today)
             let isOverdue1 = date1 < today
@@ -595,9 +603,9 @@ struct StepsView: View {
             
             // Default: by date
             return date1 < date2
-                            }
-                        }
-                        
+        }
+    }
+    
     // Helper to determine if step is important
     private func isStepImportant(_ step: DailyStep) -> Bool {
         // Check isImportant field first
@@ -620,9 +628,10 @@ struct StepsView: View {
         let today = calendar.startOfDay(for: Date())
         
         return sortedAllSteps.contains { step in
-            let stepDate = calendar.startOfDay(for: step.date)
-            let isOverdue = stepDate < today
-            let isToday = calendar.isDate(stepDate, inSameDayAs: today)
+            guard let stepDate = step.date else { return false }
+            let stepStartOfDay = calendar.startOfDay(for: stepDate)
+            let isOverdue = stepStartOfDay < today
+            let isToday = calendar.isDate(stepStartOfDay, inSameDayAs: today)
             return isOverdue || isToday
         }
     }
@@ -633,8 +642,23 @@ struct StepsView: View {
         let today = calendar.startOfDay(for: Date())
         
         return sortedAllSteps.filter { step in
-            let stepDate = calendar.startOfDay(for: step.date)
-            return stepDate > today
+            guard let stepDate = step.date else { return false }
+            let stepStartOfDay = calendar.startOfDay(for: stepDate)
+            return stepStartOfDay > today
+        }
+    }
+    
+    // Get overdue and today steps (for separation from future)
+    private var overdueAndTodaySteps: [DailyStep] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        return sortedAllSteps.filter { step in
+            guard let stepDate = step.date else { return false }
+            let stepStartOfDay = calendar.startOfDay(for: stepDate)
+            let isOverdue = stepStartOfDay < today
+            let isToday = calendar.isDate(stepStartOfDay, inSameDayAs: today)
+            return isOverdue || isToday
         }
     }
     
@@ -696,29 +720,72 @@ struct StepsView: View {
         }
     }
     
-                                    // Steps feed
-                LazyVStack(spacing: DesignSystem.Spacing.sm) {
-                                        ForEach(sortedAllSteps, id: \.id) { step in
-                        let goal = goals.first { $0.id == step.goalId }
+                                    // Steps feed - overdue and today first
+                                    LazyVStack(spacing: DesignSystem.Spacing.sm) {
+                                        ForEach(overdueAndTodaySteps.filter { $0.date != nil }, id: \.id) { step in
+                                            let goal = goals.first { $0.id == step.goalId }
                                             let calendar = Calendar.current
                                             let today = calendar.startOfDay(for: Date())
-                                            let stepDate = calendar.startOfDay(for: step.date)
-                                            let isOverdue = !step.completed && stepDate < today
-                                            let isFuture = stepDate > today
+                                            if let stepDateValue = step.date {
+                                                let stepDate = calendar.startOfDay(for: stepDateValue)
+                                                let isOverdue = !step.completed && stepDate < today
+                                                let isFuture = stepDate > today
+                                                
+                                                PlayfulStepCard(
+                                                    step: step,
+                                                    goalTitle: goal?.title,
+                                                    isOverdue: isOverdue,
+                                                    isFuture: isFuture,
+                                                    onToggle: {
+                                                        toggleStepCompletion(stepId: step.id, completed: !step.completed)
+                                                    }
+                                                )
+                                                .onAppear {
+                                                    // Load more when approaching end
+                                                    if step.id == sortedAllSteps.filter({ $0.date != nil }).last?.id {
+                                                        loadMoreStepsIfNeeded()
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    
+                                    // Future steps section with header (only if there are future steps)
+                                    if !futureSteps.isEmpty {
+                                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                                            Text("Budoucí")
+                                                .font(DesignSystem.Typography.caption)
+                                                .fontWeight(.semibold)
+                                                .foregroundColor(DesignSystem.Colors.textSecondary)
+                                                .padding(.horizontal, DesignSystem.Spacing.md)
+                                                .padding(.top, DesignSystem.Spacing.md)
                                             
-                        PlayfulStepCard(
-                            step: step,
-                            goalTitle: goal?.title,
-                                                isOverdue: isOverdue,
-                                                isFuture: isFuture,
-                            onToggle: {
-                                toggleStepCompletion(stepId: step.id, completed: !step.completed)
-                            }
-                        )
-                                            .onAppear {
-                                                // Load more when approaching end
-                                                if step.id == sortedAllSteps.last?.id {
-                                                    loadMoreStepsIfNeeded()
+                                            LazyVStack(spacing: DesignSystem.Spacing.sm) {
+                                                ForEach(futureSteps.filter { $0.date != nil }, id: \.id) { step in
+                                                    let goal = goals.first { $0.id == step.goalId }
+                                                    let calendar = Calendar.current
+                                                    let today = calendar.startOfDay(for: Date())
+                                                    if let stepDateValue = step.date {
+                                                        let stepDate = calendar.startOfDay(for: stepDateValue)
+                                                        let isOverdue = !step.completed && stepDate < today
+                                                        let isFuture = stepDate > today
+                                                        
+                                                        PlayfulStepCard(
+                                                            step: step,
+                                                            goalTitle: goal?.title,
+                                                            isOverdue: isOverdue,
+                                                            isFuture: isFuture,
+                                                            onToggle: {
+                                                                toggleStepCompletion(stepId: step.id, completed: !step.completed)
+                                                            }
+                                                        )
+                                                        .onAppear {
+                                                            // Load more when approaching end
+                                                            if step.id == sortedAllSteps.filter({ $0.date != nil }).last?.id {
+                                                                loadMoreStepsIfNeeded()
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -786,7 +853,8 @@ struct StepsView: View {
         let selectedStartOfDay = calendar.startOfDay(for: selectedDate)
         
         return dailySteps.filter { step in
-            let stepStartOfDay = calendar.startOfDay(for: step.date)
+            guard let stepDate = step.date else { return false }
+            let stepStartOfDay = calendar.startOfDay(for: stepDate)
             return calendar.isDate(stepStartOfDay, inSameDayAs: selectedStartOfDay)
         }
     }
@@ -872,20 +940,69 @@ struct StepsView: View {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         
-        // Group steps by date
-        let stepsByDate = Dictionary(grouping: steps) { step in
-            calendar.startOfDay(for: step.date)
+        // Group steps by date (filter out steps without date)
+        let stepsWithDate = steps.filter { $0.date != nil }
+        let stepsByDate = Dictionary(grouping: stepsWithDate) { step in
+            calendar.startOfDay(for: step.date!)
         }
         
         // Update notifications for next 30 days
         for dayOffset in 0..<30 {
             guard let date = calendar.date(byAdding: .day, value: dayOffset, to: today) else { continue }
             let dayStart = calendar.startOfDay(for: date)
-            let daySteps = stepsByDate[dayStart] ?? []
-            let incompleteSteps = daySteps.filter { !$0.completed }
+            let isToday = calendar.isDate(dayStart, inSameDayAs: today)
+            
+            var incompleteSteps: [DailyStep] = []
+            var firstStepTitle: String?
+            
+            if isToday {
+                // For today: count overdue + today incomplete steps
+                let overdueSteps = steps.filter { step in
+                    guard let stepDate = step.date else { return false }
+                    let stepStartOfDay = calendar.startOfDay(for: stepDate)
+                    return stepStartOfDay < today && !step.completed
+                }
+                let todaySteps = stepsByDate[dayStart] ?? []
+                let todayIncompleteSteps = todaySteps.filter { !$0.completed }
+                
+                incompleteSteps = overdueSteps + todayIncompleteSteps
+                
+                // Get first step (overdue first, then today)
+                let allSteps = incompleteSteps.compactMap { step -> (step: DailyStep, date: Date)? in
+                    guard let stepDate = step.date else { return nil }
+                    return (step: step, date: calendar.startOfDay(for: stepDate))
+                }.sorted { step1, step2 in
+                    let date1 = step1.date
+                    let date2 = step2.date
+                    let isOverdue1 = date1 < today
+                    let isOverdue2 = date2 < today
+                    
+                    // Overdue first
+                    if isOverdue1 && !isOverdue2 { return true }
+                    if !isOverdue1 && isOverdue2 { return false }
+                    
+                    // Then by date
+                    return date1 < date2
+                }.map { $0.step }
+                firstStepTitle = allSteps.first?.title
+            } else {
+                // For future days: count only steps for that day
+                let daySteps = stepsByDate[dayStart] ?? []
+                incompleteSteps = daySteps.filter { !$0.completed }
+                
+                // Get first incomplete step title
+                firstStepTitle = incompleteSteps
+                    .compactMap { step -> (step: DailyStep, date: Date)? in
+                        guard let stepDate = step.date else { return nil }
+                        return (step: step, date: stepDate)
+                    }
+                    .sorted { $0.date < $1.date }
+                    .first?.step.title
+            }
             
             NotificationManager.shared.updateStepsNotificationContent(
                 stepsCount: incompleteSteps.count,
+                firstStepTitle: firstStepTitle,
                 for: date
             )
         }
@@ -933,7 +1050,8 @@ class StepsDataProvider: ObservableObject {
         let selectedStartOfDay = calendar.startOfDay(for: date)
         
         let stepsForDate = dailySteps.filter { step in
-            let stepStartOfDay = calendar.startOfDay(for: step.date)
+            guard let stepDate = step.date else { return false }
+            let stepStartOfDay = calendar.startOfDay(for: stepDate)
             return calendar.isDate(stepStartOfDay, inSameDayAs: selectedStartOfDay)
         }
         
@@ -945,7 +1063,8 @@ class StepsDataProvider: ObservableObject {
         let selectedStartOfDay = calendar.startOfDay(for: date)
         
         return dailySteps.filter { step in
-            let stepStartOfDay = calendar.startOfDay(for: step.date)
+            guard let stepDate = step.date else { return false }
+            let stepStartOfDay = calendar.startOfDay(for: stepDate)
             return calendar.isDate(stepStartOfDay, inSameDayAs: selectedStartOfDay)
         }.count
     }
@@ -1349,6 +1468,8 @@ struct SettingsView: View {
     @State private var errorMessage = ""
     @State private var showError = false
     @State private var showNotificationSettings = false
+    @State private var showDarkModeSettings = false
+    @ObservedObject private var settingsManager = UserSettingsManager.shared
     
     var body: some View {
         NavigationView {
@@ -1392,14 +1513,25 @@ struct SettingsView: View {
                 userSettings: $userSettings,
                 onSave: { settings in
                     saveUserSettings(settings)
+                    // Update local state to reflect color change
+                    userSettings = settings
                 }
             )
+        }
+        .onChange(of: settingsManager.settings?.primaryColor) { _, _ in
+            // Update local state when settings change
+            if let settings = settingsManager.settings {
+                userSettings = settings
+            }
         }
         .sheet(isPresented: $showNotificationSettings) {
             NotificationSettingsView()
         }
         .sheet(isPresented: $showHelpView) {
             HelpView()
+        }
+        .sheet(isPresented: $showDarkModeSettings) {
+            DarkModeSettingsView()
         }
         .sheet(isPresented: $showAddAspirationModal) {
             AddAspirationModal(onAspirationAdded: {
@@ -1436,8 +1568,8 @@ struct SettingsView: View {
                     ModernIcon(
                         systemName: "person.circle.fill",
                         size: 60,
-                        color: DesignSystem.Colors.primary,
-                        backgroundColor: DesignSystem.Colors.primary.opacity(0.1)
+                        color: DesignSystem.Colors.dynamicPrimary,
+                        backgroundColor: DesignSystem.Colors.dynamicPrimary.opacity(0.1)
                     )
                     
                     // User Info
@@ -1486,7 +1618,9 @@ struct SettingsView: View {
                 icon: "moon",
                 title: "Tmavý režim",
                 subtitle: "Automatické přepínání",
-                action: {}
+                action: {
+                    showDarkModeSettings = true
+                }
             )
             
             ModernSettingsRow(
@@ -1501,9 +1635,19 @@ struct SettingsView: View {
             ModernSettingsRow(
                 icon: "paintpalette.fill",
                 title: "Barva aplikace",
-                subtitle: "Změnit primární barvu",
+                subtitle: settingsManager.primaryColorHex,
                 action: {
                     showColorSettings = true
+                },
+                trailing: {
+                    // Show current color as indicator
+                    Circle()
+                        .fill(settingsManager.primaryColor)
+                        .frame(width: 24, height: 24)
+                        .overlay(
+                            Circle()
+                                .stroke(DesignSystem.Colors.outline, lineWidth: 1)
+                        )
                 }
             )
             
@@ -2007,11 +2151,30 @@ struct EditAspirationModal: View {
 }
 
 // MARK: - Modern Settings Row Component
-struct ModernSettingsRow: View {
+struct ModernSettingsRow<Trailing: View>: View {
     let icon: String
     let title: String
     let subtitle: String
     let action: () -> Void
+    let trailing: Trailing?
+    
+    // Initializer without trailing
+    init(icon: String, title: String, subtitle: String, action: @escaping () -> Void) where Trailing == EmptyView {
+        self.icon = icon
+        self.title = title
+        self.subtitle = subtitle
+        self.action = action
+        self.trailing = nil
+    }
+    
+    // Initializer with trailing
+    init(icon: String, title: String, subtitle: String, action: @escaping () -> Void, @ViewBuilder trailing: () -> Trailing) {
+        self.icon = icon
+        self.title = title
+        self.subtitle = subtitle
+        self.action = action
+        self.trailing = trailing()
+    }
     
     var body: some View {
         ModernCard {
@@ -2020,8 +2183,8 @@ struct ModernSettingsRow: View {
                     ModernIcon(
                         systemName: icon,
                         size: 20,
-                        color: DesignSystem.Colors.primary,
-                        backgroundColor: DesignSystem.Colors.primary.opacity(0.1)
+                        color: DesignSystem.Colors.dynamicPrimary,
+                        backgroundColor: DesignSystem.Colors.dynamicPrimary.opacity(0.1)
                     )
                     
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
@@ -2035,6 +2198,10 @@ struct ModernSettingsRow: View {
                     }
                     
                     Spacer()
+                    
+                    if let trailing = trailing {
+                        trailing
+                    }
                     
                     ModernIcon(
                         systemName: "chevron.right",
@@ -2129,9 +2296,11 @@ struct StepCard: View {
                             .lineLimit(2)
                     }
                     
-                    Text(step.date, style: .date)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    if let stepDate = step.date {
+                        Text(stepDate, style: .date)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                 }
                 
                 Spacer()
@@ -2529,7 +2698,14 @@ struct AddStepModal: View {
                     title: stepTitle,
                     description: stepDescription.isEmpty ? nil : stepDescription,
                     date: selectedDate,
-                    goalId: selectedGoalId
+                    goalId: selectedGoalId,
+                    areaId: nil,
+                    isRepeating: nil,
+                    frequency: nil,
+                    selectedDays: nil,
+                    recurringStartDate: nil,
+                    recurringEndDate: nil,
+                    recurringDisplayMode: nil
                 )
                 
                 _ = try await apiManager.createStep(stepRequest)
@@ -2769,6 +2945,115 @@ struct ColorSettingsView: View {
                     showError = true
                 }
             }
+        }
+    }
+}
+
+// MARK: - Dark Mode Settings View
+struct DarkModeSettingsView: View {
+    @Environment(\.dismiss) private var dismiss
+    @AppStorage("appearanceMode") private var appearanceMode: String = "system"
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: DesignSystem.Spacing.lg) {
+                    Text("Vyberte vzhled aplikace")
+                        .font(DesignSystem.Typography.body)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                        .padding(.top, DesignSystem.Spacing.md)
+                    
+                    VStack(spacing: DesignSystem.Spacing.sm) {
+                        AppearanceOptionView(
+                            title: "Automaticky",
+                            subtitle: "Použít nastavení systému",
+                            icon: "circle.lefthalf.filled",
+                            isSelected: appearanceMode == "system",
+                            onTap: {
+                                appearanceMode = "system"
+                            }
+                        )
+                        
+                        AppearanceOptionView(
+                            title: "Světlý",
+                            subtitle: "Vždy použít světlý režim",
+                            icon: "sun.max.fill",
+                            isSelected: appearanceMode == "light",
+                            onTap: {
+                                appearanceMode = "light"
+                            }
+                        )
+                        
+                        AppearanceOptionView(
+                            title: "Tmavý",
+                            subtitle: "Vždy použít tmavý režim",
+                            icon: "moon.fill",
+                            isSelected: appearanceMode == "dark",
+                            onTap: {
+                                appearanceMode = "dark"
+                            }
+                        )
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.md)
+                    
+                    Spacer(minLength: 100)
+                }
+            }
+            .background(DesignSystem.Colors.background)
+            .navigationTitle("Tmavý režim")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Hotovo") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+        .preferredColorScheme(appearanceMode == "system" ? nil : (appearanceMode == "dark" ? .dark : .light))
+    }
+}
+
+// MARK: - Appearance Option View
+struct AppearanceOptionView: View {
+    let title: String
+    let subtitle: String
+    let icon: String
+    let isSelected: Bool
+    let onTap: () -> Void
+    
+    var body: some View {
+        ModernCard {
+            Button(action: onTap) {
+                HStack(spacing: DesignSystem.Spacing.md) {
+                    ModernIcon(
+                        systemName: icon,
+                        size: 24,
+                        color: DesignSystem.Colors.dynamicPrimary,
+                        backgroundColor: DesignSystem.Colors.dynamicPrimary.opacity(0.1)
+                    )
+                    
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                        Text(title)
+                            .font(DesignSystem.Typography.headline)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                        
+                        Text(subtitle)
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                    }
+                    
+                    Spacer()
+                    
+                    if isSelected {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                    }
+                }
+                .padding(DesignSystem.Spacing.md)
+            }
+            .buttonStyle(PlainButtonStyle())
         }
     }
 }

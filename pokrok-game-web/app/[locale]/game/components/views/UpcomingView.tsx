@@ -854,10 +854,11 @@ export function UpcomingView({
     <div className="w-full h-full flex flex-col bg-primary-50">
       {/* Header */}
       <div className="flex-shrink-0 bg-primary-50 pb-2 pt-4 px-6">
-        <div className="grid grid-cols-3 items-center">
-        <h1 className="text-2xl font-bold text-black font-playful">
+        {/* Desktop: Single row with title, switcher, and add button */}
+        <div className="hidden md:grid grid-cols-3 items-center">
+          <h1 className="text-2xl font-bold text-black font-playful">
             {t('views.upcoming.title') || 'Nadcházející'}
-        </h1>
+          </h1>
           {/* View mode switcher - centered */}
           <div className="flex justify-center">
             <div className="flex items-center gap-2 bg-white border-2 border-primary-300 rounded-playful-md p-1">
@@ -894,6 +895,51 @@ export function UpcomingView({
                 <span>{t('steps.addStep') || 'Přidat krok'}</span>
               </button>
             )}
+          </div>
+        </div>
+
+        {/* Mobile: Two rows - first row with title and add button, second row with switcher */}
+        <div className="flex flex-col gap-3 md:hidden">
+          {/* First row: Title left, Add button right */}
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-black font-playful">
+              {t('views.upcoming.title') || 'Nadcházející'}
+            </h1>
+            {onOpenStepModal && (
+              <button
+                onClick={() => onOpenStepModal()}
+                className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
+                title={t('steps.addStep') || 'Přidat krok'}
+              >
+                <Plus className="w-4 h-4" />
+                <span>{t('steps.addStep') || 'Přidat krok'}</span>
+              </button>
+            )}
+          </div>
+          {/* Second row: View mode switcher - centered */}
+          <div className="flex justify-center">
+            <div className="flex items-center gap-2 bg-white border-2 border-primary-300 rounded-playful-md p-1">
+              <button
+                onClick={() => setViewMode('feed')}
+                className={`px-3 py-1 text-sm font-semibold rounded-playful-sm transition-colors ${
+                  viewMode === 'feed'
+                    ? 'bg-primary-500 text-white'
+                    : 'text-gray-600 hover:bg-primary-50'
+                }`}
+              >
+                {t('views.feed') || 'Feed'}
+              </button>
+              <button
+                onClick={() => setViewMode('areas')}
+                className={`px-3 py-1 text-sm font-semibold rounded-playful-sm transition-colors ${
+                  viewMode === 'areas'
+                    ? 'bg-primary-500 text-white'
+                    : 'text-gray-600 hover:bg-primary-50'
+                }`}
+              >
+                {t('views.areas') || 'Oblasti'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
