@@ -136,14 +136,9 @@ export function OnboardingTutorial({
       content: (
         <div className="space-y-4">
           <p className="text-gray-700 text-base leading-relaxed">
-            {t('onboarding.intro.description') || (locale === 'cs' 
-              ? 'Pokrok je nástroj pro organizaci vašeho života a dosahování smysluplných cílů, které vám přinášejí skutečnou hodnotu a naplnění.'
-              : 'Pokrok is a tool for organizing your life and achieving meaningful goals that bring you real value and fulfillment.')}
-          </p>
-          <p className="text-gray-700 text-base leading-relaxed">
-            {locale === 'cs' 
-              ? 'Umožňuje vám organizovat vaše cíle, rozdělit je na dosažitelné kroky a sledovat, jak se posouváte směrem k životu, jaký chcete žít.'
-              : 'It allows you to organize your goals, break them down into achievable steps, and track how you are moving towards the life you want to live.'}
+            {t('onboarding.intro.detailed') || (locale === 'cs' 
+              ? 'Umožňuje vám organizovat vaše cíle, rozdělit je na dosažitelné kroky a sledovat, jak se posouváte směrem k životu, který chcete žít.'
+              : 'It allows you to organize your goals, break them down into achievable steps, and track how you are moving towards the life you want to live.')}
           </p>
         </div>
       )

@@ -216,7 +216,7 @@ struct StepDetailView: View {
                 
                 Toggle("", isOn: $editingIsRepeating)
                     .tint(DesignSystem.Colors.dynamicPrimary)
-                    .onChange(of: editingIsRepeating) { newValue in
+                    .onChange(of: editingIsRepeating) { oldValue, newValue in
                         if !newValue {
                             editingFrequency = nil
                             editingSelectedDays = []
@@ -633,6 +633,15 @@ struct StepDetailView: View {
         .navigationTitle(isCreating ? "Nový krok" : "Detail kroku")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                if isCreating {
+                    Button("Zrušit") {
+                        dismiss()
+                    }
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                }
+            }
+            
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: DesignSystem.Spacing.md) {
                     // Duplicate button (only for existing steps)
@@ -645,9 +654,12 @@ struct StepDetailView: View {
                         }
                     }
                     
-                    Button("Hotovo") {
-                        dismiss()
+                    Button(isCreating ? "Vytvořit" : "Uložit") {
+                        saveStep()
                     }
+                    .font(DesignSystem.Typography.body)
+                    .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                    .disabled(isSaving)
                 }
             }
         }

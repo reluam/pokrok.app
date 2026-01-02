@@ -184,6 +184,7 @@ struct GoalsView: View {
     @StateObject private var apiManager = APIManager.shared
     @State private var goals: [Goal] = []
     @State private var aspirations: [Aspiration] = []
+    @State private var dailySteps: [DailyStep] = []
     @State private var isLoading = true
     @State private var errorMessage = ""
     @State private var showError = false
@@ -243,7 +244,8 @@ struct GoalsView: View {
                             ForEach(Array(goalsByAspiration.enumerated()), id: \.offset) { index, group in
                                 AspirationProgressSection(
                                     aspiration: group.aspiration,
-                                    goals: group.goals
+                                    goals: group.goals,
+                                    dailySteps: dailySteps
                                 )
                             }
                         }
@@ -345,9 +347,22 @@ struct GoalsView: View {
                 print("Error loading aspirations: \(error)")
             }
             
+            // Load steps for indicator calculation
+            var stepsResult: [DailyStep] = []
+            do {
+                let calendar = Calendar.current
+                let today = Date()
+                let startDate = calendar.date(byAdding: .day, value: -90, to: today) ?? today
+                let endDate = calendar.date(byAdding: .day, value: 30, to: today) ?? today
+                stepsResult = try await apiManager.fetchSteps(startDate: startDate, endDate: endDate)
+            } catch {
+                print("Error loading steps for indicators: \(error)")
+            }
+            
             await MainActor.run {
                 self.goals = goalsResult
                 self.aspirations = aspirationsResult
+                self.dailySteps = stepsResult
                 self.isLoading = false
                 
                 // Show error only if both failed, or if goals failed (since goals are essential)
@@ -372,6 +387,9 @@ struct GoalsView: View {
 struct AspirationProgressSection: View {
     let aspiration: Aspiration?
     let goals: [Goal]
+    let dailySteps: [DailyStep]
+    
+    @State private var isExpanded: Bool = false
     
     private var sectionTitle: String {
         if let aspiration = aspiration {
@@ -391,59 +409,149 @@ struct AspirationProgressSection: View {
         return DesignSystem.Colors.textSecondary
     }
     
-    var body: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-            // Section header with colored accent
-            HStack(spacing: DesignSystem.Spacing.sm) {
-                // Colored indicator
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(sectionColor)
-                    .frame(width: 3, height: 18)
-                
-                if let iconName = sectionIcon {
-                    LucideIcon(iconName, size: 16, color: DesignSystem.Colors.textPrimary)
-                }
-                
-                Text(sectionTitle)
-                    .font(DesignSystem.Typography.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(DesignSystem.Colors.textPrimary)
-                
-                Spacer()
-                
-                Text("\(goals.count)")
-                    .font(DesignSystem.Typography.caption)
-                    .foregroundColor(DesignSystem.Colors.textSecondary)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(
-                        Capsule()
-                            .fill(DesignSystem.Colors.surfaceSecondary)
-                    )
-            }
-            .padding(.horizontal, DesignSystem.Spacing.md)
-            .padding(.vertical, DesignSystem.Spacing.sm)
-            
-            // Goals list
-            VStack(spacing: DesignSystem.Spacing.xs) {
-                ForEach(goals, id: \.id) { goal in
-                    NavigationLink(destination: GoalDetailView(goal: goal)) {
-                        CompactGoalProgressRow(goal: goal)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-            }
-            .padding(.leading, DesignSystem.Spacing.md)
+    // Calculate step statistics for this aspiration
+    private var stepStats: (overdue: Int, completed: Int, indicatorColor: Color, indicatorIcon: String) {
+        guard let aspiration = aspiration else {
+            return (0, 0, DesignSystem.Colors.textSecondary, "minus")
         }
+        
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        // Filter steps for this aspiration
+        let aspirationSteps = dailySteps.filter { step in
+            step.aspirationId == aspiration.id || step.areaId == aspiration.id
+        }
+        
+        // Count overdue (not completed, date < today)
+        let overdue = aspirationSteps.filter { step in
+            guard !step.completed, let stepDate = step.date else { return false }
+            return calendar.startOfDay(for: stepDate) < today
+        }.count
+        
+        // Count completed
+        let completed = aspirationSteps.filter { $0.completed }.count
+        
+        // Determine indicator - use darker colors for better visibility
+        if overdue > completed {
+            return (overdue, completed, DesignSystem.Colors.redFull, "arrow.down.right")
+        } else if completed > overdue {
+            return (overdue, completed, DesignSystem.Colors.greenFull, "arrow.up.right")
+        } else {
+            return (overdue, completed, DesignSystem.Colors.textSecondary, "minus")
+        }
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Section header with colored accent - clickable to expand/collapse
+            Button(action: {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                    isExpanded.toggle()
+                }
+            }) {
+                HStack(spacing: DesignSystem.Spacing.sm) {
+                    // Colored indicator
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(sectionColor)
+                        .frame(width: 3, height: 18)
+                    
+                    if let iconName = sectionIcon {
+                        LucideIcon(iconName, size: 16, color: DesignSystem.Colors.textPrimary)
+                    }
+                    
+                    Text(sectionTitle)
+                        .font(DesignSystem.Typography.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                    
+                    Spacer()
+                    
+                    // Step indicator (stock market style)
+                    stepIndicatorView
+                    
+                    // Goals count
+                    Text("\(goals.count)")
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(DesignSystem.Colors.surfaceSecondary)
+                        )
+                    
+                    // Expand/collapse icon
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                        .rotationEffect(.degrees(isExpanded ? 0 : 0))
+                }
+                .padding(.horizontal, DesignSystem.Spacing.md)
+                .padding(.vertical, DesignSystem.Spacing.sm)
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            // Goals list - shown when expanded
+            if isExpanded {
+                VStack(spacing: DesignSystem.Spacing.xs) {
+                    ForEach(goals, id: \.id) { goal in
+                        NavigationLink(destination: GoalDetailView(goal: goal)) {
+                            CompactGoalProgressRow(goal: goal, dailySteps: dailySteps)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                }
+                .padding(.leading, DesignSystem.Spacing.md)
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+    }
+    
+    // MARK: - Step Indicator View (Stock Market Style)
+    @ViewBuilder
+    private var stepIndicatorView: some View {
+        let stats = stepStats
+        
+        HStack(spacing: 5) {
+            Image(systemName: stats.indicatorIcon)
+                .font(.system(size: 13, weight: .bold))
+                .foregroundColor(stats.indicatorColor)
+            
+            if stats.overdue > 0 || stats.completed > 0 {
+                Text("\(stats.completed)/\(stats.overdue + stats.completed)")
+                    .font(DesignSystem.Typography.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(stats.indicatorColor)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 5)
+                .fill(stats.indicatorColor.opacity(0.2))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 5)
+                        .stroke(stats.indicatorColor.opacity(0.4), lineWidth: 1)
+                )
+        )
     }
 }
 
 // MARK: - Compact Goal Progress Row Component
 struct CompactGoalProgressRow: View {
     let goal: Goal
+    let dailySteps: [DailyStep]
     
     private var progressValue: Double {
         Double(goal.progressPercentage) / 100.0
+    }
+    
+    // Count remaining (incomplete) steps for this goal
+    private var remainingStepsCount: Int {
+        dailySteps.filter { step in
+            step.goalId == goal.id && !step.completed
+        }.count
     }
     
     var body: some View {
@@ -509,6 +617,13 @@ struct CompactGoalProgressRow: View {
                     }
                 }
                 .frame(height: 8)
+                
+                // Remaining steps count
+                if remainingStepsCount > 0 {
+                    Text("Zbývá \(remainingStepsCount) \(remainingStepsCount == 1 ? "krok" : remainingStepsCount < 5 ? "kroky" : "kroků")")
+                        .font(DesignSystem.Typography.caption2)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                }
             }
         }
         .padding(DesignSystem.Spacing.md)
@@ -529,6 +644,7 @@ struct StepsView: View {
     @ObservedObject private var stepsDataProvider = StepsDataProvider.shared
     @State private var dailySteps: [DailyStep] = []
     @State private var goals: [Goal] = []
+    @State private var aspirations: [Aspiration] = []
     @State private var isLoading = true
     @State private var isLoadingMore = false
     @State private var errorMessage = ""
@@ -694,104 +810,7 @@ struct StepsView: View {
                         }
                                 .padding(.top, DesignSystem.Spacing.lg)
                             } else {
-                                VStack(spacing: DesignSystem.Spacing.md) {
-                                    // Show completion message if no overdue or today's steps
-                                    if !hasOverdueOrTodaySteps && !futureSteps.isEmpty {
-                                        PlayfulCard(variant: .yellowGreen) {
-                                            VStack(spacing: DesignSystem.Spacing.sm) {
-                                                HStack {
-                                                    Image(systemName: "checkmark.circle.fill")
-                                                        .font(.system(size: 24))
-                                                        .foregroundColor(DesignSystem.Colors.Playful.yellowGreenDark)
-                                                    Spacer()
-                                                }
-                                                
-                                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                                                    Text("Pro dnešek je vše hotovo!")
-                                                        .font(DesignSystem.Typography.headline)
-                                                        .foregroundColor(DesignSystem.Colors.textPrimary)
-                                                    
-                                                    Text("Níže jsou kroky, které ještě mohou odpočívat chvíli")
-                                                        .font(DesignSystem.Typography.body)
-                                                        .foregroundColor(DesignSystem.Colors.textSecondary)
-                }
-            }
-            .padding(DesignSystem.Spacing.md)
-        }
-    }
-    
-                                    // Steps feed - overdue and today first
-                                    LazyVStack(spacing: DesignSystem.Spacing.sm) {
-                                        ForEach(overdueAndTodaySteps.filter { $0.date != nil }, id: \.id) { step in
-                                            let goal = goals.first { $0.id == step.goalId }
-                                            let calendar = Calendar.current
-                                            let today = calendar.startOfDay(for: Date())
-                                            if let stepDateValue = step.date {
-                                                let stepDate = calendar.startOfDay(for: stepDateValue)
-                                                let isOverdue = !step.completed && stepDate < today
-                                                let isFuture = stepDate > today
-                                                
-                                                PlayfulStepCard(
-                                                    step: step,
-                                                    goalTitle: goal?.title,
-                                                    isOverdue: isOverdue,
-                                                    isFuture: isFuture,
-                                                    onToggle: {
-                                                        toggleStepCompletion(stepId: step.id, completed: !step.completed)
-                                                    }
-                                                )
-                                                .onAppear {
-                                                    // Load more when approaching end
-                                                    if step.id == sortedAllSteps.filter({ $0.date != nil }).last?.id {
-                                                        loadMoreStepsIfNeeded()
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    
-                                    // Future steps section with header (only if there are future steps)
-                                    if !futureSteps.isEmpty {
-                                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                                            Text("Budoucí")
-                                                .font(DesignSystem.Typography.caption)
-                                                .fontWeight(.semibold)
-                                                .foregroundColor(DesignSystem.Colors.textSecondary)
-                                                .padding(.horizontal, DesignSystem.Spacing.md)
-                                                .padding(.top, DesignSystem.Spacing.md)
-                                            
-                                            LazyVStack(spacing: DesignSystem.Spacing.sm) {
-                                                ForEach(futureSteps.filter { $0.date != nil }, id: \.id) { step in
-                                                    let goal = goals.first { $0.id == step.goalId }
-                                                    let calendar = Calendar.current
-                                                    let today = calendar.startOfDay(for: Date())
-                                                    if let stepDateValue = step.date {
-                                                        let stepDate = calendar.startOfDay(for: stepDateValue)
-                                                        let isOverdue = !step.completed && stepDate < today
-                                                        let isFuture = stepDate > today
-                                                        
-                                                        PlayfulStepCard(
-                                                            step: step,
-                                                            goalTitle: goal?.title,
-                                                            isOverdue: isOverdue,
-                                                            isFuture: isFuture,
-                                                            onToggle: {
-                                                                toggleStepCompletion(stepId: step.id, completed: !step.completed)
-                                                            }
-                                                        )
-                                                        .onAppear {
-                                                            // Load more when approaching end
-                                                            if step.id == sortedAllSteps.filter({ $0.date != nil }).last?.id {
-                                                                loadMoreStepsIfNeeded()
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                .padding(.top, DesignSystem.Spacing.md)
+                                stepsContent
                             }
                             
                             // Loading indicator for more steps
@@ -809,32 +828,21 @@ struct StepsView: View {
                         }
                         .padding(.horizontal, DesignSystem.Spacing.md)
                     }
-                    .background(DesignSystem.Colors.background)
                 }
                 .background(DesignSystem.Colors.background)
             }
         }
-        .navigationTitle("Feed")
-        .navigationBarTitleDisplayMode(.large)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    showAddStepModal = true
-                }) {
-                    Image(systemName: "plus.circle.fill")
-                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
-                }
-            }
-        }
-        .onAppear {
-            loadSteps()
-        }
-        .onChange(of: selectedDate) { _, _ in
-            // Optional: reload if needed when date changes
-        }
+        .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showAddStepModal) {
             NavigationView {
                 StepDetailView(initialDate: selectedDate, onStepAdded: {
+                    loadSteps()
+                })
+            }
+        }
+        .sheet(item: $selectedStep) { step in
+            NavigationView {
+                StepDetailView(step: step, onStepAdded: {
                     loadSteps()
                 })
             }
@@ -844,6 +852,127 @@ struct StepsView: View {
         } message: {
             Text(errorMessage)
         }
+        .onAppear {
+            if dailySteps.isEmpty {
+                loadSteps()
+            }
+        }
+        .onChange(of: selectedDate) { _, _ in
+            loadSteps()
+        }
+    }
+    
+    // MARK: - Steps Content View
+    private var stepsContent: some View {
+        VStack(spacing: DesignSystem.Spacing.md) {
+            // Show completion message if no overdue or today's steps
+            if !hasOverdueOrTodaySteps && !futureSteps.isEmpty {
+                completionMessageCard
+            }
+            
+            // Steps feed - overdue and today first
+            LazyVStack(spacing: DesignSystem.Spacing.sm) {
+                ForEach(overdueAndTodaySteps.filter { $0.date != nil }, id: \.id) { step in
+                    let goal = goals.first { $0.id == step.goalId }
+                    let aspiration = aspirations.first { $0.id == (step.areaId ?? step.aspirationId) }
+                    let calendar = Calendar.current
+                    let today = calendar.startOfDay(for: Date())
+                    if let stepDateValue = step.date {
+                        let stepDate = calendar.startOfDay(for: stepDateValue)
+                        let isOverdue = !step.completed && stepDate < today
+                        let isFuture = stepDate > today
+                        
+                        PlayfulStepCard(
+                            step: step,
+                            goalTitle: goal?.title,
+                            goal: goal,
+                            aspiration: aspiration,
+                            isOverdue: isOverdue,
+                            isFuture: isFuture,
+                            onToggle: {
+                                toggleStepCompletion(stepId: step.id, completed: !step.completed)
+                            }
+                        )
+                        .onAppear {
+                            // Load more when approaching end
+                            if step.id == sortedAllSteps.filter({ $0.date != nil }).last?.id {
+                                loadMoreStepsIfNeeded()
+                            }
+                        }
+                    }
+                }
+            }
+                                    
+            // Future steps section with header (only if there are future steps)
+            if !futureSteps.isEmpty {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                    Text("Budoucí")
+                        .font(DesignSystem.Typography.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                        .padding(.horizontal, DesignSystem.Spacing.md)
+                        .padding(.top, DesignSystem.Spacing.md)
+                    
+                    LazyVStack(spacing: DesignSystem.Spacing.sm) {
+                        ForEach(futureSteps.filter { $0.date != nil }, id: \.id) { step in
+                            let goal = goals.first { $0.id == step.goalId }
+                            let aspiration = aspirations.first { $0.id == (step.areaId ?? step.aspirationId) }
+                            let calendar = Calendar.current
+                            let today = calendar.startOfDay(for: Date())
+                            if let stepDateValue = step.date {
+                                let stepDate = calendar.startOfDay(for: stepDateValue)
+                                let isOverdue = !step.completed && stepDate < today
+                                let isFuture = stepDate > today
+                                
+                                PlayfulStepCard(
+                                    step: step,
+                                    goalTitle: goal?.title,
+                                    goal: goal,
+                                    aspiration: aspiration,
+                                    isOverdue: isOverdue,
+                                    isFuture: isFuture,
+                                    onToggle: {
+                                        toggleStepCompletion(stepId: step.id, completed: !step.completed)
+                                    }
+                                )
+                                .onAppear {
+                                    // Load more when approaching end
+                                    if step.id == sortedAllSteps.filter({ $0.date != nil }).last?.id {
+                                        loadMoreStepsIfNeeded()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .padding(.top, DesignSystem.Spacing.md)
+    }
+    
+    // MARK: - Completion Message Card
+    private var completionMessageCard: some View {
+        VStack(spacing: DesignSystem.Spacing.sm) {
+            HStack(spacing: DesignSystem.Spacing.sm) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(DesignSystem.Colors.dynamicPrimary.opacity(0.7))
+                
+                Text("Pro dnešek je vše hotovo!")
+                    .font(DesignSystem.Typography.body)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+            }
+            
+            if !futureSteps.isEmpty {
+                Text("Níže jsou kroky, které ještě mohou odpočívat chvíli")
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundColor(DesignSystem.Colors.textSecondary.opacity(0.7))
+            }
+        }
+        .padding(DesignSystem.Spacing.md)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(DesignSystem.Colors.dynamicPrimary.opacity(0.05))
+        .cornerRadius(DesignSystem.CornerRadius.md)
     }
     
     // MARK: - Computed Properties
@@ -871,13 +1000,16 @@ struct StepsView: View {
                 
                 async let stepsTask = apiManager.fetchSteps(startDate: startDate, endDate: endDate)
                 async let goalsTask = apiManager.fetchGoals()
+                async let aspirationsTask = apiManager.fetchAspirations()
                 
                 let fetchedSteps = try await stepsTask
                 let fetchedGoals = try await goalsTask
+                let fetchedAspirations = try await aspirationsTask
                 
                 await MainActor.run {
                     self.dailySteps = fetchedSteps
                     self.goals = fetchedGoals
+                    self.aspirations = fetchedAspirations
                     self.isLoading = false
                     self.loadedEndDate = endDate
                     // Update shared data provider

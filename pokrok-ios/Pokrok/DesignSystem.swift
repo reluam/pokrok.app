@@ -131,15 +131,23 @@ struct DesignSystem {
         
         // MARK: Background Colors
         // Adaptive backgrounds: light in light mode, dark in dark mode with good contrast
-        static let background: Color = Color(UIColor { traitCollection in
+        static var background: Color {
+            Color(UIColor { traitCollection in
             switch traitCollection.userInterfaceStyle {
             case .dark:
                 // Dark background with subtle warm tint (similar to iOS dark mode)
                 return UIColor(red: 18.0/255.0, green: 18.0/255.0, blue: 20.0/255.0, alpha: 1.0) // Dark gray with slight warm tint
             default:
-                return UIColor(red: 255.0/255.0, green: 250.0/255.0, blue: 245.0/255.0, alpha: 1.0) // #FFFAF5 (matching web)
+                    // Light mode: use primary color as base, mixed with white to match bg-primary-50 (#fef3e7)
+                    let hex = UserSettingsManager.shared.primaryColorHex
+                    let primaryColor = Color(hex: hex)
+                    // Mix primary with white to get bg-primary-50 saturation
+                    // #fef3e7 corresponds to mixing primary with white by ~0.92
+                    let mixedColor = primaryColor.mix(with: .white, by: 0.92)
+                    return UIColor(mixedColor)
             }
         })
+        }
         
         static let surface: Color = Color(UIColor { traitCollection in
             switch traitCollection.userInterfaceStyle {
@@ -229,6 +237,46 @@ struct DesignSystem {
         static var primaryLightBackground: Color {
             // Use the same background as the date header at the top
             return DesignSystem.Colors.dynamicPrimaryLight
+        }
+        
+        // Primary light for completed steps - same lightness as greenLight (#ecfdf5)
+        static var primaryLightForCompleted: Color {
+            Color(UIColor { traitCollection in
+                switch traitCollection.userInterfaceStyle {
+                case .dark:
+                    // Dark mode: use darker primary
+                    let hex = UserSettingsManager.shared.primaryColorHex
+                    let primaryColor = Color(hex: hex)
+                    return UIColor(primaryColor.mix(with: .black, by: 0.7))
+                default:
+                    // Light mode: mix primary with white to match greenLight lightness (#ecfdf5)
+                    let hex = UserSettingsManager.shared.primaryColorHex
+                    let primaryColor = Color(hex: hex)
+                    // Mix primary with white to get the same lightness as greenLight
+                    let mixedColor = primaryColor.mix(with: .white, by: 0.93)
+                    return UIColor(mixedColor)
+                }
+            })
+        }
+        
+        // Primary border for completed steps - same lightness as greenBorder (#a7f3d0)
+        static var primaryBorderForCompleted: Color {
+            Color(UIColor { traitCollection in
+                switch traitCollection.userInterfaceStyle {
+                case .dark:
+                    // Dark mode: use lighter primary
+                    let hex = UserSettingsManager.shared.primaryColorHex
+                    let primaryColor = Color(hex: hex)
+                    return UIColor(primaryColor.mix(with: .white, by: 0.3))
+                default:
+                    // Light mode: mix primary with white to match greenBorder lightness (#a7f3d0)
+                    let hex = UserSettingsManager.shared.primaryColorHex
+                    let primaryColor = Color(hex: hex)
+                    // Mix primary with white to get the same lightness as greenBorder
+                    let mixedColor = primaryColor.mix(with: .white, by: 0.65)
+                    return UIColor(mixedColor)
+                }
+            })
         }
         
         // Green light - for completed items (bg-green-50 = #ecfdf5)

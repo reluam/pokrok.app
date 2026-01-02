@@ -567,16 +567,19 @@ struct PlayfulGoalCard: View {
 struct PlayfulStepCard: View {
     let step: DailyStep
     let goalTitle: String?
+    let goal: Goal?
+    let aspiration: Aspiration?
     let isOverdue: Bool
     let isFuture: Bool
     let onToggle: () -> Void
     
     @State private var isChecked: Bool
+    @State private var isAnimating: Bool = false
     
     // Custom background color based on state (matching web design)
     private var cardBackgroundColor: Color {
         if step.completed {
-            return DesignSystem.Colors.greenLight // bg-green-50
+            return DesignSystem.Colors.primaryLightForCompleted // Primary light instead of green
         } else if isOverdue {
             return DesignSystem.Colors.redLight // bg-red-50
         } else if isFuture {
@@ -589,7 +592,7 @@ struct PlayfulStepCard: View {
     // Border color based on state (matching web design)
     private var cardBorderColor: Color {
         if step.completed {
-            return DesignSystem.Colors.greenBorder // border-green-200
+            return DesignSystem.Colors.primaryBorderForCompleted // Primary border instead of green
         } else if isOverdue {
             return DesignSystem.Colors.redFull // Full red for overdue steps
         } else if isFuture {
@@ -620,6 +623,23 @@ struct PlayfulStepCard: View {
             return .gray // Gray checkbox for future steps
         } else {
             return .pink // Primary color for today's steps
+        }
+    }
+    
+    // Border color for checkbox - primary for today's steps, gray for future
+    private var checkboxBorderColor: Color {
+        if isChecked {
+            // When checked, use primary (or red if overdue)
+            return isOverdue ? DesignSystem.Colors.redFull : DesignSystem.Colors.dynamicPrimary
+        } else {
+            // When not checked
+            if isOverdue {
+                return DesignSystem.Colors.redFull
+            } else if isFuture {
+                return DesignSystem.Colors.grayBorder // Keep gray for future steps
+            } else {
+                return DesignSystem.Colors.dynamicPrimary // Primary color for today's steps
+            }
         }
     }
     
@@ -687,12 +707,16 @@ struct PlayfulStepCard: View {
     init(
         step: DailyStep,
         goalTitle: String?,
+        goal: Goal? = nil,
+        aspiration: Aspiration? = nil,
         isOverdue: Bool,
         isFuture: Bool,
         onToggle: @escaping () -> Void
     ) {
         self.step = step
         self.goalTitle = goalTitle
+        self.goal = goal
+        self.aspiration = aspiration
         self.isOverdue = isOverdue
         self.isFuture = isFuture
         self.onToggle = onToggle
@@ -702,26 +726,45 @@ struct PlayfulStepCard: View {
     var body: some View {
         NavigationLink(destination: StepDetailView(step: step)) {
             HStack(spacing: DesignSystem.Spacing.md) {
-            // Checkbox - simpler design matching web
+            // Checkbox - larger size matching web (w-6 h-6 = 24px)
             Button(action: {
+                if !isChecked {
+                    // Start animation when completing
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                        isAnimating = true
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                        isAnimating = false
+                    }
+                }
                 isChecked.toggle()
                 onToggle()
             }) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(isChecked ? (isOverdue ? DesignSystem.Colors.redFull : DesignSystem.Colors.greenFull) : Color.clear)
-                        .frame(width: 20, height: 20)
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(isChecked ? (isOverdue ? DesignSystem.Colors.redFull : DesignSystem.Colors.dynamicPrimary) : Color.clear)
+                        .frame(width: 24, height: 24)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(isChecked ? (isOverdue ? DesignSystem.Colors.redFull : DesignSystem.Colors.greenFull) : (isOverdue ? DesignSystem.Colors.redFull : DesignSystem.Colors.grayBorder), lineWidth: 2)
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(checkboxBorderColor, lineWidth: 2)
                         )
                     
                     if isChecked {
                         Image(systemName: "checkmark")
-                            .font(.system(size: 12, weight: .bold))
+                            .font(.system(size: 14, weight: .bold))
                             .foregroundColor(.white)
+                            .scaleEffect(isAnimating ? 1.2 : 1.0)
+                            .background(
+                                Circle()
+                                    .fill(isAnimating ? DesignSystem.Colors.dynamicPrimary.opacity(0.2) : Color.clear)
+                                    .frame(width: 40, height: 40)
+                                    .scaleEffect(isAnimating ? 1.5 : 1.0)
+                                    .animation(.spring(response: 0.6, dampingFraction: 0.8), value: isAnimating)
+                            )
+                            .animation(.spring(response: 0.6, dampingFraction: 0.8), value: isAnimating)
                     }
                 }
+                .scaleEffect(isAnimating ? 1.05 : 1.0)
             }
             .buttonStyle(PlainButtonStyle())
             .onAppear {
@@ -730,58 +773,68 @@ struct PlayfulStepCard: View {
             .onChange(of: step.completed) { _, newValue in
                 isChecked = newValue
             }
+            
+            // Goal icon - next to checkbox, colored with area color
+            if let goal = goal, let icon = goal.icon, let aspiration = aspiration {
+                LucideIcon(icon, size: 20, color: Color(hex: aspiration.color))
+            } else if let goal = goal, let icon = goal.icon {
+                LucideIcon(icon, size: 20, color: DesignSystem.Colors.dynamicPrimary)
+            }
                 
-                // Content - simpler layout matching web
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                    Text(step.title)
-                        .font(DesignSystem.Typography.body)
-                        .fontWeight(.medium)
-                        .foregroundColor(textColor)
-                        .strikethrough(step.completed)
-                        .lineLimit(2)
-                    
-                    if let description = step.description, !description.isEmpty {
-                        Text(description)
-                            .font(DesignSystem.Typography.caption)
-                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                            .lineLimit(2)
-                    }
-                    
-                    // Tags row - matching web design
-                    HStack(spacing: DesignSystem.Spacing.xs) {
-                        if step.isImportant == true {
-                            Text("Důležitý")
-                                .font(DesignSystem.Typography.caption2)
-                                .foregroundColor(DesignSystem.Colors.redText)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(DesignSystem.Colors.redLight)
-                                .cornerRadius(4)
-                        }
-                        
-                        if isOverdue || isFuture {
-                            Text(formattedDate)
+            // Content - simpler layout matching web
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                Text(step.title)
+                    .font(DesignSystem.Typography.body)
+                    .fontWeight(.medium)
+                    .foregroundColor(textColor)
+                    .strikethrough(step.completed)
+                    .lineLimit(2)
+                
+                // Area and tags row - area first, then tags, wrap if needed
+                HStack(alignment: .top, spacing: DesignSystem.Spacing.xs) {
+                    // Area (aspiration) - first
+                    if let aspiration = aspiration, let icon = aspiration.icon {
+                        HStack(spacing: 4) {
+                            LucideIcon(icon, size: 14, color: Color(hex: aspiration.color))
+                            Text(aspiration.title)
                                 .font(DesignSystem.Typography.caption2)
                                 .foregroundColor(DesignSystem.Colors.textSecondary)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(DesignSystem.Colors.surfaceSecondary)
-                                .cornerRadius(4)
+                                .lineLimit(1)
                         }
                     }
+                    
+                    // Tags - next to area, wrap if needed
+                    if step.isImportant == true {
+                        Text("Důležitý")
+                            .font(DesignSystem.Typography.caption2)
+                            .foregroundColor(DesignSystem.Colors.redText)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(DesignSystem.Colors.redLight)
+                            .cornerRadius(4)
+                    }
+                    
+                    if isOverdue || isFuture {
+                        Text(formattedDate)
+                            .font(DesignSystem.Typography.caption2)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(DesignSystem.Colors.surfaceSecondary)
+                            .cornerRadius(4)
+                    }
                 }
+                .fixedSize(horizontal: false, vertical: true) // Allow wrapping
+            }
                 
                 Spacer()
             }
             .padding(DesignSystem.Spacing.md)
             .background(cardBackgroundColor)
-            .overlay(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                    .stroke(cardBorderColor, lineWidth: 2)
-            )
-            .cornerRadius(DesignSystem.CornerRadius.md)
+            .cornerRadius(DesignSystem.CornerRadius.lg) // Larger corner radius, no border
         }
         .buttonStyle(.plain)
+        .opacity(isFuture ? 0.5 : 1.0) // Future steps appear "misty" like in web app
     }
 }
 

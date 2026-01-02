@@ -365,10 +365,22 @@ struct HabitDetailView: View {
         .navigationTitle(isCreating ? "Nový návyk" : "Detail návyku")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button("Hotovo") {
-                    dismiss()
+            ToolbarItem(placement: .navigationBarLeading) {
+                if isCreating {
+                    Button("Zrušit") {
+                        dismiss()
+                    }
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
                 }
+            }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(isCreating ? "Vytvořit" : "Upravit") {
+                    saveHabit()
+                }
+                .font(DesignSystem.Typography.body)
+                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                .disabled(isSaving)
             }
         }
         .onAppear {
@@ -436,7 +448,7 @@ struct HabitDetailView: View {
                     await MainActor.run {
                         isSaving = false
                         // Schedule notifications for new habit
-                        if let reminderTime = reminderTime {
+                        if reminderTime != nil {
                             NotificationManager.shared.scheduleHabitNotificationForToday(habit: createdHabit)
                         }
                         onHabitAdded?()
@@ -459,7 +471,7 @@ struct HabitDetailView: View {
                     await MainActor.run {
                         isSaving = false
                         // Reschedule notifications for this habit if reminder time is set
-                        if let reminderTime = reminderTime {
+                        if reminderTime != nil {
                             NotificationManager.shared.scheduleHabitNotificationForToday(habit: updatedHabit)
                         } else {
                             // Remove notifications if reminder is disabled
@@ -479,7 +491,7 @@ struct HabitDetailView: View {
     }
     
     private func deleteHabit() {
-        guard let habit = habit else { return }
+        guard habit != nil else { return }
         
         // Note: API doesn't have delete habit endpoint yet, so we'll just show an error
         errorMessage = "Mazání návyků zatím není podporováno"

@@ -856,9 +856,9 @@ export function UpcomingView({
       <div className="flex-shrink-0 bg-primary-50 pb-2 pt-4 px-6">
         {/* Desktop: Single row with title, switcher, and add button */}
         <div className="hidden md:grid grid-cols-3 items-center">
-          <h1 className="text-2xl font-bold text-black font-playful">
+        <h1 className="text-2xl font-bold text-black font-playful">
             {t('views.upcoming.title') || 'Nadcházející'}
-          </h1>
+        </h1>
           {/* View mode switcher - centered */}
           <div className="flex justify-center">
             <div className="flex items-center gap-2 bg-white border-2 border-primary-300 rounded-playful-md p-1">
@@ -1060,6 +1060,7 @@ export function UpcomingView({
                 const stepDateStr = stepDateObj ? getLocalDateString(stepDateObj) : null
                 const isToday = stepDateObj && stepDateObj.getTime() === today.getTime()
                 const isOverdue = (step as any)._isOverdue || false
+                const isFuture = stepDateObj && stepDateObj > today && !isOverdue && !isToday
                 const stepDateFormatted = stepDateStr ? formatStepDate(stepDateStr) : null
                 const goal = (step as any)._goal
                 const area = (step as any)._area
@@ -1068,14 +1069,16 @@ export function UpcomingView({
                 <div
                   key={step.id}
                   onClick={() => handleItemClick(step, 'step')}
-                    className={`flex items-center gap-3 p-3 cursor-pointer transition-all rounded-playful-md ${
+                    className={`flex items-center gap-3 p-3 cursor-pointer transition-[background-color,opacity,outline] rounded-playful-md ${
                       step.completed
                         ? 'opacity-50'
                         : isOverdue
                           ? 'bg-red-50 hover:bg-red-100 hover:outline-2 hover:outline hover:outline-red-300 hover:outline-offset-[-2px]'
                           : isToday
                             ? 'bg-white hover:bg-primary-50 hover:outline-2 hover:outline hover:outline-primary-500 hover:outline-offset-[-2px]'
-                            : 'bg-white hover:bg-primary-50 hover:outline-2 hover:outline hover:outline-gray-300 hover:outline-offset-[-2px]'
+                            : isFuture
+                              ? 'bg-white/70 backdrop-blur-sm opacity-75 hover:bg-white/85 hover:opacity-85 hover:outline-2 hover:outline hover:outline-gray-200/50 hover:outline-offset-[-2px] group'
+                              : 'bg-white hover:bg-primary-50 hover:outline-2 hover:outline hover:outline-gray-300 hover:outline-offset-[-2px]'
                     } ${isLoading ? 'opacity-50' : ''}`}
                   >
                     {/* Checkbox */}
@@ -1104,29 +1107,36 @@ export function UpcomingView({
                       ) : null}
                   </button>
                     
-                    {/* Area icon and color */}
-                    {area && (
+                    {/* Goal icon in area color */}
+                    {goal && goal.icon && (
                       <div className="flex-shrink-0">
-                        {area.icon && (() => {
-                          const AreaIconComponent = getIconComponent(area.icon)
-                          return <AreaIconComponent className="w-5 h-5" style={{ color: area.color || '#E8871E' }} />
+                        {(() => {
+                          const GoalIconComponent = getIconComponent(goal.icon)
+                          return (
+                            <GoalIconComponent 
+                              className={`w-5 h-5 transition-opacity ${isFuture ? 'opacity-60 group-hover:opacity-80' : ''}`}
+                              style={{ color: area?.color || '#E8871E' }} 
+                            />
+                          )
                         })()}
-                </div>
+                      </div>
                     )}
                     
                     {/* Step info */}
                   <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         {step.frequency && step.frequency !== null && (
-                          <Repeat className="w-3.5 h-3.5 text-primary-600 flex-shrink-0" />
+                          <Repeat className={`w-3.5 h-3.5 flex-shrink-0 transition-colors ${isFuture ? 'text-primary-400 group-hover:text-primary-500' : 'text-primary-600'}`} />
                         )}
-                        <span className={`text-sm truncate ${
+                        <span className={`text-sm truncate transition-colors ${
                           step.completed 
                             ? 'line-through text-gray-400' 
                             : isOverdue
                               ? 'text-red-600'
-                              : 'text-black'
-                        } ${step.is_important && !step.completed ? 'font-bold' : 'font-medium'}`}>
+                              : isFuture
+                                ? 'text-gray-500 group-hover:text-gray-700'
+                                : 'text-black'
+                        } ${step.is_important && !step.completed && !isFuture ? 'font-bold' : 'font-medium'}`}>
                           {step.title}
                         </span>
                         {step.checklist && step.checklist.length > 0 && (
@@ -1141,14 +1151,10 @@ export function UpcomingView({
             </div>
                       {/* Goal name */}
                       {goal && (
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
-                          {goal.icon && (() => {
-                            const GoalIconComponent = getIconComponent(goal.icon)
-                            return <GoalIconComponent className="w-3 h-3 text-primary-600" />
-                          })()}
+                        <div className={`flex items-center gap-1 text-xs transition-colors ${isFuture ? 'text-gray-400 group-hover:text-gray-500' : 'text-gray-500'}`}>
                           <span>{goal.title}</span>
-          </div>
-        )}
+                        </div>
+                      )}
                     </div>
                     
                     {/* Date and time */}
@@ -1179,7 +1185,9 @@ export function UpcomingView({
                                 ? 'text-red-600 hover:bg-red-100 border-red-300'
                                 : isToday
                                   ? 'text-primary-600 hover:bg-primary-100 border-primary-500' 
-                                  : 'text-gray-600 hover:bg-gray-100 border-gray-300'
+                                  : isFuture
+                                    ? 'text-gray-400 group-hover:text-gray-600 hover:bg-gray-50 border-gray-200 group-hover:border-gray-300'
+                                    : 'text-gray-600 hover:bg-gray-100 border-gray-300'
                             }`}
                           >
                             {isOverdue ? '❗' : ''}{stepDateFormatted || '-'}
@@ -1300,27 +1308,146 @@ export function UpcomingView({
                           )}
                           
                           {/* Steps for this goal */}
-                          {steps.map(({ step }) => {
+                          {steps.map(({ step, goal: stepGoal }) => {
                             const isLoading = loadingSteps.has(step.id)
                             const stepDate = step.date ? normalizeDate(step.date) : null
                             const stepDateObj = stepDate ? new Date(stepDate) : null
                             if (stepDateObj) stepDateObj.setHours(0, 0, 0, 0)
                             const isToday = stepDateObj && stepDateObj.getTime() === today.getTime()
                             const isOverdue = (step as any)._isOverdue || false
+                            const isFuture = stepDateObj && stepDateObj > today && !isOverdue && !isToday
                             const stepDateFormatted = stepDate ? formatStepDate(stepDate) : null
                             
-                            return (
+                            // Get area from goal for icon color
+                            const stepAreaForColor = stepGoal?.area_id ? areaMap.get(stepGoal.area_id) : null
+                            
+                            return isFuture ? (
+                  // Wrapper div with background color border to cover any flash
+                  <div key={step.id} className="border-2 border-primary-50 rounded-playful-lg">
+                    <div
+                      onClick={() => handleItemClick(step, 'step')}
+                      className={`flex items-center gap-3 p-3 cursor-pointer box-playful-pressed-future opacity-75 hover:opacity-85 hover:bg-white/85 group ${isLoading ? 'opacity-50' : ''}`}
+                      style={{ border: '2px solid #fbc98d' }}
+                    >
+                      {/* Checkbox */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleStepToggle(step.id, !step.completed)
+                    }}
+                                  disabled={isLoading}
+                                  className={`w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
+                      step.completed
+                                      ? 'bg-white border-primary-500' 
+                                      : 'border-primary-500 hover:bg-primary-100'
+                    }`}
+                  >
+                                  {isLoading ? (
+                                    <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                                  ) : step.completed ? (
+                                    <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                                  ) : null}
+                  </button>
+                                
+                                {/* Goal icon in area color */}
+                                {stepGoal && stepGoal.icon && (
+                                  <div className="flex-shrink-0">
+                                    {(() => {
+                                      const GoalIconComponent = getIconComponent(stepGoal.icon)
+                                      return (
+                                        <GoalIconComponent 
+                                          className="w-5 h-5 transition-opacity opacity-60 group-hover:opacity-80"
+                                          style={{ color: stepAreaForColor?.color || '#E8871E' }} 
+                                        />
+                                      )
+                                    })()}
+                                  </div>
+                                )}
+                                
+                                {/* Title */}
+                  <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    {step.frequency && step.frequency !== null && (
+                                      <Repeat className="w-3.5 h-3.5 flex-shrink-0 transition-colors text-primary-400 group-hover:text-primary-500" />
+                                    )}
+                                    <span className={`text-sm truncate transition-colors ${
+                                      step.completed 
+                                        ? 'line-through text-gray-400' 
+                                        : isOverdue
+                                          ? 'text-red-600'
+                                          : 'text-gray-500 group-hover:text-gray-700'
+                                    } ${step.is_important && !step.completed ? 'font-bold' : 'font-medium'}`}>
+                                      {step.title}
+                                    </span>
+                                    {step.checklist && step.checklist.length > 0 && (
+                                      <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
+                                        step.checklist.filter((c: any) => c.completed).length === step.checklist.length
+                                          ? 'bg-primary-100 text-primary-600 border-primary-500'
+                                          : 'bg-gray-100 text-gray-500 border-gray-300'
+                                      }`}>
+                                        {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
+                                      </span>
+                                    )}
+                                  </div>
+                                  {/* Goal name */}
+                                  {stepGoal && (
+                                    <div className="flex items-center gap-1 text-xs transition-colors text-gray-400 group-hover:text-gray-500">
+                                      <span>{stepGoal.title}</span>
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                {/* Meta info - hidden on mobile */}
+                                {step.frequency && step.frequency !== null ? (
+                                  // Recurring step - show icon and time only, no date picker
+                                  <>
+                                    <div className="hidden sm:flex items-center gap-1 text-xs text-gray-500">
+                                      <Repeat className="w-3 h-3" />
+                                      <span>{step.frequency === 'daily' ? (locale === 'cs' ? 'Denně' : 'Daily') : 
+                                             step.frequency === 'weekly' ? (locale === 'cs' ? 'Týdně' : 'Weekly') :
+                                             step.frequency === 'monthly' ? (locale === 'cs' ? 'Měsíčně' : 'Monthly') : ''}</span>
+                                    </div>
+                                    <button 
+                                      onClick={(e) => openTimePicker(e, step)}
+                                      className={`hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-gray-600 hover:bg-gray-100 border-gray-300`}
+                                    >
+                                      {step.estimated_time ? `${step.estimated_time} min` : '-'}
+                                    </button>
+                                  </>
+                                ) : (
+                                  // Non-recurring step - show date and time pickers
+                                  <>
+                                    <button
+                                      onClick={(e) => openDatePicker(e, step)}
+                                      className={`hidden sm:block w-28 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-gray-400 group-hover:text-gray-600 hover:bg-gray-50 border-gray-200 group-hover:border-gray-300`}
+                                    >
+                                      {isOverdue ? '❗' : ''}{stepDateFormatted || '-'}
+                                    </button>
+                                    <button 
+                                      onClick={(e) => openTimePicker(e, step)}
+                                      className={`hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-gray-600 hover:bg-gray-100 border-gray-300`}
+                                    >
+                                      {step.estimated_time ? `${step.estimated_time} min` : '-'}
+                                    </button>
+                                  </>
+                    )}
+                    </div>
+                  </div>
+                            ) : (
                 <div
                   key={step.id}
                   onClick={() => handleItemClick(step, 'step')}
-                                className={`box-playful-pressed flex items-center gap-3 p-3 cursor-pointer ${
+                                className={`flex items-center gap-3 p-3 cursor-pointer ${
                                   step.completed
-                                    ? 'border-primary-500 bg-white opacity-50'
+                                    ? 'box-playful-pressed bg-white opacity-50'
                                     : isOverdue
-                                      ? 'border-red-500 bg-red-50 hover:bg-red-100'
+                                      ? 'border-2 border-red-500 bg-red-50 hover:bg-red-100 rounded-playful-lg'
                                       : isToday
-                                        ? 'border-primary-500 bg-white hover:bg-primary-50'
-                                        : 'border-primary-500 bg-white hover:bg-primary-50'
+                                        ? 'box-playful-pressed bg-white hover:bg-primary-50'
+                                        : 'box-playful-pressed bg-white hover:bg-primary-50'
                                 } ${isLoading ? 'opacity-50' : ''}`}
                               >
                                 {/* Checkbox */}
@@ -1346,16 +1473,38 @@ export function UpcomingView({
                                   ) : null}
                   </button>
                                 
+                                {/* Goal icon in area color */}
+                                {stepGoal && stepGoal.icon && (
+                                  <div className="flex-shrink-0">
+                                    {(() => {
+                                      const GoalIconComponent = getIconComponent(stepGoal.icon)
+                                      return (
+                                        <GoalIconComponent 
+                                          className={`w-5 h-5 transition-opacity ${isFuture ? 'opacity-60 group-hover:opacity-80' : ''}`}
+                                          style={{ color: stepAreaForColor?.color || '#E8871E' }} 
+                                        />
+                                      )
+                                    })()}
+                                  </div>
+                                )}
+                                
                                 {/* Title */}
                   <div className="flex-1 min-w-0">
-                                  <span className={`text-sm truncate flex items-center gap-2 ${
-                                    step.completed 
-                                      ? 'line-through text-gray-400' 
-                                      : isOverdue
-                                        ? 'text-red-600'
-                                        : 'text-black'
-                                  } ${step.is_important && !step.completed ? 'font-bold' : 'font-medium'}`}>
-                                    {step.title}
+                                  <div className="flex items-center gap-2 mb-1">
+                                    {step.frequency && step.frequency !== null && (
+                                      <Repeat className={`w-3.5 h-3.5 flex-shrink-0 transition-colors ${isFuture ? 'text-primary-400 group-hover:text-primary-500' : 'text-primary-600'}`} />
+                                    )}
+                                    <span className={`text-sm truncate transition-colors ${
+                                      step.completed 
+                                        ? 'line-through text-gray-400' 
+                                        : isOverdue
+                                          ? 'text-red-600'
+                                          : isFuture
+                                            ? 'text-gray-500 group-hover:text-gray-700'
+                                            : 'text-black'
+                                    } ${step.is_important && !step.completed && !isFuture ? 'font-bold' : 'font-medium'}`}>
+                                      {step.title}
+                                    </span>
                                     {step.checklist && step.checklist.length > 0 && (
                                       <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
                                         step.checklist.filter((c: any) => c.completed).length === step.checklist.length
@@ -1365,7 +1514,144 @@ export function UpcomingView({
                                         {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
                                       </span>
                                     )}
-                      </span>
+                                  </div>
+                                  {/* Goal name */}
+                                  {stepGoal && (
+                                    <div className={`flex items-center gap-1 text-xs transition-colors ${isFuture ? 'text-gray-400 group-hover:text-gray-500' : 'text-gray-500'}`}>
+                                      <span>{stepGoal.title}</span>
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                {/* Meta info - hidden on mobile */}
+                                {step.frequency && step.frequency !== null ? (
+                                  // Recurring step - show icon and time only, no date picker
+                                  <>
+                                    <div className="hidden sm:flex items-center gap-1 text-xs text-gray-500">
+                                      <Repeat className="w-3 h-3" />
+                                      <span>{step.frequency === 'daily' ? (locale === 'cs' ? 'Denně' : 'Daily') : 
+                                             step.frequency === 'weekly' ? (locale === 'cs' ? 'Týdně' : 'Weekly') :
+                                             step.frequency === 'monthly' ? (locale === 'cs' ? 'Měsíčně' : 'Monthly') : ''}</span>
+                                    </div>
+                                    <button 
+                                      onClick={(e) => openTimePicker(e, step)}
+                                      className={`hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-gray-600 hover:bg-gray-100 border-gray-300`}
+                                    >
+                                      {step.estimated_time ? `${step.estimated_time} min` : '-'}
+                                    </button>
+                                  </>
+                                ) : (
+                                  // Non-recurring step - show date and time pickers
+                                  <>
+                                    <button
+                                      onClick={(e) => openDatePicker(e, step)}
+                                      className={`hidden sm:block w-28 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
+                                        isOverdue
+                                          ? 'text-red-600 hover:bg-red-100 border-red-300'
+                                          : isToday
+                                            ? 'text-primary-600 hover:bg-primary-100 border-primary-500' 
+                                            : isFuture
+                                              ? 'text-gray-400 group-hover:text-gray-600 hover:bg-gray-50 border-gray-200 group-hover:border-gray-300'
+                                              : 'text-gray-600 hover:bg-gray-100 border-gray-300'
+                                      }`}
+                                    >
+                                      {isOverdue ? '❗' : ''}{stepDateFormatted || '-'}
+                                    </button>
+                                    <button 
+                                      onClick={(e) => openTimePicker(e, step)}
+                                      className={`hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
+                                        isOverdue
+                                          ? 'text-red-600 hover:bg-red-100 border-red-300'
+                                          : 'text-gray-600 hover:bg-gray-100 border-gray-300'
+                                      }`}
+                                    >
+                                      {step.estimated_time ? `${step.estimated_time} min` : '-'}
+                                    </button>
+                                  </>
+                                )}
+                            ) : (
+                <div
+                  key={step.id}
+                  onClick={() => handleItemClick(step, 'step')}
+                                className={`flex items-center gap-3 p-3 cursor-pointer ${
+                                  step.completed
+                                    ? 'box-playful-pressed bg-white opacity-50'
+                                    : isOverdue
+                                      ? 'border-2 border-red-500 bg-red-50 hover:bg-red-100 rounded-playful-lg'
+                                      : isToday
+                                        ? 'box-playful-pressed bg-white hover:bg-primary-50'
+                                        : 'box-playful-pressed bg-white hover:bg-primary-50'
+                                } ${isLoading ? 'opacity-50' : ''}`}
+                              >
+                                {/* Checkbox */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleStepToggle(step.id, !step.completed)
+                    }}
+                                  disabled={isLoading}
+                                  className={`w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
+                      step.completed
+                                      ? 'bg-white border-primary-500' 
+                                      : 'border-primary-500 hover:bg-primary-100'
+                    }`}
+                  >
+                                  {isLoading ? (
+                                    <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                                  ) : step.completed ? (
+                                    <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                                  ) : null}
+                  </button>
+                                
+                                {/* Goal icon in area color */}
+                                {stepGoal && stepGoal.icon && (
+                                  <div className="flex-shrink-0">
+                                    {(() => {
+                                      const GoalIconComponent = getIconComponent(stepGoal.icon)
+                                      return (
+                                        <GoalIconComponent 
+                                          className="w-5 h-5 transition-opacity"
+                                          style={{ color: stepAreaForColor?.color || '#E8871E' }} 
+                                        />
+                                      )
+                                    })()}
+                                  </div>
+                                )}
+                                
+                                {/* Title */}
+                  <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    {step.frequency && step.frequency !== null && (
+                                      <Repeat className="w-3.5 h-3.5 flex-shrink-0 transition-colors text-primary-600" />
+                                    )}
+                                    <span className={`text-sm truncate transition-colors ${
+                                      step.completed 
+                                        ? 'line-through text-gray-400' 
+                                        : isOverdue
+                                          ? 'text-red-600'
+                                          : 'text-black'
+                                    } ${step.is_important && !step.completed ? 'font-bold' : 'font-medium'}`}>
+                                      {step.title}
+                                    </span>
+                                    {step.checklist && step.checklist.length > 0 && (
+                                      <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
+                                        step.checklist.filter((c: any) => c.completed).length === step.checklist.length
+                                          ? 'bg-primary-100 text-primary-600 border-primary-500'
+                                          : 'bg-gray-100 text-gray-500 border-gray-300'
+                                      }`}>
+                                        {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
+                                      </span>
+                                    )}
+                                  </div>
+                                  {/* Goal name */}
+                                  {stepGoal && (
+                                    <div className="flex items-center gap-1 text-xs transition-colors text-gray-500">
+                                      <span>{stepGoal.title}</span>
+                                    </div>
+                                  )}
                                 </div>
                                 
                                 {/* Meta info - hidden on mobile */}
@@ -1411,8 +1697,9 @@ export function UpcomingView({
                                       {step.estimated_time ? `${step.estimated_time} min` : '-'}
                                     </button>
                                   </>
-                    )}
-                  </div>
+                                )}
+                                </div>
+                              </div>
                             )
                           })}
                 </div>
@@ -1498,28 +1785,35 @@ export function UpcomingView({
                           )}
                           
                           {/* Steps for this goal */}
-                          {steps.map(({ step }) => {
+                          {steps.map(({ step, goal: stepGoal }) => {
                     const isLoading = loadingSteps.has(step.id)
                     const stepDate = step.date ? normalizeDate(step.date) : null
                     const stepDateObj = stepDate ? new Date(stepDate) : null
                     if (stepDateObj) stepDateObj.setHours(0, 0, 0, 0)
                     const isToday = stepDateObj && stepDateObj.getTime() === today.getTime()
                     const isOverdue = (step as any)._isOverdue || false
+                    const isFuture = stepDateObj && stepDateObj > today && !isOverdue && !isToday
                     const stepDateFormatted = stepDate ? formatStepDate(stepDate) : null
+                    
+                    // Get area from goal for icon color
+                    const stepAreaForColor = stepGoal?.area_id ? areaMap.get(stepGoal.area_id) : null
                     
                     return (
                 <div
                   key={step.id}
                   onClick={() => handleItemClick(step, 'step')}
-                        className={`box-playful-pressed flex items-center gap-3 p-3 cursor-pointer ${
+                        className={`flex items-center gap-3 p-3 cursor-pointer ${
                           step.completed
-                            ? 'border-primary-500 bg-white opacity-50'
+                            ? 'box-playful-pressed bg-white opacity-50'
                             : isOverdue
-                              ? 'border-red-500 bg-red-50 hover:bg-red-100'
+                              ? 'border-2 border-red-500 bg-red-50 hover:bg-red-100 rounded-playful-lg'
                               : isToday
-                                ? 'border-primary-500 bg-white hover:bg-primary-50'
-                                : 'border-primary-500 bg-white hover:bg-primary-50'
+                                ? 'box-playful-pressed bg-white hover:bg-primary-50'
+                                : isFuture
+                                  ? 'box-playful-pressed-future opacity-75 hover:opacity-85 hover:bg-white/85 group'
+                                  : 'box-playful-pressed bg-white hover:bg-primary-50'
                         } ${isLoading ? 'opacity-50' : ''}`}
+                        style={isFuture ? { border: '2px solid #fbc98d' } : undefined}
                 >
                         {/* Checkbox */}
                   <button
@@ -1544,16 +1838,38 @@ export function UpcomingView({
                           ) : null}
                   </button>
                         
+                        {/* Goal icon in area color */}
+                        {stepGoal && stepGoal.icon && (
+                          <div className="flex-shrink-0">
+                            {(() => {
+                              const GoalIconComponent = getIconComponent(stepGoal.icon)
+                              return (
+                                <GoalIconComponent 
+                                  className={`w-5 h-5 transition-opacity ${isFuture ? 'opacity-60 group-hover:opacity-80' : ''}`}
+                                  style={{ color: stepAreaForColor?.color || '#E8871E' }} 
+                                />
+                              )
+                            })()}
+                          </div>
+                        )}
+                        
                         {/* Title */}
                   <div className="flex-1 min-w-0">
-                          <span className={`text-sm truncate flex items-center gap-2 ${
-                            step.completed 
-                              ? 'line-through text-gray-400' 
-                              : isOverdue
-                                ? 'text-red-600'
-                                : 'text-black'
-                          } ${step.is_important && !step.completed ? 'font-bold' : 'font-medium'}`}>
-                            {step.title}
+                          <div className="flex items-center gap-2 mb-1">
+                            {step.frequency && step.frequency !== null && (
+                              <Repeat className={`w-3.5 h-3.5 flex-shrink-0 transition-colors ${isFuture ? 'text-primary-400 group-hover:text-primary-500' : 'text-primary-600'}`} />
+                            )}
+                            <span className={`text-sm truncate transition-colors ${
+                              step.completed 
+                                ? 'line-through text-gray-400' 
+                                : isOverdue
+                                  ? 'text-red-600'
+                                  : isFuture
+                                    ? 'text-gray-500 group-hover:text-gray-700'
+                                    : 'text-black'
+                            } ${step.is_important && !step.completed && !isFuture ? 'font-bold' : 'font-medium'}`}>
+                              {step.title}
+                            </span>
                             {step.checklist && step.checklist.length > 0 && (
                               <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
                                 step.checklist.filter((c: any) => c.completed).length === step.checklist.length
@@ -1561,9 +1877,15 @@ export function UpcomingView({
                                   : 'bg-gray-100 text-gray-500 border-gray-300'
                               }`}>
                                 {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
-                      </span>
-                    )}
-                          </span>
+                              </span>
+                            )}
+                          </div>
+                          {/* Goal name */}
+                          {stepGoal && (
+                            <div className={`flex items-center gap-1 text-xs transition-colors ${isFuture ? 'text-gray-400 group-hover:text-gray-500' : 'text-gray-500'}`}>
+                              <span>{stepGoal.title}</span>
+                            </div>
+                          )}
                     </div>
                         
                         {/* Meta info - hidden on mobile */}
@@ -1593,7 +1915,9 @@ export function UpcomingView({
                                   ? 'text-red-600 hover:bg-red-100 border-red-300'
                                   : isToday
                                     ? 'text-primary-600 hover:bg-primary-100 border-primary-500' 
-                                    : 'text-gray-600 hover:bg-gray-100 border-gray-300'
+                                    : isFuture
+                                      ? 'text-gray-400 group-hover:text-gray-600 hover:bg-gray-50 border-gray-200 group-hover:border-gray-300'
+                                      : 'text-gray-600 hover:bg-gray-100 border-gray-300'
                               }`}
                             >
                               {isOverdue ? '❗' : ''}{stepDateFormatted || '-'}

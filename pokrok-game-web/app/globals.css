@@ -245,6 +245,25 @@
     box-shadow: none;
   }
   
+  /* Future step variant - lighter border color */
+  .box-playful-pressed-future {
+    border: 2px solid #fbc98d !important; /* Primary-200 color for future steps - !important to prevent flash */
+    border-radius: 0.75rem; /* rounded-playful-lg */
+    position: relative;
+    background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent white */
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    /* No shadow - flat appearance */
+    box-shadow: none;
+  }
+  
+  /* Wrapper for future steps - creates a border in background color to cover any flash */
+  .box-playful-pressed-future-wrapper {
+    border: 2px solid #fef3e7; /* primary-50 - background color */
+    border-radius: 0.75rem; /* rounded-playful-lg */
+    padding: 2px; /* Space for the inner border */
+  }
+  
   .box-playful-pressed-primary {
     @apply box-playful-pressed;
     background-color: #FFFAF5; /* Light background */

@@ -1515,13 +1515,13 @@
     "step": "Step",
     "intro": {
       "title": "What is Pokrok?",
-      "description": "Pokrok is a tool for organizing your life and achieving meaningful goals that bring you real value and fulfillment.",
-      "detailed": "Pokrok helps you gain clarity about what truly matters to you in life. It allows you to organize your goals, break them down into achievable steps, and track how you're moving toward the life you want to live.",
+      "description": "Pokrok is a tool for organizing your life based on a meaningful approach to personal productivity.",
+      "detailed": "It allows you to organize your goals, break them down into achievable steps, and track how you're moving toward the life you want to live.",
       "philosophy": "We focus on meaning, not just productivity. Every goal, step, and habit should have its purpose and contribute to the life you want to have."
     },
     "creating": {
       "title": "What can you create?",
-      "description": "In Pokrok, you can create four main types of building blocks that will help you organize your life.",
+      "description": "In Pokrok, there are four basic building blocks that will help you organize your life.",
       "areas": "Areas",
       "areasDesc": "Organize your goals, steps and habits into areas",
       "goals": "Goals",
@@ -1545,7 +1545,7 @@
     },
     "areas": {
       "title": "Areas",
-      "description": "You create areas yourself, and ideally they should be larger life areas or extensive projects. They group goals, steps, and habits into logical groups. Each area has its own view and filters that help you focus on a specific part of your life.",
+      "description": "Areas are larger life areas or extensive projects. They group goals, steps, and habits into logical groups. The biggest benefit of areas is clarity and tracking progress.",
       "createYourself": "You create areas yourself",
       "examples": "Ideally, they should be larger life areas (e.g., Health, Career, Relationships) or extensive projects (e.g., New Apartment, Own Business).",
       "contains": "Contains goals, steps, and habits",

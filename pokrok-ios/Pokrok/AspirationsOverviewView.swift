@@ -42,15 +42,11 @@ struct AspirationsOverviewView: View {
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
+                Button("Vytvořit") {
                     showAddAspirationModal = true
-                }) {
-                    ModernIcon(
-                        systemName: "plus",
-                        size: 18,
-                        color: DesignSystem.Colors.primary
-                    )
                 }
+                .font(DesignSystem.Typography.body)
+                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
             }
         }
         .task {

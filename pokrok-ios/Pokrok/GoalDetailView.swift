@@ -98,6 +98,13 @@ struct GoalDetailView: View {
             .navigationTitle(navigationTitle)
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Zrušit") {
+                        dismiss()
+                    }
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     if !isCreating {
                         Button("Uložit") {
@@ -216,65 +223,72 @@ struct GoalDetailView: View {
                     }), radius: 0, x: 3, y: 3)
                     }
                     
-                    // Steps Section
-                    if !steps.isEmpty {
-                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                                Text("Kroky k cíli")
-                                    .font(DesignSystem.Typography.headline)
-                            .foregroundColor(DesignSystem.Colors.dynamicPrimary)
-                                
-                                LazyVStack(spacing: DesignSystem.Spacing.sm) {
-                                    ForEach(steps.prefix(10), id: \.id) { step in
-                                        HStack {
-                                            Image(systemName: step.completed ? "checkmark.circle.fill" : "circle")
-                                                .font(.system(size: 16))
-                                        .foregroundColor(step.completed ? DesignSystem.Colors.success : DesignSystem.Colors.dynamicPrimary)
-                                            
-                                            VStack(alignment: .leading, spacing: 2) {
-                                                Text(step.title)
-                                                    .font(DesignSystem.Typography.caption)
-                                                    .foregroundColor(step.completed ? DesignSystem.Colors.textTertiary : DesignSystem.Colors.textPrimary)
-                                                    .strikethrough(step.completed)
-                                                
-                                        if let stepDate = step.date {
-                                            Text(stepDate, style: .date)
-                                                    .font(DesignSystem.Typography.caption2)
-                                                    .foregroundColor(DesignSystem.Colors.textSecondary)
-                                        }
-                                            }
-                                            
-                                            Spacer()
-                                        }
-                                        .padding(.vertical, DesignSystem.Spacing.xs)
-                                    }
-                                    
-                                    if steps.count > 10 {
-                                        Text("... a \(steps.count - 10) dalších kroků")
-                                            .font(DesignSystem.Typography.caption)
-                                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                                            .padding(.top, DesignSystem.Spacing.xs)
-                                    }
+                    // Steps Section - displayed directly on background like in feed
+                    if !sortedSteps.isEmpty {
+                        LazyVStack(spacing: DesignSystem.Spacing.sm) {
+                            ForEach(sortedSteps, id: \.id) { step in
+                                StepCardView(step: step) {
+                                    toggleStepCompletion(stepId: step.id, completed: !step.completed)
                                 }
                             }
-                            .padding(DesignSystem.Spacing.md)
-                    .background(DesignSystem.Colors.surface)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                            .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
-                    )
-                    .cornerRadius(DesignSystem.CornerRadius.md)
-                    .shadow(color: Color(UIColor { traitCollection in
-                        switch traitCollection.userInterfaceStyle {
-                        case .dark:
-                            return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(0.2))
-                        default:
-                            return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(1.0))
                         }
-                    }), radius: 0, x: 3, y: 3)
-                }
+                    }
             }
         }
         .padding(.horizontal, DesignSystem.Spacing.md)
+    }
+    
+    // MARK: - Sorted Steps (incomplete first, then completed, both sorted by date ascending)
+    private var sortedSteps: [DailyStep] {
+        let incomplete = steps.filter { !$0.completed }
+            .sorted { step1, step2 in
+                let date1 = step1.date ?? Date.distantPast
+                let date2 = step2.date ?? Date.distantPast
+                return date1 < date2
+            }
+        
+        let completed = steps.filter { $0.completed }
+            .sorted { step1, step2 in
+                let date1 = step1.date ?? Date.distantPast
+                let date2 = step2.date ?? Date.distantPast
+                return date1 < date2
+            }
+        
+        return incomplete + completed
+    }
+    
+    // MARK: - Step Card View Helper
+    private struct StepCardView: View {
+        let step: DailyStep
+        let onToggle: () -> Void
+        
+        private var isOverdue: Bool {
+            guard !step.completed, let stepDate = step.date else { return false }
+            let calendar = Calendar.current
+            let today = calendar.startOfDay(for: Date())
+            let stepStartOfDay = calendar.startOfDay(for: stepDate)
+            return stepStartOfDay < today
+        }
+        
+        private var isFuture: Bool {
+            guard let stepDate = step.date else { return false }
+            let calendar = Calendar.current
+            let today = calendar.startOfDay(for: Date())
+            let stepStartOfDay = calendar.startOfDay(for: stepDate)
+            return stepStartOfDay > today
+        }
+        
+        var body: some View {
+            PlayfulStepCard(
+                step: step,
+                goalTitle: nil,
+                goal: nil, // No goal icon in goal detail
+                aspiration: nil, // No aspiration icon in goal detail
+                isOverdue: isOverdue,
+                isFuture: isFuture,
+                onToggle: onToggle
+            )
+        }
     }
     
     // MARK: - Settings Content (Editing fields)
@@ -647,6 +661,33 @@ struct GoalDetailView: View {
             } catch {
                 await MainActor.run {
                     isDeleting = false
+                    errorMessage = error.localizedDescription
+                    showError = true
+                }
+            }
+        }
+    }
+    
+    private func toggleStepCompletion(stepId: String, completed: Bool) {
+        Task {
+            do {
+                // Find the step to update
+                guard let stepIndex = steps.firstIndex(where: { $0.id == stepId }) else { return }
+                let step = steps[stepIndex]
+                
+                // Update via API using updateStepCompletion
+                let updatedStep = try await apiManager.updateStepCompletion(
+                    stepId: stepId,
+                    completed: completed,
+                    currentStep: step
+                )
+                
+                // Update local state
+                await MainActor.run {
+                    steps[stepIndex] = updatedStep
+                }
+            } catch {
+                await MainActor.run {
                     errorMessage = error.localizedDescription
                     showError = true
                 }
