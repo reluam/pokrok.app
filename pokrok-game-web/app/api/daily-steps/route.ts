@@ -1506,8 +1506,8 @@ export async function DELETE(request: NextRequest) {
       
       // Delete the template
       await sql`
-        DELETE FROM daily_steps 
-        WHERE id = ${stepId} AND user_id = ${dbUser.id}
+      DELETE FROM daily_steps 
+      WHERE id = ${stepId} AND user_id = ${dbUser.id}
       `
       
       // Delete all non-completed instances (title starts with template title + " - ")
@@ -1531,8 +1531,8 @@ export async function DELETE(request: NextRequest) {
       `
       
       if (stepBeforeDelete.length === 0) {
-        return NextResponse.json({ error: 'Step not found' }, { status: 404 })
-      }
+      return NextResponse.json({ error: 'Step not found' }, { status: 404 })
+    }
       
       const stepToDelete = stepBeforeDelete[0]
       const wasInstance = stepToDelete.title && stepToDelete.title.includes(' - ')
@@ -1550,7 +1550,7 @@ export async function DELETE(request: NextRequest) {
         await checkAndCompleteRecurringStepIfFinished(stepToDelete.title, dbUser.id, wasCompleted)
       }
 
-      return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true })
     }
   } catch (error) {
     console.error('Error deleting daily step:', error)

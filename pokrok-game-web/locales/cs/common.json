@@ -1515,13 +1515,13 @@
     "step": "Krok",
     "intro": {
       "title": "Co je Pokrok?",
-      "description": "Pokrok je nástroj pro organizaci vašeho života a dosahování smysluplných cílů, které vám přinášejí skutečnou hodnotu a naplnění.",
-      "detailed": "Pokrok vám pomáhá získat jasnost v tom, co je pro vás v životě skutečně důležité. Umožňuje vám organizovat vaše cíle, rozdělit je na dosažitelné kroky a sledovat, jak se posouváte směrem k životu, jaký chcete žít.",
+      "description": "Pokrok je nástroj pro organizaci Vašeho života založený na smysluplném přistupu k osobní produktivitě.",
+      "detailed": "Umožňuje vám organizovat vaše cíle, rozdělit je na dosažitelné kroky a sledovat, jak se posouváte směrem k životu, který chcete žít.",
       "philosophy": "Zaměřujeme se na smysluplnost, ne jen na produktivitu. Každý cíl, krok a návyk by měl mít svůj důvod a přispívat k životu, jaký chcete mít."
     },
     "creating": {
       "title": "Co vše se dá tvořit?",
-      "description": "V Pokroku můžete vytvářet čtyři hlavní typy stavebních prvků, které vám pomohou organizovat váš život.",
+      "description": "V Pokroku jsou čtyři základní bloky, které Vám pomohou organizovat Váš život.",
       "areas": "Oblasti",
       "areasDesc": "Organizujte své cíle, kroky a návyky do oblastí",
       "goals": "Cíle",
@@ -1545,7 +1545,7 @@
     },
     "areas": {
       "title": "Oblasti",
-      "description": "Oblasti si vytváříte sami a ideálně to mají být větší životní oblasti nebo rozsáhlejší projekty. Shlukují cíle, kroky a návyky do logických skupin. Každá oblast má vlastní zobrazení a filtry, které vám pomohou soustředit se na konkrétní část vašeho života.",
+      "description": "Oblasti jsou větší životní oblasti nebo rozsáhlejší projekty. Shlukují cíle, kroky a návyky do logických skupin. Největší přínos oblastí je přehlednost a sledování pokroku.",
       "createYourself": "Oblasti si vytváříte sami",
       "examples": "Ideálně to mají být větší životní oblasti (např. Zdraví, Kariéra, Vztahy) nebo rozsáhlejší projekty (např. Nový byt, Vlastní firma).",
       "contains": "Obsahuje cíle, kroky a návyky",
