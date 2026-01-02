@@ -143,15 +143,15 @@ export function StepModal({
                     <Copy className="w-5 h-5 text-black" />
                   </button>
                 )}
-                <button
-                  onClick={() => {
-                    onClose()
-                    setStepModalData(defaultStepData)
-                  }}
-                  className="btn-playful-base p-1.5 w-8 h-8 flex items-center justify-center"
-                >
-                  <X className="w-5 h-5 text-black" />
-                </button>
+              <button
+                onClick={() => {
+                  onClose()
+                  setStepModalData(defaultStepData)
+                }}
+                className="btn-playful-base p-1.5 w-8 h-8 flex items-center justify-center"
+              >
+                <X className="w-5 h-5 text-black" />
+              </button>
               </div>
             </div>
           </div>
@@ -214,7 +214,7 @@ export function StepModal({
                             areaId: newAreaId
                           })
                         }}
-                        className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
+                      className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
                       >
                         <option value="">{t('details.goal.noArea') || 'Bez oblasti'}</option>
                         {areas.map((area) => (

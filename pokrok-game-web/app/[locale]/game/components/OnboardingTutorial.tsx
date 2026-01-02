@@ -153,34 +153,22 @@ export function OnboardingTutorial({
             <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
               <LayoutDashboard className="w-8 h-8 text-primary-600 mb-2" />
               <h4 className="font-bold text-sm mb-1">{t('onboarding.creating.areas') || 'Oblasti'}</h4>
-              <p className="text-xs text-gray-600 mb-2">{t('onboarding.creating.areasDesc') || 'Organizujte své cíle, kroky a návyky do oblastí'}</p>
-              <p className="text-xs text-gray-500">{locale === 'cs' 
-                ? 'Větší životní oblasti nebo projekty. Každá oblast má vlastní zobrazení s kroky a návyky.'
-                : 'Larger life areas or projects. Each area has its own view with steps and habits.'}</p>
+              <p className="text-xs text-gray-600">{t('onboarding.creating.areasDesc') || 'Organizujte své cíle, kroky a návyky do oblastí'}</p>
             </div>
             <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
               <Target className="w-8 h-8 text-primary-600 mb-2" />
               <h4 className="font-bold text-sm mb-1">{t('onboarding.creating.goals') || 'Cíle'}</h4>
-              <p className="text-xs text-gray-600 mb-2">{t('onboarding.creating.goalsDesc') || 'Dlouhodobé cíle, které chcete dosáhnout'}</p>
-              <p className="text-xs text-gray-500">{locale === 'cs' 
-                ? 'Smysluplné výsledky s termínem. Přidejte kroky a sledujte pokrok v čase.'
-                : 'Meaningful outcomes with deadlines. Add steps and track progress over time.'}</p>
+              <p className="text-xs text-gray-600">{t('onboarding.creating.goalsDesc') || 'Dlouhodobé cíle, které chcete dosáhnout'}</p>
             </div>
             <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
               <Footprints className="w-8 h-8 text-primary-600 mb-2" />
               <h4 className="font-bold text-sm mb-1">{t('onboarding.creating.steps') || 'Kroky'}</h4>
-              <p className="text-xs text-gray-600 mb-2">{t('onboarding.creating.stepsDesc') || 'Konkrétní akce vedoucí k vašim cílům'}</p>
-              <p className="text-xs text-gray-500">{locale === 'cs' 
-                ? 'Můžete je naplánovat na datum nebo nastavit jako opakující se (denně, týdně, měsíčně).'
-                : 'You can schedule them for a date or set them as recurring (daily, weekly, monthly).'}</p>
+              <p className="text-xs text-gray-600">{t('onboarding.creating.stepsDesc') || 'Konkrétní akce vedoucí k vašim cílům'}</p>
             </div>
             <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
               <CheckSquare className="w-8 h-8 text-primary-600 mb-2" />
               <h4 className="font-bold text-sm mb-1">{t('onboarding.creating.habits') || 'Návyky'}</h4>
-              <p className="text-xs text-gray-600 mb-2">{t('onboarding.creating.habitsDesc') || 'Opakující se rutiny, které budujete dlouhodobě'}</p>
-              <p className="text-xs text-gray-500">{locale === 'cs' 
-                ? 'Nastavte frekvenci: denně, týdně nebo vlastní dny v týdnu/měsíci. Sledujte plnění v tabulce.'
-                : 'Set frequency: daily, weekly, or custom days of week/month. Track completion in a table.'}</p>
+              <p className="text-xs text-gray-600">{t('onboarding.creating.habitsDesc') || 'Opakující se rutiny, které budujete dlouhodobě'}</p>
             </div>
           </div>
         </div>
@@ -216,7 +204,9 @@ export function OnboardingTutorial({
     },
     {
       title: t('onboarding.goals.title') || 'Cíle',
-      description: t('onboarding.goals.description') || 'Smysluplné výsledky, které chcete dosáhnout. Přidejte kroky a sledujte pokrok.',
+      description: locale === 'cs' 
+        ? 'Cíle jsou smysluplné výsledky, které chcete dosáhnout. Pro každý cíl můžete přidat kroky a metriky, což vám umožní vidět, jak se blížíte k dosažení.'
+        : 'Goals are meaningful outcomes you want to achieve. For each goal, you can add steps and metrics, allowing you to see how you\'re approaching achievement.',
       icon: Target,
       content: (
         <div className="space-y-4">

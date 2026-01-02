@@ -800,14 +800,14 @@ struct StepsView: View {
                         LazyVStack(spacing: DesignSystem.Spacing.md) {
                             // Single feed of all steps
                             if sortedAllSteps.isEmpty {
-                                EmptyStateView(
+                            EmptyStateView(
                                     icon: "checkmark.circle",
                                     title: "Zatím nemáte žádné kroky",
                                     subtitle: "Přidejte svůj první krok",
-                                    actionTitle: "Přidat první krok"
-                                ) {
-                            showAddStepModal = true
-                        }
+                                actionTitle: "Přidat první krok"
+                            ) {
+                                showAddStepModal = true
+                            }
                                 .padding(.top, DesignSystem.Spacing.lg)
                             } else {
                                 stepsContent
@@ -824,9 +824,9 @@ struct StepsView: View {
                             }
                             
                             // Bottom padding for infinite scroll
-                            Spacer(minLength: 100)
-                        }
-                        .padding(.horizontal, DesignSystem.Spacing.md)
+                        Spacer(minLength: 100)
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.md)
                     }
                 }
                 .background(DesignSystem.Colors.background)
@@ -836,7 +836,7 @@ struct StepsView: View {
         .sheet(isPresented: $showAddStepModal) {
             NavigationView {
                 StepDetailView(initialDate: selectedDate, onStepAdded: {
-                    loadSteps()
+            loadSteps()
                 })
             }
         }
@@ -846,7 +846,7 @@ struct StepsView: View {
                     loadSteps()
                 })
             }
-        }
+            }
         .alert("Chyba", isPresented: $showError) {
             Button("OK") { }
         } message: {
@@ -871,9 +871,9 @@ struct StepsView: View {
             }
             
             // Steps feed - overdue and today first
-            LazyVStack(spacing: DesignSystem.Spacing.sm) {
+                LazyVStack(spacing: DesignSystem.Spacing.sm) {
                 ForEach(overdueAndTodaySteps.filter { $0.date != nil }, id: \.id) { step in
-                    let goal = goals.first { $0.id == step.goalId }
+                        let goal = goals.first { $0.id == step.goalId }
                     let aspiration = aspirations.first { $0.id == (step.areaId ?? step.aspirationId) }
                     let calendar = Calendar.current
                     let today = calendar.startOfDay(for: Date())
@@ -897,12 +897,12 @@ struct StepsView: View {
                             // Load more when approaching end
                             if step.id == sortedAllSteps.filter({ $0.date != nil }).last?.id {
                                 loadMoreStepsIfNeeded()
-                            }
-                        }
                     }
                 }
             }
-                                    
+        }
+    }
+    
             // Future steps section with header (only if there are future steps)
             if !futureSteps.isEmpty {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
@@ -912,10 +912,10 @@ struct StepsView: View {
                         .foregroundColor(DesignSystem.Colors.textSecondary)
                         .padding(.horizontal, DesignSystem.Spacing.md)
                         .padding(.top, DesignSystem.Spacing.md)
-                    
-                    LazyVStack(spacing: DesignSystem.Spacing.sm) {
+            
+            LazyVStack(spacing: DesignSystem.Spacing.sm) {
                         ForEach(futureSteps.filter { $0.date != nil }, id: \.id) { step in
-                            let goal = goals.first { $0.id == step.goalId }
+                    let goal = goals.first { $0.id == step.goalId }
                             let aspiration = aspirations.first { $0.id == (step.areaId ?? step.aspirationId) }
                             let calendar = Calendar.current
                             let today = calendar.startOfDay(for: Date())
@@ -924,17 +924,17 @@ struct StepsView: View {
                                 let isOverdue = !step.completed && stepDate < today
                                 let isFuture = stepDate > today
                                 
-                                PlayfulStepCard(
-                                    step: step,
-                                    goalTitle: goal?.title,
+                    PlayfulStepCard(
+                        step: step,
+                        goalTitle: goal?.title,
                                     goal: goal,
                                     aspiration: aspiration,
                                     isOverdue: isOverdue,
                                     isFuture: isFuture,
-                                    onToggle: {
-                                        toggleStepCompletion(stepId: step.id, completed: !step.completed)
-                                    }
-                                )
+                        onToggle: {
+                            toggleStepCompletion(stepId: step.id, completed: !step.completed)
+                        }
+                    )
                                 .onAppear {
                                     // Load more when approaching end
                                     if step.id == sortedAllSteps.filter({ $0.date != nil }).last?.id {
@@ -2430,8 +2430,8 @@ struct StepCard: View {
                     
                     if let stepDate = step.date {
                         Text(stepDate, style: .date)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                     }
                 }
                 
