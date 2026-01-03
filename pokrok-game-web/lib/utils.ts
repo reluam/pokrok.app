@@ -19,7 +19,7 @@ export function getBaseUrl(): string {
   
   // Fallback for production when NEXT_PUBLIC_SITE_URL is not set
   // This should not happen in production, but provides a fallback
-  return 'https://pokrok.vercel.app'
+  return 'https://planner.pokrok.app'
 }
 
 // Get Clerk URLs based on environment
@@ -37,10 +37,10 @@ export function getClerkUrls() {
   }
   
   return {
-    signInUrl: process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || 'https://accounts.pokrok.app/sign-in',
-    signUpUrl: process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL || 'https://accounts.pokrok.app/sign-up',
-    fallbackRedirectUrl: process.env.NEXT_PUBLIC_CLERK_FALLBACK_REDIRECT_URL || 'https://muj.pokrok.app',
-    afterSignOutUrl: process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_OUT_URL || 'https://muj.pokrok.app/sign-in'
+    signInUrl: process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || 'https://planner.pokrok.app/sign-in',
+    signUpUrl: process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL || 'https://planner.pokrok.app/sign-up',
+    fallbackRedirectUrl: process.env.NEXT_PUBLIC_CLERK_FALLBACK_REDIRECT_URL || 'https://planner.pokrok.app/main-panel',
+    afterSignOutUrl: process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_OUT_URL || 'https://planner.pokrok.app/sign-in'
   }
 }
 

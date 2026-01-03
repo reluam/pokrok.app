@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { JourneyGameView } from './JourneyGameView'
-import { DailyPlanningView } from './DailyPlanningView'
-import { GoalsManagementView } from './GoalsManagementView'
-import { StatisticsView } from './StatisticsView'
-import { AchievementsView } from './AchievementsView'
+import { DailyPlanningView } from '../../main/components/DailyPlanningView'
+import { GoalsManagementView } from './views/GoalsManagementView'
+import { StatisticsView } from '../../main/components/StatisticsView'
+import { AchievementsView } from '../../main/components/AchievementsView'
 import { SettingsView } from './SettingsView'
 import { LoadingSpinner } from './ui/LoadingSpinner'
 import { useTranslations } from 'next-intl'
@@ -178,7 +178,6 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
             player={player}
             goals={goals}
             onGoalsUpdate={onGoalsUpdate}
-            onBack={handleBackToCharacter}
           />
         )
       case 'statistics':

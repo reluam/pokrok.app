@@ -5,7 +5,27 @@ import { locales, type Locale } from './i18n/config'
 
 const isProtectedRoute = createRouteMatcher([
   '/(cs|en)/game(.*)',
-  '/game(.*)' // Also protect /game routes without locale prefix
+  '/game(.*)', // Also protect /game routes without locale prefix
+  '/(cs|en)/main-panel(.*)',
+  '/main-panel(.*)',
+  '/(cs|en)/goals(.*)',
+  '/goals(.*)',
+  '/(cs|en)/habits(.*)',
+  '/habits(.*)',
+  '/(cs|en)/steps(.*)',
+  '/steps(.*)',
+  '/(cs|en)/settings(.*)',
+  '/settings(.*)',
+  '/(cs|en)/help(.*)',
+  '/help(.*)',
+  '/(cs|en)/workflows(.*)',
+  '/workflows(.*)',
+  '/(cs|en)/areas(.*)',
+  '/areas(.*)',
+  '/(cs|en)/statistics(.*)',
+  '/statistics(.*)',
+  '/(cs|en)/achievements(.*)',
+  '/achievements(.*)'
 ])
 
 // Create intl middleware once (outside of clerkMiddleware)
@@ -54,6 +74,15 @@ export default clerkMiddleware(async (auth, req) => {
     // to prevent it from adding locale prefix back (which would cause redirect loop)
     if (pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up')) {
       return NextResponse.next()
+    }
+    
+    // Redirect /game to /main-panel for backward compatibility
+    if (pathname === '/game' || pathname === '/cs/game' || pathname === '/en/game') {
+      const locale = pathname.startsWith('/cs/') ? 'cs' : pathname.startsWith('/en/') ? 'en' : ''
+      const newPath = locale ? `/${locale}/main-panel` : '/main-panel'
+      const url = req.nextUrl.clone()
+      url.pathname = newPath
+      return NextResponse.redirect(url)
     }
     
     // Check authentication for protected routes

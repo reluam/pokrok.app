@@ -3,13 +3,13 @@
 import { useState, useCallback, useEffect } from 'react'
 import { Check } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
-import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
-import { QuickOverviewWidget } from './QuickOverviewWidget'
+import { getLocalDateString, normalizeDate } from '../../../main/components/utils/dateHelpers'
+import { QuickOverviewWidget } from '../../../main/components/views/QuickOverviewWidget'
 import { TodayFocusSection } from './TodayFocusSection'
 import { Timeline } from './Timeline'
-import { isHabitScheduledForDay } from '../utils/habitHelpers'
-import { isStepScheduledForDay } from '../utils/stepHelpers'
-import { ImportantStepsPlanningView } from '../workflows/ImportantStepsPlanningView'
+import { isHabitScheduledForDay } from '../../../main/components/utils/habitHelpers'
+import { isStepScheduledForDay } from '../../../main/components/utils/stepHelpers'
+import { ImportantStepsPlanningView } from '../../../main/components/workflows/ImportantStepsPlanningView'
 
 interface DayViewProps {
   goals?: any[]

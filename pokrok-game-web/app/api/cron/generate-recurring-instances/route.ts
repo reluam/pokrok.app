@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { neon } from '@neondatabase/serverless'
-import { isStepScheduledForDay } from '@/app/[locale]/game/components/utils/stepHelpers'
+import { isStepScheduledForDay } from '@/app/[locale]/main/components/utils/stepHelpers'
 
 const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
 

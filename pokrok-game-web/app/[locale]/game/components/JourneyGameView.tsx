@@ -4,47 +4,48 @@ import { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef, mem
 import { createPortal } from 'react-dom'
 import { useUser } from '@clerk/nextjs'
 import { useTranslations, useLocale } from 'next-intl'
+import { usePathname, useRouter } from 'next/navigation'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent, DragOverlay, useDroppable, useDraggable } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { SettingsPage } from './SettingsPage'
 import { Footprints, Calendar, Target, CheckCircle, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Edit, Trash2, Plus, Clock, Star, Zap, Check, Settings, HelpCircle, LayoutDashboard, Sparkles, CheckSquare, Menu, Moon, Search, Flame, Trophy, Folder } from 'lucide-react'
-import { DailyReviewWorkflow } from './DailyReviewWorkflow'
-import { CalendarProgram } from './CalendarProgram'
+import { DailyReviewWorkflow } from '../../main/components/DailyReviewWorkflow'
+import { CalendarProgram } from '../../main/components/CalendarProgram'
 import { getIconEmoji, getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
-import { getLocalDateString, normalizeDate } from './utils/dateHelpers'
-import { isHabitScheduledForDay, getHabitStartDate } from './utils/habitHelpers'
-import { ManagementPage } from './pages/ManagementPage'
-import { UnifiedDayView } from './views/UnifiedDayView'
-import { FocusManagementView } from './views/FocusManagementView'
+import { getLocalDateString, normalizeDate } from '../../main/components/utils/dateHelpers'
+import { isHabitScheduledForDay, getHabitStartDate } from '../../main/components/utils/habitHelpers'
+import { ManagementPage } from '../../main/components/pages/ManagementPage'
+import { UnifiedDayView } from '../../main/components/views/UnifiedDayView'
+import { FocusManagementView } from '../../main/components/views/FocusManagementView'
 import { HelpView } from './views/HelpView'
 import { GoalsManagementView } from './views/GoalsManagementView'
-import { HabitsManagementView } from './views/HabitsManagementView'
-import { StepsManagementView } from './views/StepsManagementView'
+import { HabitsManagementView } from '../../main/components/views/HabitsManagementView'
+import { StepsManagementView } from '../../main/components/views/StepsManagementView'
 import { TodayFocusSection } from './views/TodayFocusSection'
-import { GoalEditingForm } from './journey/GoalEditingForm'
-import { DroppableColumn } from './journey/DroppableColumn'
-import { DraggableStep } from './journey/DraggableStep'
-import { SortableGoal } from './journey/SortableGoal'
-import { ActionButtons } from './layout/ActionButtons'
-import { StatisticsContent } from './content/StatisticsContent'
-import { DailyPlanContent } from './content/DailyPlanContent'
-import { DisplayContent } from './content/DisplayContent'
-import { WorkflowContent } from './content/WorkflowContent'
-import { CalendarContent } from './content/CalendarContent'
+import { GoalEditingForm } from '../../main/components/journey/GoalEditingForm'
+import { DroppableColumn } from '../../main/components/journey/DroppableColumn'
+import { DraggableStep } from '../../main/components/journey/DraggableStep'
+import { SortableGoal } from '../../main/components/journey/SortableGoal'
+import { ActionButtons } from '../../main/components/layout/ActionButtons'
+import { StatisticsContent } from '../../main/components/content/StatisticsContent'
+import { DailyPlanContent } from '../../main/components/content/DailyPlanContent'
+import { DisplayContent } from '../../main/components/content/DisplayContent'
+import { WorkflowContent } from '../../main/components/content/WorkflowContent'
+import { CalendarContent } from '../../main/components/content/CalendarContent'
 import { HabitsPage } from './views/HabitsPage'
-import { HabitDetailPage } from './views/HabitDetailPage'
-import { ItemDetailRenderer } from './details/ItemDetailRenderer'
+import { HabitDetailPage } from '../../main/components/views/HabitDetailPage'
+import { ItemDetailRenderer } from '../../main/components/details/ItemDetailRenderer'
 import { PageContent } from './pages/PageContent'
-import { DatePickerModal } from './modals/DatePickerModal'
-import { AreasManagementModal } from './modals/AreasManagementModal'
-import { AreaEditModal } from './modals/AreaEditModal'
+import { DatePickerModal } from '../../main/components/modals/DatePickerModal'
+import { AreasManagementModal } from '../../main/components/modals/AreasManagementModal'
+import { AreaEditModal } from '../../main/components/modals/AreaEditModal'
 import { HeaderNavigation } from './layout/HeaderNavigation'
-import { DeleteHabitModal } from './modals/DeleteHabitModal'
-import { HabitModal } from './modals/HabitModal'
-import { StepModal } from './modals/StepModal'
-import { DeleteStepModal } from './modals/DeleteStepModal'
+import { DeleteHabitModal } from '../../main/components/modals/DeleteHabitModal'
+import { HabitModal } from '../../main/components/modals/HabitModal'
+import { StepModal } from '../../main/components/modals/StepModal'
+import { DeleteStepModal } from '../../main/components/modals/DeleteStepModal'
 import { OnboardingTutorial } from './OnboardingTutorial'
 import { LoadingSpinner } from './ui/LoadingSpinner'
 // Removed: ImportantStepsPlanningView import - now handled as workflow view in navigation
@@ -91,6 +92,8 @@ export function JourneyGameView({
   const t = useTranslations()
   const locale = useLocale()
   const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
+  const router = useRouter()
+  const pathname = usePathname()
   
   // Top menu items (Goals, Habits, Steps) - defined at top level for use in header
   const topMenuItems = [
@@ -140,19 +143,91 @@ export function JourneyGameView({
     loadUserId()
   }, [user?.id, userId])
 
-  const [currentPage, setCurrentPage] = useState<'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas'>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const savedPage = localStorage.getItem('journeyGame_currentPage')
-        if (savedPage && ['main', 'goals', 'habits', 'steps', 'statistics', 'achievements', 'settings', 'workflows', 'help', 'areas'].includes(savedPage)) {
-          return savedPage as 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help'
-        }
-      } catch (error) {
-        console.error('Error loading currentPage:', error)
+  // Get current page from URL pathname
+  const getCurrentPageFromPath = useCallback((): 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas' => {
+    if (typeof window === 'undefined') return 'main'
+    
+    // Extract page from pathname (e.g., /cs/main-panel -> 'main', /cs/goals -> 'goals', /main-panel -> 'main')
+    const pathSegments = pathname.split('/').filter(Boolean)
+    // Remove locale prefix if present (cs, en)
+    const segmentsWithoutLocale = pathSegments.filter(seg => seg !== 'cs' && seg !== 'en')
+    const lastSegment = segmentsWithoutLocale[segmentsWithoutLocale.length - 1] || pathSegments[pathSegments.length - 1]
+    
+    // Map URL segments to page names
+    const pageMap: Record<string, 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas'> = {
+      'main-panel': 'main',
+      'goals': 'goals',
+      'habits': 'habits',
+      'steps': 'steps',
+      'statistics': 'statistics',
+      'achievements': 'achievements',
+      'settings': 'settings',
+      'workflows': 'workflows',
+      'help': 'help',
+      'areas': 'areas',
+      'game': 'main' // Legacy support
+    }
+    
+    if (lastSegment && pageMap[lastSegment]) {
+      return pageMap[lastSegment]
+    }
+    
+    // Fallback to localStorage for backward compatibility
+    try {
+      const savedPage = localStorage.getItem('journeyGame_currentPage')
+      if (savedPage && ['main', 'goals', 'habits', 'steps', 'statistics', 'achievements', 'settings', 'workflows', 'help', 'areas'].includes(savedPage)) {
+        return savedPage as 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help'
       }
+    } catch (error) {
+      console.error('Error loading currentPage:', error)
+    }
+    
+    return 'main'
+  }, [pathname])
+
+  const [currentPageState, setCurrentPageState] = useState<'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas'>(() => {
+    if (typeof window !== 'undefined') {
+      return getCurrentPageFromPath()
     }
     return 'main'
   })
+
+  // Update currentPage when pathname changes
+  useEffect(() => {
+    const pageFromPath = getCurrentPageFromPath()
+    setCurrentPageState(pageFromPath)
+  }, [pathname, getCurrentPageFromPath])
+
+  // Navigation function that uses router.push
+  const setCurrentPage = useCallback((page: 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas') => {
+    const pageMap: Record<string, string> = {
+      'main': 'main-panel',
+      'goals': 'goals',
+      'habits': 'habits',
+      'steps': 'steps',
+      'statistics': 'statistics',
+      'achievements': 'achievements',
+      'settings': 'settings',
+      'workflows': 'workflows',
+      'help': 'help',
+      'areas': 'areas'
+    }
+    
+    const route = pageMap[page] || 'main-panel'
+    const localePrefix = locale === 'en' ? '' : `/${locale}`
+    router.push(`${localePrefix}/${route}`)
+    
+    // Save to localStorage for backward compatibility
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('journeyGame_currentPage', page)
+      } catch (error) {
+        console.error('Error saving currentPage:', error)
+      }
+    }
+  }, [router, locale])
+  
+  const currentPage = currentPageState
 
   // Removed: Important steps planning overlay - now handled as workflow view in navigation
   

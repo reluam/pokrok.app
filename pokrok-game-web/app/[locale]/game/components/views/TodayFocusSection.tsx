@@ -2,9 +2,9 @@
 
 import { useMemo, useEffect, useRef, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
-import { isHabitScheduledForDay } from '../utils/habitHelpers'
-import { isStepScheduledForDay } from '../utils/stepHelpers'
+import { getLocalDateString, normalizeDate } from '../../../main/components/utils/dateHelpers'
+import { isHabitScheduledForDay } from '../../../main/components/utils/habitHelpers'
+import { isStepScheduledForDay } from '../../../main/components/utils/stepHelpers'
 import { Check, Target, ArrowRight, ChevronDown, ChevronUp, Plus, CheckSquare, Trash2, Footprints } from 'lucide-react'
 import { getIconEmoji, getIconComponent } from '@/lib/icon-utils'
 

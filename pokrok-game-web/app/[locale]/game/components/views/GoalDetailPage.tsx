@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { ChevronLeft, ChevronRight, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Check, Plus, Edit, Pencil, Minus, Repeat } from 'lucide-react'
 import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
-import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
-import { MetricModal } from '../modals/MetricModal'
+import { getLocalDateString, normalizeDate } from '../../../main/components/utils/dateHelpers'
+import { MetricModal } from '../../../main/components/modals/MetricModal'
 import { groupMetricsByUnits, convertUnit, type GroupedMetric } from '@/lib/metric-units'
 
 interface GoalDetailPageProps {

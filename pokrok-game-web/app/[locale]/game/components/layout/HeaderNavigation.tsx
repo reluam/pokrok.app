@@ -2,7 +2,7 @@
 
 import { useTranslations, useLocale } from 'next-intl'
 import { HelpCircle, Settings, Menu } from 'lucide-react'
-import { DevVersionTooltip } from '../common/DevVersionTooltip'
+import { DevVersionTooltip } from '../../../components/DevVersionTooltip'
 
 interface HeaderNavigationProps {
   currentPage: 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas'

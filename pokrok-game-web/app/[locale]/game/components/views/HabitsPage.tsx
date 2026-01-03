@@ -3,8 +3,8 @@
 import { useRef, useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Calendar, CheckCircle, Zap, Flame, Trophy, Plus, ChevronLeft, ChevronRight, Settings, Check } from 'lucide-react'
-import { getLocalDateString } from '../utils/dateHelpers'
-import { isHabitScheduledForDay, getHabitStartDate } from '../utils/habitHelpers'
+import { getLocalDateString } from '../../../main/components/utils/dateHelpers'
+import { isHabitScheduledForDay, getHabitStartDate } from '../../../main/components/utils/habitHelpers'
 
 interface HabitsPageProps {
   habits: any[]
