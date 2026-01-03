@@ -192,7 +192,6 @@ export function UpcomingView({
                       isImportant: step.is_important || false,
                       isUrgent: step.is_urgent || false,
                       estimatedTime: step.estimated_time || 30,
-                      xpReward: step.xp_reward || 1,
                       checklist: step.checklist || [],
                       requireChecklistComplete: step.require_checklist_complete || false,
                       frequency: null, // Not recurring
@@ -764,12 +763,19 @@ export function UpcomingView({
   // Save selected date and close picker
   const handleSaveDate = async () => {
     if (datePickerStep && selectedDateInPicker && onStepDateChange) {
-      const dateStr = getLocalDateString(selectedDateInPicker)
-      await onStepDateChange(datePickerStep.id, dateStr)
+      try {
+        const dateStr = getLocalDateString(selectedDateInPicker)
+        await onStepDateChange(datePickerStep.id, dateStr)
+        // Close picker only on success
+        setDatePickerStep(null)
+        setDatePickerPosition(null)
+        setSelectedDateInPicker(null)
+      } catch (error) {
+        // Error is already handled in handleStepDateChange
+        // Keep picker open so user can try again
+        console.error('Error saving date:', error)
+      }
     }
-    setDatePickerStep(null)
-    setDatePickerPosition(null)
-    setSelectedDateInPicker(null)
   }
   
   // Cancel date picker

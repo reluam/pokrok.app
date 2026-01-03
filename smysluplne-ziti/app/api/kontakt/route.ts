@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
             <div class="content">
               <p>Vážený/á ${name},</p>
               <p>děkujeme za vaši zprávu. Ozveme se vám co nejdříve na email <strong>${email}</strong>.</p>
-              <p>S pozdravem,<br>Smysluplné žití</p>
+              <p>S pozdravem,<br>Smyslužití</p>
             </div>
           </div>
         </body>
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
     const clientResult = await resend.emails.send({
       from: fromEmail,
       to: email,
-      subject: 'Děkujeme za vaši zprávu - Smysluplné žití',
+      subject: 'Děkujeme za vaši zprávu - Smyslužití',
       html: clientEmailHtml,
     })
 

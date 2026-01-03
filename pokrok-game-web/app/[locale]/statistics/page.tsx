@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
-import { JourneyGameView } from '../game/components/JourneyGameView'
+import { GameWorldView } from '../game/components/GameWorldView'
 import { applyColorTheme } from '@/lib/color-utils'
 
 export const dynamic = 'force-dynamic'
@@ -135,13 +135,14 @@ export default function StatisticsPage() {
 
   return (
     <div className="min-h-screen bg-primary-50">
-      <JourneyGameView 
+      <GameWorldView 
         player={player} 
         userId={userId}
         goals={goals} 
         habits={habits}
         onGoalsUpdate={setGoals}
         onHabitsUpdate={setHabits}
+        onPlayerUpdate={setPlayer}
         hasCompletedOnboarding={hasCompletedOnboarding}
         onOnboardingComplete={() => setHasCompletedOnboarding(true)}
       />

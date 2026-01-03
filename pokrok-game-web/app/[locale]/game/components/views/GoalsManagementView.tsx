@@ -144,7 +144,11 @@ export function GoalsManagementView({
   // Filter and sort goals
   const filteredAndSortedGoals = useMemo(() => {
     // First filter by status
-    const filtered = goals.filter(goal => statusFilters.has(goal.status))
+    // Normalize status - if status is null/undefined, treat as 'active'
+    const filtered = goals.filter(goal => {
+      const goalStatus = goal.status || 'active'
+      return statusFilters.has(goalStatus)
+    })
         
     // Then sort
     return filtered.sort((a, b) => {
@@ -152,8 +156,10 @@ export function GoalsManagementView({
       const dateB = b.target_date ? new Date(b.target_date).getTime() : (b.created_at ? new Date(b.created_at).getTime() : 0)
       
       // Active goals first, then by date
-      if (a.status === 'active' && b.status !== 'active') return -1
-      if (a.status !== 'active' && b.status === 'active') return 1
+      const statusA = a.status || 'active'
+      const statusB = b.status || 'active'
+      if (statusA === 'active' && statusB !== 'active') return -1
+      if (statusA !== 'active' && statusB === 'active') return 1
       
       // Then by date (earliest first)
       if (dateA !== dateB) {
@@ -301,11 +307,13 @@ export function GoalsManagementView({
                 paused: { label: t('goals.status.paused'), icon: Moon },
                 completed: { label: t('goals.status.completed'), icon: CheckCircle }
               }
-              const status = statusConfig[goal.status as keyof typeof statusConfig] || statusConfig.active
+              // Normalize status - if status is null/undefined, treat as 'active'
+              const goalStatus = goal.status || 'active'
+              const status = statusConfig[goalStatus as keyof typeof statusConfig] || statusConfig.active
 
               // Determine styling based on status
-              const isPaused = goal.status === 'paused'
-              const isCompleted = goal.status === 'completed'
+              const isPaused = goalStatus === 'paused'
+              const isCompleted = goalStatus === 'completed'
               
                 return (
                 <div
@@ -456,7 +464,7 @@ export function GoalsManagementView({
                       <span>
                         {completedSteps} / {totalSteps} kroků
                     </span>
-                      {goal.status === 'active' && (
+                      {goalStatus === 'active' && (
                     <button
                                     onClick={(e) => {
                                       e.stopPropagation()

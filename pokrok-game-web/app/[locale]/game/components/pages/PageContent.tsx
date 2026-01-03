@@ -94,8 +94,6 @@ export function PageContent(props: PageContentProps) {
     setEditingHabitSelectedDays,
     editingHabitAlwaysShow,
     setEditingHabitAlwaysShow,
-    editingHabitXpReward,
-    setEditingHabitXpReward,
     editingHabitCategory,
     setEditingHabitCategory,
     editingHabitDifficulty,
@@ -674,8 +672,6 @@ export function PageContent(props: PageContentProps) {
               setEditingHabitSelectedDays={setEditingHabitSelectedDays}
               editingHabitAlwaysShow={editingHabitAlwaysShow}
               setEditingHabitAlwaysShow={setEditingHabitAlwaysShow}
-              editingHabitXpReward={editingHabitXpReward}
-              setEditingHabitXpReward={setEditingHabitXpReward}
               editingHabitCategory={editingHabitCategory}
               setEditingHabitCategory={setEditingHabitCategory}
               editingHabitDifficulty={editingHabitDifficulty}
@@ -786,7 +782,7 @@ export function PageContent(props: PageContentProps) {
           }
           
           // Check if it's an area page
-          if (mainPanelSection.startsWith('area-')) {
+          if (mainPanelSection && mainPanelSection.startsWith('area-')) {
             const areaId = mainPanelSection.replace('area-', '')
             const area = areas.find((a: any) => a.id === areaId)
             
@@ -1097,7 +1093,7 @@ export function PageContent(props: PageContentProps) {
           }
           
           // Check if it's a habit detail page
-          if (mainPanelSection.startsWith('habit-')) {
+          if (mainPanelSection && mainPanelSection.startsWith('habit-')) {
             const habitId = mainPanelSection.replace('habit-', '')
             const habit = habits.find((h: any) => h.id === habitId)
             
@@ -1132,7 +1128,7 @@ export function PageContent(props: PageContentProps) {
           }
           
           // Check if it's a goal detail page
-          if (mainPanelSection.startsWith('goal-')) {
+          if (mainPanelSection && mainPanelSection.startsWith('goal-')) {
             const goalId = mainPanelSection.replace('goal-', '')
             const goal = goals.find((g: any) => g.id === goalId)
             
@@ -1439,13 +1435,13 @@ export function PageContent(props: PageContentProps) {
             {/* Right content area */}
             <div className="flex-1 overflow-y-auto bg-primary-50 flex flex-col" style={{ minHeight: 0 }}>
               {/* Mobile hamburger menu for focus-day and other sections (except goal detail pages) */}
-              {!mainPanelSection.startsWith('goal-') && (
+              {mainPanelSection && !mainPanelSection.startsWith('goal-') && (
                 <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-bold text-gray-900">
-                      {['focus-upcoming', 'focus-month', 'focus-year', 'focus-calendar'].includes(mainPanelSection)
+                      {mainPanelSection && ['focus-upcoming', 'focus-month', 'focus-year', 'focus-calendar'].includes(mainPanelSection)
                         ? t('navigation.calendar') || 'Kalendář'
-                        : mainPanelSection.startsWith('area-')
+                        : mainPanelSection && mainPanelSection.startsWith('area-')
                         ? areas.find((a: any) => `area-${a.id}` === mainPanelSection)?.name || t('navigation.areas')
                         : t('navigation.title')}
                     </h2>
@@ -1538,7 +1534,7 @@ export function PageContent(props: PageContentProps) {
               )}
               
               {/* Mobile header for goal detail pages */}
-              {mainPanelSection.startsWith('goal-') && (
+              {mainPanelSection && mainPanelSection.startsWith('goal-') && (
                 <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -2694,8 +2690,6 @@ export function PageContent(props: PageContentProps) {
                         setEditingHabitSelectedDays={setEditingHabitSelectedDays}
                         editingHabitAlwaysShow={editingHabitAlwaysShow}
                         setEditingHabitAlwaysShow={setEditingHabitAlwaysShow}
-                        editingHabitXpReward={editingHabitXpReward}
-                        setEditingHabitXpReward={setEditingHabitXpReward}
                         editingHabitCategory={editingHabitCategory}
                         setEditingHabitCategory={setEditingHabitCategory}
                         editingHabitDifficulty={editingHabitDifficulty}

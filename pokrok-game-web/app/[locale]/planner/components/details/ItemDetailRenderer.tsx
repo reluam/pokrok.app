@@ -46,8 +46,6 @@ interface ItemDetailRendererProps {
   setEditingHabitSelectedDays: (value: string[]) => void
   editingHabitAlwaysShow: boolean | undefined
   setEditingHabitAlwaysShow: (value: boolean) => void
-  editingHabitXpReward: number
-  setEditingHabitXpReward: (value: number) => void
   editingHabitCategory: string
   setEditingHabitCategory: (value: string) => void
   editingHabitDifficulty: 'easy' | 'medium' | 'hard'
@@ -118,8 +116,6 @@ export function ItemDetailRenderer({
   setEditingHabitSelectedDays,
   editingHabitAlwaysShow,
   setEditingHabitAlwaysShow,
-  editingHabitXpReward,
-  setEditingHabitXpReward,
   editingHabitCategory,
   setEditingHabitCategory,
   editingHabitDifficulty,
@@ -874,20 +870,6 @@ export function ItemDetailRenderer({
                     </label>
                   </div>
                   
-                  {/* XP Reward */}
-                  <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                      XP odměna:
-                </label>
-                    <input
-                      type="number"
-                      value={editingHabitXpReward || item.xp_reward || 0}
-                      onChange={(e) => setEditingHabitXpReward(parseInt(e.target.value) || 0)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
-                      min="0"
-                    />
-                  </div>
-                  
                   {/* Category */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -945,7 +927,6 @@ export function ItemDetailRenderer({
                             frequency: editingHabitFrequency || item.frequency,
                             selectedDays: editingHabitSelectedDays.length > 0 ? editingHabitSelectedDays : item.selected_days,
                             alwaysShow: editingHabitAlwaysShow !== undefined ? editingHabitAlwaysShow : item.always_show,
-                            xpReward: editingHabitXpReward || item.xp_reward,
                             category: editingHabitCategory || item.category,
                             difficulty: editingHabitDifficulty || item.difficulty,
                             reminderTime: editingHabitReminderTime || item.reminder_time

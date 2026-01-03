@@ -79,6 +79,7 @@
     "tagline": "Aplikace pro plánování života",
     "description": "Pokrok spojuje velký přehled s konkrétními kroky, čímž pomáhá zvýšit motivaci a snížit přehlcení. Plánujte svůj život efektivně a dosahujte svých cílů krok za krokem.",
     "startFree": "Začít zdarma",
+    "signIn": "Přihlásit se",
     "trialInfo": "14denní zkušební verze zdarma • Bez platební karty",
     "hero": {
       "title": "Životní plánovač pro lidi, kteří chtějí dosáhnout svých cílů",
@@ -900,23 +901,58 @@
     "completedTasks": "Dokončené úkoly",
     "gameDay": "Den hry",
     "progressToNextLevel": "PROGRESS K DALŠÍMU LEVELU",
+    "completions": "Dokončeno",
+    "streak": "Streak",
+    "noData": "Žádná data",
+    "wip": {
+      "title": "Work in Progress",
+      "message": "Statistiky jsou momentálně ve vývoji a budou se ještě upravovat."
+    },
+    "overview": {
+      "title": "Přehled"
+    },
+    "comparison": "Srovnání s předchozím obdobím",
+    "period": {
+      "week": "Týden",
+      "month": "Měsíc",
+      "year": "Rok",
+      "all": "Celé období"
+    },
+    "steps": {
+      "title": "Kroky",
+      "completed": "Dokončeno",
+      "planned": "Naplánováno",
+      "completionRate": "Úspěšnost"
+    },
+    "habits": {
+      "title": "NÁVYKY",
+      "total": "Celkem návyků:",
+      "completed": "Dokončeno",
+      "totalStreak": "Celkový streak:",
+      "bestStreak": "Nejlepší streak:",
+      "averageStreak": "Průměrný streak:",
+      "completionRate": "Úspěšnost",
+      "byCategory": "NÁVYKY PODLE KATEGORIÍ",
+      "noHabits": "Zatím nemáš žádné návyky"
+    },
     "goals": {
       "title": "CÍLE",
       "total": "Celkem cílů:",
       "completed": "Dokončené:",
       "active": "Aktivní:",
       "successRate": "Úspěšnost:",
+      "completionRate": "Úspěšnost",
       "byCategory": "CÍLE PODLE KATEGORIÍ",
       "noGoals": "Zatím nemáš žádné cíle"
     },
-    "habits": {
-      "title": "NÁVYKY",
-      "total": "Celkem návyků:",
-      "totalStreak": "Celkový streak:",
-      "bestStreak": "Nejlepší streak:",
-      "averageStreak": "Průměrný streak:",
-      "byCategory": "NÁVYKY PODLE KATEGORIÍ",
-      "noHabits": "Zatím nemáš žádné návyky"
+    "charts": {
+      "completionTrend": "Trend dokončování",
+      "completedVsPlanned": "Dokončené vs Naplánované",
+      "weeklyProgress": "Týdenní pokrok",
+      "dailyProgress": "Denní pokrok",
+      "monthlyProgress": "Měsíční pokrok",
+      "completed": "Dokončeno",
+      "planned": "Naplánováno"
     }
   },
   "achievements": {

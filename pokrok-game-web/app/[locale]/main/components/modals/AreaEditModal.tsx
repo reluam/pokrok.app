@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations } from 'next-intl'
 import { ChevronDown } from 'lucide-react'
@@ -42,8 +42,13 @@ export function AreaEditModal({
   onSave,
 }: AreaEditModalProps) {
   const t = useTranslations()
+  const [mounted, setMounted] = useState(false)
 
-  if (!show || typeof window === 'undefined') return null
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!show || typeof window === 'undefined' || !mounted) return null
 
   const handleClose = () => {
     setAreaModalName('')
@@ -52,6 +57,9 @@ export function AreaEditModal({
     setAreaModalIcon('LayoutDashboard')
     onClose()
   }
+
+  // Ensure document.body exists before creating portal
+  if (typeof document === 'undefined' || !document.body) return null
 
   return createPortal(
     <>

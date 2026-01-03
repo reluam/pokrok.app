@@ -10,7 +10,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto container-padding py-16 relative">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-2xl font-bold mb-6">Smysluplné žití</h3>
+            <h3 className="text-2xl font-bold mb-6">Smyslužití</h3>
             <p className="text-playful-outline-lighter text-lg leading-relaxed">
               Projekt zaměřený na smysluplné žití, osobní rozvoj a dosahování cílů.
             </p>
@@ -49,7 +49,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-12 pt-8 border-t border-white/20 text-center text-playful-outline-lighter">
-          <p className="text-lg">&copy; {new Date().getFullYear()} Smysluplné žití. Všechna práva vyhrazena.</p>
+          <p className="text-lg">&copy; {new Date().getFullYear()} Smyslužití. Všechna práva vyhrazena.</p>
         </div>
       </div>
     </footer>

@@ -12,10 +12,10 @@ export default function AboutSection() {
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary mb-6">
             O projektu{' '}
-            <span className="gradient-text">Smysluplné žití</span>
+            <span className="gradient-text">Smyslužití</span>
           </h2>
           <p className="text-xl md:text-2xl text-text-secondary max-w-4xl mx-auto leading-relaxed mb-8">
-            Smysluplné žití je projekt zaměřený na pomoc lidem najít smysl v jejich životě,
+            Smyslužití je projekt zaměřený na pomoc lidem najít smysl v jejich životě,
             stanovit si jasné cíle a vytvářet návyky, které vedou k naplněnějšímu a šťastnějšímu životu.
             Objevte moji vizi, hodnoty a to, co nabízím.
           </p>

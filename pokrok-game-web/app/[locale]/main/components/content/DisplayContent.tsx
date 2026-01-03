@@ -43,8 +43,6 @@ interface DisplayContentProps {
   setEditingHabitSelectedDays: (value: string[]) => void
   editingHabitAlwaysShow: boolean
   setEditingHabitAlwaysShow: (value: boolean) => void
-  editingHabitXpReward: number
-  setEditingHabitXpReward: (value: number) => void
   editingHabitCategory: string
   setEditingHabitCategory: (value: string) => void
   editingHabitDifficulty: 'easy' | 'medium' | 'hard'
@@ -187,8 +185,6 @@ export function DisplayContent(props: DisplayContentProps) {
         setEditingHabitSelectedDays={props.setEditingHabitSelectedDays}
         editingHabitAlwaysShow={props.editingHabitAlwaysShow}
         setEditingHabitAlwaysShow={props.setEditingHabitAlwaysShow}
-        editingHabitXpReward={props.editingHabitXpReward}
-        setEditingHabitXpReward={props.setEditingHabitXpReward}
         editingHabitCategory={props.editingHabitCategory}
         setEditingHabitCategory={props.setEditingHabitCategory}
         editingHabitDifficulty={props.editingHabitDifficulty}

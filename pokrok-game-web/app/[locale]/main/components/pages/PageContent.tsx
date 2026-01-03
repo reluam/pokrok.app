@@ -94,8 +94,6 @@ export function PageContent(props: PageContentProps) {
     setEditingHabitSelectedDays,
     editingHabitAlwaysShow,
     setEditingHabitAlwaysShow,
-    editingHabitXpReward,
-    setEditingHabitXpReward,
     editingHabitCategory,
     setEditingHabitCategory,
     editingHabitDifficulty,
@@ -674,8 +672,6 @@ export function PageContent(props: PageContentProps) {
               setEditingHabitSelectedDays={setEditingHabitSelectedDays}
               editingHabitAlwaysShow={editingHabitAlwaysShow}
               setEditingHabitAlwaysShow={setEditingHabitAlwaysShow}
-              editingHabitXpReward={editingHabitXpReward}
-              setEditingHabitXpReward={setEditingHabitXpReward}
               editingHabitCategory={editingHabitCategory}
               setEditingHabitCategory={setEditingHabitCategory}
               editingHabitDifficulty={editingHabitDifficulty}
@@ -2694,8 +2690,6 @@ export function PageContent(props: PageContentProps) {
                         setEditingHabitSelectedDays={setEditingHabitSelectedDays}
                         editingHabitAlwaysShow={editingHabitAlwaysShow}
                         setEditingHabitAlwaysShow={setEditingHabitAlwaysShow}
-                        editingHabitXpReward={editingHabitXpReward}
-                        setEditingHabitXpReward={setEditingHabitXpReward}
                         editingHabitCategory={editingHabitCategory}
                         setEditingHabitCategory={setEditingHabitCategory}
                         editingHabitDifficulty={editingHabitDifficulty}

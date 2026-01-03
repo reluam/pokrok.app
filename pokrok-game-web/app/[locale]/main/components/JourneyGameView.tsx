@@ -644,7 +644,6 @@ export function JourneyGameView({
     isImportant: false,
     isUrgent: false,
     estimatedTime: 30,
-    xpReward: 1,
     date: getLocalDateString() // Default to today
   })
   
@@ -1254,7 +1253,6 @@ export function JourneyGameView({
   const [showTimeEditor, setShowTimeEditor] = useState(false)
   const [stepEstimatedTime, setStepEstimatedTime] = useState<number>(0)
   // XP is always 1, not editable
-  const [stepXpReward] = useState<number>(1)
   const [stepIsImportant, setStepIsImportant] = useState<boolean>(false)
   const [stepIsUrgent, setStepIsUrgent] = useState<boolean>(false)
   const [stepGoalId, setStepGoalId] = useState<string | null>(null)
@@ -1274,7 +1272,6 @@ export function JourneyGameView({
   const [editingHabitAutoAdjust31, setEditingHabitAutoAdjust31] = useState<boolean>(true)
   const [editingHabitAlwaysShow, setEditingHabitAlwaysShow] = useState<boolean>(false)
   const [editingHabitAreaId, setEditingHabitAreaId] = useState<string | null>(null)
-  const [editingHabitXpReward, setEditingHabitXpReward] = useState<number>(0)
   const [editingHabitCategory, setEditingHabitCategory] = useState<string>('')
   const [editingHabitDifficulty, setEditingHabitDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
   const [editingHabitReminderTime, setEditingHabitReminderTime] = useState<string>('')
@@ -1400,7 +1397,6 @@ export function JourneyGameView({
       setEditingHabitFrequency(selectedItem.frequency || 'daily')
       setEditingHabitSelectedDays(selectedItem.selected_days || [])
       setEditingHabitAlwaysShow(selectedItem.always_show || false)
-      setEditingHabitXpReward(selectedItem.xp_reward || 0)
       setEditingHabitCategory(selectedItem.category || '')
       setEditingHabitDifficulty(selectedItem.difficulty || 'medium')
       setEditingHabitReminderTime(selectedItem.reminder_time || '')
@@ -1694,7 +1690,6 @@ export function JourneyGameView({
     setEditingHabitFrequency(habit?.frequency || 'daily')
     setEditingHabitSelectedDays(habit?.selected_days || [])
     setEditingHabitAlwaysShow(habit?.always_show || false)
-    setEditingHabitXpReward(habit?.xp_reward || 0)
     setEditingHabitCategory(habit?.category || '')
     setEditingHabitDifficulty(habit?.difficulty || 'medium')
     setEditingHabitReminderTime(habit?.reminder_time || '')
@@ -1778,7 +1773,6 @@ export function JourneyGameView({
           notificationEnabled: editingHabitNotificationEnabled,
           selectedDays: editingHabitSelectedDays,
           alwaysShow: editingHabitAlwaysShow,
-          xpReward: editingHabitXpReward,
           category: editingHabitCategory,
           difficulty: editingHabitDifficulty,
           areaId: editingHabitAreaId || null,
@@ -2062,8 +2056,7 @@ export function JourneyGameView({
             title: stepTitle,
             description: stepDescription,
             date: selectedDate || getLocalDateString(),
-            estimated_time: stepEstimatedTime,
-            xp_reward: 1 // Always 1 XP
+            estimated_time: stepEstimatedTime
           })
         })
 
@@ -2123,7 +2116,6 @@ export function JourneyGameView({
             title: stepTitle,
             description: stepDescription,
             estimated_time: stepEstimatedTime,
-            xp_reward: 1, // Always 1 XP
             is_important: stepIsImportant,
             is_urgent: stepIsUrgent,
             goal_id: stepGoalId,
@@ -2137,8 +2129,7 @@ export function JourneyGameView({
             ...selectedItem, 
             title: stepTitle,
             description: stepDescription,
-            estimated_time: stepEstimatedTime,
-            xp_reward: stepXpReward
+            estimated_time: stepEstimatedTime
           })
           
           const currentUserId = userId || player?.user_id
@@ -2775,7 +2766,6 @@ export function JourneyGameView({
           isImportant: newStep.isImportant,
           isUrgent: newStep.isUrgent,
           estimatedTime: newStep.estimatedTime,
-          xpReward: newStep.xpReward
         }),
       })
 
@@ -2791,7 +2781,6 @@ export function JourneyGameView({
           isImportant: false,
           isUrgent: false,
           estimatedTime: 30,
-          xpReward: 1,
           date: new Date().toISOString().split('T')[0]
         })
         setShowCreateStep(false)
@@ -2825,7 +2814,6 @@ export function JourneyGameView({
       isImportant: step.is_important || false,
       isUrgent: step.is_urgent || false,
       estimatedTime: step.estimated_time || 30,
-      xpReward: step.xp_reward || 1,
       date: step.date ? new Date(step.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
     })
   }
@@ -2861,7 +2849,6 @@ export function JourneyGameView({
         isImportant: editingStep.isImportant,
         isUrgent: editingStep.isUrgent,
         estimatedTime: editingStep.estimatedTime,
-        xpReward: editingStep.xpReward,
         date: formattedDate
       }
       
@@ -3477,24 +3464,24 @@ export function JourneyGameView({
     }
   }
 
-  // Calculate stats
+  // Calculate stats for today
   const todayStr = getLocalDateString()
-  const completedSteps = dailySteps.filter(step => step.completed).length
+  const todayCompletedSteps = dailySteps.filter(step => step.completed).length
   const totalSteps = dailySteps.length
   
   // Calculate completed habits for today
-  const completedHabits = todaysHabits.filter(habit => {
+  const todayCompletedHabits = todaysHabits.filter(habit => {
     return habit.habit_completions && habit.habit_completions[todayStr] === true
   }).length
   const totalHabits = todaysHabits.length
   
   // Calculate progress percentage from both habits and steps
   const totalTasks = totalHabits + totalSteps
-  const completedTasks = completedHabits + completedSteps
+  const completedTasks = todayCompletedHabits + todayCompletedSteps
   const progressPercentage = totalTasks > 0 ? Math.min(Math.round((completedTasks / totalTasks) * 100), 100) : 0
   
   const completedGoals = goals.filter(goal => goal.steps && goal.steps.every((step: any) => step.completed)).length
-  const activeHabits = completedHabits
+  const activeHabits = todayCompletedHabits
 
   // Get current day and time
   const currentDay = Math.floor(Date.now() / (1000 * 60 * 60 * 24)) % 365 + 1
@@ -3502,26 +3489,24 @@ export function JourneyGameView({
   const timeOfDay = currentHour < 6 ? 'night' : currentHour < 12 ? 'morning' : currentHour < 18 ? 'afternoon' : 'evening'
 
   // Calculate statistics
-  const totalXp = useMemo(() => {
-    let xp = 0
-    // XP from completed daily steps
-    dailySteps.forEach(step => {
-      if (step.completed && step.xp_reward) {
-        xp += step.xp_reward
-      }
-    })
-    // XP from completed habits
+  // Calculate completed steps and habits separately
+  const completedSteps = useMemo(() => {
+    return dailySteps.filter(step => step.completed).length
+  }, [dailySteps])
+
+  const completedHabits = useMemo(() => {
+    let count = 0
     habits.forEach(habit => {
       if (habit.habit_completions) {
         Object.values(habit.habit_completions).forEach(completed => {
-          if (completed && habit.xp_reward) {
-            xp += habit.xp_reward
+          if (completed) {
+            count++
           }
         })
       }
     })
-    return xp
-  }, [dailySteps, habits])
+    return count
+  }, [habits])
 
   // Calculate login streak (days in a row with activity)
   const loginStreak = useMemo(() => {
@@ -3717,7 +3702,8 @@ export function JourneyGameView({
         mainPanelSection={mainPanelSection}
         setMainPanelSection={setMainPanelSection}
         topMenuItems={topMenuItems}
-        totalXp={totalXp}
+        completedSteps={completedSteps}
+        completedHabits={completedHabits}
         loginStreak={loginStreak}
         mobileTopMenuOpen={mobileTopMenuOpen}
         setMobileTopMenuOpen={setMobileTopMenuOpen}
@@ -3773,8 +3759,6 @@ export function JourneyGameView({
           setEditingHabitSelectedDays={setEditingHabitSelectedDays}
           editingHabitAlwaysShow={editingHabitAlwaysShow}
           setEditingHabitAlwaysShow={setEditingHabitAlwaysShow}
-          editingHabitXpReward={editingHabitXpReward}
-          setEditingHabitXpReward={setEditingHabitXpReward}
           editingHabitCategory={editingHabitCategory}
           setEditingHabitCategory={setEditingHabitCategory}
           editingHabitDifficulty={editingHabitDifficulty}

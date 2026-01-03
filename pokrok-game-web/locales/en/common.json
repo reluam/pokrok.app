@@ -88,6 +88,7 @@
     "tagline": "Life planning app",
     "description": "Pokrok connects the big overview with concrete steps, helping to increase motivation and reduce overwhelm. Plan your life effectively and achieve your goals step by step.",
     "startFree": "Start for Free",
+    "signIn": "Sign In",
     "trialInfo": "14-day free trial • No credit card required",
     "hero": {
       "title": "Life planner for people who want to achieve their goals",
@@ -901,23 +902,58 @@
     "completedTasks": "Completed Tasks",
     "gameDay": "Game Day",
     "progressToNextLevel": "PROGRESS TO NEXT LEVEL",
+    "completions": "Done",
+    "streak": "Streak",
+    "noData": "No data",
+    "wip": {
+      "title": "Work in Progress",
+      "message": "Statistics are currently under development and will be further adjusted."
+    },
+    "overview": {
+      "title": "Overview"
+    },
+    "comparison": "Comparison with previous period",
+    "period": {
+      "week": "Week",
+      "month": "Month",
+      "year": "Year",
+      "all": "All time"
+    },
+    "steps": {
+      "title": "Steps",
+      "completed": "Completed",
+      "planned": "Planned",
+      "completionRate": "Completion Rate"
+    },
+    "habits": {
+      "title": "HABITS",
+      "total": "Total Habits:",
+      "completed": "Completed",
+      "totalStreak": "Total Streak:",
+      "bestStreak": "Best Streak:",
+      "averageStreak": "Average Streak:",
+      "completionRate": "Completion Rate",
+      "byCategory": "HABITS BY CATEGORY",
+      "noHabits": "You don't have any habits yet"
+    },
     "goals": {
       "title": "GOALS",
       "total": "Total Goals:",
       "completed": "Completed:",
       "active": "Active:",
       "successRate": "Success Rate:",
+      "completionRate": "Completion Rate",
       "byCategory": "GOALS BY CATEGORY",
       "noGoals": "You don't have any goals yet"
     },
-    "habits": {
-      "title": "HABITS",
-      "total": "Total Habits:",
-      "totalStreak": "Total Streak:",
-      "bestStreak": "Best Streak:",
-      "averageStreak": "Average Streak:",
-      "byCategory": "HABITS BY CATEGORY",
-      "noHabits": "You don't have any habits yet"
+    "charts": {
+      "completionTrend": "Completion Trend",
+      "completedVsPlanned": "Completed vs Planned",
+      "weeklyProgress": "Weekly Progress",
+      "dailyProgress": "Daily Progress",
+      "monthlyProgress": "Monthly Progress",
+      "completed": "Completed",
+      "planned": "Planned"
     }
   },
   "achievements": {

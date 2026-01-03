@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
           <p style="margin: 10px 0;"><strong>Datum:</strong> ${formattedDate}</p>
         </div>
         <p><strong>Ozveme se vám s konkrétním časem na email ${email}.</strong></p>
-        <p style="margin-top: 30px;">S pozdravem,<br><strong>Smysluplné žití</strong></p>
+        <p style="margin-top: 30px;">S pozdravem,<br><strong>Smyslužití</strong></p>
       </div>
     ` : `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
           </ul>
         </div>
         <p>Brzy vás budeme kontaktovat na email <strong>${email}</strong> pro potvrzení a další detaily.</p>
-        <p style="margin-top: 30px;">S pozdravem,<br><strong>Smysluplné žití</strong></p>
+        <p style="margin-top: 30px;">S pozdravem,<br><strong>Smyslužití</strong></p>
       </div>
     `
 

@@ -10,7 +10,8 @@ interface HeaderNavigationProps {
   mainPanelSection: string | null
   setMainPanelSection: (section: string | null) => void
   topMenuItems: Array<{ id: string; label: string; icon: any }>
-  totalXp: number
+  completedSteps: number
+  completedHabits: number
   loginStreak: number
   mobileTopMenuOpen: boolean
   setMobileTopMenuOpen: (open: boolean) => void
@@ -22,7 +23,8 @@ export function HeaderNavigation({
   mainPanelSection,
   setMainPanelSection,
   topMenuItems,
-  totalXp,
+  completedSteps,
+  completedHabits,
   loginStreak,
   mobileTopMenuOpen,
   setMobileTopMenuOpen,
@@ -149,21 +151,29 @@ export function HeaderNavigation({
             <div className="flex items-center gap-3 sm:gap-4 lg:gap-6">
               {/* Statistics - Hidden on small screens, visible from lg breakpoint */}
               <div className="hidden lg:flex items-center gap-3">
-                <div className="box-playful-highlight flex items-center gap-1.5 px-2 py-1">
-                  <svg className="w-4 h-4 text-primary-600" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                <button
+                  onClick={() => setCurrentPage('statistics')}
+                  className="box-playful-highlight flex items-center gap-1.5 px-2 py-1 hover:bg-primary-50 transition-colors cursor-pointer"
+                  title={t('statistics.completions') || 'Dokončeno'}
+                >
+                  <svg className="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
-                  <span className="text-black font-semibold text-sm">{totalXp}</span>
-                  <span className="text-gray-600 text-xs">XP</span>
-                </div>
+                  <span className="text-black font-semibold text-sm">{completedSteps + completedHabits}</span>
+                  <span className="text-gray-600 text-xs">{t('statistics.completions') || 'Dokončeno'}</span>
+                </button>
 
-                <div className="box-playful-highlight flex items-center gap-1.5 px-2 py-1">
+                <button
+                  onClick={() => setCurrentPage('statistics')}
+                  className="box-playful-highlight flex items-center gap-1.5 px-2 py-1 hover:bg-primary-50 transition-colors cursor-pointer"
+                  title={t('statistics.streak') || 'Streak'}
+                >
                   <svg className="w-4 h-4 text-primary-600" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/>
                   </svg>
                   <span className="text-black font-semibold text-sm">{loginStreak}</span>
-                  <span className="text-gray-600 text-xs">Streak</span>
-                </div>
+                  <span className="text-gray-600 text-xs">{t('statistics.streak') || 'Streak'}</span>
+                </button>
               </div>
 
               {/* Menu Icons - Desktop: Full buttons, Mobile: Hamburger menu */}

@@ -32,7 +32,7 @@ export default function Navigation() {
             >
               <Image
                 src="/logo.png"
-                alt="Smysluplné žití"
+                alt="Smyslužití"
                 width={200}
                 height={48}
                 className="object-contain h-12 w-auto"

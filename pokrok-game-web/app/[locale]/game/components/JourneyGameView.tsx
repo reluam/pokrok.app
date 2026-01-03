@@ -719,7 +719,6 @@ export function JourneyGameView({
     isImportant: false,
     isUrgent: false,
     estimatedTime: 30,
-    xpReward: 1,
     date: getLocalDateString() // Default to today
   })
   
@@ -1328,8 +1327,6 @@ export function JourneyGameView({
   const [selectedDate, setSelectedDate] = useState('')
   const [showTimeEditor, setShowTimeEditor] = useState(false)
   const [stepEstimatedTime, setStepEstimatedTime] = useState<number>(0)
-  // XP is always 1, not editable
-  const [stepXpReward] = useState<number>(1)
   const [stepIsImportant, setStepIsImportant] = useState<boolean>(false)
   const [stepIsUrgent, setStepIsUrgent] = useState<boolean>(false)
   const [stepGoalId, setStepGoalId] = useState<string | null>(null)
@@ -1349,7 +1346,6 @@ export function JourneyGameView({
   const [editingHabitAutoAdjust31, setEditingHabitAutoAdjust31] = useState<boolean>(true)
   const [editingHabitAlwaysShow, setEditingHabitAlwaysShow] = useState<boolean>(false)
   const [editingHabitAreaId, setEditingHabitAreaId] = useState<string | null>(null)
-  const [editingHabitXpReward, setEditingHabitXpReward] = useState<number>(0)
   const [editingHabitCategory, setEditingHabitCategory] = useState<string>('')
   const [editingHabitDifficulty, setEditingHabitDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
   const [editingHabitReminderTime, setEditingHabitReminderTime] = useState<string>('')
@@ -1475,7 +1471,6 @@ export function JourneyGameView({
       setEditingHabitFrequency(selectedItem.frequency || 'daily')
       setEditingHabitSelectedDays(selectedItem.selected_days || [])
       setEditingHabitAlwaysShow(selectedItem.always_show || false)
-      setEditingHabitXpReward(selectedItem.xp_reward || 0)
       setEditingHabitCategory(selectedItem.category || '')
       setEditingHabitDifficulty(selectedItem.difficulty || 'medium')
       setEditingHabitReminderTime(selectedItem.reminder_time || '')
@@ -1769,7 +1764,6 @@ export function JourneyGameView({
     setEditingHabitFrequency(habit?.frequency || 'daily')
     setEditingHabitSelectedDays(habit?.selected_days || [])
     setEditingHabitAlwaysShow(habit?.always_show || false)
-    setEditingHabitXpReward(habit?.xp_reward || 0)
     setEditingHabitCategory(habit?.category || '')
     setEditingHabitDifficulty(habit?.difficulty || 'medium')
     setEditingHabitReminderTime(habit?.reminder_time || '')
@@ -1853,7 +1847,6 @@ export function JourneyGameView({
           notificationEnabled: editingHabitNotificationEnabled,
           selectedDays: editingHabitSelectedDays,
           alwaysShow: editingHabitAlwaysShow,
-          xpReward: editingHabitXpReward,
           category: editingHabitCategory,
           difficulty: editingHabitDifficulty,
           areaId: editingHabitAreaId || null,
@@ -2041,8 +2034,19 @@ export function JourneyGameView({
     setShowDeleteAreaModal(true)
   }
 
-  const handleDeleteAreaConfirm = async (areaId?: string, deleteRelated?: boolean) => {
-    const targetAreaId = areaId || areaToDelete
+  const handleDeleteAreaConfirm = async (areaId?: string | React.MouseEvent, deleteRelated?: boolean) => {
+    // Handle case where event is passed instead of areaId
+    let actualAreaId: string | null
+    if (typeof areaId === 'string') {
+      actualAreaId = areaId
+    } else if (areaId && 'target' in areaId) {
+      // It's an event, ignore it and use areaToDelete
+      actualAreaId = areaToDelete
+    } else {
+      actualAreaId = areaToDelete
+    }
+    
+    const targetAreaId = actualAreaId
     const shouldDeleteRelated = deleteRelated !== undefined ? deleteRelated : deleteAreaWithRelated
     
     if (!targetAreaId) return
@@ -2104,7 +2108,9 @@ export function JourneyGameView({
         alert(t('areas.deleteError') || `Nepodařilo se smazat oblast: ${errorData.error || 'Neznámá chyba'}`)
       }
     } catch (error) {
-      console.error('Error deleting area:', error)
+      // Safely log error without circular references
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      console.error('Error deleting area:', errorMessage)
       alert(t('areas.deleteError') || 'Chyba při mazání oblasti')
     } finally {
       setIsDeletingArea(false)
@@ -2137,8 +2143,7 @@ export function JourneyGameView({
             title: stepTitle,
             description: stepDescription,
             date: selectedDate || getLocalDateString(),
-            estimated_time: stepEstimatedTime,
-            xp_reward: 1 // Always 1 XP
+            estimated_time: stepEstimatedTime
           })
         })
 
@@ -2198,7 +2203,6 @@ export function JourneyGameView({
             title: stepTitle,
             description: stepDescription,
             estimated_time: stepEstimatedTime,
-            xp_reward: 1, // Always 1 XP
             is_important: stepIsImportant,
             is_urgent: stepIsUrgent,
             goal_id: stepGoalId,
@@ -2212,8 +2216,7 @@ export function JourneyGameView({
             ...selectedItem, 
             title: stepTitle,
             description: stepDescription,
-            estimated_time: stepEstimatedTime,
-            xp_reward: stepXpReward
+            estimated_time: stepEstimatedTime
           })
           
           const currentUserId = userId || player?.user_id
@@ -2335,6 +2338,14 @@ export function JourneyGameView({
   // Handle step date change from date picker in focus section
   const handleStepDateChange = async (stepId: string, newDate: string) => {
     try {
+      // Optimistic update - update local state first
+      const step = dailySteps.find(s => s.id === stepId)
+      if (step) {
+        const optimisticStep = { ...step, date: newDate }
+        const updatedSteps = dailySteps.map(s => s.id === stepId ? optimisticStep : s)
+        onDailyStepsUpdate?.(updatedSteps)
+      }
+
       const response = await fetch('/api/daily-steps', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -2345,15 +2356,92 @@ export function JourneyGameView({
       })
 
       if (response.ok) {
-        // Refresh steps list
-        const updatedSteps = await fetch(`/api/daily-steps?userId=${player?.user_id}`)
-          .then(res => res.json())
-        onDailyStepsUpdate?.(updatedSteps)
+        // Get updated step from response
+        let updatedStep
+        try {
+          updatedStep = await response.json()
+        } catch (jsonError) {
+          console.error('Error parsing response JSON:', jsonError)
+          // If JSON parsing fails, reload steps to get correct state
+          const currentUserId = userId || player?.user_id
+          if (currentUserId && onDailyStepsUpdate) {
+            try {
+              const today = new Date()
+              today.setHours(0, 0, 0, 0)
+              const veryOldDate = new Date(today)
+              veryOldDate.setFullYear(veryOldDate.getFullYear() - 10)
+              const endDate = new Date(today)
+              endDate.setDate(endDate.getDate() + 30)
+              
+              const reloadResponse = await fetch(
+                `/api/daily-steps?userId=${currentUserId}&startDate=${veryOldDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`
+              )
+              if (reloadResponse.ok) {
+                const reloadedSteps = await reloadResponse.json()
+                onDailyStepsUpdate(Array.isArray(reloadedSteps) ? reloadedSteps : [])
+              }
+            } catch (reloadError) {
+              console.error('Error reloading steps after JSON parse error:', reloadError)
+            }
+          }
+          // Don't throw error - just return, steps will be reloaded
+          return
+        }
+        
+        // Update the step in dailySteps array with the response from API
+        const finalUpdatedSteps = dailySteps.map(s => 
+          s.id === stepId ? updatedStep : s
+        )
+        onDailyStepsUpdate?.(finalUpdatedSteps)
       } else {
-        console.error('Error updating step date')
+        // Revert optimistic update on error
+        const errorText = await response.text().catch(() => 'Unknown error')
+        console.error('Error updating step date, status:', response.status, 'error:', errorText)
+        
+        // Reload steps to get correct state
+        const currentUserId = userId || player?.user_id
+        if (currentUserId && onDailyStepsUpdate) {
+          try {
+            const today = new Date()
+            today.setHours(0, 0, 0, 0)
+            const veryOldDate = new Date(today)
+            veryOldDate.setFullYear(veryOldDate.getFullYear() - 10)
+            const endDate = new Date(today)
+            endDate.setDate(endDate.getDate() + 30)
+            
+            const reloadResponse = await fetch(
+              `/api/daily-steps?userId=${currentUserId}&startDate=${veryOldDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`
+            )
+            if (reloadResponse.ok) {
+              const reloadedSteps = await reloadResponse.json()
+              onDailyStepsUpdate(Array.isArray(reloadedSteps) ? reloadedSteps : [])
+            }
+          } catch (reloadError) {
+            console.error('Error reloading steps after date change error:', reloadError)
+          }
+        }
+        
+        // Throw error to show error message
+        throw new Error('Failed to update step date')
       }
     } catch (error) {
       console.error('Error updating step date:', error)
+      // Only reload if it's a real error (not a network error that might be transient)
+      // Don't throw error - let the optimistic update stay and reload steps in background
+      const currentUserId = userId || player?.user_id
+      if (currentUserId && onDailyStepsUpdate) {
+        // Reload steps in background to sync with server
+        fetch(
+          `/api/daily-steps?userId=${currentUserId}&startDate=${new Date(new Date().setFullYear(new Date().getFullYear() - 10)).toISOString().split('T')[0]}&endDate=${new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0]}`
+        )
+          .then(res => res.json())
+          .then(reloadedSteps => {
+            onDailyStepsUpdate(Array.isArray(reloadedSteps) ? reloadedSteps : [])
+          })
+          .catch(reloadError => {
+            console.error('Error reloading steps after date change error:', reloadError)
+          })
+      }
     }
   }
   
@@ -2850,7 +2938,6 @@ export function JourneyGameView({
           isImportant: newStep.isImportant,
           isUrgent: newStep.isUrgent,
           estimatedTime: newStep.estimatedTime,
-          xpReward: newStep.xpReward
         }),
       })
 
@@ -2866,7 +2953,6 @@ export function JourneyGameView({
           isImportant: false,
           isUrgent: false,
           estimatedTime: 30,
-          xpReward: 1,
           date: new Date().toISOString().split('T')[0]
         })
         setShowCreateStep(false)
@@ -2900,7 +2986,6 @@ export function JourneyGameView({
       isImportant: step.is_important || false,
       isUrgent: step.is_urgent || false,
       estimatedTime: step.estimated_time || 30,
-      xpReward: step.xp_reward || 1,
       date: step.date ? new Date(step.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
     })
   }
@@ -2936,7 +3021,6 @@ export function JourneyGameView({
         isImportant: editingStep.isImportant,
         isUrgent: editingStep.isUrgent,
         estimatedTime: editingStep.estimatedTime,
-        xpReward: editingStep.xpReward,
         date: formattedDate
       }
       
@@ -3552,24 +3636,24 @@ export function JourneyGameView({
     }
   }
 
-  // Calculate stats
+  // Calculate stats for today
   const todayStr = getLocalDateString()
-  const completedSteps = dailySteps.filter(step => step.completed).length
+  const todayCompletedSteps = dailySteps.filter(step => step.completed).length
   const totalSteps = dailySteps.length
   
   // Calculate completed habits for today
-  const completedHabits = todaysHabits.filter(habit => {
+  const todayCompletedHabits = todaysHabits.filter(habit => {
     return habit.habit_completions && habit.habit_completions[todayStr] === true
   }).length
   const totalHabits = todaysHabits.length
   
   // Calculate progress percentage from both habits and steps
   const totalTasks = totalHabits + totalSteps
-  const completedTasks = completedHabits + completedSteps
+  const completedTasks = todayCompletedHabits + todayCompletedSteps
   const progressPercentage = totalTasks > 0 ? Math.min(Math.round((completedTasks / totalTasks) * 100), 100) : 0
   
   const completedGoals = goals.filter(goal => goal.steps && goal.steps.every((step: any) => step.completed)).length
-  const activeHabits = completedHabits
+  const activeHabits = todayCompletedHabits
 
   // Get current day and time
   const currentDay = Math.floor(Date.now() / (1000 * 60 * 60 * 24)) % 365 + 1
@@ -3577,26 +3661,24 @@ export function JourneyGameView({
   const timeOfDay = currentHour < 6 ? 'night' : currentHour < 12 ? 'morning' : currentHour < 18 ? 'afternoon' : 'evening'
 
   // Calculate statistics
-  const totalXp = useMemo(() => {
-    let xp = 0
-    // XP from completed daily steps
-    dailySteps.forEach(step => {
-      if (step.completed && step.xp_reward) {
-        xp += step.xp_reward
-      }
-    })
-    // XP from completed habits
+  // Calculate completed steps and habits separately
+  const completedSteps = useMemo(() => {
+    return dailySteps.filter(step => step.completed).length
+  }, [dailySteps])
+
+  const completedHabits = useMemo(() => {
+    let count = 0
     habits.forEach(habit => {
       if (habit.habit_completions) {
         Object.values(habit.habit_completions).forEach(completed => {
-          if (completed && habit.xp_reward) {
-            xp += habit.xp_reward
+          if (completed) {
+            count++
           }
         })
       }
     })
-    return xp
-  }, [dailySteps, habits])
+    return count
+  }, [habits])
 
   // Calculate login streak (days in a row with activity)
   const loginStreak = useMemo(() => {
@@ -3792,7 +3874,8 @@ export function JourneyGameView({
         mainPanelSection={mainPanelSection}
         setMainPanelSection={setMainPanelSection}
         topMenuItems={topMenuItems}
-        totalXp={totalXp}
+        completedSteps={completedSteps}
+        completedHabits={completedHabits}
         loginStreak={loginStreak}
         mobileTopMenuOpen={mobileTopMenuOpen}
         setMobileTopMenuOpen={setMobileTopMenuOpen}
@@ -3848,8 +3931,6 @@ export function JourneyGameView({
           setEditingHabitSelectedDays={setEditingHabitSelectedDays}
           editingHabitAlwaysShow={editingHabitAlwaysShow}
           setEditingHabitAlwaysShow={setEditingHabitAlwaysShow}
-          editingHabitXpReward={editingHabitXpReward}
-          setEditingHabitXpReward={setEditingHabitXpReward}
           editingHabitCategory={editingHabitCategory}
           setEditingHabitCategory={setEditingHabitCategory}
           editingHabitDifficulty={editingHabitDifficulty}
