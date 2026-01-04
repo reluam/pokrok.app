@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
 import { useTranslations, useLocale } from 'next-intl'
-import { Target, ArrowRight, Check, Sparkles, TrendingUp, LayoutGrid, Zap } from 'lucide-react'
+import { Target, ArrowRight, Check, Sparkles, TrendingUp, LayoutGrid, Zap, Menu, X } from 'lucide-react'
 import { DevVersionTooltip } from './components/DevVersionTooltip'
 import { LanguageSwitcher } from './components/LanguageSwitcher'
 
@@ -17,6 +17,7 @@ export default function HomePage() {
   const { isSignedIn, isLoaded } = useUser()
   const t = useTranslations()
   const locale = useLocale()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   // Redirect signed-in users to game
   useEffect(() => {
@@ -24,6 +25,21 @@ export default function HomePage() {
       router.push(`/${locale}/main-panel`)
     }
   }, [isLoaded, isSignedIn, router, locale])
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (isMobileMenuOpen && !target.closest('.mobile-menu-container')) {
+        setIsMobileMenuOpen(false)
+      }
+    }
+
+    if (isMobileMenuOpen) {
+      document.addEventListener('click', handleClickOutside)
+      return () => document.removeEventListener('click', handleClickOutside)
+    }
+  }, [isMobileMenuOpen])
 
   // Don't render anything while checking auth or if redirecting
   if (!isLoaded || (isLoaded && isSignedIn)) {
@@ -44,7 +60,9 @@ export default function HomePage() {
                 <DevVersionTooltip iconSize="w-3 h-3 md:w-4 md:h-4" />
               </div>
             </div>
-            <div className="flex items-center gap-2 md:gap-4">
+            
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center gap-2 md:gap-4">
               <LanguageSwitcher />
               <Link 
                 href={`/${locale}/pricing`}
@@ -62,7 +80,53 @@ export default function HomePage() {
                 {t('homepage.startFree') || 'Začít zdarma'}
               </Link>
             </div>
+
+            {/* Mobile Hamburger Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? (
+                <X className="w-6 h-6 text-text-primary" />
+              ) : (
+                <Menu className="w-6 h-6 text-text-primary" />
+              )}
+            </button>
           </div>
+
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div className="mobile-menu-container md:hidden mt-4 pt-4 border-t-2 border-primary-200">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-text-primary">{locale === 'cs' ? 'Jazyk' : 'Language'}</span>
+                  <LanguageSwitcher />
+                </div>
+                <Link 
+                  href={`/${locale}/pricing`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-base text-text-primary hover:text-primary-600 font-semibold font-playful transition-colors py-2"
+                >
+                  {locale === 'cs' ? 'Ceník' : 'Pricing'}
+                </Link>
+                <Link 
+                  href={`/${locale}/sign-in`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-base text-text-primary hover:text-primary-600 font-semibold font-playful transition-colors py-2"
+                >
+                  {t('homepage.signIn')}
+                </Link>
+                <Link 
+                  href={`/${locale}/sign-up`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="btn-playful-primary px-4 py-2 text-base text-center"
+                >
+                  {t('homepage.startFree') || 'Začít zdarma'}
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 
@@ -78,18 +142,18 @@ export default function HomePage() {
                   <Target className="w-16 h-16 md:w-20 md:h-20 text-primary-600 mx-auto lg:mx-0 mb-6" />
                 </div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-playful text-text-primary mb-6 leading-tight">
-                  {t('homepage.hero.title') || 'Životní plánovač pro lidi, kteří chtějí dosáhnout svých cílů'}
-                </h1>
+            {t('homepage.hero.title') || 'Životní plánovač pro lidi, kteří chtějí dosáhnout svých cílů'}
+          </h1>
                 <p className="text-lg md:text-xl text-text-secondary mb-12 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                  {t('homepage.hero.description') || 'Získejte jasnost a smysluplnost v tom, jak dosáhnout toho, co v životě chcete. Rozdělte velké cíle na malé kroky, budujte návyky a sledujte svůj pokrok.'}
+                  {t('homepage.hero.description') || 'Získejte jasnost a smysluplnost v tom, jak dosáhnout toho, co v životě chcete.'}
                 </p>
                 <div className="flex flex-col items-center lg:items-start gap-6">
                   <Link href={`/${locale}/sign-up`}>
                     <button className="btn-playful-primary px-10 py-5 text-lg md:text-xl font-bold flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-shadow">
-                      {t('homepage.startFree') || 'Začít zdarma'}
+                {t('homepage.startFree') || 'Začít zdarma'}
                       <ArrowRight className="w-6 h-6" />
-                    </button>
-                  </Link>
+              </button>
+            </Link>
                   <div className="space-y-3">
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-100 rounded-playful-md border-2 border-primary-300">
                       <Check className="w-4 h-4 text-primary-600" />
@@ -97,8 +161,8 @@ export default function HomePage() {
                         {t('homepage.trialInfo') || (locale === 'cs' 
                           ? '14denní zkušební verze zdarma • Bez platební karty'
                           : '14-day free trial • No credit card required')}
-                      </p>
-                    </div>
+            </p>
+          </div>
                     <p className="text-sm text-text-secondary font-medium">
                       {locale === 'cs' 
                         ? 'Po dobu trvání alfy jsou všechny funkce zdarma'
@@ -106,8 +170,8 @@ export default function HomePage() {
                     </p>
                   </div>
                 </div>
-              </div>
-              
+            </div>
+
               {/* Right side - App Screenshot */}
               <div className="flex-1 w-full lg:w-auto">
                 <div className="relative">
@@ -202,8 +266,45 @@ export default function HomePage() {
                   ? 'Pokrok je skvělý nástroj, který vám pomůže dosáhnout vašich cílů, ale není to magická pilulka. Aplikace vám poskytne strukturu, organizaci a nástroje pro plánování, ale konečný úspěch závisí na vás. Pokrok vám pomůže na cestě, ale kroky musíte udělat sami.'
                   : 'Pokrok is a great tool that helps you achieve your goals, but it\'s not a magic pill. The app provides you with structure, organization, and planning tools, but your ultimate success depends on you. Pokrok will help you on your journey, but you must take the steps yourself.'}
               </p>
+        </div>
+      </section>
+
+          {/* Final CTA Section */}
+          <section className="px-8 py-16 md:py-20 text-center bg-white border-b-2 border-primary-500 box-playful-highlight-primary">
+            <div className="max-w-3xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-bold font-playful text-text-primary mb-6">
+                {locale === 'cs' ? 'Začněte svou cestu k úspěchu' : 'Start your journey to success'}
+              </h2>
+              <p className="text-lg md:text-xl text-text-secondary mb-10 leading-relaxed">
+                {locale === 'cs' 
+                  ? 'Připojte se k lidem, kteří používají Pokrok k dosahování svých cílů. Začněte zdarma ještě dnes.'
+                  : 'Join people who use Pokrok to achieve their goals. Start for free today.'}
+              </p>
+              <div className="flex flex-col items-center gap-6">
+                <Link href={`/${locale}/sign-up`}>
+                  <button className="btn-playful-primary px-10 py-5 text-lg md:text-xl font-bold flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-shadow">
+                    {t('homepage.startFree') || 'Začít zdarma'}
+                    <ArrowRight className="w-6 h-6" />
+                  </button>
+                </Link>
+                <div className="space-y-3">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-100 rounded-playful-md border-2 border-primary-300">
+                    <Check className="w-4 h-4 text-primary-600" />
+                    <p className="text-sm font-semibold text-primary-700">
+                      {t('homepage.trialInfo') || (locale === 'cs' 
+                        ? '14denní zkušební verze zdarma • Bez platební karty'
+                        : '14-day free trial • No credit card required')}
+              </p>
             </div>
-          </section>
+                  <p className="text-sm text-text-secondary font-medium">
+                    {locale === 'cs' 
+                      ? 'Po dobu trvání alfy jsou všechny funkce zdarma'
+                      : 'During the alpha period all features are free'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
         </div>
       </main>
     </div>

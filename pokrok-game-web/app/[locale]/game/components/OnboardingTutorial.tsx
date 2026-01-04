@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations, useLocale } from 'next-intl'
-import { X, ArrowRight, ArrowLeft, Target, Footprints, CheckSquare, LayoutDashboard, Calendar, TrendingUp, CheckCircle2, Plus, CalendarDays, CalendarRange, CalendarCheck, ChevronDown, ListTodo, BarChart3, Menu, HelpCircle, Settings, Check, Languages } from 'lucide-react'
+import { X, ArrowRight, ArrowLeft, Target, Footprints, CheckSquare, LayoutDashboard, Calendar, TrendingUp, CheckCircle2, Plus, CalendarDays, CalendarRange, CalendarCheck, ChevronDown, ListTodo, BarChart3, Menu, HelpCircle, Settings, Check, Languages, LayoutGrid } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
 import { locales, type Locale } from '@/i18n/config'
 
@@ -85,6 +85,7 @@ export function OnboardingTutorial({
   const locale = useLocale()
   const [currentSlide, setCurrentSlide] = useState(0)
   const [selectedLocale, setSelectedLocale] = useState<Locale>(locale as Locale)
+  const [isCompleting, setIsCompleting] = useState(false)
   const [isSavingLocale, setIsSavingLocale] = useState(false)
   
   // Get localized mock data
@@ -130,16 +131,94 @@ export function OnboardingTutorial({
       )
     },
     {
-      title: t('onboarding.intro.title') || 'Co je Pokrok?',
-      description: t('onboarding.intro.description') || 'Nástroj pro organizaci života a dosahování smysluplných cílů.',
-      icon: Target,
+      title: locale === 'cs' ? 'Základní prvky' : 'Basic elements',
+      description: locale === 'cs' 
+        ? 'V Pokroku jsou čtyři základní prvky, které vám pomohou organizovat váš život.'
+        : 'In Pokrok, there are four basic elements that will help you organize your life.',
+      icon: LayoutGrid,
       content: (
-        <div className="space-y-4">
-          <p className="text-gray-700 text-base leading-relaxed">
-            {t('onboarding.intro.detailed') || (locale === 'cs' 
-              ? 'Umožňuje vám organizovat vaše cíle, rozdělit je na dosažitelné kroky a sledovat, jak se posouváte směrem k životu, který chcete žít.'
-              : 'It allows you to organize your goals, break them down into achievable steps, and track how you are moving towards the life you want to live.')}
-          </p>
+        <div className="space-y-6">
+          <div className="space-y-3 mb-6">
+            <p className="text-gray-700 text-base leading-relaxed">
+              {locale === 'cs' 
+                ? 'Umožňuje vám organizovat vaše cíle, rozdělit je na dosažitelné kroky a sledovat, jak se posouváte směrem k životu, který chcete žít.'
+                : 'It allows you to organize your goals, break them down into achievable steps, and track how you are moving towards the life you want to live.'}
+            </p>
+            <p className="text-gray-700 text-base leading-relaxed">
+              {locale === 'cs' 
+                ? 'Zaměřujeme se na smysluplnost, ne jen na produktivitu. Každý cíl, krok a návyk by měl mít svůj důvod a přispívat k životu, jaký chcete mít.'
+                : 'We focus on meaning, not just productivity. Every goal, step, and habit should have its purpose and contribute to the life you want to have.'}
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {/* Areas */}
+            <div className="p-6 bg-white border-2 border-primary-300 rounded-lg hover:shadow-lg transition-shadow">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center border-2 border-primary-300">
+                  <LayoutGrid className="w-6 h-6 text-primary-600" />
+                </div>
+                <h3 className="text-lg font-bold text-black font-playful">
+                  {locale === 'cs' ? 'Oblasti' : 'Areas'}
+                </h3>
+              </div>
+              <p className="text-sm text-gray-600">
+                {locale === 'cs' 
+                  ? 'Organizujte své cíle, kroky a návyky do oblastí'
+                  : 'Organize your goals, steps and habits into areas'}
+              </p>
+            </div>
+
+            {/* Goals */}
+            <div className="p-6 bg-white border-2 border-primary-300 rounded-lg hover:shadow-lg transition-shadow">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center border-2 border-primary-300">
+                  <Target className="w-6 h-6 text-primary-600" />
+                </div>
+                <h3 className="text-lg font-bold text-black font-playful">
+                  {locale === 'cs' ? 'Cíle' : 'Goals'}
+                </h3>
+              </div>
+              <p className="text-sm text-gray-600">
+                {locale === 'cs' 
+                  ? 'Dlouhodobé cíle, které chcete dosáhnout'
+                  : 'Long-term goals you want to achieve'}
+              </p>
+            </div>
+
+            {/* Steps */}
+            <div className="p-6 bg-white border-2 border-primary-300 rounded-lg hover:shadow-lg transition-shadow">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center border-2 border-primary-300">
+                  <Footprints className="w-6 h-6 text-primary-600" />
+                </div>
+                <h3 className="text-lg font-bold text-black font-playful">
+                  {locale === 'cs' ? 'Kroky' : 'Steps'}
+                </h3>
+              </div>
+              <p className="text-sm text-gray-600">
+                {locale === 'cs' 
+                  ? 'Konkrétní akce vedoucí k vašim cílům'
+                  : 'Concrete actions leading to your goals'}
+              </p>
+            </div>
+
+            {/* Habits */}
+            <div className="p-6 bg-white border-2 border-primary-300 rounded-lg hover:shadow-lg transition-shadow">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center border-2 border-primary-300">
+                  <CheckSquare className="w-6 h-6 text-primary-600" />
+                </div>
+                <h3 className="text-lg font-bold text-black font-playful">
+                  {locale === 'cs' ? 'Návyky' : 'Habits'}
+                </h3>
+              </div>
+              <p className="text-sm text-gray-600">
+                {locale === 'cs' 
+                  ? 'Opakující se rutiny, které budujete dlouhodobě'
+                  : 'Repeating routines you build long-term'}
+              </p>
+            </div>
+          </div>
         </div>
       )
     },
@@ -152,9 +231,14 @@ export function OnboardingTutorial({
       content: (
         <div className="space-y-4">
           <p className="text-gray-700 text-base leading-relaxed">
-            {locale === 'cs' 
+              {locale === 'cs' 
               ? 'V aplikaci najdete sekci "Nápověda" v navigačním menu, kde se dozvíte více o tom, jak používat všechny funkce Pokroku.'
               : 'In the app, you can find the "Help" section in the navigation menu, where you can learn more about how to use all Pokrok features.'}
+          </p>
+          <p className="text-gray-700 text-base leading-relaxed">
+              {locale === 'cs' 
+              ? 'Po dokončení tohoto tutoriálu se vám zobrazí kroky, které vás provedou aplikací a pomohou vám se naučit, jak používat všechny funkce Pokroku.'
+              : 'After completing this tutorial, you will see steps that will guide you through the app and help you learn how to use all Pokrok features.'}
           </p>
           <div className="p-4 bg-primary-50 rounded-lg border-2 border-primary-200">
             <div className="flex items-start gap-3">
@@ -164,7 +248,7 @@ export function OnboardingTutorial({
                   {locale === 'cs' ? 'Tip:' : 'Tip:'}
                 </p>
                 <p className="text-sm text-gray-700">
-                  {locale === 'cs' 
+              {locale === 'cs' 
                     ? 'V hlavním panelu najdete kroky s dnešním datumem, které vás provedou základy používání aplikace.'
                     : 'In the main panel, you will find steps with today\'s date that will guide you through the basics of using the app.'}
                 </p>
@@ -241,24 +325,52 @@ export function OnboardingTutorial({
   }
 
   const handleComplete = async () => {
+    if (isCompleting) return // Prevent double submission
+    
+    setIsCompleting(true)
     try {
+      console.log('[OnboardingTutorial] Completing onboarding...')
+      
       const response = await fetch('/api/user/onboarding', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          hasCompletedOnboarding: true
+        })
       })
+      
       if (response.ok) {
-        onComplete()
+        const data = await response.json()
+        console.log('[OnboardingTutorial] Onboarding completed successfully:', data)
+        
+        // Verify that has_completed_onboarding is true
+        if (data.user && data.user.has_completed_onboarding) {
+          console.log('[OnboardingTutorial] Confirmed: has_completed_onboarding is true')
+          // Database update was successful - close tutorial
+          onComplete()
+        } else {
+          console.error('[OnboardingTutorial] Warning: has_completed_onboarding is not true after update:', data.user)
+          // Still call onComplete to close the modal
+          onComplete()
+        }
       } else {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        console.error('[OnboardingTutorial] Failed to complete onboarding:', errorData)
+        // Still call onComplete to close the modal
         onComplete()
       }
     } catch (error) {
-      console.error('Error completing onboarding:', error)
+      console.error('[OnboardingTutorial] Error completing onboarding:', error)
+      // Still call onComplete to close the modal
       onComplete()
+    } finally {
+      setIsCompleting(false)
     }
   }
 
   const handleSkip = () => {
-    handleComplete()
+    // Just close the tutorial without completing onboarding
+    onSkip()
   }
 
   if (!isActive) return null
@@ -285,7 +397,10 @@ export function OnboardingTutorial({
           </div>
           <button
             onClick={handleSkip}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            disabled={isCompleting}
+            className={`p-2 hover:bg-gray-100 rounded-lg transition-colors ${
+              isCompleting ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
             title={t('onboarding.skip') || 'Přeskočit'}
           >
             <X className="w-5 h-5 text-gray-500" />
@@ -331,12 +446,24 @@ export function OnboardingTutorial({
 
           <button
             onClick={handleNext}
-            className="px-6 py-2 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg transition-colors flex items-center gap-2 font-playful border-2 border-primary-600"
+            disabled={isCompleting}
+            className={`px-6 py-2 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg transition-colors flex items-center gap-2 font-playful border-2 border-primary-600 ${
+              isCompleting ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           >
             {isLastSlide ? (
               <>
+                {isCompleting ? (
+                  <>
+                    <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span>
+                    {t('onboarding.complete.completing') || 'Dokončování...'}
+                  </>
+                ) : (
+              <>
                 {t('onboarding.complete.button') || 'Dokončit'}
                 <CheckCircle2 className="w-4 h-4" />
+                  </>
+                )}
               </>
             ) : (
               <>

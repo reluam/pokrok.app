@@ -150,45 +150,46 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
     }
   }, [pathname])
 
-  // Load daily steps - load all overdue steps (no limit) + upcoming steps (next 30 days)
-  useEffect(() => {
-    const loadDailySteps = async () => {
-      // Use userId prop if available, otherwise fallback to player?.user_id
-      const currentUserId = userId || player?.user_id
-      if (!currentUserId) {
-        setIsLoadingSteps(false)
-        return
-      }
-
-      setIsLoadingSteps(true)
-      try {
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        
-        // Load all overdue steps (no startDate limit) + upcoming steps (next 30 days)
-        // Use a very old startDate (10 years ago) to get all overdue steps
-        const veryOldDate = new Date(today)
-        veryOldDate.setFullYear(veryOldDate.getFullYear() - 10)
-        const endDate = new Date(today)
-        endDate.setDate(endDate.getDate() + 30)
-        
-        // Load steps for date range
-        const response = await fetch(
-          `/api/daily-steps?userId=${currentUserId}&startDate=${veryOldDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`
-        )
-        if (response.ok) {
-          const steps = await response.json()
-          setDailySteps(Array.isArray(steps) ? steps : [])
-        } else {
-          console.error('Failed to load daily steps, status:', response.status)
-        }
-      } catch (error) {
-        console.error('Error loading daily steps:', error)
-      } finally {
-        setIsLoadingSteps(false)
-      }
+  // Function to load daily steps - can be called from anywhere
+  const loadDailySteps = async () => {
+    // Use userId prop if available, otherwise fallback to player?.user_id
+    const currentUserId = userId || player?.user_id
+    if (!currentUserId) {
+      setIsLoadingSteps(false)
+      return
     }
 
+    setIsLoadingSteps(true)
+    try {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      
+      // Load all overdue steps (no startDate limit) + upcoming steps (next 30 days)
+      // Use a very old startDate (10 years ago) to get all overdue steps
+      const veryOldDate = new Date(today)
+      veryOldDate.setFullYear(veryOldDate.getFullYear() - 10)
+      const endDate = new Date(today)
+      endDate.setDate(endDate.getDate() + 30)
+      
+      // Load steps for date range
+      const response = await fetch(
+        `/api/daily-steps?userId=${currentUserId}&startDate=${veryOldDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`
+      )
+      if (response.ok) {
+        const steps = await response.json()
+        setDailySteps(Array.isArray(steps) ? steps : [])
+      } else {
+        console.error('Failed to load daily steps, status:', response.status)
+      }
+    } catch (error) {
+      console.error('Error loading daily steps:', error)
+    } finally {
+      setIsLoadingSteps(false)
+    }
+  }
+
+  // Load daily steps - load all overdue steps (no limit) + upcoming steps (next 30 days)
+  useEffect(() => {
     loadDailySteps()
   }, [userId, player?.user_id])
 
@@ -252,6 +253,17 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
 
   const handleDailyStepsUpdate = (steps: any[]) => {
     setDailySteps(steps)
+  }
+
+  // Handle onboarding completion - reload steps to show newly created onboarding steps
+  const handleOnboardingComplete = async () => {
+    if (onOnboardingComplete) {
+      onOnboardingComplete()
+    }
+    // Wait a moment for database transaction to commit
+    await new Promise(resolve => setTimeout(resolve, 500))
+    // Reload steps to show newly created onboarding steps
+    await loadDailySteps()
   }
 
   // Handle create goal
@@ -325,7 +337,7 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
             onGoalsUpdate={onGoalsUpdate}
             onDailyStepsUpdate={handleDailyStepsUpdate}
             hasCompletedOnboarding={hasCompletedOnboarding}
-            onOnboardingComplete={onOnboardingComplete}
+            onOnboardingComplete={handleOnboardingComplete}
           />
         )
       case 'daily-plan':
@@ -426,7 +438,7 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
             onGoalsUpdate={onGoalsUpdate}
             onDailyStepsUpdate={handleDailyStepsUpdate}
             hasCompletedOnboarding={hasCompletedOnboarding}
-            onOnboardingComplete={onOnboardingComplete}
+            onOnboardingComplete={handleOnboardingComplete}
           />
         )
     }

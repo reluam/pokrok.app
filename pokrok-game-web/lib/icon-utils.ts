@@ -92,6 +92,8 @@ import {
   Users,
   // Layout/Organization icons
   LayoutDashboard,
+  // Help icons
+  HelpCircle,
 } from 'lucide-react'
 
 const iconMap: Record<string, any> = {
@@ -111,7 +113,9 @@ const iconMap: Record<string, any> = {
   // Career icons
   Building, Users,
   // Layout/Organization icons
-  LayoutDashboard
+  LayoutDashboard,
+  // Help icons
+  HelpCircle
 }
 
 // Map emoji icons to outline icons

@@ -27,6 +27,9 @@ export async function GET(request: NextRequest) {
       completed_today: habit.habit_completions?.[today] === true
     }))
 
+    // Log user onboarding status for debugging
+    console.log('[Game/Init] User onboarding status:', dbUser.has_completed_onboarding)
+
     return NextResponse.json({
       user: dbUser,
       player,

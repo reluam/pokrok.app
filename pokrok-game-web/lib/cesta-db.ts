@@ -929,25 +929,31 @@ export async function getUserByClerkId(clerkUserId: string): Promise<User | null
     cleanupCache()
     const cached = userCache.get(clerkUserId)
     if (cached && (Date.now() - cached.timestamp) < USER_CACHE_TTL) {
+      console.log('[getUserByClerkId] Returning cached user for:', clerkUserId)
       return cached.user as User
     }
 
     // Fetch from database
+    console.log('[getUserByClerkId] Fetching user from database for:', clerkUserId)
     const users = await sql`
       SELECT * FROM users 
       WHERE clerk_user_id = ${clerkUserId}
       LIMIT 1
     `
     const user = users[0] as User || null
+    console.log('[getUserByClerkId] User found:', !!user, user ? `id: ${user.id}` : 'null')
     
     // Cache the result (even if null to avoid repeated queries for non-existent users)
-    if (userCache.size < MAX_CACHE_SIZE) {
+    // But only cache if user exists - don't cache null to allow retry
+    if (user && userCache.size < MAX_CACHE_SIZE) {
       userCache.set(clerkUserId, { user, timestamp: Date.now() })
+      console.log('[getUserByClerkId] User cached for:', clerkUserId)
     }
     
     return user
   } catch (error) {
     console.error('Error fetching user by clerk ID:', error)
+    console.error('Error details:', error instanceof Error ? error.message : String(error))
     return null
   }
 }

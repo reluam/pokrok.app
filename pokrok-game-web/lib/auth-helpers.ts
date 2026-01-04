@@ -2,6 +2,7 @@ import { auth, currentUser } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { getUserByClerkId, createUser, User } from '@/lib/cesta-db'
 import { neon } from '@neondatabase/serverless'
+import { createOnboardingItems } from '@/lib/onboarding-helpers'
 
 const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
 
@@ -40,6 +41,15 @@ export async function requireAuth(request: NextRequest): Promise<AuthContext | N
 
       // Vytvořit uživatele v databázi
       dbUser = await createUser(clerkUserId, email, name)
+      
+      // Get locale from NEXT_LOCALE cookie
+      const localeCookie = request.cookies.get('NEXT_LOCALE')?.value
+      const locale = (localeCookie === 'en' || localeCookie === 'cs') ? localeCookie : 'cs'
+      console.log('[requireAuth] Creating onboarding items for new user:', dbUser.id, 'locale:', locale)
+      
+      // Create onboarding items (area, goal, steps) for new user
+      // Don't fail user creation if onboarding items fail - user can still use the app
+      await createOnboardingItems(dbUser.id, locale)
     } catch (error) {
       console.error('Error creating user automatically:', error)
       return NextResponse.json({ error: 'Failed to create user' }, { status: 500 })

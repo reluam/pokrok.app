@@ -19,7 +19,7 @@ interface HelpViewProps {
   realSteps?: any[]
 }
 
-type HelpCategory = 'getting-started' | 'overview' | 'navigation' | 'areas' | 'goals' | 'steps' | 'habits'
+type HelpCategory = 'overview' | 'navigation' | 'areas' | 'goals' | 'steps' | 'habits'
 
 // Compact Step Component
 function Step({ number, text }: { number: number; text: string }) {
@@ -55,12 +55,11 @@ export function HelpView({
   const tCommon = useTranslations()
   const tHomepage = useTranslations('homepage')
   const locale = useLocale()
-  const [selectedCategory, setSelectedCategory] = useState<HelpCategory>('getting-started')
+  const [selectedCategory, setSelectedCategory] = useState<HelpCategory>('overview')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showContactModal, setShowContactModal] = useState(false)
 
   const categories = [
-    { id: 'getting-started' as HelpCategory, label: t('categories.gettingStarted'), icon: Rocket },
     { id: 'overview' as HelpCategory, label: t('categories.views'), icon: Eye },
     { id: 'navigation' as HelpCategory, label: t('categories.navigation'), icon: Navigation },
     { id: 'areas' as HelpCategory, label: t('categories.areas'), icon: LayoutDashboard },
@@ -75,411 +74,6 @@ export function HelpView({
 
   const renderContent = () => {
     switch (selectedCategory) {
-      case 'getting-started':
-        return (
-          <div className="space-y-6">
-            {/* Hero */}
-            <div className="box-playful-highlight-primary p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <Target className="w-8 h-8 text-primary-600" />
-                <h2 className="text-2xl font-bold text-black font-playful text-black font-playful">
-                  {tHomepage('hero.title') || 'Životní plánovač pro lidi, kteří chtějí dosáhnout svých cílů'}
-                </h2>
-              </div>
-              <p className="text-gray-600 font-playful text-base leading-relaxed font-playful">
-                {tHomepage('hero.description') || 'Pokrok vám pomůže získat jasnost a smysluplnost v tom, jak dosáhnout toho, co v životě chcete. Rozdělte velké cíle na malé kroky, budujte návyky a sledujte svůj pokrok.'}
-              </p>
-            </div>
-
-            {/* Getting Started - Practical Steps */}
-            <div className="box-playful-highlight p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Rocket className="w-6 h-6 text-primary-600" />
-                <h3 className="text-2xl font-bold text-black font-playful text-black font-playful">
-                  {t('gettingStarted.stepsToSuccess') || '4 kroky k úspěchu'}
-                </h3>
-              </div>
-              <p className="text-gray-600 font-playful mb-6 text-sm font-playful">
-                {tHomepage('features.clarity.description') || 'Začněte s praktickými kroky. Vytvořte si oblasti, přidejte cíle, rozdělte je na kroky a budujte návyky. Pokrok vám ukáže, na co se soustředit dnes.'}
-              </p>
-            </div>
-
-            {/* 4 Steps */}
-            <div className="space-y-8 mt-6">
-              {/* Step 0 - Areas */}
-              <div className="box-playful-highlight p-6">
-                <div className="mb-4">
-                  <h4 className="font-semibold text-black font-playful flex items-center gap-2 mb-4">
-                    <LayoutDashboard className="w-5 h-5 text-primary-600" /> {t('gettingStarted.step0.title')}
-                  </h4>
-                  <div className="text-sm text-gray-600 font-playful leading-relaxed space-y-2 font-playful">
-                    {t.rich('gettingStarted.step0.subtitle', {
-                      strong: (chunks) => <strong className="text-black font-semibold">{chunks}</strong>
-                    })}
-                  </div>
-                </div>
-
-                {/* Example Areas */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  {/* Example Area 1 - Health */}
-                  <div className="box-playful-highlight p-4 hover:bg-primary-50 transition-colors">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <span 
-                          className="w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0"
-                          style={{ backgroundColor: '#10b981' }}
-                        >
-                          <Flame className="w-4 h-4 text-white" />
-                        </span>
-                        <h3 className="text-lg font-semibold text-black font-playful">{locale === 'cs' ? 'Zdraví' : 'Health'}</h3>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <button className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-600 font-playful font-playful opacity-50 cursor-not-allowed">
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button className="p-1.5 rounded-lg hover:bg-red-100 transition-colors text-gray-500 hover:text-red-600 opacity-50 cursor-not-allowed">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-600 font-playful mb-3 font-playful">{locale === 'cs' ? 'Zdravotní cíle a návyky' : 'Health goals and habits'}</p>
-                    <div className="flex items-center gap-4 text-sm text-gray-600 font-playful font-playful">
-                      <span>2 {tCommon('goals.title') || 'GOALS'}</span>
-                      <span>5 {locale === 'cs' ? 'KROKY' : 'STEPS'}</span>
-                      <span>3 {tCommon('habits.title') || 'HABITS'}</span>
-                    </div>
-                  </div>
-
-                  {/* Example Area 2 - Career */}
-                  <div className="box-playful-highlight p-4 hover:bg-primary-50 transition-colors">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <span 
-                          className="w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0"
-                          style={{ backgroundColor: '#ea580c' }}
-                        >
-                          <Briefcase className="w-4 h-4 text-white" />
-                        </span>
-                        <h3 className="text-lg font-semibold text-black font-playful">{locale === 'cs' ? 'Kariéra' : 'Career'}</h3>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <button className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-600 font-playful font-playful opacity-50 cursor-not-allowed">
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button className="p-1.5 rounded-lg hover:bg-red-100 transition-colors text-gray-500 hover:text-red-600 opacity-50 cursor-not-allowed">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span>3 {tCommon('goals.title') || 'GOALS'}</span>
-                      <span>8 {locale === 'cs' ? 'KROKY' : 'STEPS'}</span>
-                      <span>1 {tCommon('habits.title') || 'HABITS'}</span>
-                    </div>
-                  </div>
-
-                  {/* Example Area 3 - Relationships */}
-                  <div className="box-playful-highlight p-4 hover:bg-primary-50 transition-colors">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <span 
-                          className="w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0"
-                          style={{ backgroundColor: '#3b82f6' }}
-                        >
-                          <Heart className="w-4 h-4 text-white" />
-                        </span>
-                        <h3 className="text-lg font-semibold text-black font-playful">{locale === 'cs' ? 'Vztahy' : 'Relationships'}</h3>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <button className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-600 font-playful font-playful opacity-50 cursor-not-allowed">
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button className="p-1.5 rounded-lg hover:bg-red-100 transition-colors text-gray-500 hover:text-red-600 opacity-50 cursor-not-allowed">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-600 font-playful mb-3">{locale === 'cs' ? 'Vztahy s rodinou a přáteli' : 'Family and friends'}</p>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span>1 {tCommon('goals.title') || 'GOALS'}</span>
-                      <span>2 {locale === 'cs' ? 'KROKY' : 'STEPS'}</span>
-                      <span>2 {tCommon('habits.title') || 'HABITS'}</span>
-                    </div>
-                  </div>
-
-                  {/* Example Area 4 - Personal Growth */}
-                  <div className="box-playful-highlight p-4 hover:bg-primary-50 transition-colors">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <span 
-                          className="w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0"
-                          style={{ backgroundColor: '#8b5cf6' }}
-                        >
-                          <TrendingUpIcon className="w-4 h-4 text-white" />
-                        </span>
-                        <h3 className="text-lg font-semibold text-black font-playful">{locale === 'cs' ? 'Osobní růst' : 'Personal Growth'}</h3>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <button className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-600 font-playful font-playful opacity-50 cursor-not-allowed">
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button className="p-1.5 rounded-lg hover:bg-red-100 transition-colors text-gray-500 hover:text-red-600 opacity-50 cursor-not-allowed">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span>2 {tCommon('goals.title') || 'GOALS'}</span>
-                      <span>4 {locale === 'cs' ? 'KROKY' : 'STEPS'}</span>
-                      <span>0 {tCommon('habits.title') || 'HABITS'}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  {onOpenAreasManagement && (
-                    <button onClick={onOpenAreasManagement} className="btn-playful-base flex-1 flex items-center justify-center gap-1 px-3 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium">
-                      <Plus className="w-4 h-4" /> {t('gettingStarted.step0.button') || 'Vytvořit oblast'}
-                    </button>
-                  )}
-                  {onNavigateToManagement && (
-                    <button onClick={onNavigateToManagement} className="btn-playful-base px-3 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm">
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Step 1 - Goals */}
-              <div className="box-playful-highlight p-6">
-                <div className="mb-4">
-                  <h4 className="font-semibold text-black font-playful flex items-center gap-2 mb-4">
-                    <Target className="w-5 h-5 text-primary-600" /> {t('gettingStarted.step1.title')}
-                  </h4>
-                  <div className="text-sm text-gray-600 font-playful leading-relaxed space-y-2 font-playful">
-                    {t.rich('gettingStarted.step1.subtitle', {
-                      strong: (chunks) => <strong className="text-black font-semibold">{chunks}</strong>
-                    })}
-                  </div>
-              </div>
-
-                {/* Example Goal Card */}
-                <div className="box-playful-highlight mb-4 overflow-hidden">
-                  <div className="p-5 border-b-2 border-primary-500">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="flex-shrink-0">
-                          <Target className="w-6 h-6 text-primary-600" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-black font-playful">
-                          {t('gettingStarted.step1.example')}
-                        </h3>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-600 font-playful mb-3 font-playful">
-                      {t('gettingStarted.step1.exampleDesc')}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-playful-sm text-xs font-medium font-playful bg-primary-100 text-primary-600 border-2 border-primary-500">
-                        <Target className="w-3.5 h-3.5" />
-                        {tCommon('goals.status.active')}
-                      </span>
-                      <span className="text-xs text-gray-600 font-playful font-playful">{t('gettingStarted.step1.exampleDeadline')}</span>
-                    </div>
-                  </div>
-                  <div className="px-5 py-3 bg-white">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-gray-600 font-playful font-playful">{t('gettingStarted.step1.exampleProgress')}</span>
-                      <span className="text-xs font-medium text-primary-600 font-playful">{t('gettingStarted.step1.exampleStepsCount')}</span>
-                    </div>
-                    <div className="w-full h-2 bg-white border-2 border-primary-500 rounded-playful-sm overflow-hidden">
-                      <div className="h-full bg-primary-500 rounded-playful-sm" style={{ width: '40%' }} />
-                    </div>
-                  </div>
-              </div>
-
-                <div className="flex gap-2">
-                  {onAddGoal && (
-                    <button onClick={onAddGoal} className="btn-playful-base flex-1 flex items-center justify-center gap-1 px-3 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium">
-                      <Plus className="w-4 h-4" /> {t('gettingStarted.step1.button')}
-                    </button>
-                  )}
-                  {onNavigateToGoals && (
-                    <button onClick={onNavigateToGoals} className="btn-playful-base px-3 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm">
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  )}
-              </div>
-            </div>
-
-              {/* Step 2 - Steps */}
-              <div className="box-playful-highlight p-6">
-                <div className="mb-4">
-                  <h4 className="font-semibold text-black font-playful flex items-center gap-2 mb-4">
-                    <Footprints className="w-5 h-5 text-primary-600" /> {t('gettingStarted.step2.title')}
-                  </h4>
-                  <div className="text-sm text-gray-600 font-playful leading-relaxed space-y-2 font-playful">
-                    {t.rich('gettingStarted.step2.subtitle', {
-                      strong: (chunks) => <strong className="text-black font-semibold">{chunks}</strong>
-                    })}
-              </div>
-            </div>
-
-                {/* Example Step Cards */}
-                <div className="space-y-2 mb-4">
-                  <div className="box-playful-highlight flex items-center gap-3 p-3 bg-primary-100">
-                    <div className="w-6 h-6 rounded-playful-sm border-2 border-primary-500 bg-primary-500 flex items-center justify-center flex-shrink-0">
-                      <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                    </div>
-                    <span className="flex-1 text-sm font-medium text-primary-600 font-playful">
-                      {t('gettingStarted.step2.example1')}
-                    </span>
-                    <span className="hidden sm:block w-20 text-xs text-center text-primary-600 capitalize font-playful">{t('gettingStarted.step2.today')}</span>
-                    <span className="hidden sm:block w-14 text-xs text-gray-600 font-playful text-center font-playful">{t('gettingStarted.step2.example1Time')}</span>
-                  </div>
-                  <div className="box-playful-highlight flex items-center gap-3 p-3 bg-white">
-                    <div className="w-6 h-6 rounded-playful-sm border-2 border-primary-500 flex items-center justify-center flex-shrink-0">
-                    </div>
-                    <span className="flex-1 text-sm font-medium text-black font-playful">
-                      {t('gettingStarted.step2.example2')}
-                    </span>
-                    <span className="hidden sm:block w-20 text-xs text-center text-gray-600 font-playful capitalize font-playful">{t('gettingStarted.step2.tomorrow')}</span>
-                    <span className="hidden sm:block w-14 text-xs text-gray-600 font-playful text-center font-playful">{t('gettingStarted.step2.example2Time')}</span>
-                  </div>
-                </div>
-                
-                <div className="flex gap-2">
-                  {onAddStep && (
-                    <button onClick={onAddStep} className="btn-playful-base flex-1 flex items-center justify-center gap-1 px-3 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium">
-                      <Plus className="w-4 h-4" /> {t('gettingStarted.step2.button')}
-                    </button>
-                  )}
-                  {onNavigateToSteps && (
-                    <button onClick={onNavigateToSteps} className="btn-playful-base px-3 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm">
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Step 3 - Habits */}
-              <div className="box-playful-highlight p-6">
-                <div className="mb-4">
-                  <h4 className="font-semibold text-black font-playful flex items-center gap-2 mb-4">
-                    <CheckSquare className="w-5 h-5 text-primary-600" /> {t('gettingStarted.step3.title')}
-                  </h4>
-                  <div className="text-sm text-gray-600 font-playful leading-relaxed space-y-2 font-playful">
-                    {t.rich('gettingStarted.step3.subtitle', {
-                      strong: (chunks) => <strong className="text-black font-semibold">{chunks}</strong>
-                    })}
-                  </div>
-                </div>
-                
-                {/* Example Habit Timeline */}
-                <div className="box-playful-highlight p-4 mb-4">
-                  {/* Header with day names */}
-                  <div className="flex items-center gap-1 mb-2 sm:pl-[100px]">
-                    {(() => {
-                      const days = [
-                        t('days.mon'),
-                        t('days.tue'),
-                        t('days.wed'),
-                        t('days.thu'),
-                        t('days.fri'),
-                        t('days.sat'),
-                        t('days.sun')
-                      ]
-                      const startDate = 15 // Fixed start date for example
-                      return days.map((day, idx) => (
-                        <div key={idx} className="w-7 h-7 flex flex-col items-center justify-center text-[9px] rounded text-gray-400 flex-shrink-0">
-                          <span className="uppercase leading-none">{day}</span>
-                          <span className="text-[8px] leading-none">{startDate + idx}</span>
-                        </div>
-                      ))
-                    })()}
-                  </div>
-                  
-                  {/* Habits with boxes */}
-                  <div className="space-y-3 sm:space-y-1">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-1">
-                      <button className="text-left text-[11px] font-medium text-gray-600 font-playful hover:text-primary-600 transition-colors font-playful sm:w-[100px] sm:flex-shrink-0">
-                        {t('gettingStarted.step3.example1')}
-                      </button>
-                      <div className="flex gap-1">
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center flex-shrink-0">
-                          <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                        </div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center flex-shrink-0">
-                          <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                        </div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
-                      </div>
-                    </div>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-1">
-                      <button className="text-left text-[11px] font-medium text-gray-600 font-playful hover:text-primary-600 transition-colors font-playful sm:w-[100px] sm:flex-shrink-0">
-                        {t('gettingStarted.step3.example2')}
-                      </button>
-                      <div className="flex gap-1">
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-500 border-2 border-primary-500 flex items-center justify-center flex-shrink-0">
-                          <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                        </div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
-                        <div className="w-7 h-7 rounded-playful-sm bg-primary-100 border-2 border-primary-500 flex-shrink-0"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex gap-2">
-                  {onAddHabit && (
-                    <button onClick={onAddHabit} className="btn-playful-base flex-1 flex items-center justify-center gap-1 px-3 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium">
-                      <Plus className="w-4 h-4" /> {t('gettingStarted.step3.button')}
-                    </button>
-                  )}
-                  {onNavigateToHabits && (
-                    <button onClick={onNavigateToHabits} className="btn-playful-base px-3 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm">
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* What's Next */}
-            <div className="box-playful-highlight p-4 mt-6">
-              <h4 className="font-semibold text-black font-playful flex items-center gap-2 mb-2">
-                <TrendingUp className="w-5 h-5 text-primary-600" /> {t('gettingStarted.whatsNext')}
-              </h4>
-              <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 font-playful font-playful">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-primary-600" />
-                  <span>{t('gettingStarted.nextItems.dailyOverview')}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckSquare className="w-4 h-4 text-primary-600" />
-                  <span>{t('gettingStarted.nextItems.completeSteps')}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Star className="w-4 h-4 text-primary-600" />
-                  <span>{t('gettingStarted.nextItems.focusImportant')}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-primary-600" />
-                  <span>{t('gettingStarted.nextItems.trackProgress')}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-
       case 'overview':
         return (
           <div className="space-y-6">
@@ -949,20 +543,12 @@ export function HelpView({
             <div className="box-playful-highlight p-6">
               <h3 className="font-semibold text-black font-playful mb-4">{locale === 'cs' ? 'Jak vytvořit oblast?' : 'How to create an area?'}</h3>
               <div className="space-y-3">
-                <Step number={1} text={locale === 'cs' ? 'Přejděte do Nastavení (ikona ozubeného kola v horním menu)' : 'Go to Settings (gear icon in the top menu)'} />
-                <Step number={2} text={locale === 'cs' ? 'Vyberte záložku "Životní oblasti"' : 'Select the "Life Areas" tab'} />
-                <Step number={3} text={locale === 'cs' ? 'Klikněte na tlačítko "Přidat oblast"' : 'Click the "Add Area" button'} />
+                <Step number={1} text={locale === 'cs' ? 'Na hlavním panelu najděte tlačítko "Přidat" (ikona plus) v dolní části levého navigačního menu' : 'On the main panel, find the "Add" button (plus icon) at the bottom of the left navigation menu'} />
+                <Step number={2} text={locale === 'cs' ? 'Klikněte na tlačítko "Přidat"' : 'Click the "Add" button'} />
+                <Step number={3} text={locale === 'cs' ? 'Vyberte "Oblast" z nabídky' : 'Select "Area" from the menu'} />
                 <Step number={4} text={locale === 'cs' ? 'Vyplňte název oblasti (např. "Zdraví", "Kariéra")' : 'Fill in the area name (e.g., "Health", "Career")'} />
                 <Step number={5} text={locale === 'cs' ? 'Volitelně přidejte popis, barvu a ikonu' : 'Optionally add description, color, and icon'} />
                 <Step number={6} text={locale === 'cs' ? 'Klikněte na "Uložit"' : 'Click "Save"'} />
-              </div>
-              <div className="mt-4 p-4 bg-primary-50 rounded-playful-md border-2 border-primary-200">
-                <p className="text-xs text-gray-700">
-                  <span className="font-semibold">{locale === 'cs' ? 'Tip: ' : 'Tip: '}</span>
-                  {locale === 'cs' 
-                    ? 'Oblasti můžete také vytvořit pomocí tlačítka Přidat v levém navigačním menu na hlavním panelu.'
-                    : 'You can also create areas using the Add button in the left navigation menu on the main panel.'}
-                </p>
               </div>
             </div>
 
@@ -1206,6 +792,103 @@ export function HelpView({
               </div>
               </div>
 
+            {/* Metrics */}
+            <div className="box-playful-highlight p-4">
+              <h4 className="font-semibold text-black font-playful mb-3 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-primary-600" /> {locale === 'cs' ? 'Metriky' : 'Metrics'}
+              </h4>
+              <p className="text-sm text-gray-600 font-playful mb-4">
+                {locale === 'cs' 
+                  ? 'Metriky jsou číselné hodnoty, které sledujete v rámci svého cíle. Umožňují vám měřit pokrok konkrétním způsobem a vidět, jak se blížíte k dosažení cíle.'
+                  : 'Metrics are numerical values that you track within your goal. They allow you to measure progress in a concrete way and see how you\'re approaching goal achievement.'}
+              </p>
+              
+              <div className="space-y-4">
+                <div>
+                  <h5 className="font-semibold text-black text-sm mb-2">{locale === 'cs' ? 'K čemu jsou metriky?' : 'What are metrics for?'}</h5>
+                  <ul className="space-y-2 text-sm text-gray-600">
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary-600 mt-1">•</span>
+                      <span>{locale === 'cs' 
+                        ? 'Měření pokroku: Sledujte konkrétní číselné hodnoty, které ukazují, jak blízko jste k dosažení cíle'
+                        : 'Progress measurement: Track specific numerical values that show how close you are to achieving the goal'}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary-600 mt-1">•</span>
+                      <span>{locale === 'cs' 
+                        ? 'Motivace: Vidět rostoucí čísla vás motivuje k dalšímu pokroku'
+                        : 'Motivation: Seeing growing numbers motivates you to make further progress'}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary-600 mt-1">•</span>
+                      <span>{locale === 'cs' 
+                        ? 'Konkrétní cíle: Místo vágních cílů jako "zhubnout" můžete sledovat "zhubnout 10 kg"'
+                        : 'Concrete goals: Instead of vague goals like "lose weight", you can track "lose 10 kg"'}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary-600 mt-1">•</span>
+                      <span>{locale === 'cs' 
+                        ? 'Automatický výpočet pokroku: Pokrok cíle se automaticky počítá na základě metrik'
+                        : 'Automatic progress calculation: Goal progress is automatically calculated based on metrics'}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h5 className="font-semibold text-black text-sm mb-2">{locale === 'cs' ? 'Jak používat metriky?' : 'How to use metrics?'}</h5>
+                  <div className="space-y-3">
+                    <div className="p-3 bg-white rounded-playful-md border border-primary-200">
+                      <p className="text-xs font-semibold text-black mb-1">{locale === 'cs' ? '1. Vytvoření metriky' : '1. Creating a metric'}</p>
+                      <p className="text-xs text-gray-600">
+                        {locale === 'cs' 
+                          ? 'V detailu cíle klikněte na tlačítko "Přidat metriku". Vyberte typ metriky (číslo, měna, procenta, vzdálenost, čas, váha nebo vlastní), zadejte název, jednotku a cílovou hodnotu.'
+                          : 'In the goal detail, click the "Add metric" button. Select the metric type (number, currency, percentage, distance, time, weight, or custom), enter the name, unit, and target value.'}
+                      </p>
+                    </div>
+                    <div className="p-3 bg-white rounded-playful-md border border-primary-200">
+                      <p className="text-xs font-semibold text-black mb-1">{locale === 'cs' ? '2. Aktualizace metriky' : '2. Updating a metric'}</p>
+                      <p className="text-xs text-gray-600">
+                        {locale === 'cs' 
+                          ? 'Klikněte na tlačítko "+" nebo "-" vedle metriky pro rychlou aktualizaci, nebo klikněte na metriku pro detailní úpravu. Můžete také zadat konkrétní hodnotu.'
+                          : 'Click the "+" or "-" button next to the metric for quick update, or click on the metric for detailed editing. You can also enter a specific value.'}
+                      </p>
+                    </div>
+                    <div className="p-3 bg-white rounded-playful-md border border-primary-200">
+                      <p className="text-xs font-semibold text-black mb-1">{locale === 'cs' ? '3. Typy metrik' : '3. Metric types'}</p>
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        <div className="text-xs text-gray-600">
+                          <span className="font-semibold">• {locale === 'cs' ? 'Číslo' : 'Number'}</span> - {locale === 'cs' ? 'libovolné číslo' : 'any number'}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          <span className="font-semibold">• {locale === 'cs' ? 'Měna' : 'Currency'}</span> - {locale === 'cs' ? 'peněžní hodnoty' : 'monetary values'}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          <span className="font-semibold">• {locale === 'cs' ? 'Procenta' : 'Percentage'}</span> - {locale === 'cs' ? '0-100%' : '0-100%'}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          <span className="font-semibold">• {locale === 'cs' ? 'Vzdálenost' : 'Distance'}</span> - {locale === 'cs' ? 'km, míle' : 'km, miles'}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          <span className="font-semibold">• {locale === 'cs' ? 'Čas' : 'Time'}</span> - {locale === 'cs' ? 'hodiny, minuty' : 'hours, minutes'}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          <span className="font-semibold">• {locale === 'cs' ? 'Váha' : 'Weight'}</span> - {locale === 'cs' ? 'kg, libry' : 'kg, pounds'}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-3 bg-white rounded-playful-md border border-primary-200">
+                      <p className="text-xs font-semibold text-black mb-1">{locale === 'cs' ? '4. Příklady použití' : '4. Usage examples'}</p>
+                      <ul className="text-xs text-gray-600 space-y-1 mt-1">
+                        <li>• {locale === 'cs' ? 'Cíl: "Ušetřit na auto" → Metrika: Měna, cílová hodnota 200 000 Kč' : 'Goal: "Save for a car" → Metric: Currency, target value 200,000'}</li>
+                        <li>• {locale === 'cs' ? 'Cíl: "Naučit se programovat" → Metrika: Číslo, název "Dokončené kurzy", cílová hodnota 5' : 'Goal: "Learn to program" → Metric: Number, name "Completed courses", target value 5'}</li>
+                        <li>• {locale === 'cs' ? 'Cíl: "Zlepšit kondici" → Metrika: Vzdálenost, název "Uběhnuté kilometry", cílová hodnota 100 km' : 'Goal: "Improve fitness" → Metric: Distance, name "Kilometers run", target value 100 km'}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Tips */}
             <div className="box-playful-highlight p-4">
               <h4 className="font-semibold text-black font-playful mb-2 flex items-center gap-2">
@@ -1393,6 +1076,137 @@ export function HelpView({
                     <ArrowRight className="w-4 h-4" /> {t('stepsHelp.goToSteps')}
                   </button>
                 )}
+              </div>
+            </div>
+
+            {/* How to use steps */}
+            <div className="box-playful-highlight p-4">
+              <h4 className="font-semibold text-black font-playful mb-3 flex items-center gap-2">
+                <Zap className="w-4 h-4 text-primary-600" /> {locale === 'cs' ? 'Jak používat kroky?' : 'How to use steps?'}
+              </h4>
+              <div className="space-y-4">
+                <div>
+                  <h5 className="font-semibold text-black text-sm mb-2">{locale === 'cs' ? 'Základní funkce kroků' : 'Basic step functions'}</h5>
+                  <ul className="space-y-2 text-sm text-gray-600">
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary-600 mt-1">•</span>
+                      <span>{locale === 'cs' 
+                        ? 'Dokončování: Klikněte na checkbox vedle kroku pro jeho dokončení. Dokončené kroky se zobrazí jako zaškrtnuté.'
+                        : 'Completion: Click the checkbox next to a step to complete it. Completed steps are displayed as checked.'}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary-600 mt-1">•</span>
+                      <span>{locale === 'cs' 
+                        ? 'Přiřazení k cíli: Kroky můžete přiřadit k cíli, aby se zobrazovaly v detailu cíle a počítaly se do pokroku cíle'
+                        : 'Assigning to a goal: You can assign steps to a goal so they appear in the goal detail and count towards goal progress'}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary-600 mt-1">•</span>
+                      <span>{locale === 'cs' 
+                        ? 'Datum: Každý krok má datum, kdy má být dokončen. Kroky s minulým datem se zobrazují jako "overdue" (po termínu)'
+                        : 'Date: Each step has a date when it should be completed. Steps with past dates are displayed as "overdue"'}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary-600 mt-1">•</span>
+                      <span>{locale === 'cs' 
+                        ? 'Důležitost: Můžete označit krok jako důležitý, aby se zvýraznil a zobrazoval se na prvním místě'
+                        : 'Importance: You can mark a step as important so it\'s highlighted and displayed first'}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary-600 mt-1">•</span>
+                      <span>{locale === 'cs' 
+                        ? 'Odhadovaný čas: Zadejte, kolik času krok přibližně zabere, abyste mohli lépe plánovat svůj den'
+                        : 'Estimated time: Enter how long the step will approximately take so you can better plan your day'}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h5 className="font-semibold text-black text-sm mb-2">{locale === 'cs' ? 'Opakující se kroky' : 'Recurring steps'}</h5>
+                  <p className="text-sm text-gray-600 mb-3">
+                    {locale === 'cs' 
+                      ? 'Kroky můžete nastavit jako opakující se, aby se automaticky vytvářely v pravidelných intervalech.'
+                      : 'You can set steps as recurring so they are automatically created at regular intervals.'}
+                  </p>
+                  <div className="space-y-2">
+                    <div className="p-3 bg-white rounded-playful-md border border-primary-200">
+                      <p className="text-xs font-semibold text-black mb-1">{locale === 'cs' ? 'Frekvence:' : 'Frequency:'}</p>
+                      <ul className="text-xs text-gray-600 space-y-1">
+                        <li>• <span className="font-semibold">{locale === 'cs' ? 'Denně' : 'Daily'}</span> - {locale === 'cs' ? 'krok se vytvoří každý den' : 'step is created every day'}</li>
+                        <li>• <span className="font-semibold">{locale === 'cs' ? 'Týdně' : 'Weekly'}</span> - {locale === 'cs' ? 'krok se vytvoří každý týden ve stejný den' : 'step is created every week on the same day'}</li>
+                        <li>• <span className="font-semibold">{locale === 'cs' ? 'Měsíčně' : 'Monthly'}</span> - {locale === 'cs' ? 'krok se vytvoří každý měsíc ve stejný den' : 'step is created every month on the same day'}</li>
+                      </ul>
+                    </div>
+                    <div className="p-3 bg-primary-50 rounded-playful-md border border-primary-200">
+                      <p className="text-xs text-gray-700">
+                        <span className="font-semibold">{locale === 'cs' ? 'Tip: ' : 'Tip: '}</span>
+                        {locale === 'cs' 
+                          ? 'V Upcoming view se vždy zobrazí pouze další nehotový výskyt opakujícího se kroku. Po dokončení se automaticky vytvoří další.'
+                          : 'In Upcoming view, only the next uncompleted occurrence of a recurring step is displayed. After completion, the next one is automatically created.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h5 className="font-semibold text-black text-sm mb-2">{locale === 'cs' ? 'Organizace kroků' : 'Organizing steps'}</h5>
+                  <ul className="space-y-2 text-sm text-gray-600">
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary-600 mt-1">•</span>
+                      <span>{locale === 'cs' 
+                        ? 'Přiřazení k oblasti: Kroky můžete přiřadit k oblasti pro lepší organizaci'
+                        : 'Assigning to an area: You can assign steps to an area for better organization'}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary-600 mt-1">•</span>
+                      <span>{locale === 'cs' 
+                        ? 'Zobrazení v Upcoming: Všechny kroky s budoucím nebo dnešním datem se zobrazují v sekci "Upcoming"'
+                        : 'Display in Upcoming: All steps with future or today\'s date are displayed in the "Upcoming" section'}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary-600 mt-1">•</span>
+                      <span>{locale === 'cs' 
+                        ? 'Filtrování: Na stránce "Kroky" můžete filtrovat kroky podle data, dokončení a přiřazení k cíli'
+                        : 'Filtering: On the "Steps" page, you can filter steps by date, completion, and goal assignment'}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary-600 mt-1">•</span>
+                      <span>{locale === 'cs' 
+                        ? 'Úprava a mazání: Klikněte na krok pro otevření detailu, kde můžete upravit všechny vlastnosti nebo krok smazat'
+                        : 'Editing and deleting: Click on a step to open the detail where you can edit all properties or delete the step'}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h5 className="font-semibold text-black text-sm mb-2">{locale === 'cs' ? 'Příklady použití' : 'Usage examples'}</h5>
+                  <div className="space-y-2">
+                    <div className="p-3 bg-white rounded-playful-md border border-primary-200">
+                      <p className="text-xs font-semibold text-black mb-1">{locale === 'cs' ? 'Jednorázový krok:' : 'One-time step:'}</p>
+                      <p className="text-xs text-gray-600">
+                        {locale === 'cs' 
+                          ? '"Zavolat zubaři" - krok s dnešním datem, důležitý, 15 minut, přiřazený k cíli "Zdraví"'
+                          : '"Call the dentist" - step with today\'s date, important, 15 minutes, assigned to goal "Health"'}
+                      </p>
+                    </div>
+                    <div className="p-3 bg-white rounded-playful-md border border-primary-200">
+                      <p className="text-xs font-semibold text-black mb-1">{locale === 'cs' ? 'Opakující se krok:' : 'Recurring step:'}</p>
+                      <p className="text-xs text-gray-600">
+                        {locale === 'cs' 
+                          ? '"Cvičení" - opakující se denně, 1 hodina, přiřazený k cíli "Zlepšit kondici"'
+                          : '"Exercise" - recurring daily, 1 hour, assigned to goal "Improve fitness"'}
+                      </p>
+                    </div>
+                    <div className="p-3 bg-white rounded-playful-md border border-primary-200">
+                      <p className="text-xs font-semibold text-black mb-1">{locale === 'cs' ? 'Krok bez cíle:' : 'Step without goal:'}</p>
+                      <p className="text-xs text-gray-600">
+                        {locale === 'cs' 
+                          ? '"Nakoupit potraviny" - krok s dnešním datem, 30 minut, bez přiřazení k cíli'
+                          : '"Buy groceries" - step with today\'s date, 30 minutes, without goal assignment'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 

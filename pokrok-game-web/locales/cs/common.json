@@ -79,7 +79,7 @@
     "tagline": "Aplikace pro plánování života",
     "description": "Pokrok spojuje velký přehled s konkrétními kroky, čímž pomáhá zvýšit motivaci a snížit přehlcení. Plánujte svůj život efektivně a dosahujte svých cílů krok za krokem.",
     "startFree": "Začít zdarma",
-    "signIn": "Přihlásit se",
+    "signIn": "PŘIHLÁSIT SE",
     "trialInfo": "14denní zkušební verze zdarma • Bez platební karty",
     "hero": {
       "title": "Životní plánovač pro lidi, kteří chtějí dosáhnout svých cílů",
@@ -230,7 +230,6 @@
     },
     "startJourney": "ZAČNI SVOU CESTU",
     "signUp": "REGISTROVAT SE",
-    "signIn": "PŘIHLÁSIT SE",
     "or": "nebo",
     "continueAsGuest": "POKRAČOVAT JAKO HOST",
     "devVersion": "Vývojová verze",
@@ -270,7 +269,7 @@
     "noDeadline": "Bez deadlinu",
     "createdAt": "Vytvořeno",
     "completedAt": "Dokončeno",
-    "delete": "SMAZAT",
+    "delete": "Smazat",
     "deleteConfirm": "Opravdu chcete smazat tento cíl?",
     "deleteConfirmDescription": "Tato akce je nevratná.",
     "deleteWithSteps": "Odstranit i související kroky",
@@ -318,8 +317,7 @@
     "milestoneTitle": "Název milníku",
     "milestoneNumber": "Milník",
     "stepNumber": "Krok",
-    "saveChanges": "Uložit změny",
-    "delete": "Smazat"
+    "saveChanges": "Uložit změny"
   },
   "habits": {
     "title": "NÁVYKY",
@@ -353,7 +351,12 @@
     "frequencyMonthly": "Měsíčně",
     "createdAt": "Vytvořeno",
     "custom": "Vlastní",
-    "frequency": "Frekvence",
+    "frequency": {
+      "daily": "Denně",
+      "weekly": "Týdně",
+      "monthly": "Měsíčně",
+      "custom": "Vlastní"
+    },
     "xpReward": "XP odměna",
     "streak": "Streak",
     "maxStreak": "Max streak",
@@ -416,12 +419,6 @@
     "notificationHint": "Zobrazí se browserové upozornění v zadaný čas",
     "week": "Týden",
     "day": "Den",
-    "frequency": {
-      "daily": "Denně",
-      "weekly": "Týdně",
-      "monthly": "Měsíčně",
-      "custom": "Vlastní"
-    },
     "difficulty": {
       "easy": "Snadná",
       "medium": "Střední",
@@ -506,30 +503,30 @@
       "name": "Jméno",
       "userId": "Uživatelské ID",
       "registered": "Registrován",
-          "lastLogin": "Poslední přihlášení",
-          "accountStatus": "Stav účtu",
-          "language": {
-            "title": "Jazyk",
-            "label": "Preferovaný jazyk",
-            "description": "Toto nastavení se použije na všech zařízeních (web, mobilní aplikace). Změna se projeví po obnovení stránky."
-          },
-          "onboarding": {
-            "title": "Tutoriál",
-            "description": "Zapněte tutoriál znovu, pokud chcete znovu projít úvodní průvodce aplikací.",
-            "button": "Zapnout tutoriál znovu",
-            "error": "Nepodařilo se resetovat tutoriál. Zkuste to prosím znovu."
-          },
-          "currency": {
-            "title": "Výchozí měna",
-            "label": "Výchozí měna pro metriky",
-            "description": "Tato měna bude použita jako výchozí při vytváření nových měnových metrik."
-          },
-          "weightUnit": {
-            "title": "Jednotky hmotnosti",
-            "label": "Preferované jednotky hmotnosti",
-            "description": "Tato jednotka bude použita jako výchozí při vytváření nových metrik hmotnosti."
-          }
-        },
+      "lastLogin": "Poslední přihlášení",
+      "accountStatus": "Stav účtu",
+      "language": {
+        "title": "Jazyk",
+        "label": "Preferovaný jazyk",
+        "description": "Toto nastavení se použije na všech zařízeních (web, mobilní aplikace). Změna se projeví po obnovení stránky."
+      },
+      "onboarding": {
+        "title": "Tutoriál",
+        "description": "Zapněte tutoriál znovu, pokud chcete znovu projít úvodní průvodce aplikací.",
+        "button": "Zapnout tutoriál znovu",
+        "error": "Nepodařilo se resetovat tutoriál. Zkuste to prosím znovu."
+      },
+      "currency": {
+        "title": "Výchozí měna",
+        "label": "Výchozí měna pro metriky",
+        "description": "Tato měna bude použita jako výchozí při vytváření nových měnových metrik."
+      },
+      "weightUnit": {
+        "title": "Jednotky hmotnosti",
+        "label": "Preferované jednotky hmotnosti",
+        "description": "Tato jednotka bude použita jako výchozí při vytváření nových metrik hmotnosti."
+      }
+    },
     "areas": {
       "title": "ŽIVOTNÍ OBLASTI",
       "addArea": "Přidat oblast",
@@ -709,7 +706,7 @@
         "otherSteps": "Ostatní kroky",
         "backlog": "Backlog",
         "addNewStep": "Přidat nový krok",
-        "today": "Dnešní",
+        "today": "Dnes",
         "overdue": "Zpožděné",
         "future": "Budoucí",
         "completePlanning": "Dokončit plánování",
@@ -717,7 +714,6 @@
         "emptyColumn": "Přetáhněte kroky sem",
         "deleteConfirm": "Opravdu chcete smazat tento krok?",
         "error": "Chyba při načítání dat",
-        "today": "Dnes",
         "tomorrow": "Zítra",
         "previousDay": "Předchozí den",
         "nextDay": "Další den",
@@ -732,14 +728,14 @@
       }
     },
     "premium": {
-        "title": "Workflows jsou placená funkce",
-        "description": "Workflows jsou dostupné pouze pro uživatele s Premium plánem. Upgradujte na Premium, abyste mohli používat automatizované workflows pro reflexi a plánování.",
-        "benefits": "S Premium plánem získáte:",
-        "benefit1": "Automatizované workflows pro denní reflexi",
-        "benefit2": "Pravidelné připomínky a plánování",
-        "benefit3": "Pokročilé funkce pro organizaci života",
-        "choosePlan": "Vyberte si plán"
-      }
+      "title": "Workflows jsou placená funkce",
+      "description": "Workflows jsou dostupné pouze pro uživatele s Premium plánem. Upgradujte na Premium, abyste mohli používat automatizované workflows pro reflexi a plánování.",
+      "benefits": "S Premium plánem získáte:",
+      "benefit1": "Automatizované workflows pro denní reflexi",
+      "benefit2": "Pravidelné připomínky a plánování",
+      "benefit3": "Pokročilé funkce pro organizaci života",
+      "choosePlan": "Vyberte si plán"
+    }
   },
   "dailyPlanning": {
     "title": "DENNÍ PLÁNOVÁNÍ",
@@ -1021,10 +1017,10 @@
       "saturday": "So"
     },
     "viewMode": {
-    "day": "Den",
-    "week": "Týden",
-    "month": "Přehled",
-    "year": "Statistiky",
+      "day": "Den",
+      "week": "Týden",
+      "month": "Přehled",
+      "year": "Statistiky",
       "overview": "Přehled"
     },
     "day": "Denní",
@@ -1080,7 +1076,7 @@
       "estimatedTime": "Odhadovaný čas (min):",
       "xpReward": "XP odměna:",
       "confirm": "Potvrdit",
-    "confirmed": "Potvrzeno",
+      "confirmed": "Potvrzeno",
       "important": "Důležité",
       "urgent": "Urgentní",
       "goal": "Cíl",
@@ -1128,7 +1124,6 @@
       "area": "Oblast",
       "noArea": "Bez oblasti",
       "selectArea": "Vybrat oblast",
-      "selectArea": "Vybrat oblast",
       "stepsStatistics": "Statistiky kroků",
       "totalSteps": "Celkem kroků",
       "completedSteps": "Splněné kroky",
@@ -1137,7 +1132,7 @@
     }
   },
   "steps": {
-    "title": "KROKY",
+    "title": "Název",
     "addStep": "Přidat krok",
     "endingThisYear": "Kroky končící v tomto roce",
     "completedInTarget": "Splněné v targetu",
@@ -1174,7 +1169,6 @@
     "create": "Vytvořit krok",
     "edit": "Upravit krok",
     "duplicate": "Duplikovat krok",
-    "title": "Název",
     "description": "Popis",
     "date": "Datum",
     "repeating": "Opakující se",
@@ -1543,7 +1537,8 @@
     "deleteConfirm": "Opravdu chcete smazat tuto oblast?",
     "deleteConfirmDescription": "Cíle, kroky a návyky přiřazené k této oblasti budou odpojeny. Tato akce je nevratná.",
     "deleteWithRelated": "Odstranit i cíle, kroky a návyky přiřazené k této oblasti",
-    "deleteError": "Nepodařilo se smazat oblast"
+    "deleteError": "Nepodařilo se smazat oblast",
+    "addDescription": "Klikněte pro přidání popisu..."
   },
   "onboarding": {
     "skip": "Přeskočit",
@@ -1659,7 +1654,8 @@
       "title": "Tutoriál dokončen!",
       "description": "Pokud budete kdykoliv tápat, můžete kliknout nahoře v menu na Nápovědu, kde najdete veškeré informace a kde také můžete tutoriál zapnout znovu.",
       "message": "Vše je připraveno! Můžete začít používat aplikaci.",
-      "button": "Dokončit tutoriál"
+      "button": "Dokončit",
+      "completing": "Dokončování..."
     },
     "mobile": {
       "createArea": {
@@ -1711,7 +1707,9 @@
     "calendar": {
       "description": "Kalendář zobrazuje nadcházející, měsíční a roční pohledy. Přepínat mezi nimi můžete pomocí přepínače nahoře v view."
     },
-    "upcoming": "Nadcházející",
+    "upcoming": {
+      "title": "Nadcházející"
+    },
     "day": "Den",
     "week": "Týden",
     "month": "Přehled",
@@ -1751,9 +1749,6 @@
         "steps": "Kroky",
         "upcomingSteps": "Nadcházející kroky"
       }
-    },
-    "upcoming": {
-      "title": "Nadcházející"
     },
     "upcomingDesc": "Zobrazuje nadcházející kroky a návyky. Ideální pro přehled toho, co vás čeká.",
     "upcomingSteps": "Nadcházející kroky",
@@ -1802,4 +1797,3 @@
     }
   }
 }
-

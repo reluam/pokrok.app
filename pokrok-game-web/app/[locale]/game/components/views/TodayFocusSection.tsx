@@ -455,10 +455,27 @@ export function TodayFocusSection({
         if (dateA.getTime() !== dateB.getTime()) {
           return dateA.getTime() - dateB.getTime()
         }
-        // Same date - sort by importance
+        // Same date - sort by priority (important + urgent), then by step number
         const aPriority = (a.is_important ? 2 : 0) + (a.is_urgent ? 1 : 0)
         const bPriority = (b.is_important ? 2 : 0) + (b.is_urgent ? 1 : 0)
-        return bPriority - aPriority
+        if (aPriority !== bPriority) {
+          return bPriority - aPriority // Higher priority first (important steps on top)
+        }
+        
+        // If same priority, sort by step number (e.g., 1/7, 2/7, etc.) if present
+        const extractStepNumber = (title: string): number | null => {
+          const match = title.match(/^(\d+)\/\d+/)
+          return match ? parseInt(match[1], 10) : null
+        }
+        
+        const aStepNum = extractStepNumber(a.title || '')
+        const bStepNum = extractStepNumber(b.title || '')
+        
+        if (aStepNum !== null && bStepNum !== null) {
+          return aStepNum - bStepNum // Sort 1, 2, 3, etc. (ascending)
+        }
+        
+        return 0
       }
       
       // In day view: sort by goal focus_order first (if has goal)
@@ -476,10 +493,23 @@ export function TodayFocusSection({
         const bPriority = (b.is_important ? 2 : 0) + (b.is_urgent ? 1 : 0)
         
         if (aPriority !== bPriority) {
-          return bPriority - aPriority
+          return bPriority - aPriority // Higher priority first (important steps on top)
         }
         
-        // If same priority, sort by date
+        // If same priority, sort by step number (e.g., 1/7, 2/7, etc.) if present
+        const extractStepNumber = (title: string): number | null => {
+          const match = title.match(/^(\d+)\/\d+/)
+          return match ? parseInt(match[1], 10) : null
+        }
+        
+        const aStepNum = extractStepNumber(a.title || '')
+        const bStepNum = extractStepNumber(b.title || '')
+        
+        if (aStepNum !== null && bStepNum !== null) {
+          return aStepNum - bStepNum // Sort 1, 2, 3, etc. (ascending)
+        }
+        
+        // If step numbers not present or only one has a number, sort by date
         // For repeating steps without date, use created_at
         const dateA = a.date ? new Date(normalizeDate(a.date)) : (a.created_at ? new Date(a.created_at) : new Date(0))
         const dateB = b.date ? new Date(normalizeDate(b.date)) : (b.created_at ? new Date(b.created_at) : new Date(0))

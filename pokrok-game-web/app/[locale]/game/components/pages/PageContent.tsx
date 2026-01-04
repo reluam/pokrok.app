@@ -158,8 +158,13 @@ export function PageContent(props: PageContentProps) {
     setAreaDetailTitleValue,
     editingAreaDetailTitle,
     setEditingAreaDetailTitle,
+    areaDetailDescriptionValue,
+    setAreaDetailDescriptionValue,
+    editingAreaDetailDescription,
+    setEditingAreaDetailDescription,
     areaIconRef,
     areaTitleRef,
+    areaDescriptionRef,
     habitsRef,
     stepsRef,
     handleWorkflowComplete,
@@ -881,8 +886,50 @@ export function PageContent(props: PageContentProps) {
                                 {area.name}
                               </h1>
                             )}
-                            {area.description && (
-                              <p className="text-sm text-gray-600 mt-0.5 truncate">{area.description}</p>
+                            {editingAreaDetailDescription ? (
+                              <textarea
+                                ref={areaDescriptionRef as React.RefObject<HTMLTextAreaElement>}
+                                value={areaDetailDescriptionValue}
+                                onChange={(e) => setAreaDetailDescriptionValue(e.target.value)}
+                                onBlur={async () => {
+                                  if (areaDetailDescriptionValue !== (area.description || '')) {
+                                    await handleUpdateAreaForDetail(areaId, { 
+                                      description: areaDetailDescriptionValue.trim() || null 
+                                    })
+                                  } else {
+                                    setAreaDetailDescriptionValue(area.description || '')
+                                  }
+                                  setEditingAreaDetailDescription(false)
+                                }}
+                                onKeyDown={async (e) => {
+                                  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                                    e.preventDefault()
+                                    if (areaDetailDescriptionValue !== (area.description || '')) {
+                                      await handleUpdateAreaForDetail(areaId, { 
+                                        description: areaDetailDescriptionValue.trim() || null 
+                                      })
+                                    }
+                                    setEditingAreaDetailDescription(false)
+                                  } else if (e.key === 'Escape') {
+                                    setAreaDetailDescriptionValue(area.description || '')
+                                    setEditingAreaDetailDescription(false)
+                                  }
+                                }}
+                                className="text-sm text-gray-600 bg-transparent border-2 border-primary-500 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500 w-full resize-none mt-0.5"
+                                rows={2}
+                                autoFocus
+                              />
+                            ) : (
+                              <p 
+                                ref={areaDescriptionRef as React.RefObject<HTMLParagraphElement>}
+                                onClick={() => {
+                                  setAreaDetailDescriptionValue(area.description || '')
+                                  setEditingAreaDetailDescription(true)
+                                }}
+                                className="text-sm text-gray-600 mt-0.5 cursor-pointer hover:text-primary-600 transition-colors min-h-[1.5rem]"
+                              >
+                                {area.description || <span className="text-gray-400 italic">{t('areas.addDescription') || 'Klikněte pro přidání popisu...'}</span>}
+                              </p>
                             )}
                           </div>
                         </div>

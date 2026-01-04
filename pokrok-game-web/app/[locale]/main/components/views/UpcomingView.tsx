@@ -328,7 +328,7 @@ export function UpcomingView({
   // Get all steps for Feed view - sorted by date, with overdue first, then important first within each day
   // No limit, but filtered to max one month ahead (except overdue steps - show all overdue)
   const allFeedSteps = useMemo(() => {
-    const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isOverdue: boolean; goal: any; area: any }> = []
+    const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isUrgent: boolean; isOverdue: boolean; goal: any; area: any }> = []
     
     // Process non-repeating steps (exclude instances of recurring steps - they are handled separately)
     // Also exclude hidden recurring step templates
@@ -364,6 +364,7 @@ export function UpcomingView({
           step,
           date: stepDate,
           isImportant: step.is_important || false,
+          isUrgent: step.is_urgent || false,
           isOverdue,
           goal,
           area
@@ -465,9 +466,26 @@ export function UpcomingView({
       const dateDiff = a.date.getTime() - b.date.getTime()
       if (dateDiff !== 0) return dateDiff
       
-      // Same date - important first
-      if (a.isImportant && !b.isImportant) return -1
-      if (!a.isImportant && b.isImportant) return 1
+      // Same date - sort by priority (important + urgent), then by step number
+      const aPriority = (a.isImportant ? 2 : 0) + (a.isUrgent ? 1 : 0)
+      const bPriority = (b.isImportant ? 2 : 0) + (b.isUrgent ? 1 : 0)
+      if (aPriority !== bPriority) {
+        return bPriority - aPriority // Higher priority first (important steps on top)
+      }
+      
+      // If same priority, sort by step number (e.g., 1/7, 2/7, etc.) if present
+      const extractStepNumber = (title: string): number | null => {
+        const match = title.match(/^(\d+)\/\d+/)
+        return match ? parseInt(match[1], 10) : null
+      }
+      
+      const aStepNum = extractStepNumber(a.step.title || '')
+      const bStepNum = extractStepNumber(b.step.title || '')
+      
+      if (aStepNum !== null && bStepNum !== null) {
+        return aStepNum - bStepNum // Sort 1, 2, 3, etc. (ascending)
+      }
+      
       return 0
     })
     
@@ -484,7 +502,7 @@ export function UpcomingView({
   // Get upcoming steps - sorted by date, with overdue first, then important first within each day
   // Limited to 15 steps total and max one month ahead (except overdue steps - show all overdue)
   const upcomingSteps = useMemo(() => {
-    const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isOverdue: boolean; goal: any; area: any }> = []
+    const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isUrgent: boolean; isOverdue: boolean; goal: any; area: any }> = []
     const addedStepIds = new Set<string>() // Track which steps have already been added to prevent duplicates
     
     // Process non-repeating steps (exclude instances of recurring steps - they are handled separately)
@@ -533,6 +551,7 @@ export function UpcomingView({
           step,
           date: stepDate,
           isImportant: step.is_important || false,
+          isUrgent: step.is_urgent || false,
           isOverdue,
           goal,
           area
@@ -622,6 +641,7 @@ export function UpcomingView({
         step: nearestInstance.step,
         date: nearestInstance.date,
         isImportant: nearestInstance.step.is_important || false,
+        isUrgent: nearestInstance.step.is_urgent || false,
         isOverdue: nearestInstance.isOverdue,
         goal,
         area
@@ -638,9 +658,26 @@ export function UpcomingView({
       const dateDiff = a.date.getTime() - b.date.getTime()
       if (dateDiff !== 0) return dateDiff
       
-      // Same date - important first
-      if (a.isImportant && !b.isImportant) return -1
-      if (!a.isImportant && b.isImportant) return 1
+      // Same date - sort by priority (important + urgent), then by step number
+      const aPriority = (a.isImportant ? 2 : 0) + (a.isUrgent ? 1 : 0)
+      const bPriority = (b.isImportant ? 2 : 0) + (b.isUrgent ? 1 : 0)
+      if (aPriority !== bPriority) {
+        return bPriority - aPriority // Higher priority first (important steps on top)
+      }
+      
+      // If same priority, sort by step number (e.g., 1/7, 2/7, etc.) if present
+      const extractStepNumber = (title: string): number | null => {
+        const match = title.match(/^(\d+)\/\d+/)
+        return match ? parseInt(match[1], 10) : null
+      }
+      
+      const aStepNum = extractStepNumber(a.step.title || '')
+      const bStepNum = extractStepNumber(b.step.title || '')
+      
+      if (aStepNum !== null && bStepNum !== null) {
+        return aStepNum - bStepNum // Sort 1, 2, 3, etc. (ascending)
+      }
+      
       return 0
     })
     
@@ -764,12 +801,12 @@ export function UpcomingView({
   const handleSaveDate = async () => {
     if (datePickerStep && selectedDateInPicker && onStepDateChange) {
       try {
-        const dateStr = getLocalDateString(selectedDateInPicker)
-        await onStepDateChange(datePickerStep.id, dateStr)
+      const dateStr = getLocalDateString(selectedDateInPicker)
+      await onStepDateChange(datePickerStep.id, dateStr)
         // Close picker only on success
-        setDatePickerStep(null)
-        setDatePickerPosition(null)
-        setSelectedDateInPicker(null)
+    setDatePickerStep(null)
+    setDatePickerPosition(null)
+    setSelectedDateInPicker(null)
       } catch (error) {
         // Error is already handled in handleStepDateChange
         // Keep picker open so user can try again

@@ -123,16 +123,24 @@ export function JourneyGameView({
     const loadUserId = async () => {
       try {
         console.log('Loading userId for Clerk ID:', user.id)
-        const response = await fetch(`/api/user?clerkId=${user.id}`)
+        // Add cache-busting parameter to ensure fresh data
+        const response = await fetch(`/api/user?clerkId=${user.id}&t=${Date.now()}`)
         if (response.ok) {
           const dbUser = await response.json()
           console.log('User loaded from DB:', dbUser)
           setUserId(dbUser.id)
         } else {
-          console.error('Failed to load user, status:', response.status)
-          const errorText = await response.text()
-          console.error('Error response:', errorText)
-          isLoadingUserRef.current = false // Reset on error to allow retry
+          // 404 is expected for new users - parent component will handle user creation
+          if (response.status === 404) {
+            console.log('User not found in DB yet (expected for new users), parent will create user')
+          } else {
+            console.error('Failed to load user, status:', response.status)
+            const errorText = await response.text()
+            console.error('Error response:', errorText)
+            isLoadingUserRef.current = false // Reset on error to allow retry
+          }
+          // Don't reset isLoadingUserRef on 404 - user might not exist yet
+          // The parent component will handle user creation
         }
       } catch (error) {
         console.error('Error loading userId:', error)
@@ -570,9 +578,9 @@ export function JourneyGameView({
   const createMenuButtonRef = useRef<HTMLButtonElement>(null)
   const createMenuRef = useRef<HTMLDivElement>(null)
   
-  // Onboarding state
-  const [isOnboardingActive, setIsOnboardingActive] = useState(false)
+  // Onboarding state - derive from hasCompletedOnboarding prop
   const [onboardingStep, setOnboardingStep] = useState<string>('intro')
+  const [onboardingStatusFromAPI, setOnboardingStatusFromAPI] = useState<boolean | null>(null)
   const areaButtonRefs = useRef<Map<string, React.RefObject<HTMLButtonElement>>>(new Map())
   const goalButtonRefs = useRef<Map<string, React.RefObject<HTMLButtonElement>>>(new Map())
   const goalsSectionRef = useRef<HTMLDivElement>(null)
@@ -580,56 +588,121 @@ export function JourneyGameView({
   // Areas state - must be declared before useEffect that uses it
   const [areas, setAreas] = useState<any[]>([])
   
-  // Initialize onboarding
+  // Derive isOnboardingActive from hasCompletedOnboarding prop and localStorage
+  // Priority: localStorage > prop > API status
+  const isOnboardingActive = useMemo(() => {
+    // Check localStorage first
+    const cachedOnboardingStatus = typeof window !== 'undefined' 
+      ? localStorage.getItem('has_completed_onboarding')
+      : null
+    
+    // If cached as completed, onboarding is not active
+    if (cachedOnboardingStatus === 'true') {
+      console.log('[JourneyGameView] Onboarding inactive: localStorage says completed')
+      return false
+    }
+    
+    // Use prop if available (explicit false means show onboarding)
+    if (hasCompletedOnboarding !== null) {
+      const active = !hasCompletedOnboarding
+      console.log('[JourneyGameView] Onboarding active from prop:', active, 'hasCompletedOnboarding:', hasCompletedOnboarding)
+      return active
+    }
+    
+    // Use API status if available
+    if (onboardingStatusFromAPI !== null) {
+      const active = !onboardingStatusFromAPI
+      console.log('[JourneyGameView] Onboarding active from API:', active, 'onboardingStatusFromAPI:', onboardingStatusFromAPI)
+      return active
+    }
+    
+    // Default: show onboarding for new users (null means not completed)
+    console.log('[JourneyGameView] Onboarding active: default (true) - no status available')
+    return true
+  }, [hasCompletedOnboarding, onboardingStatusFromAPI])
+  
+  // Fetch onboarding status from API if not available from prop or localStorage
   useEffect(() => {
-    // If hasCompletedOnboarding is explicitly false, activate onboarding
-    if (hasCompletedOnboarding === false) {
-      setIsOnboardingActive(true)
-      // Ensure we're on focus-upcoming (was focus-calendar)
-      setMainPanelSection('focus-upcoming')
-    } 
-    // If hasCompletedOnboarding is explicitly true, deactivate onboarding
-    else if (hasCompletedOnboarding === true) {
-      setIsOnboardingActive(false)
-    } 
-    // If null or undefined, fetch from API to check status
-    else {
-      const checkOnboardingStatus = async () => {
-        try {
-          const response = await fetch('/api/game/init')
-          if (response.ok) {
-            const gameData = await response.json()
-            const completed = gameData.user?.has_completed_onboarding ?? false
-            if (!completed) {
-              setIsOnboardingActive(true)
-              setMainPanelSection('focus-upcoming')
+    // Only fetch if we don't have prop and don't have localStorage cache
+    if (hasCompletedOnboarding !== null) {
+      return // Prop is available, no need to fetch
+    }
+    
+    const cachedOnboardingStatus = typeof window !== 'undefined' 
+      ? localStorage.getItem('has_completed_onboarding')
+      : null
+    
+    if (cachedOnboardingStatus !== null) {
+      return // localStorage cache is available, no need to fetch
+    }
+    
+    // Fetch from API
+    const checkOnboardingStatus = async () => {
+      try {
+        const response = await fetch(`/api/game/init?t=${Date.now()}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        })
+        if (response.ok) {
+          const gameData = await response.json()
+          const completed = gameData.user?.has_completed_onboarding ?? false
+          setOnboardingStatusFromAPI(completed)
+          // Store in localStorage to prevent re-checking
+          if (typeof window !== 'undefined') {
+            if (completed) {
+              localStorage.setItem('has_completed_onboarding', 'true')
             } else {
-              setIsOnboardingActive(false)
+              localStorage.removeItem('has_completed_onboarding')
             }
           }
-        } catch (error) {
-          console.error('Error checking onboarding status:', error)
         }
+      } catch (error) {
+        console.error('Error checking onboarding status:', error)
       }
-      checkOnboardingStatus()
     }
+    checkOnboardingStatus()
   }, [hasCompletedOnboarding])
+  
+  // Set main panel section when onboarding becomes active
+  useEffect(() => {
+    if (isOnboardingActive) {
+      setMainPanelSection('focus-upcoming')
+    }
+  }, [isOnboardingActive])
 
   // Reload onboarding status when navigating to main page
+  // But only if onboarding is not explicitly completed and not cached as completed
   useEffect(() => {
-    if (currentPage === 'main') {
+    const cachedOnboardingStatus = typeof window !== 'undefined' 
+      ? localStorage.getItem('has_completed_onboarding')
+      : null
+    
+    // Don't reload if explicitly completed or cached as completed
+    if (currentPage === 'main' && hasCompletedOnboarding !== true && cachedOnboardingStatus !== 'true') {
       const reloadOnboardingStatus = async () => {
         try {
-          const response = await fetch('/api/game/init')
+          const response = await fetch(`/api/game/init?t=${Date.now()}`, {
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache'
+            }
+          })
           if (response.ok) {
             const gameData = await response.json()
             // Update onboarding status if it changed
             const completed = gameData.user?.has_completed_onboarding ?? false
-            if (!completed && !isOnboardingActive) {
-              setIsOnboardingActive(true)
-              setMainPanelSection('focus-upcoming')
-            } else if (completed && isOnboardingActive) {
-              setIsOnboardingActive(false)
+            setOnboardingStatusFromAPI(completed)
+            // Store in localStorage to prevent re-checking
+            if (typeof window !== 'undefined') {
+              if (completed) {
+                localStorage.setItem('has_completed_onboarding', 'true')
+              } else {
+                localStorage.removeItem('has_completed_onboarding')
+              }
             }
           }
         } catch (error) {
@@ -640,7 +713,7 @@ export function JourneyGameView({
       const timeout = setTimeout(reloadOnboardingStatus, 100)
       return () => clearTimeout(timeout)
     }
-  }, [currentPage, isOnboardingActive])
+  }, [currentPage, hasCompletedOnboarding])
   
   // Get selected area ID from mainPanelSection
   const selectedAreaId = mainPanelSection?.startsWith('area-') ? mainPanelSection.replace('area-', '') : null
@@ -678,12 +751,15 @@ export function JourneyGameView({
   // Area detail page inline editing state
   const [editingAreaDetailTitle, setEditingAreaDetailTitle] = useState(false)
   const [areaDetailTitleValue, setAreaDetailTitleValue] = useState('')
+  const [editingAreaDetailDescription, setEditingAreaDetailDescription] = useState(false)
+  const [areaDetailDescriptionValue, setAreaDetailDescriptionValue] = useState('')
   const [showAreaDetailIconPicker, setShowAreaDetailIconPicker] = useState(false)
   const [areaDetailIconPickerPosition, setAreaDetailIconPickerPosition] = useState<{ top: number; left: number } | null>(null)
   const [showAreaDetailColorPicker, setShowAreaDetailColorPicker] = useState(false)
   const [areaDetailColorPickerPosition, setAreaDetailColorPickerPosition] = useState<{ top: number; left: number } | null>(null)
   const areaIconRef = useRef<HTMLSpanElement>(null)
   const areaTitleRef = useRef<HTMLHeadingElement>(null)
+  const areaDescriptionRef = useRef<HTMLParagraphElement | HTMLTextAreaElement>(null)
   const areaColorRef = useRef<HTMLButtonElement>(null)
   
   // Load areas
@@ -693,7 +769,7 @@ export function JourneyGameView({
       if (!currentUserId) return
       
       try {
-        const response = await fetch(`/api/cesta/areas?userId=${currentUserId}`)
+        const response = await fetch(`/api/cesta/areas?userId=${currentUserId}&t=${Date.now()}`)
         if (response.ok) {
           const data = await response.json()
           setAreas(data.areas || [])
@@ -704,7 +780,7 @@ export function JourneyGameView({
     }
     
     loadAreas()
-  }, [userId, player?.user_id])
+  }, [userId, player?.user_id, hasCompletedOnboarding])
   const goalTitleRef = useRef<HTMLInputElement | HTMLHeadingElement>(null)
   const goalDescriptionRef = useRef<HTMLTextAreaElement | HTMLParagraphElement>(null)
   const goalDateRef = useRef<HTMLSpanElement>(null)
@@ -3994,8 +4070,16 @@ export function JourneyGameView({
           setAreaDetailTitleValue={setAreaDetailTitleValue}
           editingAreaDetailTitle={editingAreaDetailTitle}
           setEditingAreaDetailTitle={setEditingAreaDetailTitle}
+          areaDetailDescriptionValue={areaDetailDescriptionValue}
+          setAreaDetailDescriptionValue={setAreaDetailDescriptionValue}
+          editingAreaDetailDescription={editingAreaDetailDescription}
+          setEditingAreaDetailDescription={setEditingAreaDetailDescription}
           areaIconRef={areaIconRef}
           areaTitleRef={areaTitleRef}
+          areaDescriptionRef={areaDescriptionRef}
+          areaColorRef={areaColorRef}
+          setAreaDetailIconPickerPosition={setAreaDetailIconPickerPosition}
+          setAreaDetailColorPickerPosition={setAreaDetailColorPickerPosition}
           habitsRef={habitsRef}
           stepsRef={stepsRef}
           handleWorkflowComplete={handleWorkflowComplete}
@@ -4272,16 +4356,44 @@ export function JourneyGameView({
       <OnboardingTutorial
         isActive={isOnboardingActive}
         onComplete={async () => {
-          setIsOnboardingActive(false)
+          // Call parent callback to update hasCompletedOnboarding state
           if (onOnboardingComplete) {
             onOnboardingComplete()
+          }
+          
+          // Update local API status to reflect completion
+          setOnboardingStatusFromAPI(true)
+          
+          // Store in localStorage
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('has_completed_onboarding', 'true')
+          }
+          
+          // Wait a moment for database transaction to commit
+          await new Promise(resolve => setTimeout(resolve, 500))
+          
+          // Refresh user data to ensure state is synchronized
+          // This helps prevent the tutorial from reopening
+          try {
+            const refreshResponse = await fetch(`/api/game/init?t=${Date.now()}`)
+            if (refreshResponse.ok) {
+              const refreshData = await refreshResponse.json()
+              console.log('[JourneyGameView] Refreshed onboarding status after completion:', refreshData.user?.has_completed_onboarding)
+              // Update API status
+              setOnboardingStatusFromAPI(refreshData.user?.has_completed_onboarding ?? true)
+              // If parent callback exists and status is confirmed, ensure it's called again
+              if (onOnboardingComplete && refreshData.user?.has_completed_onboarding) {
+                // State should already be updated, but ensure it's set
+                onOnboardingComplete()
+              }
+            }
+          } catch (refreshError) {
+            console.error('[JourneyGameView] Error refreshing user data:', refreshError)
           }
         }}
         onSkip={() => {
-          setIsOnboardingActive(false)
-          if (onOnboardingComplete) {
-            onOnboardingComplete()
-          }
+          // Just close the tutorial without completing onboarding
+          // Don't update status, just let it stay as is
         }}
       />
     </div>
