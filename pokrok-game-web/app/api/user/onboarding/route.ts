@@ -18,14 +18,20 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
+    console.log('[Onboarding] PUT request for user:', dbUser.id, 'current has_completed_onboarding:', dbUser.has_completed_onboarding)
+
     const body = await request.json().catch(() => ({}))
     const hasCompletedOnboarding = body.hasCompletedOnboarding !== undefined 
       ? body.hasCompletedOnboarding 
       : true
+    
+    console.log('[Onboarding] hasCompletedOnboarding from request:', hasCompletedOnboarding)
 
     // If user hasn't completed onboarding yet, initialize onboarding steps
     if (!dbUser.has_completed_onboarding && hasCompletedOnboarding) {
       try {
+        console.log('[Onboarding] Starting initialization for user:', dbUser.id)
+        
         // Check if user already has onboarding steps
         const existingSteps = await sql`
           SELECT id FROM daily_steps 
@@ -34,13 +40,26 @@ export async function PUT(request: NextRequest) {
           LIMIT 1
         `
         
+        console.log('[Onboarding] Existing steps check:', existingSteps.length)
+        
         if (existingSteps.length === 0) {
-          // Get user's locale
-          const userSettings = await sql`
-            SELECT locale FROM user_settings WHERE user_id = ${dbUser.id}
-          `
-          const locale = userSettings[0]?.locale || 'cs'
-          const isEnglish = locale === 'en'
+          // Get user's locale - try user_settings first, fallback to 'cs'
+          let locale = 'cs'
+          let isEnglish = false
+          
+          try {
+            const userSettings = await sql`
+              SELECT locale FROM user_settings WHERE user_id = ${dbUser.id}
+            `
+            if (userSettings && userSettings.length > 0 && userSettings[0]?.locale) {
+              locale = userSettings[0].locale
+            }
+          } catch (settingsError) {
+            console.log('[Onboarding] Could not fetch user settings, using default locale:', settingsError)
+          }
+          
+          isEnglish = locale === 'en'
+          console.log('[Onboarding] Using locale:', locale, 'isEnglish:', isEnglish)
 
           // Create one onboarding area
           const areaId = crypto.randomUUID()
@@ -49,7 +68,9 @@ export async function PUT(request: NextRequest) {
             ? 'Learn how to use Pokrok' 
             : 'Naučte se, jak používat Pokrok'
           
-          await sql`
+          console.log('[Onboarding] Creating area:', areaName, 'with ID:', areaId)
+          
+          const areaResult = await sql`
             INSERT INTO areas (id, user_id, name, description, color, icon, "order")
             VALUES (
               ${areaId}, 
@@ -59,11 +80,14 @@ export async function PUT(request: NextRequest) {
               '#3B82F6', 
               'HelpCircle', 
               0
-            )
+            ) RETURNING id
           `
+          
+          console.log('[Onboarding] Area created:', areaResult[0]?.id)
 
           // Get today's date
           const today = new Date().toISOString().split('T')[0]
+          console.log('[Onboarding] Using date:', today)
 
           // Create onboarding steps with today's date
           const steps = [
@@ -98,29 +122,50 @@ export async function PUT(request: NextRequest) {
           ]
 
           // Create steps
-          for (const step of steps) {
+          console.log('[Onboarding] Creating', steps.length, 'steps')
+          for (let i = 0; i < steps.length; i++) {
+            const step = steps[i]
             const stepId = crypto.randomUUID()
-            await sql`
-              INSERT INTO daily_steps (
-                id, user_id, title, description, date, completed, area_id, created_at, updated_at
-              ) VALUES (
-                ${stepId},
-                ${dbUser.id},
-                ${step.title},
-                ${step.description},
-                ${step.date}::date,
-                false,
-                ${areaId},
-                NOW(),
-                NOW()
-              )
-            `
+            console.log('[Onboarding] Creating step', i + 1, ':', step.title)
+            
+            try {
+              const stepResult = await sql`
+                INSERT INTO daily_steps (
+                  id, user_id, title, description, date, completed, area_id, created_at, updated_at
+                ) VALUES (
+                  ${stepId},
+                  ${dbUser.id},
+                  ${step.title},
+                  ${step.description},
+                  ${step.date}::date,
+                  false,
+                  ${areaId},
+                  NOW(),
+                  NOW()
+                ) RETURNING id
+              `
+              console.log('[Onboarding] Step created:', stepResult[0]?.id)
+            } catch (stepError) {
+              console.error('[Onboarding] Error creating step', i + 1, ':', stepError)
+              throw stepError // Re-throw to be caught by outer catch
+            }
           }
+          
+          console.log('[Onboarding] Successfully initialized', steps.length, 'steps for user:', dbUser.id)
+        } else {
+          console.log('[Onboarding] User already has onboarding steps, skipping creation')
         }
       } catch (initError) {
-        console.error('Error initializing onboarding steps:', initError)
+        console.error('[Onboarding] Error initializing onboarding steps:', initError)
+        console.error('[Onboarding] Error details:', {
+          message: initError instanceof Error ? initError.message : String(initError),
+          stack: initError instanceof Error ? initError.stack : undefined,
+          userId: dbUser.id
+        })
         // Continue anyway - don't block onboarding completion
       }
+    } else {
+      console.log('[Onboarding] Skipping initialization - user already completed onboarding or hasCompletedOnboarding is false')
     }
 
     await updateUserOnboardingStatus(dbUser.id, hasCompletedOnboarding)
