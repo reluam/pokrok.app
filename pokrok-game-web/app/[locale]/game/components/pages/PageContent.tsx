@@ -2083,6 +2083,7 @@ export function PageContent(props: PageContentProps) {
                   }}
                   dailySteps={dailySteps}
                   hideHeader={true}
+                  statusFilters={goalsStatusFilters}
                 />
               )}
               </div>

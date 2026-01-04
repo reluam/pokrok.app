@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString } from '../../../main/components/utils/dateHelpers'
-import { Plus, Target, Calendar, CheckCircle, Moon, ArrowRight } from 'lucide-react'
+import { Plus, Target, Calendar, CheckCircle, Moon, ArrowRight, ChevronLeft } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
+import { GoalDetailWrapper } from './GoalDetailWrapper'
 
 interface GoalsManagementViewProps {
   goals: any[]
@@ -19,6 +20,10 @@ interface GoalsManagementViewProps {
   onGoalStatusClick?: (goalId: string, e: React.MouseEvent) => void
   dailySteps?: any[] // Add dailySteps prop to update cache when steps change
   hideHeader?: boolean // If true, don't render header and filters
+  statusFilters?: Set<string> // External status filters (if provided, use these instead of internal state)
+  selectedGoalId?: string | null // Selected goal ID to show detail
+  onSelectedGoalChange?: (goalId: string | null) => void // Callback when selected goal changes
+  onDailyStepsUpdate?: (steps: any[]) => void // Callback to update daily steps
 }
 
 export function GoalsManagementView({
@@ -32,13 +37,37 @@ export function GoalsManagementView({
   onGoalDateClick,
   onGoalStatusClick,
   dailySteps = [],
-  hideHeader = false
+  hideHeader = false,
+  statusFilters: externalStatusFilters,
+  selectedGoalId: externalSelectedGoalId,
+  onSelectedGoalChange,
+  onDailyStepsUpdate
 }: GoalsManagementViewProps) {
   const t = useTranslations()
   const localeCode = useLocale()
   
   // Status filters - defaultně pouze 'active' zaškrtnutý
-  const [statusFilters, setStatusFilters] = useState<Set<string>>(new Set(['active']))
+  // Use external filters if provided, otherwise use internal state
+  const [internalStatusFilters, setInternalStatusFilters] = useState<Set<string>>(new Set(['active']))
+  const statusFilters = externalStatusFilters || internalStatusFilters
+  
+  // Handle status filter toggle
+  const handleStatusFilterToggle = (status: string) => {
+    if (externalStatusFilters) {
+      // If external filters are provided, don't handle toggle here
+      // The parent component should handle it
+      return
+    }
+    setInternalStatusFilters(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(status)) {
+        newSet.delete(status)
+      } else {
+        newSet.add(status)
+      }
+      return newSet
+    })
+  }
 
   // Goal steps cache
   const [goalStepsCache, setGoalStepsCache] = useState<Record<string, any[]>>({})
@@ -170,19 +199,6 @@ export function GoalsManagementView({
       return (a.title || '').localeCompare(b.title || '')
     })
   }, [goals, statusFilters])
-  
-  // Handle status filter toggle
-  const handleStatusFilterToggle = (status: string) => {
-    setStatusFilters(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(status)) {
-        newSet.delete(status)
-      } else {
-        newSet.add(status)
-      }
-      return newSet
-    })
-  }
 
   // Format date for display
   const formatDate = (dateString: string | null) => {
@@ -199,12 +215,27 @@ export function GoalsManagementView({
     }
   }
 
+  // Internal state for selected goal if not provided externally
+  const [internalSelectedGoalId, setInternalSelectedGoalId] = useState<string | null>(null)
+  const selectedGoalId = externalSelectedGoalId !== undefined ? externalSelectedGoalId : internalSelectedGoalId
+  
   // Handle goal click - navigate to goal detail
   const handleGoalClick = (goalId: string) => {
+    const newSelectedId = selectedGoalId === goalId ? null : goalId
+    
+    if (onSelectedGoalChange) {
+      onSelectedGoalChange(newSelectedId)
+    } else {
+      setInternalSelectedGoalId(newSelectedId)
+    }
+    
     if (onGoalClick) {
       onGoalClick(goalId)
     }
   }
+  
+  // Find selected goal
+  const selectedGoal = selectedGoalId ? goals.find(g => g.id === selectedGoalId) : null
 
   // Handle create goal
   const handleCreateGoal = () => {
@@ -215,73 +246,136 @@ export function GoalsManagementView({
 
   return (
     <div className="w-full h-full flex flex-col bg-primary-50">
-      {!hideHeader && (
-        <>
-          {/* Header */}
-          <div className="bg-white border-b-2 border-primary-500 px-6 py-4">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h1 className="text-2xl font-bold text-black font-playful">{t('navigation.goals')}</h1>
-                <p className="text-sm text-gray-600 mt-1 font-playful">
-                  {filteredAndSortedGoals.length} {filteredAndSortedGoals.length === 1 ? (localeCode === 'cs' ? 'cíl' : 'goal') : (localeCode === 'cs' ? 'cílů' : 'goals')}
-                </p>
+      {!hideHeader ? (
+        <div className="flex flex-1 overflow-hidden min-h-0">
+          {/* Left Panel - Filters and Add button - hidden on mobile */}
+          <div className="hidden md:flex w-64 border-r-2 border-primary-500 bg-white flex flex-col h-full">
+            {/* Filters at top */}
+            <div className="p-4 border-b-2 border-primary-500 overflow-y-auto flex-shrink-0">
+              <button
+                onClick={() => {
+                  if (onSelectedGoalChange) {
+                    onSelectedGoalChange(null)
+                  } else {
+                    setInternalSelectedGoalId(null)
+                  }
+                }}
+                className="text-sm font-bold text-black font-playful mb-4 hover:text-primary-600 transition-colors cursor-pointer text-left w-full"
+              >
+                {t('navigation.goals')}
+              </button>
+              <p className="text-xs text-gray-600 mb-4">
+                {filteredAndSortedGoals.length} {filteredAndSortedGoals.length === 1 ? (localeCode === 'cs' ? 'cíl' : 'goal') : (localeCode === 'cs' ? 'cílů' : 'goals')}
+              </p>
+              
+              {/* Status Filters - Vertical */}
+              <div className="space-y-2 mb-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={statusFilters.has('active')}
+                    onChange={() => handleStatusFilterToggle('active')}
+                    className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+                  />
+                  <span className="text-xs font-medium text-black font-playful flex items-center gap-1.5">
+                    <Target className="w-3.5 h-3.5 text-primary-600" />
+                    {t('goals.status.active')}
+                  </span>
+                </label>
+                
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={statusFilters.has('paused')}
+                    onChange={() => handleStatusFilterToggle('paused')}
+                    className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+                  />
+                  <span className="text-xs font-medium text-black font-playful flex items-center gap-1.5">
+                    <Moon className="w-3.5 h-3.5 text-primary-600" />
+                    {t('goals.status.paused')}
+                  </span>
+                </label>
+                
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={statusFilters.has('completed')}
+                    onChange={() => handleStatusFilterToggle('completed')}
+                    className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+                  />
+                  <span className="text-xs font-medium text-black font-playful flex items-center gap-1.5">
+                    <CheckCircle className="w-3.5 h-3.5 text-primary-600" />
+                    {t('goals.status.completed')}
+                  </span>
+                </label>
+              </div>
             </div>
-            <button
+            
+            {/* Divider */}
+            <div className="border-t border-primary-500 flex-shrink-0" style={{ borderTopWidth: '0.4px' }}></div>
+            
+            {/* Goals list container */}
+            <div className="flex-1 overflow-y-auto min-h-0 p-2">
+              {/* Goals list */}
+              <div className="space-y-1">
+                {filteredAndSortedGoals.length === 0 ? (
+                  <div className="p-4 text-xs text-gray-500 text-center">
+                    {t('goals.noGoals') || 'Žádné cíle'}
+                  </div>
+                ) : (
+                  filteredAndSortedGoals.map((goal: any) => {
+                    const IconComponent = getIconComponent(goal.icon)
+                    return (
+                      <button
+                        key={goal.id}
+                        onClick={() => handleGoalClick(goal.id)}
+                        className="w-full text-left px-3 py-2 rounded-playful-sm text-sm font-playful transition-colors flex items-center gap-2 bg-white text-black hover:bg-primary-50 border-2 border-transparent hover:border-primary-500"
+                      >
+                        <IconComponent className="w-4 h-4 flex-shrink-0" />
+                        <span className="truncate">{goal.title}</span>
+                      </button>
+                    )
+                  })
+                )}
+              </div>
+            </div>
+
+            {/* Add button at bottom */}
+            <div className="mt-auto p-4 border-t-2 border-primary-500 flex-shrink-0">
+              <button
                 onClick={handleCreateGoal}
-                className="btn-playful-base flex items-center gap-2 px-4 py-2.5 text-primary-600 bg-white hover:bg-primary-50"
-            >
+                className="btn-playful-base w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-white hover:bg-primary-50"
+              >
                 <Plus className="w-5 h-5" />
-              {t('goals.add')}
-            </button>
+                {t('goals.add')}
+              </button>
+            </div>
           </div>
           
-            {/* Status Filters */}
-            <div className="flex items-center gap-4 mt-4 px-6">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={statusFilters.has('active')}
-                  onChange={() => handleStatusFilterToggle('active')}
-                  className="w-5 h-5 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
-                />
-                <span className="text-sm font-medium text-black font-playful flex items-center gap-1.5">
-                  <Target className="w-4 h-4 text-primary-600" />
-                  {t('goals.status.active')}
-                            </span>
-              </label>
-              
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={statusFilters.has('paused')}
-                  onChange={() => handleStatusFilterToggle('paused')}
-                  className="w-5 h-5 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
-                />
-                <span className="text-sm font-medium text-black font-playful flex items-center gap-1.5">
-                  <Moon className="w-4 h-4 text-primary-600" />
-                  {t('goals.status.paused')}
-                                  </span>
-              </label>
-              
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={statusFilters.has('completed')}
-                  onChange={() => handleStatusFilterToggle('completed')}
-                  className="w-5 h-5 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
-                />
-                <span className="text-sm font-medium text-black font-playful flex items-center gap-1.5">
-                  <CheckCircle className="w-4 h-4 text-primary-600" />
-                            {t('goals.status.completed')}
-                </span>
-              </label>
-            </div>
-          </div>
-          </>
-        )}
-
-      {/* Goals Grid */}
-      <div className="flex-1 overflow-y-auto px-6 py-6">
+          {/* Main Content */}
+          <div className="flex-1 overflow-y-auto flex flex-col">
+            {selectedGoal && selectedGoalId ? (
+              <GoalDetailWrapper
+                goal={selectedGoal}
+                goalId={selectedGoalId}
+                goals={goals}
+                dailySteps={dailySteps}
+                onGoalsUpdate={onGoalsUpdate}
+                onSelectedGoalChange={() => {
+                  if (onSelectedGoalChange) {
+                    onSelectedGoalChange(null)
+                  } else {
+                    setInternalSelectedGoalId(null)
+                  }
+                }}
+                areas={[]}
+                onDailyStepsUpdate={onDailyStepsUpdate}
+                player={player}
+                userId={userId}
+              />
+            ) : (
+              /* Goals Grid */
+              <div className="flex-1 overflow-y-auto px-6 py-6">
         {filteredAndSortedGoals.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center py-16">
             <div className="box-playful-highlight-primary p-8 max-w-md">
@@ -483,7 +577,110 @@ export function GoalsManagementView({
                       })}
                     </div>
                   )}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+          <div className="flex-1 overflow-y-auto px-6 py-6">
+            {filteredAndSortedGoals.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-center py-16">
+                <div className="box-playful-highlight-primary p-8 max-w-md">
+                  <Target className="w-16 h-16 text-primary-600 mb-4 mx-auto" />
+                  <h3 className="text-xl font-semibold text-black mb-2 font-playful">Žádné cíle</h3>
+                  <p className="text-gray-600 mb-6 font-playful">Začněte přidáním svého prvního cíle</p>
+                  <button
+                    onClick={handleCreateGoal}
+                    className="btn-playful-base flex items-center justify-center gap-2 px-6 py-3 text-primary-600 bg-white hover:bg-primary-50 mx-auto"
+                  >
+                    <Plus className="w-5 h-5" />
+                    {t('goals.add')}
+                  </button>
                 </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredAndSortedGoals.map((goal) => {
+                  const { progress, completedSteps, totalSteps } = calculateProgress(goal.id)
+                  const IconComponent = getIconComponent(goal.icon)
+                  const statusConfig = {
+                    active: { label: t('goals.status.active'), icon: Target },
+                    paused: { label: t('goals.status.paused'), icon: Moon },
+                    completed: { label: t('goals.status.completed'), icon: CheckCircle }
+                  }
+                  const goalStatus = goal.status || 'active'
+                  const status = statusConfig[goalStatus as keyof typeof statusConfig] || statusConfig.active
+                  const isPaused = goalStatus === 'paused'
+                  const isCompleted = goalStatus === 'completed'
+                  
+                  return (
+                    <div
+                      key={goal.id}
+                      onClick={() => handleGoalClick(goal.id)}
+                      className={`box-playful-highlight bg-white cursor-pointer overflow-hidden group transition-all ${
+                        isPaused ? 'opacity-60 hover:opacity-80' : ''
+                      }`}
+                    >
+                      {/* Goal content - same as above but simplified for hideHeader case */}
+                      <div className={`p-5 border-b-2 ${
+                        isPaused ? 'border-gray-300' : 'border-primary-500'
+                      }`}>
+                        <div className="flex items-center gap-3 mb-3">
+                          <IconComponent className={`w-6 h-6 ${
+                            isPaused ? 'text-gray-400' : 'text-primary-600'
+                          }`} />
+                          <h3 className={`text-lg font-semibold font-playful ${
+                            isPaused ? 'text-gray-500' : 'text-black'
+                          }`}>
+                            {goal.title}
+                          </h3>
+                        </div>
+                        {goal.description && (
+                          <p className={`text-sm line-clamp-2 mb-3 font-playful ${
+                            isPaused ? 'text-gray-400' : 'text-gray-600'
+                          }`}>
+                            {goal.description}
+                          </p>
+                        )}
+                      </div>
+                      <div className="p-5">
+                        <div className="mb-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className={`text-sm font-medium font-playful ${
+                              isPaused ? 'text-gray-400' : 'text-black'
+                            }`}>
+                              Pokrok
+                            </span>
+                            <span className={`text-sm font-semibold font-playful ${
+                              isPaused ? 'text-gray-500' : 'text-primary-600'
+                            }`}>
+                              {Math.round(progress)}%
+                            </span>
+                          </div>
+                          <div className={`w-full rounded-playful-sm h-2.5 overflow-hidden border-2 border-primary-500 ${
+                            isPaused ? 'bg-gray-200' : 'bg-white'
+                          }`}>
+                            <div
+                              className={`h-full transition-all duration-300 rounded-playful-sm ${
+                                isPaused ? 'bg-gray-400' : 'bg-primary-500'
+                              }`}
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+                        </div>
+                        <div className={`text-xs font-playful ${
+                          isPaused ? 'text-gray-400' : 'text-gray-600'
+                        }`}>
+                          {completedSteps} / {totalSteps} kroků
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
     </div>
   )
 }

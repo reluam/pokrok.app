@@ -37,6 +37,7 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
   const [dailySteps, setDailySteps] = useState<any[]>([])
   const [isLoadingSteps, setIsLoadingSteps] = useState(true)
   const [mobileTopMenuOpen, setMobileTopMenuOpen] = useState(false)
+  const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null)
   // Default function if onPlayerUpdate is not provided
   const handlePlayerUpdate = onPlayerUpdate || (() => {})
 
@@ -95,6 +96,11 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
 
   // Navigation function
   const setCurrentPage = (page: 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas') => {
+    // Reset selected goal when navigating to goals
+    if (page === 'goals') {
+      setSelectedGoalId(null)
+    }
+    
     const pageMap: Record<string, string> = {
       'main': 'main-panel',
       'goals': 'goals',
@@ -130,6 +136,7 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
       setCurrentView('statistics')
     } else if (pathname?.includes('/goals')) {
       setCurrentView('goals')
+      setSelectedGoalId(null) // Reset selected goal when navigating to goals page
     } else if (pathname?.includes('/habits')) {
       setCurrentView('character') // Habits are shown in main panel
     } else if (pathname?.includes('/steps')) {
@@ -247,6 +254,56 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
     setDailySteps(steps)
   }
 
+  // Handle create goal
+  const handleCreateGoal = async () => {
+    const currentUserId = userId || player?.user_id
+    if (!currentUserId) {
+      alert('Chyba: Uživatel není nalezen')
+      return
+    }
+
+    try {
+      // Create goal with placeholder values
+      const response = await fetch('/api/cesta/goals-with-steps', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: t('goals.newGoalTitle') || 'Nový cíl',
+          description: '',
+          targetDate: null,
+          status: 'active',
+          icon: 'Target',
+          steps: [],
+          metrics: [],
+          areaId: null
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        
+        // Update goals in parent component
+        if (data.goal) {
+          onGoalsUpdate([...goals, data.goal])
+          
+          // Select the newly created goal
+          if (data.goal.id) {
+            setSelectedGoalId(data.goal.id)
+          }
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Failed to create goal:', errorData)
+        alert(`Nepodařilo se vytvořit cíl: ${errorData.error || 'Neznámá chyba'}`)
+      }
+    } catch (error) {
+      console.error('Error creating goal:', error)
+      alert('Chyba při vytváření cíle')
+    }
+  }
+
   const renderCurrentView = () => {
     switch (currentView) {
       case 'character':
@@ -290,6 +347,11 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
             player={player}
             goals={goals}
             onGoalsUpdate={onGoalsUpdate}
+            selectedGoalId={selectedGoalId}
+            onSelectedGoalChange={setSelectedGoalId}
+            dailySteps={dailySteps}
+            onDailyStepsUpdate={handleDailyStepsUpdate}
+            onCreateGoal={handleCreateGoal}
           />
         )
       case 'statistics':
@@ -373,7 +435,7 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
   const showHeaderNavigation = currentView !== 'character'
 
   return (
-    <>
+    <div className="flex flex-col h-screen">
       {showHeaderNavigation && (
         <HeaderNavigation
           currentPage={getCurrentPage()}
@@ -388,7 +450,9 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
           setMobileTopMenuOpen={setMobileTopMenuOpen}
         />
       )}
-      {renderCurrentView()}
-    </>
+      <div className="flex-1 overflow-hidden min-h-0">
+        {renderCurrentView()}
+      </div>
+    </div>
   )
 }
