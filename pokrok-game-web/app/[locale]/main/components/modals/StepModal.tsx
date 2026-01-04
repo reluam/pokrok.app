@@ -872,8 +872,8 @@ export function StepModal({
                 }}
                 disabled={(() => {
                   const isSavingDisabled = isSaving
-                  // Check if we have userId from either prop or player
-                  const effectiveUserId = userId || player?.user_id
+                  // Check if we have userId from either prop or player (player has 'id' property, not 'user_id')
+                  const effectiveUserId = userId || player?.id || player?.user_id
                   const isUserIdDisabled = !effectiveUserId
                   const titleValue = stepModalData.title
                   const titleTrimmed = titleValue?.trim()

@@ -35,8 +35,8 @@ export function GoalDetailWrapper({
   const [localGoal, setLocalGoal] = useState(goal)
   const [areasState, setAreasState] = useState(initialAreas)
   
-  // Get userId from player
-  const currentUserId = player?.user_id || userId || null
+  // Get userId from player - player object has 'id' property, not 'user_id'
+  const currentUserId = player?.id || player?.user_id || userId || null
   
   // Update localGoal when goal or goalId changes
   useEffect(() => {
