@@ -7,16 +7,36 @@ const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dum
 
 export async function GET(request: NextRequest) {
   try {
-    // ✅ SECURITY: Ověření autentizace
-    const authResult = await requireAuth(request)
-    if (authResult instanceof NextResponse) return authResult
-    const { dbUser } = authResult
+    // Support both auth-based and clerkId query param
+    const { searchParams } = new URL(request.url)
+    const clerkIdParam = searchParams.get('clerkId')
+    
+    if (clerkIdParam) {
+      // If clerkId is provided, use it (for backward compatibility)
+      const { getUserByClerkId } = await import('@/lib/cesta-db')
+      const user = await getUserByClerkId(clerkIdParam)
+      
+      if (!user) {
+        return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      }
+      
+      return NextResponse.json(user)
+    } else {
+      // Otherwise, use auth-based approach
+      const authResult = await requireAuth(request)
+      if (authResult instanceof NextResponse) return authResult
+      const { dbUser } = authResult
 
-    // ✅ SECURITY: Vrátit pouze data autentizovaného uživatele
-    return NextResponse.json(dbUser)
+      // ✅ SECURITY: Vrátit pouze data autentizovaného uživatele
+      return NextResponse.json(dbUser)
+    }
   } catch (error) {
     console.error('Error fetching user:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: errorMessage 
+    }, { status: 500 })
   }
 }
 
