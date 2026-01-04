@@ -736,7 +736,7 @@ export function GoalDetailWrapper({
         isSaving={stepModalSaving}
         goals={goals}
         areas={areasState}
-        userId={currentUserId}
+        userId={userId || currentUserId}
         player={player}
         dailySteps={dailySteps}
         onDailyStepsUpdate={onDailyStepsUpdate}
