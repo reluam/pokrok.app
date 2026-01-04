@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Target, Plus, Footprints, CheckSquare, Settings, Calendar, CalendarRange, CalendarDays, CalendarCheck, BarChart3, ListTodo } from 'lucide-react'
+import { LayoutDashboard, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Target, Plus, Footprints, CheckSquare, Calendar, CalendarRange, CalendarDays, CalendarCheck, BarChart3, ListTodo } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
 
 interface SidebarNavigationProps {
@@ -154,18 +154,8 @@ export function SidebarNavigation({
     <div className={`hidden md:flex ${sidebarCollapsed ? 'w-14' : 'w-64'} border-r-4 border-primary-500 bg-white flex-shrink-0 transition-all duration-300 relative h-full flex flex-col`}>
       <div className={`${sidebarCollapsed ? 'p-2 pt-12' : 'p-4'} flex-1 overflow-y-auto`}>
         {!sidebarCollapsed && (
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4">
             <h2 className="text-lg font-bold text-black font-playful">{t('navigation.title')}</h2>
-            <button
-              onClick={() => {
-                // Dispatch custom event to open workflows view
-                window.dispatchEvent(new CustomEvent('openWorkflowsSettings'))
-              }}
-              className="p-1.5 rounded-playful-sm hover:bg-primary-50 transition-colors border-2 border-primary-500 text-black hover:text-primary-600"
-              title={t('workflows.title') || 'Nastavení workflows'}
-            >
-              <Settings className="w-4 h-4" />
-            </button>
           </div>
         )}
         <nav className={`${sidebarCollapsed ? 'space-y-2 flex flex-col items-center' : 'space-y-2'}`}>
@@ -267,18 +257,11 @@ export function SidebarNavigation({
             
             return (
               <div className="space-y-2">
-                {/* Areas header with settings */}
-                <div className="flex items-center justify-between px-2 py-1">
+                {/* Areas header */}
+                <div className="px-2 py-1">
                   <h3 className="text-xs font-bold text-black uppercase tracking-wider font-playful">
                     {t('areas.title') || 'Oblasti'}
                   </h3>
-                  <button
-                    onClick={() => handleOpenAreasManagementModal()}
-                    className="p-1.5 rounded-playful-sm hover:bg-primary-50 transition-colors border-2 border-primary-500 text-black hover:text-primary-600"
-                    title={t('areas.manage') || 'Spravovat oblasti'}
-                  >
-                    <Settings className="w-3.5 h-3.5" />
-                  </button>
                 </div>
                 
                 {/* Areas with goals */}

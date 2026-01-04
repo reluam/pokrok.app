@@ -450,6 +450,7 @@ export function UpcomingView({
         step: nearestInstance.step,
         date: nearestInstance.date,
         isImportant: nearestInstance.step.is_important || false,
+        isUrgent: nearestInstance.step.is_urgent || false,
         isOverdue: nearestInstance.isOverdue,
         goal,
         area
