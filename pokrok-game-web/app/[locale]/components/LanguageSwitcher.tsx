@@ -15,29 +15,29 @@ export function LanguageSwitcher() {
   const switchLocale = (newLocale: Locale) => {
     setIsOpen(false)
     
-    // Handle locale switching with 'as-needed' prefix strategy
-    // Current locale might or might not have prefix in URL
-    let newPathname: string
+    // Since locale is no longer in URL, we save the preference to both cookie and database
+    // The cookie ensures immediate change, database ensures persistence
     
-    // Check if current path has a locale prefix
-    const hasLocalePrefix = locales.some(l => pathname.startsWith(`/${l}/`) || pathname === `/${l}`)
+    console.log('[LanguageSwitcher] Switching locale:', {
+      currentLocale: locale,
+      newLocale,
+      pathname
+    })
     
-    if (hasLocalePrefix) {
-      // Replace existing locale prefix (en is default, no prefix needed)
-      newPathname = pathname.replace(/^\/(cs|en)/, newLocale === 'en' ? '' : `/${newLocale}`)
-    } else {
-      // No locale prefix (default locale en), add new one if needed
-      newPathname = newLocale === 'en' ? pathname : `/${newLocale}${pathname}`
-    }
+    // Set cookie immediately for instant locale change
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`
     
-    // Ensure we have a valid path
-    // Ensure we have a valid path (en is default, no prefix needed)
-    if (!newPathname || newPathname === '') {
-      newPathname = newLocale === 'en' ? '/' : `/${newLocale}`
-    }
+    // Save locale preference to database if user is logged in (async, doesn't block)
+    fetch('/api/user/locale', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ locale: newLocale })
+    }).catch(err => {
+      console.error('[LanguageSwitcher] Failed to save locale preference to database:', err)
+    })
     
-    router.push(newPathname)
-    router.refresh()
+    // Refresh the page to apply the new locale
+    window.location.reload()
   }
 
   const languages = [

@@ -31,7 +31,20 @@ export async function PUT(request: NextRequest) {
     // Invalidate cache (already done in updateUserPreferredLocale, but doing it again to be sure)
     invalidateUserCache(clerkUserId)
 
-    return NextResponse.json({ user: updatedUser })
+    console.log(`[API/user/locale] Updated user ${dbUser.id} locale to: ${locale}`)
+
+    // Set cookie in response to ensure it's immediately available
+    const response = NextResponse.json({ user: updatedUser })
+    if (locale) {
+      response.cookies.set('NEXT_LOCALE', locale, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+        sameSite: 'lax'
+      })
+      console.log(`[API/user/locale] Set cookie NEXT_LOCALE to: ${locale}`)
+    }
+
+    return response
   } catch (error) {
     console.error('Error updating user locale:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'

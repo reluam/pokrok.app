@@ -1,20 +1,62 @@
 import { getRequestConfig } from 'next-intl/server'
 import { locales, type Locale } from './i18n/config'
+import { cookies } from 'next/headers'
+import { auth } from '@clerk/nextjs/server'
+import { getUserByClerkId } from './lib/cesta-db'
 
 // Static imports for Vercel compatibility - webpack can properly bundle these
 import csMessages from './locales/cs/common.json'
 import enMessages from './locales/en/common.json'
 
 export default getRequestConfig(async ({ requestLocale }) => {
-  // This typically corresponds to the `[locale]` segment
-  // The middleware handles redirecting to user's preferred locale from database
-  let locale = await requestLocale
-
-  // Ensure that a valid locale is used
-  if (!locale || !locales.includes(locale as Locale)) {
-    console.warn(`[i18n] Invalid locale: ${locale}, defaulting to 'en'`)
-    locale = 'en' // Default to English
+  // Since locale is no longer in URL, we need to determine it from cookies, user settings, or browser
+  let locale: Locale | null = null
+  
+  // Priority 1: Cookie (set by middleware or LanguageSwitcher) - check first
+  // This is the most immediate source of truth
+  const cookieStore = await cookies()
+  const cookieLocale = cookieStore.get('NEXT_LOCALE')?.value
+  if (cookieLocale && locales.includes(cookieLocale as Locale)) {
+    locale = cookieLocale as Locale
+    console.log(`[i18n] Using cookie locale: ${locale}`)
   }
+  
+  // Priority 2: User's database preference (for authenticated users)
+  // Only use if cookie is not set or invalid
+  if (!locale) {
+    try {
+      const { userId: clerkUserId } = await auth()
+      if (clerkUserId) {
+        const dbUser = await getUserByClerkId(clerkUserId)
+        if (dbUser?.preferred_locale && locales.includes(dbUser.preferred_locale as Locale)) {
+          locale = dbUser.preferred_locale as Locale
+          console.log(`[i18n] Using user's database preference: ${locale}`)
+        } else {
+          console.log(`[i18n] User has no database preference`)
+        }
+      }
+    } catch (error) {
+      // If we can't get user locale, continue to next priority
+      console.error('[i18n] Error getting user locale:', error)
+    }
+  }
+
+  // Priority 3: requestLocale from middleware (browser detection for non-authenticated users)
+  if (!locale) {
+    const requestLocaleValue = await requestLocale
+    if (requestLocaleValue && locales.includes(requestLocaleValue as Locale)) {
+      locale = requestLocaleValue as Locale
+      console.log(`[i18n] Using browser detection: ${locale}`)
+    }
+  }
+
+  // Fallback: Default to Czech
+  if (!locale || !locales.includes(locale as Locale)) {
+    locale = 'cs' // Default to Czech
+    console.log(`[i18n] Using default locale: ${locale}`)
+  }
+  
+  console.log(`[i18n] Final locale decision: ${locale}`)
 
   // Use static imports instead of dynamic - this works reliably on Vercel
   // Webpack can properly bundle static imports, but dynamic imports with template literals can fail

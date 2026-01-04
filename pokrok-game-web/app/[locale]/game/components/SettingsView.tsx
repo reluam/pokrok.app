@@ -251,6 +251,16 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
   const handleLocaleChange = async (newLocale: Locale) => {
     setIsSavingLocale(true)
     try {
+      console.log('[SettingsView] Changing locale:', {
+        currentLocale: locale,
+        preferredLocale,
+        newLocale
+      })
+      
+      // Set cookie immediately for instant locale change
+      document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`
+      
+      // Save locale preference to database
       const response = await fetch('/api/user/locale', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -259,37 +269,19 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
 
       if (response.ok) {
         setPreferredLocale(newLocale)
-        // Redirect to the new locale - use window.location for immediate redirect
-        const currentPath = window.location.pathname
-        
-        // Handle locale switching with 'as-needed' prefix strategy
-        // Extract path without locale prefix (e.g., /cs/game -> /game)
-        let pathWithoutLocale = currentPath
-        for (const loc of locales) {
-          if (currentPath.startsWith(`/${loc}/`)) {
-            pathWithoutLocale = currentPath.substring(loc.length + 1) // Remove /cs or /en, keep the rest including /
-            break
-          } else if (currentPath === `/${loc}`) {
-            pathWithoutLocale = '/'
-            break
-          }
-        }
-        
-        // Build new path - en is default (no prefix), cs needs prefix
-        const newPath = newLocale === 'en' 
-          ? pathWithoutLocale 
-          : `/${newLocale}${pathWithoutLocale}`
-        
-        // Use window.location.href for immediate navigation with full page reload
-        // This ensures the new locale is properly loaded
-        window.location.href = newPath
+        // Refresh the page to apply the new locale
+        window.location.reload()
       } else {
-        console.error('Failed to update locale')
+        console.error('[SettingsView] Failed to update locale in database')
         setIsSavingLocale(false)
+        // Still refresh to apply cookie change
+        window.location.reload()
       }
     } catch (error) {
-      console.error('Error updating locale:', error)
+      console.error('[SettingsView] Error updating locale:', error)
       setIsSavingLocale(false)
+      // Still refresh to apply cookie change
+      window.location.reload()
     }
   }
 
@@ -510,7 +502,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
                     {t('settings.user.language.label')}
                   </label>
                   <select
-                    value={preferredLocale || locale}
+                    value={locale}
                     onChange={(e) => handleLocaleChange(e.target.value as Locale)}
                     disabled={isSavingLocale}
                     className="w-full p-3 border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 focus:outline-none disabled:opacity-50 bg-white"
@@ -1035,7 +1027,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
       {/* Left sidebar - Navigation - Hidden on mobile */}
       <div className="hidden md:flex w-64 border-r-2 border-primary-500 bg-white flex-shrink-0 flex flex-col">
         <div className="p-4 flex-1">
-          <h2 className="text-lg font-bold text-black font-playful mb-4">Nastavení</h2>
+          <h2 className="text-lg font-bold text-black font-playful mb-4">{t('settings.title') || 'Nastavení'}</h2>
           <nav className="space-y-1">
             {tabs.map((tab) => {
               const Icon = tab.icon

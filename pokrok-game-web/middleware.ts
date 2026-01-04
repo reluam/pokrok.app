@@ -2,42 +2,34 @@ import createMiddleware from 'next-intl/middleware'
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { locales, type Locale } from './i18n/config'
+import { auth } from '@clerk/nextjs/server'
+import { getUserByClerkId } from './lib/cesta-db'
 
 const isProtectedRoute = createRouteMatcher([
-  '/(cs|en)/game(.*)',
-  '/game(.*)', // Also protect /game routes without locale prefix
-  '/(cs|en)/main-panel(.*)',
+  '/game(.*)',
   '/main-panel(.*)',
-  '/(cs|en)/goals(.*)',
   '/goals(.*)',
-  '/(cs|en)/habits(.*)',
   '/habits(.*)',
-  '/(cs|en)/steps(.*)',
   '/steps(.*)',
-  '/(cs|en)/settings(.*)',
   '/settings(.*)',
-  '/(cs|en)/help(.*)',
   '/help(.*)',
-  '/(cs|en)/workflows(.*)',
   '/workflows(.*)',
-  '/(cs|en)/areas(.*)',
   '/areas(.*)',
-  '/(cs|en)/statistics(.*)',
   '/statistics(.*)',
-  '/(cs|en)/achievements(.*)',
   '/achievements(.*)'
 ])
 
 // Create intl middleware once (outside of clerkMiddleware)
+// Using 'never' means locale won't appear in URL, but we still need [locale] segment in app structure
 const intlMiddleware = createMiddleware({
   locales,
-  defaultLocale: 'cs', // Czech as default, but will detect from browser
-  localePrefix: 'as-needed', // Default locale (cs) won't have prefix, others will
-  localeDetection: true, // Enable auto-detection from browser language
+  defaultLocale: 'cs', // Czech as default
+  localePrefix: 'never', // Never show locale in URL - use user settings/cookies instead
+  localeDetection: true, // Enable browser detection for non-authenticated users
   alternateLinks: false
 })
 
-export default clerkMiddleware(async (auth, req) => {
+export default clerkMiddleware(async (authReq, req) => {
   try {
     const pathname = req.nextUrl.pathname
     
@@ -59,29 +51,25 @@ export default clerkMiddleware(async (auth, req) => {
       return NextResponse.next()
     }
     
-    // Redirect sign-in and sign-up routes with locale prefix to versions without prefix
-    // This ensures all language versions redirect to pokrok.app/sign-in and pokrok.app/sign-up
+    // Redirect old locale-prefixed routes to non-prefixed versions
+    // This handles migration from old URL structure to new one without locale in URL
     for (const locale of locales) {
-      if (pathname.startsWith(`/${locale}/sign-in`) || pathname.startsWith(`/${locale}/sign-up`)) {
+      if (pathname.startsWith(`/${locale}/`)) {
         const newPath = pathname.replace(`/${locale}`, '')
         const url = req.nextUrl.clone()
         url.pathname = newPath
         return NextResponse.redirect(url)
+      } else if (pathname === `/${locale}`) {
+        const url = req.nextUrl.clone()
+        url.pathname = '/'
+        return NextResponse.redirect(url)
       }
     }
     
-    // For sign-in and sign-up routes without locale prefix, skip intl middleware
-    // to prevent it from adding locale prefix back (which would cause redirect loop)
-    if (pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up')) {
-      return NextResponse.next()
-    }
-    
     // Redirect /game to /main-panel for backward compatibility
-    if (pathname === '/game' || pathname === '/cs/game' || pathname === '/en/game') {
-      const locale = pathname.startsWith('/cs/') ? 'cs' : pathname.startsWith('/en/') ? 'en' : ''
-      const newPath = locale ? `/${locale}/main-panel` : '/main-panel'
+    if (pathname === '/game') {
       const url = req.nextUrl.clone()
-      url.pathname = newPath
+      url.pathname = '/main-panel'
       return NextResponse.redirect(url)
     }
     
@@ -89,11 +77,42 @@ export default clerkMiddleware(async (auth, req) => {
     if (isProtectedRoute(req)) {
       // Use auth.protect() which handles authentication and redirects
       // This will redirect to sign-in if not authenticated
-      auth.protect()
+      authReq.protect()
     }
     
-    // Then run intl middleware for non-API routes
-    return intlMiddleware(req)
+    // For authenticated users, get database preference first
+    // This will be used to override intl middleware's decision
+    let userLocale: Locale | null = null
+    try {
+      const { userId: clerkUserId } = await auth()
+      if (clerkUserId) {
+        const dbUser = await getUserByClerkId(clerkUserId)
+        if (dbUser?.preferred_locale && locales.includes(dbUser.preferred_locale as Locale)) {
+          userLocale = dbUser.preferred_locale as Locale
+          console.log(`[Middleware] User has database preference: ${userLocale}`)
+        } else {
+          console.log(`[Middleware] User has no database preference, will use browser detection`)
+        }
+      }
+    } catch (error) {
+      console.error('[Middleware] Error getting user locale:', error)
+    }
+    
+    // Run intl middleware - it will use browser detection or cookies
+    const response = await intlMiddleware(req)
+    
+    // If we have a user locale preference from database, override the cookie
+    // This ensures authenticated users always use their saved preference
+    if (userLocale && response) {
+      console.log(`[Middleware] Setting cookie to user preference: ${userLocale}`)
+      response.cookies.set('NEXT_LOCALE', userLocale, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+        sameSite: 'lax'
+      })
+    }
+    
+    return response
   } catch (error) {
     // If middleware fails, log error with more details
     console.error('Middleware error:', {
