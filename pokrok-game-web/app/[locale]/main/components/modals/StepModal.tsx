@@ -900,26 +900,6 @@ export function StepModal({
               >
                 {t('common.save')}
               </PlayfulButton>
-                    isSavingDisabled,
-                    isUserIdDisabled,
-                    isTitleDisabled,
-                    isDisabled,
-                    title: stepModalData.title,
-                    titleTrimmed: stepModalData.title?.trim(),
-                    titleLength: stepModalData.title?.trim()?.length,
-                    userId,
-                    playerUserId: player?.user_id
-                  })
-                  
-                  return isDisabled
-                })()}
-                variant="primary"
-                size="md"
-                loading={isSaving}
-                loadingText={t('common.saving')}
-              >
-                {t('common.save')}
-              </PlayfulButton>
             </div>
           </div>
         </div>
