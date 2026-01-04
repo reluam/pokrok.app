@@ -833,14 +833,49 @@ export function StepModal({
               </button>
               <PlayfulButton
                 onClick={() => {
+                  console.log('[StepModal] Save button clicked')
+                  console.log('[StepModal] stepModalData:', stepModalData)
+                  console.log('[StepModal] stepModalData.title:', stepModalData.title)
+                  console.log('[StepModal] stepModalData.title?.trim():', stepModalData.title?.trim())
+                  console.log('[StepModal] isSaving:', isSaving)
+                  console.log('[StepModal] userId:', userId)
+                  console.log('[StepModal] player?.user_id:', player?.user_id)
+                  
                   // Validate title before saving
                   if (!stepModalData.title || !stepModalData.title.trim()) {
+                    console.error('[StepModal] Title validation failed in modal:', {
+                      title: stepModalData.title,
+                      trimmed: stepModalData.title?.trim(),
+                      isEmpty: !stepModalData.title,
+                      isTrimmedEmpty: !stepModalData.title?.trim()
+                    })
                     alert(t('steps.titleRequired') || 'Název kroku je povinný')
                     return
                   }
+                  
+                  console.log('[StepModal] Validation passed, calling onSave()')
                   onSave()
                 }}
-                disabled={isSaving || (!userId && !player?.user_id) || !stepModalData.title?.trim()}
+                disabled={(() => {
+                  const isSavingDisabled = isSaving
+                  const isUserIdDisabled = !userId && !player?.user_id
+                  const isTitleDisabled = !stepModalData.title?.trim()
+                  const isDisabled = isSavingDisabled || isUserIdDisabled || isTitleDisabled
+                  
+                  console.log('[StepModal] Button disabled check:', {
+                    isSavingDisabled,
+                    isUserIdDisabled,
+                    isTitleDisabled,
+                    isDisabled,
+                    title: stepModalData.title,
+                    titleTrimmed: stepModalData.title?.trim(),
+                    titleLength: stepModalData.title?.trim()?.length,
+                    userId,
+                    playerUserId: player?.user_id
+                  })
+                  
+                  return isDisabled
+                })()}
                 variant="primary"
                 size="md"
                 loading={isSaving}
