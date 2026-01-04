@@ -56,7 +56,7 @@ export default function AboutPage() {
                   Moje mysl byla fascinující místo, ale čím víc jsem do ní utíkal, tím hůř jsem zvládal ten skutečný svět venku. Došlo to až do bodu, kdy jsem nebyl schopen normálně fungovat. Zachránila mě terapie. Tam mi došlo, že smysl života nenajdu v nějaké hluboké teorii ve vesmíru, ale v tom, jak si ráno uvařím kafe, jaká dělám rozhodnutí a jestli dokážu být aspoň na chvíli v klidu v přítomném okamžiku.
                 </p>
                 <p>
-                  Pochopil jsem, že to „moje abstraktno" nemusí být past. Může to být kompas. Ale ty kroky musím dělat já, nohama na zemi.
+                  Pochopil jsem, že to &bdquo;moje abstraktno&ldquo; nemusí být past. Může to být kompas. Ale ty kroky musím dělat já, nohama na zemi.
                 </p>
               </div>
             </div>
@@ -99,7 +99,7 @@ export default function AboutPage() {
                       Zastavení a otázky
                     </h3>
                     <p>
-                      Učím lidi se občas prostě „vypnout" z autopilota a zeptat se: „Dává mi tohle smysl? Je to pro mě funkční?" Je jedno, jestli řešíte smysl práce nebo to, že už hodinu bezmyšlenkovitě scrollujete Instagramem.
+                      Učím lidi se občas prostě &bdquo;vypnout&ldquo; z autopilota a zeptat se: &bdquo;Dává mi tohle smysl? Je to pro mě funkční?&ldquo; Je jedno, jestli řešíte smysl práce nebo to, že už hodinu bezmyšlenkovitě scrollujete Instagramem.
                     </p>
                   </div>
 
@@ -108,7 +108,7 @@ export default function AboutPage() {
                       Inspirace a realita
                     </h3>
                     <p>
-                      Sdílím tu články a výsledky svých pokusů. Žádné teorie „z klobouku", ale věci, které mají hlavu a patu.
+                      Sdílím tu články a výsledky svých pokusů. Žádné teorie &bdquo;z klobouku&ldquo;, ale věci, které mají hlavu a patu.
                     </p>
                   </div>
 
