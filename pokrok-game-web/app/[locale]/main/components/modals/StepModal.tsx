@@ -62,6 +62,20 @@ export function StepModal({
   const locale = useLocale()
   const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
   
+  // Debug: Log stepModalData changes
+  useEffect(() => {
+    console.log('[StepModal] stepModalData prop changed:', {
+      title: stepModalData.title,
+      titleTrimmed: stepModalData.title?.trim(),
+      titleLength: stepModalData.title?.trim()?.length,
+      userId,
+      playerUserId: player?.user_id,
+      isSaving,
+      hasUserId: !!userId || !!player?.user_id,
+      shouldBeEnabled: !isSaving && (!!userId || !!player?.user_id) && !!stepModalData.title?.trim()
+    })
+  }, [stepModalData, userId, player, isSaving])
+  
   // State for date pickers
   const [startDatePickerOpen, setStartDatePickerOpen] = useState(false)
   const [startDatePickerPosition, setStartDatePickerPosition] = useState<{ top: number; left: number } | null>(null)
@@ -859,10 +873,33 @@ export function StepModal({
                 disabled={(() => {
                   const isSavingDisabled = isSaving
                   const isUserIdDisabled = !userId && !player?.user_id
-                  const isTitleDisabled = !stepModalData.title?.trim()
+                  const titleValue = stepModalData.title
+                  const titleTrimmed = titleValue?.trim()
+                  const isTitleDisabled = !titleTrimmed
                   const isDisabled = isSavingDisabled || isUserIdDisabled || isTitleDisabled
                   
                   console.log('[StepModal] Button disabled check:', {
+                    isSavingDisabled,
+                    isUserIdDisabled,
+                    userId,
+                    playerUserId: player?.user_id,
+                    titleValue,
+                    titleTrimmed,
+                    isTitleDisabled,
+                    isDisabled,
+                    stepModalDataTitle: stepModalData.title,
+                    stepModalData: stepModalData
+                  })
+                  
+                  return isDisabled
+                })()}
+                variant="primary"
+                size="md"
+                loading={isSaving}
+                loadingText={t('common.saving')}
+              >
+                {t('common.save')}
+              </PlayfulButton>
                     isSavingDisabled,
                     isUserIdDisabled,
                     isTitleDisabled,
