@@ -375,16 +375,31 @@ export function GoalDetailWrapper({
     // Get current stepModalData from ref to ensure we have the latest value
     const currentStepData = stepModalDataRef.current
     
+    console.log('[GoalDetailWrapper] handleSaveStepModal called')
+    console.log('[GoalDetailWrapper] currentStepData from ref:', currentStepData)
+    console.log('[GoalDetailWrapper] currentStepData.title:', currentStepData.title)
+    console.log('[GoalDetailWrapper] currentStepData.title?.trim():', currentStepData.title?.trim())
+    console.log('[GoalDetailWrapper] stepModalData from state:', stepModalData)
+    console.log('[GoalDetailWrapper] currentUserId:', currentUserId)
+    
     if (!currentStepData.title || !currentStepData.title.trim()) {
+      console.error('[GoalDetailWrapper] Title validation failed:', {
+        title: currentStepData.title,
+        trimmed: currentStepData.title?.trim(),
+        isEmpty: !currentStepData.title,
+        isTrimmedEmpty: !currentStepData.title?.trim()
+      })
       alert('Název kroku je povinný')
       return
     }
 
     if (!currentUserId) {
+      console.error('[GoalDetailWrapper] User ID validation failed:', currentUserId)
       alert('Uživatel není nalezen')
       return
     }
 
+    console.log('[GoalDetailWrapper] Validation passed, starting save...')
     setStepModalSaving(true)
     try {
       const isNewStep = !currentStepData.id
@@ -435,6 +450,12 @@ export function GoalDetailWrapper({
         recurringDisplayMode: currentStepData.isRepeating ? (currentStepData.recurring_display_mode || 'all') : 'all'
       }
       
+      console.log('[GoalDetailWrapper] Sending request:', {
+        method: isNewStep ? 'POST' : 'PUT',
+        url: '/api/daily-steps',
+        requestBody
+      })
+      
       const response = await fetch('/api/daily-steps', {
         method: isNewStep ? 'POST' : 'PUT',
         headers: {
@@ -443,8 +464,11 @@ export function GoalDetailWrapper({
         body: JSON.stringify(requestBody),
       })
 
+      console.log('[GoalDetailWrapper] Response status:', response.status, response.ok)
+
       if (response.ok) {
         const updatedStep = await response.json()
+        console.log('[GoalDetailWrapper] Step saved successfully:', updatedStep)
         
         // Update daily steps
         if (onDailyStepsUpdate) {
@@ -515,13 +539,27 @@ export function GoalDetailWrapper({
         setShowStepModal(false)
         setStepModalData(resetData)
       } else {
-        const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
+        const errorText = await response.text().catch(() => 'Failed to read response')
+        console.error('[GoalDetailWrapper] Save failed - response not ok:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorText
+        })
+        let errorData
+        try {
+          errorData = JSON.parse(errorText)
+        } catch {
+          errorData = { error: errorText || 'Neznámá chyba' }
+        }
+        console.error('[GoalDetailWrapper] Parsed error data:', errorData)
         alert(`Chyba při ${isNewStep ? 'vytváření' : 'aktualizaci'} kroku: ${errorData.error || 'Nepodařilo se uložit krok'}`)
       }
     } catch (error) {
-      console.error('Error saving step:', error)
+      console.error('[GoalDetailWrapper] Error saving step:', error)
+      console.error('[GoalDetailWrapper] Error stack:', error instanceof Error ? error.stack : 'No stack')
       alert(`Chyba při ${currentStepData.id ? 'aktualizaci' : 'vytváření'} kroku`)
     } finally {
+      console.log('[GoalDetailWrapper] Save process finished, setting saving to false')
       setStepModalSaving(false)
     }
   }, [stepModalData, currentUserId, goalId, goals, dailySteps, onDailyStepsUpdate, stepsCacheRef, setStepsCacheVersion])
@@ -571,8 +609,15 @@ export function GoalDetailWrapper({
         localeCode={localeCode}
         selectedDayDate={selectedDayDate}
         setStepModalData={(data: any) => {
-          stepModalDataRef.current = typeof data === 'function' ? data(stepModalDataRef.current) : data
-          setStepModalData(data)
+          const newData = typeof data === 'function' ? data(stepModalDataRef.current) : data
+          console.log('[GoalDetailWrapper] setStepModalData called (GoalDetailPage):', {
+            isFunction: typeof data === 'function',
+            oldData: stepModalDataRef.current,
+            newData,
+            newTitle: newData?.title
+          })
+          stepModalDataRef.current = newData
+          setStepModalData(newData)
         }}
         setShowStepModal={setShowStepModal}
         metrics={metrics[goalId] || []}
@@ -706,8 +751,15 @@ export function GoalDetailWrapper({
         lastAddedChecklistItemId={lastAddedChecklistItemId}
         setLastAddedChecklistItemId={setLastAddedChecklistItemId}
         setStepModalData={(data: any) => {
-          stepModalDataRef.current = typeof data === 'function' ? data(stepModalDataRef.current) : data
-          setStepModalData(data)
+          const newData = typeof data === 'function' ? data(stepModalDataRef.current) : data
+          console.log('[GoalDetailWrapper] setStepModalData called (StepModal):', {
+            isFunction: typeof data === 'function',
+            oldData: stepModalDataRef.current,
+            newData,
+            newTitle: newData?.title
+          })
+          stepModalDataRef.current = newData
+          setStepModalData(newData)
         }}
       />
     </div>
