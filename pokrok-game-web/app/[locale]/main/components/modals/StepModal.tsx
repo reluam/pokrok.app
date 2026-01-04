@@ -888,7 +888,7 @@ export function StepModal({
                     isTitleDisabled,
                     isDisabled,
                     stepModalDataTitle: stepModalData.title,
-                    stepModalData: stepModalData
+                    titleLength: stepModalData.title?.trim()?.length
                   })
                   
                   return isDisabled
