@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
 import { useTranslations, useLocale } from 'next-intl'
 import { Target, Check, ArrowLeft } from 'lucide-react'
-import { DevVersionTooltip } from '../../components/DevVersionTooltip'
+import { DevVersionTooltip } from '../components/DevVersionTooltip'
 
 // Force dynamic rendering - this page requires user authentication check
 export const dynamic = 'force-dynamic'
@@ -35,14 +35,14 @@ export default function PricingPage() {
       <nav className="border-b-2 border-primary-500 bg-white/90 backdrop-blur-sm sticky top-0 z-50 box-playful-highlight-primary p-4">
         <div className="container mx-auto">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 md:gap-3">
+            <Link href={`/${locale}`} className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity">
               <Target className="w-6 h-6 md:w-8 md:h-8 text-primary-600" />
               <span className="text-lg md:text-2xl font-bold font-playful text-text-primary">{t('app.name')}</span>
               <div className="flex items-center gap-1.5">
                 <span className="text-xs md:text-sm text-gray-500 font-mono">v0.1.0</span>
                 <DevVersionTooltip iconSize="w-3 h-3 md:w-4 md:h-4" />
               </div>
-            </div>
+            </Link>
             <div className="flex items-center gap-2 md:gap-4">
               <Link 
                 href={`/${locale}`}
@@ -83,8 +83,8 @@ export default function PricingPage() {
 
               {/* Alpha Notice */}
               <div className="card-playful-primary mb-8">
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0">
+                <div className="flex flex-col md:flex-row md:items-start gap-4">
+                  <div className="flex-shrink-0 md:flex-shrink-0">
                     <span className="inline-block px-3 py-1 bg-primary-600 text-white text-sm font-bold font-playful rounded-playful-md box-playful-highlight">
                       {locale === 'cs' ? 'ALFA VERZE' : 'ALPHA'}
                     </span>
