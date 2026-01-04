@@ -135,6 +135,11 @@ export function GoalDetailWrapper({
     recurring_end_date: null,
     recurring_display_mode: 'next_only'
   })
+  // Ref to always have the latest stepModalData value
+  const stepModalDataRef = useRef(stepModalData)
+  useEffect(() => {
+    stepModalDataRef.current = stepModalData
+  }, [stepModalData])
   const [showStepModal, setShowStepModal] = useState(false)
   const [stepModalSaving, setStepModalSaving] = useState(false)
   const [selectedItem, setSelectedItem] = useState<any>(null)
@@ -359,7 +364,10 @@ export function GoalDetailWrapper({
   
   // Handle save step modal
   const handleSaveStepModal = useCallback(async () => {
-    if (!stepModalData.title.trim()) {
+    // Get current stepModalData from ref to ensure we have the latest value
+    const currentStepData = stepModalDataRef.current
+    
+    if (!currentStepData.title || !currentStepData.title.trim()) {
       alert('Název kroku je povinný')
       return
     }
@@ -371,11 +379,11 @@ export function GoalDetailWrapper({
 
     setStepModalSaving(true)
     try {
-      const isNewStep = !stepModalData.id
+      const isNewStep = !currentStepData.id
       
       // Determine goalId and areaId
-      let finalGoalId = (stepModalData.goalId && stepModalData.goalId.trim() !== '') ? stepModalData.goalId : goalId
-      let finalAreaId = (stepModalData.areaId && stepModalData.areaId.trim() !== '') ? stepModalData.areaId : null
+      let finalGoalId = (currentStepData.goalId && currentStepData.goalId.trim() !== '') ? currentStepData.goalId : goalId
+      let finalAreaId = (currentStepData.areaId && currentStepData.areaId.trim() !== '') ? currentStepData.areaId : null
       
       // If goal is selected, get area from goal
       if (finalGoalId) {
@@ -387,10 +395,10 @@ export function GoalDetailWrapper({
       
       // Ensure date is always a string (YYYY-MM-DD) or null
       let dateValue: string | null = null
-      if (!stepModalData.isRepeating) {
-        if (stepModalData.date) {
-          if (stepModalData.date && typeof stepModalData.date === 'string') {
-            dateValue = stepModalData.date
+      if (!currentStepData.isRepeating) {
+        if (currentStepData.date) {
+          if (currentStepData.date && typeof currentStepData.date === 'string') {
+            dateValue = currentStepData.date
           } else {
             dateValue = getLocalDateString(new Date())
           }
@@ -400,23 +408,23 @@ export function GoalDetailWrapper({
       }
       
       const requestBody = {
-        ...(isNewStep ? {} : { stepId: stepModalData.id }),
+        ...(isNewStep ? {} : { stepId: currentStepData.id }),
         userId: currentUserId,
         goalId: finalGoalId,
         areaId: finalAreaId,
-        title: stepModalData.title,
-        description: stepModalData.description || '',
+        title: currentStepData.title,
+        description: currentStepData.description || '',
         date: dateValue,
-        isImportant: stepModalData.is_important,
-        isUrgent: stepModalData.is_urgent,
-        estimatedTime: stepModalData.estimated_time,
-        checklist: stepModalData.checklist,
-        requireChecklistComplete: stepModalData.require_checklist_complete,
-        frequency: stepModalData.isRepeating ? (stepModalData.frequency || null) : null,
-        selectedDays: stepModalData.isRepeating ? (stepModalData.selected_days || []) : [],
-        recurringStartDate: stepModalData.isRepeating ? (stepModalData.recurring_start_date || null) : null,
-        recurringEndDate: stepModalData.isRepeating ? (stepModalData.recurring_end_date || null) : null,
-        recurringDisplayMode: stepModalData.isRepeating ? (stepModalData.recurring_display_mode || 'all') : 'all'
+        isImportant: currentStepData.is_important,
+        isUrgent: currentStepData.is_urgent,
+        estimatedTime: currentStepData.estimated_time,
+        checklist: currentStepData.checklist,
+        requireChecklistComplete: currentStepData.require_checklist_complete,
+        frequency: currentStepData.isRepeating ? (currentStepData.frequency || null) : null,
+        selectedDays: currentStepData.isRepeating ? (currentStepData.selected_days || []) : [],
+        recurringStartDate: currentStepData.isRepeating ? (currentStepData.recurring_start_date || null) : null,
+        recurringEndDate: currentStepData.isRepeating ? (currentStepData.recurring_end_date || null) : null,
+        recurringDisplayMode: currentStepData.isRepeating ? (currentStepData.recurring_display_mode || 'all') : 'all'
       }
       
       const response = await fetch('/api/daily-steps', {
@@ -502,7 +510,7 @@ export function GoalDetailWrapper({
       }
     } catch (error) {
       console.error('Error saving step:', error)
-      alert(`Chyba při ${stepModalData.id ? 'aktualizaci' : 'vytváření'} kroku`)
+      alert(`Chyba při ${currentStepData.id ? 'aktualizaci' : 'vytváření'} kroku`)
     } finally {
       setStepModalSaving(false)
     }

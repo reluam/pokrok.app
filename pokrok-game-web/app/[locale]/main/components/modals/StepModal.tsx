@@ -832,8 +832,15 @@ export function StepModal({
                 {t('common.cancel')}
               </button>
               <PlayfulButton
-                onClick={onSave}
-                disabled={isSaving || (!userId && !player?.user_id)}
+                onClick={() => {
+                  // Validate title before saving
+                  if (!stepModalData.title || !stepModalData.title.trim()) {
+                    alert(t('steps.titleRequired') || 'Název kroku je povinný')
+                    return
+                  }
+                  onSave()
+                }}
+                disabled={isSaving || (!userId && !player?.user_id) || !stepModalData.title?.trim()}
                 variant="primary"
                 size="md"
                 loading={isSaving}
