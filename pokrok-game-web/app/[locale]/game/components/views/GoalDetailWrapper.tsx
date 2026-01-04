@@ -137,9 +137,16 @@ export function GoalDetailWrapper({
   })
   // Ref to always have the latest stepModalData value
   const stepModalDataRef = useRef(stepModalData)
+  // Update ref synchronously whenever stepModalData changes
   useEffect(() => {
     stepModalDataRef.current = stepModalData
   }, [stepModalData])
+  
+  // Wrapper for setStepModalData that also updates the ref immediately
+  const setStepModalDataWithRef = useCallback((data: any) => {
+    stepModalDataRef.current = typeof data === 'function' ? data(stepModalDataRef.current) : data
+    setStepModalData(data)
+  }, [])
   const [showStepModal, setShowStepModal] = useState(false)
   const [stepModalSaving, setStepModalSaving] = useState(false)
   const [selectedItem, setSelectedItem] = useState<any>(null)
@@ -357,6 +364,7 @@ export function GoalDetailWrapper({
   
   const handleItemClick = useCallback((item: any, type: string) => {
     if (type === 'step') {
+      stepModalDataRef.current = item
       setStepModalData(item)
       setShowStepModal(true)
     }
@@ -482,8 +490,7 @@ export function GoalDetailWrapper({
         }
         
         // Close modal after successful save
-        setShowStepModal(false)
-        setStepModalData({
+        const resetData = {
           id: null,
           title: '',
           description: '',
@@ -503,7 +510,10 @@ export function GoalDetailWrapper({
           recurring_start_date: null,
           recurring_end_date: null,
           recurring_display_mode: 'next_only'
-        })
+        }
+        stepModalDataRef.current = resetData
+        setShowStepModal(false)
+        setStepModalData(resetData)
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
         alert(`Chyba při ${isNewStep ? 'vytváření' : 'aktualizaci'} kroku: ${errorData.error || 'Nepodařilo se uložit krok'}`)
@@ -560,7 +570,10 @@ export function GoalDetailWrapper({
         setMainPanelSection={() => {}}
         localeCode={localeCode}
         selectedDayDate={selectedDayDate}
-        setStepModalData={setStepModalData}
+        setStepModalData={(data: any) => {
+          stepModalDataRef.current = typeof data === 'function' ? data(stepModalDataRef.current) : data
+          setStepModalData(data)
+        }}
         setShowStepModal={setShowStepModal}
         metrics={metrics[goalId] || []}
         loadingMetrics={loadingMetrics}
@@ -644,8 +657,7 @@ export function GoalDetailWrapper({
         show={showStepModal}
         stepModalData={stepModalData}
         onClose={() => {
-          setShowStepModal(false)
-          setStepModalData({
+          const resetData = {
             id: null,
             title: '',
             description: '',
@@ -665,7 +677,10 @@ export function GoalDetailWrapper({
             recurring_start_date: null,
             recurring_end_date: null,
             recurring_display_mode: 'next_only'
-          })
+          }
+          stepModalDataRef.current = resetData
+          setShowStepModal(false)
+          setStepModalData(resetData)
         }}
         onSave={handleSaveStepModal}
         onDelete={async () => {
@@ -690,7 +705,10 @@ export function GoalDetailWrapper({
         checklistSaveTimeoutRef={checklistSaveTimeoutRef}
         lastAddedChecklistItemId={lastAddedChecklistItemId}
         setLastAddedChecklistItemId={setLastAddedChecklistItemId}
-        setStepModalData={setStepModalData}
+        setStepModalData={(data: any) => {
+          stepModalDataRef.current = typeof data === 'function' ? data(stepModalDataRef.current) : data
+          setStepModalData(data)
+        }}
       />
     </div>
   )
