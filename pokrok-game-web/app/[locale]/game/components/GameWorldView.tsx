@@ -345,6 +345,7 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
         return (
           <GoalsManagementView
             player={player}
+            userId={userId}
             goals={goals}
             onGoalsUpdate={onGoalsUpdate}
             selectedGoalId={selectedGoalId}
