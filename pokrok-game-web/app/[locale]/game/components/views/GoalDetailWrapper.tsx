@@ -38,6 +38,17 @@ export function GoalDetailWrapper({
   // Get userId from player
   const currentUserId = player?.user_id || userId || null
   
+  // Update localGoal when goal or goalId changes
+  useEffect(() => {
+    if (goal && goal.id === goalId) {
+      setLocalGoal(goal)
+      setGoalDetailTitleValue(goal.title || '')
+      setGoalDetailDescriptionValue(goal.description || '')
+      setSelectedGoalDate(goal.target_date ? new Date(goal.target_date) : null)
+      setSelectedGoalStartDate(goal.start_date ? new Date(goal.start_date) : null)
+    }
+  }, [goal, goalId])
+  
   // All the states needed for GoalDetailPage
   const [metrics, setMetrics] = useState<Record<string, any[]>>({})
   const [loadingMetrics, setLoadingMetrics] = useState<Set<string>>(new Set())

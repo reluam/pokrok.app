@@ -138,27 +138,33 @@ export function GoalsManagementView({
 
   // Update cache when dailySteps prop changes (e.g., when checklist is updated)
   useEffect(() => {
-    if (dailySteps.length > 0) {
-      // Group steps by goal_id
-      const stepsByGoal: Record<string, any[]> = {}
-      dailySteps.forEach(step => {
-        if (step.goal_id) {
-          if (!stepsByGoal[step.goal_id]) {
-            stepsByGoal[step.goal_id] = []
-          }
-          stepsByGoal[step.goal_id].push(step)
+    // Group steps by goal_id
+    const stepsByGoal: Record<string, any[]> = {}
+    dailySteps.forEach(step => {
+      if (step.goal_id) {
+        if (!stepsByGoal[step.goal_id]) {
+          stepsByGoal[step.goal_id] = []
         }
+        stepsByGoal[step.goal_id].push(step)
+      }
+    })
+    
+    // Update cache for goals that have steps in dailySteps
+    // Merge with existing cache to preserve steps that might not be in dailySteps
+    setGoalStepsCache(prev => {
+      const updated = { ...prev }
+      Object.keys(stepsByGoal).forEach(goalId => {
+        // Merge with existing cache to avoid losing steps
+        const existingSteps = prev[goalId] || []
+        const newSteps = stepsByGoal[goalId]
+        // Create a map to deduplicate by id
+        const stepsMap = new Map()
+        existingSteps.forEach((s: any) => stepsMap.set(s.id, s))
+        newSteps.forEach((s: any) => stepsMap.set(s.id, s))
+        updated[goalId] = Array.from(stepsMap.values())
       })
-      
-      // Update cache for goals that have steps in dailySteps
-      setGoalStepsCache(prev => {
-        const updated = { ...prev }
-        Object.keys(stepsByGoal).forEach(goalId => {
-          updated[goalId] = stepsByGoal[goalId]
-        })
-        return updated
-      })
-    }
+      return updated
+    })
   }, [dailySteps])
 
   // Calculate progress for a goal
@@ -325,14 +331,24 @@ export function GoalsManagementView({
                 ) : (
                   filteredAndSortedGoals.map((goal: any) => {
                     const IconComponent = getIconComponent(goal.icon)
+                    const isSelected = selectedGoalId === goal.id
+                    const { progress } = calculateProgress(goal.id)
+                    const progressPercentage = Math.round(progress)
                     return (
                       <button
                         key={goal.id}
                         onClick={() => handleGoalClick(goal.id)}
-                        className="w-full text-left px-3 py-2 rounded-playful-sm text-sm font-playful transition-colors flex items-center gap-2 bg-white text-black hover:bg-primary-50 border-2 border-transparent hover:border-primary-500"
+                        className={`w-full text-left px-3 py-2 rounded-playful-sm text-sm font-playful transition-colors flex items-center gap-2 border-2 ${
+                          isSelected
+                            ? 'bg-primary-50 border-primary-500 text-primary-600'
+                            : 'bg-white text-black hover:bg-primary-50 border-transparent hover:border-primary-500'
+                        }`}
                       >
                         <IconComponent className="w-4 h-4 flex-shrink-0" />
-                        <span className="truncate">{goal.title}</span>
+                        <span className="text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right text-primary-600">
+                          {progressPercentage}%
+                        </span>
+                        <span className="truncate flex-1">{goal.title}</span>
                       </button>
                     )
                   })
