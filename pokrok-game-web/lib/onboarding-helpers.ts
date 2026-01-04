@@ -80,8 +80,8 @@ export async function createOnboardingItems(userId: string, locale: string = 'cs
       {
         title: isEnglish ? '2/7 Create a goal' : '2/7 Vytvořit cíl',
         description: isEnglish
-          ? 'Click on the "Add" button in the left navigation menu and select "Goal". Add a title, description, and steps to your goal.'
-          : 'Klikněte na tlačítko "Přidat" v levém navigačním menu a vyberte "Cíl". Přidejte název, popis a kroky k vašemu cíli.',
+          ? 'Click on the "Add" button in the left navigation menu and select "Goal". Add a title, description, and steps to your goal. The goal will be created either in the currently active area or without an area, and you can assign it later from the goal edit screen.'
+          : 'Klikněte na tlačítko "Přidat" v levém navigačním menu a vyberte "Cíl". Přidejte název, popis a kroky k vašemu cíli. Cíl se vytvoří buď do právě aktivní oblasti, nebo bez oblasti a oblast mu můžete přiřadit později z editace cíle.',
         date: todayStr,
         isImportant: true
       },
@@ -102,10 +102,10 @@ export async function createOnboardingItems(userId: string, locale: string = 'cs
         isImportant: true
       },
       {
-        title: isEnglish ? '5/7 Use Upcoming, Overview and Statistics views' : '5/7 Použijte zobrazení Upcoming, Overview a Statistiky',
+        title: isEnglish ? '5/7 Use Upcoming, Overview and Statistics views' : '5/7 Použijte zobrazení Nadcházející, Přehled a Statistiky',
         description: isEnglish
           ? 'Switch between "Upcoming" and "Overview" views in the left navigation, and check "Statistics" in the top menu to see your upcoming steps, an overview of all your goals, habits, and areas, and track your progress.'
-          : 'Přepínejte mezi zobrazeními "Upcoming" a "Overview" v levém navigačním menu a podívejte se na "Statistiky" v horním menu, abyste viděli nadcházející kroky, přehled všech vašich cílů, návyků a oblastí a sledovali svůj pokrok.',
+          : 'Přepínejte mezi zobrazeními "Nadcházející" a "Přehled" v levém navigačním menu a podívejte se na "Statistiky" v horním menu, abyste viděli nadcházející kroky, přehled všech vašich cílů, návyků a oblastí a sledovali svůj pokrok.',
         date: todayStr,
         isImportant: false
       },
@@ -132,11 +132,13 @@ export async function createOnboardingItems(userId: string, locale: string = 'cs
     for (let i = 0; i < steps.length; i++) {
       const step = steps[i]
       const stepId = crypto.randomUUID()
+      // First 4 steps (creating items) get 3 minutes, rest get 5 minutes
+      const estimatedTime = i < 4 ? 3 : 5
       
       try {
         await sql`
           INSERT INTO daily_steps (
-            id, user_id, title, description, date, completed, area_id, goal_id, is_important, created_at, updated_at
+            id, user_id, title, description, date, completed, area_id, goal_id, is_important, estimated_time, created_at, updated_at
           ) VALUES (
             ${stepId},
             ${userId},
@@ -147,6 +149,7 @@ export async function createOnboardingItems(userId: string, locale: string = 'cs
             ${areaId},
             ${goalId},
             ${step.isImportant || false},
+            ${estimatedTime},
             NOW(),
             NOW()
           ) RETURNING id

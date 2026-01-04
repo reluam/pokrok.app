@@ -202,18 +202,18 @@ export default function HomePage() {
                       icon: Sparkles,
                       iconColor: 'text-yellow-500',
                       bgColor: 'bg-yellow-50',
-                      title: locale === 'cs' ? 'Jasnost' : 'Clarity',
+                      title: locale === 'cs' ? 'Jasnou mysl' : 'Clarity',
                       description: locale === 'cs' 
-                        ? 'Získejte jasnou představu o tom, co chcete dosáhnout a jak toho dosáhnout.'
+                        ? 'Získejte jasnou představu o tom čeho chcete docílit a jak toho dosáhnout.'
                         : 'Get a clear picture of what you want to achieve and how to achieve it.'
                     },
                     {
                       icon: TrendingUp,
                       iconColor: 'text-green-500',
                       bgColor: 'bg-green-50',
-                      title: locale === 'cs' ? 'Motivace' : 'Motivation',
+                      title: locale === 'cs' ? 'Motivaci' : 'Motivation',
                       description: locale === 'cs'
-                        ? 'Zůstaňte motivovaní sledováním svého pokroku a oslavováním úspěchů.'
+                        ? 'Zůstaňte motivování díky sledování svého pokroku a oslavováním úspěchů.'
                         : 'Stay motivated by tracking your progress and celebrating successes.'
                     },
                     {
@@ -258,7 +258,7 @@ export default function HomePage() {
           {/* What You Won't Get Section */}
           <section className="px-8 py-12 md:py-16 text-center">
             <h2 className="text-3xl md:text-4xl font-bold font-playful text-text-primary mb-8">
-              {locale === 'cs' ? 'Co nedostanete' : 'What you won\'t get'}
+              {locale === 'cs' ? 'Co Pokrok není' : 'What Pokrok is not'}
             </h2>
             <div className="max-w-3xl mx-auto">
               <p className="text-lg md:text-xl text-text-secondary leading-relaxed">

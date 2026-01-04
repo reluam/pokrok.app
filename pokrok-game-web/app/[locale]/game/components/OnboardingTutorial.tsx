@@ -180,7 +180,7 @@ export function OnboardingTutorial({
               </div>
               <p className="text-sm text-gray-600">
                 {locale === 'cs' 
-                  ? 'Dlouhodobé cíle, které chcete dosáhnout'
+                  ? 'Dlouhodobé cíle, kterých chcete dosáhnout'
                   : 'Long-term goals you want to achieve'}
               </p>
             </div>

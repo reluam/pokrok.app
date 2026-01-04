@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations, useLocale } from 'next-intl'
 import { Edit, X, Plus, Calendar, Target, Check, Filter, ChevronDown, ChevronUp, Repeat } from 'lucide-react'
@@ -35,6 +35,20 @@ export function StepsManagementView({
 }: StepsManagementViewProps) {
   const t = useTranslations()
   const localeCode = useLocale()
+  
+  // Local state for optimistic updates
+  const [localSteps, setLocalSteps] = useState<any[]>(dailySteps)
+  const localStepsRef = useRef(dailySteps)
+  
+  // Sync local state with prop (but don't overwrite if we have pending optimistic updates)
+  useEffect(() => {
+    // Only sync if the prop changed from outside (e.g., after reload)
+    // Compare by reference - if it's a different array, it's an external update
+    if (dailySteps !== localStepsRef.current) {
+      setLocalSteps(dailySteps)
+      localStepsRef.current = dailySteps
+    }
+  }, [dailySteps])
   
   // Filters - use props if provided, otherwise use local state
   const [showCompleted, setShowCompleted] = useState(false)
@@ -151,26 +165,62 @@ export function StepsManagementView({
     // Add to loading set
     setLoadingSteps(prev => new Set(prev).add(stepId))
     
+    // Save current state for potential revert
+    const previousSteps = localSteps
+    
+    // Optimistically update local state immediately
+    setLocalSteps(prevSteps => {
+      const optimisticallyUpdatedSteps = prevSteps.map((s: any) => 
+        s.id === stepId ? { ...s, completed: !s.completed } : s
+      )
+      localStepsRef.current = optimisticallyUpdatedSteps
+      return optimisticallyUpdatedSteps
+    })
+    
+    // Also update parent state
+    if (onDailyStepsUpdate) {
+      onDailyStepsUpdate(localStepsRef.current)
+    }
+    
     try {
-      const response = await fetch('/api/daily-steps', {
-        method: 'PUT',
+      const response = await fetch(`/api/cesta/daily-steps/${stepId}/toggle`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          stepId,
-          completed,
-          completedAt: completed ? new Date().toISOString() : null
-        }),
+        }
       })
 
       if (response.ok) {
-        await reloadSteps()
+        const data = await response.json()
+        const updatedStep = data.step
+        
+        // Update with actual server response using functional update
+        setLocalSteps(prevSteps => {
+          const currentSteps = prevSteps.map((s: any) => s.id === stepId ? updatedStep : s)
+          localStepsRef.current = currentSteps
+          return currentSteps
+        })
+        
+        if (onDailyStepsUpdate) {
+          onDailyStepsUpdate(localStepsRef.current)
+        }
       } else {
+        // Revert optimistic update on error
+        setLocalSteps(previousSteps)
+        localStepsRef.current = previousSteps
+        if (onDailyStepsUpdate) {
+          onDailyStepsUpdate(previousSteps)
+        }
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
         alert(`Chyba při aktualizaci kroku: ${errorData.error || 'Nepodařilo se aktualizovat krok'}`)
       }
     } catch (error) {
+      // Revert optimistic update on error
+      setLocalSteps(previousSteps)
+      localStepsRef.current = previousSteps
+      if (onDailyStepsUpdate) {
+        onDailyStepsUpdate(previousSteps)
+      }
       console.error('Error toggling step:', error)
       alert('Chyba při aktualizaci kroku')
     } finally {
@@ -183,50 +233,92 @@ export function StepsManagementView({
     }
   }
 
-  const handleDeleteStep = async () => {
+  const handleDeleteStep = async (deleteAll: boolean = false) => {
     if (!editingStep) return
 
-    if (!confirm('Opravdu chcete smazat tento krok? Tato akce je nevratná.')) {
-      return
-    }
+    // Check if this is a recurring step instance
+    const isRecurringInstance = editingStep.parent_recurring_step_id && !editingStep.frequency
+    const isRecurringTemplate = editingStep.is_hidden === true && editingStep.frequency !== null
 
-    try {
-      const response = await fetch(`/api/daily-steps?stepId=${editingStep.id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (response.ok) {
-        // Update local state by removing deleted step
-        // Also handle recurring step template deletion - remove all non-completed instances
-        let updatedSteps = dailySteps.filter((s: any) => s.id !== editingStep.id)
-        
-        // If this was a recurring step template, also remove all non-completed instances
-        if (editingStep && editingStep.is_hidden === true && editingStep.frequency !== null) {
-          const titlePrefix = editingStep.title
-          updatedSteps = updatedSteps.filter((s: any) => {
-            // Keep completed instances, remove non-completed instances
-            if (s.title && s.title.startsWith(titlePrefix + ' - ')) {
-              return s.completed === true
-            }
-            return true
-          })
-        }
-        
-        if (onDailyStepsUpdate) {
-          onDailyStepsUpdate(updatedSteps)
-        }
-        
-        setEditingStep(null)
-      } else {
-        const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
-        alert(`Chyba při mazání kroku: ${errorData.error || 'Nepodařilo se smazat krok'}`)
+    if (deleteAll && isRecurringInstance) {
+      // Delete all - need to find and delete the template
+      const templateId = editingStep.parent_recurring_step_id
+      const confirmMessage = localeCode === 'cs'
+        ? 'Opravdu chcete smazat všechny nesplněné výskyty tohoto kroku a samotný opakující se krok? Tato akce je nevratná.'
+        : 'Are you sure you want to delete all incomplete instances of this step and the recurring step itself? This action cannot be undone.'
+      
+      if (!confirm(confirmMessage)) {
+        return
       }
-    } catch (error) {
-      console.error('Error deleting step:', error)
-      alert('Chyba při mazání kroku')
+
+      try {
+        const response = await fetch(`/api/daily-steps?stepId=${templateId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+
+        if (response.ok) {
+          // Reload steps to get updated list
+          await reloadSteps()
+          setEditingStep(null)
+        } else {
+          const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
+          alert(`Chyba při mazání kroku: ${errorData.error || 'Nepodařilo se smazat krok'}`)
+        }
+      } catch (error) {
+        console.error('Error deleting step:', error)
+        alert('Chyba při mazání kroku')
+      }
+    } else {
+      // Delete single occurrence or regular step
+      const confirmMessage = localeCode === 'cs'
+        ? 'Opravdu chcete smazat tento krok? Tato akce je nevratná.'
+        : 'Are you sure you want to delete this step? This action cannot be undone.'
+      
+      if (!confirm(confirmMessage)) {
+        return
+      }
+
+      try {
+        const response = await fetch(`/api/daily-steps?stepId=${editingStep.id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+
+        if (response.ok) {
+          // Update local state by removing deleted step
+          // Also handle recurring step template deletion - remove all non-completed instances
+          let updatedSteps = dailySteps.filter((s: any) => s.id !== editingStep.id)
+          
+          // If this was a recurring step template, also remove all non-completed instances
+          if (isRecurringTemplate) {
+            const titlePrefix = editingStep.title
+            updatedSteps = updatedSteps.filter((s: any) => {
+              // Keep completed instances, remove non-completed instances
+              if (s.title && s.title.startsWith(titlePrefix + ' - ')) {
+                return s.completed === true
+              }
+              return true
+            })
+          }
+          
+          if (onDailyStepsUpdate) {
+            onDailyStepsUpdate(updatedSteps)
+          }
+          
+          setEditingStep(null)
+        } else {
+          const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
+          alert(`Chyba při mazání kroku: ${errorData.error || 'Nepodařilo se smazat krok'}`)
+        }
+      } catch (error) {
+        console.error('Error deleting step:', error)
+        alert('Chyba při mazání kroku')
+      }
     }
   }
 
@@ -298,9 +390,9 @@ export function StepsManagementView({
     reloadSteps()
   }, [reloadSteps])
 
-  // Sort and filter steps
+  // Sort and filter steps - use localSteps for immediate updates
   const sortedSteps = useMemo(() => {
-    return [...dailySteps].sort((a, b) => {
+    return [...localSteps].sort((a, b) => {
       // Sort by date (newest first), then by completed status
       if (a.date && b.date) {
         const dateA = new Date(a.date).getTime()
@@ -313,7 +405,7 @@ export function StepsManagementView({
       if (!a.completed && b.completed) return -1
       return 0
     })
-  }, [dailySteps])
+  }, [localSteps])
 
   const filteredSteps = useMemo(() => {
     let steps = sortedSteps.filter((step: any) => {
@@ -850,14 +942,37 @@ export function StepsManagementView({
               </div>
 
               <div className="p-6 border-t-2 border-primary-500 flex items-center justify-between">
-                {editingStep.id && (
-                  <button
-                    onClick={handleDeleteStep}
-                    className="btn-playful-danger px-4 py-2 text-sm font-medium"
-                  >
-                    {t('common.delete')}
-                  </button>
-                )}
+                {editingStep.id && (() => {
+                  const isRecurringInstance = editingStep.parent_recurring_step_id && !editingStep.frequency
+                  
+                  if (isRecurringInstance) {
+                    return (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleDeleteStep(false)}
+                          className="btn-playful-danger px-4 py-2 text-sm font-medium"
+                        >
+                          {localeCode === 'cs' ? 'Smazat výskyt' : 'Delete occurrence'}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteStep(true)}
+                          className="btn-playful-danger px-4 py-2 text-sm font-medium"
+                        >
+                          {localeCode === 'cs' ? 'Smazat vše' : 'Delete all'}
+                        </button>
+                      </div>
+                    )
+                  }
+                  
+                  return (
+                    <button
+                      onClick={() => handleDeleteStep(false)}
+                      className="btn-playful-danger px-4 py-2 text-sm font-medium"
+                    >
+                      {t('common.delete')}
+                    </button>
+                  )
+                })()}
                 <div className="flex gap-3 ml-auto">
                   <button
                     onClick={() => {

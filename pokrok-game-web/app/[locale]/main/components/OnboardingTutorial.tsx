@@ -158,7 +158,7 @@ export function OnboardingTutorial({
             <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
               <Target className="w-8 h-8 text-primary-600 mb-2" />
               <h4 className="font-bold text-sm mb-1">{t('onboarding.creating.goals') || 'Cíle'}</h4>
-              <p className="text-xs text-gray-600">{t('onboarding.creating.goalsDesc') || 'Dlouhodobé cíle, které chcete dosáhnout'}</p>
+              <p className="text-xs text-gray-600">{t('onboarding.creating.goalsDesc') || 'Dlouhodobé cíle, kterých chcete dosáhnout'}</p>
             </div>
             <div className="p-4 bg-white rounded-lg border-2 border-primary-500 shadow-sm">
               <Footprints className="w-8 h-8 text-primary-600 mb-2" />

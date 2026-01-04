@@ -38,6 +38,32 @@ export function GoalDetailWrapper({
   // Get userId from player - player object has 'id' property, not 'user_id'
   const currentUserId = player?.id || player?.user_id || userId || null
   
+  // Load areas if not provided
+  useEffect(() => {
+    const loadAreas = async () => {
+      // Only load if initialAreas is empty or undefined
+      if (!initialAreas || initialAreas.length === 0) {
+        try {
+          const response = await fetch('/api/cesta/areas')
+          if (response.ok) {
+            const data = await response.json()
+            setAreasState(data.areas || [])
+          }
+        } catch (error) {
+          console.error('Error loading areas:', error)
+        }
+      }
+    }
+    loadAreas()
+  }, [initialAreas])
+  
+  // Update areasState when initialAreas changes (e.g., when areas are updated)
+  useEffect(() => {
+    if (initialAreas && initialAreas.length > 0) {
+      setAreasState(initialAreas)
+    }
+  }, [initialAreas])
+  
   // Update localGoal when goal or goalId changes
   useEffect(() => {
     if (goal && goal.id === goalId) {
@@ -311,9 +337,17 @@ export function GoalDetailWrapper({
           setSelectedGoalDate(updatedGoal.target_date ? new Date(updatedGoal.target_date) : null)
           setSelectedGoalStartDate(updatedGoal.start_date ? new Date(updatedGoal.start_date) : null)
         }
+      } else {
+        // Handle error response
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Error updating goal:', response.status, errorData)
+        // Optionally show user-friendly error message
+        alert(errorData.error || 'Chyba při aktualizaci cíle')
       }
     } catch (error) {
       console.error('Error updating goal:', error)
+      // Optionally show user-friendly error message
+      alert('Chyba při aktualizaci cíle')
     }
   }, [goals, onGoalsUpdate])
   
@@ -344,14 +378,28 @@ export function GoalDetailWrapper({
   
   // Step functions
   const handleStepToggle = useCallback(async (stepId: string, completed: boolean) => {
+    setLoadingSteps(prev => new Set(prev).add(stepId))
     try {
-      const response = await fetch(`/api/daily-steps/${stepId}`, {
+      const response = await fetch(`/api/cesta/daily-steps/${stepId}/toggle`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ completed })
+        headers: { 'Content-Type': 'application/json' }
       })
       if (response.ok) {
-        const updatedStep = await response.json()
+        const data = await response.json()
+        const updatedStep = data.step
+        
+        // Update cache
+        if (stepsCacheRef.current[goalId]) {
+          stepsCacheRef.current[goalId].data = stepsCacheRef.current[goalId].data.map(
+            (s: any) => s.id === stepId ? updatedStep : s
+          )
+        }
+        setStepsCacheVersion(prev => ({
+          ...prev,
+          [goalId]: (prev[goalId] || 0) + 1
+        }))
+        
+        // Update dailySteps
         if (onDailyStepsUpdate) {
           const updatedSteps = dailySteps.map((s: any) => s.id === stepId ? updatedStep : s)
           onDailyStepsUpdate(updatedSteps)
@@ -359,8 +407,14 @@ export function GoalDetailWrapper({
       }
     } catch (error) {
       console.error('Error toggling step:', error)
+    } finally {
+      setLoadingSteps(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(stepId)
+        return newSet
+      })
     }
-  }, [dailySteps, onDailyStepsUpdate])
+  }, [dailySteps, onDailyStepsUpdate, goalId, stepsCacheRef])
   
   const handleItemClick = useCallback((item: any, type: string) => {
     if (type === 'step') {

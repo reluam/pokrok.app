@@ -83,7 +83,7 @@
     "trialInfo": "14denní zkušební verze zdarma • Bez platební karty",
     "hero": {
       "title": "Životní plánovač pro lidi, kteří chtějí dosáhnout svých cílů",
-      "description": "Pokrok vám pomůže získat jasnost a smysluplnost v tom, jak dosáhnout toho, co v životě chcete. Rozdělte velké cíle na malé kroky, budujte návyky a sledujte svůj pokrok."
+      "description": "Rozdělte velké cíle na malé kroky, budujte návyky a sledujte svůj pokrok."
     },
     "philosophy": {
       "title": "Pokrok není další aplikace pro produktivitu",
@@ -1128,7 +1128,15 @@
       "totalSteps": "Celkem kroků",
       "completedSteps": "Splněné kroky",
       "remainingSteps": "Zbývající kroky",
-      "done": "Dokončené"
+      "done": "Dokončené",
+      "smartTips": {
+        "title": "Tipy: Jak nastavit cíle podle SMART metody",
+        "specific": "Specifické - Cíl by měl být jasně definovaný a konkrétní. Místo 'Být zdravější' použijte 'Zbavit se 10 kg do konce roku'.",
+        "measurable": "Měřitelné - Cíl by měl být měřitelný, abyste mohli sledovat pokrok. Použijte metriky nebo kroky pro měření pokroku.",
+        "ambitious": "Ambiciózní - Cíl by měl být náročný, ale dosažitelný. Měl by vás motivovat, ale neměl by být nereálný.",
+        "relevant": "Relevantní - Cíl by měl být důležitý pro vás a měl by odpovídat vašim hodnotám a dlouhodobým cílům.",
+        "timeBound": "Časově rámované - Cíl by měl mít jasný termín dokončení. Nastavte deadline nebo termíny pro jednotlivé kroky."
+      }
     }
   },
   "steps": {
@@ -1556,7 +1564,7 @@
       "areas": "Oblasti",
       "areasDesc": "Organizujte své cíle, kroky a návyky do oblastí",
       "goals": "Cíle",
-      "goalsDesc": "Dlouhodobé cíle, které chcete dosáhnout",
+      "goalsDesc": "Dlouhodobé cíle, kterých chcete dosáhnout",
       "steps": "Kroky",
       "stepsDesc": "Konkrétní akce vedoucí k vašim cílům",
       "habits": "Návyky",

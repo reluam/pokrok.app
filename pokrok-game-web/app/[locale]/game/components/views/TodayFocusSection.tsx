@@ -1216,13 +1216,47 @@ export function TodayFocusSection({
           >
             <div className="text-sm font-bold text-black mb-3 font-playful">Date</div>
             
+            {/* Month navigation */}
+            <div className="flex items-center justify-between mb-3">
+              <button
+                onClick={() => {
+                  const newMonth = new Date(datePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() - 1)
+                  setDatePickerMonth(newMonth)
+                }}
+                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
+              >
+                <ChevronDown className="w-4 h-4 rotate-90 text-black" />
+              </button>
+              <span className="text-xs font-semibold text-black">
+                {datePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
+              </span>
+              <button
+                onClick={() => {
+                  const newMonth = new Date(datePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() + 1)
+                  setDatePickerMonth(newMonth)
+                }}
+                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
+              >
+                <ChevronDown className="w-4 h-4 -rotate-90 text-black" />
+              </button>
+            </div>
+            
             {/* Day names */}
             <div className="grid grid-cols-7 gap-0.5 mb-1">
-              {['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(day => (
-                <div key={day} className="text-center text-xs text-gray-600 font-medium py-1">
-                  {day}
-                </div>
-              ))}
+              {localeCode === 'cs-CZ' 
+                ? ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(day => (
+                    <div key={day} className="text-center text-xs text-gray-600 font-medium py-1">
+                      {day}
+                    </div>
+                  ))
+                : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(day => (
+                    <div key={day} className="text-center text-xs text-gray-600 font-medium py-1">
+                      {day}
+                    </div>
+                  ))
+              }
             </div>
             
             {/* Calendar days */}
@@ -1275,33 +1309,6 @@ export function TodayFocusSection({
                   )
                 })
               })()}
-            </div>
-            
-            {/* Month navigation */}
-            <div className="flex items-center justify-between mb-3">
-              <button
-                onClick={() => {
-                  const newMonth = new Date(datePickerMonth)
-                  newMonth.setMonth(newMonth.getMonth() - 1)
-                  setDatePickerMonth(newMonth)
-                }}
-                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
-              >
-                <ChevronDown className="w-4 h-4 rotate-90 text-black" />
-              </button>
-              <span className="text-xs font-semibold text-black">
-                {datePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
-              </span>
-              <button
-                onClick={() => {
-                  const newMonth = new Date(datePickerMonth)
-                  newMonth.setMonth(newMonth.getMonth() + 1)
-                  setDatePickerMonth(newMonth)
-                }}
-                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
-              >
-                <ChevronDown className="w-4 h-4 -rotate-90 text-black" />
-              </button>
             </div>
             
             {/* Actions */}

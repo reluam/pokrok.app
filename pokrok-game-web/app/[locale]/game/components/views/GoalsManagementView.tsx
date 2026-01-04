@@ -167,11 +167,84 @@ export function GoalsManagementView({
     })
   }, [dailySteps])
 
+  // Filter recurring step instances to show only the nearest instance
+  // This matches the logic in GoalDetailPage.tsx
+  const filterRecurringStepInstances = (steps: any[]): any[] => {
+    // Find all recurring step instances (non-recurring steps with parent_recurring_step_id)
+    const recurringStepInstances = steps.filter(step => 
+      !step.frequency && step.parent_recurring_step_id && step.is_hidden !== true
+    )
+    
+    // Group instances by original recurring step
+    const instancesByRecurringStep = new Map<string, any[]>()
+    recurringStepInstances.forEach(step => {
+      if (!step.parent_recurring_step_id) return
+      const originalStep = steps.find(s => 
+        s.id === step.parent_recurring_step_id &&
+        s.frequency !== null &&
+        s.is_hidden === true
+      )
+      
+      if (originalStep) {
+        const key = originalStep.id
+        if (!instancesByRecurringStep.has(key)) {
+          instancesByRecurringStep.set(key, [])
+        }
+        instancesByRecurringStep.get(key)!.push(step)
+      }
+    })
+    
+    // Get only the nearest non-completed instance for each recurring step
+    // For completed instances, we count all of them (they represent historical data)
+    const nearestInstancesForRemaining = new Set<string>()
+    
+    instancesByRecurringStep.forEach((instances) => {
+      // Sort instances by date (oldest first, instances without date go to end)
+      instances.sort((a, b) => {
+        const dateA = a.date ? new Date(a.date).getTime() : Number.MAX_SAFE_INTEGER
+        const dateB = b.date ? new Date(b.date).getTime() : Number.MAX_SAFE_INTEGER
+        return dateA - dateB
+      })
+      
+      // For "Remaining steps": get the nearest non-completed instance
+      const nonCompletedInstances = instances.filter((inst: any) => !inst.completed)
+      if (nonCompletedInstances.length > 0) {
+        nearestInstancesForRemaining.add(nonCompletedInstances[0].id)
+      }
+    })
+    
+    // Filter steps: exclude hidden templates
+    // For recurring step instances:
+    // - For non-completed instances: show only the nearest one
+    // - For completed instances: show all (they represent historical data)
+    return steps.filter(step => {
+      // Exclude hidden recurring step templates
+      if (step.is_hidden === true && step.frequency !== null) {
+        return false
+      }
+      
+      // For recurring step instances, apply different logic
+      if (!step.frequency && step.parent_recurring_step_id) {
+        // For non-completed instances: show only the nearest one
+        if (!step.completed) {
+          return nearestInstancesForRemaining.has(step.id)
+        }
+        // For completed instances: show all
+        return true
+      }
+      
+      // Include all other steps
+      return true
+    })
+  }
+
   // Calculate progress for a goal
   const calculateProgress = (goalId: string) => {
     const steps = goalStepsCache[goalId] || []
-    const totalSteps = steps.length
-    const completedSteps = steps.filter(s => s.completed).length
+    // Filter recurring step instances to count only nearest instances
+    const filteredSteps = filterRecurringStepInstances(steps)
+    const totalSteps = filteredSteps.length
+    const completedSteps = filteredSteps.filter(s => s.completed).length
     const progress = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0
     return { progress, completedSteps, totalSteps }
   }

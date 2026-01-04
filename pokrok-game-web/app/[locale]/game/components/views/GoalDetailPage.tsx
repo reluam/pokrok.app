@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { ChevronLeft, ChevronRight, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Check, Plus, Edit, Pencil, Minus, Repeat } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Check, Plus, Edit, Pencil, Minus, Repeat, Lightbulb } from 'lucide-react'
 import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
 import { getLocalDateString, normalizeDate } from '../../../main/components/utils/dateHelpers'
 import { MetricModal } from '../../../main/components/modals/MetricModal'
@@ -1460,114 +1460,150 @@ export function GoalDetailPage({
             }
             
             return (
-              <div className="box-playful-highlight p-6 mb-6">
-                <div className="flex items-center justify-between">
-                  <div 
-                    className="flex items-center gap-2 flex-1 cursor-pointer"
-                    onClick={() => setStepsExpanded(!stepsExpanded)}
-                  >
-                  <button
+              <>
+                <div className="box-playful-highlight p-6 mb-6">
+                  <div className="flex items-center justify-between">
+                    <div 
+                      className="flex items-center gap-2 flex-1 cursor-pointer"
+                      onClick={() => setStepsExpanded(!stepsExpanded)}
+                    >
+                    <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setStepsExpanded(!stepsExpanded)
+                        }}
+                        className="btn-playful-base w-6 h-6 flex items-center justify-center text-primary-600 bg-white hover:bg-primary-50"
+                        title={stepsExpanded ? 'Sbalit kroky' : 'Rozbalit kroky'}
+                      >
+                        {stepsExpanded ? (
+                          <ChevronDown className="w-4 h-4" strokeWidth={2.5} />
+                        ) : (
+                          <ChevronRight className="w-4 h-4" strokeWidth={2.5} />
+                        )}
+                      </button>
+                      <h2 className="text-xl font-bold text-black font-playful">
+                        {t('common.steps')}
+                      </h2>
+                      {totalSteps > 0 && (
+                        <span className="text-sm text-gray-600 font-playful">
+                          {Math.round(averageProgress)}% ({totalSteps} {totalSteps === 1 ? t('common.step') : t('common.steps')}, {remainingCount} {t('common.remaining')})
+                        </span>
+                      )}
+                    </div>
+                    <button
                       onClick={(e) => {
                         e.stopPropagation()
-                        setStepsExpanded(!stepsExpanded)
+                        const defaultDate = getLocalDateString(selectedDayDate)
+                        setStepModalData({
+                          id: null,
+                          title: '',
+                          description: '',
+                          date: defaultDate,
+                          goalId: goalId,
+                          areaId: '',
+                          completed: false,
+                          is_important: false,
+                          is_urgent: false,
+                          deadline: '',
+                          estimated_time: 0,
+                          checklist: [],
+                          require_checklist_complete: false
+                        })
+                        setShowStepModal(true)
                       }}
-                      className="btn-playful-base w-6 h-6 flex items-center justify-center text-primary-600 bg-white hover:bg-primary-50"
-                      title={stepsExpanded ? 'Sbalit kroky' : 'Rozbalit kroky'}
+                      className="btn-playful-base w-8 h-8 flex items-center justify-center text-primary-600 bg-white hover:bg-primary-50"
+                      title={t('focus.addStep')}
                     >
-                      {stepsExpanded ? (
-                        <ChevronDown className="w-4 h-4" strokeWidth={2.5} />
-                      ) : (
-                        <ChevronRight className="w-4 h-4" strokeWidth={2.5} />
-                      )}
+                      <Plus className="w-5 h-5" strokeWidth={2.5} />
                     </button>
-                    <h2 className="text-xl font-bold text-black font-playful">
-                      {t('common.steps')}
-                    </h2>
-                    {totalSteps > 0 && (
-                      <span className="text-sm text-gray-600 font-playful">
-                        {Math.round(averageProgress)}% ({totalSteps} {totalSteps === 1 ? t('common.step') : t('common.steps')}, {remainingCount} {t('common.remaining')})
-                      </span>
-                    )}
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      const defaultDate = getLocalDateString(selectedDayDate)
-                      setStepModalData({
-                        id: null,
-                        title: '',
-                        description: '',
-                        date: defaultDate,
-                        goalId: goalId,
-                        areaId: '',
-                        completed: false,
-                        is_important: false,
-                        is_urgent: false,
-                        deadline: '',
-                        estimated_time: 0,
-                        checklist: [],
-                        require_checklist_complete: false
-                      })
-                      setShowStepModal(true)
-                    }}
-                    className="btn-playful-base w-8 h-8 flex items-center justify-center text-primary-600 bg-white hover:bg-primary-50"
-                    title={t('focus.addStep')}
-                  >
-                    <Plus className="w-5 h-5" strokeWidth={2.5} />
-                  </button>
-                </div>
-                
-                {/* Two Column Layout */}
-                {stepsExpanded && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-                  {/* Remaining Column */}
-                  <div className="flex flex-col">
-                    <div className="mb-4 pb-3 border-b-2 border-primary-500">
-                      <h3 className="text-lg font-bold text-primary-600 mb-1 font-playful">
-                        {t('details.goal.remainingSteps')}
-                      </h3>
-                      <div className="flex items-center gap-2 text-sm text-gray-600 font-playful">
-                        <span className="font-semibold">{remainingCount}</span>
-                        <span>z {totalSteps}</span>
-                        <span className="text-primary-600 font-semibold">({remainingPercentage}%)</span>
-                      </div>
-                    </div>
-                    <div className="space-y-3 flex-1 overflow-y-auto max-h-[600px] pr-2">
-                      {remainingSteps.length > 0 ? (
-                        remainingSteps.map(renderStepCard)
-                      ) : (
-                        <div className="text-center py-8 text-gray-400">
-                          <p className="text-sm">{t('focus.noSteps')}</p>
-                        </div>
-                      )}
-                    </div>
                   </div>
                   
-                  {/* Done Column */}
-                  <div className="flex flex-col">
-                    <div className="mb-4 pb-3 border-b-2 border-primary-500">
-                      <h3 className="text-lg font-bold text-primary-600 mb-1 font-playful">
-                        {t('details.goal.done')}
-                      </h3>
-                      <div className="flex items-center gap-2 text-sm text-gray-600 font-playful">
-                        <span className="font-semibold">{doneCount}</span>
-                        <span>z {totalSteps}</span>
-                        <span className="text-primary-600 font-semibold">({donePercentage}%)</span>
+                  {/* Two Column Layout */}
+                  {stepsExpanded && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                    {/* Remaining Column */}
+                    <div className="flex flex-col">
+                      <div className="mb-4 pb-3 border-b-2 border-primary-500">
+                        <h3 className="text-lg font-bold text-primary-600 mb-1 font-playful">
+                          {t('details.goal.remainingSteps')}
+                        </h3>
+                        <div className="flex items-center gap-2 text-sm text-gray-600 font-playful">
+                          <span className="font-semibold">{remainingCount}</span>
+                          <span>z {totalSteps}</span>
+                          <span className="text-primary-600 font-semibold">({remainingPercentage}%)</span>
+                        </div>
+                      </div>
+                      <div className="space-y-3 flex-1 overflow-y-auto max-h-[600px] pr-2">
+                        {remainingSteps.length > 0 ? (
+                          remainingSteps.map(renderStepCard)
+                        ) : (
+                          <div className="text-center py-8 text-gray-400">
+                            <p className="text-sm">{t('focus.noSteps')}</p>
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <div className="space-y-3 flex-1 overflow-y-auto max-h-[600px] pr-2">
-                      {doneSteps.length > 0 ? (
-                        doneSteps.map(renderStepCard)
-                      ) : (
-                        <div className="text-center py-8 text-gray-400">
-                          <p className="text-sm">{t('goals.noCompletedSteps') || 'No completed steps'}</p>
+                    
+                    {/* Done Column */}
+                    <div className="flex flex-col">
+                      <div className="mb-4 pb-3 border-b-2 border-primary-500">
+                        <h3 className="text-lg font-bold text-primary-600 mb-1 font-playful">
+                          {t('details.goal.done')}
+                        </h3>
+                        <div className="flex items-center gap-2 text-sm text-gray-600 font-playful">
+                          <span className="font-semibold">{doneCount}</span>
+                          <span>z {totalSteps}</span>
+                          <span className="text-primary-600 font-semibold">({donePercentage}%)</span>
                         </div>
-                      )}
+                      </div>
+                      <div className="space-y-3 flex-1 overflow-y-auto max-h-[600px] pr-2">
+                        {doneSteps.length > 0 ? (
+                          doneSteps.map(renderStepCard)
+                        ) : (
+                          <div className="text-center py-8 text-gray-400">
+                            <p className="text-sm">{t('goals.noCompletedSteps') || 'No completed steps'}</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
+                  )}
                 </div>
+                
+                {/* SMART Tips Section */}
+                {stepsExpanded && (
+                  <div className="box-playful-highlight p-6 mb-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Lightbulb className="w-5 h-5 text-primary-600" />
+                      <h3 className="text-lg font-bold text-black font-playful">
+                        {t('details.goal.smartTips.title')}
+                      </h3>
+                    </div>
+                    <ul className="space-y-3">
+                      <li className="flex items-start gap-2 text-sm text-gray-700 font-playful">
+                        <span className="text-primary-600 mt-0.5 font-bold">S:</span>
+                        <span>{t('details.goal.smartTips.specific')}</span>
+                      </li>
+                      <li className="flex items-start gap-2 text-sm text-gray-700 font-playful">
+                        <span className="text-primary-600 mt-0.5 font-bold">M:</span>
+                        <span>{t('details.goal.smartTips.measurable')}</span>
+                      </li>
+                      <li className="flex items-start gap-2 text-sm text-gray-700 font-playful">
+                        <span className="text-primary-600 mt-0.5 font-bold">A:</span>
+                        <span>{t('details.goal.smartTips.ambitious')}</span>
+                      </li>
+                      <li className="flex items-start gap-2 text-sm text-gray-700 font-playful">
+                        <span className="text-primary-600 mt-0.5 font-bold">R:</span>
+                        <span>{t('details.goal.smartTips.relevant')}</span>
+                      </li>
+                      <li className="flex items-start gap-2 text-sm text-gray-700 font-playful">
+                        <span className="text-primary-600 mt-0.5 font-bold">T:</span>
+                        <span>{t('details.goal.smartTips.timeBound')}</span>
+                      </li>
+                    </ul>
+                  </div>
                 )}
-              </div>
+              </>
             )
           })()}
         </div>

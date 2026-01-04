@@ -91,7 +91,7 @@
     "trialInfo": "14-day free trial • No credit card required",
     "hero": {
       "title": "Life planner for people who want to achieve their goals",
-      "description": "Pokrok helps you gain clarity and meaning in how to achieve what you want in life."
+      "description": "Break down big goals into small steps, build habits, and track your progress."
     },
     "philosophy": {
       "title": "Pokrok is not another productivity app",
@@ -1126,7 +1126,15 @@
       "totalSteps": "Total Steps",
       "completedSteps": "Completed Steps",
       "remainingSteps": "Remaining Steps",
-      "done": "Done"
+      "done": "Done",
+      "smartTips": {
+        "title": "Tips: How to set goals using the SMART method",
+        "specific": "Specific - The goal should be clearly defined and concrete. Instead of 'Be healthier' use 'Lose 10 kg by the end of the year'.",
+        "measurable": "Measurable - The goal should be measurable so you can track progress. Use metrics or steps to measure progress.",
+        "ambitious": "Ambitious - The goal should be challenging but achievable. It should motivate you but shouldn't be unrealistic.",
+        "relevant": "Relevant - The goal should be important to you and align with your values and long-term goals.",
+        "timeBound": "Time-bound - The goal should have a clear completion deadline. Set a deadline or dates for individual steps."
+      }
     }
   },
   "steps": {

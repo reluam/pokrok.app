@@ -86,7 +86,7 @@ export function HelpView({
             <div className="box-playful-highlight p-6">
               <h3 className="font-semibold text-black font-playful mb-4 flex items-center gap-2">
                 <ListTodo className="w-5 h-5 text-primary-600" />
-                {locale === 'cs' ? '1. Upcoming (Nadcházející)' : '1. Upcoming'}
+                {locale === 'cs' ? '1. Nadcházející' : '1. Upcoming'}
               </h3>
               <p className="text-sm text-gray-600 mb-4">
                 {locale === 'cs' 
@@ -163,7 +163,7 @@ export function HelpView({
             <div className="box-playful-highlight p-6">
               <h3 className="font-semibold text-black font-playful mb-4 flex items-center gap-2">
                 <CalendarDays className="w-5 h-5 text-primary-600" />
-                {locale === 'cs' ? '2. Overview (Přehled)' : '2. Overview'}
+                {locale === 'cs' ? '2. Přehled' : '2. Overview'}
               </h3>
               <p className="text-sm text-gray-600 mb-4">
                 {locale === 'cs' 
@@ -201,7 +201,7 @@ export function HelpView({
             <div className="box-playful-highlight p-6">
               <h3 className="font-semibold text-black font-playful mb-4 flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-primary-600" />
-                {locale === 'cs' ? '3. Statistics (Statistiky)' : '3. Statistics'}
+                {locale === 'cs' ? '3. Statistiky' : '3. Statistics'}
               </h3>
               <p className="text-sm text-gray-600 mb-4">
                 {locale === 'cs' 
@@ -249,7 +249,7 @@ export function HelpView({
             <div className="box-playful-highlight p-6">
               <h3 className="font-semibold text-black font-playful mb-4 flex items-center gap-2">
                 <LayoutDashboard className="w-5 h-5 text-primary-600" />
-                {locale === 'cs' ? '4. Areas (Oblasti)' : '4. Areas'}
+                {locale === 'cs' ? '4. Oblasti' : '4. Areas'}
               </h3>
               <p className="text-sm text-gray-600 mb-4">
                 {locale === 'cs' 
@@ -403,7 +403,7 @@ export function HelpView({
                   <div className="flex items-center gap-3 p-3 bg-white rounded-playful-md">
                     <CalendarDays className="w-5 h-5 text-primary-600" />
                     <div>
-                      <h5 className="font-semibold text-black text-sm">{locale === 'cs' ? 'Overview (Přehled)' : 'Overview'}</h5>
+                      <h5 className="font-semibold text-black text-sm">{locale === 'cs' ? 'Přehled' : 'Overview'}</h5>
                       <p className="text-xs text-gray-600">{locale === 'cs' ? 'Měsíční kalendářní přehled' : 'Monthly calendar overview'}</p>
                     </div>
                   </div>
@@ -411,7 +411,7 @@ export function HelpView({
                   <div className="flex items-center gap-3 p-3 bg-white rounded-playful-md">
                     <BarChart3 className="w-5 h-5 text-primary-600" />
                     <div>
-                      <h5 className="font-semibold text-black text-sm">{locale === 'cs' ? 'Statistics (Statistiky)' : 'Statistics'}</h5>
+                      <h5 className="font-semibold text-black text-sm">{locale === 'cs' ? 'Statistiky' : 'Statistics'}</h5>
                       <p className="text-xs text-gray-600">{locale === 'cs' ? 'Roční přehled pokroku v cílech' : 'Yearly overview of goal progress'}</p>
                     </div>
                   </div>
