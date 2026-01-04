@@ -64,15 +64,19 @@ export function StepModal({
   
   // Debug: Log stepModalData changes
   useEffect(() => {
+    const effectiveUserId = userId || player?.id || player?.user_id
     console.log('[StepModal] stepModalData prop changed:', {
       title: stepModalData.title,
       titleTrimmed: stepModalData.title?.trim(),
       titleLength: stepModalData.title?.trim()?.length,
       userId,
+      playerId: player?.id,
       playerUserId: player?.user_id,
+      effectiveUserId,
+      playerObject: player,
       isSaving,
-      hasUserId: !!userId || !!player?.user_id,
-      shouldBeEnabled: !isSaving && (!!userId || !!player?.user_id) && !!stepModalData.title?.trim()
+      hasUserId: !!effectiveUserId,
+      shouldBeEnabled: !isSaving && !!effectiveUserId && !!stepModalData.title?.trim()
     })
   }, [stepModalData, userId, player, isSaving])
   
