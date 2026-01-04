@@ -2,7 +2,7 @@
 
 import { createPortal } from 'react-dom'
 import { useTranslations, useLocale } from 'next-intl'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, Trash2, ChevronDown, Copy } from 'lucide-react'
 import { getLocalDateString } from '../utils/dateHelpers'
 import { PlayfulButton } from '@/components/design-system/Button/PlayfulButton'
