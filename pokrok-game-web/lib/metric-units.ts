@@ -7,83 +7,178 @@ export interface UnitOption {
   type: MetricType
 }
 
-// Common currency codes (ISO 4217)
-export const CURRENCIES: UnitOption[] = [
-  { value: 'CZK', label: 'CZK (Kč)', type: 'currency' },
-  { value: 'USD', label: 'USD ($)', type: 'currency' },
-  { value: 'EUR', label: 'EUR (€)', type: 'currency' },
-  { value: 'GBP', label: 'GBP (£)', type: 'currency' },
-  { value: 'PLN', label: 'PLN (zł)', type: 'currency' },
-  { value: 'JPY', label: 'JPY (¥)', type: 'currency' },
-  { value: 'CHF', label: 'CHF (Fr)', type: 'currency' },
-  { value: 'AUD', label: 'AUD (A$)', type: 'currency' },
-  { value: 'CAD', label: 'CAD (C$)', type: 'currency' },
+// Helper function to get localized unit label
+function getLocalizedUnitLabel(value: string, type: MetricType, locale: string = 'en'): string {
+  const isCzech = locale === 'cs' || locale.startsWith('cs-')
+  
+  // Currency units - same for all locales (use ISO codes)
+  if (type === 'currency') {
+    const currencyLabels: Record<string, { en: string; cs: string }> = {
+      'CZK': { en: 'CZK (Kč)', cs: 'CZK (Kč)' },
+      'USD': { en: 'USD ($)', cs: 'USD ($)' },
+      'EUR': { en: 'EUR (€)', cs: 'EUR (€)' },
+      'GBP': { en: 'GBP (£)', cs: 'GBP (£)' },
+      'PLN': { en: 'PLN (zł)', cs: 'PLN (zł)' },
+      'JPY': { en: 'JPY (¥)', cs: 'JPY (¥)' },
+      'CHF': { en: 'CHF (Fr)', cs: 'CHF (Fr)' },
+      'AUD': { en: 'AUD (A$)', cs: 'AUD (A$)' },
+      'CAD': { en: 'CAD (C$)', cs: 'CAD (C$)' },
+    }
+    return currencyLabels[value]?.[isCzech ? 'cs' : 'en'] || value
+  }
+  
+  // Distance units
+  if (type === 'distance') {
+    const distanceLabels: Record<string, { en: string; cs: string }> = {
+      'm': { en: 'm (meters)', cs: 'm (metry)' },
+      'km': { en: 'km (kilometers)', cs: 'km (kilometry)' },
+      'mi': { en: 'mi (miles)', cs: 'mi (míle)' },
+      'ft': { en: 'ft (feet)', cs: 'ft (stopy)' },
+      'yd': { en: 'yd (yards)', cs: 'yd (yardy)' },
+    }
+    return distanceLabels[value]?.[isCzech ? 'cs' : 'en'] || value
+  }
+  
+  // Weight units
+  if (type === 'weight') {
+    const weightLabels: Record<string, { en: string; cs: string }> = {
+      'kg': { en: 'kg (kilograms)', cs: 'kg (kilogramy)' },
+      'g': { en: 'g (grams)', cs: 'g (gramy)' },
+      'lbs': { en: 'lbs (pounds)', cs: 'lbs (libry)' },
+      'oz': { en: 'oz (ounces)', cs: 'oz (unce)' },
+    }
+    return weightLabels[value]?.[isCzech ? 'cs' : 'en'] || value
+  }
+  
+  // Time units
+  if (type === 'time') {
+    const timeLabels: Record<string, { en: string; cs: string }> = {
+      's': { en: 's (seconds)', cs: 's (sekundy)' },
+      'min': { en: 'min (minutes)', cs: 'min (minuty)' },
+      'h': { en: 'h (hours)', cs: 'h (hodiny)' },
+      'd': { en: 'd (days)', cs: 'd (dny)' },
+      'w': { en: 'w (weeks)', cs: 't (týdny)' },
+      'mo': { en: 'mo (months)', cs: 'měs (měsíce)' },
+      'y': { en: 'y (years)', cs: 'r (roky)' },
+    }
+    return timeLabels[value]?.[isCzech ? 'cs' : 'en'] || value
+  }
+  
+  // Percentage
+  if (type === 'percentage') {
+    return isCzech ? '% (procento)' : '% (percent)'
+  }
+  
+  // Number units
+  if (type === 'number') {
+    const numberLabels: Record<string, { en: string; cs: string }> = {
+      '': { en: '(none)', cs: '(žádná)' },
+      'pieces': { en: 'pieces', cs: 'ks (kusy)' },
+      'items': { en: 'items', cs: 'položky' },
+      'units': { en: 'units', cs: 'jednotky' },
+      'times': { en: 'times', cs: 'krát' },
+    }
+    return numberLabels[value]?.[isCzech ? 'cs' : 'en'] || value
+  }
+  
+  return value
+}
+
+// Common currency codes (ISO 4217) - base definitions
+const CURRENCIES_BASE: Array<{ value: string; type: MetricType }> = [
+  { value: 'CZK', type: 'currency' },
+  { value: 'USD', type: 'currency' },
+  { value: 'EUR', type: 'currency' },
+  { value: 'GBP', type: 'currency' },
+  { value: 'PLN', type: 'currency' },
+  { value: 'JPY', type: 'currency' },
+  { value: 'CHF', type: 'currency' },
+  { value: 'AUD', type: 'currency' },
+  { value: 'CAD', type: 'currency' },
 ]
 
-// Distance units
-export const DISTANCE_UNITS: UnitOption[] = [
-  { value: 'm', label: 'm (meters)', type: 'distance' },
-  { value: 'km', label: 'km (kilometers)', type: 'distance' },
-  { value: 'mi', label: 'mi (miles)', type: 'distance' },
-  { value: 'ft', label: 'ft (feet)', type: 'distance' },
-  { value: 'yd', label: 'yd (yards)', type: 'distance' },
+// Distance units - base definitions
+const DISTANCE_UNITS_BASE: Array<{ value: string; type: MetricType }> = [
+  { value: 'm', type: 'distance' },
+  { value: 'km', type: 'distance' },
+  { value: 'mi', type: 'distance' },
+  { value: 'ft', type: 'distance' },
+  { value: 'yd', type: 'distance' },
 ]
 
-// Weight units
-export const WEIGHT_UNITS: UnitOption[] = [
-  { value: 'kg', label: 'kg (kilograms)', type: 'weight' },
-  { value: 'g', label: 'g (grams)', type: 'weight' },
-  { value: 'lbs', label: 'lbs (pounds)', type: 'weight' },
-  { value: 'oz', label: 'oz (ounces)', type: 'weight' },
+// Weight units - base definitions
+const WEIGHT_UNITS_BASE: Array<{ value: string; type: MetricType }> = [
+  { value: 'kg', type: 'weight' },
+  { value: 'g', type: 'weight' },
+  { value: 'lbs', type: 'weight' },
+  { value: 'oz', type: 'weight' },
 ]
 
-// Time units
-export const TIME_UNITS: UnitOption[] = [
-  { value: 's', label: 's (seconds)', type: 'time' },
-  { value: 'min', label: 'min (minutes)', type: 'time' },
-  { value: 'h', label: 'h (hours)', type: 'time' },
-  { value: 'd', label: 'd (days)', type: 'time' },
-  { value: 'w', label: 'w (weeks)', type: 'time' },
-  { value: 'mo', label: 'mo (months)', type: 'time' },
-  { value: 'y', label: 'y (years)', type: 'time' },
+// Time units - base definitions
+const TIME_UNITS_BASE: Array<{ value: string; type: MetricType }> = [
+  { value: 's', type: 'time' },
+  { value: 'min', type: 'time' },
+  { value: 'h', type: 'time' },
+  { value: 'd', type: 'time' },
+  { value: 'w', type: 'time' },
+  { value: 'mo', type: 'time' },
+  { value: 'y', type: 'time' },
 ]
 
-// Percentage
-export const PERCENTAGE_UNITS: UnitOption[] = [
-  { value: '%', label: '% (percent)', type: 'percentage' },
+// Percentage - base definitions
+const PERCENTAGE_UNITS_BASE: Array<{ value: string; type: MetricType }> = [
+  { value: '%', type: 'percentage' },
 ]
 
-// Common number units
-export const NUMBER_UNITS: UnitOption[] = [
-  { value: '', label: '(none)', type: 'number' },
-  { value: 'pieces', label: 'pieces', type: 'number' },
-  { value: 'items', label: 'items', type: 'number' },
-  { value: 'units', label: 'units', type: 'number' },
-  { value: 'times', label: 'times', type: 'number' },
+// Common number units - base definitions
+const NUMBER_UNITS_BASE: Array<{ value: string; type: MetricType }> = [
+  { value: '', type: 'number' },
+  { value: 'pieces', type: 'number' },
+  { value: 'items', type: 'number' },
+  { value: 'units', type: 'number' },
+  { value: 'times', type: 'number' },
 ]
 
-// Get units by type
-export function getUnitsByType(type: MetricType, weightPreference: 'kg' | 'lbs' = 'kg'): UnitOption[] {
+// Helper function to create localized unit options
+function createLocalizedUnits(units: Array<{ value: string; type: MetricType }>, locale: string = 'en'): UnitOption[] {
+  return units.map(unit => ({
+    value: unit.value,
+    label: getLocalizedUnitLabel(unit.value, unit.type, locale),
+    type: unit.type,
+  }))
+}
+
+// Legacy exports for backwards compatibility (default to English)
+export const CURRENCIES: UnitOption[] = createLocalizedUnits(CURRENCIES_BASE, 'en')
+export const DISTANCE_UNITS: UnitOption[] = createLocalizedUnits(DISTANCE_UNITS_BASE, 'en')
+export const WEIGHT_UNITS: UnitOption[] = createLocalizedUnits(WEIGHT_UNITS_BASE, 'en')
+export const TIME_UNITS: UnitOption[] = createLocalizedUnits(TIME_UNITS_BASE, 'en')
+export const PERCENTAGE_UNITS: UnitOption[] = createLocalizedUnits(PERCENTAGE_UNITS_BASE, 'en')
+export const NUMBER_UNITS: UnitOption[] = createLocalizedUnits(NUMBER_UNITS_BASE, 'en')
+
+// Get units by type with localization
+export function getUnitsByType(type: MetricType, weightPreference: 'kg' | 'lbs' = 'kg', locale: string = 'en'): UnitOption[] {
   switch (type) {
     case 'currency':
-      return CURRENCIES
+      return createLocalizedUnits(CURRENCIES_BASE, locale)
     case 'distance':
-      return DISTANCE_UNITS
+      return createLocalizedUnits(DISTANCE_UNITS_BASE, locale)
     case 'weight':
       // Return preferred unit first
+      const weightUnits = createLocalizedUnits(WEIGHT_UNITS_BASE, locale)
       return weightPreference === 'lbs' 
-        ? [...WEIGHT_UNITS.filter(u => u.value === 'lbs'), ...WEIGHT_UNITS.filter(u => u.value !== 'lbs')]
-        : [...WEIGHT_UNITS.filter(u => u.value === 'kg'), ...WEIGHT_UNITS.filter(u => u.value !== 'kg')]
+        ? [...weightUnits.filter(u => u.value === 'lbs'), ...weightUnits.filter(u => u.value !== 'lbs')]
+        : [...weightUnits.filter(u => u.value === 'kg'), ...weightUnits.filter(u => u.value !== 'kg')]
     case 'time':
-      return TIME_UNITS
+      return createLocalizedUnits(TIME_UNITS_BASE, locale)
     case 'percentage':
-      return PERCENTAGE_UNITS
+      return createLocalizedUnits(PERCENTAGE_UNITS_BASE, locale)
     case 'number':
-      return NUMBER_UNITS
+      return createLocalizedUnits(NUMBER_UNITS_BASE, locale)
     case 'custom':
       return [] // For custom, user can enter any unit
     default:
-      return NUMBER_UNITS
+      return createLocalizedUnits(NUMBER_UNITS_BASE, locale)
   }
 }
 

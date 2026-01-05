@@ -13,6 +13,7 @@ interface StepModalProps {
   onClose: () => void
   onSave: () => Promise<void>
   onDelete?: () => Promise<void>
+  onFinishRecurring?: () => Promise<void>
   isSaving: boolean
   goals: any[]
   areas: any[]
@@ -39,6 +40,7 @@ export function StepModal({
   onClose,
   onSave,
   onDelete,
+  onFinishRecurring,
   isSaving,
   goals,
   areas,
@@ -839,6 +841,17 @@ export function StepModal({
               <div></div>
             )}
             <div className="flex items-center gap-3 ml-auto">
+              {/* Finish Recurring button - show for recurring steps, between Save and Cancel */}
+              {stepModalData.id && stepModalData.frequency && stepModalData.frequency !== null && onFinishRecurring && (
+                <button
+                  onClick={onFinishRecurring}
+                  disabled={isSaving}
+                  className="btn-playful-base px-4 py-2 text-sm font-semibold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-primary-500 text-white hover:bg-primary-600 border-2 border-primary-600"
+                >
+                  <X className="w-4 h-4" />
+                  {t('steps.finishRecurring')}
+                </button>
+              )}
               <button
                 onClick={() => {
                   onClose()

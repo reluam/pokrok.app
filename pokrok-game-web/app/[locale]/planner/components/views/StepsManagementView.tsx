@@ -249,18 +249,32 @@ export function StepsManagementView({
         } else {
           // For non-recurring steps, update the step in dailySteps array
           if (onDailyStepsUpdate) {
-            // If step is completed and showCompleted is false, it should already be removed
-            // from optimisticallyUpdatedSteps, so just use that
+            // If step is completed and showCompleted is false, remove it from the list
             if (updatedStep.completed && !effectiveShowCompleted) {
-              // Step should already be removed from optimisticallyUpdatedSteps
-              // Just confirm it's not there
-              onDailyStepsUpdate(optimisticallyUpdatedSteps.filter((s: any) => s.id !== stepId))
+              // Filter out the completed step immediately
+              const updatedStepsWithoutCompleted = optimisticallyUpdatedSteps.filter((s: any) => {
+                // Remove the completed step AND also filter out any other steps that should be hidden
+                if (s.id === stepId) {
+                  return false // Remove this completed step
+                }
+                // Also respect completedStepsSetRef for other steps
+                if (!effectiveShowCompleted && completedStepsSetRef.current.has(s.id)) {
+                  return false
+                }
+                return true
+              })
+              onDailyStepsUpdate(updatedStepsWithoutCompleted)
             } else {
               // Step is not completed or showCompleted is true, update it normally
               // Use optimisticallyUpdatedSteps as base, but update with server response
-              const currentSteps = optimisticallyUpdatedSteps.map((s: any) => 
+              // Also filter out any steps that should be hidden
+              let currentSteps = optimisticallyUpdatedSteps.map((s: any) => 
                 s.id === stepId ? updatedStep : s
               )
+              // Apply completedStepsSetRef filter
+              if (!effectiveShowCompleted) {
+                currentSteps = currentSteps.filter((s: any) => !completedStepsSetRef.current.has(s.id))
+              }
               onDailyStepsUpdate(currentSteps)
             }
           }
@@ -479,9 +493,18 @@ export function StepsManagementView({
       if (response.ok) {
         const steps = await response.json()
         // Filter out steps that are in completedStepsSetRef (they should stay hidden)
+        // Also filter out completed non-recurring steps if showCompleted is false
         const filteredSteps = steps.filter((step: any) => {
           // If step is in completedStepsSetRef and showCompleted is false, don't include it
           if (!effectiveShowCompleted && completedStepsSetRef.current.has(step.id)) {
+            return false
+          }
+          // Also filter out completed non-recurring steps if showCompleted is false
+          // (recurring steps should always be visible as they update their date)
+          const isRecurringStep = step.frequency && step.frequency !== null
+          if (!effectiveShowCompleted && step.completed && !isRecurringStep) {
+            // Add to completedStepsSetRef to prevent it from reappearing
+            completedStepsSetRef.current.add(step.id)
             return false
           }
           return true
@@ -545,7 +568,14 @@ export function StepsManagementView({
       //   return false // Hide old instances
       // }
       
-      if (!effectiveShowCompleted && step.completed) {
+      // Filter out completed steps if showCompleted is false
+      // But keep recurring steps visible (they update their date when completed)
+      if (!effectiveShowCompleted && step.completed && !isRecurringStep) {
+        // Also check completedStepsSetRef to ensure we filter it out
+        if (completedStepsSetRef.current.has(step.id)) {
+          return false
+        }
+        // If not in set but completed, still filter it out for non-recurring
         return false
       }
       if (effectiveGoalFilter) {

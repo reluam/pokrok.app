@@ -88,8 +88,8 @@ export async function initializeOnboardingSteps(userId: string, locale: string =
       {
         title: isEnglish ? '1/7 Create area' : '1/7 Vytvořit oblast',
         description: isEnglish 
-          ? 'Click the + button in the left navigation menu to create a new area' 
-          : 'Klikněte na tlačítko + v levém navigačním menu pro vytvoření nové oblasti',
+          ? 'Click the "+ Add" button in the left navigation menu to create a new area. Areas help you organize your goals and steps into different life domains (e.g., Work, Health, Family).' 
+          : 'Klikněte na tlačítko "+ Přidat" v levém navigačním menu pro vytvoření nové oblasti. Oblasti vám pomáhají organizovat cíle a kroky do různých životních domén (např. Práce, Zdraví, Rodina).',
         date: today,
         estimated_time: 3,
         goal_id: goalId
@@ -97,8 +97,8 @@ export async function initializeOnboardingSteps(userId: string, locale: string =
       {
         title: isEnglish ? '2/7 Create goal' : '2/7 Vytvořit cíl',
         description: isEnglish 
-          ? 'Click the + button in the left navigation menu to create a new goal' 
-          : 'Klikněte na tlačítko + v levém navigačním menu pro vytvoření nového cíle',
+          ? 'Click the "+ Add" button in the left navigation menu to create a new goal. Goals are larger objectives that you want to achieve, which you break down into smaller steps.' 
+          : 'Klikněte na tlačítko "+ Přidat" v levém navigačním menu pro vytvoření nového cíle. Cíle jsou větší cíle, které chcete dosáhnout, a které rozdělujete na menší kroky.',
         date: today,
         estimated_time: 3,
         goal_id: goalId
@@ -106,8 +106,8 @@ export async function initializeOnboardingSteps(userId: string, locale: string =
       {
         title: isEnglish ? '3/7 Create step' : '3/7 Vytvořit krok',
         description: isEnglish 
-          ? 'Click the + button in the left navigation menu to create a new step' 
-          : 'Klikněte na tlačítko + v levém navigačním menu pro vytvoření nového kroku',
+          ? 'Click the "+ Add" button in the left navigation menu to create a new step. Steps are concrete actions that help you achieve your goals. You can schedule them for specific dates and track their completion.' 
+          : 'Klikněte na tlačítko "+ Přidat" v levém navigačním menu pro vytvoření nového kroku. Kroky jsou konkrétní akce, které vám pomáhají dosáhnout vašich cílů. Můžete je naplánovat na konkrétní data a sledovat jejich dokončení.',
         date: today,
         estimated_time: 3,
         goal_id: goalId
@@ -115,8 +115,8 @@ export async function initializeOnboardingSteps(userId: string, locale: string =
       {
         title: isEnglish ? '4/7 Create habit' : '4/7 Vytvořit návyk',
         description: isEnglish 
-          ? 'Click the + button in the left navigation menu to create a new habit' 
-          : 'Klikněte na tlačítko + v levém navigačním menu pro vytvoření nového návyku',
+          ? 'Click the "+ Add" button in the left navigation menu to create a new habit. Habits are recurring activities that you want to do regularly (daily, weekly, or on specific days). They help you build consistency over time.' 
+          : 'Klikněte na tlačítko "+ Přidat" v levém navigačním menu pro vytvoření nového návyku. Návyky jsou opakující se aktivity, které chcete dělat pravidelně (denně, týdně nebo v určité dny). Pomáhají vám budovat konzistenci v čase.',
         date: today,
         estimated_time: 3,
         goal_id: goalId

@@ -10,6 +10,7 @@ interface DeleteStepModalProps {
   isDeleting: boolean
   onClose: () => void
   onConfirm: () => Promise<void>
+  isRecurring?: boolean
 }
 
 export function DeleteStepModal({
@@ -18,6 +19,7 @@ export function DeleteStepModal({
   isDeleting,
   onClose,
   onConfirm,
+  isRecurring = false,
 }: DeleteStepModalProps) {
   const t = useTranslations()
 
@@ -47,9 +49,25 @@ export function DeleteStepModal({
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            <p className="text-gray-700 mb-6">
-              {t('steps.deleteConfirmText', { stepTitle }) || `Opravdu chcete smazat krok "${stepTitle}"? Tato akce je nevratná.`}
-            </p>
+            <div className="text-gray-700 mb-6 space-y-3">
+              {isRecurring ? (
+                <>
+                  <p className="font-semibold text-red-600">
+                    {t('steps.deleteRecurringWarning')}
+                  </p>
+                  <p>
+                    {t('steps.deleteRecurringSuggestion')}
+                  </p>
+                  <p className="font-medium">
+                    {t('steps.deleteRecurringConfirm', { stepTitle })}
+                  </p>
+                </>
+              ) : (
+                <p>
+                  {t('steps.deleteConfirmText', { stepTitle }) || `Opravdu chcete smazat krok "${stepTitle}"? Tato akce je nevratná.`}
+                </p>
+              )}
+            </div>
             <div className="flex justify-end gap-3">
               <button
                 onClick={onClose}

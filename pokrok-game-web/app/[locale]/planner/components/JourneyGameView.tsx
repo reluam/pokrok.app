@@ -2973,6 +2973,86 @@ export function JourneyGameView({
     setShowDeleteStepModal(true)
   }
 
+  const handleFinishRecurringStep = async () => {
+    if (!stepModalData.id) return
+
+    // Check if it's a recurring step
+    if (!stepModalData.frequency || stepModalData.frequency === null) {
+      return
+    }
+
+    // Show confirmation dialog
+    const confirmMessage = t('steps.finishRecurringConfirm') || (locale === 'cs'
+      ? 'Opravdu chcete dokončit tento opakující se krok? Krok bude ukončen k dnešnímu datu a již se nebude opakovat. Statistiky zůstanou zachovány.'
+      : 'Are you sure you want to finish this recurring step? The step will be ended as of today and will no longer repeat. Statistics will be preserved.')
+
+    if (!confirm(confirmMessage)) {
+      return
+    }
+
+    setIsDeletingStep(true)
+    try {
+      const response = await fetch('/api/daily-steps', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          stepId: stepModalData.id,
+          finishRecurring: true
+        })
+      })
+
+      if (response.ok) {
+        const updatedStep = await response.json()
+        
+        // Update local state
+        const updatedSteps = dailySteps.map((s: any) => 
+          s.id === stepModalData.id ? updatedStep : s
+        )
+        
+        if (onDailyStepsUpdate) {
+          onDailyStepsUpdate(updatedSteps)
+        }
+        
+        // Close modal
+        setShowStepModal(false)
+        setStepModalData({
+          id: null,
+          title: '',
+          description: '',
+          date: '',
+          goalId: '',
+          areaId: '',
+          completed: false,
+          is_important: false,
+          is_urgent: false,
+          deadline: '',
+          estimated_time: 0,
+          checklist: [],
+          require_checklist_complete: false,
+          isRepeating: false,
+          frequency: null,
+          selected_days: [],
+          recurring_start_date: null,
+          recurring_end_date: null,
+          recurring_display_mode: 'next_only'
+        })
+        
+        // Close editing form if it was open for this step
+        if (editingStep && editingStep.id === stepModalData.id) {
+          setEditingStep(null)
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
+        alert(t('steps.finishRecurringError') || `Nepodařilo se dokončit opakující se krok: ${errorData.error || 'Neznámá chyba'}`)
+      }
+    } catch (error) {
+      console.error('Error finishing recurring step:', error)
+      alert(t('steps.finishRecurringError') || 'Chyba při dokončování opakujícího se kroku')
+    } finally {
+      setIsDeletingStep(false)
+    }
+  }
+
   const handleConfirmDeleteStep = async () => {
     if (!stepModalData.id) return
 
@@ -4056,6 +4136,7 @@ export function JourneyGameView({
             handleDeleteStep(stepModalData.id)
           }
         }}
+        onFinishRecurring={handleFinishRecurringStep}
         isSaving={stepModalSaving}
         goals={goals}
         areas={areas}
@@ -4082,6 +4163,7 @@ export function JourneyGameView({
         isDeleting={isDeletingStep}
         onClose={() => setShowDeleteStepModal(false)}
         onConfirm={handleConfirmDeleteStep}
+        isRecurring={stepModalData.frequency !== null && stepModalData.frequency !== undefined}
       />
 
       <HabitModal

@@ -243,6 +243,11 @@ async function runMigrations() {
       // Column might already be nullable, ignore error
     }
     
+    // Add current_instance_date for recurring steps (stores the current/next due date)
+    if (!dailyStepsColumnNames.includes('current_instance_date')) {
+      await sql`ALTER TABLE daily_steps ADD COLUMN current_instance_date DATE DEFAULT NULL`
+    }
+    
     // Update existing steps to have frequency = null and selected_days = [] (non-repeating)
     // This ensures all existing steps are displayed correctly
     try {
