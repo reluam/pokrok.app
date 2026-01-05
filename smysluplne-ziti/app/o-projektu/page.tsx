@@ -32,14 +32,14 @@ export default function AboutPage() {
           {/* Main content */}
           <div className="space-y-12">
             {/* Úvod */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 md:p-12 border border-primary-100">
+            <div>
               <p className="text-xl md:text-2xl leading-relaxed text-text-primary font-medium">
                 Věřím, že smysluplný život není za odměnu pro vyvolené. Je to možnost, kterou má v rukách každý z nás. Jenže cesta k němu občas vede přes docela temná místa.
               </p>
             </div>
 
             {/* Když se abstrakce stane vězením */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 md:p-12 border border-primary-100">
+            <div>
               <div className="flex items-center gap-3 mb-6">
                 <div className="bg-primary-100 p-3 rounded-xl">
                   <Lightbulb className="text-primary-600" size={28} />
@@ -62,7 +62,7 @@ export default function AboutPage() {
             </div>
 
             {/* Od pokusů k projektu */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 md:p-12 border border-primary-100">
+            <div>
               <div className="flex items-center gap-3 mb-6">
                 <div className="bg-primary-100 p-3 rounded-xl">
                   <Target className="text-primary-600" size={28} />
@@ -78,14 +78,14 @@ export default function AboutPage() {
               </div>
             </div>
 
-            {/* Co se tady vlastně děje? */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 md:p-12 border border-primary-100">
+            {/* Projekt Smyslužití */}
+            <div>
               <div className="flex items-center gap-3 mb-8">
                 <div className="bg-primary-100 p-3 rounded-xl">
                   <BookOpen className="text-primary-600" size={28} />
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold text-text-primary">
-                  Co se tady vlastně děje?
+                  Projekt Smyslužití
                 </h2>
               </div>
               <div className="text-lg md:text-xl leading-relaxed text-text-primary space-y-8">
@@ -134,7 +134,7 @@ export default function AboutPage() {
             </div>
 
             {/* Závěr */}
-            <div className="bg-gradient-to-br from-primary-50 to-primary-100/50 rounded-3xl shadow-xl p-8 md:p-12 border border-primary-200">
+            <div>
               <p className="text-xl md:text-2xl leading-relaxed text-text-primary font-medium text-center">
                 Smysluplný život není cíl, ke kterému jednou dojdete a máte hotovo. Je to řemeslo. Je to každodenní zkoušení a občasné padání na pusu. Ale stojí to za to.
               </p>

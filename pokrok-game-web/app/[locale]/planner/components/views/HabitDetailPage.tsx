@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react'
-import { getLocalDateString } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString } from '../utils/dateHelpers'
 import { isHabitScheduledForDay, getHabitStartDate } from '../utils/habitHelpers'
 
 interface HabitDetailPageProps {

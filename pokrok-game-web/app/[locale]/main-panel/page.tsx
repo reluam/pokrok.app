@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
-import { GameWorldView } from '../game/components/GameWorldView'
+import { GameWorldView } from '../planner/components/GameWorldView'
 import { applyColorTheme } from '@/lib/color-utils'
 
 export const dynamic = 'force-dynamic'
@@ -71,7 +71,7 @@ export default function MainPanelPage() {
             if (!createUserResponse.ok) {
               const createErrorData = await createUserResponse.json().catch(() => ({}))
               console.error('Failed to create user:', createErrorData)
-              router.push(`/${locale}`)
+              router.push(`/`)
               return
             }
 
@@ -100,7 +100,7 @@ export default function MainPanelPage() {
             error: errorData
           })
           console.error('Server error details:', errorData)
-          router.push(`/${locale}`)
+          router.push(`/`)
           return
         } else {
           const gameData = await gameDataResponse.json()

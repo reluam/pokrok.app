@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations, useLocale } from 'next-intl'
-import { getLocalDateString } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString } from '../utils/dateHelpers'
 import { Plus, Target, Calendar, CheckCircle, Moon, ArrowRight } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
 

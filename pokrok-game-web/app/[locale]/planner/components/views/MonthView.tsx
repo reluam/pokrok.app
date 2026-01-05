@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl'
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, Check, X, Target, Footprints, CheckSquare, TrendingUp } from 'lucide-react'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
-import { getLocalDateString } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString } from '../utils/dateHelpers'
 import { TodayFocusSection } from './TodayFocusSection'
 import { getIconComponent } from '@/lib/icon-utils'
 

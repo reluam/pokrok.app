@@ -10,41 +10,41 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { SettingsPage } from './SettingsPage'
 import { Footprints, Calendar, Target, CheckCircle, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Edit, Trash2, Plus, Clock, Star, Zap, Check, Settings, HelpCircle, LayoutDashboard, Sparkles, CheckSquare, Menu, Moon, Search, Flame, Trophy, Folder } from 'lucide-react'
-import { DailyReviewWorkflow } from '../../main/components/DailyReviewWorkflow'
+import { DailyReviewWorkflow } from './DailyReviewWorkflow'
 import { CalendarProgram } from './CalendarProgram'
 import { getIconEmoji, getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
-import { getLocalDateString, normalizeDate } from '../../main/components/utils/dateHelpers'
-import { isHabitScheduledForDay, getHabitStartDate } from '../../main/components/utils/habitHelpers'
-import { ManagementPage } from '../../main/components/pages/ManagementPage'
-import { UnifiedDayView } from '../../main/components/views/UnifiedDayView'
-import { FocusManagementView } from '../../main/components/views/FocusManagementView'
+import { getLocalDateString, normalizeDate } from './utils/dateHelpers'
+import { isHabitScheduledForDay, getHabitStartDate } from './utils/habitHelpers'
+import { ManagementPage } from './pages/ManagementPage'
+import { UnifiedDayView } from './views/UnifiedDayView'
+import { FocusManagementView } from './views/FocusManagementView'
 import { HelpView } from './views/HelpView'
-import { GoalsManagementView } from '../../main/components/views/GoalsManagementView'
-import { HabitsManagementView } from '../../main/components/views/HabitsManagementView'
-import { StepsManagementView } from '../../main/components/views/StepsManagementView'
+import { GoalsManagementView } from './views/GoalsManagementView'
+import { HabitsManagementView } from './views/HabitsManagementView'
+import { StepsManagementView } from './views/StepsManagementView'
 import { TodayFocusSection } from './views/TodayFocusSection'
 import { GoalEditingForm } from './journey/GoalEditingForm'
-import { DroppableColumn } from '../../main/components/journey/DroppableColumn'
-import { DraggableStep } from '../../main/components/journey/DraggableStep'
-import { SortableGoal } from '../../main/components/journey/SortableGoal'
-import { ActionButtons } from '../../main/components/layout/ActionButtons'
-import { StatisticsContent } from '../../main/components/content/StatisticsContent'
-import { DailyPlanContent } from '../../main/components/content/DailyPlanContent'
-import { DisplayContent } from '../../main/components/content/DisplayContent'
-import { WorkflowContent } from '../../main/components/content/WorkflowContent'
-import { CalendarContent } from '../../main/components/content/CalendarContent'
+import { DroppableColumn } from './journey/DroppableColumn'
+import { DraggableStep } from './journey/DraggableStep'
+import { SortableGoal } from './journey/SortableGoal'
+import { ActionButtons } from './layout/ActionButtons'
+import { StatisticsContent } from './content/StatisticsContent'
+import { DailyPlanContent } from './content/DailyPlanContent'
+import { DisplayContent } from './content/DisplayContent'
+import { WorkflowContent } from './content/WorkflowContent'
+import { CalendarContent } from './content/CalendarContent'
 import { HabitsPage } from './views/HabitsPage'
 import { HabitDetailPage } from './views/HabitDetailPage'
 import { ItemDetailRenderer } from './details/ItemDetailRenderer'
 import { PageContent } from './pages/PageContent'
-import { DatePickerModal } from '../../main/components/modals/DatePickerModal'
-import { AreasManagementModal } from '../../main/components/modals/AreasManagementModal'
-import { AreaEditModal } from '../../main/components/modals/AreaEditModal'
+import { DatePickerModal } from './modals/DatePickerModal'
+import { AreasManagementModal } from './modals/AreasManagementModal'
+import { AreaEditModal } from './modals/AreaEditModal'
 import { HeaderNavigation } from './layout/HeaderNavigation'
-import { DeleteHabitModal } from '../../main/components/modals/DeleteHabitModal'
-import { HabitModal } from '../../main/components/modals/HabitModal'
-import { StepModal } from '../../main/components/modals/StepModal'
-import { DeleteStepModal } from '../../main/components/modals/DeleteStepModal'
+import { DeleteHabitModal } from './modals/DeleteHabitModal'
+import { HabitModal } from './modals/HabitModal'
+import { StepModal } from './modals/StepModal'
+import { DeleteStepModal } from './modals/DeleteStepModal'
 import { OnboardingTutorial } from './OnboardingTutorial'
 import { LoadingSpinner } from './ui/LoadingSpinner'
 // Removed: ImportantStepsPlanningView import - now handled as workflow view in navigation
@@ -120,7 +120,18 @@ export function JourneyGameView({
     const loadUserId = async () => {
       try {
         console.log('Loading userId for Clerk ID:', user.id)
-        const response = await fetch(`/api/user?clerkId=${user.id}`)
+        let response = await fetch(`/api/user?clerkId=${user.id}`)
+        let retryCount = 0
+        const maxRetries = 3
+        
+        // Retry if user not found (might be creating)
+        while (!response.ok && response.status === 404 && retryCount < maxRetries) {
+          console.log(`User not found, retrying (attempt ${retryCount + 1}/${maxRetries})...`)
+          await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))) // Exponential backoff
+          response = await fetch(`/api/user?clerkId=${user.id}`)
+          retryCount++
+        }
+        
         if (response.ok) {
           const dbUser = await response.json()
           console.log('User loaded from DB:', dbUser)
@@ -141,6 +152,7 @@ export function JourneyGameView({
   }, [user?.id, userId])
 
   const [currentPage, setCurrentPage] = useState<'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas'>(() => {
+    // Default to 'main' (Main Panel) when user first logs in
     if (typeof window !== 'undefined') {
       try {
         const savedPage = localStorage.getItem('journeyGame_currentPage')
@@ -162,13 +174,13 @@ export function JourneyGameView({
       try {
         const savedSection = localStorage.getItem('journeyGame_mainPanelSection')
         if (savedSection) {
-          // Migrate old 'overview' to 'focus-calendar'
+          // Migrate old 'overview' to 'focus-upcoming' (Main Panel default)
           if (savedSection === 'overview') {
-            return 'focus-calendar'
+            return 'focus-upcoming'
           }
-          // Migrate old time-based views (focus-day, focus-week, focus-month, focus-year) to focus-calendar
-          if (['focus-day', 'focus-week', 'focus-month', 'focus-year'].includes(savedSection)) {
-            return 'focus-calendar'
+          // Migrate old time-based views (focus-day, focus-week, focus-month, focus-year) to focus-upcoming
+          if (['focus-day', 'focus-week', 'focus-month', 'focus-year', 'focus-calendar'].includes(savedSection)) {
+            return 'focus-upcoming'
           }
           return savedSection
         }
@@ -176,7 +188,8 @@ export function JourneyGameView({
         console.error('Error loading mainPanelSection:', error)
       }
     }
-    return 'focus-calendar'
+    // Default to 'focus-upcoming' (Main Panel) when user first logs in
+    return 'focus-upcoming'
   })
   
   // Selected goal ID (extracted from mainPanelSection if it's a goal)
@@ -250,6 +263,19 @@ export function JourneyGameView({
     }
     
     loadDefaultView()
+  }, [userId])
+
+  // Ensure Main Panel is open when user first logs in (after sign-in/sign-up)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && userId) {
+      // Check if this is a fresh login (no saved page in localStorage)
+      const savedPage = localStorage.getItem('journeyGame_currentPage')
+      if (!savedPage) {
+        // First time login - ensure Main Panel is open
+        setCurrentPage('main')
+        setMainPanelSection('focus-upcoming')
+      }
+    }
   }, [userId])
 
   // Save navigation state to localStorage
@@ -541,8 +567,9 @@ export function JourneyGameView({
   }, [hasCompletedOnboarding])
 
   // Reload onboarding status when navigating to main page
+  // Only reload if onboarding is not explicitly set to true (i.e., user hasn't completed it yet)
   useEffect(() => {
-    if (currentPage === 'main') {
+    if (currentPage === 'main' && hasCompletedOnboarding !== true) {
       const reloadOnboardingStatus = async () => {
         try {
           const response = await fetch('/api/game/init')
@@ -565,7 +592,7 @@ export function JourneyGameView({
       const timeout = setTimeout(reloadOnboardingStatus, 100)
       return () => clearTimeout(timeout)
     }
-  }, [currentPage, isOnboardingActive])
+  }, [currentPage, isOnboardingActive, hasCompletedOnboarding])
   
   // Get selected area ID from mainPanelSection
   const selectedAreaId = mainPanelSection?.startsWith('area-') ? mainPanelSection.replace('area-', '') : null
@@ -1272,9 +1299,7 @@ export function JourneyGameView({
   const [editingHabitMonthlyType, setEditingHabitMonthlyType] = useState<'specificDays' | 'weekdayInMonth'>('specificDays')
   const [editingHabitWeekdayInMonthSelections, setEditingHabitWeekdayInMonthSelections] = useState<Array<{week: string, day: string}>>([])
   const [editingHabitAutoAdjust31, setEditingHabitAutoAdjust31] = useState<boolean>(true)
-  const [editingHabitAlwaysShow, setEditingHabitAlwaysShow] = useState<boolean>(false)
   const [editingHabitAreaId, setEditingHabitAreaId] = useState<string | null>(null)
-  const [editingHabitXpReward, setEditingHabitXpReward] = useState<number>(0)
   const [editingHabitCategory, setEditingHabitCategory] = useState<string>('')
   const [editingHabitDifficulty, setEditingHabitDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
   const [editingHabitReminderTime, setEditingHabitReminderTime] = useState<string>('')
@@ -1399,8 +1424,6 @@ export function JourneyGameView({
       setEditingHabitDescription(selectedItem.description || '')
       setEditingHabitFrequency(selectedItem.frequency || 'daily')
       setEditingHabitSelectedDays(selectedItem.selected_days || [])
-      setEditingHabitAlwaysShow(selectedItem.always_show || false)
-      setEditingHabitXpReward(selectedItem.xp_reward || 0)
       setEditingHabitCategory(selectedItem.category || '')
       setEditingHabitDifficulty(selectedItem.difficulty || 'medium')
       setEditingHabitReminderTime(selectedItem.reminder_time || '')
@@ -1693,8 +1716,6 @@ export function JourneyGameView({
     setEditingHabitDescription(habit?.description || '')
     setEditingHabitFrequency(habit?.frequency || 'daily')
     setEditingHabitSelectedDays(habit?.selected_days || [])
-    setEditingHabitAlwaysShow(habit?.always_show || false)
-    setEditingHabitXpReward(habit?.xp_reward || 0)
     setEditingHabitCategory(habit?.category || '')
     setEditingHabitDifficulty(habit?.difficulty || 'medium')
     setEditingHabitReminderTime(habit?.reminder_time || '')
@@ -1777,8 +1798,6 @@ export function JourneyGameView({
           reminderTime: editingHabitReminderTime || null,
           notificationEnabled: editingHabitNotificationEnabled,
           selectedDays: editingHabitSelectedDays,
-          alwaysShow: editingHabitAlwaysShow,
-          xpReward: editingHabitXpReward,
           category: editingHabitCategory,
           difficulty: editingHabitDifficulty,
           areaId: editingHabitAreaId || null,
@@ -3222,11 +3241,6 @@ export function JourneyGameView({
     const todayName = dayNames[today]
     
     return habits.filter(habit => {
-      // Always show if "always_show" is true
-      if (habit.always_show) {
-        return true
-      }
-      
       // Check if habit should be shown today based on frequency
       switch (habit.frequency) {
         case 'daily':
@@ -3771,10 +3785,6 @@ export function JourneyGameView({
           setEditingHabitFrequency={setEditingHabitFrequency}
           editingHabitSelectedDays={editingHabitSelectedDays}
           setEditingHabitSelectedDays={setEditingHabitSelectedDays}
-          editingHabitAlwaysShow={editingHabitAlwaysShow}
-          setEditingHabitAlwaysShow={setEditingHabitAlwaysShow}
-          editingHabitXpReward={editingHabitXpReward}
-          setEditingHabitXpReward={setEditingHabitXpReward}
           editingHabitCategory={editingHabitCategory}
           setEditingHabitCategory={setEditingHabitCategory}
           editingHabitDifficulty={editingHabitDifficulty}
@@ -4052,8 +4062,6 @@ export function JourneyGameView({
         setEditingHabitWeekdayInMonthSelections={setEditingHabitWeekdayInMonthSelections}
         editingHabitAutoAdjust31={editingHabitAutoAdjust31}
         setEditingHabitAutoAdjust31={setEditingHabitAutoAdjust31}
-        editingHabitAlwaysShow={editingHabitAlwaysShow}
-        setEditingHabitAlwaysShow={setEditingHabitAlwaysShow}
         editingHabitReminderTime={editingHabitReminderTime}
         setEditingHabitReminderTime={setEditingHabitReminderTime}
         editingHabitNotificationEnabled={editingHabitNotificationEnabled}
@@ -4116,15 +4124,65 @@ export function JourneyGameView({
       <OnboardingTutorial
         isActive={isOnboardingActive}
         onComplete={async () => {
-          setIsOnboardingActive(false)
-          if (onOnboardingComplete) {
-            onOnboardingComplete()
+          // First update the database
+          try {
+            const response = await fetch('/api/user/onboarding', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ hasCompletedOnboarding: true })
+            })
+            if (response.ok) {
+              // Update local state immediately
+              setIsOnboardingActive(false)
+              if (onOnboardingComplete) {
+                onOnboardingComplete()
+              }
+            } else {
+              console.error('Failed to update onboarding status')
+              // Still close the modal even if API call fails
+              setIsOnboardingActive(false)
+              if (onOnboardingComplete) {
+                onOnboardingComplete()
+              }
+            }
+          } catch (error) {
+            console.error('Error updating onboarding status:', error)
+            // Still close the modal even if API call fails
+            setIsOnboardingActive(false)
+            if (onOnboardingComplete) {
+              onOnboardingComplete()
+            }
           }
         }}
-        onSkip={() => {
-          setIsOnboardingActive(false)
-          if (onOnboardingComplete) {
-            onOnboardingComplete()
+        onSkip={async () => {
+          // First update the database
+          try {
+            const response = await fetch('/api/user/onboarding', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ hasCompletedOnboarding: true })
+            })
+            if (response.ok) {
+              // Update local state immediately
+              setIsOnboardingActive(false)
+              if (onOnboardingComplete) {
+                onOnboardingComplete()
+              }
+            } else {
+              console.error('Failed to update onboarding status')
+              // Still close the modal even if API call fails
+              setIsOnboardingActive(false)
+              if (onOnboardingComplete) {
+                onOnboardingComplete()
+              }
+            }
+          } catch (error) {
+            console.error('Error updating onboarding status:', error)
+            // Still close the modal even if API call fails
+            setIsOnboardingActive(false)
+            if (onOnboardingComplete) {
+              onOnboardingComplete()
+            }
           }
         }}
       />

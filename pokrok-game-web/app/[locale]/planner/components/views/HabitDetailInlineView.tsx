@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { ChevronLeft, ChevronRight, Check, Calendar, CheckCircle, Zap, Flame, Trophy } from 'lucide-react'
-import { getLocalDateString } from '../../../main/components/utils/dateHelpers'
-import { isHabitScheduledForDay, getHabitStartDate } from '../../../main/components/utils/habitHelpers'
+import { getLocalDateString } from '../utils/dateHelpers'
+import { isHabitScheduledForDay, getHabitStartDate } from '../utils/habitHelpers'
 import { HabitModal } from '../modals/HabitModal'
 
 interface HabitDetailInlineViewProps {
@@ -48,7 +48,6 @@ export function HabitDetailInlineView({
   const [editingHabitMonthlyType, setEditingHabitMonthlyType] = useState<'specificDays' | 'weekdayInMonth'>('specificDays')
   const [editingHabitWeekdayInMonthSelections, setEditingHabitWeekdayInMonthSelections] = useState<Array<{week: string, day: string}>>([])
   const [editingHabitAutoAdjust31, setEditingHabitAutoAdjust31] = useState(false)
-  const [editingHabitAlwaysShow, setEditingHabitAlwaysShow] = useState(habit?.always_show || false)
   const [editingHabitReminderTime, setEditingHabitReminderTime] = useState(habit?.reminder_time || '')
   const [editingHabitNotificationEnabled, setEditingHabitNotificationEnabled] = useState(habit?.notification_enabled || false)
   const [editingHabitAreaId, setEditingHabitAreaId] = useState<string | null>(habit?.area_id || null)
@@ -64,7 +63,6 @@ export function HabitDetailInlineView({
     setEditingHabitIcon(habit?.icon || 'Target')
     setEditingHabitFrequency(habit?.frequency || 'daily')
     setEditingHabitSelectedDays(habit?.selected_days || [])
-    setEditingHabitAlwaysShow(habit?.always_show || false)
     setEditingHabitReminderTime(habit?.reminder_time || '')
     setEditingHabitNotificationEnabled(habit?.notification_enabled || false)
     setEditingHabitAreaId(habit?.area_id || null)
@@ -231,7 +229,6 @@ export function HabitDetailInlineView({
           icon: editingHabitIcon,
           frequency: editingHabitFrequency,
           selectedDays: editingHabitSelectedDays,
-          always_show: editingHabitAlwaysShow,
           reminder_time: editingHabitReminderTime || null,
           notification_enabled: editingHabitNotificationEnabled,
           area_id: editingHabitAreaId
@@ -511,8 +508,6 @@ export function HabitDetailInlineView({
         setEditingHabitWeekdayInMonthSelections={setEditingHabitWeekdayInMonthSelections}
         editingHabitAutoAdjust31={editingHabitAutoAdjust31}
         setEditingHabitAutoAdjust31={setEditingHabitAutoAdjust31}
-        editingHabitAlwaysShow={editingHabitAlwaysShow}
-        setEditingHabitAlwaysShow={setEditingHabitAlwaysShow}
         editingHabitReminderTime={editingHabitReminderTime}
         setEditingHabitReminderTime={setEditingHabitReminderTime}
         editingHabitNotificationEnabled={editingHabitNotificationEnabled}

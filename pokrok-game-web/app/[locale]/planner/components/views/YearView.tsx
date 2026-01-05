@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { normalizeDate } from '../../../main/components/utils/dateHelpers'
+import { normalizeDate } from '../utils/dateHelpers'
 
 interface YearViewProps {
   goals: any[]

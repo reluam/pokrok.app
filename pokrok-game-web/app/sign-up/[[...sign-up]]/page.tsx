@@ -32,7 +32,7 @@ export default async function SignUpPage() {
           routing="path"
           path="/sign-up"
           signInUrl="/sign-in"
-          fallbackRedirectUrl="/game"
+          fallbackRedirectUrl="/planner"
         />
       </div>
     </div>

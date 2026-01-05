@@ -31,8 +31,6 @@ interface HabitModalProps {
   setEditingHabitWeekdayInMonthSelections: (selections: Array<{week: string, day: string}>) => void
   editingHabitAutoAdjust31: boolean
   setEditingHabitAutoAdjust31: (adjust: boolean) => void
-  editingHabitAlwaysShow: boolean
-  setEditingHabitAlwaysShow: (show: boolean) => void
   editingHabitReminderTime: string
   setEditingHabitReminderTime: React.Dispatch<React.SetStateAction<string>>
   editingHabitNotificationEnabled: boolean
@@ -70,8 +68,6 @@ export function HabitModal({
   setEditingHabitWeekdayInMonthSelections,
   editingHabitAutoAdjust31,
   setEditingHabitAutoAdjust31,
-  editingHabitAlwaysShow,
-  setEditingHabitAlwaysShow,
   editingHabitReminderTime,
   setEditingHabitReminderTime,
   editingHabitNotificationEnabled,
@@ -586,17 +582,6 @@ export function HabitModal({
                   </div>
                 )}
 
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={editingHabitAlwaysShow}
-                    onChange={(e) => setEditingHabitAlwaysShow(e.target.checked)}
-                    className="w-4 h-4 text-primary-600 border-primary-500 rounded-playful-sm focus:ring-primary-500"
-                  />
-                  <label className="text-xs font-semibold text-black cursor-pointer font-playful">
-                    Vždy zobrazovat (i když není naplánováno)
-                  </label>
-                </div>
               </div>
             </div>
           </div>

@@ -1,26 +1,48 @@
 import { neon } from '@neondatabase/serverless'
+import { randomUUID } from 'crypto'
 
 const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
 
-/**
- * Creates onboarding area, goal, and steps for a new user
- * @param userId The user ID
- * @param locale The locale ('cs' or 'en')
- */
-export async function createOnboardingItems(userId: string, locale: string = 'cs'): Promise<void> {
-  const isEnglish = locale === 'en'
-  
-  console.log('[Onboarding] Creating onboarding items for user:', userId, 'locale:', locale)
-  
+export async function initializeOnboardingSteps(userId: string, locale: string = 'cs'): Promise<void> {
   try {
-    // Create onboarding area
-    const areaId = crypto.randomUUID()
+    console.log('🔄 Starting onboarding steps initialization for user:', userId, 'locale:', locale)
+    
+    // Check if user already has onboarding area "Začínáme" or "Getting Started"
+    const existingArea = await sql`
+      SELECT id FROM areas 
+      WHERE user_id = ${userId} 
+      AND (name = 'Začínáme' OR name = 'Getting Started')
+      LIMIT 1
+    `
+    
+    if (existingArea.length > 0) {
+      // User already has onboarding area, check if they have steps
+      const existingSteps = await sql`
+        SELECT id FROM daily_steps 
+        WHERE user_id = ${userId} 
+        AND area_id = ${existingArea[0].id}
+        LIMIT 1
+      `
+      
+      if (existingSteps.length > 0) {
+        // User already has onboarding steps, skip creation
+        console.log('⏭️ User already has onboarding steps, skipping creation')
+        return
+      }
+    }
+
+    const isEnglish = locale === 'en'
+    console.log('📝 Creating onboarding content, isEnglish:', isEnglish)
+
+    // Create onboarding area "Začínáme"
+    const areaId = randomUUID()
     const areaName = isEnglish ? 'Getting Started' : 'Začínáme'
     const areaDescription = isEnglish 
       ? 'Learn how to use Pokrok' 
       : 'Naučte se, jak používat Pokrok'
     
-    const areaResult = await sql`
+    console.log('🏗️ Creating area:', areaName, 'with ID:', areaId)
+    await sql`
       INSERT INTO areas (id, user_id, name, description, color, icon, "order")
       VALUES (
         ${areaId}, 
@@ -30,149 +52,129 @@ export async function createOnboardingItems(userId: string, locale: string = 'cs
         '#3B82F6', 
         'HelpCircle', 
         0
-      ) RETURNING id
+      )
     `
-    
-    console.log('[Onboarding] Onboarding area created:', areaResult[0]?.id)
+    console.log('✅ Area created successfully')
 
-    // Create onboarding goal
-    const goalId = crypto.randomUUID()
-    const goalTitle = isEnglish ? 'Learn to use the app' : 'Naučit se s aplikací'
-    const goalDescription = isEnglish
-      ? 'Complete these steps to learn how to use Pokrok'
-      : 'Dokončete tyto kroky, abyste se naučili používat Pokrok'
+    // Create goal "Naučit se s aplikací" in this area
+    const goalId = randomUUID()
+    const goalName = isEnglish ? 'Learn to use the app' : 'Naučit se s aplikací'
     
-    const goalResult = await sql`
+    console.log('🎯 Creating goal:', goalName, 'with ID:', goalId)
+    await sql`
       INSERT INTO goals (
-        id, user_id, title, description, status, priority, 
-        category, goal_type, progress_percentage, icon, area_id
+        id, user_id, title, description, status, priority, category, goal_type, progress_percentage, icon, area_id
       ) VALUES (
-        ${goalId}, 
-        ${userId}, 
-        ${goalTitle}, 
-        ${goalDescription}, 
+        ${goalId},
+        ${userId},
+        ${goalName},
+        ${goalName},
         'active',
-        'meaningful', 
-        'medium-term', 
-        'outcome', 
-        0, 
-        'Laptop', 
+        'meaningful',
+        'medium-term',
+        'outcome',
+        0,
+        'HelpCircle',
         ${areaId}
-      ) RETURNING id
+      )
     `
-    
-    console.log('[Onboarding] Onboarding goal created:', goalResult[0]?.id)
+    console.log('✅ Goal created successfully')
 
     // Get today's date
-    const today = new Date()
-    const todayStr = today.toISOString().split('T')[0]
+    const today = new Date().toISOString().split('T')[0]
 
-    // Create onboarding steps - all for today, assigned to the goal
+    // Create 7 onboarding steps with today's date
     const steps = [
       {
-        title: isEnglish ? '1/7 Create an area' : '1/7 Vytvořit oblast',
-        description: isEnglish
-          ? 'Click on the "Add" button in the left navigation menu and select "Area". Give your area a name, color, and icon.'
-          : 'Klikněte na tlačítko "Přidat" v levém navigačním menu a vyberte "Oblast". Pojmenujte oblast, vyberte barvu a ikonu.',
-        date: todayStr,
-        isImportant: true
+        title: isEnglish ? '1/7 Create area' : '1/7 Vytvořit oblast',
+        description: isEnglish ? 'Learn with the application' : 'Naučit se s aplikací',
+        date: today,
+        estimated_time: 3,
+        goal_id: goalId
       },
       {
-        title: isEnglish ? '2/7 Create a goal' : '2/7 Vytvořit cíl',
-        description: isEnglish
-          ? 'Click on the "Add" button in the left navigation menu and select "Goal". Add a title, description, and steps to your goal. The goal will be created either in the currently active area or without an area, and you can assign it later from the goal edit screen.'
-          : 'Klikněte na tlačítko "Přidat" v levém navigačním menu a vyberte "Cíl". Přidejte název, popis a kroky k vašemu cíli. Cíl se vytvoří buď do právě aktivní oblasti, nebo bez oblasti a oblast mu můžete přiřadit později z editace cíle.',
-        date: todayStr,
-        isImportant: true
+        title: isEnglish ? '2/7 Create goal' : '2/7 Vytvořit cíl',
+        description: isEnglish ? 'Learn with the application' : 'Naučit se s aplikací',
+        date: today,
+        estimated_time: 3,
+        goal_id: goalId
       },
       {
-        title: isEnglish ? '3/7 Create a step' : '3/7 Vytvořit krok',
-        description: isEnglish 
-          ? 'Click on the "Add" button in the left navigation menu and select "Step". Fill in the step details and save.'
-          : 'Klikněte na tlačítko "Přidat" v levém navigačním menu a vyberte "Krok". Vyplňte údaje o kroku a uložte.',
-        date: todayStr,
-        isImportant: true
+        title: isEnglish ? '3/7 Create step' : '3/7 Vytvořit krok',
+        description: isEnglish ? 'Learn with the application' : 'Naučit se s aplikací',
+        date: today,
+        estimated_time: 3,
+        goal_id: goalId
       },
       {
-        title: isEnglish ? '4/7 Create a habit' : '4/7 Vytvořit návyk',
-        description: isEnglish
-          ? 'Click on the "Add" button in the left navigation menu and select "Habit". Set the frequency (daily, weekly, monthly) and start building your habit.'
-          : 'Klikněte na tlačítko "Přidat" v levém navigačním menu a vyberte "Návyk". Nastavte frekvenci (denně, týdně, měsíčně) a začněte budovat svůj návyk.',
-        date: todayStr,
-        isImportant: true
+        title: isEnglish ? '4/7 Create habit' : '4/7 Vytvořit návyk',
+        description: isEnglish ? 'Learn with the application' : 'Naučit se s aplikací',
+        date: today,
+        estimated_time: 3,
+        goal_id: goalId
       },
       {
-        title: isEnglish ? '5/7 Use Upcoming, Overview and Statistics views' : '5/7 Použijte zobrazení Nadcházející, Přehled a Statistiky',
-        description: isEnglish
-          ? 'Switch between "Upcoming" and "Overview" views in the left navigation, and check "Statistics" in the top menu to see your upcoming steps, an overview of all your goals, habits, and areas, and track your progress.'
-          : 'Přepínejte mezi zobrazeními "Nadcházející" a "Přehled" v levém navigačním menu a podívejte se na "Statistiky" v horním menu, abyste viděli nadcházející kroky, přehled všech vašich cílů, návyků a oblastí a sledovali svůj pokrok.',
-        date: todayStr,
-        isImportant: false
+        title: isEnglish 
+          ? '5/7 Use the Upcoming, Overview, and Statistics views' 
+          : '5/7 Použijte zobrazení Nadcházející, Přehled a Statistiky',
+        description: isEnglish ? 'Learn with the application' : 'Naučit se s aplikací',
+        date: today,
+        estimated_time: 5,
+        goal_id: goalId
       },
       {
-        title: isEnglish ? '6/7 Explore Area views' : '6/7 Prozkoumejte zobrazení Oblastí',
-        description: isEnglish
-          ? 'Click on an area in the left navigation to see all goals, steps, and habits related to that area. Organize your work by areas.'
-          : 'Klikněte na oblast v levém navigačním menu, abyste viděli všechny cíle, kroky a návyky související s touto oblastí. Organizujte svou práci podle oblastí.',
-        date: todayStr,
-        isImportant: false
+        title: isEnglish 
+          ? '6/7 Explore the Areas view' 
+          : '6/7 Prozkoumejte zobrazení Oblastí',
+        description: isEnglish ? 'Learn with the application' : 'Naučit se s aplikací',
+        date: today,
+        estimated_time: 5,
+        goal_id: goalId
       },
       {
-        title: isEnglish ? '7/7 Explore Help section' : '7/7 Prozkoumejte sekci Nápověda',
-        description: isEnglish
-          ? 'Click on "Help" in the top navigation menu to learn more about all Pokrok features and get answers to common questions.'
-          : 'Klikněte na "Nápověda" v horním navigačním menu a dozvíte se více o všech funkcích Pokroku a odpovědi na časté otázky.',
-        date: todayStr,
-        isImportant: false
+        title: isEnglish 
+          ? '7/7 Explore the Help section' 
+          : '7/7 Prozkoumejte sekci Nápověda',
+        description: isEnglish ? 'Learn with the application' : 'Naučit se s aplikací',
+        date: today,
+        estimated_time: 5,
+        goal_id: goalId
       }
     ]
 
     // Create steps
-    console.log('[Onboarding] Creating', steps.length, 'onboarding steps...')
+    console.log('📋 Creating', steps.length, 'onboarding steps')
     for (let i = 0; i < steps.length; i++) {
       const step = steps[i]
-      const stepId = crypto.randomUUID()
-      // First 4 steps (creating items) get 3 minutes, rest get 5 minutes
-      const estimatedTime = i < 4 ? 3 : 5
-      
-      try {
-        await sql`
-          INSERT INTO daily_steps (
-            id, user_id, title, description, date, completed, area_id, goal_id, is_important, estimated_time, created_at, updated_at
-          ) VALUES (
-            ${stepId},
-            ${userId},
-            ${step.title},
-            ${step.description},
-            ${step.date}::date,
-            false,
-            ${areaId},
-            ${goalId},
-            ${step.isImportant || false},
-            ${estimatedTime},
-            NOW(),
-            NOW()
-          ) RETURNING id
-        `
-        console.log('[Onboarding] Created step', i + 1, ':', step.title)
-      } catch (stepError) {
-        console.error('[Onboarding] Error creating step', i + 1, ':', stepError)
-        if (stepError instanceof Error) {
-          console.error('[Onboarding] Step error message:', stepError.message)
-        }
-        throw stepError // Re-throw to be caught by outer catch
-      }
+      const stepId = randomUUID()
+      console.log(`  Creating step ${i + 1}/${steps.length}:`, step.title)
+      await sql`
+        INSERT INTO daily_steps (
+          id, user_id, title, description, date, completed, area_id, goal_id, estimated_time, created_at, updated_at
+        ) VALUES (
+          ${stepId},
+          ${userId},
+          ${step.title},
+          ${step.description},
+          ${step.date}::date,
+          false,
+          ${areaId},
+          ${step.goal_id},
+          ${step.estimated_time},
+          NOW(),
+          NOW()
+        )
+      `
     }
-    
-    console.log('[Onboarding] Successfully created onboarding area, goal and', steps.length, 'steps for user:', userId)
+    console.log('✅ All onboarding steps created successfully')
+    console.log('🎉 Onboarding initialization completed for user:', userId)
   } catch (error) {
-    console.error('[Onboarding] Error creating onboarding items:', error)
+    console.error('❌ Error initializing onboarding steps:', error)
     if (error instanceof Error) {
-      console.error('[Onboarding] Error message:', error.message)
-      console.error('[Onboarding] Error stack:', error.stack)
+      console.error('Error message:', error.message)
+      console.error('Error stack:', error.stack)
     }
-    // Don't throw - allow user creation to succeed even if onboarding items fail
-    // User can still use the app
+    // Don't throw - allow user creation to succeed even if onboarding init fails
+    throw error // Re-throw to see the error in the caller
   }
 }
-

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
-import { JourneyGameView } from '../game/components/JourneyGameView'
+import { JourneyGameView } from '../planner/components/JourneyGameView'
 import { applyColorTheme } from '@/lib/color-utils'
 
 export const dynamic = 'force-dynamic'
@@ -66,7 +66,7 @@ export default function HelpPage() {
             if (!createUserResponse.ok) {
               const createErrorData = await createUserResponse.json().catch(() => ({}))
               console.error('Failed to create user:', createErrorData)
-              router.push(`/${locale}`)
+              router.push(`/`)
               return
             }
 

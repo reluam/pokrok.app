@@ -2,7 +2,7 @@
 
 import { useMemo, useEffect, useRef, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { getLocalDateString, normalizeDate } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { isStepScheduledForDay } from '../utils/stepHelpers'
 import { Check, Target, ArrowRight, ChevronDown, ChevronUp, Plus, CheckSquare, Trash2, Footprints } from 'lucide-react'
@@ -537,7 +537,6 @@ export function TodayFocusSection({
     const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
     
     const filtered = habits.filter(habit => {
-      if (habit.always_show) return true
       if (habit.frequency === 'daily') return true
       // Include both custom (legacy) and weekly habits
       if ((habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.selected_days) {

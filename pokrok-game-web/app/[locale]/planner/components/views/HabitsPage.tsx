@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Calendar, CheckCircle, Zap, Flame, Trophy, Plus, ChevronLeft, ChevronRight, Settings, Check } from 'lucide-react'
-import { getLocalDateString } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString } from '../utils/dateHelpers'
 import { isHabitScheduledForDay, getHabitStartDate } from '../utils/habitHelpers'
 
 interface HabitsPageProps {
@@ -275,7 +275,7 @@ export function HabitsPage({
     const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
     const dayName = dayNames[date.getDay()]
     
-    const isScheduled = habit.always_show || 
+    const isScheduled = 
                       habit.frequency === 'daily' || 
                       ((habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.selected_days && habit.selected_days.includes(dayName))
     const isCompleted = habit.habit_completions && habit.habit_completions[dateStr] === true

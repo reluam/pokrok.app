@@ -2,16 +2,21 @@
 
 import { useMemo } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { getLocalDateString, normalizeDate } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { isStepScheduledForDay } from '../utils/stepHelpers'
+import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { Check, Plus, Footprints } from 'lucide-react'
+import { getIconComponent } from '@/lib/icon-utils'
 
 interface AreaStepsViewProps {
   goals?: any[]
   dailySteps: any[]
+  habits?: any[]
   handleItemClick: (item: any, type: 'step' | 'habit' | 'goal' | 'stat') => void
   handleStepToggle: (stepId: string, completed: boolean) => Promise<void>
+  handleHabitToggle?: (habitId: string, date?: string) => Promise<void>
   loadingSteps: Set<string>
+  loadingHabits?: Set<string>
   onOpenStepModal?: (date?: string) => void
   maxUpcomingSteps?: number // Max number of upcoming steps to show (default: 15)
 }
@@ -19,9 +24,12 @@ interface AreaStepsViewProps {
 export function AreaStepsView({
   goals = [],
   dailySteps,
+  habits = [],
   handleItemClick,
   handleStepToggle,
+  handleHabitToggle,
   loadingSteps,
+  loadingHabits = new Set(),
   onOpenStepModal,
   maxUpcomingSteps = 15
 }: AreaStepsViewProps) {
@@ -33,6 +41,15 @@ export function AreaStepsView({
     date.setHours(0, 0, 0, 0)
     return date
   }, [])
+
+  const todayStr = useMemo(() => getLocalDateString(today), [today])
+
+  // Get today's habits for this area
+  const todaysHabits = useMemo(() => {
+    return habits.filter(habit => {
+      return isHabitScheduledForDay(habit, today)
+    })
+  }, [habits, today])
   
   // Calculate one month from today
   const oneMonthFromToday = useMemo(() => {
@@ -315,6 +332,65 @@ export function AreaStepsView({
 
   return (
     <div className="w-full flex flex-col p-6 space-y-6">
+      {/* Today's Habits - always show if available */}
+      {todaysHabits.length > 0 && handleHabitToggle && (
+        <div className="flex flex-wrap gap-3 mb-4">
+          {todaysHabits.map((habit) => {
+            const isCompleted = habit.habit_completions && habit.habit_completions[todayStr] === true
+            const isLoading = loadingHabits.has(habit.id)
+            
+            return (
+              <div
+                key={habit.id}
+                onClick={() => handleItemClick(habit, 'habit')}
+                className={`flex items-center gap-2 p-3 rounded-playful-md cursor-pointer transition-all flex-shrink-0 ${
+                  isCompleted
+                    ? 'bg-primary-100 opacity-75 hover:outline-2 hover:outline hover:outline-primary-300 hover:outline-offset-[-2px]'
+                    : 'bg-white hover:bg-primary-50 hover:outline-2 hover:outline hover:outline-primary-500 hover:outline-offset-[-2px]'
+                } ${isLoading ? 'opacity-50' : ''}`}
+              >
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleHabitToggle(habit.id, todayStr)
+                  }}
+                  disabled={isLoading}
+                  className={`flex-shrink-0 w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors ${
+                    isCompleted
+                      ? 'bg-primary-500 border-primary-500'
+                      : 'border-primary-500 hover:bg-primary-50'
+                  }`}
+                >
+                  {isLoading ? (
+                    <svg className="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  ) : isCompleted ? (
+                    <Check className="w-4 h-4 text-white" />
+                  ) : null}
+                </button>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {habit.icon && (
+                    <div className="flex-shrink-0">
+                      {(() => {
+                        const IconComponent = getIconComponent(habit.icon)
+                        return <IconComponent className="w-5 h-5 text-primary-600" />
+                      })()}
+                    </div>
+                  )}
+                  <span className={`text-sm font-medium text-black whitespace-nowrap ${
+                    isCompleted ? 'line-through' : ''
+                  }`}>
+                    {habit.name}
+                  </span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
       {/* Upcoming Steps */}
       {upcomingSteps.length === 0 && futureSteps.length === 0 ? (
         <div className="card-playful-base">

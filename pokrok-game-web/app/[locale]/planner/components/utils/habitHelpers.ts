@@ -1,6 +1,6 @@
 // Helper functions for habit scheduling and calculations
 
-import { getLocalDateString } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString } from './dateHelpers'
 
 /**
  * Check if a habit is scheduled for a specific day
@@ -10,9 +10,6 @@ export function isHabitScheduledForDay(habit: any, day: Date): boolean {
   const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
   const dayName = dayNames[day.getDay()]
   const dayOfMonth = day.getDate()
-  
-  // Always show if flag is set
-  if (habit.always_show || habit.alwaysShow) return true
   
   // Daily frequency
   if (habit.frequency === 'daily') return true

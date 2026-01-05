@@ -29,8 +29,8 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider
-      signInFallbackRedirectUrl="/game"
-      signUpFallbackRedirectUrl="/game"
+      signInFallbackRedirectUrl="/planner"
+      signUpFallbackRedirectUrl="/planner"
     >
       <html suppressHydrationWarning>
         <head>

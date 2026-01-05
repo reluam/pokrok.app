@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Check, X, ChevronLeft, ChevronRight, Footprints } from 'lucide-react'
-import { getLocalDateString, normalizeDate } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { isStepScheduledForDay } from '../utils/stepHelpers'
 import { TodayFocusSection } from './TodayFocusSection'
@@ -227,7 +227,6 @@ export function WeekView({
       
       // Filter habits for selected day
       const dayHabits = habits.filter(habit => {
-        if (habit.always_show) return true
         if (habit.frequency === 'daily') return true
         if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
         return false
@@ -256,7 +255,6 @@ export function WeekView({
         
         // Get habits for this day
         const dayHabits = habits.filter(habit => {
-          if (habit.always_show) return true
           if (habit.frequency === 'daily') return true
           if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
           return false

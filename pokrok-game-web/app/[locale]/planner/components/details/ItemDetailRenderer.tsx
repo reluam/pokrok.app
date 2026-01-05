@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { getLocalDateString } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString } from '../utils/dateHelpers'
 import { GoalEditingForm } from '../journey/GoalEditingForm'
 
 interface ItemDetailRendererProps {
@@ -44,8 +44,6 @@ interface ItemDetailRendererProps {
   setEditingHabitFrequency: (value: 'daily' | 'weekly' | 'monthly') => void
   editingHabitSelectedDays: string[]
   setEditingHabitSelectedDays: (value: string[]) => void
-  editingHabitAlwaysShow: boolean | undefined
-  setEditingHabitAlwaysShow: (value: boolean) => void
   editingHabitCategory: string
   setEditingHabitCategory: (value: string) => void
   editingHabitDifficulty: 'easy' | 'medium' | 'hard'
@@ -114,8 +112,6 @@ export function ItemDetailRenderer({
   setEditingHabitFrequency,
   editingHabitSelectedDays,
   setEditingHabitSelectedDays,
-  editingHabitAlwaysShow,
-  setEditingHabitAlwaysShow,
   editingHabitCategory,
   setEditingHabitCategory,
   editingHabitDifficulty,
@@ -857,19 +853,6 @@ export function ItemDetailRenderer({
               </div>
             )}
 
-                  {/* Always Show */}
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={editingHabitAlwaysShow !== undefined ? editingHabitAlwaysShow : (item.always_show || false)}
-                      onChange={(e) => setEditingHabitAlwaysShow(e.target.checked)}
-                      className="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                    />
-                    <label className="text-sm font-medium text-gray-700">
-                      Zobrazovat vždy (i když není naplánováno)
-                    </label>
-                  </div>
-                  
                   {/* Category */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -926,7 +909,6 @@ export function ItemDetailRenderer({
                             description: editingHabitDescription !== undefined ? editingHabitDescription : item.description,
                             frequency: editingHabitFrequency || item.frequency,
                             selectedDays: editingHabitSelectedDays.length > 0 ? editingHabitSelectedDays : item.selected_days,
-                            alwaysShow: editingHabitAlwaysShow !== undefined ? editingHabitAlwaysShow : item.always_show,
                             category: editingHabitCategory || item.category,
                             difficulty: editingHabitDifficulty || item.difficulty,
                             reminderTime: editingHabitReminderTime || item.reminder_time

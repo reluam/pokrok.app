@@ -1,6 +1,6 @@
 // Helper functions for step scheduling and calculations
 
-import { getLocalDateString } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString } from './dateHelpers'
 
 /**
  * Check if a step is scheduled for a specific day

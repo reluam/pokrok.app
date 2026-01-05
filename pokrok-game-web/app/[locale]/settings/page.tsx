@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
-import { JourneyGameView } from '../game/components/JourneyGameView'
+import { JourneyGameView } from '../planner/components/JourneyGameView'
 import { applyColorTheme } from '@/lib/color-utils'
 
 export const dynamic = 'force-dynamic'
@@ -66,7 +66,7 @@ export default function SettingsPage() {
             if (!createUserResponse.ok) {
               const createErrorData = await createUserResponse.json().catch(() => ({}))
               console.error('Failed to create user:', createErrorData)
-              router.push(`/${locale}`)
+              router.push(`/`)
               return
             }
 
@@ -78,7 +78,7 @@ export default function SettingsPage() {
             setIsLoading(false)
           } else {
             console.error('Server error details:', errorData)
-            router.push(`/${locale}`)
+            router.push(`/`)
             return
           }
         } else {
@@ -108,7 +108,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
-      router.push(`/${locale}`)
+      router.push(`/`)
     }
   }, [isLoaded, isSignedIn, router, locale])
 

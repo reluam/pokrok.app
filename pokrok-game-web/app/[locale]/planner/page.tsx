@@ -48,7 +48,18 @@ export default function GamePage() {
                 }
                 
                 // Try to load all game data in one request
-                const gameDataResponse = await fetch('/api/game/init')
+                // Add retry logic for new users
+                let gameDataResponse = await fetch('/api/game/init')
+                let retryCount = 0
+                const maxRetries = 3
+                
+                // Retry if we get 500 error (might be onboarding initialization in progress)
+                while (!gameDataResponse.ok && gameDataResponse.status === 500 && retryCount < maxRetries) {
+                  console.log(`Retrying game data fetch (attempt ${retryCount + 1}/${maxRetries})...`)
+                  await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))) // Exponential backoff
+                  gameDataResponse = await fetch('/api/game/init')
+                  retryCount++
+                }
                 
                 if (!gameDataResponse.ok) {
                   const errorData = await gameDataResponse.json().catch(() => ({}))
@@ -74,7 +85,7 @@ export default function GamePage() {
                     if (!createUserResponse.ok) {
                       const createErrorData = await createUserResponse.json().catch(() => ({}))
                       console.error('Failed to create user:', createErrorData)
-                      router.push(`/${locale}`)
+                      router.push(`/`)
                       return
                     }
 
@@ -85,9 +96,16 @@ export default function GamePage() {
                     setPlayer(null)
                     setIsLoading(false)
                   } else {
-                    // For 500 errors, show more details
+                    // For other errors, try to reload after a delay
                     console.error('Server error details:', errorData)
-                    router.push(`/${locale}`)
+                    if (retryCount < maxRetries) {
+                      // Wait a bit and reload the page
+                      setTimeout(() => {
+                        window.location.reload()
+                      }, 2000)
+                    } else {
+                      router.push(`/`)
+                    }
                     return
                   }
                 } else {
@@ -99,11 +117,11 @@ export default function GamePage() {
                   setHabits(gameData.habits || [])
                   setHasCompletedOnboarding(gameData.user.has_completed_onboarding ?? false)
                   
-                  // If onboarding not completed, ensure we're on focus-upcoming
-                  if (!gameData.user.has_completed_onboarding) {
-                    if (typeof window !== 'undefined') {
-                      localStorage.setItem('journeyGame_mainPanelSection', 'focus-upcoming')
-                    }
+                  // Always ensure Main Panel (focus-upcoming) is set when user logs in
+                  // Also set currentPage to 'main' to override any previous localStorage values
+                  if (typeof window !== 'undefined') {
+                    localStorage.setItem('journeyGame_currentPage', 'main')
+                    localStorage.setItem('journeyGame_mainPanelSection', 'focus-upcoming')
                   }
                 }
               } catch (error) {

@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Check, X, ChevronLeft, ChevronRight, Flame, CheckCircle2, Target } from 'lucide-react'
-import { getLocalDateString, normalizeDate } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { TodayFocusSection } from './TodayFocusSection'
 

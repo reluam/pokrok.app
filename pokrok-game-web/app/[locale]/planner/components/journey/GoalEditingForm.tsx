@@ -3,7 +3,7 @@
 import { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Calendar, Target, CheckCircle, Moon, ChevronDown, Edit, X, Trash2 } from 'lucide-react'
-import { normalizeDate } from '../../../main/components/utils/dateHelpers'
+import { normalizeDate } from '../utils/dateHelpers'
 
 interface GoalEditingFormProps {
   goal: any

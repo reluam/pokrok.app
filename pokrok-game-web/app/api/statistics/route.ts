@@ -151,7 +151,6 @@ export async function GET(request: NextRequest) {
         id,
         frequency,
         selected_days,
-        always_show,
         start_date,
         created_at
       FROM habits
@@ -170,9 +169,6 @@ export async function GET(request: NextRequest) {
       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
       const dayName = dayNames[day.getDay()]
       const dayOfMonth = day.getDate()
-      
-      // Always show if flag is set
-      if (habit.always_show) return true
       
       // Check if habit has started
       if (habit.start_date) {

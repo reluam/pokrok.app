@@ -74,7 +74,7 @@ export default function GamePage() {
                     if (!createUserResponse.ok) {
                       const createErrorData = await createUserResponse.json().catch(() => ({}))
                       console.error('Failed to create user:', createErrorData)
-                      router.push(`/${locale}`)
+                      router.push(`/`)
                       return
                     }
 

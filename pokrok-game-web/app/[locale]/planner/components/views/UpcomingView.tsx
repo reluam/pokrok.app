@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { getLocalDateString, normalizeDate } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { isStepScheduledForDay } from '../utils/stepHelpers'
 import { Check, Plus, Footprints, Trash2, ChevronDown, Repeat } from 'lucide-react'
@@ -145,131 +145,26 @@ export function UpcomingView({
     })
   }, [habits, today])
   
-  // Create instances for recurring steps when they should be displayed
-  useEffect(() => {
-    if (!userId || !dailySteps.length) return
-
-    const createMissingInstances = async () => {
-      const recurringSteps = dailySteps.filter(step => step.frequency && step.frequency !== null)
-      
-      for (const step of recurringSteps) {
-        // Check if last_instance_date is older than today (step is overdue)
-        const lastInstanceDate = step.last_instance_date ? new Date(step.last_instance_date) : null
-        
-        if (lastInstanceDate && lastInstanceDate < today) {
-          // Find next occurrence starting from today
-          let checkDate = new Date(today)
-          
-          // Check up to 365 days ahead to find next occurrence
-          for (let i = 0; i < 365; i++) {
-            if (isStepScheduledForDay(step, checkDate)) {
-              // Check if instance already exists
-              const dateStr = checkDate.toISOString().split('T')[0]
-              const dateFormatted = checkDate.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' })
-              const instanceTitle = `${step.title} - ${dateFormatted}`
-              
-              const hasInstance = dailySteps.some(s => 
-                s.title === instanceTitle && 
-                s.date === dateStr &&
-                s.user_id === step.user_id
-              )
-              
-              if (!hasInstance) {
-                // Create instance via API
-                try {
-                  const response = await fetch('/api/daily-steps', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      userId: step.user_id,
-                      goalId: step.goal_id || null,
-                      areaId: step.area_id || null,
-                      title: instanceTitle,
-                      description: step.description || '',
-                      date: dateStr,
-                      isImportant: step.is_important || false,
-                      isUrgent: step.is_urgent || false,
-                      estimatedTime: step.estimated_time || 30,
-                      xpReward: step.xp_reward || 1,
-                      checklist: step.checklist || [],
-                      requireChecklistComplete: step.require_checklist_complete || false,
-                      frequency: null, // Not recurring
-                      selectedDays: []
-                    }),
-                  })
-                  
-                  if (response.ok) {
-                    // Update last_instance_date via API
-                    await fetch(`/api/daily-steps?stepId=${step.id}`, {
-                      method: 'PUT',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({
-                        lastInstanceDate: dateStr
-                      }),
-                    })
-                    console.log(`Created instance for recurring step ${step.title} on ${dateStr}`)
-                  }
-                } catch (error) {
-                  console.error(`Error creating instance for step ${step.id}:`, error)
-                }
-              }
-              break // Only create first occurrence
-            }
-            checkDate.setDate(checkDate.getDate() + 1)
-          }
-        }
-      }
-    }
-
-    createMissingInstances()
-  }, [dailySteps, today, userId])
+  // OLD LOGIC REMOVED: No more creating instances - recurring steps use current_instance_date
+  // The API handles setting current_instance_date automatically
   
   // Helper function to check if a repeating step is completed for a specific date
-  // Checks both the recurring step itself and completed instances
+  // NEW SIMPLIFIED LOGIC: Recurring steps are never completed - they just move to next occurrence
   const isStepCompletedForDate = (step: any, date: Date): boolean => {
-    const dateStr = getLocalDateString(date)
-    
-    // Check if there's a completed instance for this date
-    // Completed instances have title format "Original Title - DD.MM.YYYY"
-    const dateFormatted = date.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' })
-    const enDateFormatted = date.toLocaleDateString('en-US', { day: 'numeric', month: 'numeric', year: 'numeric' })
-    
-    const hasCompletedInstance = dailySteps.some((s: any) => {
-      if (!s.completed || s.frequency !== null) return false
-      // Check if this is a completed instance of the recurring step
-      const instanceDate = s.date ? normalizeDate(s.date) : null
-      if (!instanceDate) return false
-      
-      const instanceDateStr = getLocalDateString(new Date(instanceDate))
-      if (instanceDateStr !== dateStr) return false
-      
-      // Check if title matches (could be "Original Title - Date" format)
-      const baseTitle = step.title
-      return s.title === baseTitle || 
-             s.title.startsWith(baseTitle + ' - ') ||
-             s.title === `${baseTitle} - ${dateFormatted}` ||
-             s.title === `${baseTitle} - ${enDateFormatted}`
-    })
-    
-    if (hasCompletedInstance) return true
-    
-    // Also check the recurring step itself (legacy check)
-    if (!step.completed) return false
-    
-    // If step has completed_at, check if it matches the date
-    if (step.completed_at) {
-      const completedDate = new Date(step.completed_at)
-      completedDate.setHours(0, 0, 0, 0)
-      const checkDate = new Date(date)
-      checkDate.setHours(0, 0, 0, 0)
-      return completedDate.getTime() === checkDate.getTime()
+    // Recurring steps are never completed - they just move to next occurrence
+    if (step.frequency && step.frequency !== null) {
+      return false
     }
     
-    return false
+    // For non-recurring steps, check if they're completed
+    if (!step.completed) return false
+    
+    const dateStr = getLocalDateString(date)
+    const stepDate = step.date ? normalizeDate(step.date) : null
+    if (!stepDate) return false
+    
+    const stepDateStr = getLocalDateString(new Date(stepDate))
+    return stepDateStr === dateStr
   }
   
   // Helper function to get the next occurrence date for a repeating step
@@ -277,26 +172,21 @@ export function UpcomingView({
     if (!step.frequency || step.frequency === null) {
       // Non-repeating step - return its date if it's in the future
       if (step.date) {
-      const stepDate = new Date(normalizeDate(step.date))
-      stepDate.setHours(0, 0, 0, 0)
+        const stepDate = new Date(normalizeDate(step.date))
+        stepDate.setHours(0, 0, 0, 0)
         return stepDate >= fromDate ? stepDate : null
       }
       return null
     }
     
-    // For repeating steps, find the next occurrence that is NOT completed
-    let checkDate = new Date(fromDate)
-    checkDate.setHours(0, 0, 0, 0)
-    
-    // Check up to 365 days ahead
-    for (let i = 0; i < 365; i++) {
-      if (isStepScheduledForDay(step, checkDate)) {
-        // Check if this step is completed for this specific date (including instances)
-        if (!isStepCompletedForDate(step, checkDate)) {
-          return checkDate
-        }
+    // NEW SIMPLIFIED LOGIC: For recurring steps, use current_instance_date
+    if (step.current_instance_date) {
+      const instanceDate = new Date(normalizeDate(step.current_instance_date))
+      instanceDate.setHours(0, 0, 0, 0)
+      // Recurring steps are never completed - they just move to next occurrence
+      if (instanceDate >= fromDate) {
+        return instanceDate
       }
-      checkDate.setDate(checkDate.getDate() + 1)
     }
     
     return null
@@ -329,7 +219,7 @@ export function UpcomingView({
   // Get all steps for Feed view - sorted by date, with overdue first, then important first within each day
   // No limit, but filtered to max one month ahead (except overdue steps - show all overdue)
   const allFeedSteps = useMemo(() => {
-    const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isOverdue: boolean; goal: any; area: any }> = []
+    const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isUrgent: boolean; isOverdue: boolean; goal: any; area: any }> = []
     
     // Process non-repeating steps (exclude instances of recurring steps - they are handled separately)
     // Also exclude hidden recurring step templates
@@ -365,96 +255,55 @@ export function UpcomingView({
           step,
           date: stepDate,
           isImportant: step.is_important || false,
+          isUrgent: step.is_urgent || false,
           isOverdue,
           goal,
           area
         })
     })
     
-    // Process repeating steps - show actual instances from database
-    // Filter out recurring step templates (is_hidden = true)
-    // Show only instances (they have frequency = null and parent_recurring_step_id set)
-    // Exclude completed instances
-    // Always show only the nearest incomplete instance for each recurring step
-    
-    // First, collect all incomplete instances
-    const allRecurringInstancesFeed = dailySteps
+    // NEW SIMPLIFIED LOGIC: Process recurring steps directly (no more instances)
+    // Recurring steps use current_instance_date instead of creating instances
+    dailySteps
       .filter(step => {
-        // Show instances (non-recurring steps with parent_recurring_step_id set)
-        // Exclude completed instances and hidden steps (only if explicitly set to true)
-        if (!step.frequency && step.date && step.parent_recurring_step_id && !step.completed && step.is_hidden !== true) {
-          const stepDate = new Date(normalizeDate(step.date))
-          stepDate.setHours(0, 0, 0, 0)
-          const isOverdue = stepDate < today
-          // Include if overdue or within one month
-          return isOverdue || stepDate <= oneMonthFromToday
-        }
-        return false
+        const isRecurringStep = step.frequency && step.frequency !== null
+        if (!isRecurringStep) return false
+        // Exclude hidden steps
+        if (step.is_hidden === true) return false
+        // Recurring steps are never completed - they just move to next occurrence
+        if (step.completed) return false
+        return true
       })
-      .map(step => {
-        const stepDate = new Date(normalizeDate(step.date))
+      .forEach(step => {
+        // For recurring steps, use current_instance_date
+        const stepDateField = step.current_instance_date || step.date
+        if (!stepDateField) return
+        
+        const stepDate = new Date(normalizeDate(stepDateField))
         stepDate.setHours(0, 0, 0, 0)
         const isOverdue = stepDate < today
         
-        // Find the original recurring step by parent_recurring_step_id
-        const originalStep = dailySteps.find(s => 
-          s.id === step.parent_recurring_step_id &&
-          s.frequency !== null &&
-          s.is_hidden === true // Recurring step template is hidden
-        )
+        // Filter out steps more than one month ahead (but keep all overdue steps)
+        if (!isOverdue && stepDate > oneMonthFromToday) return
         
-        if (!originalStep) return null // Skip if template not found
+        const goal = step.goal_id ? goalMap.get(step.goal_id) : null
+        // Get area from goal if exists, otherwise from step directly
+        const area = goal?.area_id 
+          ? areaMap.get(goal.area_id) 
+          : (step.area_id ? areaMap.get(step.area_id) : null)
         
-        return {
+        stepsWithDates.push({
           step,
           date: stepDate,
+          isImportant: step.is_important || false,
+          isUrgent: step.is_urgent || false,
           isOverdue,
-          originalStep
-        }
+          goal,
+          area
+        })
       })
-      .filter(item => item !== null) as Array<{ step: any; date: Date; isOverdue: boolean; originalStep: any }>
     
-    // Group instances by original recurring step
-    const instancesByRecurringStepFeed = new Map<string, typeof allRecurringInstancesFeed>()
-    allRecurringInstancesFeed.forEach(item => {
-      if (item.originalStep) {
-        const key = item.originalStep.id
-        if (!instancesByRecurringStepFeed.has(key)) {
-          instancesByRecurringStepFeed.set(key, [])
-        }
-        instancesByRecurringStepFeed.get(key)!.push(item)
-      }
-    })
-    
-    // For each recurring step, show only the nearest incomplete instance
-    instancesByRecurringStepFeed.forEach((instances, recurringStepId) => {
-      const originalStep = instances[0]?.originalStep
-      if (!originalStep) {
-        // If we can't find the original step, skip these instances
-        return
-      }
-      
-      // Sort instances by date (oldest first) - this ensures we get the nearest one
-      instances.sort((a, b) => a.date.getTime() - b.date.getTime())
-      
-      // Show only the first (nearest) incomplete instance
-      const nearestInstance = instances[0]
-      if (!nearestInstance) return
-      
-      const goal = originalStep.goal_id ? goalMap.get(originalStep.goal_id) : (nearestInstance.step.goal_id ? goalMap.get(nearestInstance.step.goal_id) : null)
-      const area = goal?.area_id 
-        ? areaMap.get(goal.area_id) 
-        : (originalStep.area_id ? areaMap.get(originalStep.area_id) : (nearestInstance.step.area_id ? areaMap.get(nearestInstance.step.area_id) : null))
-      
-      stepsWithDates.push({
-        step: nearestInstance.step,
-        date: nearestInstance.date,
-        isImportant: nearestInstance.step.is_important || false,
-        isOverdue: nearestInstance.isOverdue,
-        goal,
-        area
-      })
-    })
+    // OLD LOGIC REMOVED: No more instances - recurring steps are handled directly with current_instance_date
     
     // Sort: overdue first, then by date, then by importance within same date
     stepsWithDates.sort((a, b) => {
@@ -466,9 +315,26 @@ export function UpcomingView({
       const dateDiff = a.date.getTime() - b.date.getTime()
       if (dateDiff !== 0) return dateDiff
       
-      // Same date - important first
-      if (a.isImportant && !b.isImportant) return -1
-      if (!a.isImportant && b.isImportant) return 1
+      // Same date - sort by priority (important + urgent), then by step number
+      const aPriority = (a.isImportant ? 2 : 0) + (a.isUrgent ? 1 : 0)
+      const bPriority = (b.isImportant ? 2 : 0) + (b.isUrgent ? 1 : 0)
+      if (aPriority !== bPriority) {
+        return bPriority - aPriority // Higher priority first (important steps on top)
+      }
+      
+      // If same priority, sort by step number (e.g., 1/7, 2/7, etc.) if present
+      const extractStepNumber = (title: string): number | null => {
+        const match = title.match(/^(\d+)\/\d+/)
+        return match ? parseInt(match[1], 10) : null
+      }
+      
+      const aStepNum = extractStepNumber(a.step.title || '')
+      const bStepNum = extractStepNumber(b.step.title || '')
+      
+      if (aStepNum !== null && bStepNum !== null) {
+        return aStepNum - bStepNum // Sort 1, 2, 3, etc. (ascending)
+      }
+      
       return 0
     })
     
@@ -485,7 +351,7 @@ export function UpcomingView({
   // Get upcoming steps - sorted by date, with overdue first, then important first within each day
   // Limited to 15 steps total and max one month ahead (except overdue steps - show all overdue)
   const upcomingSteps = useMemo(() => {
-    const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isOverdue: boolean; goal: any; area: any }> = []
+    const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isUrgent: boolean; isOverdue: boolean; goal: any; area: any }> = []
     const addedStepIds = new Set<string>() // Track which steps have already been added to prevent duplicates
     
     // Process non-repeating steps (exclude instances of recurring steps - they are handled separately)
@@ -534,6 +400,7 @@ export function UpcomingView({
           step,
           date: stepDate,
           isImportant: step.is_important || false,
+          isUrgent: step.is_urgent || false,
           isOverdue,
           goal,
           area
@@ -623,6 +490,7 @@ export function UpcomingView({
         step: nearestInstance.step,
         date: nearestInstance.date,
         isImportant: nearestInstance.step.is_important || false,
+        isUrgent: nearestInstance.step.is_urgent || false,
         isOverdue: nearestInstance.isOverdue,
         goal,
         area
@@ -639,9 +507,26 @@ export function UpcomingView({
       const dateDiff = a.date.getTime() - b.date.getTime()
       if (dateDiff !== 0) return dateDiff
       
-      // Same date - important first
-      if (a.isImportant && !b.isImportant) return -1
-      if (!a.isImportant && b.isImportant) return 1
+      // Same date - sort by priority (important + urgent), then by step number
+      const aPriority = (a.isImportant ? 2 : 0) + (a.isUrgent ? 1 : 0)
+      const bPriority = (b.isImportant ? 2 : 0) + (b.isUrgent ? 1 : 0)
+      if (aPriority !== bPriority) {
+        return bPriority - aPriority // Higher priority first (important steps on top)
+      }
+      
+      // If same priority, sort by step number (e.g., 1/7, 2/7, etc.) if present
+      const extractStepNumber = (title: string): number | null => {
+        const match = title.match(/^(\d+)\/\d+/)
+        return match ? parseInt(match[1], 10) : null
+      }
+      
+      const aStepNum = extractStepNumber(a.step.title || '')
+      const bStepNum = extractStepNumber(b.step.title || '')
+      
+      if (aStepNum !== null && bStepNum !== null) {
+        return aStepNum - bStepNum // Sort 1, 2, 3, etc. (ascending)
+      }
+      
       return 0
     })
     
@@ -685,6 +570,25 @@ export function UpcomingView({
     
     return { grouped, noAreaSteps }
   }, [upcomingSteps])
+
+  // Group habits by area for Areas view
+  const habitsByArea = useMemo(() => {
+    const grouped: Record<string, any[]> = {}
+    const noAreaHabits: any[] = []
+    
+    todaysHabits.forEach(habit => {
+      if (habit.area_id) {
+        if (!grouped[habit.area_id]) {
+          grouped[habit.area_id] = []
+        }
+        grouped[habit.area_id].push(habit)
+      } else {
+        noAreaHabits.push(habit)
+      }
+    })
+    
+    return { grouped, noAreaHabits }
+  }, [todaysHabits])
   
   // Helper function to check if a date is in the current or next week (Monday to Sunday)
   const isDateInCurrentOrNextWeek = (date: Date): boolean => {
@@ -764,12 +668,19 @@ export function UpcomingView({
   // Save selected date and close picker
   const handleSaveDate = async () => {
     if (datePickerStep && selectedDateInPicker && onStepDateChange) {
+      try {
       const dateStr = getLocalDateString(selectedDateInPicker)
       await onStepDateChange(datePickerStep.id, dateStr)
-    }
+        // Close picker only on success
     setDatePickerStep(null)
     setDatePickerPosition(null)
     setSelectedDateInPicker(null)
+      } catch (error) {
+        // Error is already handled in handleStepDateChange
+        // Keep picker open so user can try again
+        console.error('Error saving date:', error)
+      }
+    }
   }
   
   // Cancel date picker
@@ -1126,7 +1037,14 @@ export function UpcomingView({
                   <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         {step.frequency && step.frequency !== null && (
-                          <Repeat className={`w-3.5 h-3.5 flex-shrink-0 transition-colors ${isFuture ? 'text-primary-400 group-hover:text-primary-500' : 'text-primary-600'}`} />
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <Repeat className={`w-3.5 h-3.5 transition-colors ${isFuture ? 'text-primary-400 group-hover:text-primary-500' : 'text-primary-600'}`} />
+                            {step.completion_count > 0 && (
+                              <span className={`text-[10px] font-semibold transition-colors ${isFuture ? 'text-primary-400 group-hover:text-primary-500' : 'text-primary-600'}`}>
+                                {step.completion_count}
+                              </span>
+                            )}
+                          </div>
                         )}
                         <span className={`text-sm truncate transition-colors ${
                           step.completed 
@@ -1160,14 +1078,27 @@ export function UpcomingView({
                     {/* Date and time */}
                     <div className="flex items-center gap-2 flex-shrink-0">
                       {step.frequency && step.frequency !== null ? (
-                        // Recurring step - show icon and time only, no date picker
+                        // Recurring step - show current_instance_date (not editable) and time
                         <>
-                          <div className="hidden sm:flex items-center gap-1 text-xs text-gray-500">
-                            <Repeat className="w-3 h-3" />
-                            <span>{step.frequency === 'daily' ? (locale === 'cs' ? 'Denně' : 'Daily') : 
-                                   step.frequency === 'weekly' ? (locale === 'cs' ? 'Týdně' : 'Weekly') :
-                                   step.frequency === 'monthly' ? (locale === 'cs' ? 'Měsíčně' : 'Monthly') : ''}</span>
-                          </div>
+                          <span className={`hidden sm:block w-28 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 border-2 ${
+                            isOverdue
+                              ? 'text-red-600 border-red-300'
+                              : isToday
+                                ? 'text-primary-600 border-primary-500' 
+                                : 'text-gray-600 border-gray-300'
+                          }`}>
+                            {isOverdue && '❗'}
+                            {isToday ? t('focus.today') : (() => {
+                              const displayDate = step.current_instance_date || step.date
+                              if (!displayDate) return '-'
+                              const dateObj = new Date(normalizeDate(displayDate))
+                              return dateObj.toLocaleDateString(locale === 'cs' ? 'cs-CZ' : 'en-US', { 
+                                day: 'numeric', 
+                                month: 'numeric', 
+                                year: 'numeric' 
+                              })
+                            })()}
+                          </span>
                           <button 
                             onClick={(e) => openTimePicker(e, step)}
                             className={`hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-gray-600 hover:bg-gray-100 border-gray-300`}
@@ -1287,6 +1218,67 @@ export function UpcomingView({
                       <p className="text-xs text-primary-600">
                         {t('views.futureStepsNote') || 'Níže jsou úkoly do budoucna, které ale ještě vydrží.'}
                       </p>
+                    </div>
+                  )}
+                  
+                  {/* Today's Habits for this area */}
+                  {habitsByArea.grouped[areaId] && habitsByArea.grouped[areaId].length > 0 && (
+                    <div className="mb-4">
+                      <div className="flex flex-wrap gap-3">
+                        {habitsByArea.grouped[areaId].map((habit) => {
+                          const isCompleted = habit.habit_completions && habit.habit_completions[todayStr] === true
+                          const isLoading = loadingHabits.has(habit.id)
+                          
+                          return (
+                            <div
+                              key={habit.id}
+                              onClick={() => handleItemClick(habit, 'habit')}
+                              className={`flex items-center gap-2 p-3 rounded-playful-md cursor-pointer transition-all flex-shrink-0 ${
+                                isCompleted
+                                  ? 'bg-primary-100 opacity-75 hover:outline-2 hover:outline hover:outline-primary-300 hover:outline-offset-[-2px]'
+                                  : 'bg-white hover:bg-primary-50 hover:outline-2 hover:outline hover:outline-primary-500 hover:outline-offset-[-2px]'
+                              } ${isLoading ? 'opacity-50' : ''}`}
+                            >
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleHabitToggle(habit.id, todayStr)
+                                }}
+                                disabled={isLoading}
+                                className={`flex-shrink-0 w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors ${
+                                  isCompleted
+                                    ? 'bg-primary-500 border-primary-500'
+                                    : 'border-primary-500 hover:bg-primary-50'
+                                }`}
+                              >
+                                {isLoading ? (
+                                  <svg className="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                ) : isCompleted ? (
+                                  <Check className="w-4 h-4 text-white" />
+                                ) : null}
+                              </button>
+                              <div className="flex items-center gap-2 flex-shrink-0">
+                                {habit.icon && (
+                                  <div className="flex-shrink-0">
+                                    {(() => {
+                                      const IconComponent = getIconComponent(habit.icon)
+                                      return <IconComponent className="w-5 h-5 text-primary-600" />
+                                    })()}
+                                  </div>
+                                )}
+                                <span className={`text-sm font-medium text-black whitespace-nowrap ${
+                                  isCompleted ? 'line-through' : ''
+                                }`}>
+                                  {habit.name}
+                                </span>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
                     </div>
                   )}
                   
@@ -1634,6 +1626,67 @@ export function UpcomingView({
                       <p className="text-xs text-primary-600">
                         {t('views.futureStepsNote') || 'Níže jsou úkoly do budoucna, které ale ještě vydrží.'}
                       </p>
+                    </div>
+                  )}
+                  
+                  {/* Today's Habits without area */}
+                  {habitsByArea.noAreaHabits.length > 0 && (
+                    <div className="mb-4">
+                      <div className="flex flex-wrap gap-3">
+                        {habitsByArea.noAreaHabits.map((habit) => {
+                          const isCompleted = habit.habit_completions && habit.habit_completions[todayStr] === true
+                          const isLoading = loadingHabits.has(habit.id)
+                          
+                          return (
+                            <div
+                              key={habit.id}
+                              onClick={() => handleItemClick(habit, 'habit')}
+                              className={`flex items-center gap-2 p-3 rounded-playful-md cursor-pointer transition-all flex-shrink-0 ${
+                                isCompleted
+                                  ? 'bg-primary-100 opacity-75 hover:outline-2 hover:outline hover:outline-primary-300 hover:outline-offset-[-2px]'
+                                  : 'bg-white hover:bg-primary-50 hover:outline-2 hover:outline hover:outline-primary-500 hover:outline-offset-[-2px]'
+                              } ${isLoading ? 'opacity-50' : ''}`}
+                            >
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleHabitToggle(habit.id, todayStr)
+                                }}
+                                disabled={isLoading}
+                                className={`flex-shrink-0 w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors ${
+                                  isCompleted
+                                    ? 'bg-primary-500 border-primary-500'
+                                    : 'border-primary-500 hover:bg-primary-50'
+                                }`}
+                              >
+                                {isLoading ? (
+                                  <svg className="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                ) : isCompleted ? (
+                                  <Check className="w-4 h-4 text-white" />
+                                ) : null}
+                              </button>
+                              <div className="flex items-center gap-2 flex-shrink-0">
+                                {habit.icon && (
+                                  <div className="flex-shrink-0">
+                                    {(() => {
+                                      const IconComponent = getIconComponent(habit.icon)
+                                      return <IconComponent className="w-5 h-5 text-primary-600" />
+                                    })()}
+                                  </div>
+                                )}
+                                <span className={`text-sm font-medium text-black whitespace-nowrap ${
+                                  isCompleted ? 'line-through' : ''
+                                }`}>
+                                  {habit.name}
+                                </span>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
                     </div>
                   )}
                   

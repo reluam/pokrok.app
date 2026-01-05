@@ -4,7 +4,7 @@ import { useDroppable, useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { Trash2, Plus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { getLocalDateString } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString } from '../utils/dateHelpers'
 
 interface DailyStep {
   id: string

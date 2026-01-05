@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { getLocalDateString, normalizeDate } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { Flame, Target, CheckCircle } from 'lucide-react'
 

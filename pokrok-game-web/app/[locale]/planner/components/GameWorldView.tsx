@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { JourneyGameView } from './JourneyGameView'
 import { DailyPlanningView } from './DailyPlanningView'
-import { GoalsManagementView } from '../../main/components/views/GoalsManagementView'
+import { GoalsManagementView } from './GoalsManagementView'
 import { StatisticsView } from './StatisticsView'
 import { AchievementsView } from './AchievementsView'
 import { SettingsView } from './SettingsView'
@@ -168,6 +168,7 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
             onGoalsUpdate={onGoalsUpdate}
             onHabitsUpdate={onHabitsUpdate}
             onPlayerUpdate={handlePlayerUpdate}
+            onBack={handleBackToCharacter}
             onDailyStepsUpdate={handleDailyStepsUpdate}
           />
         )
@@ -177,6 +178,7 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
             player={player}
             goals={goals}
             onGoalsUpdate={onGoalsUpdate}
+            onBack={handleBackToCharacter}
           />
         )
       case 'statistics':
@@ -186,6 +188,7 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
             goals={goals}
             habits={habits}
             dailySteps={dailySteps}
+            onBack={handleBackToCharacter}
           />
         )
       case 'achievements':
@@ -197,6 +200,7 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
             level={player?.level || 1}
             experience={player?.experience || 0}
             completedTasks={dailySteps.filter(s => s.completed).length}
+            onBack={handleBackToCharacter}
           />
         )
       case 'settings':
@@ -204,6 +208,7 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
           <SettingsView
             player={player}
             onPlayerUpdate={handlePlayerUpdate}
+            onBack={handleBackToCharacter}
           />
         )
       case 'notes':

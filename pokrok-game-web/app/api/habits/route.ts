@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     const { dbUser } = authResult
 
     const body = await request.json()
-    const { name, description, frequency, streak, maxStreak, category, difficulty, isCustom, reminderTime, notificationEnabled, selectedDays, alwaysShow, xpReward, aspirationId, areaId, icon, order } = body
+    const { name, description, frequency, streak, maxStreak, category, difficulty, isCustom, reminderTime, notificationEnabled, selectedDays, xpReward, aspirationId, areaId, icon, order } = body
     
     // ✅ SECURITY: Ověření vlastnictví areaId, pokud je poskytnut
     if (areaId) {
@@ -85,7 +85,6 @@ export async function POST(request: NextRequest) {
       reminder_time: reminderTime || null,
       notification_enabled: notificationEnabled || false,
       selected_days: selectedDays || null,
-      always_show: alwaysShow || false,
       xp_reward: xpReward || 1,
       aspiration_id: aspirationId || null,
       area_id: areaId || null,
@@ -116,7 +115,7 @@ export async function PUT(request: NextRequest) {
     const { dbUser } = authResult
 
     const body = await request.json()
-    const { habitId, name, description, frequency, category, difficulty, reminderTime, notificationEnabled, selectedDays, alwaysShow, xpReward, aspirationId, areaId, icon, order } = body
+    const { habitId, name, description, frequency, category, difficulty, reminderTime, notificationEnabled, selectedDays, xpReward, aspirationId, areaId, icon, order } = body
     
     console.log('PUT /api/habits - Received body:', { habitId, hasIcon: icon !== undefined, icon })
     
@@ -148,7 +147,6 @@ export async function PUT(request: NextRequest) {
       reminder_time: reminderTime,
       notification_enabled: notificationEnabled,
       selected_days: selectedDays,
-      always_show: alwaysShow,
       xp_reward: xpReward,
       aspiration_id: aspirationId,
       area_id: areaId !== undefined ? areaId : undefined,

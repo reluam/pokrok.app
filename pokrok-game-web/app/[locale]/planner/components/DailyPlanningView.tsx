@@ -6,10 +6,10 @@ import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-ki
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useTranslations, useLocale } from 'next-intl'
-import { GameLayout } from '../../main/components/GameLayout'
+import { GameLayout } from './GameLayout'
 import { SettingsView } from './SettingsView'
-import { GoalsManagementView } from '../../main/components/views/GoalsManagementView'
-import { HabitsManagementView } from '../../main/components/views/HabitsManagementView'
+import { GoalsManagementView } from './GoalsManagementView'
+import { HabitsManagementView } from './HabitsManagementView'
 import { StatisticsView } from './StatisticsView'
 import { AchievementsView } from './AchievementsView'
 
@@ -551,7 +551,7 @@ export function DailyPlanningView({
       case 'goals':
         return <GoalsManagementView player={player} goals={goals} onGoalsUpdate={onGoalsUpdate} />
       case 'habits':
-        return <HabitsManagementView habits={habits} onHabitsUpdate={onHabitsUpdate} loadingHabits={new Set()} />
+        return <HabitsManagementView player={player} habits={habits} onHabitsUpdate={onHabitsUpdate} />
       case 'statistics':
         return (
           <StatisticsView

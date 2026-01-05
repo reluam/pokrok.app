@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
-import { ChevronLeft, Plus, Trash2, Settings } from 'lucide-react'
+import { ChevronLeft, Plus, Trash2 } from 'lucide-react'
 import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
 
 interface AreasSettingsViewProps {
@@ -270,19 +270,6 @@ export function AreasSettingsView({
             <h2 className="text-lg font-bold text-black font-playful">{t('areas.title') || 'Oblasti'}</h2>
           </div>
 
-          {/* General settings */}
-          <div className="mb-4">
-            <button
-              onClick={() => handleMenuClick(null)}
-              className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                selectedArea === null ? 'active' : ''
-              }`}
-            >
-              <Settings className="w-4 h-4 flex-shrink-0" />
-              <span className="font-medium text-sm">{t('areas.generalSettings') || 'Obecné nastavení'}</span>
-            </button>
-          </div>
-
           {/* Areas list */}
           <div className="pt-4 border-t-2 border-primary-200">
             <div className="flex items-center justify-between mb-2">
@@ -340,19 +327,7 @@ export function AreasSettingsView({
       {/* Main content area */}
       <div className="flex-1 overflow-y-auto p-6">
         <div className="max-w-4xl mx-auto">
-          {selectedArea === null ? (
-            // General settings
-            <div>
-              <h3 className="text-2xl font-bold font-playful mb-4">
-                {t('areas.generalSettings') || 'Obecné nastavení'}
-              </h3>
-              <div className="bg-white border-2 border-primary-500 rounded-playful-md p-6">
-                <p className="text-gray-600">
-                  {t('areas.generalSettingsDescription') || 'Zde můžete spravovat obecná nastavení pro oblasti.'}
-                </p>
-              </div>
-            </div>
-          ) : selectedAreaData ? (
+          {selectedAreaData ? (
             // Area detail
             <div>
               {/* Title row with icon, name, color indicator, and delete button */}

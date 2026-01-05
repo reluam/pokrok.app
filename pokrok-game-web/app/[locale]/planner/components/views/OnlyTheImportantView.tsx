@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { ImportantStepsPlanningView } from '../workflows/ImportantStepsPlanningView'
 import { CheckCircle, Target, ListTodo, Calendar, Loader2 } from 'lucide-react'
-import { getLocalDateString } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString } from '../utils/dateHelpers'
 
 interface DailyStep {
   id: string

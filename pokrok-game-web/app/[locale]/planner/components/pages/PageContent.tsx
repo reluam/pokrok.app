@@ -18,18 +18,18 @@ import { WorkflowsPage } from './WorkflowsPage'
 import { AreasSettingsView } from '../AreasSettingsView'
 import { HelpView } from '../views/HelpView'
 import { GoalEditingForm } from '../journey/GoalEditingForm'
-import { DisplayContent } from '../../../main/components/content/DisplayContent'
+import { DisplayContent } from '../content/DisplayContent'
 import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
-import { getLocalDateString, normalizeDate } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { LayoutDashboard, ChevronLeft, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Menu, CheckSquare, Footprints, Plus } from 'lucide-react'
 import { SidebarNavigation } from '../layout/SidebarNavigation'
 import { LoadingSpinner } from '../ui/LoadingSpinner'
 import { GoalsManagementView } from '../views/GoalsManagementView'
-import { HabitsManagementView } from '../../../main/components/views/HabitsManagementView'
+import { HabitsManagementView } from '../views/HabitsManagementView'
 import { StepsManagementView } from '../views/StepsManagementView'
 import { HabitDetailInlineView } from '../views/HabitDetailInlineView'
 import { ImportantStepsPlanningView } from '../workflows/ImportantStepsPlanningView'
-import { DailyReviewWorkflow } from '../../../main/components/DailyReviewWorkflow'
+import { DailyReviewWorkflow } from '../DailyReviewWorkflow'
 import { OnlyTheImportantView } from '../views/OnlyTheImportantView'
 
 // NOTE: This component is very large (~2862 lines) and will be further refactored
@@ -92,10 +92,6 @@ export function PageContent(props: PageContentProps) {
     setEditingHabitFrequency,
     editingHabitSelectedDays,
     setEditingHabitSelectedDays,
-    editingHabitAlwaysShow,
-    setEditingHabitAlwaysShow,
-    editingHabitXpReward,
-    setEditingHabitXpReward,
     editingHabitCategory,
     setEditingHabitCategory,
     editingHabitDifficulty,
@@ -672,8 +668,6 @@ export function PageContent(props: PageContentProps) {
               setEditingHabitFrequency={setEditingHabitFrequency}
               editingHabitSelectedDays={editingHabitSelectedDays}
               setEditingHabitSelectedDays={setEditingHabitSelectedDays}
-              editingHabitAlwaysShow={editingHabitAlwaysShow}
-              setEditingHabitAlwaysShow={setEditingHabitAlwaysShow}
               editingHabitCategory={editingHabitCategory}
               setEditingHabitCategory={setEditingHabitCategory}
               editingHabitDifficulty={editingHabitDifficulty}
@@ -937,9 +931,12 @@ export function PageContent(props: PageContentProps) {
                       <AreaStepsView
                         goals={areaGoals}
                         dailySteps={areaSteps}
+                        habits={areaHabits}
                         handleItemClick={handleItemClick}
                         handleStepToggle={handleStepToggle}
+                        handleHabitToggle={handleHabitToggle}
                         loadingSteps={loadingSteps}
+                        loadingHabits={loadingHabits}
                         onOpenStepModal={handleOpenStepModal}
                         maxUpcomingSteps={15}
                       />
@@ -2600,7 +2597,6 @@ export function PageContent(props: PageContentProps) {
                       const dayOfWeek = now.getDay()
                       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
                       const visibleHabits = habits.filter((habit: any) => {
-                        if (habit.always_show) return true
                         if (habit.frequency === 'daily') return true
                         if ((habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.selected_days) {
                           return habit.selected_days.includes(dayNames[dayOfWeek])
@@ -2619,7 +2615,6 @@ export function PageContent(props: PageContentProps) {
                       const now = new Date()
                       const dayOfWeek = now.getDay()
                       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-                      if (h.always_show) return true
                       if (h.frequency === 'daily') return true
                       if ((h.frequency === 'custom' || h.frequency === 'weekly') && h.selected_days) {
                         return h.selected_days.includes(dayNames[dayOfWeek])
@@ -2690,8 +2685,6 @@ export function PageContent(props: PageContentProps) {
                         setEditingHabitFrequency={setEditingHabitFrequency}
                         editingHabitSelectedDays={editingHabitSelectedDays}
                         setEditingHabitSelectedDays={setEditingHabitSelectedDays}
-                        editingHabitAlwaysShow={editingHabitAlwaysShow}
-                        setEditingHabitAlwaysShow={setEditingHabitAlwaysShow}
                         editingHabitCategory={editingHabitCategory}
                         setEditingHabitCategory={setEditingHabitCategory}
                         editingHabitDifficulty={editingHabitDifficulty}

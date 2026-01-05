@@ -2,9 +2,9 @@
 
 import { createPortal } from 'react-dom'
 import { useTranslations, useLocale } from 'next-intl'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, Trash2, ChevronDown, Copy } from 'lucide-react'
-import { getLocalDateString } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString } from '../utils/dateHelpers'
 import { PlayfulButton } from '@/components/design-system/Button/PlayfulButton'
 
 interface StepModalProps {
@@ -61,6 +61,24 @@ export function StepModal({
   const t = useTranslations()
   const locale = useLocale()
   const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
+  
+  // Debug: Log stepModalData changes
+  useEffect(() => {
+    const effectiveUserId = userId || player?.id || player?.user_id
+    console.log('[StepModal] stepModalData prop changed:', {
+      title: stepModalData.title,
+      titleTrimmed: stepModalData.title?.trim(),
+      titleLength: stepModalData.title?.trim()?.length,
+      userId,
+      playerId: player?.id,
+      playerUserId: player?.user_id,
+      effectiveUserId,
+      playerObject: player,
+      isSaving,
+      hasUserId: !!effectiveUserId,
+      shouldBeEnabled: !isSaving && !!effectiveUserId && !!stepModalData.title?.trim()
+    })
+  }, [stepModalData, userId, player, isSaving])
   
   // State for date pickers
   const [startDatePickerOpen, setStartDatePickerOpen] = useState(false)
@@ -832,8 +850,55 @@ export function StepModal({
                 {t('common.cancel')}
               </button>
               <PlayfulButton
-                onClick={onSave}
-                disabled={isSaving || (!userId && !player?.user_id)}
+                onClick={() => {
+                  console.log('[StepModal] Save button clicked')
+                  console.log('[StepModal] stepModalData:', stepModalData)
+                  console.log('[StepModal] stepModalData.title:', stepModalData.title)
+                  console.log('[StepModal] stepModalData.title?.trim():', stepModalData.title?.trim())
+                  console.log('[StepModal] isSaving:', isSaving)
+                  console.log('[StepModal] userId:', userId)
+                  console.log('[StepModal] player?.user_id:', player?.user_id)
+                  
+                  // Validate title before saving
+                  if (!stepModalData.title || !stepModalData.title.trim()) {
+                    console.error('[StepModal] Title validation failed in modal:', {
+                      title: stepModalData.title,
+                      trimmed: stepModalData.title?.trim(),
+                      isEmpty: !stepModalData.title,
+                      isTrimmedEmpty: !stepModalData.title?.trim()
+                    })
+                    alert(t('steps.titleRequired') || 'Název kroku je povinný')
+                    return
+                  }
+                  
+                  console.log('[StepModal] Validation passed, calling onSave()')
+                  onSave()
+                }}
+                disabled={(() => {
+                  const isSavingDisabled = isSaving
+                  // Check if we have userId from either prop or player (player has 'id' property, not 'user_id')
+                  const effectiveUserId = userId || player?.id || player?.user_id
+                  const isUserIdDisabled = !effectiveUserId
+                  const titleValue = stepModalData.title
+                  const titleTrimmed = titleValue?.trim()
+                  const isTitleDisabled = !titleTrimmed
+                  const isDisabled = isSavingDisabled || isUserIdDisabled || isTitleDisabled
+                  
+                  console.log('[StepModal] Button disabled check:', {
+                    isSavingDisabled,
+                    isUserIdDisabled,
+                    userId,
+                    playerUserId: player?.user_id,
+                    titleValue,
+                    titleTrimmed,
+                    isTitleDisabled,
+                    isDisabled,
+                    stepModalDataTitle: stepModalData.title,
+                    titleLength: stepModalData.title?.trim()?.length
+                  })
+                  
+                  return isDisabled
+                })()}
                 variant="primary"
                 size="md"
                 loading={isSaving}

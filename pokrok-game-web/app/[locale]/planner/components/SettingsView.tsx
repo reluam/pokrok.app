@@ -263,7 +263,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
         const currentPath = window.location.pathname
         
         // Handle locale switching with 'as-needed' prefix strategy
-        // Extract path without locale prefix (e.g., /cs/game -> /game)
+        // Extract path without locale prefix (e.g., /cs/planner -> /planner)
         let pathWithoutLocale = currentPath
         for (const loc of locales) {
           if (currentPath.startsWith(`/${loc}/`)) {
@@ -426,7 +426,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
         } else {
           // Fallback: use router if onNavigateToMain is not available
           setTimeout(() => {
-            router.push(`/${locale}/game`)
+            router.push(`/planner`)
             window.location.reload()
           }, 500)
         }

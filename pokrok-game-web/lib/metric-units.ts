@@ -62,140 +62,29 @@ export const NUMBER_UNITS: UnitOption[] = [
   { value: 'times', label: 'times', type: 'number' },
 ]
 
-// Get localized label for a unit
-export function getLocalizedUnitLabel(unit: UnitOption, locale: string = 'en'): string {
-  const isCzech = locale === 'cs' || locale.startsWith('cs-')
-  
-  // Currency units
-  if (unit.type === 'currency') {
-    if (isCzech) {
-      const czLabels: Record<string, string> = {
-        'CZK': 'CZK (Kč)',
-        'USD': 'USD ($)',
-        'EUR': 'EUR (€)',
-        'GBP': 'GBP (£)',
-        'PLN': 'PLN (zł)',
-        'JPY': 'JPY (¥)',
-        'CHF': 'CHF (Fr)',
-        'AUD': 'AUD (A$)',
-        'CAD': 'CAD (C$)',
-      }
-      return czLabels[unit.value] || unit.label
-    }
-    return unit.label
-  }
-  
-  // Distance units
-  if (unit.type === 'distance') {
-    if (isCzech) {
-      const czLabels: Record<string, string> = {
-        'm': 'm (metry)',
-        'km': 'km (kilometry)',
-        'mi': 'mi (míle)',
-        'ft': 'ft (stopy)',
-        'yd': 'yd (yardy)',
-      }
-      return czLabels[unit.value] || unit.label
-    }
-    return unit.label
-  }
-  
-  // Weight units
-  if (unit.type === 'weight') {
-    if (isCzech) {
-      const czLabels: Record<string, string> = {
-        'kg': 'kg (kilogramy)',
-        'g': 'g (gramy)',
-        'lbs': 'lbs (libry)',
-        'oz': 'oz (unce)',
-      }
-      return czLabels[unit.value] || unit.label
-    }
-    return unit.label
-  }
-  
-  // Time units
-  if (unit.type === 'time') {
-    if (isCzech) {
-      const czLabels: Record<string, string> = {
-        's': 's (sekundy)',
-        'min': 'min (minuty)',
-        'h': 'h (hodiny)',
-        'd': 'd (dny)',
-        'w': 't (týdny)',
-        'mo': 'měs (měsíce)',
-        'y': 'r (roky)',
-      }
-      return czLabels[unit.value] || unit.label
-    }
-    return unit.label
-  }
-  
-  // Percentage
-  if (unit.type === 'percentage') {
-    if (isCzech) {
-      return '% (procenta)'
-    }
-    return unit.label
-  }
-  
-  // Number units
-  if (unit.type === 'number') {
-    if (isCzech) {
-      const czLabels: Record<string, string> = {
-        '': '(žádná)',
-        'pieces': 'ks (kusy)',
-        'items': 'položky',
-        'units': 'jednotky',
-        'times': 'krát',
-      }
-      return czLabels[unit.value] || unit.label
-    }
-    return unit.label
-  }
-  
-  return unit.label
-}
-
 // Get units by type
-export function getUnitsByType(type: MetricType, weightPreference: 'kg' | 'lbs' = 'kg', locale: string = 'en'): UnitOption[] {
-  const isCzech = locale === 'cs' || locale.startsWith('cs-')
-  
-  let units: UnitOption[] = []
-  
+export function getUnitsByType(type: MetricType, weightPreference: 'kg' | 'lbs' = 'kg'): UnitOption[] {
   switch (type) {
     case 'currency':
-      units = CURRENCIES
-      break
+      return CURRENCIES
     case 'distance':
-      units = DISTANCE_UNITS
-      break
+      return DISTANCE_UNITS
     case 'weight':
       // Return preferred unit first
-      units = weightPreference === 'lbs' 
+      return weightPreference === 'lbs' 
         ? [...WEIGHT_UNITS.filter(u => u.value === 'lbs'), ...WEIGHT_UNITS.filter(u => u.value !== 'lbs')]
         : [...WEIGHT_UNITS.filter(u => u.value === 'kg'), ...WEIGHT_UNITS.filter(u => u.value !== 'kg')]
-      break
     case 'time':
-      units = TIME_UNITS
-      break
+      return TIME_UNITS
     case 'percentage':
-      units = PERCENTAGE_UNITS
-      break
+      return PERCENTAGE_UNITS
     case 'number':
-      units = NUMBER_UNITS
-      break
+      return NUMBER_UNITS
     case 'custom':
       return [] // For custom, user can enter any unit
     default:
-      units = NUMBER_UNITS
+      return NUMBER_UNITS
   }
-  
-  // Return units with localized labels
-  return units.map(unit => ({
-    ...unit,
-    label: getLocalizedUnitLabel(unit, locale)
-  }))
 }
 
 // Get default currency based on locale

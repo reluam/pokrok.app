@@ -81,17 +81,17 @@
     "milestoneNumber": "Milestone",
     "stepNumber": "Step",
     "saveChanges": "Save changes",
+    "delete": "Delete",
     "noCompletedSteps": "No completed steps"
   },
   "homepage": {
     "tagline": "Life planning app",
     "description": "Pokrok connects the big overview with concrete steps, helping to increase motivation and reduce overwhelm. Plan your life effectively and achieve your goals step by step.",
     "startFree": "Start for Free",
-    "signIn": "SIGN IN",
     "trialInfo": "14-day free trial • No credit card required",
     "hero": {
       "title": "Life planner for people who want to achieve their goals",
-      "description": "Break down big goals into small steps, build habits, and track your progress."
+      "description": "Pokrok helps you gain clarity and meaning in how to achieve what you want in life. Break down big goals into small steps, build habits, and track your progress."
     },
     "philosophy": {
       "title": "Pokrok is not another productivity app",
@@ -238,6 +238,7 @@
     },
     "startJourney": "START YOUR JOURNEY",
     "signUp": "SIGN UP",
+    "signIn": "SIGN IN",
     "or": "or",
     "continueAsGuest": "CONTINUE AS GUEST",
     "devVersion": "Development version",
@@ -341,15 +342,13 @@
     "iconLabel": "Icon",
     "createdAt": "Created",
     "custom": "Custom",
-    "frequency": {
-      "daily": "Daily",
-      "weekly": "Weekly",
-      "monthly": "Monthly",
-      "custom": "Custom"
-    },
+    "frequency": "Frequency",
     "nameLabel": "Name",
     "descriptionLabel": "Description",
+    "frequencyLabel": "Frequency",
+    "nameLabel": "Name",
     "namePlaceholder": "Habit name",
+    "descriptionLabel": "Description",
     "descriptionPlaceholder": "Habit description",
     "frequencyDaily": "Daily",
     "frequencyWeekly": "Weekly",
@@ -417,6 +416,12 @@
     "notificationHint": "Browser notification will be shown at the specified time",
     "week": "Week",
     "day": "Day",
+    "frequency": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "custom": "Custom"
+    },
     "difficulty": {
       "easy": "Easy",
       "medium": "Medium",
@@ -501,30 +506,30 @@
       "name": "Name",
       "userId": "User ID",
       "registered": "Registered",
-      "lastLogin": "Last Login",
-      "accountStatus": "Account Status",
-      "language": {
-        "title": "Language",
-        "label": "Preferred Language",
-        "description": "This setting will be used on all devices (web, mobile app). Changes will take effect after page refresh."
-      },
-      "onboarding": {
-        "title": "Tutorial",
-        "description": "Turn on the tutorial again if you want to go through the introductory guide again.",
-        "button": "Turn on tutorial again",
-        "error": "Failed to reset tutorial. Please try again."
-      },
-      "currency": {
-        "title": "Default Currency",
-        "label": "Default currency for metrics",
-        "description": "This currency will be used as default when creating new currency metrics."
-      },
-      "weightUnit": {
-        "title": "Weight Units",
-        "label": "Preferred weight units",
-        "description": "This unit will be used as default when creating new weight metrics."
-      }
-    },
+          "lastLogin": "Last Login",
+          "accountStatus": "Account Status",
+          "language": {
+            "title": "Language",
+            "label": "Preferred Language",
+            "description": "This setting will be used on all devices (web, mobile app). Changes will take effect after page refresh."
+          },
+          "onboarding": {
+            "title": "Tutorial",
+            "description": "Turn on the tutorial again if you want to go through the introductory guide again.",
+            "button": "Turn on tutorial again",
+            "error": "Failed to reset tutorial. Please try again."
+          },
+          "currency": {
+            "title": "Default Currency",
+            "label": "Default currency for metrics",
+            "description": "This currency will be used as default when creating new currency metrics."
+          },
+          "weightUnit": {
+            "title": "Weight Units",
+            "label": "Preferred weight units",
+            "description": "This unit will be used as default when creating new weight metrics."
+          }
+        },
     "areas": {
       "title": "LIFE AREAS",
       "addArea": "Add Area",
@@ -716,6 +721,7 @@
         "stepTitlePlaceholder": "Step title",
         "stepDescriptionPlaceholder": "Step description (optional)",
         "availableSteps": "Available steps",
+        "today": "Today",
         "overdue": "Overdue",
         "future": "Future"
       },
@@ -726,14 +732,14 @@
       }
     },
     "premium": {
-      "title": "Workflows is a Premium Feature",
-      "description": "Workflows are only available for users with a Premium plan. Upgrade to Premium to use automated workflows for reflection and planning.",
-      "benefits": "With Premium plan you get:",
-      "benefit1": "Automated workflows for daily reflection",
-      "benefit2": "Regular reminders and planning",
-      "benefit3": "Advanced features for life organization",
-      "choosePlan": "Choose a Plan"
-    }
+        "title": "Workflows is a Premium Feature",
+        "description": "Workflows are only available for users with a Premium plan. Upgrade to Premium to use automated workflows for reflection and planning.",
+        "benefits": "With Premium plan you get:",
+        "benefit1": "Automated workflows for daily reflection",
+        "benefit2": "Regular reminders and planning",
+        "benefit3": "Advanced features for life organization",
+        "choosePlan": "Choose a Plan"
+      }
   },
   "dailyPlanning": {
     "title": "DAILY PLANNING",
@@ -895,58 +901,23 @@
     "completedTasks": "Completed Tasks",
     "gameDay": "Game Day",
     "progressToNextLevel": "PROGRESS TO NEXT LEVEL",
-    "completions": "Done",
-    "streak": "Streak",
-    "noData": "No data",
-    "wip": {
-      "title": "Work in Progress",
-      "message": "Statistics are currently under development and will be further adjusted."
-    },
-    "overview": {
-      "title": "Overview"
-    },
-    "comparison": "Comparison with previous period",
-    "period": {
-      "week": "Week",
-      "month": "Month",
-      "year": "Year",
-      "all": "All time"
-    },
-    "steps": {
-      "title": "Steps",
-      "completed": "Completed",
-      "planned": "Planned",
-      "completionRate": "Completion Rate"
-    },
-    "habits": {
-      "title": "HABITS",
-      "total": "Total Habits:",
-      "completed": "Completed",
-      "totalStreak": "Total Streak:",
-      "bestStreak": "Best Streak:",
-      "averageStreak": "Average Streak:",
-      "completionRate": "Completion Rate",
-      "byCategory": "HABITS BY CATEGORY",
-      "noHabits": "You don't have any habits yet"
-    },
     "goals": {
       "title": "GOALS",
       "total": "Total Goals:",
       "completed": "Completed:",
       "active": "Active:",
       "successRate": "Success Rate:",
-      "completionRate": "Completion Rate",
       "byCategory": "GOALS BY CATEGORY",
       "noGoals": "You don't have any goals yet"
     },
-    "charts": {
-      "completionTrend": "Completion Trend",
-      "completedVsPlanned": "Completed vs Planned",
-      "weeklyProgress": "Weekly Progress",
-      "dailyProgress": "Daily Progress",
-      "monthlyProgress": "Monthly Progress",
-      "completed": "Completed",
-      "planned": "Planned"
+    "habits": {
+      "title": "HABITS",
+      "total": "Total Habits:",
+      "totalStreak": "Total Streak:",
+      "bestStreak": "Best Streak:",
+      "averageStreak": "Average Streak:",
+      "byCategory": "HABITS BY CATEGORY",
+      "noHabits": "You don't have any habits yet"
     }
   },
   "achievements": {
@@ -1074,7 +1045,7 @@
       "estimatedTime": "Estimated time (min):",
       "xpReward": "XP reward:",
       "confirm": "Confirm",
-      "confirmed": "Confirmed",
+    "confirmed": "Confirmed",
       "important": "Important",
       "urgent": "Urgent",
       "goal": "Goal",
@@ -1126,19 +1097,11 @@
       "totalSteps": "Total Steps",
       "completedSteps": "Completed Steps",
       "remainingSteps": "Remaining Steps",
-      "done": "Done",
-      "smartTips": {
-        "title": "Tips: How to set goals using the SMART method",
-        "specific": "Specific - The goal should be clearly defined and concrete. Instead of 'Be healthier' use 'Lose 10 kg by the end of the year'.",
-        "measurable": "Measurable - The goal should be measurable so you can track progress. Use metrics or steps to measure progress.",
-        "ambitious": "Ambitious - The goal should be challenging but achievable. It should motivate you but shouldn't be unrealistic.",
-        "relevant": "Relevant - The goal should be important to you and align with your values and long-term goals.",
-        "timeBound": "Time-bound - The goal should have a clear completion deadline. Set a deadline or dates for individual steps."
-      }
+      "done": "Done"
     }
   },
   "steps": {
-    "title": "Title",
+    "title": "STEPS",
     "addStep": "Add step",
     "endingThisYear": "Steps ending this year",
     "completedInTarget": "Completed in target",
@@ -1175,6 +1138,7 @@
     "create": "Create step",
     "edit": "Edit step",
     "duplicate": "Duplicate step",
+    "title": "Title",
     "description": "Description",
     "date": "Date",
     "repeating": "Repeating",
@@ -1543,8 +1507,7 @@
     "deleteConfirm": "Are you sure you want to delete this area?",
     "deleteConfirmDescription": "Goals, steps and habits assigned to this area will be unlinked. This action cannot be undone.",
     "deleteWithRelated": "Also delete goals, steps and habits assigned to this area",
-    "deleteError": "Failed to delete area",
-    "addDescription": "Click to add description..."
+    "deleteError": "Failed to delete area"
   },
   "onboarding": {
     "skip": "Skip",
@@ -1612,8 +1575,7 @@
       "title": "Tutorial Complete!",
       "description": "Now you know how to use Pokrok. Start creating your areas, goals, steps and habits and move toward a life full of meaning and fulfillment!",
       "message": "Everything is ready! You can start using the app.",
-      "button": "Complete",
-      "completing": "Completing..."
+      "button": "Complete"
     },
     "addButton": {
       "title": "Add Button",
@@ -1713,9 +1675,7 @@
     "calendar": {
       "description": "Calendar displays upcoming, monthly, and yearly views. You can switch between them using the switcher at the top of the view."
     },
-    "upcoming": {
-      "title": "Upcoming"
-    },
+    "upcoming": "Upcoming",
     "day": "Day",
     "week": "Week",
     "month": "Overview",
@@ -1755,6 +1715,9 @@
         "steps": "Steps",
         "upcomingSteps": "Upcoming steps"
       }
+    },
+    "upcoming": {
+      "title": "Upcoming"
     },
     "upcomingDesc": "Displays upcoming steps and habits. Ideal for an overview of what's ahead.",
     "upcomingSteps": "Upcoming steps",
@@ -1803,3 +1766,5 @@
     }
   }
 }
+
+

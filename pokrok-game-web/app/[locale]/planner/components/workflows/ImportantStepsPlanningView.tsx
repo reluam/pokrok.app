@@ -5,7 +5,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { DndContext, DragEndEvent, DragStartEvent, DragOverlay, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { X, Calendar, Plus } from 'lucide-react'
 import { ImportantStepColumn } from './ImportantStepColumn'
-import { getLocalDateString } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString } from '../utils/dateHelpers'
 
 interface DailyStep {
   id: string

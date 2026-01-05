@@ -236,16 +236,6 @@ async function runMigrations() {
       await sql`ALTER TABLE daily_steps ADD COLUMN parent_recurring_step_id VARCHAR(255) REFERENCES daily_steps(id) ON DELETE CASCADE`
     }
     
-    // Add current_instance_date for recurring steps (new simplified approach)
-    if (!dailyStepsColumnNames.includes('current_instance_date')) {
-      await sql`ALTER TABLE daily_steps ADD COLUMN current_instance_date DATE DEFAULT NULL`
-    }
-    
-    // Add completion_count for recurring steps (counts how many times the step was completed)
-    if (!dailyStepsColumnNames.includes('completion_count')) {
-      await sql`ALTER TABLE daily_steps ADD COLUMN completion_count INTEGER DEFAULT 0`
-    }
-    
     // Make date nullable for repeating steps
     try {
       await sql`ALTER TABLE daily_steps ALTER COLUMN date DROP NOT NULL`
@@ -434,6 +424,21 @@ async function runMigrations() {
         const randomIcon = iconNames[Math.floor(Math.random() * iconNames.length)]
         await sql`UPDATE habits SET icon = ${randomIcon} WHERE id = ${habit.id}`
       }
+    }
+    
+    // Remove always_show column from habits table
+    const alwaysShowColumnExists = await sql`
+      SELECT EXISTS (
+        SELECT FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'habits' 
+        AND column_name = 'always_show'
+      )
+    `
+    
+    if (alwaysShowColumnExists[0]?.exists) {
+      await sql`ALTER TABLE habits DROP COLUMN always_show`
+      console.log('✅ Removed always_show column from habits table')
     }
     
     // Add incremental_value to goal_metrics table

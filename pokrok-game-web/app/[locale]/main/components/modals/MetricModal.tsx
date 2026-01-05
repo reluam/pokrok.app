@@ -93,8 +93,7 @@ export function MetricModal({
   // Get available units based on selected type
   const availableUnits = getUnitsByType(
     editingMetricType,
-    userSettings?.weight_unit_preference || 'kg',
-    locale
+    userSettings?.weight_unit_preference || 'kg'
   )
 
   // Reset focused fields when modal opens/closes

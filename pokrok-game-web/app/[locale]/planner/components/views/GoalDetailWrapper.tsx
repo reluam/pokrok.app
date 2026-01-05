@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { GoalDetailPage } from './GoalDetailPage'
-import { StepModal } from '../../../main/components/modals/StepModal'
-import { getLocalDateString } from '../../../main/components/utils/dateHelpers'
+import { StepModal } from '../modals/StepModal'
+import { getLocalDateString } from '../utils/dateHelpers'
 
 interface GoalDetailWrapperProps {
   goal: any

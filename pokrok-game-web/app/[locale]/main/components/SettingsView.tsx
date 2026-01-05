@@ -426,7 +426,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
         } else {
           // Fallback: use router if onNavigateToMain is not available
           setTimeout(() => {
-            router.push(`/${locale}/game`)
+            router.push(`/planner`)
             window.location.reload()
           }, 500)
         }

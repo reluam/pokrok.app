@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { Check } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
-import { getLocalDateString, normalizeDate } from '../../../main/components/utils/dateHelpers'
+import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { QuickOverviewWidget } from './QuickOverviewWidget'
 import { TodayFocusSection } from './TodayFocusSection'
 import { Timeline } from './Timeline'
@@ -134,19 +134,18 @@ export function DayView({
     checkWorkflow()
   }, [userId, isToday, displayDateStr, dailySteps])
   
-  // Filter habits for selected day - only selected day's habits + always_show habits
+  // Filter habits for selected day
   const dayOfWeek = displayDate.getDay()
   const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
   const dayName = dayNames[dayOfWeek]
   
-  // Filter habits for display - includes always_show habits even if not scheduled
+  // Filter habits for display
   // Show habits even if before start_date (for viewing past dates), but they won't be counted in stats
   const todaysHabits = habits.filter(habit => {
     return isHabitScheduledForDay(habit, displayDate)
   })
   
   // Filter habits for progress calculation - only habits actually scheduled for this day
-  // Always_show habits are only counted if they are also scheduled for this day
   // Also check if habit has started (date is after or equal to start_date)
   const habitsForProgress = habits.filter(habit => {
     // Check if habit has started
@@ -162,7 +161,6 @@ export function DayView({
     if (habit.frequency === 'daily') return true
     if (habit.frequency === 'custom' && habit.selected_days && habit.selected_days.includes(dayName)) return true
     
-    // Always_show habits are NOT counted unless they are also scheduled for this day
     return false
   })
   
@@ -211,8 +209,7 @@ export function DayView({
     return step.completed
   }).length
   
-  // Count only habits scheduled for this day (not always_show habits that aren't scheduled)
-  // Always_show habits are only counted if they are also scheduled for this day
+  // Count only habits scheduled for this day
   const totalHabits = habitsForProgress.length
   const completedHabits = habitsForProgress.filter(habit => {
     return habit.habit_completions && habit.habit_completions[displayDateStr] === true
