@@ -17,53 +17,72 @@ export interface AuthContext {
  * Vrátí NextResponse s chybou, pokud autentizace selže
  */
 export async function requireAuth(request: NextRequest): Promise<AuthContext | NextResponse> {
-  const { userId: clerkUserId } = await auth()
-  
-  if (!clerkUserId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  let dbUser = await getUserByClerkId(clerkUserId)
-  
-  // Pokud uživatel neexistuje v databázi, ale je autentizovaný přes Clerk, vytvořit ho automaticky
-  if (!dbUser) {
-    try {
-      const clerkUser = await currentUser()
-      if (!clerkUser) {
-        return NextResponse.json({ error: 'User not found in Clerk' }, { status: 404 })
-      }
-
-      // Získat email a jméno z Clerk
-      const email = clerkUser.emailAddresses[0]?.emailAddress || `${clerkUserId}@example.com`
-      const firstName = clerkUser.firstName || ''
-      const lastName = clerkUser.lastName || ''
-      const name = [firstName, lastName].filter(Boolean).join(' ') || email.split('@')[0] || 'User'
-
-      // Vytvořit uživatele v databázi
-      dbUser = await createUser(clerkUserId, email, name)
-      
-      // Get locale from NEXT_LOCALE cookie
-      const localeCookie = request.cookies.get('NEXT_LOCALE')?.value
-      const locale = (localeCookie === 'en' || localeCookie === 'cs') ? localeCookie : 'cs'
-      console.log('[requireAuth] Creating onboarding items for new user:', dbUser.id, 'locale:', locale)
-      
-      // Create onboarding items (area, goal, steps) for new user
-      // Don't fail user creation if onboarding items fail - user can still use the app
-      await createOnboardingItems(dbUser.id, locale)
-    } catch (error) {
-      console.error('Error creating user automatically:', error)
-      return NextResponse.json({ error: 'Failed to create user' }, { status: 500 })
+  try {
+    const authResult = await auth()
+    const clerkUserId = authResult?.userId
+    
+    if (!clerkUserId) {
+      console.error('[requireAuth] No userId from Clerk auth:', {
+        hasAuthResult: !!authResult,
+        pathname: request.nextUrl.pathname,
+        method: request.method,
+        cookies: Object.keys(request.cookies.getAll().reduce((acc, cookie) => {
+          acc[cookie.name] = cookie.value.substring(0, 20) + '...'
+          return acc
+        }, {} as Record<string, string>))
+      })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-  }
 
-  return { clerkUserId, dbUser }
+    let dbUser = await getUserByClerkId(clerkUserId)
+    
+    // Pokud uživatel neexistuje v databázi, ale je autentizovaný přes Clerk, vytvořit ho automaticky
+    if (!dbUser) {
+      try {
+        const clerkUser = await currentUser()
+        if (!clerkUser) {
+          return NextResponse.json({ error: 'User not found in Clerk' }, { status: 404 })
+        }
+
+        // Získat email a jméno z Clerk
+        const email = clerkUser.emailAddresses[0]?.emailAddress || `${clerkUserId}@example.com`
+        const firstName = clerkUser.firstName || ''
+        const lastName = clerkUser.lastName || ''
+        const name = [firstName, lastName].filter(Boolean).join(' ') || email.split('@')[0] || 'User'
+
+        // Vytvořit uživatele v databázi
+        dbUser = await createUser(clerkUserId, email, name)
+        
+        // Get locale from NEXT_LOCALE cookie
+        const localeCookie = request.cookies.get('NEXT_LOCALE')?.value
+        const locale = (localeCookie === 'en' || localeCookie === 'cs') ? localeCookie : 'cs'
+        console.log('[requireAuth] Creating onboarding items for new user:', dbUser.id, 'locale:', locale)
+        
+        // Create onboarding items (area, goal, steps) for new user
+        // Don't fail user creation if onboarding items fail - user can still use the app
+        await createOnboardingItems(dbUser.id, locale)
+      } catch (error) {
+        console.error('Error creating user automatically:', error)
+        return NextResponse.json({ error: 'Failed to create user' }, { status: 500 })
+      }
+    }
+
+    return { clerkUserId, dbUser }
+  } catch (error) {
+    console.error('[requireAuth] Error in requireAuth:', error)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    return NextResponse.json({ 
+      error: 'Authentication error',
+      details: errorMessage
+    }, { status: 500 })
+  }
 }
 
 /**
  * Ověří, že userId patří autentizovanému uživateli
  */
 export function verifyOwnership(userId: string, dbUser: User): boolean {
-  return userId === dbUser.id
+  return userId === dbUser.id;
 }
 
 /**

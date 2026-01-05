@@ -15,7 +15,7 @@ interface CalendarViewProps {
   setShowDatePickerModal?: (show: boolean) => void
   handleItemClick?: (item: any, type: 'step' | 'habit' | 'goal' | 'stat') => void
   handleHabitToggle?: (habitId: string, date?: string) => Promise<void>
-  handleStepToggle?: (stepId: string, completed: boolean) => Promise<void>
+  handleStepToggle?: (stepId: string, completed: boolean, completionDate?: string) => Promise<void>
   setSelectedItem?: (item: any) => void
   setSelectedItemType?: (type: 'step' | 'habit' | 'goal' | 'stat' | null) => void
   onOpenStepModal?: (date?: string, step?: any) => void

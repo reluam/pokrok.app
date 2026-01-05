@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useLocale } from 'next-intl'
 import { JourneyGameView } from './JourneyGameView'
@@ -35,6 +35,7 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
   const t = useTranslations()
   const [currentView, setCurrentView] = useState<GameView>('character')
   const [dailySteps, setDailySteps] = useState<any[]>([])
+  
   const [isLoadingSteps, setIsLoadingSteps] = useState(true)
   const [mobileTopMenuOpen, setMobileTopMenuOpen] = useState(false)
   const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null)
@@ -188,8 +189,15 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
     }
   }
 
+  // Ref to track if we're doing an optimistic update to prevent loadDailySteps from overwriting it
+  const isOptimisticUpdateRef = useRef(false)
+  
   // Load daily steps - load all overdue steps (no limit) + upcoming steps (next 30 days)
   useEffect(() => {
+    // Don't reload if we're doing an optimistic update
+    if (isOptimisticUpdateRef.current) {
+      return
+    }
     loadDailySteps()
   }, [userId, player?.user_id])
 
@@ -252,7 +260,15 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
   }
 
   const handleDailyStepsUpdate = (steps: any[]) => {
+    // Mark that we're doing an optimistic update
+    isOptimisticUpdateRef.current = true
+    
     setDailySteps(steps)
+    
+    // Reset flag after a short delay to allow state to update
+    setTimeout(() => {
+      isOptimisticUpdateRef.current = false
+    }, 100)
   }
 
   // Handle onboarding completion - reload steps to show newly created onboarding steps

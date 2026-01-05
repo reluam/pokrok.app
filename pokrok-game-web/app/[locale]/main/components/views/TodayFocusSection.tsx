@@ -5,7 +5,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { isStepScheduledForDay } from '../utils/stepHelpers'
-import { Check, Target, ArrowRight, ChevronDown, ChevronUp, Plus, CheckSquare, Trash2, Footprints } from 'lucide-react'
+import { Check, Target, ArrowRight, ChevronDown, ChevronUp, Plus, CheckSquare, Trash2, Footprints, Repeat } from 'lucide-react'
 import { getIconEmoji, getIconComponent } from '@/lib/icon-utils'
 
 interface TodayFocusSectionProps {
@@ -114,8 +114,11 @@ export function TodayFocusSection({
     const left = Math.min(rect.left, window.innerWidth - 320)
     setDatePickerPosition({ top, left })
     setDatePickerStep(step)
-    if (step.date) {
-      setDatePickerMonth(new Date(normalizeDate(step.date)))
+    // For recurring steps, use current_instance_date instead of date
+    const isRecurringStep = step.frequency && step.frequency !== null
+    const stepDateField = isRecurringStep ? (step.current_instance_date || step.date) : step.date
+    if (stepDateField) {
+      setDatePickerMonth(new Date(normalizeDate(stepDateField)))
     } else {
       setDatePickerMonth(new Date())
     }
@@ -398,9 +401,14 @@ export function TodayFocusSection({
         }
         
         // If same goal, sort by date (overdue first)
-        // For repeating steps without date, use created_at
-        const dateA = a.date ? new Date(normalizeDate(a.date)) : (a.created_at ? new Date(a.created_at) : new Date(0))
-        const dateB = b.date ? new Date(normalizeDate(b.date)) : (b.created_at ? new Date(b.created_at) : new Date(0))
+        // For recurring steps, use current_instance_date; for non-recurring, use date
+        const getStepDate = (step: any) => {
+          const isRecurring = step.frequency && step.frequency !== null
+          const dateField = isRecurring ? (step.current_instance_date || step.date) : step.date
+          return dateField ? new Date(normalizeDate(dateField)) : (step.created_at ? new Date(step.created_at) : new Date(0))
+        }
+        const dateA = getStepDate(a)
+        const dateB = getStepDate(b)
         return dateA.getTime() - dateB.getTime()
       })
   }, [dailySteps, activeFocusGoals, displayDate, isWeekView, weekStart, weekEnd, goals])
@@ -449,9 +457,14 @@ export function TodayFocusSection({
       
       // In week view: sort by date first, then by importance
       if (isWeekView) {
-        // For repeating steps without date, use created_at
-        const dateA = a.date ? new Date(normalizeDate(a.date)) : (a.created_at ? new Date(a.created_at) : new Date(0))
-        const dateB = b.date ? new Date(normalizeDate(b.date)) : (b.created_at ? new Date(b.created_at) : new Date(0))
+        // For recurring steps, use current_instance_date; for non-recurring, use date
+        const getStepDate = (step: any) => {
+          const isRecurring = step.frequency && step.frequency !== null
+          const dateField = isRecurring ? (step.current_instance_date || step.date) : step.date
+          return dateField ? new Date(normalizeDate(dateField)) : (step.created_at ? new Date(step.created_at) : new Date(0))
+        }
+        const dateA = getStepDate(a)
+        const dateB = getStepDate(b)
         if (dateA.getTime() !== dateB.getTime()) {
           return dateA.getTime() - dateB.getTime()
         }
@@ -480,9 +493,14 @@ export function TodayFocusSection({
         }
         
         // If same priority, sort by date
-        // For repeating steps without date, use created_at
-        const dateA = a.date ? new Date(normalizeDate(a.date)) : (a.created_at ? new Date(a.created_at) : new Date(0))
-        const dateB = b.date ? new Date(normalizeDate(b.date)) : (b.created_at ? new Date(b.created_at) : new Date(0))
+        // For recurring steps, use current_instance_date; for non-recurring, use date
+        const getStepDate = (step: any) => {
+          const isRecurring = step.frequency && step.frequency !== null
+          const dateField = isRecurring ? (step.current_instance_date || step.date) : step.date
+          return dateField ? new Date(normalizeDate(dateField)) : (step.created_at ? new Date(step.created_at) : new Date(0))
+        }
+        const dateA = getStepDate(a)
+        const dateB = getStepDate(b)
         return dateA.getTime() - dateB.getTime()
       })
   }, [focusSteps, dailySteps, activeFocusGoals, displayDate, isWeekView, weekStart, weekEnd, goals])
@@ -589,9 +607,13 @@ export function TodayFocusSection({
       if (step.frequency && step.frequency !== null) return false
       
       // Non-repeating steps must have a date
-      if (!step.date) return false
+      // For recurring steps, use current_instance_date instead of date
+      const isRecurringStep = step.frequency && step.frequency !== null
+      const stepDateField = isRecurringStep ? (step.current_instance_date || step.date) : step.date
       
-      const stepDate = normalizeDate(step.date)
+      if (!stepDateField) return false
+      
+      const stepDate = normalizeDate(stepDateField)
       const stepDateObj = new Date(stepDate)
       stepDateObj.setHours(0, 0, 0, 0)
       
@@ -613,7 +635,11 @@ export function TodayFocusSection({
     const futureStepsList: any[] = []
     
     allSteps.forEach(step => {
-      const stepDate = normalizeDate(step.date)
+      // For recurring steps, use current_instance_date instead of date
+      const isRecurringStep = step.frequency && step.frequency !== null
+      const stepDateField = isRecurringStep ? (step.current_instance_date || step.date) : step.date
+      if (!stepDateField) return
+      const stepDate = normalizeDate(stepDateField)
       const stepDateObj = new Date(stepDate)
       stepDateObj.setHours(0, 0, 0, 0)
       
@@ -909,7 +935,12 @@ export function TodayFocusSection({
                   {allTodaysSteps
                     .filter(step => !step.completed)
                     .map(step => {
-                    const stepDate = normalizeDate(step.date)
+                    // For recurring steps, use current_instance_date instead of date
+                    const isRecurringStep = step.frequency && step.frequency !== null
+                    const stepDateField = isRecurringStep ? (step.current_instance_date || step.date) : step.date
+                    if (!stepDateField) return null // Skip steps without date
+                    
+                    const stepDate = normalizeDate(stepDateField)
                     const stepDateObj = new Date(stepDate)
                     stepDateObj.setHours(0, 0, 0, 0)
                     const today = new Date()
@@ -996,6 +1027,16 @@ export function TodayFocusSection({
                                 ? 'text-primary-600'
                                 : 'text-black'
                         } ${step.is_important && !step.completed ? 'font-bold' : 'font-medium'}`}>
+                          {isRecurringStep && (
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              <Repeat className="w-3.5 h-3.5 text-primary-500" />
+                              {step.completion_count > 0 && (
+                                <span className="text-[10px] text-primary-600 font-semibold">
+                                  {step.completion_count}
+                                </span>
+                              )}
+                            </div>
+                          )}
                           {step.title}
                           {step.checklist && step.checklist.length > 0 && (
                             <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
@@ -1009,19 +1050,32 @@ export function TodayFocusSection({
                         </span>
                         
                         {/* Meta info - fixed width columns - hidden on mobile */}
-                        <button
-                          onClick={(e) => openDatePicker(e, step)}
-                          className={`hidden sm:block w-20 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
+                        {isRecurringStep ? (
+                          <span className={`hidden sm:block w-20 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 border-2 ${
                             isOverdue && !step.completed 
-                              ? 'text-red-600 hover:bg-red-100 border-red-300' 
+                              ? 'text-red-600 border-red-300' 
                               : isToday
-                                ? 'text-primary-600 hover:bg-primary-100 border-primary-500' 
-                                : 'text-gray-600 hover:bg-gray-100 border-gray-300'
-                          }`}
-                        >
-                          {isOverdue && !step.completed && '❗'}
-                          {isToday ? t('focus.today') : stepDateFormatted || '-'}
-                        </button>
+                                ? 'text-primary-600 border-primary-500' 
+                                : 'text-gray-600 border-gray-300'
+                          }`}>
+                            {isOverdue && !step.completed && '❗'}
+                            {isToday ? t('focus.today') : stepDateFormatted || '-'}
+                          </span>
+                        ) : (
+                          <button
+                            onClick={(e) => openDatePicker(e, step)}
+                            className={`hidden sm:block w-20 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
+                              isOverdue && !step.completed 
+                                ? 'text-red-600 hover:bg-red-100 border-red-300' 
+                                : isToday
+                                  ? 'text-primary-600 hover:bg-primary-100 border-primary-500' 
+                                  : 'text-gray-600 hover:bg-gray-100 border-gray-300'
+                            }`}
+                          >
+                            {isOverdue && !step.completed && '❗'}
+                            {isToday ? t('focus.today') : stepDateFormatted || '-'}
+                          </button>
+                        )}
                         <button 
                           onClick={(e) => openTimePicker(e, step)}
                           className={`hidden sm:block w-14 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${

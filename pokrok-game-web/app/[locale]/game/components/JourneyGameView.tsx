@@ -133,11 +133,11 @@ export function JourneyGameView({
           // 404 is expected for new users - parent component will handle user creation
           if (response.status === 404) {
             console.log('User not found in DB yet (expected for new users), parent will create user')
-          } else {
-            console.error('Failed to load user, status:', response.status)
-            const errorText = await response.text()
-            console.error('Error response:', errorText)
-            isLoadingUserRef.current = false // Reset on error to allow retry
+        } else {
+          console.error('Failed to load user, status:', response.status)
+          const errorText = await response.text()
+          console.error('Error response:', errorText)
+          isLoadingUserRef.current = false // Reset on error to allow retry
           }
           // Don't reset isLoadingUserRef on 404 - user might not exist yet
           // The parent component will handle user creation
@@ -181,14 +181,14 @@ export function JourneyGameView({
     }
     
     // Fallback to localStorage for backward compatibility
-    try {
-      const savedPage = localStorage.getItem('journeyGame_currentPage')
-      if (savedPage && ['main', 'goals', 'habits', 'steps', 'statistics', 'achievements', 'settings', 'workflows', 'help', 'areas'].includes(savedPage)) {
-        return savedPage as 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help'
+      try {
+        const savedPage = localStorage.getItem('journeyGame_currentPage')
+        if (savedPage && ['main', 'goals', 'habits', 'steps', 'statistics', 'achievements', 'settings', 'workflows', 'help', 'areas'].includes(savedPage)) {
+          return savedPage as 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help'
+        }
+      } catch (error) {
+        console.error('Error loading currentPage:', error)
       }
-    } catch (error) {
-      console.error('Error loading currentPage:', error)
-    }
     
     return 'main'
   }, [pathname])
@@ -637,8 +637,8 @@ export function JourneyGameView({
     }
     
     // Fetch from API
-    const checkOnboardingStatus = async () => {
-      try {
+      const checkOnboardingStatus = async () => {
+        try {
         const response = await fetch(`/api/game/init?t=${Date.now()}`, {
           cache: 'no-store',
           headers: {
@@ -646,9 +646,9 @@ export function JourneyGameView({
             'Pragma': 'no-cache'
           }
         })
-        if (response.ok) {
-          const gameData = await response.json()
-          const completed = gameData.user?.has_completed_onboarding ?? false
+          if (response.ok) {
+            const gameData = await response.json()
+            const completed = gameData.user?.has_completed_onboarding ?? false
           setOnboardingStatusFromAPI(completed)
           // Store in localStorage to prevent re-checking
           if (typeof window !== 'undefined') {
@@ -657,13 +657,13 @@ export function JourneyGameView({
             } else {
               localStorage.removeItem('has_completed_onboarding')
             }
+            }
           }
+        } catch (error) {
+          console.error('Error checking onboarding status:', error)
         }
-      } catch (error) {
-        console.error('Error checking onboarding status:', error)
       }
-    }
-    checkOnboardingStatus()
+      checkOnboardingStatus()
   }, [hasCompletedOnboarding])
   
   // Set main panel section when onboarding becomes active
@@ -1112,13 +1112,40 @@ export function JourneyGameView({
       if (response.ok) {
         const responseData = await response.json()
         const updatedStep = responseData.goal ? responseData : responseData // Handle both formats
-        // Update the step in dailySteps array
-        const updatedSteps = dailySteps.map(step => 
-          step.id === updatedStep.id ? updatedStep : step
-        )
-        if (onDailyStepsUpdate) {
-          onDailyStepsUpdate(updatedSteps)
+        
+        // Check if this was a recurring step - if so, reload all steps to get updated current_instance_date
+        const wasRecurringStep = step?.frequency && step.frequency !== null
+        if (wasRecurringStep && completed) {
+          // For recurring steps, reload all steps to get the updated current_instance_date
+          const currentUserId = userId || player?.user_id
+          if (currentUserId) {
+            const today = new Date()
+            today.setHours(0, 0, 0, 0)
+            const veryOldDate = new Date(today)
+            veryOldDate.setFullYear(veryOldDate.getFullYear() - 10)
+            const endDate = new Date(today)
+            endDate.setDate(endDate.getDate() + 30)
+            
+            const reloadResponse = await fetch(
+              `/api/daily-steps?userId=${currentUserId}&startDate=${veryOldDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`
+            )
+            if (reloadResponse.ok) {
+              const reloadedSteps = await reloadResponse.json()
+              if (onDailyStepsUpdate) {
+                onDailyStepsUpdate(Array.isArray(reloadedSteps) ? reloadedSteps : [])
+              }
+            }
+          }
+        } else {
+          // For non-recurring steps, just update the step in dailySteps array
+          const updatedSteps = dailySteps.map(step => 
+            step.id === updatedStep.id ? updatedStep : step
+          )
+          if (onDailyStepsUpdate) {
+            onDailyStepsUpdate(updatedSteps)
+          }
         }
+        
         // Update selected item if it's the same step
         if (selectedItem && selectedItem.id === stepId) {
           setSelectedItem(updatedStep)
@@ -4022,6 +4049,7 @@ export function JourneyGameView({
           handleDeleteGoalForDetail={handleDeleteGoalForDetail}
           setSelectedItem={setSelectedItem}
           onHabitsUpdate={onHabitsUpdate}
+          onDailyStepsUpdate={onDailyStepsUpdate}
           stepsCacheRef={stepsCacheRef}
           setStepsCacheVersion={setStepsCacheVersion}
           completedSteps={completedSteps}
@@ -4384,7 +4412,7 @@ export function JourneyGameView({
               // If parent callback exists and status is confirmed, ensure it's called again
               if (onOnboardingComplete && refreshData.user?.has_completed_onboarding) {
                 // State should already be updated, but ensure it's set
-                onOnboardingComplete()
+            onOnboardingComplete()
               }
             }
           } catch (refreshError) {

@@ -2614,7 +2614,7 @@ export function PageContent(props: PageContentProps) {
               {/* Content area */}
               <div className="flex-1 overflow-y-auto">
               <StepsManagementView
-                dailySteps={filteredSteps}
+                dailySteps={dailySteps}
                 goals={goals}
                 player={player}
                 userId={userId}

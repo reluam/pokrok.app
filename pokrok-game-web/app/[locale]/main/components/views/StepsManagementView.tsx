@@ -36,19 +36,13 @@ export function StepsManagementView({
   const t = useTranslations()
   const localeCode = useLocale()
   
-  // Local state for optimistic updates
-  const [localSteps, setLocalSteps] = useState<any[]>(dailySteps)
-  const localStepsRef = useRef(dailySteps)
+  // Ref to track if we're doing an optimistic update to prevent reloadSteps from overwriting it
+  const isOptimisticUpdateRef = useRef(false)
   
-  // Sync local state with prop (but don't overwrite if we have pending optimistic updates)
-  useEffect(() => {
-    // Only sync if the prop changed from outside (e.g., after reload)
-    // Compare by reference - if it's a different array, it's an external update
-    if (dailySteps !== localStepsRef.current) {
-      setLocalSteps(dailySteps)
-      localStepsRef.current = dailySteps
-    }
-  }, [dailySteps])
+  // Ref to track completed steps that should be hidden (to prevent them from reappearing after reload)
+  const completedStepsSetRef = useRef<Set<string>>(new Set())
+  
+  // No local state - work directly with dailySteps prop like TodayFocusSection does
   
   // Filters - use props if provided, otherwise use local state
   const [showCompleted, setShowCompleted] = useState(false)
@@ -166,61 +160,137 @@ export function StepsManagementView({
     setLoadingSteps(prev => new Set(prev).add(stepId))
     
     // Save current state for potential revert
-    const previousSteps = localSteps
+    const previousSteps = dailySteps
+    const step = dailySteps.find((s: any) => s.id === stepId)
     
-    // Optimistically update local state immediately
-    setLocalSteps(prevSteps => {
-      const optimisticallyUpdatedSteps = prevSteps.map((s: any) => 
-        s.id === stepId ? { ...s, completed: !s.completed } : s
-      )
-      localStepsRef.current = optimisticallyUpdatedSteps
-      return optimisticallyUpdatedSteps
-    })
+    if (!step) {
+      setLoadingSteps(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(stepId)
+        return newSet
+      })
+      return
+    }
     
-    // Also update parent state
+    // Optimistically update parent state immediately (like JourneyGameView does)
+    const optimisticStep = { ...step, completed: !step.completed }
+    const optimisticallyUpdatedSteps = dailySteps.map((s: any) => 
+      s.id === stepId ? optimisticStep : s
+    )
+    
+    // If marking as completed, add to completed steps set to prevent it from reappearing
+    if (optimisticStep.completed) {
+      completedStepsSetRef.current.add(stepId)
+    } else {
+      // If unmarking as completed, remove from set so it can be shown again
+      completedStepsSetRef.current.delete(stepId)
+    }
+    
+    // Mark that we're doing an optimistic update
+    isOptimisticUpdateRef.current = true
+    
+    // CRITICAL: Update parent state immediately and synchronously
     if (onDailyStepsUpdate) {
-      onDailyStepsUpdate(localStepsRef.current)
+      onDailyStepsUpdate(optimisticallyUpdatedSteps)
     }
     
     try {
-      const response = await fetch(`/api/cesta/daily-steps/${stepId}/toggle`, {
-        method: 'PATCH',
+      // Check if this is a recurring step
+      const isRecurringStep = step?.frequency && step.frequency !== null
+      
+      // For recurring steps, pass the current_instance_date as completionDate
+      let completionDate: string | undefined
+      if (isRecurringStep && completed && step.current_instance_date) {
+        completionDate = step.current_instance_date
+      }
+      
+      const response = await fetch('/api/daily-steps', {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-        }
+        },
+        body: JSON.stringify({
+          stepId: stepId,
+          completed: completed,
+          completedAt: completed ? new Date().toISOString() : null,
+          completionDate: completionDate || undefined
+        }),
       })
 
       if (response.ok) {
-        const data = await response.json()
-        const updatedStep = data.step
+        const responseData = await response.json()
+        const updatedStep = responseData.goal ? responseData : responseData
         
-        // Update with actual server response using functional update
-        setLocalSteps(prevSteps => {
-          const currentSteps = prevSteps.map((s: any) => s.id === stepId ? updatedStep : s)
-          localStepsRef.current = currentSteps
-          return currentSteps
-        })
-        
-        if (onDailyStepsUpdate) {
-          onDailyStepsUpdate(localStepsRef.current)
+        // For recurring steps, reload all steps to get updated current_instance_date
+        if (isRecurringStep && completed) {
+          // Reload all steps to get the updated current_instance_date
+          const currentUserId = userId || player?.user_id
+          if (currentUserId && onDailyStepsUpdate) {
+            const today = new Date()
+            today.setHours(0, 0, 0, 0)
+            const veryOldDate = new Date(today)
+            veryOldDate.setFullYear(veryOldDate.getFullYear() - 10)
+            const endDate = new Date(today)
+            endDate.setDate(endDate.getDate() + 30)
+            
+            const reloadResponse = await fetch(
+              `/api/daily-steps?userId=${currentUserId}&startDate=${veryOldDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`
+            )
+            if (reloadResponse.ok) {
+              const reloadedSteps = await reloadResponse.json()
+              onDailyStepsUpdate(Array.isArray(reloadedSteps) ? reloadedSteps : [])
+            }
+          }
+        } else {
+          // For non-recurring steps, just update the step in dailySteps array
+          if (onDailyStepsUpdate) {
+            const currentSteps = optimisticallyUpdatedSteps.map((s: any) => 
+              s.id === stepId ? updatedStep : s
+            )
+            onDailyStepsUpdate(currentSteps)
+          }
         }
+        
+        // Ensure completed step stays in the set (in case server response confirms completion)
+        // But not for recurring steps - they should remain visible
+        if (updatedStep.completed && !isRecurringStep) {
+          completedStepsSetRef.current.add(stepId)
+        } else if (isRecurringStep) {
+          // For recurring steps, remove from completed set so they remain visible
+          completedStepsSetRef.current.delete(stepId)
+        }
+        
+        // Reset flag after server confirms (with delay to allow state to propagate)
+        setTimeout(() => {
+          isOptimisticUpdateRef.current = false
+        }, 500) // Increased delay to prevent reload from showing completed step again
       } else {
         // Revert optimistic update on error
-        setLocalSteps(previousSteps)
-        localStepsRef.current = previousSteps
+        // Also remove from completed steps set if we were marking as completed
+        if (optimisticStep.completed) {
+          completedStepsSetRef.current.delete(stepId)
+        }
         if (onDailyStepsUpdate) {
           onDailyStepsUpdate(previousSteps)
         }
+        setTimeout(() => {
+          isOptimisticUpdateRef.current = false
+        }, 100)
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
         alert(`Chyba při aktualizaci kroku: ${errorData.error || 'Nepodařilo se aktualizovat krok'}`)
       }
     } catch (error) {
       // Revert optimistic update on error
-      setLocalSteps(previousSteps)
-      localStepsRef.current = previousSteps
+      // Also remove from completed steps set if we were marking as completed
+      if (optimisticStep.completed) {
+        completedStepsSetRef.current.delete(stepId)
+      }
       if (onDailyStepsUpdate) {
         onDailyStepsUpdate(previousSteps)
       }
+      setTimeout(() => {
+        isOptimisticUpdateRef.current = false
+      }, 100)
       console.error('Error toggling step:', error)
       alert('Chyba při aktualizaci kroku')
     } finally {
@@ -370,29 +440,53 @@ export function StepsManagementView({
   }
 
   const reloadSteps = useCallback(async () => {
+    // Don't reload if we're doing an optimistic update
+    if (isOptimisticUpdateRef.current) {
+      return
+    }
+    
     const currentUserId = userId || player?.user_id
     if (!currentUserId) return
 
     try {
-      // Load ALL steps (no date filter) to include overdue steps
-      const response = await fetch(`/api/daily-steps?userId=${currentUserId}`)
+      // Load steps with date range: 30 days ago to 60 days ahead (optimized)
+      // This reduces data transfer significantly compared to loading ALL steps
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const startDate = new Date(today)
+      startDate.setDate(startDate.getDate() - 30) // 30 days ago
+      const endDate = new Date(today)
+      endDate.setDate(endDate.getDate() + 60) // 60 days ahead
+      
+      const response = await fetch(
+        `/api/daily-steps?userId=${currentUserId}&startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`
+      )
       if (response.ok) {
         const steps = await response.json()
-        onDailyStepsUpdate?.(steps)
+        // Filter out steps that are in completedStepsSetRef (they should stay hidden)
+        const filteredSteps = steps.filter((step: any) => {
+          // If step is in completedStepsSetRef and showCompleted is false, don't include it
+          if (!effectiveShowCompleted && completedStepsSetRef.current.has(step.id)) {
+            return false
+          }
+          return true
+        })
+        onDailyStepsUpdate?.(filteredSteps)
       }
     } catch (error) {
       console.error('Error reloading steps:', error)
     }
-  }, [userId, player?.user_id, onDailyStepsUpdate])
+  }, [userId, player?.user_id, effectiveShowCompleted]) // Removed onDailyStepsUpdate from dependencies to prevent infinite loops
 
-  // Load steps on mount - always reload to get all steps including overdue
+  // Load steps on mount and when userId changes - use stable dependencies
   useEffect(() => {
     reloadSteps()
-  }, [reloadSteps])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, player?.user_id]) // Only reload when userId changes, not when reloadSteps function changes
 
-  // Sort and filter steps - use localSteps for immediate updates
+  // Sort and filter steps - work directly with dailySteps prop
   const sortedSteps = useMemo(() => {
-    return [...localSteps].sort((a, b) => {
+    return [...dailySteps].sort((a, b) => {
       // Sort by date (newest first), then by completed status
       if (a.date && b.date) {
         const dateA = new Date(a.date).getTime()
@@ -405,7 +499,7 @@ export function StepsManagementView({
       if (!a.completed && b.completed) return -1
       return 0
     })
-  }, [localSteps])
+  }, [dailySteps])
 
   const filteredSteps = useMemo(() => {
     let steps = sortedSteps.filter((step: any) => {
@@ -420,12 +514,21 @@ export function StepsManagementView({
         return false
       }
       
-      // Filter repeating step instances based on showRepeatingSteps
-      // Instances have parent_recurring_step_id set and are not recurring steps themselves
-      const isRecurringInstance = !step.frequency && step.parent_recurring_step_id
-      if (!effectiveShowRepeatingSteps && isRecurringInstance) {
-        return false
-      }
+      // NEW SIMPLIFIED LOGIC: Recurring steps use current_instance_date instead of date
+      // Recurring steps are never truly completed - they just move to next occurrence
+      // So we should always show them, even if they appear "completed" temporarily
+      const isRecurringStep = step.frequency && step.frequency !== null
+      // Don't filter out recurring steps even if they appear completed
+      // They will be updated with new current_instance_date after completion
+      
+      // OLD LOGIC REMOVED: No more instances - recurring steps are handled directly
+      // Filter out old instances if they still exist (only if they're not the main recurring step)
+      // But allow them for now if they don't have parent_recurring_step_id set correctly
+      const isOldInstance = !step.frequency && step.parent_recurring_step_id && step.is_hidden !== true
+      // Temporarily allow old instances to be displayed until migration is complete
+      // if (isOldInstance) {
+      //   return false // Hide old instances
+      // }
       
       if (!effectiveShowCompleted && step.completed) {
         return false
@@ -444,7 +547,10 @@ export function StepsManagementView({
         }
       }
       if (effectiveDateFilter) {
-        const stepDate = step.date ? (step.date.includes('T') ? step.date.split('T')[0] : step.date) : null
+        // For recurring steps, use current_instance_date instead of date
+        const isRecurringStep = step.frequency && step.frequency !== null
+        const stepDateField = isRecurringStep ? (step.current_instance_date || step.date) : step.date
+        const stepDate = stepDateField ? (stepDateField.includes('T') ? stepDateField.split('T')[0] : stepDateField) : null
         if (stepDate !== effectiveDateFilter) {
           return false
         }
@@ -452,55 +558,8 @@ export function StepsManagementView({
       return true
     })
     
-    // If "Show Repeating Steps" is disabled, show only the nearest incomplete instance for each recurring step
-    if (!effectiveShowRepeatingSteps) {
-      // Group instances by parent_recurring_step_id
-      const instancesByParent = new Map<string, any[]>()
-      const nonInstanceSteps: any[] = []
-      
-      steps.forEach(step => {
-        if (step.parent_recurring_step_id) {
-          const parentId = step.parent_recurring_step_id
-          if (!instancesByParent.has(parentId)) {
-            instancesByParent.set(parentId, [])
-          }
-          instancesByParent.get(parentId)!.push(step)
-        } else {
-          nonInstanceSteps.push(step)
-        }
-      })
-      
-      // For each recurring step, keep only the nearest incomplete instance
-      const nearestInstances: any[] = []
-      instancesByParent.forEach((instances, parentId) => {
-        // Filter out completed instances
-        const incompleteInstances = instances.filter(s => !s.completed)
-        
-        if (incompleteInstances.length > 0) {
-          // Sort by date (oldest first) to get the nearest one
-          incompleteInstances.sort((a, b) => {
-            const dateA = a.date ? new Date(a.date).getTime() : Infinity
-            const dateB = b.date ? new Date(b.date).getTime() : Infinity
-            return dateA - dateB
-          })
-          // Keep only the nearest (first) incomplete instance
-          nearestInstances.push(incompleteInstances[0])
-        } else {
-          // If all instances are completed, show the nearest completed one
-          instances.sort((a, b) => {
-            const dateA = a.date ? new Date(a.date).getTime() : Infinity
-            const dateB = b.date ? new Date(b.date).getTime() : Infinity
-            return dateA - dateB
-          })
-          if (instances.length > 0) {
-            nearestInstances.push(instances[0])
-          }
-        }
-      })
-      
-      // Combine non-instance steps with nearest instances
-      steps = [...nonInstanceSteps, ...nearestInstances]
-    }
+    // OLD LOGIC REMOVED: No more instances - recurring steps are handled directly with current_instance_date
+    // Recurring steps are already filtered above (they use current_instance_date for date matching)
     
     return steps
   }, [sortedSteps, effectiveShowCompleted, effectiveShowRepeatingSteps, effectiveGoalFilter, effectiveDateFilter])
@@ -715,7 +774,10 @@ export function StepsManagementView({
               <tbody>
                 {filteredSteps.map((step: any) => {
                   const stepGoal = step.goal_id || step.goalId ? goals.find((g: any) => g.id === (step.goal_id || step.goalId)) : null
-                  const stepDate = step.date ? (step.date.includes('T') ? step.date.split('T')[0] : step.date) : null
+                  // For recurring steps, use current_instance_date instead of date
+                  const isRecurringStep = step.frequency && step.frequency !== null
+                  const displayDate = isRecurringStep ? (step.current_instance_date || step.date) : step.date
+                  const stepDate = displayDate ? (displayDate.includes('T') ? displayDate.split('T')[0] : displayDate) : null
                   
                   return (
                     <tr
@@ -727,38 +789,40 @@ export function StepsManagementView({
                     >
                       <td className="px-4 py-2 first:pl-6">
                         <div className="flex items-center justify-center">
-                          {step.frequency && step.frequency !== null ? (
-                            // Recurring steps cannot be completed from this page
-                            <div className="w-5 h-5 border-2 border-gray-300 rounded-playful-sm bg-gray-100 opacity-50 cursor-not-allowed" title={t('steps.recurringCannotComplete') || 'Recurring steps cannot be completed from this page'} />
-                          ) : (
-                            <button
-                              onClick={async (e) => {
-                                e.stopPropagation()
-                                if (!loadingSteps.has(step.id)) {
-                                  await handleToggleStepCompleted(step.id, !step.completed)
-                                }
-                              }}
-                              disabled={loadingSteps.has(step.id)}
-                              className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
-                            >
-                              {loadingSteps.has(step.id) ? (
-                                <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                              ) : step.completed ? (
-                                <Check className="w-5 h-5 text-primary-600" strokeWidth={3} />
-                              ) : (
-                                <div className="w-5 h-5 border-2 border-primary-500 rounded-playful-sm"></div>
-                              )}
-                            </button>
-                          )}
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation()
+                              if (!loadingSteps.has(step.id)) {
+                                await handleToggleStepCompleted(step.id, !step.completed)
+                              }
+                            }}
+                            disabled={loadingSteps.has(step.id)}
+                            className="flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110"
+                          >
+                            {loadingSteps.has(step.id) ? (
+                              <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                            ) : step.completed ? (
+                              <Check className="w-5 h-5 text-primary-600" strokeWidth={3} />
+                            ) : (
+                              <div className="w-5 h-5 border-2 border-primary-500 rounded-playful-sm"></div>
+                            )}
+                          </button>
                         </div>
                       </td>
                       <td className="px-4 py-2">
                         <div className="flex items-center gap-2">
                           {step.frequency && step.frequency !== null && (
-                            <Repeat className="w-4 h-4 text-primary-600 flex-shrink-0" />
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              <Repeat className="w-4 h-4 text-primary-600" />
+                              {step.completion_count > 0 && (
+                                <span className="text-[10px] text-primary-600 font-semibold">
+                                  {step.completion_count}
+                                </span>
+                              )}
+                            </div>
                           )}
                           <span className={`font-semibold text-sm font-playful ${step.completed ? 'line-through text-gray-500' : 'text-black'}`}>
                             {step.title}
@@ -770,13 +834,34 @@ export function StepsManagementView({
                       </td>
                       <td className="px-4 py-2 last:pr-6">
                         {step.frequency && step.frequency !== null ? (
-                          // Recurring step - show frequency instead of date
-                          <div className="flex items-center gap-1 text-xs text-gray-500">
-                            <Repeat className="w-3 h-3" />
-                            <span>{step.frequency === 'daily' ? (localeCode === 'cs' ? 'Denně' : 'Daily') : 
-                                   step.frequency === 'weekly' ? (localeCode === 'cs' ? 'Týdně' : 'Weekly') :
-                                   step.frequency === 'monthly' ? (localeCode === 'cs' ? 'Měsíčně' : 'Monthly') : ''}</span>
-                          </div>
+                          // Recurring step - show current_instance_date (not editable)
+                          <span className="text-xs text-gray-600 font-playful flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {(() => {
+                              // For recurring steps, use current_instance_date instead of date
+                              const isRecurringStep = step.frequency && step.frequency !== null
+                              const displayDate = isRecurringStep ? (step.current_instance_date || step.date) : step.date
+                              const stepDate = displayDate ? (displayDate.includes('T') ? displayDate.split('T')[0] : displayDate) : null
+                              
+                              if (!stepDate) return '-'
+                              
+                              const dateObj = new Date(stepDate)
+                              const today = new Date()
+                              today.setHours(0, 0, 0, 0)
+                              const dateObjNormalized = new Date(dateObj)
+                              dateObjNormalized.setHours(0, 0, 0, 0)
+                              
+                              if (dateObjNormalized.getTime() === today.getTime()) {
+                                return t('focus.today') || 'Today'
+                              }
+                              
+                              return dateObj.toLocaleDateString(localeCode === 'cs' ? 'cs-CZ' : 'en-US', { 
+                                day: 'numeric', 
+                                month: 'numeric', 
+                                year: 'numeric' 
+                              })
+                            })()}
+                          </span>
                         ) : (
                           <span
                             onClick={(e) => {
@@ -789,21 +874,23 @@ export function StepsManagementView({
                             className="text-xs text-gray-600 font-playful cursor-pointer hover:text-primary-600 transition-colors flex items-center gap-1"
                           >
                             <Calendar className="w-3 h-3" />
-                            {stepDate ? (
-                            (() => {
-                              try {
-                                const dateParts = stepDate.split('-')
-                                if (dateParts.length === 3) {
-                                  return new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2])).toLocaleDateString(localeCode, { day: '2-digit', month: '2-digit', year: 'numeric' })
+                            {(() => {
+                              // For non-recurring steps, use date
+                              const displayDate = isRecurringStep ? (step.current_instance_date || step.date) : step.date
+                              const stepDate = displayDate ? (displayDate.includes('T') ? displayDate.split('T')[0] : displayDate) : null
+                              if (stepDate) {
+                                try {
+                                  const dateParts = stepDate.split('-')
+                                  if (dateParts.length === 3) {
+                                    return new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2])).toLocaleDateString(localeCode, { day: '2-digit', month: '2-digit', year: 'numeric' })
+                                  }
+                                  return stepDate
+                                } catch {
+                                  return stepDate
                                 }
-                                return stepDate
-                              } catch {
-                                return stepDate
                               }
-                            })()
-                          ) : (
-                            <span className="text-gray-400">Bez data</span>
-                          )}
+                              return <span className="text-gray-400">Bez data</span>
+                            })()}
                           </span>
                         )}
                       </td>

@@ -236,6 +236,16 @@ async function runMigrations() {
       await sql`ALTER TABLE daily_steps ADD COLUMN parent_recurring_step_id VARCHAR(255) REFERENCES daily_steps(id) ON DELETE CASCADE`
     }
     
+    // Add current_instance_date for recurring steps (new simplified approach)
+    if (!dailyStepsColumnNames.includes('current_instance_date')) {
+      await sql`ALTER TABLE daily_steps ADD COLUMN current_instance_date DATE DEFAULT NULL`
+    }
+    
+    // Add completion_count for recurring steps (counts how many times the step was completed)
+    if (!dailyStepsColumnNames.includes('completion_count')) {
+      await sql`ALTER TABLE daily_steps ADD COLUMN completion_count INTEGER DEFAULT 0`
+    }
+    
     // Make date nullable for repeating steps
     try {
       await sql`ALTER TABLE daily_steps ALTER COLUMN date DROP NOT NULL`

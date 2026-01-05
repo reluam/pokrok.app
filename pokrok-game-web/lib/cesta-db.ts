@@ -1201,34 +1201,79 @@ export async function getDailyStepsByUserId(
     let query
     if (date) {
       // Get steps for specific date
-      const startOfDay = new Date(date)
+      const dateObj = date instanceof Date ? date : new Date(date)
+      const startOfDay = new Date(dateObj)
       startOfDay.setHours(0, 0, 0, 0)
-      const endOfDay = new Date(date)
+      const endOfDay = new Date(dateObj)
       endOfDay.setHours(23, 59, 59, 999)
       
-      query = sql`
-        SELECT 
-          id, user_id, goal_id, title, description, completed, 
-          TO_CHAR(date, 'YYYY-MM-DD') as date,
-          is_important, is_urgent, aspiration_id, area_id,
-          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
-          checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete,
-          frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days,
-          TO_CHAR(last_instance_date, 'YYYY-MM-DD') as last_instance_date,
-          TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date,
-          TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
-          TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
-          recurring_display_mode, COALESCE(is_hidden, false) as is_hidden,
-          parent_recurring_step_id
-        FROM daily_steps 
-        WHERE user_id = ${userId}
-        AND (date >= ${startOfDay} AND date <= ${endOfDay} OR frequency IS NOT NULL)
-        ORDER BY 
-          CASE WHEN completed THEN 1 ELSE 0 END,
-          is_important DESC,
-          is_urgent DESC,
-          created_at ASC
-      `
+      const startDateStr = startOfDay.toISOString().split('T')[0]
+      const endDateStr = endOfDay.toISOString().split('T')[0]
+      
+      // Try to query with current_instance_date, fallback to date if column doesn't exist
+      try {
+        query = sql`
+          SELECT 
+            id, user_id, goal_id, title, description, completed, 
+            TO_CHAR(date, 'YYYY-MM-DD') as date,
+            is_important, is_urgent, aspiration_id, area_id,
+            estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+            checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete,
+            frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days,
+            TO_CHAR(last_instance_date, 'YYYY-MM-DD') as last_instance_date,
+            TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date,
+            TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
+            TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
+            TO_CHAR(current_instance_date, 'YYYY-MM-DD') as current_instance_date,
+            recurring_display_mode, COALESCE(is_hidden, false) as is_hidden,
+            parent_recurring_step_id,
+            COALESCE(completion_count, 0) as completion_count
+          FROM daily_steps 
+          WHERE user_id = ${userId}
+          AND (
+            (frequency IS NULL AND date IS NOT NULL AND date >= ${startDateStr}::date AND date <= ${endDateStr}::date)
+            OR (frequency IS NOT NULL AND (
+              (current_instance_date IS NOT NULL AND current_instance_date >= ${startDateStr}::date AND current_instance_date <= ${endDateStr}::date)
+              OR (current_instance_date IS NULL AND date IS NOT NULL AND date >= ${startDateStr}::date AND date <= ${endDateStr}::date)
+            ))
+          )
+          ORDER BY 
+            CASE WHEN completed THEN 1 ELSE 0 END,
+            is_important DESC,
+            is_urgent DESC,
+            created_at ASC
+        `
+      } catch (error: any) {
+        // Fallback if current_instance_date column doesn't exist yet
+        if (error?.message?.includes('current_instance_date') || error?.code === '42703') {
+          query = sql`
+            SELECT 
+              id, user_id, goal_id, title, description, completed, 
+              TO_CHAR(date, 'YYYY-MM-DD') as date,
+              is_important, is_urgent, aspiration_id, area_id,
+              estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+              checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete,
+              frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days,
+              TO_CHAR(last_instance_date, 'YYYY-MM-DD') as last_instance_date,
+              TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date,
+              TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
+              TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
+              NULL as current_instance_date,
+              recurring_display_mode, COALESCE(is_hidden, false) as is_hidden,
+              parent_recurring_step_id
+            FROM daily_steps 
+            WHERE user_id = ${userId}
+            AND date >= ${startDateStr}::date AND date <= ${endDateStr}::date
+            ORDER BY 
+              CASE WHEN completed THEN 1 ELSE 0 END,
+              is_important DESC,
+              is_urgent DESC,
+              created_at ASC
+          `
+        } else {
+          throw error
+        }
+      }
     } else if (startDate && endDate) {
       // Get steps for date range (optimized query)
       query = sql`
@@ -1243,11 +1288,22 @@ export async function getDailyStepsByUserId(
           TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date,
           TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
           TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
+          TO_CHAR(current_instance_date, 'YYYY-MM-DD') as current_instance_date,
           recurring_display_mode, COALESCE(is_hidden, false) as is_hidden,
           parent_recurring_step_id
         FROM daily_steps 
         WHERE user_id = ${userId}
-        AND (date >= ${startDate}::date AND date <= ${endDate}::date OR frequency IS NOT NULL)
+        AND (
+          -- Non-recurring steps: must have date in range
+          (frequency IS NULL AND date IS NOT NULL AND date >= ${startDate}::date AND date <= ${endDate}::date)
+          OR 
+          -- Recurring steps: check current_instance_date first, fallback to date
+          (frequency IS NOT NULL AND (
+            (current_instance_date IS NOT NULL AND current_instance_date >= ${startDate}::date AND current_instance_date <= ${endDate}::date)
+            OR 
+            (current_instance_date IS NULL AND date IS NOT NULL AND date >= ${startDate}::date AND date <= ${endDate}::date)
+          ))
+        )
         ORDER BY 
           CASE WHEN completed THEN 1 ELSE 0 END,
           date ASC NULLS LAST,
@@ -1257,29 +1313,65 @@ export async function getDailyStepsByUserId(
       `
     } else {
       // Get all steps for user (fallback - should be avoided for performance)
-      query = sql`
-        SELECT 
-          id, user_id, goal_id, title, description, completed, 
-          TO_CHAR(date, 'YYYY-MM-DD') as date,
-          is_important, is_urgent, aspiration_id, area_id,
-          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
-          checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete,
-          frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days,
-          TO_CHAR(last_instance_date, 'YYYY-MM-DD') as last_instance_date,
-          TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date,
-          TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
-          TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
-          recurring_display_mode, COALESCE(is_hidden, false) as is_hidden,
-          parent_recurring_step_id
-        FROM daily_steps 
-        WHERE user_id = ${userId}
-        ORDER BY 
-          CASE WHEN completed THEN 1 ELSE 0 END,
-          date ASC NULLS LAST,
-          is_important DESC,
-          is_urgent DESC,
-          created_at DESC
-      `
+      // Try to query with current_instance_date, fallback to date if column doesn't exist
+      try {
+        query = sql`
+          SELECT 
+            id, user_id, goal_id, title, description, completed, 
+            TO_CHAR(date, 'YYYY-MM-DD') as date,
+            is_important, is_urgent, aspiration_id, area_id,
+            estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+            checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete,
+            frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days,
+            TO_CHAR(last_instance_date, 'YYYY-MM-DD') as last_instance_date,
+            TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date,
+            TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
+            TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
+            TO_CHAR(current_instance_date, 'YYYY-MM-DD') as current_instance_date,
+            recurring_display_mode, COALESCE(is_hidden, false) as is_hidden,
+            parent_recurring_step_id,
+            COALESCE(completion_count, 0) as completion_count
+          FROM daily_steps 
+          WHERE user_id = ${userId}
+          ORDER BY 
+            CASE WHEN completed THEN 1 ELSE 0 END,
+            date ASC NULLS LAST,
+            is_important DESC,
+            is_urgent DESC,
+            created_at DESC
+        `
+      } catch (error: any) {
+        // Fallback if current_instance_date column doesn't exist yet
+        if (error?.message?.includes('current_instance_date') || error?.code === '42703') {
+          query = sql`
+            SELECT 
+              id, user_id, goal_id, title, description, completed, 
+              TO_CHAR(date, 'YYYY-MM-DD') as date,
+              is_important, is_urgent, aspiration_id, area_id,
+              estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+              checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete,
+              frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days,
+              TO_CHAR(last_instance_date, 'YYYY-MM-DD') as last_instance_date,
+              TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date,
+              TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
+              TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
+              NULL as current_instance_date,
+              recurring_display_mode, COALESCE(is_hidden, false) as is_hidden,
+              parent_recurring_step_id,
+              0 as completion_count
+            FROM daily_steps 
+            WHERE user_id = ${userId}
+            ORDER BY 
+              CASE WHEN completed THEN 1 ELSE 0 END,
+              date ASC NULLS LAST,
+              is_important DESC,
+              is_urgent DESC,
+              created_at DESC
+          `
+        } else {
+          throw error
+        }
+      }
     }
     
     const steps = await query
