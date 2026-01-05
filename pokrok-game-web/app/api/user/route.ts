@@ -61,13 +61,18 @@ export async function POST(request: NextRequest) {
     // Construct name from firstName and lastName, or use email username as fallback
     const name = [firstName, lastName].filter(Boolean).join(' ') || userEmail.split('@')[0] || 'User'
 
-    // ✅ SECURITY: Použít clerkUserId z autentizace, ne z body
-    const user = await createUser(clerkUserId, userEmail, name)
-    console.log('[API/user] New user created:', user.id)
+    // Get locale from cookie (set by LanguageSwitcher on unauthenticated page)
+    // Priority: cookie > default 'cs'
+    const cookieStore = request.cookies
+    const cookieLocale = cookieStore.get('NEXT_LOCALE')?.value
+    const locale = (cookieLocale === 'en' || cookieLocale === 'cs') ? cookieLocale : 'cs'
+    
+    console.log('[API/user] Creating user with locale:', locale, '(from cookie:', cookieLocale, ')')
 
-    // Onboarding items are now created in requireAuth when a new user is created.
-    // This POST endpoint is primarily for Clerk's webhook or explicit client-side user creation
-    // where the user might not yet exist in our DB. requireAuth handles the DB creation and onboarding.
+    // ✅ SECURITY: Použít clerkUserId z autentizace, ne z body
+    // Pass locale to createUser so onboarding steps are created in the correct language
+    const user = await createUser(clerkUserId, userEmail, name, locale)
+    console.log('[API/user] New user created:', user.id, 'with onboarding steps in locale:', locale)
     
     return NextResponse.json(user)
   } catch (error) {

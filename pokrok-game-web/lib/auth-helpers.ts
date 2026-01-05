@@ -38,8 +38,17 @@ export async function requireAuth(request: NextRequest): Promise<AuthContext | N
       const lastName = clerkUser.lastName || ''
       const name = [firstName, lastName].filter(Boolean).join(' ') || email.split('@')[0] || 'User'
 
-      // Vytvořit uživatele v databázi
-      dbUser = await createUser(clerkUserId, email, name)
+      // Get locale from cookie (set by LanguageSwitcher on unauthenticated page)
+      // Priority: cookie > default 'cs'
+      const cookieStore = request.cookies
+      const cookieLocale = cookieStore.get('NEXT_LOCALE')?.value
+      const locale = (cookieLocale === 'en' || cookieLocale === 'cs') ? cookieLocale : 'cs'
+      
+      console.log('[requireAuth] Creating user with locale:', locale, '(from cookie:', cookieLocale, ')')
+
+      // Vytvořit uživatele v databázi s locale pro onboarding kroky
+      dbUser = await createUser(clerkUserId, email, name, locale)
+      console.log('[requireAuth] User created with onboarding steps in locale:', locale)
     } catch (error) {
       console.error('Error creating user automatically:', error)
       return NextResponse.json({ error: 'Failed to create user' }, { status: 500 })

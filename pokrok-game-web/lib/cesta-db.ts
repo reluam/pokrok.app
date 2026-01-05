@@ -1056,11 +1056,15 @@ export async function upsertNeededStepsSettings(userId: string, settings: Partia
   }
 }
 
-export async function createUser(clerkUserId: string, email: string, name: string): Promise<User> {
+export async function createUser(clerkUserId: string, email: string, name: string, locale: string = 'cs'): Promise<User> {
   const id = crypto.randomUUID()
+  
+  // Ensure locale is valid ('cs' or 'en')
+  const validLocale = (locale === 'en' || locale === 'cs') ? locale : 'cs'
+  
   const user = await sql`
-    INSERT INTO users (id, clerk_user_id, email, name, has_completed_onboarding)
-    VALUES (${id}, ${clerkUserId}, ${email}, ${name}, false)
+    INSERT INTO users (id, clerk_user_id, email, name, has_completed_onboarding, preferred_locale)
+    VALUES (${id}, ${clerkUserId}, ${email}, ${name}, false, ${validLocale})
     RETURNING *
   `
   const newUser = user[0] as User
@@ -1068,33 +1072,22 @@ export async function createUser(clerkUserId: string, email: string, name: strin
   // Invalidate cache for this user
   invalidateUserCache(clerkUserId)
   
-  // Initialize onboarding steps for new user (asynchronously to not block user creation)
-  // This is done asynchronously to prevent timeouts and ensure user creation always succeeds
-  Promise.resolve().then(async () => {
-    try {
-      // Small delay to ensure user is fully created in database
-      await new Promise(resolve => setTimeout(resolve, 100))
-      
-      // Get user's locale (default to 'cs')
-      const userSettings = await sql`
-        SELECT locale FROM user_settings WHERE user_id = ${newUser.id}
-      `
-      const locale = userSettings[0]?.locale || 'cs'
-      
-      const { initializeOnboardingSteps } = await import('./onboarding-helpers')
-      await initializeOnboardingSteps(newUser.id, locale)
-      console.log('✅ Onboarding steps initialized for user:', newUser.id)
-    } catch (error) {
-      console.error('❌ Error initializing onboarding steps for new user:', error)
-      // Don't fail user creation if onboarding init fails, but log the error
-      if (error instanceof Error) {
-        console.error('Error message:', error.message)
-        console.error('Error stack:', error.stack)
-      }
+  // Initialize onboarding steps for new user SYNCHRONOUSLY
+  // This ensures the steps are created immediately when the user is created
+  try {
+    console.log('🔄 Initializing onboarding steps synchronously for user:', newUser.id, 'locale:', validLocale)
+    const { initializeOnboardingSteps } = await import('./onboarding-helpers')
+    await initializeOnboardingSteps(newUser.id, validLocale)
+    console.log('✅ Onboarding steps initialized successfully for user:', newUser.id)
+  } catch (error) {
+    console.error('❌ Error initializing onboarding steps for new user:', error)
+    // Log the error but don't fail user creation
+    if (error instanceof Error) {
+      console.error('Error message:', error.message)
+      console.error('Error stack:', error.stack)
     }
-  }).catch(err => {
-    console.error('❌ Error in onboarding initialization promise:', err)
-  })
+    // Continue - user creation should succeed even if onboarding init fails
+  }
   
   return newUser
 }

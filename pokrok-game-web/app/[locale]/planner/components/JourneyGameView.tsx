@@ -2257,10 +2257,24 @@ export function JourneyGameView({
         // Update selected item with new date
         setSelectedItem({ ...selectedItem, date: normalizedDate })
         
-        // Update the steps list - fetch all steps
-        const updatedSteps = await fetch(`/api/daily-steps?userId=${player?.user_id}`)
-          .then(res => res.json())
-        onDailyStepsUpdate?.(updatedSteps)
+        // Update the steps list - fetch all steps - use userId state instead of player?.user_id
+        const currentUserId = userId || player?.user_id
+        if (currentUserId) {
+          const stepsResponse = await fetch(`/api/daily-steps?userId=${currentUserId}`)
+          if (stepsResponse.ok) {
+            const updatedSteps = await stepsResponse.json()
+            // Ensure we have an array before updating
+            if (Array.isArray(updatedSteps)) {
+              onDailyStepsUpdate?.(updatedSteps)
+            } else {
+              console.error('Error: API returned non-array response:', updatedSteps)
+            }
+          } else {
+            console.error('Error fetching updated steps:', stepsResponse.status)
+          }
+        } else {
+          console.error('Cannot refresh steps: userId is not available')
+        }
         
         setShowDatePicker(false)
         // Don't close the detail view, just update the date
@@ -2289,15 +2303,33 @@ export function JourneyGameView({
       })
 
       if (response.ok) {
-        // Refresh steps list
-        const updatedSteps = await fetch(`/api/daily-steps?userId=${player?.user_id}`)
-          .then(res => res.json())
-        onDailyStepsUpdate?.(updatedSteps)
+        // Refresh steps list - use userId state instead of player?.user_id
+        const currentUserId = userId || player?.user_id
+        if (!currentUserId) {
+          console.error('Cannot refresh steps: userId is not available')
+          return
+        }
+        
+        const stepsResponse = await fetch(`/api/daily-steps?userId=${currentUserId}`)
+        if (stepsResponse.ok) {
+          const updatedSteps = await stepsResponse.json()
+          // Ensure we have an array before updating
+          if (Array.isArray(updatedSteps)) {
+            onDailyStepsUpdate?.(updatedSteps)
+          } else {
+            console.error('Error: API returned non-array response:', updatedSteps)
+          }
+        } else {
+          console.error('Error fetching updated steps:', stepsResponse.status)
+        }
       } else {
-        console.error('Error updating step date')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Error updating step date:', errorData)
+        alert(t('details.step.updateDateErrorGeneric') || 'Nepodařilo se aktualizovat datum kroku')
       }
     } catch (error) {
       console.error('Error updating step date:', error)
+      alert(t('details.step.updateDateErrorGeneric') || 'Nepodařilo se aktualizovat datum kroku')
     }
   }
   
@@ -2314,10 +2346,25 @@ export function JourneyGameView({
       })
 
       if (response.ok) {
-        // Refresh steps list
-        const updatedSteps = await fetch(`/api/daily-steps?userId=${player?.user_id}`)
-          .then(res => res.json())
-        onDailyStepsUpdate?.(updatedSteps)
+        // Refresh steps list - use userId state instead of player?.user_id
+        const currentUserId = userId || player?.user_id
+        if (!currentUserId) {
+          console.error('Cannot refresh steps: userId is not available')
+          return
+        }
+        
+        const stepsResponse = await fetch(`/api/daily-steps?userId=${currentUserId}`)
+        if (stepsResponse.ok) {
+          const updatedSteps = await stepsResponse.json()
+          // Ensure we have an array before updating
+          if (Array.isArray(updatedSteps)) {
+            onDailyStepsUpdate?.(updatedSteps)
+          } else {
+            console.error('Error: API returned non-array response:', updatedSteps)
+          }
+        } else {
+          console.error('Error fetching updated steps:', stepsResponse.status)
+        }
       } else {
         console.error('Error updating step time')
       }

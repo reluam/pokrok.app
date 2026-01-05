@@ -87,28 +87,36 @@ export async function initializeOnboardingSteps(userId: string, locale: string =
     const steps = [
       {
         title: isEnglish ? '1/7 Create area' : '1/7 Vytvořit oblast',
-        description: isEnglish ? 'Learn with the application' : 'Naučit se s aplikací',
+        description: isEnglish 
+          ? 'Click the + button in the left navigation menu to create a new area' 
+          : 'Klikněte na tlačítko + v levém navigačním menu pro vytvoření nové oblasti',
         date: today,
         estimated_time: 3,
         goal_id: goalId
       },
       {
         title: isEnglish ? '2/7 Create goal' : '2/7 Vytvořit cíl',
-        description: isEnglish ? 'Learn with the application' : 'Naučit se s aplikací',
+        description: isEnglish 
+          ? 'Click the + button in the left navigation menu to create a new goal' 
+          : 'Klikněte na tlačítko + v levém navigačním menu pro vytvoření nového cíle',
         date: today,
         estimated_time: 3,
         goal_id: goalId
       },
       {
         title: isEnglish ? '3/7 Create step' : '3/7 Vytvořit krok',
-        description: isEnglish ? 'Learn with the application' : 'Naučit se s aplikací',
+        description: isEnglish 
+          ? 'Click the + button in the left navigation menu to create a new step' 
+          : 'Klikněte na tlačítko + v levém navigačním menu pro vytvoření nového kroku',
         date: today,
         estimated_time: 3,
         goal_id: goalId
       },
       {
         title: isEnglish ? '4/7 Create habit' : '4/7 Vytvořit návyk',
-        description: isEnglish ? 'Learn with the application' : 'Naučit se s aplikací',
+        description: isEnglish 
+          ? 'Click the + button in the left navigation menu to create a new habit' 
+          : 'Klikněte na tlačítko + v levém navigačním menu pro vytvoření nového návyku',
         date: today,
         estimated_time: 3,
         goal_id: goalId
@@ -117,7 +125,9 @@ export async function initializeOnboardingSteps(userId: string, locale: string =
         title: isEnglish 
           ? '5/7 Use the Upcoming, Overview, and Statistics views' 
           : '5/7 Použijte zobrazení Nadcházející, Přehled a Statistiky',
-        description: isEnglish ? 'Learn with the application' : 'Naučit se s aplikací',
+        description: isEnglish 
+          ? 'Upcoming shows your tasks for today and future. Overview provides a summary of your progress. Statistics show detailed analytics of your activities.' 
+          : 'Nadcházející zobrazuje vaše úkoly na dnes a do budoucna. Přehled poskytuje souhrn vašeho pokroku. Statistiky zobrazují detailní analýzu vašich aktivit.',
         date: today,
         estimated_time: 5,
         goal_id: goalId
@@ -126,7 +136,9 @@ export async function initializeOnboardingSteps(userId: string, locale: string =
         title: isEnglish 
           ? '6/7 Explore the Areas view' 
           : '6/7 Prozkoumejte zobrazení Oblastí',
-        description: isEnglish ? 'Learn with the application' : 'Naučit se s aplikací',
+        description: isEnglish 
+          ? 'The Areas view groups your goals and steps by areas, helping you organize your work by different life domains.' 
+          : 'Zobrazení Oblastí seskupuje vaše cíle a kroky podle oblastí, což vám pomáhá organizovat práci podle různých životních domén.',
         date: today,
         estimated_time: 5,
         goal_id: goalId
@@ -135,7 +147,9 @@ export async function initializeOnboardingSteps(userId: string, locale: string =
         title: isEnglish 
           ? '7/7 Explore the Help section' 
           : '7/7 Prozkoumejte sekci Nápověda',
-        description: isEnglish ? 'Learn with the application' : 'Naučit se s aplikací',
+        description: isEnglish 
+          ? 'The Help section is in the left navigation menu. There you will find detailed information on how the application works.' 
+          : 'Sekce Nápověda je v levém navigačním menu. Tam najdete podrobné informace o tom, jak aplikace funguje.',
         date: today,
         estimated_time: 5,
         goal_id: goalId

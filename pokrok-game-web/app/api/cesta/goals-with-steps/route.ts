@@ -48,7 +48,12 @@ export async function POST(request: NextRequest) {
         console.log('❌ No current user')
         return NextResponse.json({ error: 'User not found' }, { status: 404 })
       }
-      dbUser = await createUser(userId, user.emailAddresses[0].emailAddress, `${user.firstName || ''} ${user.lastName || ''}`.trim())
+      // Get locale from cookie (default to 'cs')
+      const cookieStore = request.cookies
+      const cookieLocale = cookieStore.get('NEXT_LOCALE')?.value
+      const locale = (cookieLocale === 'en' || cookieLocale === 'cs') ? cookieLocale : 'cs'
+      
+      dbUser = await createUser(userId, user.emailAddresses[0].emailAddress, `${user.firstName || ''} ${user.lastName || ''}`.trim(), locale)
       console.log('✅ User created:', dbUser.id)
     } else {
       console.log('👤 Using existing user:', dbUser.id)

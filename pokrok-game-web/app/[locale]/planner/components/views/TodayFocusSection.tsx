@@ -319,28 +319,32 @@ export function TodayFocusSection({
       })
     }
     
-    // Sort by order (if exists) or created_at to maintain fixed order
-    // Use reminder_time as secondary criterion, then id as final tiebreaker
+    // Sort primarily by reminder_time (earliest time left, latest time right)
+    // Secondary: order (if exists) or created_at, then id as final tiebreaker
     return filtered.sort((a: any, b: any) => {
-      // Primary: order (if exists) or created_at timestamp
+      // Primary: reminder_time (habits with time come first, sorted by time - earliest left)
+      const aTime = a.reminder_time || ''
+      const bTime = b.reminder_time || ''
+      
+      if (aTime && bTime) {
+        // Both have time - compare times (earlier time comes first)
+        const timeCompare = aTime.localeCompare(bTime)
+        if (timeCompare !== 0) return timeCompare
+      } else if (aTime && !bTime) {
+        // a has time, b doesn't - a comes first
+        return -1
+      } else if (!aTime && bTime) {
+        // b has time, a doesn't - b comes first
+        return 1
+      }
+      // Both don't have time - continue to secondary sort
+      
+      // Secondary: order (if exists) or created_at timestamp
       const aOrder = a.order !== undefined ? a.order : (a.created_at ? new Date(a.created_at).getTime() : 0)
       const bOrder = b.order !== undefined ? b.order : (b.created_at ? new Date(b.created_at).getTime() : 0)
       
       if (aOrder !== bOrder) {
         return aOrder - bOrder
-      }
-      
-      // Secondary: reminder_time (habits with time come first, sorted by time)
-      const aTime = a.reminder_time || ''
-      const bTime = b.reminder_time || ''
-      
-      if (aTime && bTime) {
-        const timeCompare = aTime.localeCompare(bTime)
-        if (timeCompare !== 0) return timeCompare
-      } else if (aTime && !bTime) {
-        return -1
-      } else if (!aTime && bTime) {
-        return 1
       }
       
       // Final tiebreaker: use id for absolute stability (id never changes)
@@ -548,28 +552,32 @@ export function TodayFocusSection({
       return false
     })
     
-    // Sort by order (if exists) or created_at to maintain fixed order
-    // Use reminder_time as secondary criterion, then id as final tiebreaker
+    // Sort primarily by reminder_time (earliest time left, latest time right)
+    // Secondary: order (if exists) or created_at, then id as final tiebreaker
     return filtered.sort((a: any, b: any) => {
-      // Primary: order (if exists) or created_at timestamp
+      // Primary: reminder_time (habits with time come first, sorted by time - earliest left)
+      const aTime = a.reminder_time || ''
+      const bTime = b.reminder_time || ''
+      
+      if (aTime && bTime) {
+        // Both have time - compare times (earlier time comes first)
+        const timeCompare = aTime.localeCompare(bTime)
+        if (timeCompare !== 0) return timeCompare
+      } else if (aTime && !bTime) {
+        // a has time, b doesn't - a comes first
+        return -1
+      } else if (!aTime && bTime) {
+        // b has time, a doesn't - b comes first
+        return 1
+      }
+      // Both don't have time - continue to secondary sort
+      
+      // Secondary: order (if exists) or created_at timestamp
       const aOrder = a.order !== undefined ? a.order : (a.created_at ? new Date(a.created_at).getTime() : 0)
       const bOrder = b.order !== undefined ? b.order : (b.created_at ? new Date(b.created_at).getTime() : 0)
       
       if (aOrder !== bOrder) {
         return aOrder - bOrder
-      }
-      
-      // Secondary: reminder_time (habits with time come first, sorted by time)
-      const aTime = a.reminder_time || ''
-      const bTime = b.reminder_time || ''
-      
-      if (aTime && bTime) {
-        const timeCompare = aTime.localeCompare(bTime)
-        if (timeCompare !== 0) return timeCompare
-      } else if (aTime && !bTime) {
-        return -1
-      } else if (!aTime && bTime) {
-        return 1
       }
       
       // Final tiebreaker: use id for absolute stability (id never changes)

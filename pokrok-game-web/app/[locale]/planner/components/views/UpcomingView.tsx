@@ -138,10 +138,42 @@ export function UpcomingView({
   today.setHours(0, 0, 0, 0)
   const todayStr = getLocalDateString(today)
   
-  // Get today's habits
+  // Get today's habits, sorted by reminder_time (earliest left, latest right)
   const todaysHabits = useMemo(() => {
-    return habits.filter(habit => {
+    const filtered = habits.filter(habit => {
       return isHabitScheduledForDay(habit, today)
+    })
+    
+    // Sort primarily by reminder_time (earliest time left, latest time right)
+    // Secondary: order (if exists) or created_at, then id as final tiebreaker
+    return filtered.sort((a: any, b: any) => {
+      // Primary: reminder_time (habits with time come first, sorted by time - earliest left)
+      const aTime = a.reminder_time || ''
+      const bTime = b.reminder_time || ''
+      
+      if (aTime && bTime) {
+        // Both have time - compare times (earlier time comes first)
+        const timeCompare = aTime.localeCompare(bTime)
+        if (timeCompare !== 0) return timeCompare
+      } else if (aTime && !bTime) {
+        // a has time, b doesn't - a comes first
+        return -1
+      } else if (!aTime && bTime) {
+        // b has time, a doesn't - b comes first
+        return 1
+      }
+      // Both don't have time - continue to secondary sort
+      
+      // Secondary: order (if exists) or created_at timestamp
+      const aOrder = a.order !== undefined ? a.order : (a.created_at ? new Date(a.created_at).getTime() : 0)
+      const bOrder = b.order !== undefined ? b.order : (b.created_at ? new Date(b.created_at).getTime() : 0)
+      
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder
+      }
+      
+      // Final tiebreaker: use id for absolute stability (id never changes)
+      return a.id.localeCompare(b.id)
     })
   }, [habits, today])
   
@@ -220,6 +252,12 @@ export function UpcomingView({
   // No limit, but filtered to max one month ahead (except overdue steps - show all overdue)
   const allFeedSteps = useMemo(() => {
     const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isUrgent: boolean; isOverdue: boolean; goal: any; area: any }> = []
+    
+    // Ensure dailySteps is an array
+    if (!Array.isArray(dailySteps)) {
+      console.error('dailySteps is not an array:', dailySteps)
+      return []
+    }
     
     // Process non-repeating steps (exclude instances of recurring steps - they are handled separately)
     // Also exclude hidden recurring step templates
@@ -353,6 +391,12 @@ export function UpcomingView({
   const upcomingSteps = useMemo(() => {
     const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isUrgent: boolean; isOverdue: boolean; goal: any; area: any }> = []
     const addedStepIds = new Set<string>() // Track which steps have already been added to prevent duplicates
+    
+    // Ensure dailySteps is an array
+    if (!Array.isArray(dailySteps)) {
+      console.error('dailySteps is not an array:', dailySteps)
+      return []
+    }
     
     // Process non-repeating steps (exclude instances of recurring steps - they are handled separately)
     // Also exclude hidden recurring step templates
@@ -572,6 +616,7 @@ export function UpcomingView({
   }, [upcomingSteps])
 
   // Group habits by area for Areas view
+  // Note: habits are already sorted by reminder_time in todaysHabits
   const habitsByArea = useMemo(() => {
     const grouped: Record<string, any[]> = {}
     const noAreaHabits: any[] = []
@@ -585,6 +630,36 @@ export function UpcomingView({
       } else {
         noAreaHabits.push(habit)
       }
+    })
+    
+    // Sort habits within each area group by reminder_time (already sorted in todaysHabits, but ensure consistency)
+    Object.keys(grouped).forEach(areaId => {
+      grouped[areaId].sort((a: any, b: any) => {
+        const aTime = a.reminder_time || ''
+        const bTime = b.reminder_time || ''
+        if (aTime && bTime) {
+          return aTime.localeCompare(bTime)
+        } else if (aTime && !bTime) {
+          return -1
+        } else if (!aTime && bTime) {
+          return 1
+        }
+        return a.id.localeCompare(b.id)
+      })
+    })
+    
+    // Sort noAreaHabits by reminder_time
+    noAreaHabits.sort((a: any, b: any) => {
+      const aTime = a.reminder_time || ''
+      const bTime = b.reminder_time || ''
+      if (aTime && bTime) {
+        return aTime.localeCompare(bTime)
+      } else if (aTime && !bTime) {
+        return -1
+      } else if (!aTime && bTime) {
+        return 1
+      }
+      return a.id.localeCompare(b.id)
     })
     
     return { grouped, noAreaHabits }
