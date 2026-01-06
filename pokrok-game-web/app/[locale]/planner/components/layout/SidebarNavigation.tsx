@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Target, Plus, Footprints, CheckSquare, Settings, Calendar, CalendarRange, CalendarDays, CalendarCheck, BarChart3, ListTodo } from 'lucide-react'
+import { LayoutDashboard, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Target, Plus, Footprints, CheckSquare, Settings, Calendar, CalendarRange, CalendarDays, CalendarCheck, BarChart3, ListTodo, Edit } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
 
 interface SidebarNavigationProps {
@@ -21,7 +21,7 @@ interface SidebarNavigationProps {
   handleCreateGoal: () => void
   handleOpenStepModal: () => void
   handleOpenHabitModal: (habit: any) => void
-  handleOpenAreaEditModal: () => void
+  handleOpenAreaEditModal: (area?: any) => void
   showCreateMenu: boolean
   setShowCreateMenu: (show: boolean) => void
   createMenuButtonRef: React.RefObject<HTMLButtonElement>
@@ -156,16 +156,6 @@ export function SidebarNavigation({
         {!sidebarCollapsed && (
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-black font-playful">{t('navigation.title')}</h2>
-            <button
-              onClick={() => {
-                // Dispatch custom event to open workflows view
-                window.dispatchEvent(new CustomEvent('openWorkflowsSettings'))
-              }}
-              className="p-1.5 rounded-playful-sm hover:bg-primary-50 transition-colors border-2 border-primary-500 text-black hover:text-primary-600"
-              title={t('workflows.title') || 'Nastavení workflows'}
-            >
-              <Settings className="w-4 h-4" />
-            </button>
           </div>
         )}
         <nav className={`${sidebarCollapsed ? 'space-y-2 flex flex-col items-center' : 'space-y-2'}`}>
@@ -267,18 +257,11 @@ export function SidebarNavigation({
             
             return (
               <div className="space-y-2">
-                {/* Areas header with settings */}
+                {/* Areas header */}
                 <div className="flex items-center justify-between px-2 py-1">
                   <h3 className="text-xs font-bold text-black uppercase tracking-wider font-playful">
                     {t('areas.title') || 'Oblasti'}
                   </h3>
-                  <button
-                    onClick={() => handleOpenAreasManagementModal()}
-                    className="p-1.5 rounded-playful-sm hover:bg-primary-50 transition-colors border-2 border-primary-500 text-black hover:text-primary-600"
-                    title={t('areas.manage') || 'Spravovat oblasti'}
-                  >
-                    <Settings className="w-3.5 h-3.5" />
-                  </button>
                 </div>
                 
                 {/* Areas with goals */}
@@ -289,7 +272,12 @@ export function SidebarNavigation({
                   const areaColor = area.color || '#ea580c'
                   
                   return (
-                    <div key={area.id} className="space-y-1.5">
+                    <div 
+                      key={area.id} 
+                      className="space-y-1.5 group"
+                      onMouseEnter={() => setHoveredAreaId(area.id)}
+                      onMouseLeave={() => setHoveredAreaId(null)}
+                    >
                       <div className="flex items-center gap-1.5">
                         <button
                           ref={areaButtonRefs?.get(area.id)}
@@ -297,8 +285,6 @@ export function SidebarNavigation({
                             setMainPanelSection(`area-${area.id}`)
                             // useEffect will automatically expand this area and collapse others
                           }}
-                          onMouseEnter={() => setHoveredAreaId(area.id)}
-                          onMouseLeave={() => setHoveredAreaId(null)}
                           className={`btn-playful-nav flex-1 flex items-center gap-3 px-3 py-2 text-left ${
                             mainPanelSection === `area-${area.id}` ? 'active' : ''
                           }`}
@@ -312,6 +298,18 @@ export function SidebarNavigation({
                           <span className="font-semibold text-sm truncate flex-1">
                             {area.name}
                           </span>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleOpenAreaEditModal(area)
+                          }}
+                          className={`px-2 py-2 rounded-playful-sm transition-all bg-transparent text-black hover:bg-primary-50 border-none ${
+                            hoveredAreaId === area.id ? 'opacity-100' : 'opacity-0'
+                          }`}
+                          title={t('areas.edit') || 'Upravit oblast'}
+                        >
+                          <Edit className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={(e) => {

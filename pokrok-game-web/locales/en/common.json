@@ -792,6 +792,7 @@
     "name": "Name",
     "status": "Status",
     "date": "Date",
+    "time": "Time",
     "steps": "Steps",
     "frequency": "Frequency",
     "days": "Days",
@@ -812,6 +813,14 @@
     "enableReminder": "Enable reminder",
     "showAlways": "Show always",
     "showAlwaysDescription": "Habit will be shown on the main panel regardless of frequency"
+  },
+  "header": {
+    "doneTooltip": {
+      "title": "Completed:",
+      "steps": "{count} steps",
+      "habits": "{count} habits"
+    },
+    "streakTooltip": "Number of days you've been using the app: {days}"
   },
   "focus": {
     "weeklyFocus": "Weekly Focus",
@@ -1058,6 +1067,8 @@
       "newDate": "New date:",
       "markCompleted": "Complete step",
       "markIncomplete": "Mark as incomplete",
+      "markImportant": "Mark as important",
+      "unmarkImportant": "Unmark as important",
       "edit": "Edit",
       "delete": "Delete",
       "newStep": "New step",
@@ -1103,6 +1114,10 @@
   "steps": {
     "title": "STEPS",
     "addStep": "Add step",
+    "add": "Add",
+    "loadMore": "Load more",
+    "remaining": "remaining",
+    "remainingSteps": "remaining",
     "endingThisYear": "Steps ending this year",
     "completedInTarget": "Completed in target",
     "completedAfterTarget": "Completed after target",
@@ -1121,6 +1136,11 @@
         "overdue": "Overdue",
         "future": "Future"
       },
+      "area": {
+        "title": "Area",
+        "all": "All areas",
+        "withoutArea": "Without area"
+      },
       "goal": {
         "title": "Goal",
         "all": "All goals",
@@ -1137,6 +1157,8 @@
     "add": "Add step",
     "create": "Create step",
     "edit": "Edit step",
+    "markImportant": "Mark as important",
+    "unmarkImportant": "Unmark as important",
     "duplicate": "Duplicate step",
     "title": "Title",
     "description": "Description",

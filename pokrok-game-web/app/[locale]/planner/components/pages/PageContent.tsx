@@ -124,6 +124,7 @@ export function PageContent(props: PageContentProps) {
     onNavigateToSteps,
     onStepDateChange,
     onStepTimeChange,
+    onStepImportantChange,
     handleCreateGoal,
     handleOpenStepModal,
     handleOpenHabitModal,
@@ -371,8 +372,8 @@ export function PageContent(props: PageContentProps) {
   
   // Filters state for Steps page
   const [stepsShowCompleted, setStepsShowCompleted] = React.useState(false)
-  const [stepsShowRepeatingSteps, setStepsShowRepeatingSteps] = React.useState(false)
   const [stepsGoalFilter, setStepsGoalFilter] = React.useState<string | null>(null)
+  const [stepsAreaFilter, setStepsAreaFilter] = React.useState<string | null>(null)
   const [stepsDateFilter, setStepsDateFilter] = React.useState<string | null>(null)
   const [stepsMobileMenuOpen, setStepsMobileMenuOpen] = React.useState(false)
   
@@ -1274,6 +1275,7 @@ export function PageContent(props: PageContentProps) {
                   onOpenStepModal={handleOpenStepModal}
                   onStepDateChange={onStepDateChange}
                   onStepTimeChange={onStepTimeChange}
+                  onStepImportantChange={props.onStepImportantChange}
                   loadingHabits={loadingHabits}
                   loadingSteps={loadingSteps}
                   animatingSteps={animatingSteps}
@@ -1364,9 +1366,13 @@ export function PageContent(props: PageContentProps) {
                   <StepsManagementView
                     dailySteps={dailySteps}
                     goals={goals}
+                    areas={areas}
                     onDailyStepsUpdate={onDailyStepsUpdate}
                     userId={userId}
                     player={player}
+                    onStepImportantChange={onStepImportantChange}
+                    handleStepToggle={handleStepToggle}
+                    loadingSteps={loadingSteps}
                     onOpenStepModal={(step?: any) => {
                       if (step) {
                         handleOpenStepModal(undefined, step)
@@ -2387,17 +2393,22 @@ export function PageContent(props: PageContentProps) {
                   </label>
                 </div>
                 
-                {/* Show Repeating Steps Checkbox */}
+                {/* Area Filter */}
                 <div className="mb-3">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={stepsShowRepeatingSteps}
-                      onChange={(e) => setStepsShowRepeatingSteps(e.target.checked)}
-                      className="w-4 h-4 text-primary-600 border-primary-500 rounded-playful-sm focus:ring-primary-500"
-                    />
-                    <span className="text-xs font-medium text-black">{t('steps.filters.showRepeatingSteps') || 'Opakující se kroky'}</span>
-                  </label>
+                  <label className="text-xs font-semibold text-black mb-1.5 block">{t('steps.filters.area.title') || 'Oblast'}</label>
+                  <select
+                    value={stepsAreaFilter || ''}
+                    onChange={(e) => setStepsAreaFilter(e.target.value || null)}
+                    className="w-full px-2 py-1.5 text-xs border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                  >
+                    <option value="">{t('steps.filters.area.all') || 'Všechny oblasti'}</option>
+                    <option value="none">{t('steps.filters.area.withoutArea') || 'Bez oblasti'}</option>
+                    {areas && areas.length > 0 && areas.map((area: any) => (
+                      <option key={area.id} value={area.id}>
+                        {area.name || t('areas.unnamed')}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 
                 {/* Goal Filter */}
@@ -2491,16 +2502,23 @@ export function PageContent(props: PageContentProps) {
                                   <span className="text-sm font-medium text-black">{t('steps.filters.showCompleted')}</span>
                                 </label>
                                 
-                                {/* Show Repeating Steps Checkbox */}
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={stepsShowRepeatingSteps}
-                                    onChange={(e) => setStepsShowRepeatingSteps(e.target.checked)}
-                                    className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
-                                  />
-                                  <span className="text-sm font-medium text-black">{t('steps.filters.showRepeatingSteps') || 'Opakující se kroky'}</span>
-                                </label>
+                                {/* Area Filter */}
+                                <div>
+                                  <label className="text-xs font-semibold text-black mb-1.5 block">{t('steps.filters.area.title') || 'Oblast'}</label>
+                                  <select
+                                    value={stepsAreaFilter || ''}
+                                    onChange={(e) => setStepsAreaFilter(e.target.value || null)}
+                                    className="w-full px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white"
+                                  >
+                                    <option value="">{t('steps.filters.area.all') || 'Všechny oblasti'}</option>
+                                    <option value="none">{t('steps.filters.area.withoutArea') || 'Bez oblasti'}</option>
+                                    {areas && areas.length > 0 && areas.map((area: any) => (
+                                      <option key={area.id} value={area.id}>
+                                        {area.name || t('areas.unnamed')}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
                                 
                                 {/* Goal Filter */}
                                 <div>
@@ -2570,11 +2588,14 @@ export function PageContent(props: PageContentProps) {
                 player={player}
                 userId={userId}
                 onDailyStepsUpdate={onDailyStepsUpdate}
+                onStepImportantChange={onStepImportantChange}
+                handleStepToggle={handleStepToggle}
+                loadingSteps={loadingSteps}
                 onOpenStepModal={handleOpenStepModal}
                 hideHeader={true}
                 showCompleted={stepsShowCompleted}
-                showRepeatingSteps={stepsShowRepeatingSteps}
                 goalFilter={stepsGoalFilter}
+                areaFilter={stepsAreaFilter}
                 dateFilter={stepsDateFilter}
               />
               </div>

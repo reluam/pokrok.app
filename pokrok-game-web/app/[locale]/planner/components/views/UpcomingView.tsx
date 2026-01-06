@@ -5,7 +5,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { isStepScheduledForDay } from '../utils/stepHelpers'
-import { Check, Plus, Footprints, Trash2, ChevronDown, Repeat } from 'lucide-react'
+import { Check, Plus, Footprints, Trash2, ChevronDown, Repeat, Star } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
 
 interface UpcomingViewProps {
@@ -23,6 +23,7 @@ interface UpcomingViewProps {
   onOpenStepModal?: (date?: string, step?: any) => void
   onStepDateChange?: (stepId: string, newDate: string) => Promise<void>
   onStepTimeChange?: (stepId: string, minutes: number) => Promise<void>
+  onStepImportantChange?: (stepId: string, isImportant: boolean) => Promise<void>
   loadingHabits: Set<string>
   loadingSteps: Set<string>
   player?: any
@@ -45,6 +46,7 @@ export function UpcomingView({
   onOpenStepModal,
   onStepDateChange,
   onStepTimeChange,
+  onStepImportantChange,
   loadingHabits,
   loadingSteps,
   player,
@@ -688,25 +690,42 @@ export function UpcomingView({
     return checkDate.getTime() >= monday.getTime() && checkDate.getTime() <= sundayNextWeek.getTime()
   }
   
-  const formatStepDate = (dateStr: string | null) => {
+  const formatStepDate = (dateStr: string | null, isCompleted: boolean = false) => {
     if (!dateStr) return ''
     const date = new Date(normalizeDate(dateStr))
     const dateObj = new Date(date)
     dateObj.setHours(0, 0, 0, 0)
     
-    // Check if date is today
+    // For completed steps, always show the date (not "Today" or weekday name)
+    if (isCompleted) {
+      return date.toLocaleDateString(locale === 'cs' ? 'cs-CZ' : 'en-US', {
+        day: 'numeric',
+        month: 'numeric',
+        year: 'numeric'
+      })
+    }
+    
+    // For non-completed steps, show "Today" if it's today's date
     const isToday = dateObj.getTime() === today.getTime()
     if (isToday) {
       return t('focus.today') || 'Dnes'
     }
     
-    // Check if date is in current or next week
-    if (isDateInCurrentOrNextWeek(dateObj)) {
-      // Show weekday name
+    // Calculate days difference
+    const diffTime = dateObj.getTime() - today.getTime()
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+    
+    // For overdue steps (in the past): use weekday name only if within 6 days
+    if (diffDays < 0 && diffDays >= -6) {
       return dateObj.toLocaleDateString(locale === 'cs' ? 'cs-CZ' : 'en-US', { weekday: 'long' })
     }
     
-    // Show formatted date with year if outside current and next week
+    // For future steps: use weekday name only if within 6 days
+    if (diffDays > 0 && diffDays <= 6) {
+      return dateObj.toLocaleDateString(locale === 'cs' ? 'cs-CZ' : 'en-US', { weekday: 'long' })
+    }
+    
+    // For dates outside the 6-day range (both past and future), always show date
     return date.toLocaleDateString(locale === 'cs' ? 'cs-CZ' : 'en-US', {
       day: 'numeric',
       month: 'numeric',
@@ -1047,7 +1066,7 @@ export function UpcomingView({
                 const isToday = stepDateObj && stepDateObj.getTime() === today.getTime()
                 const isOverdue = (step as any)._isOverdue || false
                 const isFuture = stepDateObj && stepDateObj > today && !isOverdue && !isToday
-                const stepDateFormatted = stepDateStr ? formatStepDate(stepDateStr) : null
+                const stepDateFormatted = stepDateStr ? formatStepDate(stepDateStr, step.completed) : null
                 const goal = (step as any)._goal
                 const area = (step as any)._area
                 
@@ -1180,6 +1199,27 @@ export function UpcomingView({
                           >
                             {step.estimated_time ? `${step.estimated_time} min` : '-'}
                           </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (onStepImportantChange) {
+                                onStepImportantChange(step.id, !(step.is_important === true))
+                              }
+                            }}
+                            disabled={loadingSteps.has(step.id)}
+                            className={`flex items-center justify-center w-5 h-5 rounded-playful-sm transition-all flex-shrink-0 ${
+                              step.is_important
+                                ? 'text-primary-600 hover:text-primary-700 hover:scale-110'
+                                : 'text-gray-400 hover:text-primary-500 hover:scale-110'
+                            } ${loadingSteps.has(step.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title={step.is_important ? (t('steps.unmarkImportant') || 'Označit jako nedůležité') : (t('steps.markImportant') || 'Označit jako důležité')}
+                          >
+                            {loadingSteps.has(step.id) ? (
+                              <div className="animate-spin h-3 w-3 border-2 border-primary-500 border-t-transparent rounded-full"></div>
+                            ) : (
+                              <Star className={`w-4 h-4 ${step.is_important ? 'fill-current' : ''}`} strokeWidth={step.is_important ? 0 : 2} />
+                            )}
+                          </button>
                         </>
                       ) : (
                         // Non-recurring step - show date and time pickers
@@ -1203,6 +1243,27 @@ export function UpcomingView({
                             className={`hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-gray-600 hover:bg-gray-100 border-gray-300`}
                           >
                             {step.estimated_time ? `${step.estimated_time} min` : '-'}
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (onStepImportantChange) {
+                                onStepImportantChange(step.id, !(step.is_important === true))
+                              }
+                            }}
+                            disabled={loadingSteps.has(step.id)}
+                            className={`flex items-center justify-center w-5 h-5 rounded-playful-sm transition-all flex-shrink-0 ${
+                              step.is_important
+                                ? 'text-primary-600 hover:text-primary-700 hover:scale-110'
+                                : 'text-gray-400 hover:text-primary-500 hover:scale-110'
+                            } ${loadingSteps.has(step.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title={step.is_important ? (t('steps.unmarkImportant') || 'Označit jako nedůležité') : (t('steps.markImportant') || 'Označit jako důležité')}
+                          >
+                            {loadingSteps.has(step.id) ? (
+                              <div className="animate-spin h-3 w-3 border-2 border-primary-500 border-t-transparent rounded-full"></div>
+                            ) : (
+                              <Star className={`w-4 h-4 ${step.is_important ? 'fill-current' : ''}`} strokeWidth={step.is_important ? 0 : 2} />
+                            )}
                           </button>
                         </>
                       )}
@@ -1383,7 +1444,7 @@ export function UpcomingView({
                             const isToday = stepDateObj && stepDateObj.getTime() === today.getTime()
                             const isOverdue = (step as any)._isOverdue || false
                             const isFuture = stepDateObj && stepDateObj > today && !isOverdue && !isToday
-                            const stepDateFormatted = stepDate ? formatStepDate(stepDate) : null
+                            const stepDateFormatted = stepDate ? formatStepDate(stepDate, step.completed) : null
                             
                             // Get area from goal for icon color
                             const stepAreaForColor = stepGoal?.area_id ? areaMap.get(stepGoal.area_id) : null
@@ -1483,6 +1544,27 @@ export function UpcomingView({
                                     >
                                       {step.estimated_time ? `${step.estimated_time} min` : '-'}
                                     </button>
+                                    {onStepImportantChange && (
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          onStepImportantChange(step.id, !step.is_important)
+                                        }}
+                                        disabled={loadingSteps.has(step.id)}
+                                        className={`hidden sm:flex items-center justify-center w-5 h-5 rounded-playful-sm transition-all flex-shrink-0 ${
+                                          step.is_important
+                                            ? 'text-primary-600 hover:text-primary-700 hover:scale-110'
+                                            : 'text-gray-400 hover:text-primary-500 hover:scale-110'
+                                        } ${loadingSteps.has(step.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        title={step.is_important ? (t('steps.unmarkImportant') || 'Označit jako nedůležité') : (t('steps.markImportant') || 'Označit jako důležité')}
+                                      >
+                                        {loadingSteps.has(step.id) ? (
+                                          <div className="animate-spin h-3 w-3 border-2 border-primary-500 border-t-transparent rounded-full"></div>
+                                        ) : (
+                                          <Star className={`w-4 h-4 ${step.is_important ? 'fill-current' : ''}`} strokeWidth={step.is_important ? 0 : 2} />
+                                        )}
+                                      </button>
+                                    )}
                                   </>
                                 ) : (
                                   // Non-recurring step - show date and time pickers
@@ -1499,6 +1581,27 @@ export function UpcomingView({
                                     >
                                       {step.estimated_time ? `${step.estimated_time} min` : '-'}
                                     </button>
+                                    {onStepImportantChange && (
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          onStepImportantChange(step.id, !step.is_important)
+                                        }}
+                                        disabled={loadingSteps.has(step.id)}
+                                        className={`hidden sm:flex items-center justify-center w-5 h-5 rounded-playful-sm transition-all flex-shrink-0 ${
+                                          step.is_important
+                                            ? 'text-primary-600 hover:text-primary-700 hover:scale-110'
+                                            : 'text-gray-400 hover:text-primary-500 hover:scale-110'
+                                        } ${loadingSteps.has(step.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        title={step.is_important ? (t('steps.unmarkImportant') || 'Označit jako nedůležité') : (t('steps.markImportant') || 'Označit jako důležité')}
+                                      >
+                                        {loadingSteps.has(step.id) ? (
+                                          <div className="animate-spin h-3 w-3 border-2 border-primary-500 border-t-transparent rounded-full"></div>
+                                        ) : (
+                                          <Star className={`w-4 h-4 ${step.is_important ? 'fill-current' : ''}`} strokeWidth={step.is_important ? 0 : 2} />
+                                        )}
+                                      </button>
+                                    )}
                                   </>
                     )}
                     </div>
@@ -1606,6 +1709,22 @@ export function UpcomingView({
                                     >
                                       {step.estimated_time ? `${step.estimated_time} min` : '-'}
                                     </button>
+                                    {onStepImportantChange && (
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          onStepImportantChange(step.id, !step.is_important)
+                                        }}
+                                        className={`hidden sm:flex items-center justify-center w-5 h-5 rounded-playful-sm transition-all flex-shrink-0 ${
+                                          step.is_important
+                                            ? 'text-primary-600 hover:text-primary-700 hover:scale-110'
+                                            : 'text-gray-400 hover:text-primary-500 hover:scale-110'
+                                        }`}
+                                        title={step.is_important ? (t('steps.unmarkImportant') || 'Označit jako nedůležité') : (t('steps.markImportant') || 'Označit jako důležité')}
+                                      >
+                                        <Star className={`w-4 h-4 ${step.is_important ? 'fill-current' : ''}`} strokeWidth={step.is_important ? 0 : 2} />
+                                      </button>
+                                    )}
                                   </>
                                 ) : (
                                   // Non-recurring step - show date and time pickers
@@ -1634,6 +1753,22 @@ export function UpcomingView({
                                     >
                                       {step.estimated_time ? `${step.estimated_time} min` : '-'}
                                     </button>
+                                    {onStepImportantChange && (
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          onStepImportantChange(step.id, !step.is_important)
+                                        }}
+                                        className={`hidden sm:flex items-center justify-center w-5 h-5 rounded-playful-sm transition-all flex-shrink-0 ${
+                                          step.is_important
+                                            ? 'text-primary-600 hover:text-primary-700 hover:scale-110'
+                                            : 'text-gray-400 hover:text-primary-500 hover:scale-110'
+                                        }`}
+                                        title={step.is_important ? (t('steps.unmarkImportant') || 'Označit jako nedůležité') : (t('steps.markImportant') || 'Označit jako důležité')}
+                                      >
+                                        <Star className={`w-4 h-4 ${step.is_important ? 'fill-current' : ''}`} strokeWidth={step.is_important ? 0 : 2} />
+                                      </button>
+                                    )}
                                   </>
           )}
         </div>
@@ -1791,7 +1926,7 @@ export function UpcomingView({
                     const isToday = stepDateObj && stepDateObj.getTime() === today.getTime()
                     const isOverdue = (step as any)._isOverdue || false
                     const isFuture = stepDateObj && stepDateObj > today && !isOverdue && !isToday
-                    const stepDateFormatted = stepDate ? formatStepDate(stepDate) : null
+                    const stepDateFormatted = stepDate ? formatStepDate(stepDate, step.completed) : null
                     
                     // Get area from goal for icon color
                     const stepAreaForColor = stepGoal?.area_id ? areaMap.get(stepGoal.area_id) : null
@@ -1902,6 +2037,22 @@ export function UpcomingView({
                             >
                               {step.estimated_time ? `${step.estimated_time} min` : '-'}
                             </button>
+                            {onStepImportantChange && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  onStepImportantChange(step.id, !step.is_important)
+                                }}
+                                className={`hidden sm:flex items-center justify-center w-5 h-5 rounded-playful-sm transition-all flex-shrink-0 ${
+                                  step.is_important
+                                    ? 'text-primary-600 hover:text-primary-700 hover:scale-110'
+                                    : 'text-gray-400 hover:text-primary-500 hover:scale-110'
+                                }`}
+                                title={step.is_important ? (t('steps.unmarkImportant') || 'Označit jako nedůležité') : (t('steps.markImportant') || 'Označit jako důležité')}
+                              >
+                                <Star className={`w-4 h-4 ${step.is_important ? 'fill-current' : ''}`} strokeWidth={step.is_important ? 0 : 2} />
+                              </button>
+                            )}
                           </>
                         ) : (
                           // Non-recurring step - show date and time pickers
@@ -1930,8 +2081,24 @@ export function UpcomingView({
                             >
                               {step.estimated_time ? `${step.estimated_time} min` : '-'}
                             </button>
+                            {onStepImportantChange && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  onStepImportantChange(step.id, !step.is_important)
+                                }}
+                                className={`hidden sm:flex items-center justify-center w-5 h-5 rounded-playful-sm transition-all flex-shrink-0 ${
+                                  step.is_important
+                                    ? 'text-primary-600 hover:text-primary-700 hover:scale-110'
+                                    : 'text-gray-400 hover:text-primary-500 hover:scale-110'
+                                }`}
+                                title={step.is_important ? (t('steps.unmarkImportant') || 'Označit jako nedůležité') : (t('steps.markImportant') || 'Označit jako důležité')}
+                              >
+                                <Star className={`w-4 h-4 ${step.is_important ? 'fill-current' : ''}`} strokeWidth={step.is_important ? 0 : 2} />
+                              </button>
+                            )}
                           </>
-        )}
+                        )}
       </div>
                     )
                   })}

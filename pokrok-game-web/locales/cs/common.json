@@ -812,6 +812,14 @@
     "showAlways": "Zobrazit vždy",
     "showAlwaysDescription": "Návyk se zobrazí v hlavním panelu nehledě na frekvenci"
   },
+  "header": {
+    "doneTooltip": {
+      "title": "Dokončeno:",
+      "steps": "{count} kroků",
+      "habits": "{count} návyků"
+    },
+    "streakTooltip": "Počet dnů, po který používáte aplikaci: {days}"
+  },
   "focus": {
     "weeklyFocus": "Týdenní fokus",
     "dailyFocus": "Dnešní fokus",
@@ -1055,9 +1063,11 @@
       "aspiration": "Aspirace",
       "noAspiration": "Bez aspirace",
       "newDate": "Nové datum:",
-      "markCompleted": "Dokončit krok",
-      "markIncomplete": "Označit jako nedokončený",
-      "edit": "Upravit",
+    "markCompleted": "Dokončit krok",
+    "markIncomplete": "Označit jako nedokončený",
+    "markImportant": "Označit jako důležité",
+    "unmarkImportant": "Označit jako nedůležité",
+    "edit": "Upravit",
       "delete": "Smazat",
       "newStep": "Nový krok",
       "updateError": "Nepodařilo se aktualizovat krok",
@@ -1103,6 +1113,10 @@
   "steps": {
     "title": "KROKY",
     "addStep": "Přidat krok",
+    "add": "Přidat",
+    "loadMore": "Načíst více",
+    "remaining": "zbývá",
+    "remainingSteps": "zbývá",
     "endingThisYear": "Kroky končící v tomto roce",
     "completedInTarget": "Splněné v targetu",
     "completedAfterTarget": "Splněné po targetu",
@@ -1121,6 +1135,11 @@
         "overdue": "Po termínu",
         "future": "Budoucí"
       },
+      "area": {
+        "title": "Oblast",
+        "all": "Všechny oblasti",
+        "withoutArea": "Bez oblasti"
+      },
       "goal": {
         "title": "Cíl",
         "all": "Všechny cíle",
@@ -1137,6 +1156,8 @@
     "add": "Přidat krok",
     "create": "Vytvořit krok",
     "edit": "Upravit krok",
+    "markImportant": "Označit jako důležité",
+    "unmarkImportant": "Označit jako nedůležité",
     "duplicate": "Duplikovat krok",
     "title": "Název",
     "description": "Popis",

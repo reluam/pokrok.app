@@ -200,9 +200,9 @@ export async function PUT(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Verify ownership
+    // Verify ownership and get existing area data to preserve fields that aren't being updated
     const existingArea = await sql`
-      SELECT user_id FROM areas WHERE id = ${id}
+      SELECT user_id, name, description, color, icon, "order" FROM areas WHERE id = ${id}
     `
     
     if (existingArea.length === 0) {
@@ -212,16 +212,18 @@ export async function PUT(request: NextRequest) {
     if (existingArea[0].user_id !== dbUser.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
-
+    
+    const existing = existingArea[0]
+    
     try {
       const area = await sql`
         UPDATE areas 
         SET 
-          name = ${name || ''},
-          description = ${description !== undefined ? description : null},
-          color = ${color || '#3B82F6'},
-          icon = ${normalizedIcon !== undefined ? normalizedIcon : null},
-          "order" = ${order !== undefined ? order : 0},
+          name = ${name !== undefined ? (name || '') : existing.name},
+          description = ${description !== undefined ? (description || null) : existing.description},
+          color = ${color !== undefined ? (color || '#3B82F6') : existing.color},
+          icon = ${normalizedIcon !== undefined ? normalizedIcon : existing.icon},
+          "order" = ${order !== undefined ? order : existing.order},
           updated_at = NOW()
         WHERE id = ${id}
         RETURNING *

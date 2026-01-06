@@ -824,7 +824,9 @@ export async function PUT(request: NextRequest) {
     const { dbUser } = authResult
 
     const body = await request.json()
-    const { stepId, completed, completedAt, completionDate, title, description, goalId, goal_id, areaId, aspirationId, aspiration_id, isImportant, isUrgent, estimatedTime, xpReward, date, checklist, requireChecklistComplete, frequency, selectedDays, lastInstanceDate, finishRecurring } = body
+    const { stepId, completed, completedAt, completionDate, title, description, goalId, goal_id, areaId, aspirationId, aspiration_id, isImportant, is_important, isUrgent, estimatedTime, xpReward, date, checklist, requireChecklistComplete, frequency, selectedDays, lastInstanceDate, finishRecurring } = body
+    // Normalize is_important - support both camelCase and snake_case
+    const normalizedIsImportant = isImportant !== undefined ? isImportant : (is_important !== undefined ? is_important : undefined)
     
     // Debug logging
     console.log('Updating step:', { stepId, goalId, goal_id, areaId, hasGoalId: goalId !== undefined, hasGoal_id: goal_id !== undefined, hasAreaId: areaId !== undefined })
@@ -885,8 +887,9 @@ export async function PUT(request: NextRequest) {
     }
     
     // Check what type of update this is
-    const isCompletionOnly = completed !== undefined && title === undefined && date === undefined && finishRecurring === undefined
-    const isDateOnly = date !== undefined && title === undefined && completed === undefined && finishRecurring === undefined
+    const isCompletionOnly = completed !== undefined && title === undefined && date === undefined && finishRecurring === undefined && normalizedIsImportant === undefined
+    const isDateOnly = date !== undefined && title === undefined && completed === undefined && finishRecurring === undefined && normalizedIsImportant === undefined
+    const isImportantOnly = normalizedIsImportant !== undefined && title === undefined && date === undefined && completed === undefined && finishRecurring === undefined
     const isFinishRecurring = finishRecurring === true
     
     if (isCompletionOnly) {
@@ -987,12 +990,14 @@ export async function PUT(request: NextRequest) {
         } else if (shouldMarkCompleted) {
           // No next occurrence and has recurring_end_date - mark as completed
           // Use completionDateValue as completed_at (date of last occurrence)
+          // Also set date field to completionDateValue so the step has a date
           // Convert date string to timestamp by adding time component
           const completedAtTimestamp = `${completionDateValue} 23:59:59`
           await sql`
             UPDATE daily_steps
             SET 
               completed = true,
+              date = CAST(${completionDateValue} AS DATE),
               current_instance_date = NULL,
               last_completed_instance_date = CAST(${completionDateValue} AS DATE),
               completed_at = CAST(${completedAtTimestamp} AS TIMESTAMP),
@@ -1060,53 +1065,6 @@ export async function PUT(request: NextRequest) {
           ...normalizedResult,
           goal: updatedGoal
         })
-      }
-      
-      // NEW: Handle finishing a recurring step (sets recurring_end_date to today and current_instance_date to NULL)
-      if (isFinishRecurring && currentStep.frequency && currentStep.frequency !== null) {
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        const year = today.getFullYear()
-        const month = String(today.getMonth() + 1).padStart(2, '0')
-        const day = String(today.getDate()).padStart(2, '0')
-        const todayStr = `${year}-${month}-${day}`
-        
-        // Update recurring step: set recurring_end_date to today and current_instance_date to NULL
-        await sql`
-          UPDATE daily_steps
-          SET 
-            recurring_end_date = CAST(${todayStr} AS DATE),
-            current_instance_date = NULL,
-            updated_at = NOW()
-          WHERE id = ${stepId} AND user_id = ${dbUser.id}
-        `
-        
-        // Fetch updated step
-        const finishedStepResult = await sql`
-          SELECT 
-            id, user_id, goal_id, title, description, completed, 
-            TO_CHAR(date, 'YYYY-MM-DD') as date,
-            is_important, is_urgent, aspiration_id, area_id,
-            estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
-            COALESCE(checklist, CAST('[]' AS jsonb)) as checklist,
-            COALESCE(require_checklist_complete, false) as require_checklist_complete,
-            frequency, COALESCE(selected_days, CAST('[]' AS jsonb)) as selected_days,
-            TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
-            TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
-            recurring_display_mode, COALESCE(is_hidden, false) as is_hidden,
-            TO_CHAR(current_instance_date, 'YYYY-MM-DD') as current_instance_date
-          FROM daily_steps
-          WHERE id = ${stepId} AND user_id = ${dbUser.id}
-        `
-        
-        const finishedStep = finishedStepResult[0]
-        
-        const normalizedResult = {
-          ...finishedStep,
-          date: normalizeDateFromDB(finishedStep.date)
-        }
-        
-        return NextResponse.json(normalizedResult)
       }
       
       // Check if this is an instance of a recurring step being completed
@@ -1297,7 +1255,124 @@ export async function PUT(request: NextRequest) {
         ...normalizedResult,
         goal: updatedGoal
       })
-    } else if (isDateOnly) {
+    }
+    
+    // NEW: Handle finishing a recurring step (sets recurring_end_date to today and current_instance_date to NULL)
+    // This must be checked separately from isCompletionOnly
+    if (isFinishRecurring) {
+      // First, get the current step to check if it's recurring
+      const currentStepResult = await sql`
+        SELECT 
+          id, user_id, goal_id, title, description, completed, 
+          TO_CHAR(date, 'YYYY-MM-DD') as date,
+          is_important, is_urgent, aspiration_id, area_id,
+          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+          COALESCE(checklist, CAST('[]' AS jsonb)) as checklist,
+          COALESCE(require_checklist_complete, false) as require_checklist_complete,
+          frequency, COALESCE(selected_days, CAST('[]' AS jsonb)) as selected_days,
+          TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
+          TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
+          recurring_display_mode, COALESCE(is_hidden, false) as is_hidden,
+          TO_CHAR(current_instance_date, 'YYYY-MM-DD') as current_instance_date
+        FROM daily_steps
+        WHERE id = ${stepId} AND user_id = ${dbUser.id}
+      `
+      
+      if (currentStepResult.length === 0) {
+        return NextResponse.json({ error: 'Step not found' }, { status: 404 })
+      }
+      
+      const currentStep = currentStepResult[0]
+      
+      if (currentStep.frequency && currentStep.frequency !== null) {
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const year = today.getFullYear()
+        const month = String(today.getMonth() + 1).padStart(2, '0')
+        const day = String(today.getDate()).padStart(2, '0')
+        const todayStr = `${year}-${month}-${day}`
+        
+        // Update recurring step: set recurring_end_date to today, mark as completed, set date to today
+        const completedAtTimestamp = `${todayStr} 23:59:59`
+        await sql`
+          UPDATE daily_steps
+          SET 
+            completed = true,
+            date = CAST(${todayStr} AS DATE),
+            recurring_end_date = CAST(${todayStr} AS DATE),
+            current_instance_date = NULL,
+            completed_at = CAST(${completedAtTimestamp} AS TIMESTAMP),
+            updated_at = NOW()
+          WHERE id = ${stepId} AND user_id = ${dbUser.id}
+        `
+        
+        // Fetch updated step
+        const finishedStepResult = await sql`
+          SELECT 
+            id, user_id, goal_id, title, description, completed, 
+            TO_CHAR(date, 'YYYY-MM-DD') as date,
+            is_important, is_urgent, aspiration_id, area_id,
+            estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+            COALESCE(checklist, CAST('[]' AS jsonb)) as checklist,
+            COALESCE(require_checklist_complete, false) as require_checklist_complete,
+            frequency, COALESCE(selected_days, CAST('[]' AS jsonb)) as selected_days,
+            TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
+            TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
+            recurring_display_mode, COALESCE(is_hidden, false) as is_hidden,
+            TO_CHAR(current_instance_date, 'YYYY-MM-DD') as current_instance_date
+          FROM daily_steps
+          WHERE id = ${stepId} AND user_id = ${dbUser.id}
+        `
+        
+        const finishedStep = finishedStepResult[0]
+        
+        const normalizedResult = {
+          ...finishedStep,
+          date: normalizeDateFromDB(finishedStep.date)
+        }
+        
+        return NextResponse.json(normalizedResult)
+      } else {
+        return NextResponse.json({ error: 'Step is not a recurring step' }, { status: 400 })
+      }
+    }
+    
+    // Check if this is an importance-only update
+    if (isImportantOnly) {
+      // This is an importance-only update (from star icon click)
+      const result = await sql`
+        UPDATE daily_steps 
+        SET 
+          is_important = ${normalizedIsImportant},
+          updated_at = NOW()
+        WHERE id = ${stepId} AND user_id = ${dbUser.id}
+        RETURNING 
+          id, user_id, goal_id, title, description, completed, 
+          TO_CHAR(date, 'YYYY-MM-DD') as date,
+          is_important, is_urgent, aspiration_id, area_id,
+          estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+          COALESCE(checklist, CAST('[]' AS jsonb)) as checklist,
+          COALESCE(require_checklist_complete, false) as require_checklist_complete,
+          frequency, COALESCE(selected_days, CAST('[]' AS jsonb)) as selected_days,
+          TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
+          TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
+          recurring_display_mode, COALESCE(is_hidden, false) as is_hidden,
+          TO_CHAR(current_instance_date, 'YYYY-MM-DD') as current_instance_date
+      `
+      
+      if (result.length === 0) {
+        return NextResponse.json({ error: 'Step not found' }, { status: 404 })
+      }
+      
+      const normalizedResult = {
+        ...result[0],
+        date: normalizeDateFromDB(result[0].date)
+      }
+      return NextResponse.json(normalizedResult)
+    }
+    
+    // Check if this is a date-only update
+    if (isDateOnly) {
       // This is a date-only update (from drag & drop)
       // Use SQL DATE() function to ensure date-only storage
       if (date) {
@@ -1459,7 +1534,7 @@ export async function PUT(request: NextRequest) {
       if (aspirationId !== undefined || aspiration_id !== undefined) {
         updates.aspiration_id = aspirationId || aspiration_id || null
       }
-      if (isImportant !== undefined) updates.is_important = isImportant
+      if (normalizedIsImportant !== undefined) updates.is_important = normalizedIsImportant
       if (isUrgent !== undefined) updates.is_urgent = isUrgent
       if (estimatedTime !== undefined) updates.estimated_time = estimatedTime
       if (xpReward !== undefined) updates.xp_reward = xpReward

@@ -266,15 +266,17 @@ export function JourneyGameView({
   }, [userId])
 
   // Ensure Main Panel is open when user first logs in (after sign-in/sign-up)
+  // Always ensure Main Panel Upcoming view is open when user logs in from Clerk
+  // This overrides any previous localStorage values
   useEffect(() => {
     if (typeof window !== 'undefined' && userId) {
-      // Check if this is a fresh login (no saved page in localStorage)
-      const savedPage = localStorage.getItem('journeyGame_currentPage')
-      if (!savedPage) {
-        // First time login - ensure Main Panel is open
-        setCurrentPage('main')
-        setMainPanelSection('focus-upcoming')
-      }
+      // Always set to Main Panel Upcoming view when user is loaded
+      // This ensures that after login/register, user always sees the main view
+      setCurrentPage('main')
+      setMainPanelSection('focus-upcoming')
+      // Also update localStorage to persist this preference
+      localStorage.setItem('journeyGame_currentPage', 'main')
+      localStorage.setItem('journeyGame_mainPanelSection', 'focus-upcoming')
     }
   }, [userId])
 
@@ -2334,6 +2336,56 @@ export function JourneyGameView({
   }
   
   // Handle step time change from time picker in focus section
+  const handleStepImportantChange = async (stepId: string, isImportant: boolean) => {
+    // Add to loading set
+    setLoadingSteps(prev => new Set(prev).add(stepId))
+    
+    try {
+      const response = await fetch('/api/daily-steps', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          stepId,
+          isImportant: isImportant
+        })
+      })
+
+      if (response.ok) {
+        // Refresh steps list - use userId state instead of player?.user_id
+        const currentUserId = userId || player?.user_id
+        if (!currentUserId) {
+          console.error('Cannot refresh steps: userId is not available')
+          setLoadingSteps(prev => {
+            const newSet = new Set(prev)
+            newSet.delete(stepId)
+            return newSet
+          })
+          return
+        }
+        
+        const stepsResponse = await fetch(`/api/daily-steps?userId=${currentUserId}`)
+        if (stepsResponse.ok) {
+          const stepsData = await stepsResponse.json()
+          const stepsArray = Array.isArray(stepsData) ? stepsData : (stepsData.steps || stepsData.dailySteps || [])
+          if (onDailyStepsUpdate) {
+            onDailyStepsUpdate(stepsArray)
+          }
+        }
+      } else {
+        console.error('Failed to update step importance')
+      }
+    } catch (error) {
+      console.error('Error updating step importance:', error)
+    } finally {
+      // Remove from loading set
+      setLoadingSteps(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(stepId)
+        return newSet
+      })
+    }
+  }
+
   const handleStepTimeChange = async (stepId: string, minutes: number) => {
     try {
       const response = await fetch('/api/daily-steps', {
@@ -3860,6 +3912,8 @@ export function JourneyGameView({
         topMenuItems={topMenuItems}
         totalXp={totalXp}
         loginStreak={loginStreak}
+        totalCompletedSteps={totalCompletedSteps}
+        totalCompletedHabits={totalCompletedHabits}
         mobileTopMenuOpen={mobileTopMenuOpen}
         setMobileTopMenuOpen={setMobileTopMenuOpen}
       />
@@ -3944,6 +3998,7 @@ export function JourneyGameView({
           onNavigateToSteps={onNavigateToSteps}
           onStepDateChange={handleStepDateChange}
           onStepTimeChange={handleStepTimeChange}
+          onStepImportantChange={handleStepImportantChange}
           handleCreateGoal={handleCreateGoal}
           handleOpenStepModal={handleOpenStepModal}
           handleOpenHabitModal={handleOpenHabitModal}
