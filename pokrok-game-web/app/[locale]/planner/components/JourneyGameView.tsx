@@ -41,6 +41,7 @@ import { DatePickerModal } from './modals/DatePickerModal'
 import { AreasManagementModal } from './modals/AreasManagementModal'
 import { AreaEditModal } from './modals/AreaEditModal'
 import { HeaderNavigation } from './layout/HeaderNavigation'
+import { AssistantPanel } from './assistant/AssistantPanel'
 import { DeleteHabitModal } from './modals/DeleteHabitModal'
 import { HabitModal } from './modals/HabitModal'
 import { StepModal } from './modals/StepModal'
@@ -519,6 +520,8 @@ export function JourneyGameView({
   const [habitToDelete, setHabitToDelete] = useState<string | null>(null)
   const [isDeletingHabit, setIsDeletingHabit] = useState(false)
   const [isDeletingArea, setIsDeletingArea] = useState(false)
+  const [assistantMinimized, setAssistantMinimized] = useState(false)
+  const [assistantSmallScreen, setAssistantSmallScreen] = useState(false)
   const [showCreateMenu, setShowCreateMenu] = useState(false)
   const createMenuButtonRef = useRef<HTMLButtonElement>(null)
   const createMenuRef = useRef<HTMLDivElement>(null)
@@ -632,12 +635,15 @@ export function JourneyGameView({
   // Area detail page inline editing state
   const [editingAreaDetailTitle, setEditingAreaDetailTitle] = useState(false)
   const [areaDetailTitleValue, setAreaDetailTitleValue] = useState('')
+  const [editingAreaDetailDescription, setEditingAreaDetailDescription] = useState(false)
+  const [areaDetailDescriptionValue, setAreaDetailDescriptionValue] = useState('')
   const [showAreaDetailIconPicker, setShowAreaDetailIconPicker] = useState(false)
   const [areaDetailIconPickerPosition, setAreaDetailIconPickerPosition] = useState<{ top: number; left: number } | null>(null)
   const [showAreaDetailColorPicker, setShowAreaDetailColorPicker] = useState(false)
   const [areaDetailColorPickerPosition, setAreaDetailColorPickerPosition] = useState<{ top: number; left: number } | null>(null)
   const areaIconRef = useRef<HTMLSpanElement>(null)
   const areaTitleRef = useRef<HTMLHeadingElement>(null)
+  const areaDescriptionRef = useRef<HTMLParagraphElement>(null)
   const areaColorRef = useRef<HTMLButtonElement>(null)
   
   // Load areas
@@ -2753,6 +2759,17 @@ export function JourneyGameView({
         const updatedArea = data.area
         // Update areas in state
         setAreas(prevAreas => prevAreas.map(a => a.id === areaId ? updatedArea : a))
+        
+        // Update area detail page state if we're currently viewing this area
+        if (mainPanelSection?.startsWith('area-') && mainPanelSection.replace('area-', '') === areaId) {
+          // Update local state values to reflect the changes
+          if (updates.name !== undefined) {
+            setAreaDetailTitleValue(updatedArea.name)
+          }
+          if (updates.description !== undefined) {
+            setAreaDetailDescriptionValue(updatedArea.description || '')
+          }
+        }
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
         const errorMessage = errorData.details 
@@ -3614,13 +3631,19 @@ export function JourneyGameView({
       const area = areas.find(a => a.id === areaId)
       
       if (area) {
-        setAreaDetailTitleValue(area.name)
-        setEditingAreaDetailTitle(false)
+        // Only update if not currently editing to avoid interrupting user input
+        if (!editingAreaDetailTitle) {
+          setAreaDetailTitleValue(area.name)
+        }
+        if (!editingAreaDetailDescription) {
+          setAreaDetailDescriptionValue(area.description || '')
+        }
+        // Always close pickers when area changes
         setShowAreaDetailIconPicker(false)
         setShowAreaDetailColorPicker(false)
       }
     }
-  }, [mainPanelSection, areas])
+  }, [mainPanelSection, areas, editingAreaDetailTitle, editingAreaDetailDescription])
 
 
 
@@ -3919,7 +3942,10 @@ export function JourneyGameView({
       />
 
       {/* Main Content Area */}
-      <div className="relative flex flex-col flex-1 overflow-y-auto min-h-0">
+      <div 
+        className="relative flex flex-1 overflow-hidden min-h-0"
+        style={assistantSmallScreen && assistantMinimized && typeof window !== 'undefined' && window.innerWidth >= 640 ? { paddingRight: '48px' } : undefined}
+      >
         <PageContent
           currentPage={currentPage}
           mainPanelSection={mainPanelSection}
@@ -4025,13 +4051,21 @@ export function JourneyGameView({
           setIconSearchQuery={setIconSearchQuery}
           showAreaDetailColorPicker={showAreaDetailColorPicker}
           areaDetailColorPickerPosition={areaDetailColorPickerPosition}
+          setAreaDetailColorPickerPosition={setAreaDetailColorPickerPosition}
           setShowAreaDetailColorPicker={setShowAreaDetailColorPicker}
           areaDetailTitleValue={areaDetailTitleValue}
           setAreaDetailTitleValue={setAreaDetailTitleValue}
           editingAreaDetailTitle={editingAreaDetailTitle}
           setEditingAreaDetailTitle={setEditingAreaDetailTitle}
+          areaDetailDescriptionValue={areaDetailDescriptionValue}
+          setAreaDetailDescriptionValue={setAreaDetailDescriptionValue}
+          editingAreaDetailDescription={editingAreaDetailDescription}
+          setEditingAreaDetailDescription={setEditingAreaDetailDescription}
           areaIconRef={areaIconRef}
           areaTitleRef={areaTitleRef}
+          areaDescriptionRef={areaDescriptionRef}
+          areaColorRef={areaColorRef}
+          setAreaDetailIconPickerPosition={setAreaDetailIconPickerPosition}
           habitsRef={habitsRef}
           stepsRef={stepsRef}
           handleWorkflowComplete={handleWorkflowComplete}
@@ -4139,6 +4173,30 @@ export function JourneyGameView({
               setOnboardingStep('habits-info')
             }
             setMainPanelSection(`goal-${goalId}`)
+          }}
+        />
+
+        {/* Assistant Panel */}
+        <AssistantPanel
+          currentPage={currentPage}
+          mainPanelSection={mainPanelSection}
+          userId={userId || player?.user_id || null}
+          onOpenStepModal={handleOpenStepModal}
+          onNavigateToGoal={(goalId: string) => {
+            setMainPanelSection(`goal-${goalId}`)
+          }}
+          onNavigateToArea={(areaId: string) => {
+            setMainPanelSection(`area-${areaId}`)
+          }}
+          onNavigateToHabits={(habitId?: string) => {
+            setCurrentPage('habits')
+            if (habitId) {
+              setMainPanelSection(`habit-${habitId}`)
+            }
+          }}
+          onMinimizeStateChange={(isMinimized, isSmallScreen) => {
+            setAssistantMinimized(isMinimized)
+            setAssistantSmallScreen(isSmallScreen)
           }}
         />
       </div>

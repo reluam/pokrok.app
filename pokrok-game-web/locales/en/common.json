@@ -161,6 +161,11 @@
         "benefit2": "Visual overview of completed tasks",
         "benefit3": "Easy planning and moving steps"
       },
+      "assistant": {
+        "title": "Assistant",
+        "enable": "Enable Assistant",
+        "description": "Show or hide the assistant in the right panel. The assistant helps with searching and provides tips."
+      },
       "statistics": {
         "title": "Statistics",
         "description": "Track your progress with detailed statistics. See how many steps you've completed, your streak length, and overall progress. Every completed step brings you closer to your goals.",
@@ -492,6 +497,7 @@
       "dailyPlan": "Daily Plan",
       "display": "Display",
       "views": "Views",
+      "assistant": "Assistant",
       "statistics": "Statistics",
       "player": "Character",
       "workflows": "Workflows",
@@ -592,6 +598,11 @@
         "YYYY_MM_DD": "YYYY-MM-DD (e.g. 2025-01-15)",
         "DD_MMM_YYYY": "DD MMM YYYY (e.g. 15 Jan 2025)"
       }
+    },
+    "assistant": {
+      "title": "Assistant",
+      "enable": "Enable Assistant",
+      "enabledDescription": "Show or hide the assistant in the right panel. The assistant helps with searching and provides tips."
     },
     "player": {
       "title": "CHARACTER SETTINGS",
@@ -1527,6 +1538,7 @@
     "areaHabits": "Habits in area",
     "nameRequired": "Area name is required",
     "nameTooLong": "Area name is too long. Maximum length is 255 characters. Current length: {length} characters.",
+    "addDescription": "Click to add description",
     "iconTooLong": "Icon name is too long. Maximum length is 50 characters. Current length: {length} characters. Please choose a shorter icon.",
     "generalSettings": "General Settings",
     "generalSettingsDescription": "Here you can manage general settings for areas.",
@@ -1791,6 +1803,31 @@
     },
     "error": {
       "submitFailed": "Failed to send message"
+    }
+  },
+  "assistant": {
+    "title": "Assistant",
+    "expand": "Expand",
+    "minimize": "Minimize",
+    "maximize": "Maximize",
+    "search": {
+      "placeholder": "Search steps, goals, areas, habits...",
+      "noResults": "No results",
+      "results": "Results",
+      "steps": "Steps",
+      "goals": "Goals",
+      "areas": "Areas",
+      "habits": "Habits",
+      "filters": "Filters",
+      "filterTypes": "Result types",
+      "onlyIncomplete": "Only incomplete steps"
+    },
+    "tips": {
+      "title": "Tips & Advice",
+      "dismiss": "Dismiss",
+      "noTips": "No tips to display",
+      "loading": "Loading tips...",
+      "markAsRead": "Mark as read"
     }
   }
 }

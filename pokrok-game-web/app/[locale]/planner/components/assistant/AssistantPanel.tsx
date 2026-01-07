@@ -1,0 +1,318 @@
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
+import { ChevronLeft, ChevronRight, Sparkles, Search, X } from 'lucide-react'
+import { AssistantPanelHeader } from './AssistantPanelHeader'
+import { AssistantSearch } from './AssistantSearch'
+import { AssistantTips } from './AssistantTips'
+import { AssistantSearchResults } from './AssistantSearchResults'
+
+interface AssistantPanelProps {
+  currentPage: string
+  mainPanelSection?: string | null
+  userId: string | null
+  onOpenStepModal: (step?: any) => void
+  onNavigateToGoal: (goalId: string) => void
+  onNavigateToArea: (areaId: string) => void
+  onNavigateToHabits: (habitId?: string) => void
+  onMinimizeStateChange?: (isMinimized: boolean, isSmallScreen: boolean) => void
+}
+
+export function AssistantPanel({
+  currentPage,
+  mainPanelSection,
+  userId,
+  onOpenStepModal,
+  onNavigateToGoal,
+  onNavigateToArea,
+  onNavigateToHabits,
+  onMinimizeStateChange
+}: AssistantPanelProps) {
+  const t = useTranslations()
+  const [isEnabled, setIsEnabled] = useState(true) // Default true, will be loaded from settings
+  const [isMinimized, setIsMinimized] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [shouldFocusSearch, setShouldFocusSearch] = useState(false)
+  const [hasSearchResults, setHasSearchResults] = useState(false)
+  const [searchResults, setSearchResults] = useState<any[]>([])
+
+  // Check if we're on small screen (< 1024px) and mobile (< 640px)
+  // Initialize with window check for SSR compatibility
+  const [isSmallScreen, setIsSmallScreen] = useState(() => 
+    typeof window !== 'undefined' ? window.innerWidth < 1024 : false
+  )
+  const [isMobile, setIsMobile] = useState(() => 
+    typeof window !== 'undefined' ? window.innerWidth < 640 : false
+  )
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  // Load assistant enabled state from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('assistantEnabled')
+      setIsEnabled(saved !== 'false') // Default to true if not set
+      
+      // Load minimized state from localStorage
+      const savedMinimized = localStorage.getItem('assistantPanelMinimized') === 'true'
+      setIsMinimized(savedMinimized)
+      
+      setIsLoading(false)
+    }
+  }, [])
+
+  // Listen for settings changes (e.g., from Settings page)
+  useEffect(() => {
+    const handleSettingsChange = () => {
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('assistantEnabled')
+        setIsEnabled(saved !== 'false') // Default to true if not set
+      }
+    }
+
+    window.addEventListener('assistantSettingsChanged', handleSettingsChange)
+    return () => window.removeEventListener('assistantSettingsChanged', handleSettingsChange)
+  }, [])
+
+  // Auto-minimize on small screens when resizing down (but allow user to expand manually)
+  useEffect(() => {
+    let previousWidth = window.innerWidth
+    
+    const handleResize = () => {
+      const currentWidth = window.innerWidth
+      // Only auto-minimize when resizing DOWN below 1024px
+      // Don't auto-minimize if user manually expanded it
+      if (currentWidth < 1024 && previousWidth >= 1024 && !isMinimized) {
+        setIsMinimized(true)
+        localStorage.setItem('assistantPanelMinimized', 'true')
+      }
+      previousWidth = currentWidth
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [isMinimized])
+
+  const handleToggleMinimizeWithTracking = useCallback(() => {
+    const newMinimized = !isMinimized
+    setIsMinimized(newMinimized)
+    localStorage.setItem('assistantPanelMinimized', String(newMinimized))
+  }, [isMinimized])
+
+  const handleOpenSearch = useCallback(() => {
+    setIsMinimized(false)
+    setShouldFocusSearch(true)
+    localStorage.setItem('assistantPanelMinimized', 'false')
+  }, [])
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      if (typeof window === 'undefined') return
+      const width = window.innerWidth
+      setIsSmallScreen(width < 1024)
+      setIsMobile(width < 640)
+      // Close modal when resizing to non-mobile
+      if (width >= 640 && isModalOpen) {
+        setIsModalOpen(false)
+      }
+    }
+    checkScreenSize()
+    window.addEventListener('resize', checkScreenSize)
+    return () => window.removeEventListener('resize', checkScreenSize)
+  }, [isModalOpen])
+
+  // Notify parent about minimize state changes
+  useEffect(() => {
+    if (onMinimizeStateChange) {
+      onMinimizeStateChange(isMinimized, isSmallScreen)
+    }
+  }, [isMinimized, isSmallScreen, onMinimizeStateChange])
+
+  // Don't render if explicitly disabled
+  if (!isLoading && !isEnabled) {
+    return null
+  }
+
+  // Don't render panel on mobile - use floating button + modal instead
+  if (isMobile) {
+    return (
+      <>
+        {/* Floating button - bottom right */}
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="fixed bottom-6 right-6 z-[99] w-14 h-14 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ease-in-out active:scale-95"
+          aria-label={t('assistant.expand')}
+        >
+          <Sparkles className="w-6 h-6" />
+        </button>
+
+        {/* Fullscreen modal */}
+        {isModalOpen && (
+          <div className="fixed z-[100] bg-primary-50 flex flex-col" style={{ top: '64px', left: 0, right: 0, bottom: 0 }}>
+            {/* Modal header */}
+            <div className="flex items-center justify-between p-4 border-b-2 border-primary-200 bg-white flex-shrink-0">
+              <h2 className="text-lg font-semibold text-primary-900 flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-primary-600" />
+                {t('assistant.title')}
+              </h2>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="p-2 hover:bg-primary-100 active:bg-primary-200 rounded-lg transition-colors touch-manipulation flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-label={t('common.close')}
+              >
+                <X className="w-6 h-6 text-primary-900" />
+              </button>
+            </div>
+
+            {/* Modal content */}
+            <div className="flex-1 overflow-hidden min-h-0 flex flex-col">
+              <div className="flex-shrink-0">
+                <AssistantSearch
+                  userId={userId}
+                  onOpenStepModal={onOpenStepModal}
+                  onNavigateToGoal={onNavigateToGoal}
+                  onNavigateToArea={onNavigateToArea}
+                  onNavigateToHabits={onNavigateToHabits}
+                  shouldFocus={false}
+                  onResultsChange={(hasResults) => setHasSearchResults(hasResults)}
+                  onSearchResultsChange={(results) => setSearchResults(results)}
+                />
+              </div>
+              {hasSearchResults && searchResults.length > 0 ? (
+                <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+                  <AssistantSearchResults
+                    results={searchResults}
+                    onResultClick={(result) => {
+                      switch (result.type) {
+                        case 'step':
+                          onOpenStepModal(result)
+                          break
+                        case 'goal':
+                          onNavigateToGoal(result.id)
+                          break
+                        case 'area':
+                          onNavigateToArea(result.id)
+                          break
+                        case 'habit':
+                          onNavigateToHabits(result.id)
+                          break
+                      }
+                      // Close modal after clicking result on mobile
+                      setIsModalOpen(false)
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+                  <AssistantTips
+                    currentPage={currentPage}
+                    mainPanelSection={mainPanelSection}
+                    userId={userId}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </>
+    )
+  }
+
+  // Expanded state - show full panel
+  // On small screens (640px - 1024px): 
+  //   - minimized: normal flex (takes 48px space), page adjusts
+  //   - expanded: fixed overlay (overlays page)
+  // On large screens: normal flex layout (always takes space)
+  const panelClasses = isSmallScreen
+    ? isMinimized 
+      ? `flex flex-col fixed right-0 top-16 bottom-0 z-50 w-12`  // Fixed position, always at right edge
+      : `fixed right-0 top-16 bottom-0 z-50 shadow-2xl w-72`  // Overlay
+    : `flex flex-col relative z-50 ml-auto ${isMinimized ? 'w-12' : 'w-72'}`  // Normal flex - push to right
+  
+  return (
+    <>
+      {isSmallScreen && !isMinimized && (
+        <div 
+          className="fixed inset-0 top-16 bg-black bg-opacity-50 z-40 transition-opacity duration-300 ease-in-out"
+          onClick={handleToggleMinimizeWithTracking}
+        />
+      )}
+      <div 
+        className={`${panelClasses} bg-primary-50 border-l-4 border-primary-500 transition-all duration-300 ease-in-out`}
+      >
+        {isMinimized ? (
+          <div className="flex flex-col items-center w-12">
+            <button
+              onClick={handleToggleMinimizeWithTracking}
+              className="w-full p-3 hover:bg-primary-100 transition-colors flex items-center justify-center group"
+              title={t('assistant.expand')}
+              aria-label={t('assistant.expand')}
+            >
+              <Sparkles className="w-5 h-5 text-primary-600 group-hover:text-primary-700" />
+            </button>
+            <div className="w-full border-b border-primary-300"></div>
+            <button
+              onClick={handleOpenSearch}
+              className="w-full p-3 hover:bg-primary-100 transition-colors flex items-center justify-center group"
+              title={t('assistant.search.placeholder')}
+              aria-label={t('assistant.search.placeholder')}
+            >
+              <Search className="w-5 h-5 text-primary-600 group-hover:text-primary-700" />
+            </button>
+          </div>
+        ) : (
+          <>
+            <AssistantPanelHeader onMinimize={handleToggleMinimizeWithTracking} />
+            <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+              <div className="flex-shrink-0">
+                <AssistantSearch
+                  userId={userId}
+                  onOpenStepModal={onOpenStepModal}
+                  onNavigateToGoal={onNavigateToGoal}
+                  onNavigateToArea={onNavigateToArea}
+                  onNavigateToHabits={onNavigateToHabits}
+                  shouldFocus={shouldFocusSearch}
+                  onFocusHandled={() => setShouldFocusSearch(false)}
+                  onResultsChange={(hasResults) => setHasSearchResults(hasResults)}
+                  onSearchResultsChange={(results) => setSearchResults(results)}
+                />
+              </div>
+              {hasSearchResults && searchResults.length > 0 ? (
+                <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+                  <AssistantSearchResults
+                    results={searchResults}
+                    onResultClick={(result) => {
+                      switch (result.type) {
+                        case 'step':
+                          onOpenStepModal(result)
+                          break
+                        case 'goal':
+                          onNavigateToGoal(result.id)
+                          break
+                        case 'area':
+                          onNavigateToArea(result.id)
+                          break
+                        case 'habit':
+                          onNavigateToHabits(result.id)
+                          break
+                      }
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+                  <AssistantTips
+                    currentPage={currentPage}
+                    mainPanelSection={mainPanelSection}
+                    userId={userId}
+                  />
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  )
+}
+

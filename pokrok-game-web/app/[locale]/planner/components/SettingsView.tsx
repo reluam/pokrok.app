@@ -5,7 +5,7 @@ import { useUser, useClerk } from '@clerk/nextjs'
 import { useTranslations, useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { locales, type Locale } from '@/i18n/config'
-import { User, Target, Footprints, BarChart3, Eye, UserCircle, Menu, CreditCard } from 'lucide-react'
+import { User, Target, Footprints, BarChart3, Eye, UserCircle, Menu, CreditCard, Sparkles } from 'lucide-react'
 import { UserProfile, PricingTable, Protect } from '@clerk/nextjs'
 import { colorPalettes, applyColorTheme } from '@/lib/color-utils'
 import { getDefaultCurrencyByLocale } from '@/lib/metric-units'
@@ -17,7 +17,7 @@ interface SettingsViewProps {
   onNavigateToMain?: () => void
 }
 
-type SettingsTab = 'user' | 'goals' | 'steps' | 'statistics' | 'display' | 'views' | 'subscription' | 'danger'
+type SettingsTab = 'user' | 'goals' | 'steps' | 'statistics' | 'display' | 'views' | 'assistant' | 'subscription' | 'danger'
 
 export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain }: SettingsViewProps) {
   const { user } = useUser()
@@ -37,7 +37,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
     if (typeof window !== 'undefined') {
       try {
         const savedTab = localStorage.getItem('settingsView_activeTab')
-        if (savedTab && ['user', 'goals', 'steps', 'statistics', 'display', 'subscription', 'danger'].includes(savedTab)) {
+        if (savedTab && ['user', 'goals', 'steps', 'statistics', 'display', 'assistant', 'subscription', 'danger'].includes(savedTab)) {
           return savedTab as SettingsTab
         }
       } catch (error) {
@@ -100,6 +100,17 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
     weightUnitPreference: 'kg' as 'kg' | 'lbs'
   })
   const [isSavingMetric, setIsSavingMetric] = useState(false)
+
+  // Assistant settings state - load from localStorage
+  const [assistantEnabled, setAssistantEnabled] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('assistantEnabled')
+      return saved !== 'false' // Default to true if not set
+    }
+    return true
+  })
+  const [isLoadingAssistant, setIsLoadingAssistant] = useState(false)
+  const [isSavingAssistant, setIsSavingAssistant] = useState(false)
 
   // Reset data and delete account state
   const [showResetDataDialog, setShowResetDataDialog] = useState(false)
@@ -193,6 +204,17 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
     } finally {
       setIsSavingMetric(false)
     }
+  }
+
+  // Handler for saving assistant settings
+  const handleSaveAssistantSettings = (enabled: boolean) => {
+    // Save to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('assistantEnabled', String(enabled))
+    }
+    setAssistantEnabled(enabled)
+    // Notify AssistantPanel about the change
+    window.dispatchEvent(new CustomEvent('assistantSettingsChanged'))
   }
 
   // Handler for saving display settings
@@ -448,6 +470,7 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
     { id: 'steps' as SettingsTab, label: t('settings.tabs.steps'), icon: Footprints },
     { id: 'statistics' as SettingsTab, label: t('settings.tabs.statistics'), icon: BarChart3 },
     { id: 'display' as SettingsTab, label: t('settings.tabs.display'), icon: Eye },
+    { id: 'assistant' as SettingsTab, label: t('settings.tabs.assistant'), icon: Sparkles },
     { id: 'subscription' as SettingsTab, label: t('settings.tabs.subscription'), icon: CreditCard },
     { id: 'danger' as SettingsTab, label: t('settings.tabs.danger'), icon: UserCircle }
   ]
@@ -791,6 +814,49 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
                 <p className="text-xs text-gray-600 mt-2 font-playful">
                     {t('settings.display.dateFormatDescription')}
                 </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+
+      case 'assistant':
+        return (
+          <div>
+            <div className="space-y-6">
+              <div>
+                <h4 className="text-lg font-bold text-black font-playful mb-4">
+                  ✨ {t('settings.assistant.title')}
+                </h4>
+                <div className="box-playful-highlight p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <label className="block text-sm font-bold text-black font-playful mb-1">
+                        {t('settings.assistant.enable')}
+                      </label>
+                      <p className="text-xs text-gray-600 font-playful">
+                        {t('settings.assistant.enabledDescription')}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleSaveAssistantSettings(!assistantEnabled)}
+                      disabled={isSavingAssistant}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        assistantEnabled ? 'bg-primary-500' : 'bg-gray-300'
+                      } ${isLoadingAssistant || isSavingAssistant ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      role="switch"
+                      aria-checked={assistantEnabled}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          assistantEnabled ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  {(isLoadingAssistant || isSavingAssistant) && (
+                    <p className="text-sm text-primary-600 mt-2 font-playful">{t('common.loading')}</p>
+                  )}
                 </div>
               </div>
             </div>

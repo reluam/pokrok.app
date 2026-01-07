@@ -152,6 +152,11 @@
         "benefit2": "Vizuální přehled dokončených úkolů",
         "benefit3": "Snadné plánování a přesouvání kroků"
       },
+      "assistant": {
+        "title": "Asistent",
+        "enable": "Zapnout asistenta",
+        "description": "Zobrazit nebo skrýt asistenta v pravém panelu. Asistent pomáhá s vyhledáváním a poskytuje tipy."
+      },
       "statistics": {
         "title": "Statistiky",
         "description": "Sledujte svůj pokrok s detailními statistikami. Vidíte, kolik kroků jste dokončili, jak dlouhý máte streak a celkový pokrok. Každý dokončený krok vás přibližuje k vašim cílům.",
@@ -489,9 +494,10 @@
       "goals": "Cíle",
       "steps": "Kroky",
       "dailyPlan": "Denní plán",
-      "display": "Zobrazení",
-      "views": "Views",
-      "statistics": "Statistiky",
+    "display": "Zobrazení",
+    "views": "Views",
+    "assistant": "Asistent",
+    "statistics": "Statistiky",
       "player": "Postava",
       "workflows": "Workflows",
       "subscription": "Předplatné",
@@ -591,6 +597,11 @@
         "YYYY_MM_DD": "YYYY-MM-DD (např. 2025-01-15)",
         "DD_MMM_YYYY": "DD MMM YYYY (např. 15 led 2025)"
       }
+    },
+    "assistant": {
+      "title": "Asistent",
+      "enable": "Zapnout asistenta",
+      "enabledDescription": "Zobrazit nebo skrýt asistenta v pravém panelu. Asistent pomáhá s vyhledáváním a poskytuje tipy."
     },
     "player": {
       "title": "NASTAVENÍ POSTAVY",
@@ -1526,6 +1537,7 @@
     "areaHabits": "Návyky v oblasti",
     "nameRequired": "Název oblasti je povinný",
     "nameTooLong": "Název oblasti je příliš dlouhý. Maximální délka je 255 znaků. Aktuální délka: {length} znaků.",
+    "addDescription": "Klikněte pro přidání popisku",
     "iconTooLong": "Název ikony je příliš dlouhý. Maximální délka je 50 znaků. Aktuální délka: {length} znaků. Prosím vyberte kratší ikonu.",
     "generalSettings": "Obecné nastavení",
     "generalSettingsDescription": "Zde můžete spravovat obecná nastavení pro oblasti.",
@@ -1790,6 +1802,31 @@
     },
     "error": {
       "submitFailed": "Nepodařilo se odeslat zprávu"
+    }
+  },
+  "assistant": {
+    "title": "Asistent",
+    "expand": "Rozbalit",
+    "minimize": "Minimalizovat",
+    "maximize": "Maximalizovat",
+    "search": {
+      "placeholder": "Hledat kroky, cíle, oblasti, návyky...",
+      "noResults": "Žádné výsledky",
+      "results": "Výsledky",
+      "steps": "Kroky",
+      "goals": "Cíle",
+      "areas": "Oblasti",
+      "habits": "Návyky",
+      "filters": "Filtry",
+      "filterTypes": "Typy výsledků",
+      "onlyIncomplete": "Pouze nedokončené kroky"
+    },
+    "tips": {
+      "title": "Tipy a rady",
+      "dismiss": "Zavřít",
+      "noTips": "Žádné tipy k zobrazení",
+      "loading": "Načítám tipy...",
+      "markAsRead": "Označit jako přečtené"
     }
   }
 }
