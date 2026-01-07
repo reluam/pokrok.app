@@ -3880,7 +3880,7 @@ export function JourneyGameView({
         className="relative flex flex-1 overflow-hidden min-h-0"
         style={assistantSmallScreen && assistantMinimized && typeof window !== 'undefined' && window.innerWidth >= 640 ? { paddingRight: '48px' } : undefined}
       >
-        <div className="flex-1 min-w-0 overflow-hidden">
+        <div className="flex-1 min-w-0 overflow-hidden h-full">
           <PageContent
           currentPage={currentPage}
           mainPanelSection={mainPanelSection}
@@ -4086,6 +4086,7 @@ export function JourneyGameView({
             setMainPanelSection(`goal-${goalId}`)
           }}
         />
+        </div>
 
         {/* Assistant Panel */}
         <AssistantPanel
@@ -4110,7 +4111,6 @@ export function JourneyGameView({
             setAssistantSmallScreen(isSmallScreen)
           }}
         />
-        </div>
       </div>
 
       {/* Date Picker Modal */}

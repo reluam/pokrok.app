@@ -157,8 +157,13 @@ export function PageContent(props: PageContentProps) {
     setAreaDetailTitleValue,
     editingAreaDetailTitle,
     setEditingAreaDetailTitle,
+    areaDetailDescriptionValue,
+    setAreaDetailDescriptionValue,
+    editingAreaDetailDescription,
+    setEditingAreaDetailDescription,
     areaIconRef,
     areaTitleRef,
+    areaDescriptionRef,
     habitsRef,
     stepsRef,
     handleWorkflowComplete,
@@ -814,7 +819,7 @@ export function PageContent(props: PageContentProps) {
             const areaColor = area.color || '#ea580c'
             
             return (
-              <div className="w-full flex flex-col bg-primary-50" style={{ height: '100%' }}>
+              <div key={`area-${areaId}-${area.icon}-${area.color}`} className="w-full flex flex-col bg-primary-50" style={{ height: '100%' }}>
                 {/* Area detail content */}
                 <div className="flex-1 flex flex-col overflow-hidden" style={{ minHeight: 0 }}>
                   <div className="p-6 flex-shrink-0">
@@ -878,8 +883,45 @@ export function PageContent(props: PageContentProps) {
                                 {area.name}
                               </h1>
                             )}
-                            {area.description && (
-                              <p className="text-sm text-gray-600 mt-0.5 truncate">{area.description}</p>
+                            {editingAreaDetailDescription ? (
+                              <textarea
+                                ref={areaDescriptionRef as React.RefObject<HTMLTextAreaElement>}
+                                value={areaDetailDescriptionValue}
+                                onChange={(e) => setAreaDetailDescriptionValue(e.target.value)}
+                                onBlur={async () => {
+                                  if (areaDetailDescriptionValue !== (area.description || '')) {
+                                    await handleUpdateAreaForDetail(areaId, { description: areaDetailDescriptionValue.trim() || null })
+                                  } else {
+                                    setAreaDetailDescriptionValue(area.description || '')
+                                  }
+                                  setEditingAreaDetailDescription(false)
+                                }}
+                                onKeyDown={async (e) => {
+                                  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                                    if (areaDetailDescriptionValue !== (area.description || '')) {
+                                      await handleUpdateAreaForDetail(areaId, { description: areaDetailDescriptionValue.trim() || null })
+                                    }
+                                    setEditingAreaDetailDescription(false)
+                                  } else if (e.key === 'Escape') {
+                                    setAreaDetailDescriptionValue(area.description || '')
+                                    setEditingAreaDetailDescription(false)
+                                  }
+                                }}
+                                className="text-sm text-gray-600 mt-0.5 bg-transparent border-2 border-primary-500 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500 w-full resize-none"
+                                rows={2}
+                                autoFocus
+                              />
+                            ) : (
+                              <p 
+                                ref={areaDescriptionRef as React.RefObject<HTMLParagraphElement>}
+                                onClick={() => {
+                                  setAreaDetailDescriptionValue(area.description || '')
+                                  setEditingAreaDetailDescription(true)
+                                }}
+                                className={`text-sm text-gray-600 mt-0.5 truncate cursor-pointer hover:text-primary-600 transition-colors ${!area.description ? 'italic text-gray-400' : ''}`}
+                              >
+                                {area.description || (t('areas.addDescription') || 'Klikněte pro přidání popisku')}
+                              </p>
                             )}
                           </div>
                         </div>
@@ -1403,7 +1445,7 @@ export function PageContent(props: PageContentProps) {
         }
         
         return (
-          <div className="w-full flex bg-primary-50 overflow-hidden" style={{ height: '100%' }}>
+          <div className="flex-1 flex bg-primary-50 overflow-hidden h-full">
             {/* Left sidebar - Navigation - Hidden on mobile */}
             <SidebarNavigation
               sidebarCollapsed={sidebarCollapsed}
@@ -1687,7 +1729,8 @@ export function PageContent(props: PageContentProps) {
 
       case 'help': {
         return (
-          <HelpView
+          <div className="w-full h-full">
+            <HelpView
             onAddGoal={async () => {
               setCurrentPage('main')
               // Create goal and redirect to its detail page
@@ -1733,6 +1776,7 @@ export function PageContent(props: PageContentProps) {
             realHabits={habits}
             realSteps={dailySteps}
           />
+          </div>
         );
       }
 
@@ -1753,9 +1797,9 @@ export function PageContent(props: PageContentProps) {
         }
 
         return (
-          <div className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 overflow-hidden h-full">
             {/* Left Panel - Filters and Add button - hidden on mobile */}
-            <div className="hidden md:flex w-64 border-r-2 border-primary-500 bg-white flex flex-col">
+            <div className={`hidden md:flex ${sidebarCollapsed ? 'w-14' : 'w-64'} border-r-2 border-primary-500 bg-white flex flex-col h-full flex-shrink-0 transition-all duration-300`}>
               {/* Header */}
               <div className="p-4 border-b-2 border-primary-500">
                 <button
@@ -2117,11 +2161,11 @@ export function PageContent(props: PageContentProps) {
         const selectedHabit = selectedHabitForDetail ? habits.find((h: any) => h.id === selectedHabitForDetail) : null
         
         return (
-          <div className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 overflow-hidden h-full">
             {/* Left Panel - List of habits - Hidden on mobile */}
-            <div className="hidden md:flex w-64 border-r-2 border-primary-500 bg-white flex flex-col">
+            <div className={`hidden md:flex ${sidebarCollapsed ? 'w-14' : 'w-64'} border-r-2 border-primary-500 bg-white flex flex-col h-full flex-shrink-0 transition-all duration-300`}>
               {/* Header */}
-              <div className="p-4 border-b-2 border-primary-500">
+              <div className="p-4 border-b-2 border-primary-500 flex-shrink-0">
                 <button
                   onClick={() => setSelectedHabitForDetail(null)}
                   className="text-sm font-bold text-black font-playful mb-2 hover:text-primary-600 transition-colors cursor-pointer text-left w-full"
@@ -2134,7 +2178,7 @@ export function PageContent(props: PageContentProps) {
               </div>
               
               {/* Habits list */}
-              <div className="flex-1 overflow-y-auto">
+              <div className="flex-1 overflow-y-auto min-h-0">
                 {filteredHabits.length === 0 ? (
                   <div className="p-4 text-xs text-gray-500 text-center">
                     {t('habits.noHabits') || 'Žádné návyky'}
@@ -2171,7 +2215,7 @@ export function PageContent(props: PageContentProps) {
               </div>
 
               {/* Add button at bottom */}
-              <div className="p-4 border-t-2 border-primary-500">
+              <div className="p-4 border-t-2 border-primary-500 flex-shrink-0">
                 <button
                   onClick={() => handleOpenHabitModal(null)}
                   className="btn-playful-base w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-white hover:bg-primary-50"
@@ -2370,11 +2414,11 @@ export function PageContent(props: PageContentProps) {
         const stepsCount = filteredSteps.length
 
         return (
-          <div className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 overflow-hidden h-full">
             {/* Left Panel - Filters and Add button - Hidden on mobile */}
-            <div className="hidden md:flex w-64 border-r-2 border-primary-500 bg-white flex flex-col">
+            <div className={`hidden md:flex ${sidebarCollapsed ? 'w-14' : 'w-64'} border-r-2 border-primary-500 bg-white flex flex-col h-full flex-shrink-0 transition-all duration-300`}>
               {/* Filters at top */}
-              <div className="p-4 border-b-2 border-primary-500 overflow-y-auto">
+              <div className="p-4 border-b-2 border-primary-500 flex-shrink-0">
                 <h3 className="text-sm font-bold text-black font-playful mb-4">{t('navigation.steps')}</h3>
                 <p className="text-xs text-gray-600 mb-4">
                   {stepsCount} {stepsCount === 1 ? (localeCode === 'cs-CZ' ? 'krok' : 'step') : (localeCode === 'cs-CZ' ? 'kroků' : 'steps')}
@@ -2450,7 +2494,7 @@ export function PageContent(props: PageContentProps) {
               </div>
 
               {/* Add button at bottom */}
-              <div className="mt-auto p-4 border-t-2 border-primary-500">
+              <div className="mt-auto p-4 border-t-2 border-primary-500 flex-shrink-0">
                 <button
                   onClick={() => handleOpenStepModal()}
                   className="btn-playful-base w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-white hover:bg-primary-50"

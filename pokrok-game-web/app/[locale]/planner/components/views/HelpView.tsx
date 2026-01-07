@@ -1620,15 +1620,20 @@ export function HelpView({
   }
 
   return (
-    <div className="w-full h-full flex bg-background">
+    <div className="w-full h-full flex bg-background overflow-hidden">
       {/* Sidebar */}
-      <div className="hidden md:block w-56 border-r-2 border-primary-500 bg-white flex-shrink-0 flex flex-col">
-        <div className="p-4 flex-1 overflow-y-auto">
+      <div className="hidden md:flex w-64 border-r-2 border-primary-500 bg-white flex-shrink-0 flex flex-col h-full">
+        {/* Header */}
+        <div className="p-4 border-b-2 border-primary-500 flex-shrink-0">
           <h2 className="text-sm font-bold text-black font-playful mb-3 flex items-center gap-2">
             <HelpCircle className="w-4 h-4 text-primary-600" />
             {t('title')}
           </h2>
-          <nav className="space-y-1">
+        </div>
+        
+        {/* Navigation */}
+        <div className="flex-1 overflow-y-auto min-h-0">
+          <nav className="p-2 space-y-1">
             {categories.map((category) => {
               const Icon = category.icon
               return (
@@ -1648,8 +1653,9 @@ export function HelpView({
             })}
           </nav>
         </div>
+        
         {/* Contact button at bottom */}
-        <div className="p-4 border-t-2 border-primary-500">
+        <div className="p-4 border-t-2 border-primary-500 flex-shrink-0">
           <button
             onClick={() => setShowContactModal(true)}
             className="btn-playful-base w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-white hover:bg-primary-50"
