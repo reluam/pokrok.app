@@ -31,6 +31,7 @@ export function AssistantPanel({
 }: AssistantPanelProps) {
   const t = useTranslations()
   const [isEnabled, setIsEnabled] = useState(true) // Default true, will be loaded from settings
+  const [showTips, setShowTips] = useState(true) // Default true, will be loaded from localStorage
   const [isMinimized, setIsMinimized] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [shouldFocusSearch, setShouldFocusSearch] = useState(false)
@@ -47,11 +48,14 @@ export function AssistantPanel({
   )
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  // Load assistant enabled state from localStorage
+  // Load assistant enabled state and show tips setting from localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('assistantEnabled')
       setIsEnabled(saved !== 'false') // Default to true if not set
+      
+      const savedShowTips = localStorage.getItem('assistantShowTips')
+      setShowTips(savedShowTips !== 'false') // Default to true if not set
       
       // Load minimized state from localStorage
       const savedMinimized = localStorage.getItem('assistantPanelMinimized') === 'true'
@@ -67,6 +71,9 @@ export function AssistantPanel({
       if (typeof window !== 'undefined') {
         const saved = localStorage.getItem('assistantEnabled')
         setIsEnabled(saved !== 'false') // Default to true if not set
+        
+        const savedShowTips = localStorage.getItem('assistantShowTips')
+        setShowTips(savedShowTips !== 'false') // Default to true if not set
       }
     }
 
@@ -204,11 +211,20 @@ export function AssistantPanel({
                 </div>
               ) : (
                 <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
-                  <AssistantTips
-                    currentPage={currentPage}
-                    mainPanelSection={mainPanelSection}
-                    userId={userId}
-                  />
+                  {showTips ? (
+                    <AssistantTips
+                      currentPage={currentPage}
+                      mainPanelSection={mainPanelSection}
+                      userId={userId}
+                      showTips={showTips}
+                    />
+                  ) : (
+                    <div className="p-4">
+                      <p className="text-xs text-primary-600 text-center">
+                        {t('assistant.tips.disabled') || 'Tipy jsou vypnuté v nastavení.'}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -301,11 +317,20 @@ export function AssistantPanel({
                 </div>
               ) : (
                 <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
-                  <AssistantTips
-                    currentPage={currentPage}
-                    mainPanelSection={mainPanelSection}
-                    userId={userId}
-                  />
+                  {showTips ? (
+                    <AssistantTips
+                      currentPage={currentPage}
+                      mainPanelSection={mainPanelSection}
+                      userId={userId}
+                      showTips={showTips}
+                    />
+                  ) : (
+                    <div className="p-4">
+                      <p className="text-xs text-primary-600 text-center">
+                        {t('assistant.tips.disabled') || 'Tipy jsou vypnuté v nastavení.'}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

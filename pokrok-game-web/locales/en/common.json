@@ -604,7 +604,13 @@
     "assistant": {
       "title": "Assistant",
       "enable": "Enable Assistant",
-      "enabledDescription": "Show or hide the assistant in the right panel. The assistant helps with searching and provides tips."
+      "enabledDescription": "Show or hide the assistant in the right panel. The assistant helps with searching and provides tips.",
+      "description": "This assistant serves to help you quickly find anything and to help you with various tips based on how you use the application. Initially, this assistant will provide mainly general tips, but over time it will help you more specifically and practically.",
+      "showTips": "Show tips",
+      "showTipsDescription": "Show tips and advice in the assistant.",
+      "resetTutorial": "Reset tutorial",
+      "resetTutorialDescription": "Reset onboarding tips in the assistant if you want to go through the introductory guide again.",
+      "resetTutorialButton": "Reset tutorial"
     },
     "player": {
       "title": "CHARACTER SETTINGS",
@@ -1831,6 +1837,7 @@
       "loading": "Loading tips...",
       "markAsRead": "Mark as read",
       "completeOnboarding": "Complete onboarding",
+      "disabled": "Tips are disabled in settings.",
       "onboarding": {
         "intro": {
           "title": "Welcome to Progress!",

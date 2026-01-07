@@ -603,7 +603,13 @@
     "assistant": {
       "title": "Asistent",
       "enable": "Zapnout asistenta",
-      "enabledDescription": "Zobrazit nebo skrýt asistenta v pravém panelu. Asistent pomáhá s vyhledáváním a poskytuje tipy."
+      "enabledDescription": "Zobrazit nebo skrýt asistenta v pravém panelu. Asistent pomáhá s vyhledáváním a poskytuje tipy.",
+      "description": "Asistent slouží k tomu, abyste mohli rychle cokoliv dohledat a k tomu, aby vám pomáhal různými tipy založenými na tom, jak aplikaci používáte. Ze začátku bude asistent poskytovat hlavně obecné tipy, ale postupem času vám bude pomáhat konkrétněji a praktičtěji.",
+      "showTips": "Zobrazovat tipy",
+      "showTipsDescription": "Zobrazovat tipy a rady v asistentovi.",
+      "resetTutorial": "Obnovit tutoriál",
+      "resetTutorialDescription": "Obnovte onboarding tipy v asistentovi, pokud chcete znovu projít úvodní průvodce aplikací.",
+      "resetTutorialButton": "Obnovit tutorial"
     },
     "player": {
       "title": "NASTAVENÍ POSTAVY",
@@ -1830,6 +1836,7 @@
       "loading": "Načítám tipy...",
       "markAsRead": "Označit jako přečtené",
       "completeOnboarding": "Dokončit onboarding",
+      "disabled": "Tipy jsou vypnuté v nastavení.",
       "onboarding": {
         "intro": {
           "title": "Vítejte v Pokroku!",

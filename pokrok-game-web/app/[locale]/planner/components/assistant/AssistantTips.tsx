@@ -8,6 +8,7 @@ interface AssistantTipsProps {
   currentPage: string
   mainPanelSection?: string | null
   userId: string | null
+  showTips?: boolean
 }
 
 interface Tip {
@@ -21,7 +22,8 @@ interface Tip {
 export function AssistantTips({
   currentPage,
   mainPanelSection,
-  userId
+  userId,
+  showTips = true
 }: AssistantTipsProps) {
   const t = useTranslations()
   const locale = useLocale()
@@ -89,7 +91,10 @@ export function AssistantTips({
 
   // Load tips when context changes
   useEffect(() => {
-    if (!userId) return
+    if (!userId || !showTips) {
+      setTips([])
+      return
+    }
 
     const loadTips = async () => {
       setIsLoading(true)
@@ -118,7 +123,7 @@ export function AssistantTips({
     }
 
     loadTips()
-  }, [currentPage, mainPanelSection, userId, locale])
+  }, [currentPage, mainPanelSection, userId, locale, showTips])
 
   const handleMarkAsRead = (tipId: string) => {
     const newReadTips = new Set(readTips)

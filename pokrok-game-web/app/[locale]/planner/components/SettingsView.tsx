@@ -109,6 +109,13 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
     }
     return true
   })
+  const [assistantShowTips, setAssistantShowTips] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('assistantShowTips')
+      return saved !== 'false' // Default to true if not set
+    }
+    return true
+  })
   const [isLoadingAssistant, setIsLoadingAssistant] = useState(false)
   const [isSavingAssistant, setIsSavingAssistant] = useState(false)
 
@@ -217,6 +224,17 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
       localStorage.setItem('assistantEnabled', String(enabled))
     }
     setAssistantEnabled(enabled)
+    // Notify AssistantPanel about the change
+    window.dispatchEvent(new CustomEvent('assistantSettingsChanged'))
+  }
+
+  // Handler for saving assistant show tips setting
+  const handleSaveAssistantShowTips = (showTips: boolean) => {
+    // Save to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('assistantShowTips', String(showTips))
+    }
+    setAssistantShowTips(showTips)
     // Notify AssistantPanel about the change
     window.dispatchEvent(new CustomEvent('assistantSettingsChanged'))
   }
@@ -641,27 +659,6 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
                 </div>
               </div>
               
-              {/* Onboarding Reset */}
-              <div className="mt-6">
-                <h4 className="text-lg font-bold text-black font-playful mb-4">🎓 {t('settings.user.onboarding.title')}</h4>
-                <div className="box-playful-highlight p-4 border-2 border-primary-500">
-                  <p className="text-sm text-gray-600 mb-3 font-playful">
-                    {t('settings.user.onboarding.description')}
-                  </p>
-                  <button
-                    onClick={handleResetOnboarding}
-                    disabled={isResettingOnboarding || !hasCompletedOnboarding}
-                    className="btn-playful-primary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isResettingOnboarding ? t('common.loading') : t('settings.user.onboarding.button')}
-                  </button>
-                  {hasCompletedOnboarding === false && (
-                    <p className="text-xs text-gray-500 mt-2 font-playful">
-                      {t('settings.user.onboarding.notCompleted') || 'Dokončete onboarding, abyste mohli obnovit tutorial.'}
-                    </p>
-                  )}
-                </div>
-              </div>
             </div>
           </div>
         )
@@ -846,39 +843,89 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
           <div>
             <div className="space-y-6">
               <div>
-                <h4 className="text-lg font-bold text-black font-playful mb-4">
-                  ✨ {t('settings.assistant.title')}
-                </h4>
-                <div className="box-playful-highlight p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <label className="block text-sm font-bold text-black font-playful mb-1">
-                        {t('settings.assistant.enable')}
-                      </label>
-                      <p className="text-xs text-gray-600 font-playful">
-                        {t('settings.assistant.enabledDescription')}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => handleSaveAssistantSettings(!assistantEnabled)}
-                      disabled={isSavingAssistant}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        assistantEnabled ? 'bg-primary-500' : 'bg-gray-300'
-                      } ${isLoadingAssistant || isSavingAssistant ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                      role="switch"
-                      aria-checked={assistantEnabled}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          assistantEnabled ? 'translate-x-6' : 'translate-x-1'
-                        }`}
-                      />
-                    </button>
-                  </div>
-                  {(isLoadingAssistant || isSavingAssistant) && (
-                    <p className="text-sm text-primary-600 mt-2 font-playful">{t('common.loading')}</p>
-                  )}
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-bold text-black font-playful">
+                    ✨ {t('settings.assistant.title')}
+                  </h4>
+                  <button
+                    onClick={() => handleSaveAssistantSettings(!assistantEnabled)}
+                    disabled={isSavingAssistant}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      assistantEnabled ? 'bg-primary-500' : 'bg-gray-300'
+                    } ${isLoadingAssistant || isSavingAssistant ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                    role="switch"
+                    aria-checked={assistantEnabled}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        assistantEnabled ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
                 </div>
+                
+                {!assistantEnabled ? (
+                  <div className="box-playful-highlight p-4">
+                    <p className="text-sm text-gray-700 font-playful">
+                      {t('settings.assistant.description')}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="box-playful-highlight p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <label className="block text-sm font-bold text-black font-playful mb-1">
+                            {t('settings.assistant.showTips')}
+                          </label>
+                          <p className="text-xs text-gray-600 font-playful">
+                            {t('settings.assistant.showTipsDescription')}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleSaveAssistantShowTips(!assistantShowTips)}
+                          disabled={isSavingAssistant}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                            assistantShowTips ? 'bg-primary-500' : 'bg-gray-300'
+                          } ${isSavingAssistant ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                          role="switch"
+                          aria-checked={assistantShowTips}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                              assistantShowTips ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="box-playful-highlight p-4 border-2 border-primary-500">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <label className="block text-sm font-bold text-black font-playful mb-1">
+                            {t('settings.assistant.resetTutorial')}
+                          </label>
+                          <p className="text-xs text-gray-600 font-playful">
+                            {t('settings.assistant.resetTutorialDescription')}
+                          </p>
+                        </div>
+                        <button
+                          onClick={handleResetOnboarding}
+                          disabled={isResettingOnboarding || !hasCompletedOnboarding}
+                          className="btn-playful-primary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isResettingOnboarding ? t('common.loading') : t('settings.assistant.resetTutorialButton')}
+                        </button>
+                      </div>
+                      {hasCompletedOnboarding === false && (
+                        <p className="text-xs text-gray-500 mt-2 font-playful">
+                          {t('settings.user.onboarding.notCompleted') || 'Dokončete onboarding, abyste mohli obnovit tutorial.'}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
