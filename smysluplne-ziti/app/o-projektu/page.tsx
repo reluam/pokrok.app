@@ -126,7 +126,7 @@ export default function AboutPage() {
                       Společná cesta
                     </h3>
                     <p>
-                      Pokud cítíte, že se v tom točíte sami, můžeme se potkat u <Link href="/coaching" className="text-primary-600 hover:text-primary-700 underline font-semibold">coachingu</Link>. Nebudu vás poučovat, ale podíváme se společně na to, jak tu smysluplnost dostat do vašich všedních dnů.
+                      Pokud cítíte, že se v tom točíte sami, můžete mě <Link href="/kontakt" className="text-primary-600 hover:text-primary-700 underline font-semibold">kontaktovat</Link>. Rád se s vámi podělím o své zkušenosti a podíváme se společně na to, jak tu smysluplnost dostat do vašich všedních dnů.
                     </p>
                   </div>
                 </div>

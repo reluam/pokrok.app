@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { BookOpen, Target, Smartphone } from 'lucide-react'
+import { BookOpen, Smartphone } from 'lucide-react'
 
 export default function IntroSection() {
   return (
@@ -48,7 +48,7 @@ export default function IntroSection() {
                     <Link href="/o-projektu" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">Smyslužití</Link> jsem založil proto, abych lidem pomohl vytvořit a žít více smysluplný život a abych co nejvíce smysluplný život mohl žít sám.
                   </p>
                   <p className="text-lg md:text-xl">
-                    Na Smyslužití najdeš <Link href="/inspirace" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">inspiraci</Link> ve formě knih, videí, článků a doporučení, <Link href="/coaching" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">coachovací sezení</Link>, kde projdeme, jak můžeš smysluplnost více zakomponovat do tvého života a <Link href="#aplikace" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">aplikaci Pokrok</Link>, kde můžeš snadno plánovat a dosahovat (nejen) smysluplných cílů.
+                    Na Smyslužití najdeš <Link href="/inspirace" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">inspiraci</Link> ve formě knih, videí, článků a doporučení a <Link href="#aplikace" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">aplikaci Pokrok</Link>, kde můžeš snadno plánovat a dosahovat (nejen) smysluplných cílů.
                   </p>
                   <p className="text-lg md:text-xl">
                     Pokud tě zajímá cokoliv jiného, neváhej mě <Link href="/kontakt" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">kontaktovat</Link>. Na závěr přeji smysluplnou cestu tvým životem! ✨
@@ -65,13 +65,6 @@ export default function IntroSection() {
               >
                 <BookOpen size={22} />
                 Inspirace
-              </Link>
-              <Link
-                href="/coaching"
-                className="group flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-primary-600 text-white font-semibold text-lg hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform w-full sm:w-auto min-w-[180px]"
-              >
-                <Target size={22} />
-                Koučing
               </Link>
               <Link
                 href="#aplikace"
