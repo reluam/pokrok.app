@@ -1,9 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { HelpCircle, Target, Footprints, CheckSquare, Plus, ArrowRight, Menu, Rocket, Calendar, Eye, Sparkles, TrendingUp, Clock, Star, Zap, BookOpen, AlertTriangle, Settings, Check, ChevronLeft, ChevronRight, X, LayoutDashboard, Heart, ListTodo, Flame, BarChart3, Edit, Trash2, Briefcase, Smartphone, TrendingUp as TrendingUpIcon, CalendarDays, Navigation, Mail } from 'lucide-react'
 import { ContactModal } from '../modals/ContactModal'
+
+interface HelpSection {
+  id: string
+  title: { cs: string; en: string }
+  content: { cs: string; en: string } | null
+  component_key: string | null
+  sort_order: number
+}
 
 interface HelpViewProps {
   onAddGoal?: () => void
@@ -41,6 +49,105 @@ function Tip({ text }: { text: string }) {
   )
 }
 
+// Function to parse Markdown and render it
+function renderMarkdownContent(content: string) {
+  if (!content) return null
+  
+  const lines = content.split('\n')
+  const elements: JSX.Element[] = []
+  let listItems: string[] = []
+  let listType: 'ul' | 'ol' | null = null
+  let key = 0
+
+  const flushList = () => {
+    if (listItems.length > 0 && listType) {
+      const ListTag = listType === 'ul' ? 'ul' : 'ol'
+      elements.push(
+        <ListTag key={key++} className="list-disc list-inside space-y-1 my-2 ml-4">
+          {listItems.map((item, i) => (
+            <li key={i} className="text-sm text-gray-600 font-playful">
+              {parseInlineMarkdown(item)}
+            </li>
+          ))}
+        </ListTag>
+      )
+      listItems = []
+      listType = null
+    }
+  }
+
+  const parseInlineMarkdown = (text: string) => {
+    // Parse bold **text**
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-black">$1</strong>')
+    // Parse italic *text*
+    text = text.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
+    return <span dangerouslySetInnerHTML={{ __html: text }} />
+  }
+
+  lines.forEach((line, i) => {
+    const trimmed = line.trim()
+    
+    // Headings
+    if (trimmed.startsWith('### ')) {
+      flushList()
+      elements.push(
+        <h3 key={key++} className="font-semibold text-black font-playful mb-2 mt-4 text-base">
+          {parseInlineMarkdown(trimmed.substring(4))}
+        </h3>
+      )
+    } else if (trimmed.startsWith('## ')) {
+      flushList()
+      elements.push(
+        <h2 key={key++} className="font-semibold text-black font-playful mb-3 mt-5 text-lg">
+          {parseInlineMarkdown(trimmed.substring(3))}
+        </h2>
+      )
+    } else if (trimmed.startsWith('# ')) {
+      flushList()
+      elements.push(
+        <h1 key={key++} className="font-semibold text-black font-playful mb-4 mt-6 text-xl">
+          {parseInlineMarkdown(trimmed.substring(2))}
+        </h1>
+      )
+    }
+    // Unordered list
+    else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+      if (listType !== 'ul') {
+        flushList()
+        listType = 'ul'
+      }
+      listItems.push(trimmed.substring(2))
+    }
+    // Ordered list
+    else if (/^\d+\.\s/.test(trimmed)) {
+      if (listType !== 'ol') {
+        flushList()
+        listType = 'ol'
+      }
+      listItems.push(trimmed.replace(/^\d+\.\s/, ''))
+    }
+    // Empty line
+    else if (trimmed === '') {
+      flushList()
+      if (i > 0 && i < lines.length - 1) {
+        elements.push(<br key={key++} />)
+      }
+    }
+    // Regular paragraph
+    else {
+      flushList()
+      elements.push(
+        <p key={key++} className="text-sm text-gray-600 font-playful leading-relaxed my-2">
+          {parseInlineMarkdown(trimmed)}
+        </p>
+      )
+    }
+  })
+  
+  flushList()
+  return elements
+}
+
 export function HelpView({
   onAddGoal,
   onAddStep,
@@ -58,6 +165,33 @@ export function HelpView({
   const [selectedCategory, setSelectedCategory] = useState<HelpCategory>('getting-started')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showContactModal, setShowContactModal] = useState(false)
+  const [sections, setSections] = useState<HelpSection[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Load sections from API when category changes
+  useEffect(() => {
+    const loadSections = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const response = await fetch(`/api/help/sections?category=${selectedCategory}`)
+        if (!response.ok) {
+          throw new Error('Failed to load sections')
+        }
+        const data = await response.json()
+        setSections(data)
+      } catch (err: any) {
+        console.error('Error loading help sections:', err)
+        setError(err?.message || 'Failed to load help content')
+        setSections([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadSections()
+  }, [selectedCategory])
 
   const categories = [
     { id: 'getting-started' as HelpCategory, label: t('categories.gettingStarted'), icon: Rocket },
@@ -74,6 +208,54 @@ export function HelpView({
   ]
 
   const renderContent = () => {
+    // If we have sections from API, render them
+    if (sections.length > 0) {
+      return (
+        <div className="space-y-6">
+          {sections.map((section) => {
+            const title = section.title[locale as 'cs' | 'en'] || section.title.cs || section.title.en
+            const content = section.content?.[locale as 'cs' | 'en'] || section.content?.cs || section.content?.en || ''
+            
+            return (
+              <div key={section.id} className="box-playful-highlight p-6">
+                <h3 className="font-semibold text-black font-playful mb-4 text-lg">
+                  {title}
+                </h3>
+                {content && (
+                  <div className="text-sm text-gray-600 font-playful leading-relaxed">
+                    {renderMarkdownContent(content)}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )
+    }
+
+    // Fallback to hardcoded content if no sections loaded
+    if (loading) {
+      return (
+        <div className="space-y-6">
+          <div className="box-playful-highlight p-6 text-center">
+            <p className="text-gray-600">Načítání...</p>
+          </div>
+        </div>
+      )
+    }
+
+    if (error) {
+      return (
+        <div className="space-y-6">
+          <div className="box-playful-highlight p-6">
+            <p className="text-red-600">Chyba při načítání obsahu: {error}</p>
+            <p className="text-sm text-gray-600 mt-2">Obsah se snažíme načíst z databáze. Pokud problém přetrvává, kontaktujte podporu.</p>
+          </div>
+        </div>
+      )
+    }
+
+    // Original hardcoded content as fallback
     switch (selectedCategory) {
       case 'getting-started':
         return (

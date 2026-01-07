@@ -15,7 +15,7 @@ interface Tip {
   id: string
   title: string
   description: string
-  category: 'motivation' | 'organization' | 'productivity' | 'feature'
+  category: 'motivation' | 'organization' | 'productivity' | 'feature' | 'onboarding' | 'inspiration'
   priority: number
 }
 
@@ -38,9 +38,11 @@ export function AssistantTips({
       const stored = localStorage.getItem('assistantReadTips')
       if (stored) {
         try {
-          setReadTips(new Set(JSON.parse(stored)))
+          const readTipsArray = JSON.parse(stored)
+          setReadTips(new Set(readTipsArray))
         } catch (error) {
           console.error('Error loading read tips:', error)
+          setReadTips(new Set())
         }
       } else {
         setReadTips(new Set())
@@ -64,19 +66,17 @@ export function AssistantTips({
           .then(response => response.json())
           .then(data => {
             const loadedTips = data.tips || []
-            const unreadTips = loadedTips.filter((tip: Tip) => {
-              const stored = localStorage.getItem('assistantReadTips')
-              if (stored) {
-                try {
-                  const readTipsArray = JSON.parse(stored)
-                  return !readTipsArray.includes(tip.id)
-                } catch {
-                  return true
-                }
-              }
-              return true
-            })
-            setTips(unreadTips)
+            // Keep behavior consistent with main loader:
+            // - show all onboarding tips (even if read)
+            // - hide read regular tips
+            const isOnboardingMode =
+              data.isOnboarding || (loadedTips.length > 0 && loadedTips[0]?.id?.startsWith('onboarding-'))
+
+            const nextTips: Tip[] = isOnboardingMode
+              ? loadedTips
+              : loadedTips.filter((tip: Tip) => !readTips.has(tip.id))
+
+            setTips(nextTips)
             setCurrentTipIndex(0)
           })
           .catch(error => {
@@ -110,10 +110,23 @@ export function AssistantTips({
           const data = await response.json()
           const loadedTips = data.tips || []
           
-          // Filter out read tips
-          const unreadTips = loadedTips.filter((tip: Tip) => !readTips.has(tip.id))
+          // For onboarding tips, always show them (don't filter by read status)
+          // For regular tips, filter out read tips
+          const isOnboardingMode = data.isOnboarding || (loadedTips.length > 0 && loadedTips[0]?.id?.startsWith('onboarding-'))
+          
+          let unreadTips: Tip[]
+          if (isOnboardingMode) {
+            // Always show all onboarding tips, even if marked as read
+            unreadTips = loadedTips
+          } else {
+            // Filter out read tips for regular tips
+            unreadTips = loadedTips.filter((tip: Tip) => !readTips.has(tip.id))
+          }
+          
           setTips(unreadTips)
           setCurrentTipIndex(0)
+        } else {
+          console.error('[AssistantTips] Failed to load tips:', response.status, response.statusText)
         }
       } catch (error) {
         console.error('Error loading tips:', error)
@@ -182,13 +195,17 @@ export function AssistantTips({
     }
   }
 
-  // Filter out read tips and sort by priority
-  const visibleTips = tips
-    .filter(tip => !readTips.has(tip.id))
-    .sort((a, b) => b.priority - a.priority)
-  
   // Check if we're showing onboarding tips (they have IDs starting with 'onboarding-')
-  const isOnboarding = visibleTips.length > 0 && visibleTips[0]?.id.startsWith('onboarding-')
+  const isOnboarding = tips.length > 0 && tips[0]?.id?.startsWith('onboarding-')
+  
+  // Filter out read tips and sort by priority
+  // For onboarding tips, always show them (don't filter by read status)
+  // For regular tips, filter out read tips
+  const visibleTips = isOnboarding
+    ? [...tips].sort((a, b) => b.priority - a.priority) // Show all onboarding tips (create new array to avoid mutating)
+    : tips
+        .filter(tip => !readTips.has(tip.id))
+        .sort((a, b) => b.priority - a.priority)
   
   // For onboarding, show one tip at a time
   const currentTip = isOnboarding && visibleTips.length > 0 
@@ -197,7 +214,7 @@ export function AssistantTips({
   
   // For regular tips, show up to 5
   const regularTips = !isOnboarding ? visibleTips.slice(0, 5) : []
-
+  
   if (isLoading) {
     return (
       <div className="p-4">

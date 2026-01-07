@@ -74,7 +74,8 @@ export async function GET(request: NextRequest) {
     const userResult = await sql`
       SELECT has_completed_onboarding FROM users WHERE id = ${targetUserId}
     `
-    const hasCompletedOnboarding = userResult[0]?.has_completed_onboarding || false
+    // Handle NULL, false, and true values - only true means completed
+    const hasCompletedOnboarding = userResult[0]?.has_completed_onboarding === true
 
     // Get locale from query params or default to 'cs'
     const localeParam = searchParams.get('locale')
