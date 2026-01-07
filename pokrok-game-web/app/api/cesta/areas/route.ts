@@ -189,17 +189,6 @@ export async function PUT(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Normalize icon - allow null/undefined, use LayoutDashboard only if explicitly empty string
-    const normalizedIcon = (icon && typeof icon === 'string' && icon.trim()) ? icon.trim() : (icon === null || icon === undefined ? null : 'LayoutDashboard')
-    
-    // Validate icon length if provided
-    if (normalizedIcon && normalizedIcon.length > 50) {
-      return NextResponse.json({ 
-        error: 'Icon name is too long',
-        details: `Icon name must be 50 characters or less. Current length: ${normalizedIcon.length} characters. Please choose a shorter icon name.`
-      }, { status: 400 })
-    }
-
     // Verify ownership and get existing area data to preserve fields that aren't being updated
     const existingArea = await sql`
       SELECT user_id, name, description, color, icon, "order" FROM areas WHERE id = ${id}
@@ -215,6 +204,22 @@ export async function PUT(request: NextRequest) {
     
     const existing = existingArea[0]
     
+    // Normalize icon only if it's being updated (icon is in body)
+    // If icon is not provided, keep existing value
+    let normalizedIcon: string | null = undefined as any
+    if (icon !== undefined) {
+      // Icon is being updated - normalize it
+      normalizedIcon = (icon && typeof icon === 'string' && icon.trim()) ? icon.trim() : (icon === null ? null : 'LayoutDashboard')
+      
+      // Validate icon length if provided
+      if (normalizedIcon && normalizedIcon.length > 50) {
+        return NextResponse.json({ 
+          error: 'Icon name is too long',
+          details: `Icon name must be 50 characters or less. Current length: ${normalizedIcon.length} characters. Please choose a shorter icon name.`
+        }, { status: 400 })
+      }
+    }
+    
     try {
       const area = await sql`
         UPDATE areas 
@@ -222,7 +227,7 @@ export async function PUT(request: NextRequest) {
           name = ${name !== undefined ? (name || '') : existing.name},
           description = ${description !== undefined ? (description || null) : existing.description},
           color = ${color !== undefined ? (color || '#3B82F6') : existing.color},
-          icon = ${normalizedIcon !== undefined ? normalizedIcon : existing.icon},
+          icon = ${icon !== undefined ? normalizedIcon : existing.icon},
           "order" = ${order !== undefined ? order : existing.order},
           updated_at = NOW()
         WHERE id = ${id}
@@ -239,7 +244,7 @@ export async function PUT(request: NextRequest) {
       
       // Check if it's a varchar length error
       if (sqlError.code === '22001' && sqlError.message?.includes('character varying')) {
-        if (normalizedIcon && normalizedIcon.length > 50) {
+        if (icon !== undefined && normalizedIcon && normalizedIcon.length > 50) {
           return NextResponse.json({ 
             error: 'Icon name is too long',
             details: `Icon name must be 50 characters or less. Current length: ${normalizedIcon.length} characters. Please choose a shorter icon name.`

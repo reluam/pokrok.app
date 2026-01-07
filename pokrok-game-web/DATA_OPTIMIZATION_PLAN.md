@@ -269,3 +269,5 @@ interface SyncQueueItem {
 4. ✅ Přidat debouncing a batching (Fáze 3)
 5. ⏳ Dlouhodobě: SSE/WebSockets (Fáze 4)
 
+
+

@@ -46,7 +46,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { daily_steps_count, workflow, filters, default_view, date_format, primary_color, default_currency, weight_unit_preference } = body
+    const { daily_steps_count, workflow, filters, default_view, date_format, primary_color, default_currency, weight_unit_preference, assistant_enabled } = body
 
     // Update user settings
     const updatedSettings = await createOrUpdateUserSettings(
@@ -59,7 +59,8 @@ export async function PATCH(request: NextRequest) {
       date_format,
       primary_color,
       default_currency,
-      weight_unit_preference
+      weight_unit_preference,
+      assistant_enabled
     )
 
     return NextResponse.json({ settings: updatedSettings })

@@ -81,6 +81,7 @@ export interface User {
   name: string
   has_completed_onboarding: boolean
   preferred_locale?: string | null
+  is_admin?: boolean
   created_at: Date
   updated_at: Date
 }
@@ -346,6 +347,7 @@ export interface UserSettings {
   primary_color?: string
   default_currency?: string
   weight_unit_preference?: 'kg' | 'lbs'
+  assistant_enabled?: boolean
   filters?: {
     showToday: boolean
     showOverdue: boolean
@@ -410,6 +412,43 @@ export async function initializeCestaDatabase() {
     await sql`
       ALTER TABLE users 
       ADD COLUMN IF NOT EXISTS preferred_locale VARCHAR(10)
+    `
+    
+    // Add is_admin column if it doesn't exist (for existing databases)
+    await sql`
+      ALTER TABLE users 
+      ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE
+    `
+
+    // Create help categories (admin-managed)
+    await sql`
+      CREATE TABLE IF NOT EXISTS help_categories (
+        id VARCHAR(255) PRIMARY KEY,
+        title JSONB NOT NULL, -- {cs: "...", en: "..."}
+        description JSONB,    -- optional {cs: "...", en: "..."}
+        slug VARCHAR(100) UNIQUE, -- optional stable identifier
+        sort_order INTEGER DEFAULT 0,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_by VARCHAR(255) REFERENCES users(id) ON DELETE SET NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+
+    // Create help sections belonging to categories
+    await sql`
+      CREATE TABLE IF NOT EXISTS help_sections (
+        id VARCHAR(255) PRIMARY KEY,
+        category_id VARCHAR(255) NOT NULL REFERENCES help_categories(id) ON DELETE CASCADE,
+        title JSONB NOT NULL,        -- {cs: "...", en: "..."}
+        content JSONB,               -- {cs: "markdown/text", en: "..."}
+        component_key VARCHAR(100),  -- optional component to render on client
+        sort_order INTEGER DEFAULT 0,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_by VARCHAR(255) REFERENCES users(id) ON DELETE SET NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
     `
 
     // Create players table
@@ -834,6 +873,23 @@ export async function initializeCestaDatabase() {
       console.error('Error adding user_settings columns:', error)
     }
 
+    // Create assistant_tips table
+    await sql`
+      CREATE TABLE IF NOT EXISTS assistant_tips (
+        id VARCHAR(255) PRIMARY KEY,
+        title JSONB NOT NULL,
+        description JSONB NOT NULL,
+          category VARCHAR(50) NOT NULL CHECK (category IN ('motivation', 'organization', 'productivity', 'feature', 'onboarding', 'inspiration')),
+        priority INTEGER DEFAULT 0,
+        context_page VARCHAR(50),
+        context_section VARCHAR(50),
+        is_active BOOLEAN DEFAULT TRUE,
+        created_by VARCHAR(255) REFERENCES users(id) ON DELETE SET NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+
     // Create daily_planning table
     await sql`
       CREATE TABLE IF NOT EXISTS daily_planning (
@@ -874,6 +930,30 @@ export async function initializeCestaDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_goals_user_id ON goals(user_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_goals_target_date ON goals(target_date)`
     await sql`CREATE INDEX IF NOT EXISTS idx_goals_status ON goals(status)`
+
+    // Create search indexes for assistant search optimization
+    try {
+      // Indexes for daily_steps (title and description search)
+      await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_user_title_search ON daily_steps(user_id, title text_pattern_ops)`
+      await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_user_description_search ON daily_steps(user_id, description text_pattern_ops)`
+      
+      // Indexes for goals (title and description search)
+      await sql`CREATE INDEX IF NOT EXISTS idx_goals_user_title_search ON goals(user_id, title text_pattern_ops)`
+      await sql`CREATE INDEX IF NOT EXISTS idx_goals_user_description_search ON goals(user_id, description text_pattern_ops)`
+      
+      // Indexes for areas (name and description search)
+      await sql`CREATE INDEX IF NOT EXISTS idx_areas_user_name_search ON areas(user_id, name text_pattern_ops)`
+      await sql`CREATE INDEX IF NOT EXISTS idx_areas_user_description_search ON areas(user_id, description text_pattern_ops)`
+      
+      // Indexes for habits (name and description search)
+      await sql`CREATE INDEX IF NOT EXISTS idx_habits_user_name_search ON habits(user_id, name text_pattern_ops)`
+      await sql`CREATE INDEX IF NOT EXISTS idx_habits_user_description_search ON habits(user_id, description text_pattern_ops)`
+      
+      console.log('✓ Assistant search indexes created/verified')
+    } catch (indexError) {
+      console.error('Error creating assistant search indexes:', indexError)
+      // Don't fail initialization if indexes fail
+    }
     await sql`CREATE INDEX IF NOT EXISTS idx_goals_focus_status ON goals(focus_status) WHERE focus_status IS NOT NULL`
     await sql`CREATE INDEX IF NOT EXISTS idx_goals_focus_order ON goals(focus_order) WHERE focus_order IS NOT NULL`
     await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_user_id ON daily_steps(user_id)`
@@ -982,6 +1062,34 @@ export async function getAllUsers(): Promise<User[]> {
   }
 }
 
+export async function isUserAdmin(userId: string): Promise<boolean> {
+  try {
+    // First check if is_admin column exists
+    const columnExists = await sql`
+      SELECT EXISTS (
+        SELECT FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'users' 
+        AND column_name = 'is_admin'
+      )
+    `
+    
+    if (!columnExists[0]?.exists) {
+      // Column doesn't exist yet, return false
+      return false
+    }
+
+    // Column exists, check admin status
+    const result = await sql`
+      SELECT is_admin FROM users WHERE id = ${userId}
+    `
+    return result[0]?.is_admin === true
+  } catch (error) {
+    console.error('Error checking admin status:', error)
+    return false
+  }
+}
+
 // Needed Steps Settings functions
 export async function getNeededStepsSettings(userId: string): Promise<NeededStepsSettings | null> {
   try {
@@ -1063,8 +1171,8 @@ export async function createUser(clerkUserId: string, email: string, name: strin
   const validLocale = (locale === 'en' || locale === 'cs') ? locale : 'cs'
   
   const user = await sql`
-    INSERT INTO users (id, clerk_user_id, email, name, has_completed_onboarding, preferred_locale)
-    VALUES (${id}, ${clerkUserId}, ${email}, ${name}, false, ${validLocale})
+    INSERT INTO users (id, clerk_user_id, email, name, has_completed_onboarding, preferred_locale, is_admin)
+    VALUES (${id}, ${clerkUserId}, ${email}, ${name}, false, ${validLocale}, false)
     RETURNING *
   `
   const newUser = user[0] as User
@@ -3756,7 +3864,8 @@ export async function createOrUpdateUserSettings(
   dateFormat?: 'DD.MM.YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD MMM YYYY',
   primaryColor?: string,
   defaultCurrency?: string,
-  weightUnitPreference?: 'kg' | 'lbs'
+  weightUnitPreference?: 'kg' | 'lbs',
+  assistantEnabled?: boolean
 ): Promise<UserSettings> {
   try {
     // Ensure default_view column exists (migration on-the-fly)
@@ -3817,6 +3926,14 @@ export async function createOrUpdateUserSettings(
       console.log('Note: weight_unit_preference column check:', migrationError instanceof Error ? migrationError.message : 'unknown')
     }
     
+    // Ensure assistant_enabled column exists (migration on-the-fly)
+    try {
+      await sql`ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS assistant_enabled BOOLEAN DEFAULT TRUE`
+    } catch (migrationError) {
+      // Column might already exist, continue
+      console.log('Note: assistant_enabled column check:', migrationError instanceof Error ? migrationError.message : 'unknown')
+    }
+    
     // Get existing settings to preserve values not being updated
     const existingSettings = await getUserSettings(userId)
     
@@ -3828,6 +3945,7 @@ export async function createOrUpdateUserSettings(
     const finalPrimaryColor = primaryColor !== undefined ? primaryColor : existingSettings?.primary_color ?? null
     const finalDefaultCurrency = defaultCurrency !== undefined ? defaultCurrency : existingSettings?.default_currency ?? null
     const finalWeightUnitPreference = weightUnitPreference !== undefined ? weightUnitPreference : (existingSettings?.weight_unit_preference ?? 'kg')
+    const finalAssistantEnabled = assistantEnabled !== undefined ? assistantEnabled : (existingSettings?.assistant_enabled ?? true)
     const finalFilters = filters !== undefined ? filters : (existingSettings?.filters ?? {
       showToday: true,
       showOverdue: true,
@@ -3838,8 +3956,8 @@ export async function createOrUpdateUserSettings(
     })
     
     const settings = await sql`
-      INSERT INTO user_settings (id, user_id, daily_steps_count, workflow, daily_reset_hour, filters, default_view, date_format, primary_color, default_currency, weight_unit_preference)
-      VALUES (${crypto.randomUUID()}, ${userId}, ${finalDailyStepsCount}, ${finalWorkflow}, ${finalDailyResetHour}, ${JSON.stringify(finalFilters)}, ${finalDefaultView}, ${finalDateFormat}, ${finalPrimaryColor}, ${finalDefaultCurrency}, ${finalWeightUnitPreference})
+      INSERT INTO user_settings (id, user_id, daily_steps_count, workflow, daily_reset_hour, filters, default_view, date_format, primary_color, default_currency, weight_unit_preference, assistant_enabled)
+      VALUES (${crypto.randomUUID()}, ${userId}, ${finalDailyStepsCount}, ${finalWorkflow}, ${finalDailyResetHour}, ${JSON.stringify(finalFilters)}, ${finalDefaultView}, ${finalDateFormat}, ${finalPrimaryColor}, ${finalDefaultCurrency}, ${finalWeightUnitPreference}, ${finalAssistantEnabled})
       ON CONFLICT (user_id) 
       DO UPDATE SET 
         daily_steps_count = ${finalDailyStepsCount},
@@ -3851,6 +3969,7 @@ export async function createOrUpdateUserSettings(
         primary_color = ${finalPrimaryColor},
         default_currency = ${finalDefaultCurrency},
         weight_unit_preference = ${finalWeightUnitPreference},
+        assistant_enabled = ${finalAssistantEnabled},
         updated_at = NOW()
       RETURNING *
     `

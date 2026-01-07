@@ -162,7 +162,7 @@ export function StepsManagementView({
         if (effectiveGoalFilter) {
           if (effectiveGoalFilter === 'none') {
             if (step.goal_id || step.goalId) return
-          } else {
+        } else {
             if ((step.goal_id || step.goalId) !== effectiveGoalFilter) return
           }
         }
@@ -179,7 +179,7 @@ export function StepsManagementView({
               const stepGoal = goalMap.get(stepGoalId)
               if (stepGoal && (stepGoal.area_id || stepGoal.areaId)) return
             }
-          } else {
+      } else {
             // Show steps with specific area
             if (stepAreaId === effectiveAreaFilter) {
               // Step is directly assigned to the area
@@ -201,7 +201,7 @@ export function StepsManagementView({
           let stepDateField: string | null = null
           if (step.completed && step.completed_at) {
             stepDateField = step.completed_at.includes('T') ? step.completed_at.split('T')[0] : step.completed_at
-          } else {
+        } else {
             stepDateField = step.date
           }
           const stepDateStr = stepDateField ? (stepDateField.includes('T') ? stepDateField.split('T')[0] : stepDateField) : null
@@ -235,9 +235,9 @@ export function StepsManagementView({
         // Skip completed recurring steps if showCompleted is false
         if (!effectiveShowCompleted) {
           if (step.completed) return false
-        }
-        return true
-      })
+              }
+              return true
+            })
       .forEach(step => {
         // For recurring steps, use current_instance_date
         const stepDateField = step.current_instance_date || step.date
@@ -251,7 +251,7 @@ export function StepsManagementView({
         if (effectiveGoalFilter) {
           if (effectiveGoalFilter === 'none') {
             if (step.goal_id || step.goalId) return
-          } else {
+        } else {
             if ((step.goal_id || step.goalId) !== effectiveGoalFilter) return
           }
         }
@@ -277,9 +277,9 @@ export function StepsManagementView({
               if (stepGoal && (stepGoal.area_id || stepGoal.areaId) === effectiveAreaFilter) {
                 // Goal belongs to the area
               } else {
-                return
-              }
-            } else {
+      return
+    }
+      } else {
               return
             }
           }
@@ -398,8 +398,8 @@ export function StepsManagementView({
               onDailyStepsUpdate(stepsArray)
             }
           }
-        }
-      } else {
+          }
+        } else {
         console.error('Failed to update step')
       }
     } catch (error) {
@@ -418,58 +418,58 @@ export function StepsManagementView({
       {!hideHeader && (
         <>
           {/* Filters Row */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 px-4 py-3 bg-white border-b-2 border-primary-500">
-            {/* Mobile: Collapsible filters */}
-            <div className="md:hidden flex flex-col gap-3">
-              <div className="flex items-center justify-between gap-3">
-                <button
-                  onClick={() => setFiltersExpanded(!filtersExpanded)}
-                  className="btn-playful-base flex items-center gap-2 px-3 py-2 text-sm font-medium text-black font-playful bg-white hover:bg-primary-50"
-                >
-                  <Filter className="w-4 h-4" />
-                  <span>Filtry</span>
-                  {filtersExpanded ? (
-                    <ChevronUp className="w-4 h-4" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4" />
-                  )}
-                </button>
-                
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 px-4 py-3 bg-white border-b-2 border-primary-500">
+        {/* Mobile: Collapsible filters */}
+        <div className="md:hidden flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-3">
+            <button
+              onClick={() => setFiltersExpanded(!filtersExpanded)}
+              className="btn-playful-base flex items-center gap-2 px-3 py-2 text-sm font-medium text-black font-playful bg-white hover:bg-primary-50"
+            >
+              <Filter className="w-4 h-4" />
+              <span>Filtry</span>
+              {filtersExpanded ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+            </button>
+            
                 {onOpenStepModal && (
-                  <button
+            <button
                     onClick={() => onOpenStepModal()}
-                    className="btn-playful-base flex items-center justify-center gap-2 px-4 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium flex-1"
-                  >
-                    <Plus className="w-4 h-4" />
-                    {t('steps.add')}
-                  </button>
+              className="btn-playful-base flex items-center justify-center gap-2 px-4 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium flex-1"
+            >
+              <Plus className="w-4 h-4" />
+              {t('steps.add')}
+            </button>
                 )}
-              </div>
-              
-              {filtersExpanded && (
-                <div className="flex flex-col gap-2 pt-2 border-t-2 border-primary-500">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={effectiveShowCompleted}
-                      onChange={(e) => setShowCompleted(e.target.checked)}
-                      className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
-                    />
-                    <span className="text-sm text-black font-playful">{t('steps.filters.showCompleted')}</span>
-                  </label>
-                  
-                  <select
-                    value={effectiveGoalFilter || ''}
-                    onChange={(e) => setStepsGoalFilter(e.target.value || null)}
-                    className="w-full px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white"
-                  >
-                    <option value="">{t('steps.filters.goal.all')}</option>
-                    <option value="none">{t('steps.filters.goal.withoutGoal') || 'Bez cíle'}</option>
-                    {goals.map((goal: any) => (
-                      <option key={goal.id} value={goal.id}>{goal.title}</option>
-                    ))}
-                  </select>
-                  
+          </div>
+          
+          {filtersExpanded && (
+            <div className="flex flex-col gap-2 pt-2 border-t-2 border-primary-500">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={effectiveShowCompleted}
+              onChange={(e) => setShowCompleted(e.target.checked)}
+              className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+            />
+            <span className="text-sm text-black font-playful">{t('steps.filters.showCompleted')}</span>
+          </label>
+          
+          <select
+            value={effectiveGoalFilter || ''}
+            onChange={(e) => setStepsGoalFilter(e.target.value || null)}
+                className="w-full px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white"
+          >
+            <option value="">{t('steps.filters.goal.all')}</option>
+            <option value="none">{t('steps.filters.goal.withoutGoal') || 'Bez cíle'}</option>
+            {goals.map((goal: any) => (
+              <option key={goal.id} value={goal.id}>{goal.title}</option>
+            ))}
+          </select>
+          
                   {areas && areas.length > 0 && (
                     <select
                       value={effectiveAreaFilter || ''}
@@ -484,50 +484,50 @@ export function StepsManagementView({
                     </select>
                   )}
                   
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="date"
-                      value={effectiveDateFilter || ''}
-                      onChange={(e) => setStepsDateFilter(e.target.value || null)}
-                      className="flex-1 px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white"
-                    />
-                    {stepsDateFilter && (
-                      <button
-                        onClick={() => setStepsDateFilter(null)}
-                        className="btn-playful-base px-2 py-1.5 text-xs text-gray-600 hover:text-primary-600 bg-white hover:bg-primary-50"
-                      >
-                        {t('common.clear')}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            {/* Desktop: Always visible filters */}
-            <div className="hidden md:flex md:items-center gap-3 flex-1">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={effectiveShowCompleted}
-                  onChange={(e) => setShowCompleted(e.target.checked)}
-                  className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+              <div className="flex items-center gap-2">
+          <input
+            type="date"
+            value={effectiveDateFilter || ''}
+            onChange={(e) => setStepsDateFilter(e.target.value || null)}
+                  className="flex-1 px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white"
                 />
-                <span className="text-sm text-black font-playful">{t('steps.filters.showCompleted')}</span>
-              </label>
-              
-              <select
-                value={effectiveGoalFilter || ''}
-                onChange={(e) => setStepsGoalFilter(e.target.value || null)}
-                className="px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white min-w-[150px]"
-              >
-                <option value="">{t('steps.filters.goal.all')}</option>
-                <option value="none">{t('steps.filters.goal.withoutGoal') || 'Bez cíle'}</option>
-                {goals.map((goal: any) => (
-                  <option key={goal.id} value={goal.id}>{goal.title}</option>
-                ))}
-              </select>
-              
+                {stepsDateFilter && (
+                  <button
+                    onClick={() => setStepsDateFilter(null)}
+                    className="btn-playful-base px-2 py-1.5 text-xs text-gray-600 hover:text-primary-600 bg-white hover:bg-primary-50"
+                  >
+                    {t('common.clear')}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Desktop: Always visible filters */}
+        <div className="hidden md:flex md:items-center gap-3 flex-1">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={effectiveShowCompleted}
+              onChange={(e) => setShowCompleted(e.target.checked)}
+              className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
+            />
+            <span className="text-sm text-black font-playful">{t('steps.filters.showCompleted')}</span>
+          </label>
+          
+          <select
+            value={effectiveGoalFilter || ''}
+            onChange={(e) => setStepsGoalFilter(e.target.value || null)}
+            className="px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white min-w-[150px]"
+          >
+            <option value="">{t('steps.filters.goal.all')}</option>
+            <option value="none">{t('steps.filters.goal.withoutGoal') || 'Bez cíle'}</option>
+            {goals.map((goal: any) => (
+              <option key={goal.id} value={goal.id}>{goal.title}</option>
+            ))}
+          </select>
+          
               {areas && areas.length > 0 && (
                 <select
                   value={effectiveAreaFilter || ''}
@@ -542,34 +542,34 @@ export function StepsManagementView({
                 </select>
               )}
               
-              <div className="flex items-center gap-2">
-                <input
-                  type="date"
-                  value={effectiveDateFilter || ''}
-                  onChange={(e) => setStepsDateFilter(e.target.value || null)}
-                  className="px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white"
-                />
-                {stepsDateFilter && (
-                  <button
-                    onClick={() => setStepsDateFilter(null)}
-                    className="px-2 py-1.5 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    {t('common.clear')}
-                  </button>
-                )}
-              </div>
-            </div>
-            
-            {onOpenStepModal && (
-              <button
-                onClick={() => onOpenStepModal()}
-                className="btn-playful-base hidden md:flex items-center gap-2 px-4 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium"
-              >
-                <Plus className="w-4 h-4" />
-                {t('steps.add')}
-              </button>
-            )}
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={effectiveDateFilter || ''}
+              onChange={(e) => setStepsDateFilter(e.target.value || null)}
+              className="px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white"
+            />
+          {stepsDateFilter && (
+            <button
+              onClick={() => setStepsDateFilter(null)}
+              className="px-2 py-1.5 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              {t('common.clear')}
+            </button>
+          )}
           </div>
+        </div>
+        
+            {onOpenStepModal && (
+        <button
+                onClick={() => onOpenStepModal()}
+          className="btn-playful-base hidden md:flex items-center gap-2 px-4 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium"
+        >
+          <Plus className="w-4 h-4" />
+          {t('steps.add')}
+        </button>
+            )}
+      </div>
         </>
       )}
       
@@ -592,11 +592,11 @@ export function StepsManagementView({
               const stepDateFormatted = stepDateStr ? formatStepDate(stepDateStr, step.completed) : null
               const goal = (step as any)._goal
               const area = (step as any)._area
-              const isRecurringStep = step.frequency && step.frequency !== null
-              
-              return (
+                  const isRecurringStep = step.frequency && step.frequency !== null
+                  
+                  return (
                 <div
-                  key={step.id}
+                      key={step.id}
                   onClick={() => {
                     if (onOpenStepModal) {
                       onOpenStepModal(step)
@@ -615,9 +615,9 @@ export function StepsManagementView({
                   } ${isLoading ? 'opacity-50' : ''}`}
                 >
                   {/* Checkbox */}
-                  <button
+                          <button
                     onClick={(e) => {
-                      e.stopPropagation()
+                              e.stopPropagation()
                       // For recurring steps, pass the date of this occurrence
                       const stepDate = (step as any)._date as Date | undefined
                       const completionDate = stepDate ? getLocalDateString(stepDate) : undefined
@@ -632,13 +632,13 @@ export function StepsManagementView({
                   >
                     {isLoading ? (
                       <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                    ) : step.completed ? (
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                            ) : step.completed ? (
                       <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                     ) : null}
-                  </button>
+                          </button>
                   
                   {/* Goal icon in area color */}
                   {goal && goal.icon && (
@@ -652,22 +652,22 @@ export function StepsManagementView({
                           />
                         )
                       })()}
-                    </div>
+                        </div>
                   )}
                   
                   {/* Step info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       {isRecurringStep && (
-                        <div className="flex items-center gap-1 flex-shrink-0">
+                            <div className="flex items-center gap-1 flex-shrink-0">
                           <Repeat className={`w-3.5 h-3.5 transition-colors ${isFuture ? 'text-primary-400 group-hover:text-primary-500' : 'text-primary-600'}`} />
-                          {step.completion_count > 0 && (
+                              {step.completion_count > 0 && (
                             <span className={`text-[10px] font-semibold transition-colors ${isFuture ? 'text-primary-400 group-hover:text-primary-500' : 'text-primary-600'}`}>
-                              {step.completion_count}
-                            </span>
+                                  {step.completion_count}
+                                </span>
+                              )}
+                            </div>
                           )}
-                        </div>
-                      )}
                       <span className={`text-sm truncate transition-colors ${
                         step.completed 
                           ? 'line-through text-gray-400' 
@@ -677,8 +677,8 @@ export function StepsManagementView({
                               ? 'text-gray-500 group-hover:text-gray-700'
                               : 'text-black'
                       } ${step.is_important && !step.completed && !isFuture ? 'font-bold' : 'font-medium'}`}>
-                        {step.title}
-                      </span>
+                            {step.title}
+                          </span>
                       {step.checklist && step.checklist.length > 0 && (
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
                           step.checklist.filter((c: any) => c.completed).length === step.checklist.length
@@ -686,36 +686,36 @@ export function StepsManagementView({
                             : 'bg-gray-100 text-gray-500 border-gray-300'
                         }`}>
                           {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
-                        </span>
-                      )}
-                    </div>
+                          </span>
+                        )}
+          </div>
                     {/* Goal name */}
                     {goal && (
                       <div className={`flex items-center gap-1 text-xs transition-colors ${isFuture ? 'text-gray-400 group-hover:text-gray-500' : 'text-gray-500'}`}>
                         <span>{goal.title}</span>
-                      </div>
-                    )}
                   </div>
-                  
+                )}
+              </div>
+
                   {/* Date and time */}
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <span className={`hidden sm:block w-28 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 border-2 ${
                       isOverdue
                         ? 'text-red-600 border-red-300'
-                        : isToday
+                                      : isToday
                           ? 'text-primary-600 border-primary-500' 
                           : 'text-gray-600 border-gray-300'
                     }`}>
                       {isOverdue && '❗'}
                       {stepDateFormatted || '-'}
-                    </span>
+                        </span>
                     <span className={`hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 border-2 text-gray-600 border-gray-300`}>
                       {step.estimated_time ? `${step.estimated_time} min` : '-'}
                     </span>
                     {onStepImportantChange && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
                           if (onStepImportantChange) {
                             onStepImportantChange(step.id, !(step.is_important === true))
                           }
@@ -733,23 +733,23 @@ export function StepsManagementView({
                         ) : (
                           <Star className={`w-4 h-4 ${step.is_important ? 'fill-current' : ''}`} strokeWidth={step.is_important ? 0 : 2} />
                         )}
-                      </button>
+                        </button>
                     )}
-                  </div>
-                </div>
+                      </div>
+                    </div>
               )
             })}
             
             {/* Load More button */}
             {hasMoreSteps && (
               <div className="text-center py-4">
-                <button
+                      <button
                   onClick={() => setDisplayedStepsCount(prev => prev + 50)}
                   className="btn-playful-base px-6 py-2 text-sm font-medium text-black font-playful bg-white hover:bg-primary-50 border-2 border-primary-500"
                 >
                   {t('steps.loadMore') || 'Načíst více'} ({allSteps.length - displayedStepsCount} {t('steps.remainingSteps') || 'zbývá'})
-                </button>
-              </div>
+                      </button>
+                    </div>
             )}
           </>
         )}

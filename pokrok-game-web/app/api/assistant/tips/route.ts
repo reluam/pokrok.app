@@ -76,192 +76,213 @@ export async function GET(request: NextRequest) {
     `
     const hasCompletedOnboarding = userResult[0]?.has_completed_onboarding || false
 
+    // Get locale from query params or default to 'cs'
+    const localeParam = searchParams.get('locale')
+    const locale = localeParam === 'en' ? 'en' : 'cs'
+
     const tips: Tip[] = []
 
-    // If user hasn't completed onboarding, show onboarding tips
+    // If user hasn't completed onboarding, show onboarding tips from database
     if (!hasCompletedOnboarding) {
-      // Get locale from query params or default to 'cs'
-      const localeParam = searchParams.get('locale')
-      const locale = localeParam === 'en' ? 'en' : 'cs'
-      
-      // Return onboarding tips - show all tips on all pages
-      const onboardingTips = [
-        {
-          id: 'onboarding-intro',
-          title: locale === 'cs' ? 'Vítejte v Pokroku!' : 'Welcome to Pokrok!',
-          description: locale === 'cs' 
-            ? 'Pokrok je aplikace navržená pro sledování pokroku v životních snech a cílech. Aplikace jako taková je v podstatě podpůrná berle a motivace pro setrvání.'
-            : 'Pokrok is an application designed for tracking progress in life dreams and goals. The application itself is essentially a support crutch and motivation for persistence.',
-          category: 'feature' as const,
-          priority: 10
-        },
-        {
-          id: 'onboarding-assistant',
-          title: locale === 'cs' ? 'Funkce asistenta' : 'This assistant',
-          description: locale === 'cs'
-            ? 'Asistent slouží k tomu, abyste mohli rychle cokoliv dohledat a k tomu, aby vám pomáhal různými tipy založenými na tom, jak aplikaci používáte. Ze začátku bude asistent poskytovat hlavně obecné tipy, ale postupem času vám bude pomáhat konkrétněji a praktičtěji. Asistenta můžete kdykoliv vypnout v Nastavení.'
-            : 'This assistant serves to help you quickly find anything and to help you with various tips based on how you use the application. Initially, this assistant will provide mainly general tips, but over time it will help you more specifically and practically. This assistant can be turned off at any time in Settings.',
-          category: 'feature' as const,
-          priority: 9
-        },
-        {
-          id: 'onboarding-setup',
-          title: locale === 'cs' ? 'Nastavení aplikace' : 'Application setup',
-          description: locale === 'cs'
-            ? 'Pro správné fungování aplikace byste měli nastavit své cíle, ideálně i oblasti a na základě toho potom i jednotlivé kroky a návyky.'
-            : 'For the application to work properly, you must set up your goals, ideally also areas, and based on that, then individual steps and habits.',
-          category: 'organization' as const,
-          priority: 8
-        },
-        {
-          id: 'onboarding-goals',
-            title: locale === 'cs' ? 'Cíle' : 'Goals',
-            description: locale === 'cs'
-              ? '**Kde najít cíle**\n\nCíle najdete v levém navigačním menu. Můžete kliknout na konkrétní cíl v **Oblasti**, nebo na stránku **Cíle**, kde jsou všechny cíle seřazeny. Cíle se tvoří kliknutím na tlačítko **Přidat** v levém navigačním menu úplně dole.\n\n**Vytvoření cíle podle SMART**\n\nPři vytváření cíle můžete použít metodu SMART k vytvoření Specifického (konkrétní cíl), Měřitelného (jak ho budete měřit), Ambiciózního, Realistického a Časově vymezeného cíle.\n\nPro měřitelnost můžete v aplikaci použít metriky, které nastavíte po vytvoření cíle.'
-              : '**Where to find goals**\n\nYou can find goals in the left navigation menu. You can click on a specific goal in an **Area**, or on the **Goals** page where all goals are listed. Goals are created by clicking the **Add** button at the bottom of the left navigation menu.\n\n**Creating a goal using SMART method**\n\nWhen creating a goal, you can use the SMART method to create a Specific (specific goal), Measurable (how are you going to measure it), Ambitious, Realistic, Time-bound goal.\n\nFor measurable you can use metrics when creating the goal, which will help you track the progress more easily.',
-          category: 'productivity' as const,
-          priority: 7
-        },
-        {
-          id: 'onboarding-areas',
-            title: locale === 'cs' ? 'Oblasti' : 'Areas',
-            description: locale === 'cs'
-              ? 'Oblast můžete přidat v hlavním panelu kliknutím na **Přidat** a poté výběrem **Oblast**. Do oblasti můžete přiřadit kolik chcete cílů. Oblasti vlastně akorát seskupují jednotlivé cíle do logických celků pro přehled a filtrování.\n\nOblasti můžou být životní oblasti, vize nebo velké projekty.'
-              : 'You can add an area in the main panel by clicking **Add**, and then selecting **Area**. You can assign as many goals as you want to an area. Areas essentially group individual goals into logical units for overview and filtering.\n\nAreas can be life areas, visions, or large projects.',
-          category: 'organization' as const,
-          priority: 5
-        },
-        {
-          id: 'onboarding-steps',
-            title: locale === 'cs' ? 'Kroky' : 'Steps',
-            description: locale === 'cs'
-              ? '**Co jsou kroky**\n\nKroky jsou to-do úkoly zamýšlené jako kroky pro cíle. Kroky jsou spolu s návyky ta každodenní práce, kterou musíte udělat, abyste se posunuli k tomu životu, který chcete.\n\n**Kde nastavit kroky**\n\nKroky můžete přidat v navigačním panelu dole přes tlačítko **Přidat**, ale také nahoře vpravo v sekci **Nadcházející**, nebo přímo u konkrétního cíle.\n\n**Checklisty u kroků**\n\nKe krokům se dají přidat checklisty v detailu kroku - což jsou položky, které je třeba splnit pro krok a umožňují mít větší kontrolu nad tím, co se děje.\n\n**Opakující se kroky**\n\nOpakující se kroky jsou kroky, které se budou automaticky opakovat s určitou periodou (nastavíte vy) a vždy se zobrazí pouze jeden nejbližší výskyt toho kroku. Dokud není splněný, nezobrazí se další.'
-              : '**What are steps**\n\nSteps are to-do tasks intended as steps for goals. These are, together with habits, the daily work you will do to actually move towards the life you want.\n\n**Where to set up steps**\n\nYou can add steps in the bottom navigation panel on the **Add** button, but also at the top in **Upcoming** or in a goal in the steps section.\n\n**Checklists for steps**\n\nChecklists can be added to steps in the step detail - these are items that need to be completed for a step and allow for better control over what is happening.\n\n**Recurring steps**\n\nRecurring steps are steps that will automatically repeat with a certain period (you set it) and only one nearest occurrence of that step will be displayed. Until it is completed, the next one will not be displayed.',
-          category: 'productivity' as const,
-          priority: 4
-        },
-        {
-          id: 'onboarding-habits',
-            title: locale === 'cs' ? 'Návyky' : 'Habits',
-            description: locale === 'cs'
-              ? 'Návyky slouží k vybudování zdravých, případně odstranění škodlivých návyků. Nastavení najdete v **Návycích** a samotné návyky se poté podle frekvence budou zobrazovat v sekci **Nadcházející**.'
-              : 'Habits serve to build healthy habits, or remove harmful ones. Settings can be found in **Habits** and the habits themselves will then be displayed according to frequency in the **Upcoming** view.',
-          category: 'productivity' as const,
-          priority: 0
-        },
-        {
-          id: 'onboarding-contact',
-            title: locale === 'cs' ? 'Potřebujete pomoc?' : 'Need help?',
-            description: locale === 'cs'
-              ? 'V případě potřeby je možné napsat tvůrci aplikace - Matějovi, přes kontaktní formulář v Nápovědě. Můžete napsat s jakýmkoliv tématem co vás zajímá nebo trápí.'
-              : 'If needed, you can write to the app creator - Matěj, through the contact form in Help. You can write about any topic that interests or concerns you.',
-          category: 'feature' as const,
-          priority: -1
+      // Get onboarding tips from database
+      const dbOnboardingTips = await sql`
+        SELECT * FROM assistant_tips 
+        WHERE category = 'onboarding' AND is_active = true
+        ORDER BY priority DESC, created_at DESC
+      `
+
+      // Transform database tips to API format
+      const onboardingTips = dbOnboardingTips.map((dbTip: any) => {
+        // Parse JSONB fields if they come as strings
+        const title = typeof dbTip.title === 'string' ? JSON.parse(dbTip.title) : dbTip.title
+        const description = typeof dbTip.description === 'string' ? JSON.parse(dbTip.description) : dbTip.description
+        
+        return {
+          id: dbTip.id,
+          title: title[locale] || title.cs || title.en || '',
+          description: description[locale] || description.cs || description.en || '',
+          category: dbTip.category,
+          priority: dbTip.priority
         }
-      ]
-
-      return NextResponse.json({ tips: onboardingTips, isOnboarding: true })
-    }
-
-    // Generate tips based on context and stats
-    if (context.page === 'main') {
-      if (stats.totalAreas === 0) {
-        tips.push({
-          id: 'tip-no-areas',
-          title: 'Vytvořte si oblasti',
-          description: 'Organizujte své cíle a kroky do oblastí pro lepší přehled.',
-          category: 'organization',
-          priority: 5
-        })
-      }
-
-      if (stats.activeGoals === 0 && stats.totalGoals === 0) {
-        tips.push({
-          id: 'tip-no-goals',
-          title: 'Začněte s cíli',
-          description: 'Vytvořte si svůj první cíl a začněte na něm pracovat.',
-          category: 'motivation',
-          priority: 5
-        })
-      }
-
-      if (stats.completedSteps === 0 && stats.totalSteps > 0) {
-        tips.push({
-          id: 'tip-no-completed-steps',
-          title: 'Dokončete první krok',
-          description: 'Zkuste dokončit alespoň jeden krok dnes a oslavte malý úspěch!',
-          category: 'motivation',
-          priority: 4
-        })
-      }
-    } else if (context.page === 'steps') {
-      if (stats.totalSteps === 0) {
-        tips.push({
-          id: 'tip-no-steps',
-          title: 'Přidejte si kroky',
-          description: 'Vytvořte si kroky pro dosažení vašich cílů. Každý cíl potřebuje konkrétní akční kroky.',
-          category: 'productivity',
-          priority: 5
-        })
-      } else if (stats.completedSteps / stats.totalSteps < 0.3) {
-        tips.push({
-          id: 'tip-few-completed',
-          title: 'Dokončete více kroků',
-          description: 'Zkuste dokončit alespoň 3 kroky dnes. Malé kroky vedou k velkým výsledkům.',
-          category: 'motivation',
-          priority: 4
-        })
-      }
-    } else if (context.page === 'goals') {
-      if (stats.totalGoals === 0) {
-        tips.push({
-          id: 'tip-no-goals-page',
-          title: 'Vytvořte si cíl',
-          description: 'Začněte s vytvořením svého prvního cíle. Ujistěte se, že je konkrétní a měřitelný.',
-          category: 'productivity',
-          priority: 5
-        })
-      } else if (stats.activeGoals > 5) {
-        tips.push({
-          id: 'tip-too-many-goals',
-          title: 'Zaměřte se na důležité',
-          description: 'Máte mnoho aktivních cílů. Zkuste se zaměřit na 1-3 nejdůležitější cíle najednou.',
-          category: 'organization',
-          priority: 4
-        })
-      }
-    } else if (context.page === 'habits') {
-      if (stats.totalHabits === 0) {
-        tips.push({
-          id: 'tip-no-habits',
-          title: 'Vytvořte si návyk',
-          description: 'Návyky jsou základem dlouhodobého úspěchu. Začněte s jedním malým návykem.',
-          category: 'productivity',
-          priority: 5
-        })
-      }
-    }
-
-    // Goal detail page tips
-    if (context.section?.startsWith('goal-')) {
-      tips.push({
-        id: 'tip-goal-detail',
-        title: 'Přidejte kroky k cíli',
-        description: 'Rozdělte si cíl na menší, měřitelné kroky. To vám pomůže sledovat pokrok.',
-        category: 'productivity',
-        priority: 4
       })
+
+      // Return onboarding tips from database only (no fallback)
+      if (onboardingTips.length > 0) {
+        return NextResponse.json({ tips: onboardingTips, isOnboarding: true })
+      }
+
+      // If no onboarding tips in database, return empty array
+      return NextResponse.json({ tips: [], isOnboarding: true })
     }
 
-    // Area detail page tips
-    if (context.section?.startsWith('area-')) {
-      tips.push({
-        id: 'tip-area-detail',
-        title: 'Organizujte cíle v oblasti',
-        description: 'Vytvářejte cíle, které se vztahují k této oblasti života.',
-        category: 'organization',
-        priority: 3
-      })
+    // Helper function to evaluate conditions
+    const evaluateConditions = (conditions: any, stats: any, context: AssistantContext, hasCompletedOnboarding: boolean): boolean => {
+      if (!conditions || Object.keys(conditions).length === 0) {
+        return true // No conditions means always show
+      }
+
+      // Calculate completedStepsRatio
+      const completedStepsRatio = stats.totalSteps > 0 ? stats.completedSteps / stats.totalSteps : 0
+
+      // Build evaluation context
+      const evalContext: Record<string, any> = {
+        totalAreas: stats.totalAreas,
+        totalGoals: stats.totalGoals,
+        activeGoals: stats.activeGoals,
+        totalSteps: stats.totalSteps,
+        completedSteps: stats.completedSteps,
+        totalHabits: stats.totalHabits,
+        completedStepsRatio,
+        hasCompletedOnboarding,
+        context_page: context.page || '',
+        context_section: context.section || ''
+      }
+
+      // Evaluate all conditions (AND logic - all must be true)
+      for (const [field, condition] of Object.entries(conditions)) {
+        const { operator, value } = condition as { operator: string; value: any }
+        const fieldValue = evalContext[field]
+
+        if (fieldValue === undefined) {
+          return false // Field doesn't exist in context
+        }
+
+        let result = false
+        switch (operator) {
+          case '==':
+            result = fieldValue == value
+            break
+          case '!=':
+            result = fieldValue != value
+            break
+          case '<':
+            result = fieldValue < value
+            break
+          case '>':
+            result = fieldValue > value
+            break
+          case '<=':
+            result = fieldValue <= value
+            break
+          case '>=':
+            result = fieldValue >= value
+            break
+          case 'startsWith':
+            result = String(fieldValue).startsWith(String(value))
+            break
+          case 'contains':
+            result = String(fieldValue).includes(String(value))
+            break
+          default:
+            return false
+        }
+
+        if (!result) {
+          return false // One condition failed
+        }
+      }
+
+      return true // All conditions passed
+    }
+
+    // Get active tips from database based on context
+    // Get both regular tips and inspiration tips separately
+    let dbTips
+    let inspirationTips
+    if (context.section) {
+      dbTips = await sql`
+        SELECT * FROM assistant_tips 
+        WHERE is_active = true 
+          AND category != 'onboarding'
+          AND category != 'inspiration'
+          AND (context_page IS NULL OR context_page = ${context.page || ''})
+          AND (context_section IS NULL OR context_section = ${context.section})
+        ORDER BY priority DESC, created_at DESC
+      `
+      inspirationTips = await sql`
+        SELECT * FROM assistant_tips 
+        WHERE is_active = true 
+          AND category = 'inspiration'
+          AND (context_page IS NULL OR context_page = ${context.page || ''})
+          AND (context_section IS NULL OR context_section = ${context.section})
+        ORDER BY priority ASC, created_at DESC
+      `
+    } else if (context.page) {
+      dbTips = await sql`
+        SELECT * FROM assistant_tips 
+        WHERE is_active = true 
+          AND category != 'onboarding'
+          AND category != 'inspiration'
+          AND (context_page IS NULL OR context_page = ${context.page})
+        ORDER BY priority DESC, created_at DESC
+      `
+      inspirationTips = await sql`
+        SELECT * FROM assistant_tips 
+        WHERE is_active = true 
+          AND category = 'inspiration'
+          AND (context_page IS NULL OR context_page = ${context.page})
+        ORDER BY priority ASC, created_at DESC
+      `
+    } else {
+      dbTips = await sql`
+        SELECT * FROM assistant_tips 
+        WHERE is_active = true 
+          AND category != 'onboarding'
+          AND category != 'inspiration'
+          AND context_page IS NULL
+        ORDER BY priority DESC, created_at DESC
+      `
+      inspirationTips = await sql`
+        SELECT * FROM assistant_tips 
+        WHERE is_active = true 
+          AND category = 'inspiration'
+          AND context_page IS NULL
+        ORDER BY priority ASC, created_at DESC
+      `
+    }
+    
+    // Combine tips (inspiration will be added later if needed)
+    const allDbTips = [...dbTips, ...inspirationTips]
+
+    // Filter tips by conditions and transform to API format
+    // Separate inspiration tips from other tips
+    const dbTipsFormatted: Tip[] = []
+    const inspirationTipsFiltered: Tip[] = []
+    
+    allDbTips.forEach((dbTip: any) => {
+      // Parse JSONB fields
+      const title = typeof dbTip.title === 'string' ? JSON.parse(dbTip.title) : dbTip.title
+      const description = typeof dbTip.description === 'string' ? JSON.parse(dbTip.description) : dbTip.description
+      const conditions = dbTip.conditions ? (typeof dbTip.conditions === 'string' ? JSON.parse(dbTip.conditions) : dbTip.conditions) : null
+
+      // Evaluate conditions
+      if (!evaluateConditions(conditions, stats, context, hasCompletedOnboarding)) {
+        return // Tip doesn't match conditions
+      }
+
+      const tip: Tip = {
+        id: dbTip.id,
+        title: title[locale] || title.cs || title.en || '',
+        description: description[locale] || description.cs || description.en || '',
+        category: dbTip.category,
+        priority: dbTip.priority
+      }
+
+      // Separate inspiration tips (they will be shown only if no other tips)
+      if (dbTip.category === 'inspiration') {
+        inspirationTipsFiltered.push(tip)
+      } else {
+        dbTipsFormatted.push(tip)
+      }
+    })
+
+    // Add non-inspiration tips first
+    tips.push(...dbTipsFormatted)
+
+    // Only add inspiration tips if we have less than 3 other tips
+    if (tips.length < 3 && inspirationTipsFiltered.length > 0) {
+      // Inspiration tips are already sorted by priority ASC (lowest first)
+      tips.push(...inspirationTipsFiltered.slice(0, 3 - tips.length))
     }
 
     return NextResponse.json({ tips })
