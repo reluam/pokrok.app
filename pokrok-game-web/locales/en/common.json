@@ -521,9 +521,11 @@
           },
           "onboarding": {
             "title": "Tutorial",
-            "description": "Turn on the tutorial again if you want to go through the introductory guide again.",
-            "button": "Turn on tutorial again",
-            "error": "Failed to reset tutorial. Please try again."
+            "description": "Reset onboarding tips in the assistant if you want to go through the introductory guide again.",
+            "button": "Reset tutorial",
+            "error": "Failed to reset tutorial. Please try again.",
+            "resetSuccess": "Onboarding tips have been reset. Check the assistant.",
+            "notCompleted": "Complete onboarding to be able to reset the tutorial."
           },
           "currency": {
             "title": "Default Currency",
@@ -1827,7 +1829,58 @@
       "dismiss": "Dismiss",
       "noTips": "No tips to display",
       "loading": "Loading tips...",
-      "markAsRead": "Mark as read"
+      "markAsRead": "Mark as read",
+      "completeOnboarding": "Complete onboarding",
+      "onboarding": {
+        "intro": {
+          "title": "Welcome to Progress!",
+          "description": "Progress is an application designed for tracking progress in life dreams and goals. The application itself is essentially a support crutch and motivation for persistence."
+        },
+        "assistant": {
+          "title": "Assistant function",
+          "description": "The assistant serves to help users quickly find anything and to help users with various tips based on how the user uses the application. Initially, the assistant will provide mainly general tips, but over time it will help more specifically and practically. The assistant can be turned off at any time in Settings."
+        },
+        "setup": {
+          "title": "Application setup",
+          "description": "For the application to work properly, you must set up your goals, ideally also areas, and based on that, then individual steps and habits."
+        },
+        "goalsLocation": {
+          "title": "Where to find goals",
+          "description": "You can find goals in the left navigation menu. Click on 'Goals' and then on the 'Add Goal' button in the top right corner."
+        },
+        "smartGoals": {
+          "title": "Creating a goal using SMART",
+          "description": "When creating a goal, you can set a deadline, metrics, name, and other parameters. SMART means Specific, Measurable, Achievable, Relevant, and Time-bound."
+        },
+        "areas": {
+          "title": "Adding an area",
+          "description": "You can add an area in the main panel by clicking 'Add Area'. You can assign as many goals as you want to an area. Areas essentially group individual goals into logical units for overview and filtering."
+        },
+        "stepsIntro": {
+          "title": "What are steps",
+          "description": "Steps are to-do tasks intended as steps for goals. These are, together with habits, the daily details you will work on to actually move towards the life you want."
+        },
+        "stepsLocation": {
+          "title": "Where to set up steps",
+          "description": "You can add steps in the bottom navigation panel on the 'Add' button, but also at the top in Upcoming or in a goal in the steps section."
+        },
+        "checklists": {
+          "title": "Checklists for steps",
+          "description": "Checklists can be added to steps - these are items that need to be completed for a step and allow for better control over what is happening."
+        },
+        "recurringSteps": {
+          "title": "Recurring steps",
+          "description": "Recurring steps are steps that will automatically repeat with a certain period (you set it) and only one nearest occurrence of that step will be displayed. Until it is completed, the next one will not be displayed."
+        },
+        "habits": {
+          "title": "Habits",
+          "description": "Habits serve to build healthy habits, or remove harmful ones. Settings can be found in habits and the habits themselves will then be displayed according to frequency in the upcoming view and for better overview also in habits."
+        },
+        "contact": {
+          "title": "Need help?",
+          "description": "If needed, you can write to the app creator - Matěj, through the contact form in Help. You can write about any topic that interests or concerns you."
+        }
+      }
     }
   }
 }

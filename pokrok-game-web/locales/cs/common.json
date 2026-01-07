@@ -520,9 +520,11 @@
           },
           "onboarding": {
             "title": "Tutoriál",
-            "description": "Zapněte tutoriál znovu, pokud chcete znovu projít úvodní průvodce aplikací.",
-            "button": "Zapnout tutoriál znovu",
-            "error": "Nepodařilo se resetovat tutoriál. Zkuste to prosím znovu."
+            "description": "Obnovte onboarding tipy v asistentovi, pokud chcete znovu projít úvodní průvodce aplikací.",
+            "button": "Obnovit tutorial",
+            "error": "Nepodařilo se obnovit tutorial. Zkuste to prosím znovu.",
+            "resetSuccess": "Onboarding tipy byly obnoveny. Zkontrolujte asistenta.",
+            "notCompleted": "Dokončete onboarding, abyste mohli obnovit tutorial."
           },
           "currency": {
             "title": "Výchozí měna",
@@ -1826,7 +1828,58 @@
       "dismiss": "Zavřít",
       "noTips": "Žádné tipy k zobrazení",
       "loading": "Načítám tipy...",
-      "markAsRead": "Označit jako přečtené"
+      "markAsRead": "Označit jako přečtené",
+      "completeOnboarding": "Dokončit onboarding",
+      "onboarding": {
+        "intro": {
+          "title": "Vítejte v Pokroku!",
+          "description": "Pokrok je aplikace navržená pro sledování pokroku v životních snech a cílech. Aplikace jako taková je v podstatě podpůrná berle a motivace pro setrvání."
+        },
+        "assistant": {
+          "title": "Funkce asistenta",
+          "description": "Asistent slouží k tomu, aby uživatel mohl rychle cokoliv dohledat a k tomu, aby uživateli pomáhal různými tipy založenými na tom, jak uživatel aplikaci používá. Ze začátku bude asistent dodávat hlavně obecné tipy, ale postupem času bude pomáhat konkrétněji a praktičtěji. Asistenta je možné kdykoliv v Nastavení vypnout."
+        },
+        "setup": {
+          "title": "Nastavení aplikace",
+          "description": "Pro správné fungování aplikace musíte nastavit své cíle, ideálně i oblasti a na základě toho potom i jednotlivé kroky a návyky."
+        },
+        "goalsLocation": {
+          "title": "Kde najít cíle",
+          "description": "Cíle najdete v navigačním menu vlevo. Klikněte na 'Cíle' a poté na tlačítko 'Přidat cíl' v pravém horním rohu."
+        },
+        "smartGoals": {
+          "title": "Vytvoření cíle podle SMART",
+          "description": "Při vytváření cíle můžete nastavit termín, metriky, název a další parametry. SMART znamená Specifický, Měřitelný, Dosažitelný, Relevantní a Časově vymezený."
+        },
+        "areas": {
+          "title": "Přidání oblasti",
+          "description": "Oblast můžete přidat v hlavním panelu kliknutím na 'Přidat oblast'. Do oblasti můžete přiřadit kolik chcete cílů. Oblasti vlastně akorát seskupují jednotlivé cíle do logických celků pro přehled a filtrování."
+        },
+        "stepsIntro": {
+          "title": "Co jsou kroky",
+          "description": "Kroky jsou to-do úkoly zamýšlené jako kroky pro cíle. Tohle jsou spolu s návyky ty denodenní detaily, na kterých budete pracovat, aby se reálně posunuli k tomu životu, který chcete."
+        },
+        "stepsLocation": {
+          "title": "Kde nastavit kroky",
+          "description": "Kroky můžete přidat v navigačním panelu dole na tlačítko 'Přidat', ale také nahoře v Upcoming nebo v cíli v sekci kroků."
+        },
+        "checklists": {
+          "title": "Checklisty u kroků",
+          "description": "Ke krokům se dají přidat checklisty - co jsou položky, které je třeba splnit pro krok a umožňují mít větší kontrolu nad tím, co se děje."
+        },
+        "recurringSteps": {
+          "title": "Opakující se kroky",
+          "description": "Opakující se kroky jsou kroky, které se budou automaticky opakovat s určitou periodou (nastavíte vy) a vždy se zobrazí pouze jeden nejbližší výskyt toho kroku. Dokud není splněný, nezobrazí se další."
+        },
+        "habits": {
+          "title": "Návyky",
+          "description": "Návyky slouží k vybudování zdravých, případně odstranění škodlivých návyků. Nastavení najdete v návycích a samotné návyky se poté podle frekvence budou zobrazovat v upcoming view a pro lepší přehled i v návycích."
+        },
+        "contact": {
+          "title": "Potřebujete pomoc?",
+          "description": "V případě potřeby je možné napsat tvůrci aplikace - Matějovi, přes kontaktní formulář v Nápovědě. Můžete napsat s jakýmkoliv tématem co vás zajímá nebo trápí."
+        }
+      }
     }
   }
 }

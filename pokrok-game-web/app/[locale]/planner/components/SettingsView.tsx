@@ -120,10 +120,11 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
   const [isResetting, setIsResetting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isResettingOnboarding, setIsResettingOnboarding] = useState(false)
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null)
 
-  // Load user's preferred locale
+  // Load user's preferred locale and onboarding status
   useEffect(() => {
-    const loadUserLocale = async () => {
+    const loadUserData = async () => {
       try {
         const response = await fetch('/api/game/init')
         if (response.ok) {
@@ -131,12 +132,15 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
           if (gameData.user?.preferred_locale) {
             setPreferredLocale(gameData.user.preferred_locale as Locale)
           }
+          if (gameData.user?.has_completed_onboarding !== undefined) {
+            setHasCompletedOnboarding(gameData.user.has_completed_onboarding)
+          }
         }
       } catch (error) {
-        console.error('Error loading user locale:', error)
+        console.error('Error loading user data:', error)
       }
     }
-    loadUserLocale()
+    loadUserData()
   }, [])
 
   // Load display settings
@@ -428,32 +432,44 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
   }
 
   const handleResetOnboarding = async () => {
+    if (!hasCompletedOnboarding) return // Don't allow reset if onboarding is not completed
+    
     setIsResettingOnboarding(true)
     try {
+      // Clear read onboarding tips from localStorage
+      if (typeof window !== 'undefined') {
+        const readTips = localStorage.getItem('assistantReadTips')
+        if (readTips) {
+          try {
+            const tipsArray = JSON.parse(readTips)
+            // Filter out onboarding tips (they start with 'onboarding-')
+            const filteredTips = tipsArray.filter((tipId: string) => !tipId.startsWith('onboarding-'))
+            localStorage.setItem('assistantReadTips', JSON.stringify(filteredTips))
+          } catch (error) {
+            console.error('Error filtering onboarding tips:', error)
+          }
+        }
+      }
+      
+      // Reset onboarding status in database
       const response = await fetch('/api/user/onboarding', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ hasCompletedOnboarding: false })
       })
-
+      
       if (response.ok) {
-        // Redirect to main panel to show onboarding
-        if (onNavigateToMain) {
-          onNavigateToMain()
-          // Reload page to refresh onboarding status after a short delay
-          // This ensures the API call completes before reload
-          setTimeout(() => {
-            window.location.reload()
-          }, 500)
-        } else {
-          // Fallback: use router if onNavigateToMain is not available
-          setTimeout(() => {
-            router.push(`/planner`)
-            window.location.reload()
-          }, 500)
-        }
+        // Update local state
+        setHasCompletedOnboarding(false)
+        
+        // Notify AssistantPanel to reload tips
+        window.dispatchEvent(new CustomEvent('assistantSettingsChanged'))
+        window.dispatchEvent(new CustomEvent('onboardingReset'))
+        
+        // Show success message
+        alert(t('settings.user.onboarding.resetSuccess') || 'Onboarding tipy byly obnoveny. Zkontrolujte asistenta.')
       } else {
-        const error = await response.json()
+        const error = await response.json().catch(() => ({ error: 'Unknown error' }))
         alert(error.error || t('settings.user.onboarding.error'))
       }
     } catch (error) {
@@ -634,11 +650,16 @@ export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain 
                   </p>
                   <button
                     onClick={handleResetOnboarding}
-                    disabled={isResettingOnboarding}
+                    disabled={isResettingOnboarding || !hasCompletedOnboarding}
                     className="btn-playful-primary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isResettingOnboarding ? t('common.loading') : t('settings.user.onboarding.button')}
                   </button>
+                  {hasCompletedOnboarding === false && (
+                    <p className="text-xs text-gray-500 mt-2 font-playful">
+                      {t('settings.user.onboarding.notCompleted') || 'Dokončete onboarding, abyste mohli obnovit tutorial.'}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
