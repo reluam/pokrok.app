@@ -3880,7 +3880,8 @@ export function JourneyGameView({
         className="relative flex flex-1 overflow-hidden min-h-0"
         style={assistantSmallScreen && assistantMinimized && typeof window !== 'undefined' && window.innerWidth >= 640 ? { paddingRight: '48px' } : undefined}
       >
-        <PageContent
+        <div className="flex-1 min-w-0 overflow-hidden">
+          <PageContent
           currentPage={currentPage}
           mainPanelSection={mainPanelSection}
           setMainPanelSection={setMainPanelSection}
@@ -4109,6 +4110,7 @@ export function JourneyGameView({
             setAssistantSmallScreen(isSmallScreen)
           }}
         />
+        </div>
       </div>
 
       {/* Date Picker Modal */}

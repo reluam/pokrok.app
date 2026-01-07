@@ -243,7 +243,7 @@ export function AssistantPanel({
     ? isMinimized 
       ? `flex flex-col fixed right-0 top-16 bottom-0 z-50 w-12`  // Fixed position, always at right edge
       : `fixed right-0 top-16 bottom-0 z-50 shadow-2xl w-72`  // Overlay
-    : `flex flex-col relative z-50 ml-auto ${isMinimized ? 'w-12' : 'w-72'}`  // Normal flex - push to right
+    : `flex flex-col relative z-50 ml-auto flex-shrink-0 ${isMinimized ? 'w-12' : 'w-72'}`  // Normal flex - push to right, fixed width
   
   return (
     <>
