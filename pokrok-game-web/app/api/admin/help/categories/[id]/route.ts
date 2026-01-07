@@ -5,7 +5,7 @@ import { isUserAdmin } from '@/lib/cesta-db'
 
 const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authResult = await requireAuth(request)
     if (authResult instanceof NextResponse) return authResult
@@ -16,7 +16,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
     }
 
-    const result = await sql`SELECT * FROM help_categories WHERE id = ${params.id}`
+    const { id } = await params
+    const result = await sql`SELECT * FROM help_categories WHERE id = ${id}`
     if (result.length === 0) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authResult = await requireAuth(request)
     if (authResult instanceof NextResponse) return authResult
@@ -41,10 +42,11 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
     }
 
+    const { id } = await params
     const body = await request.json()
     const { title, description, slug, sort_order, is_active } = body
 
-    const existing = await sql`SELECT * FROM help_categories WHERE id = ${params.id}`
+    const existing = await sql`SELECT * FROM help_categories WHERE id = ${id}`
     if (existing.length === 0) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
@@ -68,7 +70,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
             sort_order = ${finalSort},
             is_active = ${finalActive},
             updated_at = NOW()
-          WHERE id = ${params.id}
+          WHERE id = ${id}
           RETURNING *
         `
       : await sql`
@@ -80,7 +82,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
             sort_order = ${finalSort},
             is_active = ${finalActive},
             updated_at = NOW()
-          WHERE id = ${params.id}
+          WHERE id = ${id}
           RETURNING *
         `
     const row = result[0]
@@ -93,7 +95,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authResult = await requireAuth(request)
     if (authResult instanceof NextResponse) return authResult
@@ -104,7 +106,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
     }
 
-    const result = await sql`DELETE FROM help_categories WHERE id = ${params.id} RETURNING id`
+    const { id } = await params
+    const result = await sql`DELETE FROM help_categories WHERE id = ${id} RETURNING id`
     if (result.length === 0) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }

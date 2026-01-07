@@ -8,7 +8,7 @@ const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dum
 // GET - Get single tip (admin only)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -21,8 +21,9 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
     }
 
+    const { id } = await params
     const result = await sql`
-      SELECT * FROM assistant_tips WHERE id = ${params.id}
+      SELECT * FROM assistant_tips WHERE id = ${id}
     `
 
     if (result.length === 0) {
@@ -48,7 +49,7 @@ export async function GET(
 // PUT - Update tip (admin only)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -61,6 +62,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
     }
 
+    const { id } = await params
     const body = await request.json()
     const { title, description, category, priority, context_page, context_section, is_active, conditions } = body
 
@@ -74,7 +76,7 @@ export async function PUT(
 
     // Check if tip exists first
     const existing = await sql`
-      SELECT * FROM assistant_tips WHERE id = ${params.id}
+      SELECT * FROM assistant_tips WHERE id = ${id}
     `
     
     if (existing.length === 0) {
@@ -108,7 +110,7 @@ export async function PUT(
             is_active = ${finalIsActive},
             conditions = ${finalConditions}::jsonb,
             updated_at = NOW()
-          WHERE id = ${params.id}
+          WHERE id = ${id}
           RETURNING *
         `
       : await sql`
@@ -123,7 +125,7 @@ export async function PUT(
             is_active = ${finalIsActive},
             conditions = NULL,
             updated_at = NOW()
-          WHERE id = ${params.id}
+          WHERE id = ${id}
           RETURNING *
         `
 
@@ -150,7 +152,7 @@ export async function PUT(
 // DELETE - Delete tip (admin only)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -163,8 +165,9 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
     }
 
+    const { id } = await params
     const result = await sql`
-      DELETE FROM assistant_tips WHERE id = ${params.id} RETURNING id
+      DELETE FROM assistant_tips WHERE id = ${id} RETURNING id
     `
 
     if (result.length === 0) {
