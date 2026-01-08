@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
 import { useTranslations, useLocale } from 'next-intl'
 import { Target, Check, ArrowLeft, Menu, X } from 'lucide-react'
+import Image from 'next/image'
 import { DevVersionTooltip } from '../components/DevVersionTooltip'
 import { locales, type Locale } from '@/i18n/config'
 
@@ -65,8 +66,14 @@ export default function PricingPage() {
           <div className="flex items-center justify-between">
             {/* Logo - clickable to home */}
             <Link href={`/`} className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity">
-              <Target className="w-6 h-6 md:w-8 md:h-8 text-primary-600" />
-              <span className="text-lg md:text-2xl font-bold text-primary-900">{t('app.name')}</span>
+              <Image 
+                src="/pokrok-logo.png" 
+                alt={t('app.name') || 'Pokrok'} 
+                width={120}
+                height={40}
+                className="h-6 md:h-8 w-auto"
+                priority
+              />
               <div className="flex items-center gap-1.5">
                 <span className="text-xs md:text-sm text-primary-900">v0.1.0</span>
                 <DevVersionTooltip iconSize="w-3 h-3 md:w-4 md:h-4" />
@@ -292,7 +299,8 @@ export default function PricingPage() {
                     locale === 'cs' ? 'Historie za celou dobu' : 'All time history',
                     locale === 'cs' ? 'Statistiky' : 'Statistics',
                     locale === 'cs' ? 'Neomezené oblasti' : 'Unlimited Areas',
-                    locale === 'cs' ? 'Neomezené cíle, kroky a návyky' : 'Unlimited goals, steps and habits'
+                    locale === 'cs' ? 'Neomezené cíle, kroky a návyky' : 'Unlimited goals, steps and habits',
+                    locale === 'cs' ? 'Asistent' : 'Assistant'
                   ].map((item, index) => (
                     <li key={index} className="flex items-start gap-2">
                       <Check className="w-5 h-5 flex-shrink-0 mt-0.5" />
@@ -316,8 +324,13 @@ export default function PricingPage() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="flex items-center gap-2 mb-3 md:mb-0">
-              <Target className="w-5 h-5 md:w-6 md:h-6 text-primary-600" />
-              <span className="text-lg md:text-xl font-bold text-primary-900">{t('app.name')}</span>
+              <Image 
+                src="/pokrok-logo.png" 
+                alt={t('app.name') || 'Pokrok'} 
+                width={100}
+                height={33}
+                className="h-5 md:h-6 w-auto"
+              />
             </div>
             <div className="text-xs md:text-sm text-center md:text-left text-primary-900">
               © {new Date().getFullYear()} {t('app.name')}. {t('homepage.footer.rights') || 'Všechna práva vyhrazena.'}

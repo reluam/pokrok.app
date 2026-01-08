@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
 import { useTranslations, useLocale } from 'next-intl'
 import { Target, Check, ArrowRight, Menu, X, Zap, TrendingUp, LayoutDashboard } from 'lucide-react'
+import Image from 'next/image'
 import { DevVersionTooltip } from './components/DevVersionTooltip'
 import { locales, type Locale } from '@/i18n/config'
 
@@ -66,8 +67,14 @@ export default function HomePage() {
           <div className="flex items-center justify-between">
             {/* Logo - clickable to home */}
             <Link href={`/`} className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity">
-              <Target className="w-6 h-6 md:w-8 md:h-8 text-primary-600" />
-              <span className="text-lg md:text-2xl font-bold text-primary-900">{t('app.name')}</span>
+              <Image 
+                src="/pokrok-logo.png" 
+                alt={t('app.name') || 'Pokrok'} 
+                width={120}
+                height={40}
+                className="h-6 md:h-8 w-auto"
+                priority
+              />
               <div className="flex items-center gap-1.5">
                 <span className="text-xs md:text-sm text-primary-900">v0.1.0</span>
                 <DevVersionTooltip iconSize="w-3 h-3 md:w-4 md:h-4" />
@@ -230,8 +237,16 @@ export default function HomePage() {
                 <span className="text-primary-600">🎁</span>
                 <span>
                   {locale === 'cs'
-                    ? 'Po dobu trvání alfa verze aplikace jsou zdarma i Premium funkce'
-                    : 'During the alpha version, Premium features are also free'}
+                    ? (
+                      <>
+                        Po dobu trvání <Link href={`/pricing`} className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">alfa verze aplikace</Link> jsou zdarma i Premium funkce
+                      </>
+                    )
+                    : (
+                      <>
+                        During the <Link href={`/pricing`} className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">alpha version</Link>, Premium features are also free
+                      </>
+                    )}
                 </span>
               </p>
             </div>
@@ -375,12 +390,12 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center">
             <h2 className="text-2xl md:text-3xl font-bold mb-4 text-primary-900">
-              {locale === 'cs' ? 'Co Pokrok není' : 'What Progress is not'}
+              {locale === 'cs' ? 'Co Pokrok není' : 'What Pokrok is not'}
             </h2>
             <p className="text-base text-gray-700 max-w-3xl mx-auto">
               {locale === 'cs'
                 ? 'Pokrok je skvělý nástroj, který vám pomůže dosáhnout vašich cílů, ale není to magická pilulka. Aplikace vám poskytne strukturu, organizaci a nástroje pro plánování, ale konečný úspěch závisí na vás. Pokrok vám pomůže na cestě, ale kroky musíte udělat sami.'
-                : 'Progress is a great tool that will help you achieve your goals, but it is not a magic pill. The application will provide you with structure, organization, and tools for planning, but ultimate success depends on you. Progress will help you on your way, but you must take the steps yourself.'}
+                : 'Pokrok is a great tool that will help you achieve your goals, but it is not a magic pill. The application will provide you with structure, organization, and tools for planning, but ultimate success depends on you. Pokrok will help you on your way, but you must take the steps yourself.'}
             </p>
           </div>
         </div>
@@ -396,7 +411,7 @@ export default function HomePage() {
             <p className="text-base text-gray-700 mb-6">
               {locale === 'cs'
                 ? 'Připojte se k lidem, kteří používají Pokrok k dosahování svých cílů. Začněte zdarma ještě dnes.'
-                : 'Join people who use Progress to achieve their goals. Start for free today.'}
+                : 'Join people who use Pokrok to achieve their goals. Start for free today.'}
             </p>
             <Link href={`/sign-up`} className="inline-block">
               <button className="px-6 py-3 bg-white border-2 border-primary-500 rounded-playful-lg font-medium transition-all flex items-center gap-2 mx-auto text-primary-600 hover:bg-primary-50 box-playful-highlight">
@@ -408,8 +423,16 @@ export default function HomePage() {
               <span className="text-primary-600">🎁</span>
               <span>
                 {locale === 'cs'
-                  ? 'Po dobu trvání alfa verze aplikace jsou zdarma i Premium funkce'
-                  : 'During the alpha version, Premium features are also free'}
+                  ? (
+                    <>
+                      Po dobu trvání <Link href={`/pricing`} className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">alfa verze aplikace</Link> jsou zdarma i Premium funkce
+                    </>
+                  )
+                  : (
+                    <>
+                      During the <Link href={`/pricing`} className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">alpha version</Link>, Premium features are also free
+                    </>
+                  )}
               </span>
             </p>
           </div>
@@ -421,8 +444,13 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="flex items-center gap-2 mb-3 md:mb-0">
-              <Target className="w-5 h-5 md:w-6 md:h-6 text-primary-600" />
-              <span className="text-lg md:text-xl font-bold text-primary-900">{t('app.name')}</span>
+              <Image 
+                src="/pokrok-logo.png" 
+                alt={t('app.name') || 'Pokrok'} 
+                width={100}
+                height={33}
+                className="h-5 md:h-6 w-auto"
+              />
             </div>
             <div className="text-xs md:text-sm text-center md:text-left text-primary-900">
               © {new Date().getFullYear()} {t('app.name')}. {t('homepage.footer.rights') || 'Všechna práva vyhrazena.'}
