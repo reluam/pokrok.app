@@ -210,8 +210,8 @@ export default function HomePage() {
             <div>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight text-primary-900 mb-6">
                 {locale === 'cs' 
-                  ? 'Životní plánovač pro lidi, kteří chtějí dosáhnout svých cílů'
-                  : 'Life planner for people who want to achieve their goals'}
+                  ? 'Životní plánovač pro lidi, kteří chtějí žít podle sebe'
+                  : 'Life planner for people who want to live on their own terms'}
           </h1>
               <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-8">
                 {locale === 'cs'
@@ -225,17 +225,14 @@ export default function HomePage() {
                     <ArrowRight className="w-4 h-4" />
               </button>
             </Link>
-                <div className="px-4 py-2.5 bg-primary-50 border-2 border-primary-500 rounded-playful-lg text-sm text-primary-900 box-playful-pressed">
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-medium">✓ 14denní zkušební verze</span>
-                    <span className="text-xs">zdarma • Bez platební karty</span>
-                  </div>
-                </div>
               </div>
-              <p className="text-sm text-gray-600">
-                {locale === 'cs'
-                  ? 'Po dobu trvání alfy jsou všechny funkce zdarma'
-                  : 'All features are free during the alpha period'}
+              <p className="text-sm text-gray-600 flex items-center gap-1.5">
+                <span className="text-primary-600">🎁</span>
+                <span>
+                  {locale === 'cs'
+                    ? 'Po dobu trvání alfa verze aplikace jsou zdarma i Premium funkce'
+                    : 'During the alpha version, Premium features are also free'}
+                </span>
               </p>
             </div>
             
@@ -407,13 +404,13 @@ export default function HomePage() {
                 <ArrowRight className="w-4 h-4" />
               </button>
             </Link>
-            <div className="mt-4 px-4 py-3 bg-primary-100 border-2 border-primary-300 rounded-playful-lg text-sm inline-block text-primary-900 box-playful-pressed">
-              ✓ 14denní zkušební verze zdarma • Bez platební karty
-            </div>
-            <p className="text-sm text-gray-600 mt-4">
-              {locale === 'cs'
-                ? 'Po dobu trvání alfy jsou všechny funkce zdarma'
-                : 'All features are free during the alpha period'}
+            <p className="text-sm text-gray-600 mt-4 flex items-center justify-center gap-1.5">
+              <span className="text-primary-600">🎁</span>
+              <span>
+                {locale === 'cs'
+                  ? 'Po dobu trvání alfa verze aplikace jsou zdarma i Premium funkce'
+                  : 'During the alpha version, Premium features are also free'}
+              </span>
             </p>
           </div>
         </div>
