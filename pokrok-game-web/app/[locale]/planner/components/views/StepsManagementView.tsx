@@ -2294,36 +2294,53 @@ export function StepsManagementView({
       </div>
 
                   {/* Header - Date, Time, Star (collapsed view only) - styled like UpcomingView */}
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    {/* Date button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        // Set editing data without expanding the step
-                        setEditingStepData({
-                          ...step,
-                          goalId: step.goal_id || '',
-                          areaId: step.area_id || '',
-                          isRepeating: step.frequency && step.frequency !== null
-                        })
-                        const rect = (e.target as HTMLElement).getBoundingClientRect()
-                        setInlineModalPosition({ top: rect.bottom + 5, left: rect.left, width: rect.width })
-                        setInlineModalType('date')
-                        const currentDate = step.date ? new Date(step.date) : new Date()
-                        setDatePickerMonth(new Date(currentDate))
-                      }}
-                      className={`hidden sm:block w-28 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
-                        isOverdue
-                          ? 'text-red-600 hover:bg-red-100 border-red-300'
-                          : isToday
-                            ? 'text-primary-600 hover:bg-primary-100 border-primary-500' 
-                            : isFuture
-                              ? 'text-gray-400 group-hover:text-gray-600 hover:bg-gray-50 border-gray-200 group-hover:border-gray-300'
-                              : 'text-gray-600 hover:bg-gray-100 border-gray-300'
-                      }`}
-                    >
-                      {isOverdue ? '❗' : ''}{stepDateFormatted || '-'}
-                    </button>
+                  {!isExpanded && (
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {/* Date button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          // Set editing data without expanding the step
+                          setEditingStepData({
+                            ...step,
+                            goalId: step.goal_id || '',
+                            areaId: step.area_id || '',
+                            isRepeating: step.frequency && step.frequency !== null
+                          })
+                          const rect = (e.target as HTMLElement).getBoundingClientRect()
+                          setInlineModalPosition({ top: rect.bottom + 5, left: rect.left, width: rect.width })
+                          setInlineModalType('date')
+                          const currentDate = step.date ? new Date(step.date) : new Date()
+                          setDatePickerMonth(new Date(currentDate))
+                        }}
+                        disabled={savingDateStepId === step.id}
+                        className={`hidden sm:block w-28 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 flex items-center justify-center gap-1 ${
+                          savingDateStepId === step.id
+                            ? 'text-primary-600 border-primary-500'
+                            : isOverdue
+                            ? 'text-red-600 hover:bg-red-100 border-red-300'
+                            : isToday
+                              ? 'text-primary-600 hover:bg-primary-100 border-primary-500' 
+                              : isFuture
+                                ? 'text-gray-400 group-hover:text-gray-600 hover:bg-gray-50 border-gray-200 group-hover:border-gray-300'
+                                : 'text-gray-600 hover:bg-gray-100 border-gray-300'
+                        } ${savingDateStepId === step.id ? 'cursor-not-allowed' : ''}`}
+                      >
+                        {savingDateStepId === step.id ? (
+                          <div className="animate-spin h-3 w-3 border-2 border-current border-t-transparent rounded-full"></div>
+                        ) : (
+                          <>
+                            {isOverdue ? '❗' : ''}
+                            {(() => {
+                              // Use editingStepData.date if available and step is being edited, otherwise use step.date
+                              const dateToFormat = (savingDateStepId === step.id && editingStepData?.date) 
+                                ? editingStepData.date 
+                                : stepDateStr
+                              return dateToFormat ? formatStepDate(dateToFormat, step.completed) : '-'
+                            })()}
+                          </>
+                        )}
+                      </button>
                     
                     {/* Time button */}
                   <button
@@ -2369,7 +2386,8 @@ export function StepsManagementView({
                         )}
                       </button>
                     )}
-                </div>
+                    </div>
+                  )}
               </div>
 
                   {/* Expanded view */}
@@ -3802,9 +3820,12 @@ export function StepsManagementView({
                 <div className="flex items-center justify-between mb-3">
                   <div className="text-sm font-bold text-black font-playful">{t('steps.date') || 'Datum'}</div>
                   {savingDateStepId === editingStepData?.id && (
-                    <div className="animate-spin h-4 w-4 border-2 border-primary-500 border-t-transparent rounded-full"></div>
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin h-4 w-4 border-2 border-primary-500 border-t-transparent rounded-full"></div>
+                      <span className="text-xs text-gray-600">{t('steps.saving') || 'Ukládám...'}</span>
+                    </div>
                   )}
-                          </div>
+                </div>
                       
                 {/* Month navigation */}
                 <div className="flex items-center justify-between mb-3">
