@@ -92,6 +92,7 @@ export function StepsManagementView({
   // Date picker states
   const [datePickerMonth, setDatePickerMonth] = useState(new Date())
   const [savingDateStepId, setSavingDateStepId] = useState<string | null>(null)
+  const [savingDateStr, setSavingDateStr] = useState<string | null>(null) // Track which date is being saved
   
   // Dropdown states for area/goal (per step)
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null) // Format: 'area-stepId' or 'goal-stepId'
@@ -3905,33 +3906,48 @@ export function StepsManagementView({
                         <button
                           key={day.getTime()}
                           onClick={async () => {
+                            const dayDateStr = getLocalDateString(day)
+                            const stepId = editingStepData.id
+                            
+                            // Set loading state IMMEDIATELY before async operations
+                            setSavingDateStepId(stepId)
+                            setSavingDateStr(dayDateStr)
+                            
                             const updatedData = {
                               ...editingStepData,
-                              date: getLocalDateString(day)
+                              date: dayDateStr
                             }
                             setEditingStepData(updatedData)
-                            setSavingDateStepId(editingStepData.id)
+                            
                             try {
-                              await handleSaveStep(updatedData, true)
+                              // Add minimum delay to ensure loading is visible
+                              await Promise.all([
+                                handleSaveStep(updatedData, true),
+                                new Promise(resolve => setTimeout(resolve, 500)) // Minimum 500ms to show loading
+                              ])
                             } finally {
+                              // Clear loading state and close modal
                               setSavingDateStepId(null)
+                              setSavingDateStr(null)
                               setInlineModalType(null)
                               setInlineModalPosition(null)
                             }
                           }}
                           disabled={savingDateStepId === editingStepData.id}
-                          className={`w-7 h-7 rounded-playful-sm text-xs font-medium transition-colors border-2 ${
-                            isSelected
+                          className={`w-7 h-7 rounded-playful-sm text-xs font-medium transition-colors border-2 flex items-center justify-center ${
+                            savingDateStepId === editingStepData.id && savingDateStr === getLocalDateString(day)
+                              ? 'bg-primary-200 border-primary-600'
+                              : isSelected
                               ? 'bg-white text-black font-bold border-primary-500'
                               : isToday
                                 ? 'bg-primary-100 text-primary-600 font-bold border-primary-500'
                                 : 'hover:bg-primary-50 text-black border-gray-300'
-                          } ${savingDateStepId === editingStepData.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          } ${savingDateStepId === editingStepData.id && savingDateStr === getLocalDateString(day) ? 'cursor-not-allowed opacity-90' : ''}`}
                         >
-                          {savingDateStepId === editingStepData.id && isSelected ? (
-                            <div className="animate-spin h-3 w-3 border-2 border-primary-500 border-t-transparent rounded-full mx-auto"></div>
+                          {savingDateStepId === editingStepData.id && savingDateStr === getLocalDateString(day) ? (
+                            <div className="animate-spin h-4 w-4 border-2 border-primary-600 border-t-transparent rounded-full"></div>
                           ) : (
-                            day.getDate()
+                            <span>{day.getDate()}</span>
                           )}
                         </button>
                       )
