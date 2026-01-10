@@ -38,6 +38,8 @@ interface CalendarViewProps {
   visibleSections?: Record<string, boolean>
   viewType?: CalendarViewType // View type passed from parent based on navigation
   maxUpcomingSteps?: number // Max number of upcoming steps to show
+  createNewStepTrigger?: number // Optional trigger for creating new steps in UpcomingView
+  onNewStepCreatedForUpcoming?: () => void // Callback when a new step is created in UpcomingView
 }
 
 export function CalendarView({
@@ -71,7 +73,9 @@ export function CalendarView({
   userId,
   visibleSections,
   viewType = 'upcoming', // Default to upcoming if not specified
-  maxUpcomingSteps = 5 // Default max upcoming steps
+  maxUpcomingSteps = 5, // Default max upcoming steps
+  createNewStepTrigger, // Optional trigger for creating new steps in UpcomingView
+  onNewStepCreatedForUpcoming // Callback when a new step is created in UpcomingView
 }: CalendarViewProps) {
   return (
     <div className="w-full h-full flex flex-col bg-primary-50">
@@ -99,6 +103,9 @@ export function CalendarView({
             player={player}
             userId={userId}
             maxUpcomingSteps={maxUpcomingSteps}
+            createNewStepTrigger={createNewStepTrigger}
+            onNewStepCreatedForUpcoming={onNewStepCreatedForUpcoming}
+            onDailyStepsUpdate={onDailyStepsUpdate}
               />
         )}
 

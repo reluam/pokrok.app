@@ -1590,6 +1590,33 @@ export function GoalDetailPage({
           >
             <div className="text-sm font-bold text-black font-playful mb-3">{t('common.newDate')}</div>
             
+            {/* Month navigation */}
+            <div className="flex items-center justify-between mb-3">
+              <button
+                onClick={() => {
+                  const newMonth = new Date(goalDetailDatePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() - 1)
+                  setGoalDetailDatePickerMonth(newMonth)
+                }}
+                className="btn-playful-base p-1 text-gray-600"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <span className="text-xs font-medium text-black font-playful">
+                {goalDetailDatePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
+              </span>
+              <button
+                onClick={() => {
+                  const newMonth = new Date(goalDetailDatePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() + 1)
+                  setGoalDetailDatePickerMonth(newMonth)
+                }}
+                className="btn-playful-base p-1 text-gray-600"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+            
             {/* Day names */}
             <div className="grid grid-cols-7 gap-0.5 mb-1">
               {localeCode === 'cs-CZ' 
@@ -1647,7 +1674,11 @@ export function GoalDetailPage({
                   return (
                     <button
                       key={day.getTime()}
-                      onClick={() => handleGoalDateSelect(day)}
+                      onClick={async () => {
+                        const newDate = day.toISOString()
+                        await handleUpdateGoalForDetail(goalId, { target_date: newDate })
+                        setShowGoalDetailDatePicker(false)
+                      }}
                       className={`w-7 h-7 rounded-playful-sm text-xs font-medium font-playful transition-colors border-2 ${
                         isSelected
                           ? 'bg-primary-500 text-white border-primary-500'
@@ -1663,62 +1694,20 @@ export function GoalDetailPage({
               })()}
             </div>
             
-            {/* Month navigation */}
-            <div className="flex items-center justify-between mb-3">
-              <button
-                onClick={() => {
-                  const newMonth = new Date(goalDetailDatePickerMonth)
-                  newMonth.setMonth(newMonth.getMonth() - 1)
-                  setGoalDetailDatePickerMonth(newMonth)
-                }}
-                className="btn-playful-base p-1 text-gray-600"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <span className="text-xs font-medium text-black font-playful">
-                {goalDetailDatePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
-              </span>
-              <button
-                onClick={() => {
-                  const newMonth = new Date(goalDetailDatePickerMonth)
-                  newMonth.setMonth(newMonth.getMonth() + 1)
-                  setGoalDetailDatePickerMonth(newMonth)
-                }}
-                className="btn-playful-base p-1 text-gray-600"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-            
-            {/* Actions */}
-            <div className="flex gap-2">
-              <button
-                onClick={handleGoalDateSave}
-                className="btn-playful-base flex-1 px-3 py-1.5 text-xs font-medium text-primary-600 bg-white hover:bg-primary-50"
-              >
-                {t('common.save')}
-              </button>
-              {goal.target_date && (
+            {/* Actions - only Delete button */}
+            {goal.target_date && (
+              <div className="flex gap-2">
                 <button
                   onClick={async () => {
                     await handleUpdateGoalForDetail(goalId, { target_date: null })
                     setShowGoalDetailDatePicker(false)
                   }}
-                  className="btn-playful-danger px-3 py-1.5 text-xs font-medium"
+                  className="btn-playful-danger flex-1 px-3 py-1.5 text-xs font-medium"
                 >
                   {t('common.delete')}
                 </button>
-              )}
-              <button
-                onClick={() => {
-                  setShowGoalDetailDatePicker(false)
-                  setSelectedGoalDate(goal.target_date ? new Date(goal.target_date) : null)
-                }}
-                className="btn-playful-base px-3 py-1.5 text-xs font-medium text-gray-600 bg-white hover:bg-primary-50"
-              >
-                {t('common.cancel')}
-              </button>
-            </div>
+              </div>
+            )}
           </div>
         </>
       )}
@@ -1739,6 +1728,33 @@ export function GoalDetailPage({
             }}
           >
             <div className="text-sm font-bold text-black font-playful mb-3">{t('common.newDate')}</div>
+            
+            {/* Month navigation */}
+            <div className="flex items-center justify-between mb-3">
+              <button
+                onClick={() => {
+                  const newMonth = new Date(goalDetailStartDatePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() - 1)
+                  setGoalDetailStartDatePickerMonth(newMonth)
+                }}
+                className="btn-playful-base p-1 text-gray-600"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <span className="text-xs font-medium text-black font-playful">
+                {goalDetailStartDatePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
+              </span>
+              <button
+                onClick={() => {
+                  const newMonth = new Date(goalDetailStartDatePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() + 1)
+                  setGoalDetailStartDatePickerMonth(newMonth)
+                }}
+                className="btn-playful-base p-1 text-gray-600"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
             
             {/* Day names */}
             <div className="grid grid-cols-7 gap-0.5 mb-1">
@@ -1797,7 +1813,11 @@ export function GoalDetailPage({
                   return (
                     <button
                       key={day.getTime()}
-                      onClick={() => handleGoalStartDateSelect(day)}
+                      onClick={async () => {
+                        const newDate = normalizeDate(day)
+                        await handleUpdateGoalForDetail(goalId, { start_date: newDate })
+                        setShowGoalDetailStartDatePicker(false)
+                      }}
                       className={`w-7 h-7 rounded-playful-sm text-xs font-medium font-playful transition-colors border-2 ${
                         isSelected
                           ? 'bg-primary-500 text-white border-primary-500'
@@ -1813,62 +1833,20 @@ export function GoalDetailPage({
               })()}
             </div>
             
-            {/* Month navigation */}
-            <div className="flex items-center justify-between mb-3">
-              <button
-                onClick={() => {
-                  const newMonth = new Date(goalDetailStartDatePickerMonth)
-                  newMonth.setMonth(newMonth.getMonth() - 1)
-                  setGoalDetailStartDatePickerMonth(newMonth)
-                }}
-                className="btn-playful-base p-1 text-gray-600"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <span className="text-xs font-medium text-black font-playful">
-                {goalDetailStartDatePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
-              </span>
-              <button
-                onClick={() => {
-                  const newMonth = new Date(goalDetailStartDatePickerMonth)
-                  newMonth.setMonth(newMonth.getMonth() + 1)
-                  setGoalDetailStartDatePickerMonth(newMonth)
-                }}
-                className="btn-playful-base p-1 text-gray-600"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-            
-            {/* Actions */}
-            <div className="flex gap-2">
-              <button
-                onClick={handleGoalStartDateSave}
-                className="btn-playful-base flex-1 px-3 py-1.5 text-xs font-medium text-primary-600 bg-white hover:bg-primary-50"
-              >
-                {t('common.save')}
-              </button>
-              {goal.start_date && (
+            {/* Actions - only Delete button */}
+            {goal.start_date && (
+              <div className="flex gap-2">
                 <button
                   onClick={async () => {
                     await handleUpdateGoalForDetail(goalId, { start_date: null })
                     setShowGoalDetailStartDatePicker(false)
                   }}
-                  className="btn-playful-base px-3 py-1.5 text-xs font-medium text-gray-600 bg-white hover:bg-gray-50"
+                  className="btn-playful-base flex-1 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white hover:bg-gray-50"
                 >
                   {t('common.delete')}
                 </button>
-              )}
-              <button
-                onClick={() => {
-                  setShowGoalDetailStartDatePicker(false)
-                  setSelectedGoalStartDate(goal.start_date ? new Date(goal.start_date) : null)
-                }}
-                className="btn-playful-base px-3 py-1.5 text-xs font-medium text-gray-600 bg-white hover:bg-gray-50"
-              >
-                {t('common.cancel')}
-              </button>
-            </div>
+              </div>
+            )}
           </div>
         </>
       )}

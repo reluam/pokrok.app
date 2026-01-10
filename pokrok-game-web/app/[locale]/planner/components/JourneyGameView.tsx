@@ -1414,6 +1414,7 @@ export function JourneyGameView({
         recurring_end_date: step.recurring_end_date || null,
         recurring_display_mode: step.recurring_display_mode || 'all'
       })
+      setShowStepModal(true)
     } else {
       // Create new step - always use today's date as default
       const defaultDate = date || getLocalDateString(new Date())
@@ -1434,29 +1435,37 @@ export function JourneyGameView({
         defaultAreaId = mainPanelSection.replace('area-', '')
       }
       
-      setStepModalData({
-        id: null,
-        title: '',
-        description: '',
-        date: defaultDate,
-        goalId: defaultGoalId,
-        areaId: defaultAreaId,
-        completed: false,
-        is_important: false,
-        is_urgent: false,
-        deadline: '',
-        estimated_time: 0,
-        checklist: [],
-        require_checklist_complete: false,
-        isRepeating: false,
-        frequency: null,
-        selected_days: [],
-        recurring_start_date: null,
-        recurring_end_date: null,
-        recurring_display_mode: 'next_only'
-      })
+      // Only open modal if we're NOT in inline editing mode (UpcomingView, Areas, Goals)
+      // In inline mode, StepsManagementView handles step creation directly on the page
+      const isInlineMode = mainPanelSection === 'focus-upcoming' || 
+                          mainPanelSection?.startsWith('area-') || 
+                          mainPanelSection?.startsWith('goal-')
+      
+      if (!isInlineMode) {
+        setStepModalData({
+          id: null,
+          title: '',
+          description: '',
+          date: defaultDate,
+          goalId: defaultGoalId,
+          areaId: defaultAreaId,
+          completed: false,
+          is_important: false,
+          is_urgent: false,
+          deadline: '',
+          estimated_time: 0,
+          checklist: [],
+          require_checklist_complete: false,
+          isRepeating: false,
+          frequency: null,
+          selected_days: [],
+          recurring_start_date: null,
+          recurring_end_date: null,
+          recurring_display_mode: 'next_only'
+        })
+        setShowStepModal(true)
+      }
     }
-    setShowStepModal(true)
   }
 
   // Handle step modal save

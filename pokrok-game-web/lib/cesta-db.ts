@@ -1801,6 +1801,33 @@ export async function updateDailyStepFields(stepId: string, updates: Partial<Dai
       setParts.push(`selected_days = $${values.length + 1}::jsonb`)
       values.push(JSON.stringify(updates.selected_days))
     }
+    if ((updates as any).recurring_start_date !== undefined) {
+      const recurringStartDate = (updates as any).recurring_start_date
+      if (recurringStartDate === null || recurringStartDate === '') {
+        setParts.push('recurring_start_date = NULL')
+      } else {
+        setParts.push(`recurring_start_date = $${values.length + 1}`)
+        values.push(recurringStartDate)
+      }
+    }
+    if ((updates as any).recurring_end_date !== undefined) {
+      const recurringEndDate = (updates as any).recurring_end_date
+      if (recurringEndDate === null || recurringEndDate === '') {
+        setParts.push('recurring_end_date = NULL')
+      } else {
+        setParts.push(`recurring_end_date = $${values.length + 1}`)
+        values.push(recurringEndDate)
+      }
+    }
+    if ((updates as any).current_instance_date !== undefined) {
+      const currentInstanceDate = (updates as any).current_instance_date
+      if (currentInstanceDate === null || currentInstanceDate === '') {
+        setParts.push('current_instance_date = NULL')
+      } else {
+        setParts.push(`current_instance_date = $${values.length + 1}`)
+        values.push(currentInstanceDate)
+      }
+    }
     
     // Always update updated_at
     setParts.push('updated_at = NOW()')
@@ -1809,7 +1836,7 @@ export async function updateDailyStepFields(stepId: string, updates: Partial<Dai
       // Only updated_at, no actual updates
       // Still fetch and return the step
     } else {
-      const query = `UPDATE daily_steps SET ${setParts.join(', ')} WHERE id = $${values.length + 1} RETURNING id, user_id, goal_id, title, description, completed, TO_CHAR(date, 'YYYY-MM-DD') as date, is_important, is_urgent, aspiration_id, area_id, estimated_time, xp_reward, deadline, completed_at, created_at, updated_at, COALESCE(checklist, '[]'::jsonb) as checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete, frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days`
+      const query = `UPDATE daily_steps SET ${setParts.join(', ')} WHERE id = $${values.length + 1} RETURNING id, user_id, goal_id, title, description, completed, TO_CHAR(date, 'YYYY-MM-DD') as date, is_important, is_urgent, aspiration_id, area_id, estimated_time, xp_reward, deadline, completed_at, created_at, updated_at, COALESCE(checklist, '[]'::jsonb) as checklist, COALESCE(require_checklist_complete, false) as require_checklist_complete, frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days, TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date, TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date, TO_CHAR(current_instance_date, 'YYYY-MM-DD') as current_instance_date`
       values.push(stepId)
       
       const result = await sql.query(query, values)
@@ -1834,7 +1861,10 @@ export async function updateDailyStepFields(stepId: string, updates: Partial<Dai
         estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
         COALESCE(checklist, '[]'::jsonb) as checklist,
         COALESCE(require_checklist_complete, false) as require_checklist_complete,
-        frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days
+        frequency, COALESCE(selected_days, '[]'::jsonb) as selected_days,
+        TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
+        TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
+        TO_CHAR(current_instance_date, 'YYYY-MM-DD') as current_instance_date
       FROM daily_steps
       WHERE id = ${stepId}
     `

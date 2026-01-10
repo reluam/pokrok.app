@@ -37,7 +37,6 @@ export function HeaderNavigation({
   
   // Tooltip state
   const [doneTooltipVisible, setDoneTooltipVisible] = useState(false)
-  const [streakTooltipVisible, setStreakTooltipVisible] = useState(false)
   
   const totalDone = totalCompletedSteps + totalCompletedHabits
 
@@ -184,29 +183,6 @@ export function HeaderNavigation({
                   )}
                 </div>
 
-                {/* Streak counter with tooltip */}
-                <div className="relative inline-block">
-                  <div
-                    onMouseEnter={() => setStreakTooltipVisible(true)}
-                    onMouseLeave={() => setStreakTooltipVisible(false)}
-                    className="box-playful-highlight flex items-center gap-1.5 px-2 py-1 cursor-help"
-                  >
-                    <svg className="w-4 h-4 text-primary-600" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/>
-                    </svg>
-                    <span className="text-black font-semibold text-sm">{loginStreak}</span>
-                  </div>
-                  
-                  {streakTooltipVisible && (
-                    <div className="absolute z-50 top-full left-1/2 transform -translate-x-1/2 mt-2 px-4 py-2.5 bg-primary-500 text-white text-sm rounded-lg shadow-lg max-w-[calc(100vw-16px)] sm:max-w-md whitespace-normal leading-relaxed" style={{ minWidth: '200px' }}>
-                      <div className="whitespace-normal">
-                        {t('header.streakTooltip', { days: loginStreak }) || `Počet dnů, po který používáte aplikaci: ${loginStreak}`}
-                      </div>
-                      {/* Arrow pointing up */}
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-b-primary-500"></div>
-                    </div>
-                  )}
-                </div>
               </div>
 
               {/* Menu Icons - Desktop: Full buttons, Mobile: Hamburger menu */}

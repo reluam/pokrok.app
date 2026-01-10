@@ -7,6 +7,7 @@ import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { isStepScheduledForDay } from '../utils/stepHelpers'
 import { Check, Plus, Footprints, Trash2, ChevronDown, Repeat, Star } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
+import { StepsManagementView } from './StepsManagementView'
 
 interface UpcomingViewProps {
   goals?: any[]
@@ -29,6 +30,9 @@ interface UpcomingViewProps {
   player?: any
   userId?: string | null
   maxUpcomingSteps?: number // Max number of upcoming steps to show (default: 5)
+  createNewStepTrigger?: number // Optional external trigger for creating new steps
+  onNewStepCreatedForUpcoming?: () => void // Callback when a new step is created
+  onDailyStepsUpdate?: (steps: any[]) => void // Callback to update parent's dailySteps
 }
 
 export function UpcomingView({
@@ -51,7 +55,10 @@ export function UpcomingView({
   loadingSteps,
   player,
   userId,
-  maxUpcomingSteps = 5
+  maxUpcomingSteps = 5, // Default max upcoming steps
+  createNewStepTrigger: externalCreateNewStepTrigger, // Optional external trigger
+  onNewStepCreatedForUpcoming, // Callback when a new step is created
+  onDailyStepsUpdate: onDailyStepsUpdateProp // Callback to update parent's dailySteps
 }: UpcomingViewProps) {
   const t = useTranslations()
   const locale = useLocale()
@@ -62,6 +69,171 @@ export function UpcomingView({
   const [feedDisplayCount, setFeedDisplayCount] = useState(20) // Number of steps to display in feed
   const [isLoadingViewMode, setIsLoadingViewMode] = useState(true)
   const loadMoreRef = useRef<HTMLDivElement>(null)
+  
+  // State for StepsManagementView integration
+  const [createNewStepTrigger, setCreateNewStepTrigger] = useState(0)
+  const [localDailySteps, setLocalDailySteps] = useState<any[]>(dailySteps)
+  
+  // Sync localDailySteps with prop, removing duplicates and deleted steps
+  // Also track deleted step IDs to prevent them from reappearing
+  const deletedStepIdsRef = useRef<Set<string>>(new Set())
+  const prevDailyStepsHashRef = useRef<string>('') // Serialized hash of IDs and key properties for change detection
+  
+  // Listen for custom events as backup mechanism for step updates
+  useEffect(() => {
+    const handleDailyStepsUpdated = (event: any) => {
+      const { steps } = event.detail || {}
+      if (steps && Array.isArray(steps)) {
+        console.log('[UpcomingView] Received dailyStepsUpdated event with', steps.length, 'steps')
+        
+        // Update local state from event
+        const currentStepsHash = JSON.stringify({
+          length: steps.length,
+          steps: steps.map((s: any) => ({
+            id: s?.id,
+            completed: s?.completed,
+            date: s?.date,
+            goal_id: s?.goal_id,
+            area_id: s?.area_id,
+            title: s?.title
+          })).sort((a, b) => (a?.id || '').localeCompare(b?.id || ''))
+        })
+        
+        if (currentStepsHash !== prevDailyStepsHashRef.current) {
+          console.log('[UpcomingView] Event triggered hash change, updating localDailySteps')
+          prevDailyStepsHashRef.current = currentStepsHash
+          
+          setLocalDailySteps(prev => {
+            // Create a map to deduplicate steps by ID
+            const stepMap = new Map<string, any>()
+            
+            // Add all steps from event, filtering out deleted ones
+            steps.forEach((step: any) => {
+              if (step && step.id && !deletedStepIdsRef.current.has(step.id)) {
+                stepMap.set(step.id, step)
+              }
+            })
+            
+            // Filter out deleted steps from previous state
+            prev.forEach((step: any) => {
+              if (step && step.id && !deletedStepIdsRef.current.has(step.id)) {
+                if (!stepMap.has(step.id)) {
+                  stepMap.set(step.id, step)
+                }
+              }
+            })
+            
+            return Array.from(stepMap.values())
+          })
+        }
+      }
+    }
+    
+    window.addEventListener('dailyStepsUpdated', handleDailyStepsUpdated)
+    return () => {
+      window.removeEventListener('dailyStepsUpdated', handleDailyStepsUpdated)
+    }
+  }, [])
+  
+  useEffect(() => {
+    console.log('[UpcomingView] dailySteps prop changed, length:', (dailySteps || []).length)
+    
+    // Create a hash of step IDs and their key properties (including completed status) to detect changes
+    // This ensures we detect when a step's completed status changes, not just when IDs are added/removed
+    // Also include title and length to catch new steps
+    const currentStepsHash = JSON.stringify({
+      length: (dailySteps || []).length,
+      steps: (dailySteps || []).map((s: any) => ({
+        id: s?.id,
+        completed: s?.completed,
+        date: s?.date,
+        goal_id: s?.goal_id,
+        area_id: s?.area_id,
+        title: s?.title // Include title to catch new steps
+      })).sort((a, b) => (a?.id || '').localeCompare(b?.id || ''))
+    })
+    
+    // Check if dailySteps prop actually changed (by IDs and key properties)
+    if (currentStepsHash === prevDailyStepsHashRef.current) {
+      console.log('[UpcomingView] Hash unchanged, skipping update')
+      return // No change, skip update
+    }
+    
+    console.log('[UpcomingView] Hash changed, updating localDailySteps')
+    prevDailyStepsHashRef.current = currentStepsHash
+    
+    setLocalDailySteps(prev => {
+      // Create a map to deduplicate steps by ID
+      const stepMap = new Map<string, any>()
+      
+      // First, add all steps from dailySteps prop (these are the source of truth)
+      // But exclude steps that were deleted (to prevent them from reappearing)
+      if (Array.isArray(dailySteps)) {
+        dailySteps.forEach(step => {
+          if (step && step.id && !deletedStepIdsRef.current.has(step.id)) {
+            stepMap.set(step.id, step)
+          }
+        })
+      }
+      
+      // Then, preserve any temporary or new steps from localDailySteps
+      if (Array.isArray(prev)) {
+        prev.forEach(step => {
+          if (step && step.id) {
+            // Skip deleted steps
+            if (deletedStepIdsRef.current.has(step.id)) {
+              return
+            }
+            // Preserve temporary steps and new steps (if not already in map)
+            if ((step._isTemporary || step._isNew) && !stepMap.has(step.id)) {
+              stepMap.set(step.id, step)
+            }
+          }
+        })
+      }
+      
+      // Convert map back to array
+      const deduplicatedSteps = Array.from(stepMap.values())
+      
+      // If any steps were removed from dailySteps prop, ensure they're removed from localDailySteps
+      const currentIds = new Set(prev.map((s: any) => s?.id).filter(Boolean))
+      const newIds = new Set(deduplicatedSteps.map((s: any) => s?.id).filter(Boolean))
+      
+      // Check if any steps were deleted (in prev but not in new)
+      const deletedIds = Array.from(currentIds).filter(id => !newIds.has(id))
+      if (deletedIds.length > 0) {
+        deletedIds.forEach(id => {
+          const step = prev.find((s: any) => s.id === id)
+          // Only track as deleted if not temporary or new
+          if (step && !step._isTemporary && !step._isNew) {
+            deletedStepIdsRef.current.add(id)
+          }
+        })
+      }
+      
+      // Check if there are new steps in dailySteps prop that weren't in prev
+      const hasNewSteps = Array.from(newIds).some(id => !currentIds.has(id))
+      
+      // If new steps were added, remove them from deleted set (they were recreated)
+      if (hasNewSteps) {
+        Array.from(newIds).forEach(id => {
+          if (!currentIds.has(id)) {
+            deletedStepIdsRef.current.delete(id)
+          }
+        })
+      }
+      
+      // Always update if prop changed (new steps, deleted steps, or any changes)
+      return deduplicatedSteps
+    })
+  }, [dailySteps]) // Only depend on dailySteps prop, not localDailySteps to avoid infinite loop
+  
+  // Sync external trigger with internal state
+  useEffect(() => {
+    if (externalCreateNewStepTrigger && externalCreateNewStepTrigger > 0) {
+      setCreateNewStepTrigger(externalCreateNewStepTrigger)
+    }
+  }, [externalCreateNewStepTrigger])
   
   // Date and time picker state
   const [datePickerStep, setDatePickerStep] = useState<any | null>(null)
@@ -351,7 +523,7 @@ export function UpcomingView({
       if (a.isOverdue && !b.isOverdue) return -1
       if (!a.isOverdue && b.isOverdue) return 1
       
-      // Same overdue status - sort by date
+      // Same overdue status - sort by date (oldest first, newest last)
       const dateDiff = a.date.getTime() - b.date.getTime()
       if (dateDiff !== 0) return dateDiff
       
@@ -549,7 +721,7 @@ export function UpcomingView({
       if (a.isOverdue && !b.isOverdue) return -1
       if (!a.isOverdue && b.isOverdue) return 1
       
-      // Same overdue status - sort by date
+      // Same overdue status - sort by date (oldest first, newest last)
       const dateDiff = a.date.getTime() - b.date.getTime()
       if (dateDiff !== 0) return dateDiff
       
@@ -890,16 +1062,14 @@ export function UpcomingView({
             </div>
           </div>
           <div className="flex justify-end">
-            {onOpenStepModal && (
-              <button
-                onClick={() => onOpenStepModal()}
-                className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
-                title={t('steps.addStep') || 'Přidat krok'}
-              >
-                <Plus className="w-4 h-4" />
-                <span>{t('steps.addStep') || 'Přidat krok'}</span>
-              </button>
-            )}
+            <button
+              onClick={() => setCreateNewStepTrigger(prev => prev + 1)}
+              className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
+              title={t('steps.addStep') || 'Přidat krok'}
+            >
+              <Plus className="w-4 h-4" />
+              <span>{t('steps.addStep') || 'Přidat krok'}</span>
+            </button>
           </div>
         </div>
 
@@ -910,16 +1080,14 @@ export function UpcomingView({
             <h1 className="text-2xl font-bold text-black font-playful">
               {t('views.upcoming.title') || 'Nadcházející'}
             </h1>
-            {onOpenStepModal && (
-              <button
-                onClick={() => onOpenStepModal()}
-                className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
-                title={t('steps.addStep') || 'Přidat krok'}
-              >
-                <Plus className="w-4 h-4" />
-                <span>{t('steps.addStep') || 'Přidat krok'}</span>
-              </button>
-            )}
+            <button
+              onClick={() => setCreateNewStepTrigger(prev => prev + 1)}
+              className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
+              title={t('steps.addStep') || 'Přidat krok'}
+            >
+              <Plus className="w-4 h-4" />
+              <span>{t('steps.addStep') || 'Přidat krok'}</span>
+            </button>
           </div>
           {/* Second row: View mode switcher - centered */}
           <div className="flex justify-center">
@@ -1014,275 +1182,91 @@ export function UpcomingView({
         
         {/* Feed View or Areas View */}
         {viewMode === 'feed' ? (
-          /* Feed View */
-          displayedFeedSteps.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-sm text-gray-600">{t('views.noSteps') || 'Žádné nadcházející kroky'}</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {/* Check if there are any overdue or today's steps */}
-              {(() => {
-                const hasOverdueOrTodaySteps = displayedFeedSteps.some((step) => {
-                  if (step.completed) return false
-                  const stepDateObj = (step as any)._date as Date | undefined
-                  if (!stepDateObj) return false
-                  const stepDate = new Date(stepDateObj)
-                  stepDate.setHours(0, 0, 0, 0)
-                  const isToday = stepDate.getTime() === today.getTime()
-                  const isOverdue = (step as any)._isOverdue || false
-                  return isOverdue || isToday
-                })
-                
-                const hasFutureSteps = displayedFeedSteps.some((step) => {
-                  if (step.completed) return false
-                  const stepDateObj = (step as any)._date as Date | undefined
-                  if (!stepDateObj) return false
-                  const stepDate = new Date(stepDateObj)
-                  stepDate.setHours(0, 0, 0, 0)
-                  return stepDate > today && !(step as any)._isOverdue
-                })
-                
-                // Show positive message if no overdue or today's steps, but there are future steps
-                if (!hasOverdueOrTodaySteps && hasFutureSteps) {
-                  return (
-                    <div className="mb-4 p-4 bg-primary-100 border-2 border-primary-300 rounded-playful-md">
-                      <p className="text-sm font-semibold text-primary-700 mb-1">
-                        {t('views.allDone') || 'Vše je splněno! Dobrá práce! 🎉'}
-                      </p>
-                      <p className="text-xs text-primary-600">
-                        {t('views.futureStepsNote') || 'Níže jsou úkoly do budoucna, které ale ještě vydrží.'}
-                      </p>
-                    </div>
-                  )
-                }
-                return null
-              })()}
-              {displayedFeedSteps.map((step) => {
-                const isLoading = loadingSteps.has(step.id)
-                const stepDateObj = (step as any)._date as Date | undefined
-                if (stepDateObj) stepDateObj.setHours(0, 0, 0, 0)
-                const stepDateStr = stepDateObj ? getLocalDateString(stepDateObj) : null
-                const isToday = stepDateObj && stepDateObj.getTime() === today.getTime()
-                const isOverdue = (step as any)._isOverdue || false
-                const isFuture = stepDateObj && stepDateObj > today && !isOverdue && !isToday
-                const stepDateFormatted = stepDateStr ? formatStepDate(stepDateStr, step.completed) : null
-                const goal = (step as any)._goal
-                const area = (step as any)._area
-                
-                return (
-                <div
-                  key={step.id}
-                  onClick={() => handleItemClick(step, 'step')}
-                    className={`flex items-center gap-3 p-3 cursor-pointer transition-[background-color,opacity,outline] rounded-playful-md ${
-                      step.completed
-                        ? 'opacity-50'
-                        : isOverdue
-                          ? 'bg-red-50 hover:bg-red-100 hover:outline-2 hover:outline hover:outline-red-300 hover:outline-offset-[-2px]'
-                          : isToday
-                            ? 'bg-white hover:bg-primary-50 hover:outline-2 hover:outline hover:outline-primary-500 hover:outline-offset-[-2px]'
-                            : isFuture
-                              ? 'bg-white/70 backdrop-blur-sm opacity-75 hover:bg-white/85 hover:opacity-85 hover:outline-2 hover:outline hover:outline-gray-200/50 hover:outline-offset-[-2px] group'
-                              : 'bg-white hover:bg-primary-50 hover:outline-2 hover:outline hover:outline-gray-300 hover:outline-offset-[-2px]'
-                    } ${isLoading ? 'opacity-50' : ''}`}
-                  >
-                    {/* Checkbox */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      // For recurring steps, pass the date of this occurrence
-                      const stepDate = (step as any)._date as Date | undefined
-                      const completionDate = stepDate ? getLocalDateString(stepDate) : undefined
-                      handleStepToggle(step.id, !step.completed, completionDate)
-                    }}
-                      disabled={isLoading}
-                      className={`w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
-                      step.completed
-                          ? 'bg-primary-500 border-primary-500' 
-                          : 'border-primary-500 hover:bg-primary-100'
-                      }`}
-                    >
-                      {isLoading ? (
-                        <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      ) : step.completed ? (
-                        <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                      ) : null}
-                  </button>
-                    
-                    {/* Goal icon in area color */}
-                    {goal && goal.icon && (
-                      <div className="flex-shrink-0">
-                        {(() => {
-                          const GoalIconComponent = getIconComponent(goal.icon)
-                          return (
-                            <GoalIconComponent 
-                              className={`w-5 h-5 transition-opacity ${isFuture ? 'opacity-60 group-hover:opacity-80' : ''}`}
-                              style={{ color: area?.color || '#E8871E' }} 
-                            />
-                          )
-                        })()}
-                </div>
-                    )}
-                    
-                    {/* Step info */}
-                  <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        {step.frequency && step.frequency !== null && (
-                          <div className="flex items-center gap-1 flex-shrink-0">
-                            <Repeat className={`w-3.5 h-3.5 transition-colors ${isFuture ? 'text-primary-400 group-hover:text-primary-500' : 'text-primary-600'}`} />
-                            {step.completion_count > 0 && (
-                              <span className={`text-[10px] font-semibold transition-colors ${isFuture ? 'text-primary-400 group-hover:text-primary-500' : 'text-primary-600'}`}>
-                                {step.completion_count}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                        <span className={`text-sm truncate transition-colors ${
-                          step.completed 
-                            ? 'line-through text-gray-400' 
-                            : isOverdue
-                              ? 'text-red-600'
-                              : isFuture
-                                ? 'text-gray-500 group-hover:text-gray-700'
-                                : 'text-black'
-                        } ${step.is_important && !step.completed && !isFuture ? 'font-bold' : 'font-medium'}`}>
-                          {step.title}
-                        </span>
-                        {step.checklist && step.checklist.length > 0 && (
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
-                            step.checklist.filter((c: any) => c.completed).length === step.checklist.length
-                              ? 'bg-primary-100 text-primary-600 border-primary-500'
-                              : 'bg-gray-100 text-gray-500 border-gray-300'
-                          }`}>
-                            {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
-                          </span>
-                        )}
-            </div>
-                      {/* Goal name */}
-                      {goal && (
-                        <div className={`flex items-center gap-1 text-xs transition-colors ${isFuture ? 'text-gray-400 group-hover:text-gray-500' : 'text-gray-500'}`}>
-                          <span>{goal.title}</span>
-          </div>
-        )}
-                    </div>
-                    
-                    {/* Date and time */}
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      {step.frequency && step.frequency !== null ? (
-                        // Recurring step - show current_instance_date (not editable) and time
-                        <>
-                          <span className={`hidden sm:block w-28 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 border-2 ${
-                            isOverdue
-                              ? 'text-red-600 border-red-300'
-                              : isToday
-                                ? 'text-primary-600 border-primary-500' 
-                                : 'text-gray-600 border-gray-300'
-                          }`}>
-                            {isOverdue && '❗'}
-                            {isToday ? t('focus.today') : (() => {
-                              const displayDate = step.current_instance_date || step.date
-                              if (!displayDate) return '-'
-                              const dateObj = new Date(normalizeDate(displayDate))
-                              return dateObj.toLocaleDateString(locale === 'cs' ? 'cs-CZ' : 'en-US', { 
-                                day: 'numeric', 
-                                month: 'numeric', 
-                                year: 'numeric' 
-                              })
-                            })()}
-                          </span>
-                          <button 
-                            onClick={(e) => openTimePicker(e, step)}
-                            className={`hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-gray-600 hover:bg-gray-100 border-gray-300`}
-                          >
-                            {step.estimated_time ? `${step.estimated_time} min` : '-'}
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              if (onStepImportantChange) {
-                                onStepImportantChange(step.id, !(step.is_important === true))
-                              }
-                            }}
-                            disabled={loadingSteps.has(step.id)}
-                            className={`flex items-center justify-center w-5 h-5 rounded-playful-sm transition-all flex-shrink-0 ${
-                              step.is_important
-                                ? 'text-primary-600 hover:text-primary-700 hover:scale-110'
-                                : 'text-gray-400 hover:text-primary-500 hover:scale-110'
-                            } ${loadingSteps.has(step.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            title={step.is_important ? (t('steps.unmarkImportant') || 'Označit jako nedůležité') : (t('steps.markImportant') || 'Označit jako důležité')}
-                          >
-                            {loadingSteps.has(step.id) ? (
-                              <div className="animate-spin h-3 w-3 border-2 border-primary-500 border-t-transparent rounded-full"></div>
-                            ) : (
-                              <Star className={`w-4 h-4 ${step.is_important ? 'fill-current' : ''}`} strokeWidth={step.is_important ? 0 : 2} />
-                            )}
-                          </button>
-                        </>
-                      ) : (
-                        // Non-recurring step - show date and time pickers
-                        <>
-                          <button
-                            onClick={(e) => openDatePicker(e, step)}
-                            className={`hidden sm:block w-28 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
-                              isOverdue
-                                ? 'text-red-600 hover:bg-red-100 border-red-300'
-                                : isToday
-                                  ? 'text-primary-600 hover:bg-primary-100 border-primary-500' 
-                                  : isFuture
-                                    ? 'text-gray-400 group-hover:text-gray-600 hover:bg-gray-50 border-gray-200 group-hover:border-gray-300'
-                                    : 'text-gray-600 hover:bg-gray-100 border-gray-300'
-                            }`}
-                          >
-                            {isOverdue ? '❗' : ''}{stepDateFormatted || '-'}
-                          </button>
-                          <button 
-                            onClick={(e) => openTimePicker(e, step)}
-                            className={`hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-gray-600 hover:bg-gray-100 border-gray-300`}
-                          >
-                            {step.estimated_time ? `${step.estimated_time} min` : '-'}
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              if (onStepImportantChange) {
-                                onStepImportantChange(step.id, !(step.is_important === true))
-                              }
-                            }}
-                            disabled={loadingSteps.has(step.id)}
-                            className={`flex items-center justify-center w-5 h-5 rounded-playful-sm transition-all flex-shrink-0 ${
-                              step.is_important
-                                ? 'text-primary-600 hover:text-primary-700 hover:scale-110'
-                                : 'text-gray-400 hover:text-primary-500 hover:scale-110'
-                            } ${loadingSteps.has(step.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            title={step.is_important ? (t('steps.unmarkImportant') || 'Označit jako nedůležité') : (t('steps.markImportant') || 'Označit jako důležité')}
-                          >
-                            {loadingSteps.has(step.id) ? (
-                              <div className="animate-spin h-3 w-3 border-2 border-primary-500 border-t-transparent rounded-full"></div>
-                            ) : (
-                              <Star className={`w-4 h-4 ${step.is_important ? 'fill-current' : ''}`} strokeWidth={step.is_important ? 0 : 2} />
-                            )}
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
+          /* Feed View - using StepsManagementView */
+          <StepsManagementView
+            dailySteps={localDailySteps}
+            goals={goals}
+            areas={areas}
+            userId={userId}
+            player={player}
+            onDailyStepsUpdate={(steps) => {
+              // Track deleted steps - if a step was in prev but not in new, mark it as deleted
+              const currentStepIds = new Set(localDailySteps.map((s: any) => s?.id).filter(Boolean))
+              const newStepIds = new Set(steps.map((s: any) => s?.id).filter(Boolean))
+              const deletedIds = Array.from(currentStepIds).filter(id => !newStepIds.has(id))
+              deletedIds.forEach(id => {
+                deletedStepIdsRef.current.add(id)
+              })
               
-              {/* Lazy loading trigger */}
-              {feedDisplayCount < allFeedSteps.length && (
-                <div ref={loadMoreRef} className="text-center py-4">
-                  <div className="inline-block animate-spin h-5 w-5 border-2 border-primary-500 border-t-transparent rounded-full"></div>
+              // Update local state immediately
+              setLocalDailySteps(steps)
+              
+              // Also propagate to parent component (GameWorldView) if available
+              // This ensures that when a step is created in upcoming view, it appears everywhere
+              if (onDailyStepsUpdateProp) {
+                onDailyStepsUpdateProp(steps)
+              }
+            }}
+            onOpenStepModal={(step) => {
+              if (onOpenStepModal) {
+                onOpenStepModal(undefined, step)
+              }
+            }}
+            onStepImportantChange={onStepImportantChange}
+            handleStepToggle={handleStepToggle}
+            loadingSteps={loadingSteps}
+            createNewStepTrigger={createNewStepTrigger}
+            onNewStepCreated={() => {
+              // Reset trigger in parent component
+              if (onNewStepCreatedForUpcoming) {
+                onNewStepCreatedForUpcoming()
+              }
+            }}
+            hideHeader={true}
+            showCompleted={false}
+          />
+        ) : (
+          /* Areas View - using StepsManagementView with new step at top */
+          <>
+            {/* New step will appear here if created - above all areas */}
+            {createNewStepTrigger > 0 && (
+              <div className="mb-4">
+                <StepsManagementView
+                  dailySteps={localDailySteps}
+                  goals={goals}
+                  areas={areas}
+                  userId={userId}
+                  player={player}
+                  onDailyStepsUpdate={(steps) => {
+                    // Track deleted steps
+                    const currentStepIds = new Set(localDailySteps.map((s: any) => s?.id).filter(Boolean))
+                    const newStepIds = new Set(steps.map((s: any) => s?.id).filter(Boolean))
+                    const deletedIds = Array.from(currentStepIds).filter(id => !newStepIds.has(id))
+                    deletedIds.forEach(id => {
+                      deletedStepIdsRef.current.add(id)
+                    })
+                    setLocalDailySteps(steps)
+                    if (onDailyStepsUpdateProp) {
+                      onDailyStepsUpdateProp(steps)
+                    }
+                  }}
+                  onOpenStepModal={(step) => {
+                    if (onOpenStepModal) {
+                      onOpenStepModal(undefined, step)
+                    }
+                  }}
+                  onStepImportantChange={onStepImportantChange}
+                  handleStepToggle={handleStepToggle}
+                  loadingSteps={loadingSteps}
+                  createNewStepTrigger={createNewStepTrigger}
+                  hideHeader={true}
+                  showCompleted={false}
+                />
                 </div>
               )}
-            </div>
-          )
-        ) : (
-          /* Areas View */
-          upcomingSteps.length === 0 ? (
+            
+            {/* Existing areas view - keep for now, will be replaced with StepsManagementView per area */}
+            {upcomingSteps.length === 0 ? (
           <div className="card-playful-base">
           <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -1291,828 +1275,93 @@ export function UpcomingView({
                   {t('views.upcomingSteps') || 'Nadcházející kroky'}
             </h2>
               </div>
-            {onOpenStepModal && (
-              <button
-                onClick={() => onOpenStepModal()}
-                  className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
-                  title={t('steps.addStep') || 'Přidat krok'}
-              >
-                <Plus className="w-4 h-4" />
-                  <span>{t('steps.addStep') || 'Přidat krok'}</span>
-              </button>
-            )}
           </div>
             <p className="text-sm text-gray-600">{t('views.noSteps') || 'Žádné nadcházející kroky'}</p>
             </div>
           ) : (
           <>
-            {/* Render steps grouped by area, then by goal */}
+                {/* Render steps grouped by area, then by goal - using StepsManagementView for each area */}
             {Object.entries(stepsByArea.grouped).map(([areaId, goalsMap]) => {
               const area = areaMap.get(areaId)
               if (!area) return null
               
-              // Check if there are any overdue or today's steps in this area
-              let hasOverdueOrTodaySteps = false
-              let hasFutureSteps = false
-              
+                  // Get all steps for this area
+                  const areaSteps: any[] = []
               Object.values(goalsMap).forEach(steps => {
                 steps.forEach(({ step }) => {
-                  const stepDate = step.date ? normalizeDate(step.date) : null
-                  const stepDateObj = stepDate ? new Date(stepDate) : null
-                  if (stepDateObj) stepDateObj.setHours(0, 0, 0, 0)
-                  const isToday = stepDateObj && stepDateObj.getTime() === today.getTime()
-                  const isOverdue = (step as any)._isOverdue || false
+                      areaSteps.push(step)
+                    })
+                  })
                   
-                  if (!step.completed) {
-                    if (isOverdue || isToday) {
-                      hasOverdueOrTodaySteps = true
-                    } else if (stepDateObj && stepDateObj > today) {
-                      hasFutureSteps = true
-                    }
+                  // Also include steps without goal in this area
+                  if (stepsByArea.noAreaSteps) {
+                    stepsByArea.noAreaSteps.forEach(({ step }) => {
+                      if (step.area_id === areaId) {
+                        areaSteps.push(step)
+                      }
+                    })
                   }
-                })
-              })
               
               return (
-                <div key={areaId} className="card-playful-base">
-                  <div className="flex items-center gap-2 mb-4">
-                    {area.icon && (() => {
-                      const IconComponent = getIconComponent(area.icon)
-                      return <IconComponent className="w-5 h-5" style={{ color: area.color || '#E8871E' }} />
-                    })()}
-                    <h2 className="text-lg font-bold text-black font-playful">
-                      {area.name}
-            </h2>
-            </div>
-                  
-                  {/* Show positive message if no overdue or today's steps, but there are future steps */}
-                  {!hasOverdueOrTodaySteps && hasFutureSteps && (
-                    <div className="mb-4 p-4 bg-primary-100 border-2 border-primary-300 rounded-playful-md">
-                      <p className="text-sm font-semibold text-primary-700 mb-1">
-                        {t('views.allDone') || 'Vše je splněno! Dobrá práce! 🎉'}
-                      </p>
-                      <p className="text-xs text-primary-600">
-                        {t('views.futureStepsNote') || 'Níže jsou úkoly do budoucna, které ale ještě vydrží.'}
-                      </p>
-                    </div>
-                  )}
-                  
-                  {/* Today's Habits for this area */}
-                  {habitsByArea.grouped[areaId] && habitsByArea.grouped[areaId].length > 0 && (
-                    <div className="mb-4">
-                      <div className="flex flex-wrap gap-3">
-                        {habitsByArea.grouped[areaId].map((habit) => {
-                          const isCompleted = habit.habit_completions && habit.habit_completions[todayStr] === true
-                          const isLoading = loadingHabits.has(habit.id)
-                          
-                          return (
-                            <div
-                              key={habit.id}
-                              onClick={() => handleItemClick(habit, 'habit')}
-                              className={`flex items-center gap-2 p-3 rounded-playful-md cursor-pointer transition-all flex-shrink-0 ${
-                                isCompleted
-                                  ? 'bg-primary-100 opacity-75 hover:outline-2 hover:outline hover:outline-primary-300 hover:outline-offset-[-2px]'
-                                  : 'bg-white hover:bg-primary-50 hover:outline-2 hover:outline hover:outline-primary-500 hover:outline-offset-[-2px]'
-                              } ${isLoading ? 'opacity-50' : ''}`}
-                            >
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleHabitToggle(habit.id, todayStr)
-                                }}
-                                disabled={isLoading}
-                                className={`flex-shrink-0 w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors ${
-                                  isCompleted
-                                    ? 'bg-primary-500 border-primary-500'
-                                    : 'border-primary-500 hover:bg-primary-50'
-                                }`}
-                              >
-                                {isLoading ? (
-                                  <svg className="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                  </svg>
-                                ) : isCompleted ? (
-                                  <Check className="w-4 h-4 text-white" />
-                                ) : null}
-                              </button>
-                              <div className="flex items-center gap-2 flex-shrink-0">
-                                {habit.icon && (
-                                  <div className="flex-shrink-0">
-                                    {(() => {
-                                      const IconComponent = getIconComponent(habit.icon)
-                                      return <IconComponent className="w-5 h-5 text-primary-600" />
-                                    })()}
-                                  </div>
-                                )}
-                                <span className={`text-sm font-medium text-black whitespace-nowrap ${
-                                  isCompleted ? 'line-through' : ''
-                                }`}>
-                                  {habit.name}
-                                </span>
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="space-y-4">
-                    {Object.entries(goalsMap).map(([goalId, steps]) => {
-                      const goal = goalId !== 'no-goal' ? goalMap.get(goalId) : null
-                      
-                      return (
-                        <div key={goalId} className="space-y-2">
-                          {/* Goal title */}
-                          {goal && (
-                            <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                              {goal.icon && (() => {
-                                const GoalIconComponent = getIconComponent(goal.icon)
-                                return <GoalIconComponent className="w-4 h-4 text-primary-600" />
-                              })()}
-                              {goal.title}
-                            </h3>
-                          )}
-                          
-                          {/* Steps for this goal */}
-                          {steps.map(({ step, goal: stepGoal }) => {
-                            const isLoading = loadingSteps.has(step.id)
-                            const stepDate = step.date ? normalizeDate(step.date) : null
-                            const stepDateObj = stepDate ? new Date(stepDate) : null
-                            if (stepDateObj) stepDateObj.setHours(0, 0, 0, 0)
-                            const isToday = stepDateObj && stepDateObj.getTime() === today.getTime()
-                            const isOverdue = (step as any)._isOverdue || false
-                            const isFuture = stepDateObj && stepDateObj > today && !isOverdue && !isToday
-                            const stepDateFormatted = stepDate ? formatStepDate(stepDate, step.completed) : null
-                            
-                            // Get area from goal for icon color
-                            const stepAreaForColor = stepGoal?.area_id ? areaMap.get(stepGoal.area_id) : null
-                            
-                            return isFuture ? (
-                  // Wrapper div with background color border to cover any flash
-                  <div key={step.id} className="border-2 border-primary-50 rounded-playful-lg">
-                    <div
-                      onClick={() => handleItemClick(step, 'step')}
-                      className={`flex items-center gap-3 p-3 cursor-pointer box-playful-pressed-future opacity-75 hover:opacity-85 hover:bg-white/85 group ${isLoading ? 'opacity-50' : ''}`}
-                      style={{ border: '2px solid #fbc98d' }}
-                    >
-                      {/* Checkbox */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleStepToggle(step.id, !step.completed)
-                    }}
-                                  disabled={isLoading}
-                                  className={`w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
-                      step.completed
-                                      ? 'bg-white border-primary-500' 
-                                      : 'border-primary-500 hover:bg-primary-100'
-                    }`}
-                  >
-                                  {isLoading ? (
-                                    <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                                  ) : step.completed ? (
-                                    <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                                  ) : null}
-                  </button>
-                                
-                                {/* Goal icon in area color */}
-                                {stepGoal && stepGoal.icon && (
-                                  <div className="flex-shrink-0">
-                                    {(() => {
-                                      const GoalIconComponent = getIconComponent(stepGoal.icon)
-                                      return (
-                                        <GoalIconComponent 
-                                          className="w-5 h-5 transition-opacity opacity-60 group-hover:opacity-80"
-                                          style={{ color: stepAreaForColor?.color || '#E8871E' }} 
-                                        />
-                                      )
-                                    })()}
-                                  </div>
-                                )}
-                                
-                                {/* Title */}
-                  <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    {step.frequency && step.frequency !== null && (
-                                      <Repeat className="w-3.5 h-3.5 flex-shrink-0 transition-colors text-primary-400 group-hover:text-primary-500" />
-                                    )}
-                                    <span className={`text-sm truncate transition-colors ${
-                                      step.completed 
-                                        ? 'line-through text-gray-400' 
-                                        : isOverdue
-                                          ? 'text-red-600'
-                                          : 'text-gray-500 group-hover:text-gray-700'
-                                    } ${step.is_important && !step.completed ? 'font-bold' : 'font-medium'}`}>
-                                      {step.title}
-                                    </span>
-                                    {step.checklist && step.checklist.length > 0 && (
-                                      <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
-                                        step.checklist.filter((c: any) => c.completed).length === step.checklist.length
-                                          ? 'bg-primary-100 text-primary-600 border-primary-500'
-                                          : 'bg-gray-100 text-gray-500 border-gray-300'
-                                      }`}>
-                                        {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
-                                      </span>
-                                    )}
-                                  </div>
-                                  {/* Goal name */}
-                                  {stepGoal && (
-                                    <div className="flex items-center gap-1 text-xs transition-colors text-gray-400 group-hover:text-gray-500">
-                                      <span>{stepGoal.title}</span>
-                                    </div>
-                                  )}
-                                </div>
-                                
-                                {/* Meta info - hidden on mobile */}
-                                {step.frequency && step.frequency !== null ? (
-                                  // Recurring step - show icon and time only, no date picker
-                                  <>
-                                    <div className="hidden sm:flex items-center gap-1 text-xs text-gray-500">
-                                      <Repeat className="w-3 h-3" />
-                                      <span>{step.frequency === 'daily' ? (locale === 'cs' ? 'Denně' : 'Daily') : 
-                                             step.frequency === 'weekly' ? (locale === 'cs' ? 'Týdně' : 'Weekly') :
-                                             step.frequency === 'monthly' ? (locale === 'cs' ? 'Měsíčně' : 'Monthly') : ''}</span>
-                                    </div>
-                                    <button 
-                                      onClick={(e) => openTimePicker(e, step)}
-                                      className={`hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-gray-600 hover:bg-gray-100 border-gray-300`}
-                                    >
-                                      {step.estimated_time ? `${step.estimated_time} min` : '-'}
-                                    </button>
-                                    {onStepImportantChange && (
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          onStepImportantChange(step.id, !step.is_important)
-                                        }}
-                                        disabled={loadingSteps.has(step.id)}
-                                        className={`hidden sm:flex items-center justify-center w-5 h-5 rounded-playful-sm transition-all flex-shrink-0 ${
-                                          step.is_important
-                                            ? 'text-primary-600 hover:text-primary-700 hover:scale-110'
-                                            : 'text-gray-400 hover:text-primary-500 hover:scale-110'
-                                        } ${loadingSteps.has(step.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                        title={step.is_important ? (t('steps.unmarkImportant') || 'Označit jako nedůležité') : (t('steps.markImportant') || 'Označit jako důležité')}
-                                      >
-                                        {loadingSteps.has(step.id) ? (
-                                          <div className="animate-spin h-3 w-3 border-2 border-primary-500 border-t-transparent rounded-full"></div>
-                                        ) : (
-                                          <Star className={`w-4 h-4 ${step.is_important ? 'fill-current' : ''}`} strokeWidth={step.is_important ? 0 : 2} />
-                                        )}
-                                      </button>
-                                    )}
-                                  </>
-                                ) : (
-                                  // Non-recurring step - show date and time pickers
-                                  <>
-                                    <button
-                                      onClick={(e) => openDatePicker(e, step)}
-                                      className={`hidden sm:block w-28 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-gray-400 group-hover:text-gray-600 hover:bg-gray-50 border-gray-200 group-hover:border-gray-300`}
-                                    >
-                                      {isOverdue ? '❗' : ''}{stepDateFormatted || '-'}
-                                    </button>
-                                    <button 
-                                      onClick={(e) => openTimePicker(e, step)}
-                                      className={`hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-gray-600 hover:bg-gray-100 border-gray-300`}
-                                    >
-                                      {step.estimated_time ? `${step.estimated_time} min` : '-'}
-                                    </button>
-                                    {onStepImportantChange && (
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          onStepImportantChange(step.id, !step.is_important)
-                                        }}
-                                        disabled={loadingSteps.has(step.id)}
-                                        className={`hidden sm:flex items-center justify-center w-5 h-5 rounded-playful-sm transition-all flex-shrink-0 ${
-                                          step.is_important
-                                            ? 'text-primary-600 hover:text-primary-700 hover:scale-110'
-                                            : 'text-gray-400 hover:text-primary-500 hover:scale-110'
-                                        } ${loadingSteps.has(step.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                        title={step.is_important ? (t('steps.unmarkImportant') || 'Označit jako nedůležité') : (t('steps.markImportant') || 'Označit jako důležité')}
-                                      >
-                                        {loadingSteps.has(step.id) ? (
-                                          <div className="animate-spin h-3 w-3 border-2 border-primary-500 border-t-transparent rounded-full"></div>
-                                        ) : (
-                                          <Star className={`w-4 h-4 ${step.is_important ? 'fill-current' : ''}`} strokeWidth={step.is_important ? 0 : 2} />
-                                        )}
-                                      </button>
-                                    )}
-                                  </>
-                    )}
-                    </div>
-                  </div>
-                            ) : (
-                <div
-                  key={step.id}
-                  onClick={() => handleItemClick(step, 'step')}
-                                className={`flex items-center gap-3 p-3 cursor-pointer ${
-                                  step.completed
-                                    ? 'box-playful-pressed bg-white opacity-50'
-                                    : isOverdue
-                                      ? 'border-2 border-red-500 bg-red-50 hover:bg-red-100 rounded-playful-lg'
-                                      : isToday
-                                        ? 'box-playful-pressed bg-white hover:bg-primary-50'
-                                        : 'box-playful-pressed bg-white hover:bg-primary-50'
-                                } ${isLoading ? 'opacity-50' : ''}`}
-                              >
-                                {/* Checkbox */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleStepToggle(step.id, !step.completed)
-                    }}
-                                  disabled={isLoading}
-                                  className={`w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
-                      step.completed
-                                      ? 'bg-white border-primary-500' 
-                                      : 'border-primary-500 hover:bg-primary-100'
-                    }`}
-                  >
-                                  {isLoading ? (
-                                    <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                                  ) : step.completed ? (
-                                    <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                                  ) : null}
-                  </button>
-                                
-                                {/* Goal icon in area color */}
-                                {stepGoal && stepGoal.icon && (
-                                  <div className="flex-shrink-0">
-                                    {(() => {
-                                      const GoalIconComponent = getIconComponent(stepGoal.icon)
-                                      return (
-                                        <GoalIconComponent 
-                                          className={`w-5 h-5 transition-opacity ${isFuture ? 'opacity-60 group-hover:opacity-80' : ''}`}
-                                          style={{ color: stepAreaForColor?.color || '#E8871E' }} 
-                                        />
-                                      )
-                                    })()}
-                                  </div>
-                                )}
-                                
-                                {/* Title */}
-                  <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    {step.frequency && step.frequency !== null && (
-                                      <Repeat className={`w-3.5 h-3.5 flex-shrink-0 transition-colors ${isFuture ? 'text-primary-400 group-hover:text-primary-500' : 'text-primary-600'}`} />
-                                    )}
-                                    <span className={`text-sm truncate transition-colors ${
-                                      step.completed 
-                                        ? 'line-through text-gray-400' 
-                                        : isOverdue
-                                          ? 'text-red-600'
-                                          : isFuture
-                                            ? 'text-gray-500 group-hover:text-gray-700'
-                                            : 'text-black'
-                                    } ${step.is_important && !step.completed && !isFuture ? 'font-bold' : 'font-medium'}`}>
-                                      {step.title}
-                                    </span>
-                                    {step.checklist && step.checklist.length > 0 && (
-                                      <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
-                                        step.checklist.filter((c: any) => c.completed).length === step.checklist.length
-                                          ? 'bg-primary-100 text-primary-600 border-primary-500'
-                                          : 'bg-gray-100 text-gray-500 border-gray-300'
-                                      }`}>
-                                        {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
-                      </span>
-                    )}
-                  </div>
-                                  {/* Goal name */}
-                                  {stepGoal && (
-                                    <div className={`flex items-center gap-1 text-xs transition-colors ${isFuture ? 'text-gray-400 group-hover:text-gray-500' : 'text-gray-500'}`}>
-                                      <span>{stepGoal.title}</span>
-                </div>
-                                  )}
-            </div>
-                                
-                                {/* Meta info - hidden on mobile */}
-                                {step.frequency && step.frequency !== null ? (
-                                  // Recurring step - show icon and time only, no date picker
-                                  <>
-                                    <div className="hidden sm:flex items-center gap-1 text-xs text-gray-500">
-                                      <Repeat className="w-3 h-3" />
-                                      <span>{step.frequency === 'daily' ? (locale === 'cs' ? 'Denně' : 'Daily') : 
-                                             step.frequency === 'weekly' ? (locale === 'cs' ? 'Týdně' : 'Weekly') :
-                                             step.frequency === 'monthly' ? (locale === 'cs' ? 'Měsíčně' : 'Monthly') : ''}</span>
-                                    </div>
-                                    <button 
-                                      onClick={(e) => openTimePicker(e, step)}
-                                      className={`hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-gray-600 hover:bg-gray-100 border-gray-300`}
-                                    >
-                                      {step.estimated_time ? `${step.estimated_time} min` : '-'}
-                                    </button>
-                                    {onStepImportantChange && (
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          onStepImportantChange(step.id, !step.is_important)
-                                        }}
-                                        className={`hidden sm:flex items-center justify-center w-5 h-5 rounded-playful-sm transition-all flex-shrink-0 ${
-                                          step.is_important
-                                            ? 'text-primary-600 hover:text-primary-700 hover:scale-110'
-                                            : 'text-gray-400 hover:text-primary-500 hover:scale-110'
-                                        }`}
-                                        title={step.is_important ? (t('steps.unmarkImportant') || 'Označit jako nedůležité') : (t('steps.markImportant') || 'Označit jako důležité')}
-                                      >
-                                        <Star className={`w-4 h-4 ${step.is_important ? 'fill-current' : ''}`} strokeWidth={step.is_important ? 0 : 2} />
-                                      </button>
-                                    )}
-                                  </>
-                                ) : (
-                                  // Non-recurring step - show date and time pickers
-                                  <>
-                                    <button
-                                      onClick={(e) => openDatePicker(e, step)}
-                                      className={`hidden sm:block w-28 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
-                                        isOverdue
-                                          ? 'text-red-600 hover:bg-red-100 border-red-300'
-                                          : isToday
-                                            ? 'text-primary-600 hover:bg-primary-100 border-primary-500' 
-                                            : isFuture
-                                              ? 'text-gray-400 group-hover:text-gray-600 hover:bg-gray-50 border-gray-200 group-hover:border-gray-300'
-                                              : 'text-gray-600 hover:bg-gray-100 border-gray-300'
-                                      }`}
-                                    >
-                                      {isOverdue ? '❗' : ''}{stepDateFormatted || '-'}
-                                    </button>
-                                    <button 
-                                      onClick={(e) => openTimePicker(e, step)}
-                                      className={`hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
-                                        isOverdue
-                                          ? 'text-red-600 hover:bg-red-100 border-red-300'
-                                          : 'text-gray-600 hover:bg-gray-100 border-gray-300'
-                                      }`}
-                                    >
-                                      {step.estimated_time ? `${step.estimated_time} min` : '-'}
-                                    </button>
-                                    {onStepImportantChange && (
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          onStepImportantChange(step.id, !step.is_important)
-                                        }}
-                                        className={`hidden sm:flex items-center justify-center w-5 h-5 rounded-playful-sm transition-all flex-shrink-0 ${
-                                          step.is_important
-                                            ? 'text-primary-600 hover:text-primary-700 hover:scale-110'
-                                            : 'text-gray-400 hover:text-primary-500 hover:scale-110'
-                                        }`}
-                                        title={step.is_important ? (t('steps.unmarkImportant') || 'Označit jako nedůležité') : (t('steps.markImportant') || 'Označit jako důležité')}
-                                      >
-                                        <Star className={`w-4 h-4 ${step.is_important ? 'fill-current' : ''}`} strokeWidth={step.is_important ? 0 : 2} />
-                                      </button>
-                                    )}
-                                  </>
-          )}
-        </div>
-                            )
-                          })}
-                </div>
-                      )
-                    })}
-            </div>
+                    <div key={areaId} className="mb-6">
+                      <StepsManagementView
+                        dailySteps={areaSteps}
+                        goals={goals}
+                        areas={areas}
+                        userId={userId}
+                        player={player}
+                        onDailyStepsUpdate={(steps) => {
+                          setLocalDailySteps(steps)
+                        }}
+                        onOpenStepModal={(step) => {
+                          if (onOpenStepModal) {
+                            onOpenStepModal(undefined, step)
+                          }
+                        }}
+                        onStepImportantChange={onStepImportantChange}
+                        handleStepToggle={handleStepToggle}
+                        loadingSteps={loadingSteps}
+                        createNewStepTrigger={0} // Don't create new steps in area view
+                        hideHeader={true}
+                        showCompleted={false}
+                        areaFilter={areaId} // Filter by this area
+                      />
         </div>
               )
             })}
             
-            {/* Steps without area - grouped by goal */}
-            {stepsByArea.noAreaSteps.length > 0 && (() => {
-              // Group no-area steps by goal
-              const noAreaStepsByGoal: Record<string, Array<{ step: any; goal: any }>> = {}
-              stepsByArea.noAreaSteps.forEach(({ step, goal }) => {
-                const goalId = goal?.id || 'no-goal'
-                if (!noAreaStepsByGoal[goalId]) {
-                  noAreaStepsByGoal[goalId] = []
-                }
-                noAreaStepsByGoal[goalId].push({ step, goal })
-              })
-              
-              // Check if there are any overdue or today's steps in no-area steps
-              let hasOverdueOrTodaySteps = false
-              let hasFutureSteps = false
-              
-              Object.values(noAreaStepsByGoal).forEach(steps => {
-                steps.forEach(({ step }) => {
-                  const stepDate = step.date ? normalizeDate(step.date) : null
-                  const stepDateObj = stepDate ? new Date(stepDate) : null
-                  if (stepDateObj) stepDateObj.setHours(0, 0, 0, 0)
-                  const isToday = stepDateObj && stepDateObj.getTime() === today.getTime()
-                  const isOverdue = (step as any)._isOverdue || false
-                  
-                  if (!step.completed) {
-                    if (isOverdue || isToday) {
-                      hasOverdueOrTodaySteps = true
-                    } else if (stepDateObj && stepDateObj > today) {
-                      hasFutureSteps = true
-                    }
-                  }
-                })
-              })
-              
-              return (
-                <div className="card-playful-base">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <Footprints className="w-5 h-5 text-primary-600" />
-                      <h2 className="text-lg font-bold text-black font-playful">
-                        {t('views.otherSteps') || 'Ostatní kroky'}
-            </h2>
-                    </div>
-                  </div>
-                  
-                  {/* Show positive message if no overdue or today's steps, but there are future steps */}
-                  {!hasOverdueOrTodaySteps && hasFutureSteps && (
-                    <div className="mb-4 p-4 bg-primary-100 border-2 border-primary-300 rounded-playful-md">
-                      <p className="text-sm font-semibold text-primary-700 mb-1">
-                        {t('views.allDone') || 'Vše je splněno! Dobrá práce! 🎉'}
-                      </p>
-                      <p className="text-xs text-primary-600">
-                        {t('views.futureStepsNote') || 'Níže jsou úkoly do budoucna, které ale ještě vydrží.'}
-                      </p>
-                    </div>
-                  )}
-                  
-                  {/* Today's Habits without area */}
-                  {habitsByArea.noAreaHabits.length > 0 && (
-                    <div className="mb-4">
-                      <div className="flex flex-wrap gap-3">
-                        {habitsByArea.noAreaHabits.map((habit) => {
-                          const isCompleted = habit.habit_completions && habit.habit_completions[todayStr] === true
-                          const isLoading = loadingHabits.has(habit.id)
-                          
-                          return (
-                            <div
-                              key={habit.id}
-                              onClick={() => handleItemClick(habit, 'habit')}
-                              className={`flex items-center gap-2 p-3 rounded-playful-md cursor-pointer transition-all flex-shrink-0 ${
-                                isCompleted
-                                  ? 'bg-primary-100 opacity-75 hover:outline-2 hover:outline hover:outline-primary-300 hover:outline-offset-[-2px]'
-                                  : 'bg-white hover:bg-primary-50 hover:outline-2 hover:outline hover:outline-primary-500 hover:outline-offset-[-2px]'
-                              } ${isLoading ? 'opacity-50' : ''}`}
-                            >
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleHabitToggle(habit.id, todayStr)
-                                }}
-                                disabled={isLoading}
-                                className={`flex-shrink-0 w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors ${
-                                  isCompleted
-                                    ? 'bg-primary-500 border-primary-500'
-                                    : 'border-primary-500 hover:bg-primary-50'
-                                }`}
-                              >
-                                {isLoading ? (
-                                  <svg className="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                  </svg>
-                                ) : isCompleted ? (
-                                  <Check className="w-4 h-4 text-white" />
-                                ) : null}
-                              </button>
-                              <div className="flex items-center gap-2 flex-shrink-0">
-                                {habit.icon && (
-                                  <div className="flex-shrink-0">
-                                    {(() => {
-                                      const IconComponent = getIconComponent(habit.icon)
-                                      return <IconComponent className="w-5 h-5 text-primary-600" />
-                                    })()}
-                                  </div>
-                                )}
-                                <span className={`text-sm font-medium text-black whitespace-nowrap ${
-                                  isCompleted ? 'line-through' : ''
-                                }`}>
-                                  {habit.name}
-                                </span>
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="space-y-4">
-                    {Object.entries(noAreaStepsByGoal).map(([goalId, steps]) => {
-                      const goal = goalId !== 'no-goal' ? goalMap.get(goalId) : null
-                      
-                      return (
-                        <div key={goalId} className="space-y-2">
-                          {/* Goal title */}
-                          {goal && (
-                            <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                              {goal.icon && (() => {
-                                const GoalIconComponent = getIconComponent(goal.icon)
-                                return <GoalIconComponent className="w-4 h-4 text-primary-600" />
-                              })()}
-                              {goal.title}
-                            </h3>
-                          )}
-                          
-                          {/* Steps for this goal */}
-                          {steps.map(({ step, goal: stepGoal }) => {
-                    const isLoading = loadingSteps.has(step.id)
-                    const stepDate = step.date ? normalizeDate(step.date) : null
-                    const stepDateObj = stepDate ? new Date(stepDate) : null
-                    if (stepDateObj) stepDateObj.setHours(0, 0, 0, 0)
-                    const isToday = stepDateObj && stepDateObj.getTime() === today.getTime()
-                    const isOverdue = (step as any)._isOverdue || false
-                    const isFuture = stepDateObj && stepDateObj > today && !isOverdue && !isToday
-                    const stepDateFormatted = stepDate ? formatStepDate(stepDate, step.completed) : null
-                    
-                    // Get area from goal for icon color
-                    const stepAreaForColor = stepGoal?.area_id ? areaMap.get(stepGoal.area_id) : null
-                    
-                    return (
-                <div
-                  key={step.id}
-                  onClick={() => handleItemClick(step, 'step')}
-                        className={`flex items-center gap-3 p-3 cursor-pointer ${
-                          step.completed
-                            ? 'box-playful-pressed bg-white opacity-50'
-                            : isOverdue
-                              ? 'border-2 border-red-500 bg-red-50 hover:bg-red-100 rounded-playful-lg'
-                              : isToday
-                                ? 'box-playful-pressed bg-white hover:bg-primary-50'
-                                : isFuture
-                                  ? 'box-playful-pressed-future opacity-75 hover:opacity-85 hover:bg-white/85 group'
-                                  : 'box-playful-pressed bg-white hover:bg-primary-50'
-                        } ${isLoading ? 'opacity-50' : ''}`}
-                        style={isFuture ? { border: '2px solid #fbc98d' } : undefined}
-                >
-                        {/* Checkbox */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleStepToggle(step.id, !step.completed)
-                    }}
-                          disabled={isLoading}
-                          className={`w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
-                      step.completed
-                              ? 'bg-white border-primary-500' 
-                              : 'border-primary-500 hover:bg-primary-100'
-                    }`}
-                  >
-                          {isLoading ? (
-                            <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                          ) : step.completed ? (
-                            <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-                          ) : null}
-                  </button>
-                        
-                        {/* Goal icon in area color */}
-                        {stepGoal && stepGoal.icon && (
-                          <div className="flex-shrink-0">
-                            {(() => {
-                              const GoalIconComponent = getIconComponent(stepGoal.icon)
-                              return (
-                                <GoalIconComponent 
-                                  className={`w-5 h-5 transition-opacity ${isFuture ? 'opacity-60 group-hover:opacity-80' : ''}`}
-                                  style={{ color: stepAreaForColor?.color || '#E8871E' }} 
-                                />
-                              )
-                            })()}
+                {/* Steps without area */}
+                {stepsByArea.noAreaSteps && stepsByArea.noAreaSteps.length > 0 && (
+                  <div className="mb-6">
+                    <StepsManagementView
+                      dailySteps={stepsByArea.noAreaSteps.map(({ step }) => step)}
+                      goals={goals}
+                      areas={areas}
+                      userId={userId}
+                      player={player}
+                      onDailyStepsUpdate={(steps) => {
+                        setLocalDailySteps(steps)
+                      }}
+                      onOpenStepModal={(step) => {
+                        if (onOpenStepModal) {
+                          onOpenStepModal(undefined, step)
+                        }
+                      }}
+                      onStepImportantChange={onStepImportantChange}
+                      handleStepToggle={handleStepToggle}
+                      loadingSteps={loadingSteps}
+                      createNewStepTrigger={0}
+                      hideHeader={true}
+                      showCompleted={false}
+                      areaFilter="none" // Filter for steps without area
+                    />
                           </div>
                         )}
-                        
-                        {/* Title */}
-                  <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            {step.frequency && step.frequency !== null && (
-                              <Repeat className={`w-3.5 h-3.5 flex-shrink-0 transition-colors ${isFuture ? 'text-primary-400 group-hover:text-primary-500' : 'text-primary-600'}`} />
-                            )}
-                            <span className={`text-sm truncate transition-colors ${
-                              step.completed 
-                                ? 'line-through text-gray-400' 
-                                : isOverdue
-                                  ? 'text-red-600'
-                                  : isFuture
-                                    ? 'text-gray-500 group-hover:text-gray-700'
-                                    : 'text-black'
-                            } ${step.is_important && !step.completed && !isFuture ? 'font-bold' : 'font-medium'}`}>
-                              {step.title}
-                            </span>
-                            {step.checklist && step.checklist.length > 0 && (
-                              <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
-                                step.checklist.filter((c: any) => c.completed).length === step.checklist.length
-                                  ? 'bg-primary-100 text-primary-600 border-primary-500'
-                                  : 'bg-gray-100 text-gray-500 border-gray-300'
-                              }`}>
-                                {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
-                      </span>
-                    )}
-                  </div>
-                          {/* Goal name */}
-                          {stepGoal && (
-                            <div className={`flex items-center gap-1 text-xs transition-colors ${isFuture ? 'text-gray-400 group-hover:text-gray-500' : 'text-gray-500'}`}>
-                              <span>{stepGoal.title}</span>
-                </div>
-                          )}
-            </div>
-                        
-                        {/* Meta info - hidden on mobile */}
-                        {step.frequency && step.frequency !== null ? (
-                          // Recurring step - show icon and time only, no date picker
-                          <>
-                            <div className="hidden sm:flex items-center gap-1 text-xs text-gray-500">
-                              <Repeat className="w-3 h-3" />
-                              <span>{step.frequency === 'daily' ? (locale === 'cs' ? 'Denně' : 'Daily') : 
-                                     step.frequency === 'weekly' ? (locale === 'cs' ? 'Týdně' : 'Weekly') :
-                                     step.frequency === 'monthly' ? (locale === 'cs' ? 'Měsíčně' : 'Monthly') : ''}</span>
-          </div>
-                            <button 
-                              onClick={(e) => openTimePicker(e, step)}
-                              className={`hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 text-gray-600 hover:bg-gray-100 border-gray-300`}
-                            >
-                              {step.estimated_time ? `${step.estimated_time} min` : '-'}
-                            </button>
-                            {onStepImportantChange && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onStepImportantChange(step.id, !step.is_important)
-                                }}
-                                className={`hidden sm:flex items-center justify-center w-5 h-5 rounded-playful-sm transition-all flex-shrink-0 ${
-                                  step.is_important
-                                    ? 'text-primary-600 hover:text-primary-700 hover:scale-110'
-                                    : 'text-gray-400 hover:text-primary-500 hover:scale-110'
-                                }`}
-                                title={step.is_important ? (t('steps.unmarkImportant') || 'Označit jako nedůležité') : (t('steps.markImportant') || 'Označit jako důležité')}
-                              >
-                                <Star className={`w-4 h-4 ${step.is_important ? 'fill-current' : ''}`} strokeWidth={step.is_important ? 0 : 2} />
-                              </button>
-                            )}
                           </>
-                        ) : (
-                          // Non-recurring step - show date and time pickers
-                          <>
-                            <button
-                              onClick={(e) => openDatePicker(e, step)}
-                              className={`hidden sm:block w-28 text-xs text-center capitalize flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
-                                isOverdue
-                                  ? 'text-red-600 hover:bg-red-100 border-red-300'
-                                  : isToday
-                                    ? 'text-primary-600 hover:bg-primary-100 border-primary-500' 
-                                    : isFuture
-                                      ? 'text-gray-400 group-hover:text-gray-600 hover:bg-gray-50 border-gray-200 group-hover:border-gray-300'
-                                      : 'text-gray-600 hover:bg-gray-100 border-gray-300'
-                              }`}
-                            >
-                              {isOverdue ? '❗' : ''}{stepDateFormatted || '-'}
-                            </button>
-                            <button 
-                              onClick={(e) => openTimePicker(e, step)}
-                              className={`hidden sm:block w-20 text-xs text-center flex-shrink-0 rounded-playful-sm px-1 py-0.5 transition-colors border-2 ${
-                                isOverdue
-                                  ? 'text-red-600 hover:bg-red-100 border-red-300'
-                                  : 'text-gray-600 hover:bg-gray-100 border-gray-300'
-                              }`}
-                            >
-                              {step.estimated_time ? `${step.estimated_time} min` : '-'}
-                            </button>
-                            {onStepImportantChange && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onStepImportantChange(step.id, !step.is_important)
-                                }}
-                                className={`hidden sm:flex items-center justify-center w-5 h-5 rounded-playful-sm transition-all flex-shrink-0 ${
-                                  step.is_important
-                                    ? 'text-primary-600 hover:text-primary-700 hover:scale-110'
-                                    : 'text-gray-400 hover:text-primary-500 hover:scale-110'
-                                }`}
-                                title={step.is_important ? (t('steps.unmarkImportant') || 'Označit jako nedůležité') : (t('steps.markImportant') || 'Označit jako důležité')}
-                              >
-                                <Star className={`w-4 h-4 ${step.is_important ? 'fill-current' : ''}`} strokeWidth={step.is_important ? 0 : 2} />
-                              </button>
-                            )}
-                          </>
-                        )}
-      </div>
-                    )
-                  })}
-    </div>
-  )
-                    })}
-                  </div>
-                </div>
-              )
-            })()}
+        )}
           </>
-        )
-                    )}
-                  </div>
+        )}
+        </div>
       
       {/* Date Picker Modal */}
       {datePickerStep && datePickerPosition && (
@@ -2131,59 +1380,87 @@ export function UpcomingView({
           >
             <div className="text-sm font-bold text-black mb-3 font-playful">{locale === 'cs' ? 'Datum' : 'Date'}</div>
             
+            {/* Month navigation */}
+            <div className="flex items-center justify-between mb-3">
+                  <button
+                onClick={() => {
+                  const newMonth = new Date(datePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() - 1)
+                  setDatePickerMonth(newMonth)
+                }}
+                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
+              >
+                <ChevronDown className="w-4 h-4 rotate-90 text-black" />
+                  </button>
+              <span className="text-xs font-semibold text-black">
+                {datePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
+                                    </span>
+                                    <button 
+                onClick={() => {
+                  const newMonth = new Date(datePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() + 1)
+                  setDatePickerMonth(newMonth)
+                }}
+                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
+              >
+                <ChevronDown className="w-4 h-4 -rotate-90 text-black" />
+                                    </button>
+        </div>
+            
             {/* Day names */}
-            <div className="grid grid-cols-7 gap-0.5 mb-1">
-              {locale === 'cs' 
-                ? ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(day => (
-                    <div key={day} className="text-center text-xs text-gray-600 font-medium py-1">
+            <div className="grid grid-cols-7 gap-1 mb-2">
+              {['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(day => (
+                <div key={day} className="text-center text-[10px] font-semibold text-gray-500">
                       {day}
                 </div>
-                  ))
-                : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(day => (
-                    <div key={day} className="text-center text-xs text-gray-600 font-medium py-1">
-                      {day}
-            </div>
-                  ))
-              }
+              ))}
           </div>
             
             {/* Calendar days */}
-            <div className="grid grid-cols-7 gap-0.5 mb-3">
+            <div className="grid grid-cols-7 gap-1">
               {(() => {
-                const year = datePickerMonth.getFullYear()
-                const month = datePickerMonth.getMonth()
-                const firstDay = new Date(year, month, 1)
-                const lastDay = new Date(year, month + 1, 0)
-                const startDay = (firstDay.getDay() + 6) % 7 // Monday = 0
-                const days: (Date | null)[] = []
+                const firstDayOfMonth = new Date(datePickerMonth.getFullYear(), datePickerMonth.getMonth(), 1)
+                const lastDayOfMonth = new Date(datePickerMonth.getFullYear(), datePickerMonth.getMonth() + 1, 0)
+                const daysInMonth = lastDayOfMonth.getDate()
+                const startingDayOfWeek = (firstDayOfMonth.getDay() + 6) % 7 // Convert to Monday = 0
                 
-                // Empty cells before first day
-                for (let i = 0; i < startDay; i++) {
-                  days.push(null)
+                const days: Date[] = []
+                
+                // Add empty cells for days before the first day of the month
+                for (let i = 0; i < startingDayOfWeek; i++) {
+                  days.push(new Date(0)) // Placeholder
                 }
                 
-                // Days of month
-                for (let d = 1; d <= lastDay.getDate(); d++) {
-                  days.push(new Date(year, month, d))
+                // Add all days of the month
+                for (let day = 1; day <= daysInMonth; day++) {
+                  days.push(new Date(datePickerMonth.getFullYear(), datePickerMonth.getMonth(), day))
                 }
                 
-                const today = new Date()
-                today.setHours(0, 0, 0, 0)
-                const selectedDate = selectedDateInPicker ? new Date(selectedDateInPicker) : null
-                if (selectedDate) selectedDate.setHours(0, 0, 0, 0)
-                
-                return days.map((day, i) => {
-                  if (!day) {
-                    return <div key={`empty-${i}`} className="w-7 h-7" />
+                return days.map((day, index) => {
+                  if (day.getTime() === 0) {
+                    return <div key={index} className="w-7 h-7" />
                   }
                   
                   const isToday = day.getTime() === today.getTime()
-                  const isSelected = selectedDate && day.getTime() === selectedDate.getTime()
+                  const isSelected = selectedDateInPicker && day.getTime() === selectedDateInPicker.getTime()
                   
                   return (
                     <button
                       key={day.getTime()}
-                      onClick={() => handleDateSelect(day)}
+                      onClick={async () => {
+                        if (datePickerStep && onStepDateChange) {
+                          try {
+                            const dateStr = getLocalDateString(day)
+                            await onStepDateChange(datePickerStep.id, dateStr)
+                            // Close picker only on success
+                            setDatePickerStep(null)
+                            setDatePickerPosition(null)
+                            setSelectedDateInPicker(null)
+                          } catch (error) {
+                            console.error('Error saving date:', error)
+                          }
+                        }
+                      }}
                       className={`w-7 h-7 rounded-playful-sm text-xs font-medium transition-colors border-2 ${
                         isSelected
                           ? 'bg-white text-black font-bold border-primary-500'
@@ -2197,49 +1474,6 @@ export function UpcomingView({
                   )
                 })
               })()}
-            </div>
-            
-            {/* Month navigation */}
-            <div className="flex items-center justify-between mb-3">
-              <button
-                onClick={() => {
-                  const newMonth = new Date(datePickerMonth)
-                  newMonth.setMonth(newMonth.getMonth() - 1)
-                  setDatePickerMonth(newMonth)
-                }}
-                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
-              >
-                <ChevronDown className="w-4 h-4 rotate-90 text-black" />
-              </button>
-              <span className="text-xs font-semibold text-black">
-                {datePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
-              </span>
-              <button
-                onClick={() => {
-                  const newMonth = new Date(datePickerMonth)
-                  newMonth.setMonth(newMonth.getMonth() + 1)
-                  setDatePickerMonth(newMonth)
-                }}
-                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
-              >
-                <ChevronDown className="w-4 h-4 -rotate-90 text-black" />
-              </button>
-            </div>
-            
-            {/* Actions */}
-            <div className="flex gap-2">
-              <button
-                onClick={handleSaveDate}
-                className="btn-playful-base flex-1 px-3 py-1.5 bg-white text-black text-xs font-semibold hover:bg-primary-50"
-              >
-                {locale === 'cs' ? 'Uložit' : 'Save'}
-              </button>
-              <button
-                onClick={handleCancelDate}
-                className="btn-playful-base px-3 py-1.5 bg-white text-black text-xs font-semibold hover:bg-primary-50"
-              >
-                {locale === 'cs' ? 'Zrušit' : 'Cancel'}
-              </button>
             </div>
           </div>
         </>
@@ -2321,3 +1555,4 @@ export function UpcomingView({
     </div>
   )
 }
+

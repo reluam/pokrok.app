@@ -81,6 +81,12 @@ export function StepModal({
   }, [stepModalData, userId, player, isSaving])
   
   // State for date pickers
+  // State for date pickers
+  const [datePickerOpen, setDatePickerOpen] = useState(false)
+  const [datePickerPosition, setDatePickerPosition] = useState<{ top: number; left: number } | null>(null)
+  const [datePickerMonth, setDatePickerMonth] = useState(new Date())
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  
   const [startDatePickerOpen, setStartDatePickerOpen] = useState(false)
   const [startDatePickerPosition, setStartDatePickerPosition] = useState<{ top: number; left: number } | null>(null)
   const [startDatePickerMonth, setStartDatePickerMonth] = useState(new Date())
@@ -118,14 +124,14 @@ export function StepModal({
   return createPortal(
     <>
       <div 
-        className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center p-4"
+        className="fixed inset-0 z-50 bg-black/30 flex items-start justify-center p-4 pt-20"
         onClick={() => {
           onClose()
           setStepModalData(defaultStepData)
         }}
       >
         <div 
-          className="box-playful-highlight bg-white max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+          className="box-playful-highlight bg-white max-w-4xl w-full max-h-[calc(100vh-6rem)] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="p-6 border-b-2 border-primary-500">
@@ -310,12 +316,28 @@ export function StepModal({
                         {t('steps.date')}
                       </label>
                       {!stepModalData.isRepeating ? (
-                        <input
-                          type="date"
-                          value={stepModalData.date}
-                          onChange={(e) => setStepModalData({...stepModalData, date: e.target.value})}
-                          className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
-                        />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            const rect = (e.target as HTMLElement).getBoundingClientRect()
+                            const top = Math.min(rect.bottom + 5, window.innerHeight - 380)
+                            const left = Math.min(rect.left, window.innerWidth - 250)
+                            setDatePickerPosition({ top, left })
+                            setDatePickerOpen(true)
+                            const currentDate = stepModalData.date 
+                              ? new Date(stepModalData.date)
+                              : new Date()
+                            setSelectedDate(currentDate)
+                            setDatePickerMonth(new Date(currentDate))
+                          }}
+                          className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md bg-white text-black text-left hover:bg-primary-50"
+                        >
+                          {stepModalData.date 
+                            ? new Date(stepModalData.date).toLocaleDateString(localeCode, { day: 'numeric', month: 'numeric', year: 'numeric' })
+                            : new Date().toLocaleDateString(localeCode, { day: 'numeric', month: 'numeric', year: 'numeric' })
+                          }
+                        </button>
                       ) : (
                       <select
                           value={stepModalData.frequency || 'daily'}
@@ -911,6 +933,131 @@ export function StepModal({
         </div>
       </div>
       
+      {/* Main Date Picker Modal */}
+      {datePickerOpen && datePickerPosition && (
+        <>
+          <div 
+            className="fixed inset-0 z-40"
+            onClick={() => {
+              setDatePickerOpen(false)
+              setDatePickerPosition(null)
+            }}
+          />
+          <div 
+            className="fixed z-50 box-playful-highlight p-4 bg-white"
+            style={{
+              top: `${Math.min(datePickerPosition.top, window.innerHeight - 380)}px`,
+              left: `${Math.min(Math.max(datePickerPosition.left - 100, 10), window.innerWidth - 250)}px`,
+              width: '230px'
+            }}
+          >
+            <div className="text-sm font-bold text-black mb-3 font-playful">{t('steps.date') || 'Datum'}</div>
+            
+            {/* Month navigation */}
+            <div className="flex items-center justify-between mb-3">
+              <button
+                onClick={() => {
+                  const newMonth = new Date(datePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() - 1)
+                  setDatePickerMonth(newMonth)
+                }}
+                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
+              >
+                <ChevronDown className="w-4 h-4 rotate-90 text-black" />
+              </button>
+              <span className="text-xs font-semibold text-black">
+                {datePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
+              </span>
+              <button
+                onClick={() => {
+                  const newMonth = new Date(datePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() + 1)
+                  setDatePickerMonth(newMonth)
+                }}
+                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
+              >
+                <ChevronDown className="w-4 h-4 -rotate-90 text-black" />
+              </button>
+            </div>
+            
+            {/* Day names */}
+            <div className="grid grid-cols-7 gap-0.5 mb-1">
+              {locale === 'cs' 
+                ? ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(day => (
+                    <div key={day} className="text-center text-xs text-gray-600 font-medium py-1">
+                      {day}
+                </div>
+                  ))
+                : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(day => (
+                    <div key={day} className="text-center text-xs text-gray-600 font-medium py-1">
+                      {day}
+            </div>
+                  ))
+              }
+          </div>
+            
+            {/* Calendar days */}
+            <div className="grid grid-cols-7 gap-0.5">
+              {(() => {
+                const year = datePickerMonth.getFullYear()
+                const month = datePickerMonth.getMonth()
+                const firstDay = new Date(year, month, 1)
+                const lastDay = new Date(year, month + 1, 0)
+                const startDay = (firstDay.getDay() + 6) % 7 // Monday = 0
+                const days: (Date | null)[] = []
+                
+                // Empty cells before first day
+                for (let i = 0; i < startDay; i++) {
+                  days.push(null)
+                }
+                
+                // Days of month
+                for (let d = 1; d <= lastDay.getDate(); d++) {
+                  days.push(new Date(year, month, d))
+                }
+                
+                const today = new Date()
+                today.setHours(0, 0, 0, 0)
+                const selectedDateValue = selectedDate ? new Date(selectedDate) : null
+                if (selectedDateValue) selectedDateValue.setHours(0, 0, 0, 0)
+                
+                return days.map((day, i) => {
+                  if (!day) {
+                    return <div key={`empty-${i}`} className="w-7 h-7" />
+                  }
+                  
+                  const isToday = day.getTime() === today.getTime()
+                  const isSelected = selectedDateValue && day.getTime() === selectedDateValue.getTime()
+                  
+                  return (
+                    <button
+                      key={day.getTime()}
+                      onClick={() => {
+                        setStepModalData({
+                          ...stepModalData,
+                          date: getLocalDateString(day)
+                        })
+                        setDatePickerOpen(false)
+                        setDatePickerPosition(null)
+                      }}
+                      className={`w-7 h-7 rounded-playful-sm text-xs font-medium transition-colors border-2 ${
+                        isSelected
+                          ? 'bg-white text-black font-bold border-primary-500'
+                          : isToday
+                            ? 'bg-primary-100 text-primary-600 font-bold border-primary-500'
+                            : 'hover:bg-primary-50 text-black border-gray-300'
+                      }`}
+                    >
+                      {day.getDate()}
+                    </button>
+                  )
+                })
+              })()}
+            </div>
+          </div>
+        </>
+      )}
+      
       {/* Start Date Picker Modal */}
       {startDatePickerOpen && startDatePickerPosition && (
         <>
@@ -931,6 +1078,33 @@ export function StepModal({
           >
             <div className="text-sm font-bold text-black mb-3 font-playful">{t('steps.recurring.startDate') || 'Začátek opakování'}</div>
             
+            {/* Month navigation */}
+            <div className="flex items-center justify-between mb-3">
+              <button
+                onClick={() => {
+                  const newMonth = new Date(startDatePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() - 1)
+                  setStartDatePickerMonth(newMonth)
+                }}
+                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
+              >
+                <ChevronDown className="w-4 h-4 rotate-90 text-black" />
+              </button>
+              <span className="text-xs font-semibold text-black">
+                {startDatePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
+              </span>
+              <button
+                onClick={() => {
+                  const newMonth = new Date(startDatePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() + 1)
+                  setStartDatePickerMonth(newMonth)
+                }}
+                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
+              >
+                <ChevronDown className="w-4 h-4 -rotate-90 text-black" />
+              </button>
+            </div>
+            
             {/* Day names */}
             <div className="grid grid-cols-7 gap-0.5 mb-1">
               {locale === 'cs' 
@@ -948,7 +1122,7 @@ export function StepModal({
           </div>
             
             {/* Calendar days */}
-            <div className="grid grid-cols-7 gap-0.5 mb-3">
+            <div className="grid grid-cols-7 gap-0.5">
               {(() => {
                 const year = startDatePickerMonth.getFullYear()
                 const month = startDatePickerMonth.getMonth()
@@ -983,7 +1157,14 @@ export function StepModal({
                   return (
                     <button
                       key={day.getTime()}
-                      onClick={() => setSelectedStartDate(day)}
+                      onClick={() => {
+                        setStepModalData({
+                          ...stepModalData,
+                          recurring_start_date: getLocalDateString(day)
+                        })
+                        setStartDatePickerOpen(false)
+                        setStartDatePickerPosition(null)
+                      }}
                       className={`w-7 h-7 rounded-playful-sm text-xs font-medium transition-colors border-2 ${
                         isSelected
                           ? 'bg-white text-black font-bold border-primary-500'
@@ -997,61 +1178,6 @@ export function StepModal({
                   )
                 })
               })()}
-            </div>
-            
-            {/* Month navigation */}
-            <div className="flex items-center justify-between mb-3">
-              <button
-                onClick={() => {
-                  const newMonth = new Date(startDatePickerMonth)
-                  newMonth.setMonth(newMonth.getMonth() - 1)
-                  setStartDatePickerMonth(newMonth)
-                }}
-                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
-              >
-                <ChevronDown className="w-4 h-4 rotate-90 text-black" />
-              </button>
-              <span className="text-xs font-semibold text-black">
-                {startDatePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
-              </span>
-              <button
-                onClick={() => {
-                  const newMonth = new Date(startDatePickerMonth)
-                  newMonth.setMonth(newMonth.getMonth() + 1)
-                  setStartDatePickerMonth(newMonth)
-                }}
-                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
-              >
-                <ChevronDown className="w-4 h-4 -rotate-90 text-black" />
-              </button>
-            </div>
-            
-            {/* Actions */}
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  if (selectedStartDate) {
-                    setStepModalData({
-                      ...stepModalData,
-                      recurring_start_date: getLocalDateString(selectedStartDate)
-                    })
-                  }
-                  setStartDatePickerOpen(false)
-                  setStartDatePickerPosition(null)
-                }}
-                className="btn-playful-base flex-1 px-3 py-1.5 bg-white text-black text-xs font-semibold hover:bg-primary-50"
-              >
-                {t('common.save') || 'Uložit'}
-              </button>
-              <button
-                onClick={() => {
-                  setStartDatePickerOpen(false)
-                  setStartDatePickerPosition(null)
-                }}
-                className="btn-playful-base px-3 py-1.5 bg-white text-black text-xs font-semibold hover:bg-primary-50"
-              >
-                {t('common.cancel') || 'Zrušit'}
-              </button>
             </div>
           </div>
         </>
@@ -1076,6 +1202,33 @@ export function StepModal({
             }}
           >
             <div className="text-sm font-bold text-black mb-3 font-playful">{t('steps.recurring.endDate') || 'Konec opakování'}</div>
+            
+            {/* Month navigation */}
+            <div className="flex items-center justify-between mb-3">
+              <button
+                onClick={() => {
+                  const newMonth = new Date(endDatePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() - 1)
+                  setEndDatePickerMonth(newMonth)
+                }}
+                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
+              >
+                <ChevronDown className="w-4 h-4 rotate-90 text-black" />
+              </button>
+              <span className="text-xs font-semibold text-black">
+                {endDatePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
+              </span>
+              <button
+                onClick={() => {
+                  const newMonth = new Date(endDatePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() + 1)
+                  setEndDatePickerMonth(newMonth)
+                }}
+                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
+              >
+                <ChevronDown className="w-4 h-4 -rotate-90 text-black" />
+              </button>
+            </div>
             
             {/* Day names */}
             <div className="grid grid-cols-7 gap-0.5 mb-1">
@@ -1129,7 +1282,14 @@ export function StepModal({
                   return (
                     <button
                       key={day.getTime()}
-                      onClick={() => setSelectedEndDate(day)}
+                      onClick={() => {
+                        setStepModalData({
+                          ...stepModalData,
+                          recurring_end_date: getLocalDateString(day)
+                        })
+                        setEndDatePickerOpen(false)
+                        setEndDatePickerPosition(null)
+                      }}
                       className={`w-7 h-7 rounded-playful-sm text-xs font-medium transition-colors border-2 ${
                         isSelected
                           ? 'bg-white text-black font-bold border-primary-500'
@@ -1145,59 +1305,8 @@ export function StepModal({
               })()}
             </div>
             
-            {/* Month navigation */}
-            <div className="flex items-center justify-between mb-3">
-              <button
-                onClick={() => {
-                  const newMonth = new Date(endDatePickerMonth)
-                  newMonth.setMonth(newMonth.getMonth() - 1)
-                  setEndDatePickerMonth(newMonth)
-                }}
-                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
-              >
-                <ChevronDown className="w-4 h-4 rotate-90 text-black" />
-              </button>
-              <span className="text-xs font-semibold text-black">
-                {endDatePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
-              </span>
-              <button
-                onClick={() => {
-                  const newMonth = new Date(endDatePickerMonth)
-                  newMonth.setMonth(newMonth.getMonth() + 1)
-                  setEndDatePickerMonth(newMonth)
-                }}
-                className="p-1 hover:bg-primary-50 rounded-playful-sm border-2 border-primary-500 transition-colors"
-              >
-                <ChevronDown className="w-4 h-4 -rotate-90 text-black" />
-              </button>
-            </div>
-            
-            {/* Actions */}
+            {/* Actions - only "Never" button */}
             <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  if (selectedEndDate) {
-                    setStepModalData({
-                      ...stepModalData,
-                      recurring_end_date: getLocalDateString(selectedEndDate)
-                    })
-                  }
-                  setEndDatePickerOpen(false)
-                  setEndDatePickerPosition(null)
-                }}
-                className="btn-playful-base flex-1 px-3 py-1.5 bg-white text-black text-xs font-semibold hover:bg-primary-50"
-              >
-                {t('common.save') || 'Uložit'}
-              </button>
-              <button
-                onClick={() => {
-                  setEndDatePickerOpen(false)
-                  setEndDatePickerPosition(null)
-                }}
-                className="btn-playful-base px-3 py-1.5 bg-white text-black text-xs font-semibold hover:bg-primary-50"
-              >
-                {t('common.cancel') || 'Zrušit'}
-              </button>
               <button
                 onClick={() => {
                   setStepModalData({
@@ -1207,7 +1316,7 @@ export function StepModal({
                   setEndDatePickerOpen(false)
                   setEndDatePickerPosition(null)
                 }}
-                className="btn-playful-base px-3 py-1.5 bg-white text-black text-xs font-semibold hover:bg-primary-50"
+                className="btn-playful-base flex-1 px-3 py-1.5 bg-white text-black text-xs font-semibold hover:bg-primary-50"
               >
                 {t('steps.recurring.never') || 'Nikdy'}
               </button>

@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { ItemDetailRenderer } from '../details/ItemDetailRenderer'
 import { HabitsPage } from '../views/HabitsPage'
 import { HabitDetailPage } from '../views/HabitDetailPage'
 import { GoalDetailPage } from '../views/GoalDetailPage'
 import { UnifiedDayView } from '../views/UnifiedDayView'
-import { AreaStepsView } from '../views/AreaStepsView'
+// import { AreaStepsView } from '../views/AreaStepsView' // Replaced with StepsManagementView
 import { CalendarView } from '../views/CalendarView'
 import { DayView } from '../views/DayView'
 import { WeekView } from '../views/WeekView'
@@ -380,6 +380,8 @@ export function PageContent(props: PageContentProps) {
   const [stepsGoalFilter, setStepsGoalFilter] = React.useState<string | null>(null)
   const [stepsAreaFilter, setStepsAreaFilter] = React.useState<string | null>(null)
   const [stepsDateFilter, setStepsDateFilter] = React.useState<string | null>(null)
+  const [createNewStepTrigger, setCreateNewStepTrigger] = React.useState(0)
+  const [createNewStepTriggerForSection, setCreateNewStepTriggerForSection] = React.useState<Record<string, number>>({})
   const [stepsMobileMenuOpen, setStepsMobileMenuOpen] = React.useState(false)
   
   // Metrics state
@@ -804,16 +806,19 @@ export function PageContent(props: PageContentProps) {
               )
             }
             
-            // Filter steps and habits by area
+            // Get goals for this area (needed for StepsManagementView)
             const areaGoals = goals.filter((goal: any) => goal.area_id === areaId && goal.status === 'active')
             const areaGoalIds = areaGoals.map((goal: any) => goal.id).filter(Boolean)
+            const areaHabits = habits.filter((habit: any) => habit.area_id === areaId)
             
-            // Include steps that are directly assigned to the area OR belong to goals in this area
+            // Calculate area steps statistics
             const areaSteps = dailySteps.filter((step: any) =>
               step.area_id === areaId ||
               (step.goal_id && areaGoalIds.includes(step.goal_id))
             )
-            const areaHabits = habits.filter((habit: any) => habit.area_id === areaId)
+            const totalAreaSteps = areaSteps.length
+            const completedAreaSteps = areaSteps.filter((step: any) => step.completed).length
+            const areaStepsProgress = totalAreaSteps > 0 ? Math.round((completedAreaSteps / totalAreaSteps) * 100) : 0
             
             const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
             const areaColor = area.color || '#ea580c'
@@ -969,20 +974,77 @@ export function PageContent(props: PageContentProps) {
                     </div>
                   </div>
                     
-                    {/* Area Steps View */}
+                    {/* Area Steps View - using StepsManagementView */}
+                    {/* Pass all dailySteps and let StepsManagementView filter by areaFilter */}
                     <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
-                      <AreaStepsView
-                        goals={areaGoals}
-                        dailySteps={areaSteps}
-                        habits={areaHabits}
-                        handleItemClick={handleItemClick}
+                      {/* Steps Header - similar to metrics header */}
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 px-4 py-3 mb-2">
+                        <div className="flex items-center gap-3">
+                          <h2 className="text-xl font-bold text-black font-playful">
+                            Kroky
+                          </h2>
+                          {totalAreaSteps > 0 && (
+                            <span className="text-sm text-gray-600 font-playful">
+                              {areaStepsProgress}% ({completedAreaSteps} / {totalAreaSteps})
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => {
+                            const sectionKey = `area-${areaId}`
+                            setCreateNewStepTriggerForSection(prev => ({
+                              ...prev,
+                              [sectionKey]: (prev[sectionKey] || 0) + 1
+                            }))
+                          }}
+                          className="flex items-center justify-center w-8 h-8 text-primary-600 hover:bg-primary-50 rounded-playful-sm transition-colors"
+                          title={t('steps.add') || 'Přidat krok'}
+                        >
+                          <Plus className="w-5 h-5" strokeWidth={2.5} />
+                        </button>
+                      </div>
+                      
+                      <div className="p-4 sm:p-6 lg:p-8 pt-2">
+                        <StepsManagementView
+                        dailySteps={dailySteps}
+                        goals={goals}
+                        areas={areas}
+                        userId={userId}
+                        player={player}
+                        onDailyStepsUpdate={onDailyStepsUpdate}
+                        onOpenStepModal={(step) => {
+                          // For area view, if step is provided, open modal
+                          // Otherwise (new step), trigger inline creation
+                          if (step) {
+                            if (handleOpenStepModal) {
+                              handleOpenStepModal(undefined, step)
+                            }
+                          } else {
+                            // Trigger new step creation using section-specific trigger
+                            const sectionKey = `area-${areaId}`
+                            setCreateNewStepTriggerForSection(prev => ({
+                              ...prev,
+                              [sectionKey]: (prev[sectionKey] || 0) + 1
+                            }))
+                          }
+                        }}
+                        onStepImportantChange={onStepImportantChange}
                         handleStepToggle={handleStepToggle}
-                        handleHabitToggle={handleHabitToggle}
                         loadingSteps={loadingSteps}
-                        loadingHabits={loadingHabits}
-                        onOpenStepModal={handleOpenStepModal}
-                        maxUpcomingSteps={15}
-                      />
+                        createNewStepTrigger={mainPanelSection.startsWith('area-') ? (createNewStepTriggerForSection[`area-${areaId}`] || 0) : 0}
+                        onNewStepCreated={() => {
+                          // Reset trigger for this section after step is created
+                          const sectionKey = `area-${areaId}`
+                          setCreateNewStepTriggerForSection(prev => ({
+                            ...prev,
+                            [sectionKey]: 0
+                          }))
+                        }}
+                        hideHeader={true}
+                        showCompleted={false}
+                        areaFilter={areaId} // Filter by this area - StepsManagementView will handle filtering
+                        />
+                      </div>
                     </div>
                 </div>
                 
@@ -1233,6 +1295,18 @@ export function PageContent(props: PageContentProps) {
                 setEditingMetricIncrementalValue={setEditingMetricIncrementalValue}
                 editingMetricUnit={editingMetricUnit}
                 setEditingMetricUnit={setEditingMetricUnit}
+                goals={goals}
+                userId={userId}
+                player={player}
+                onDailyStepsUpdate={onDailyStepsUpdate}
+                onStepImportantChange={onStepImportantChange}
+                createNewStepTrigger={createNewStepTriggerForSection[`goal-${goalId}`] || 0}
+                setCreateNewStepTrigger={(fn: (prev: number) => number) => {
+                  setCreateNewStepTriggerForSection(prev => ({
+                    ...prev,
+                    [`goal-${goalId}`]: fn(prev[`goal-${goalId}`] || 0)
+                  }))
+                }}
                 goalDetailTitleValue={goalDetailTitleValue}
                 setGoalDetailTitleValue={setGoalDetailTitleValue}
                 editingGoalDetailTitle={editingGoalDetailTitle}
@@ -1314,7 +1388,18 @@ export function PageContent(props: PageContentProps) {
                   handleStepToggle={handleStepToggle}
                   setSelectedItem={setSelectedItem}
                   setSelectedItemType={setSelectedItemType}
-                  onOpenStepModal={handleOpenStepModal}
+                  onOpenStepModal={mainPanelSection === 'focus-upcoming' ? (step?: any) => {
+                    // For UpcomingView, create new step directly on page instead of opening modal
+                    if (step) {
+                      handleOpenStepModal(undefined, step)
+                    } else {
+                      // Trigger new step creation using section-specific trigger
+                      setCreateNewStepTriggerForSection(prev => ({
+                        ...prev,
+                        'focus-upcoming': (prev['focus-upcoming'] || 0) + 1
+                      }))
+                    }
+                  } : handleOpenStepModal}
                   onStepDateChange={onStepDateChange}
                   onStepTimeChange={onStepTimeChange}
                   onStepImportantChange={props.onStepImportantChange}
@@ -1334,6 +1419,16 @@ export function PageContent(props: PageContentProps) {
                   visibleSections={visibleSections}
                   viewType={getViewType(mainPanelSection)}
                   maxUpcomingSteps={maxUpcomingSteps}
+                  createNewStepTrigger={mainPanelSection === 'focus-upcoming' ? (createNewStepTriggerForSection['focus-upcoming'] || 0) : undefined}
+                  onNewStepCreatedForUpcoming={() => {
+                    // Reset trigger for upcoming section after step is created
+                    if (mainPanelSection === 'focus-upcoming') {
+                      setCreateNewStepTriggerForSection(prev => ({
+                        ...prev,
+                        'focus-upcoming': 0
+                      }))
+                    }
+                  }}
                 />
               )
             case 'goals':
@@ -1415,11 +1510,23 @@ export function PageContent(props: PageContentProps) {
                     onStepImportantChange={onStepImportantChange}
                     handleStepToggle={handleStepToggle}
                     loadingSteps={loadingSteps}
+                    createNewStepTrigger={createNewStepTriggerForSection['steps'] || 0}
+                    onNewStepCreated={() => {
+                      // Reset trigger for steps section after step is created
+                      setCreateNewStepTriggerForSection(prev => ({
+                        ...prev,
+                        'steps': 0
+                      }))
+                    }}
                     onOpenStepModal={(step?: any) => {
                       if (step) {
                         handleOpenStepModal(undefined, step)
                       } else {
-                        handleOpenStepModal()
+                        // For new step, trigger creation instead of opening modal
+                        setCreateNewStepTriggerForSection(prev => ({
+                          ...prev,
+                          'steps': (prev['steps'] || 0) + 1
+                        }))
                       }
                     }}
                   />
@@ -1461,7 +1568,28 @@ export function PageContent(props: PageContentProps) {
               setExpandedGoalSections={setExpandedGoalSections}
               handleOpenAreasManagementModal={handleOpenAreasManagementModal}
               handleCreateGoal={handleCreateGoal}
-              handleOpenStepModal={handleOpenStepModal}
+              handleOpenStepModal={mainPanelSection === 'focus-upcoming' || mainPanelSection.startsWith('area-') || mainPanelSection.startsWith('goal-') ? () => {
+                // For UpcomingView, Area views, and Goal views, trigger new step creation instead of opening modal
+                // Use section-specific trigger
+                if (mainPanelSection === 'focus-upcoming') {
+                  setCreateNewStepTriggerForSection(prev => ({
+                    ...prev,
+                    'focus-upcoming': (prev['focus-upcoming'] || 0) + 1
+                  }))
+                } else if (mainPanelSection.startsWith('area-')) {
+                  const areaId = mainPanelSection.replace('area-', '')
+                  setCreateNewStepTriggerForSection(prev => ({
+                    ...prev,
+                    [`area-${areaId}`]: (prev[`area-${areaId}`] || 0) + 1
+                  }))
+                } else if (mainPanelSection.startsWith('goal-')) {
+                  const goalId = mainPanelSection.replace('goal-', '')
+                  setCreateNewStepTriggerForSection(prev => ({
+                    ...prev,
+                    [`goal-${goalId}`]: (prev[`goal-${goalId}`] || 0) + 1
+                  }))
+                }
+              } : handleOpenStepModal}
               handleOpenHabitModal={handleOpenHabitModal}
               handleOpenAreaEditModal={handleOpenAreaEditModal}
               showCreateMenu={showCreateMenu}
@@ -1739,9 +1867,12 @@ export function PageContent(props: PageContentProps) {
             onAddStep={() => {
               setCurrentPage('main')
               setMainPanelSection('steps')
-              // Open step modal after a short delay to ensure component is mounted
+              // Trigger new step creation after a short delay to ensure component is mounted
               setTimeout(() => {
-                handleOpenStepModal()
+                setCreateNewStepTriggerForSection(prev => ({
+                  ...prev,
+                  'steps': (prev['steps'] || 0) + 1
+                }))
               }, 300)
             }}
             onAddHabit={() => {
@@ -2065,6 +2196,12 @@ export function PageContent(props: PageContentProps) {
                       setEditingMetricIncrementalValue={setEditingMetricIncrementalValue}
                       editingMetricUnit={editingMetricUnit}
                       setEditingMetricUnit={setEditingMetricUnit}
+                      goals={goals}
+                      userId={userId}
+                      player={player}
+                      onDailyStepsUpdate={onDailyStepsUpdate}
+                      onStepImportantChange={onStepImportantChange}
+                      createNewStepTrigger={createNewStepTrigger}
                       goalDetailTitleValue={goalDetailTitleValue}
                       setGoalDetailTitleValue={setGoalDetailTitleValue}
                       editingGoalDetailTitle={editingGoalDetailTitle}
@@ -2496,7 +2633,7 @@ export function PageContent(props: PageContentProps) {
               {/* Add button at bottom */}
               <div className="mt-auto p-4 border-t-2 border-primary-500 flex-shrink-0">
                 <button
-                  onClick={() => handleOpenStepModal()}
+                  onClick={() => setCreateNewStepTrigger(prev => prev + 1)}
                   className="btn-playful-base w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-white hover:bg-primary-50"
                 >
                   <Plus className="w-5 h-5" />
@@ -2607,7 +2744,7 @@ export function PageContent(props: PageContentProps) {
                             <div className="px-4 py-2">
                               <button
                                 onClick={() => {
-                                  handleOpenStepModal()
+                                  setCreateNewStepTrigger(prev => prev + 1)
                                   setStepsMobileMenuOpen(false)
                                 }}
                                 className="btn-playful-base w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-white hover:bg-primary-50"
@@ -2635,6 +2772,7 @@ export function PageContent(props: PageContentProps) {
                 onStepImportantChange={onStepImportantChange}
                 handleStepToggle={handleStepToggle}
                 loadingSteps={loadingSteps}
+                createNewStepTrigger={createNewStepTrigger}
                 onOpenStepModal={handleOpenStepModal}
                 hideHeader={true}
                 showCompleted={stepsShowCompleted}

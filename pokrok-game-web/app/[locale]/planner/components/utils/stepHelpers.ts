@@ -29,9 +29,14 @@ export function isStepScheduledForDay(step: any, day: Date): boolean {
   if (step.frequency === 'daily') return true
   
   // Weekly frequency - check if day of week is in selected_days
+  // selected_days can be either numbers (0-6, where 0=Sunday) or day name strings
   if (step.frequency === 'weekly') {
     if (step.selected_days && Array.isArray(step.selected_days)) {
-      return step.selected_days.includes(dayName)
+      const dayOfWeek = day.getDay() // 0=Sunday, 1=Monday, ..., 6=Saturday
+      // Check if selected_days includes the day name (string) or day number
+      return step.selected_days.includes(dayName) || 
+             step.selected_days.includes(dayOfWeek) ||
+             step.selected_days.includes(String(dayOfWeek))
     }
     return false
   }

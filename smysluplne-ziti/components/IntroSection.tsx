@@ -51,6 +51,9 @@ export default function IntroSection() {
                     Na Smyslužití najdeš <Link href="/inspirace" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">inspiraci</Link> ve formě knih, videí, článků a doporučení a <Link href="#aplikace" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">aplikaci Pokrok</Link>, kde můžeš snadno plánovat a dosahovat (nejen) smysluplných cílů.
                   </p>
                   <p className="text-lg md:text-xl">
+                    Pokud chceš jít trochu více do hloubky, můžeme se spolu potkat na <Link href="/coaching" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">koučovacím sezení</Link>, kde probereme, jak můžeš smysluplnost více zakomponovat do tvé konkrétní situace.
+                  </p>
+                  <p className="text-lg md:text-xl">
                     Pokud tě zajímá cokoliv jiného, neváhej mě <Link href="/kontakt" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">kontaktovat</Link>. Na závěr přeji smysluplnou cestu tvým životem! ✨
                   </p>
                 </div>

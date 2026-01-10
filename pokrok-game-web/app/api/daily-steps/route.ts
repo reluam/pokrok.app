@@ -401,12 +401,12 @@ export async function GET(request: NextRequest) {
       steps = await getDailyStepsByUserId(targetUserId)
     }
     
-    // Check if we need to create more instances for recurring steps
-    // Find all recurring step templates (is_hidden = true, frequency != null)
-    const recurringStepTemplates = await sql`
+    // Check if we need to create more instances for OLD recurring step templates (is_hidden = true)
+    // NEW recurring steps (is_hidden = false) are normal steps with current_instance_date - no separate instances needed
+    const oldRecurringStepTemplates = await sql`
       SELECT 
         id, user_id, goal_id, title, description, 
-        frequency, selected_days,
+        frequency, COALESCE(selected_days, CAST('[]' AS jsonb)) as selected_days,
         is_important, is_urgent, aspiration_id, area_id,
         estimated_time, xp_reward, deadline,
         checklist, require_checklist_complete,
@@ -419,20 +419,20 @@ export async function GET(request: NextRequest) {
       AND frequency IS NOT NULL
     `
     
-    // For each recurring step template, check if we need to create more instances
+    // For each OLD recurring step template (backward compatibility), check if we need to create more instances
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const thirtyDaysFromNow = new Date(today)
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30)
     
-    for (const template of recurringStepTemplates) {
+    for (const template of oldRecurringStepTemplates) {
       try {
         const lastInstanceDate = template.last_instance_date 
           ? new Date(template.last_instance_date) 
           : (template.recurring_start_date ? new Date(template.recurring_start_date) : today)
         lastInstanceDate.setHours(0, 0, 0, 0)
         
-        // If last instance is within 30 days, create more instances
+        // If last instance is within 30 days, create more instances (only for old hidden templates)
         if (lastInstanceDate <= thirtyDaysFromNow) {
           const startDate = lastInstanceDate > today ? lastInstanceDate : new Date(today)
           startDate.setDate(startDate.getDate() + 1) // Start from day after last instance
@@ -483,8 +483,8 @@ export async function GET(request: NextRequest) {
       }
     }
     
-    // Reload steps after creating new instances (if any were created)
-    if (recurringStepTemplates.length > 0) {
+    // Reload steps after creating new instances for OLD templates (if any were created)
+    if (oldRecurringStepTemplates.length > 0) {
       if (startDate && endDate) {
         steps = await getDailyStepsByUserId(targetUserId, undefined, startDate, endDate)
       } else if (date) {
@@ -627,6 +627,19 @@ export async function POST(request: NextRequest) {
         error: 'Title is required',
         details: { hasTitle: !!title }
       }, { status: 400 })
+    }
+    
+    // Validate recurring step data before saving
+    if (frequency && frequency !== null) {
+      // For weekly and monthly, selectedDays must be provided and not empty
+      if (frequency === 'weekly' || frequency === 'monthly') {
+        if (!selectedDays || !Array.isArray(selectedDays) || selectedDays.length === 0) {
+          return NextResponse.json({ 
+            error: 'Invalid recurring step configuration',
+            details: `Recurring step with frequency '${frequency}' must have at least one selected day`
+          }, { status: 400 })
+        }
+      }
     }
     
     // Použít dbUser.id místo userId z body
@@ -794,6 +807,9 @@ export async function POST(request: NextRequest) {
       throw createError // Re-throw if it's not a constraint error
     }
     
+    // Recurring steps are now normal steps with current_instance_date - no separate instances are created
+    // The step itself is displayed according to current_instance_date
+    
     // Normalize date before returning
     const normalizedDate = normalizeDateFromDB(step.date)
     
@@ -824,7 +840,7 @@ export async function PUT(request: NextRequest) {
     const { dbUser } = authResult
 
     const body = await request.json()
-    const { stepId, completed, completedAt, completionDate, title, description, goalId, goal_id, areaId, aspirationId, aspiration_id, isImportant, is_important, isUrgent, estimatedTime, xpReward, date, checklist, requireChecklistComplete, frequency, selectedDays, lastInstanceDate, finishRecurring } = body
+    const { stepId, completed, completedAt, completionDate, title, description, goalId, goal_id, areaId, aspirationId, aspiration_id, isImportant, is_important, isUrgent, estimatedTime, xpReward, date, checklist, requireChecklistComplete, frequency, selectedDays, recurringStartDate, recurringEndDate, lastInstanceDate, finishRecurring } = body
     // Normalize is_important - support both camelCase and snake_case
     const normalizedIsImportant = isImportant !== undefined ? isImportant : (is_important !== undefined ? is_important : undefined)
     
@@ -921,10 +937,13 @@ export async function PUT(request: NextRequest) {
       
       // NEW: If this is a recurring step being completed, update current_instance_date to next occurrence
       if (completed && currentStep.frequency && currentStep.frequency !== null) {
-        // Determine completion date (use current_instance_date or current date)
+        // Determine completion date (use current_instance_date, date, or current date)
+        // For recurring steps with future dates, we want to use the scheduled date (current_instance_date or date)
+        // as the completion date value, not the actual completion date (today)
         let completionDateValue: string
+        console.log(`[Recurring step completion] Step ${stepId}: completionDate=${completionDate}, current_instance_date=${currentStep.current_instance_date}, date=${currentStep.date}`)
         if (completionDate) {
-          // Use provided completion date
+          // Use provided completion date (this is the scheduled date from frontend)
           if (completionDate instanceof Date) {
             const year = completionDate.getFullYear()
             const month = String(completionDate.getMonth() + 1).padStart(2, '0')
@@ -941,9 +960,24 @@ export async function PUT(request: NextRequest) {
           } else {
             completionDateValue = new Date().toISOString().split('T')[0]
           }
+          console.log(`[Recurring step completion] Step ${stepId}: Using provided completionDate, completionDateValue=${completionDateValue}`)
         } else if (currentStep.current_instance_date) {
-          // Use current_instance_date if available
+          // Use current_instance_date if available (this is the scheduled date for this instance)
           completionDateValue = currentStep.current_instance_date
+        } else if (currentStep.date) {
+          // Check if date is in the future
+          const stepDateObj = new Date(currentStep.date)
+          stepDateObj.setHours(0, 0, 0, 0)
+          const today = new Date()
+          today.setHours(0, 0, 0, 0)
+          if (stepDateObj > today) {
+            // If current_instance_date is not set, but date is in the future, use date as the scheduled date
+            // This handles the case where recurring step has date set to future but current_instance_date is null
+            completionDateValue = currentStep.date
+          } else {
+            // Date is not in the future, use today
+            completionDateValue = new Date().toISOString().split('T')[0]
+          }
         } else if (completedAt) {
           // Use completedAt if provided (extract date part)
           if (typeof completedAt === 'string' && completedAt.includes('T')) {
@@ -956,11 +990,30 @@ export async function PUT(request: NextRequest) {
           completionDateValue = new Date().toISOString().split('T')[0]
         }
         
+        // Check if step has a future date (completionDateValue is the scheduled date for this instance)
+        // This happens when user completes a recurring step that was scheduled for a future date
+        // completionDateValue should be the scheduled date (current_instance_date or date), not today
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const completionDateObjForCheck = new Date(completionDateValue)
+        completionDateObjForCheck.setHours(0, 0, 0, 0)
+        
+        // Step has future date if completionDateValue (scheduled date) is in the future
+        // This means user completed a step that was scheduled for a future date
+        const hasFutureDate = completionDateObjForCheck > today
+        
+        console.log(`[Recurring step completion] Step ${stepId}: hasFutureDate=${hasFutureDate}, current_instance_date=${currentStep.current_instance_date}, date=${currentStep.date}, completionDateValue=${completionDateValue}, today=${today.toISOString().split('T')[0]}, completionDateObjForCheck=${completionDateObjForCheck.toISOString().split('T')[0]}`)
+        
         // Calculate next occurrence date (starting from completion date + 1 day, never in the past)
-        const completionDateObj = new Date(completionDateValue)
+        // Parse completionDateValue as YYYY-MM-DD to avoid timezone issues
+        const [year, month, day] = completionDateValue.split('-').map(Number)
+        const completionDateObj = new Date(year, month - 1, day)
         completionDateObj.setHours(0, 0, 0, 0)
         const nextSearchDate = new Date(completionDateObj)
         nextSearchDate.setDate(nextSearchDate.getDate() + 1)
+        nextSearchDate.setHours(0, 0, 0, 0)
+        
+        console.log(`[Recurring step completion] Step ${stepId}: completionDateValue=${completionDateValue}, nextSearchDate=${nextSearchDate.getFullYear()}-${String(nextSearchDate.getMonth() + 1).padStart(2, '0')}-${String(nextSearchDate.getDate()).padStart(2, '0')}, frequency=${currentStep.frequency}, selected_days=${JSON.stringify(currentStep.selected_days)}`)
         
         const nextOccurrenceDate = calculateNextRecurringDate(currentStep, nextSearchDate)
         let nextOccurrenceDateStr: string | null = null
@@ -969,6 +1022,9 @@ export async function PUT(request: NextRequest) {
           const month = String(nextOccurrenceDate.getMonth() + 1).padStart(2, '0')
           const day = String(nextOccurrenceDate.getDate()).padStart(2, '0')
           nextOccurrenceDateStr = `${year}-${month}-${day}`
+          console.log(`[Recurring step completion] Step ${stepId}: nextOccurrenceDateStr=${nextOccurrenceDateStr}`)
+        } else {
+          console.log(`[Recurring step completion] Step ${stepId}: No next occurrence date found`)
         }
         
         // If there's no next occurrence and recurring_end_date is set, mark the step as completed
@@ -976,23 +1032,49 @@ export async function PUT(request: NextRequest) {
         const hasRecurringEndDate = currentStep.recurring_end_date !== null && currentStep.recurring_end_date !== undefined
         const shouldMarkCompleted = !nextOccurrenceDateStr && hasRecurringEndDate
         
-        // Update the recurring step: set new current_instance_date, mark as completed if no more occurrences
-        if (nextOccurrenceDateStr) {
-          await sql`
+        // Set completed_at to today (when it was actually completed)
+        const todayStr = today.toISOString().split('T')[0]
+        const completedAtTimestamp = completedAt ? new Date(completedAt) : new Date()
+        
+        // Update the recurring step: if it has a future date, set date to next occurrence
+        // Otherwise, use the normal recurring step completion logic
+        console.log(`[Recurring step completion - before update] Step ${stepId}: hasFutureDate=${hasFutureDate}, nextOccurrenceDateStr=${nextOccurrenceDateStr}, completionDateValue=${completionDateValue}`)
+        
+        if (hasFutureDate && nextOccurrenceDateStr) {
+          // Step has a future date (was scheduled for future) - set date to next occurrence
+          // This means user completed a future instance early (e.g., completed tomorrow's step today)
+          console.log(`[Recurring step completion with future date] Step ${stepId}: Setting date to ${nextOccurrenceDateStr}, last_completed_instance_date to ${completionDateValue}`)
+          const updateResult = await sql`
             UPDATE daily_steps
             SET 
               completed = false,
+              date = CAST(${nextOccurrenceDateStr} AS DATE),
+              current_instance_date = CAST(${nextOccurrenceDateStr} AS DATE),
+              last_completed_instance_date = CAST(${completionDateValue} AS DATE),
+              completed_at = ${completedAtTimestamp},
+              updated_at = NOW()
+            WHERE id = ${stepId} AND user_id = ${dbUser.id}
+          `
+          console.log(`[Recurring step completion with future date] Step ${stepId}: SQL UPDATE completed`)
+        } else if (nextOccurrenceDateStr) {
+          // Normal recurring step completion - update both current_instance_date and date
+          // Even if hasFutureDate is false, we should still update date to next occurrence for consistency
+          console.log(`[Recurring step completion - normal] Step ${stepId}: Setting date to ${nextOccurrenceDateStr}, last_completed_instance_date to ${completionDateValue}`)
+          const updateResult = await sql`
+            UPDATE daily_steps
+            SET 
+              completed = false,
+              date = CAST(${nextOccurrenceDateStr} AS DATE),
               current_instance_date = CAST(${nextOccurrenceDateStr} AS DATE),
               last_completed_instance_date = CAST(${completionDateValue} AS DATE),
               updated_at = NOW()
             WHERE id = ${stepId} AND user_id = ${dbUser.id}
           `
+          console.log(`[Recurring step completion - normal] Step ${stepId}: SQL UPDATE completed`)
         } else if (shouldMarkCompleted) {
           // No next occurrence and has recurring_end_date - mark as completed
-          // Use completionDateValue as completed_at (date of last occurrence)
-          // Also set date field to completionDateValue so the step has a date
-          // Convert date string to timestamp by adding time component
-          const completedAtTimestamp = `${completionDateValue} 23:59:59`
+          // Set date field to completionDateValue so the step has a date
+          // completed_at is already set above to today (when it was actually completed)
           await sql`
             UPDATE daily_steps
             SET 
@@ -1000,7 +1082,7 @@ export async function PUT(request: NextRequest) {
               date = CAST(${completionDateValue} AS DATE),
               current_instance_date = NULL,
               last_completed_instance_date = CAST(${completionDateValue} AS DATE),
-              completed_at = CAST(${completedAtTimestamp} AS TIMESTAMP),
+              completed_at = ${completedAtTimestamp},
               updated_at = NOW()
             WHERE id = ${stepId} AND user_id = ${dbUser.id}
           `
@@ -1036,6 +1118,7 @@ export async function PUT(request: NextRequest) {
         `
         
         const updatedStep = updatedStepResult[0]
+        console.log(`[Recurring step completion] Step ${stepId}: After UPDATE, date=${updatedStep.date}, current_instance_date=${updatedStep.current_instance_date}`)
         
         // Update goal progress if step has a goal_id
         let updatedGoal = null
@@ -1200,13 +1283,33 @@ export async function PUT(request: NextRequest) {
       }
       
       // For non-recurring steps or uncompleting, update normally
-      // Return date as YYYY-MM-DD string using TO_CHAR
+      // If step is being completed and has a future date, preserve the date (don't change it to today)
+      // The date represents when the step was scheduled, completed_at represents when it was actually completed
+      
+      // Check if step has a future date that should be preserved
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const stepDate = currentStep.date ? new Date(currentStep.date) : null
+      const hasFutureDate = stepDate && stepDate > today
+      
+      // If completing a step with a future date, preserve the date and set completed_at to today
+      // If uncompleting or step doesn't have a future date, use normal update
+      let completedAtValue: Date | null = null
+      if (completed) {
+        if (completedAt) {
+          completedAtValue = new Date(completedAt)
+        } else {
+          // Set completed_at to today (when it was actually completed), regardless of step's date
+          completedAtValue = new Date()
+        }
+      }
+      
       // ✅ SECURITY: Přidat user_id do WHERE pro dodatečnou ochranu
       const result = await sql`
         UPDATE daily_steps 
         SET 
           completed = ${completed},
-          completed_at = ${completedAt ? new Date(completedAt) : null},
+          completed_at = ${completedAtValue},
           updated_at = NOW()
         WHERE id = ${stepId} AND user_id = ${dbUser.id}
         RETURNING 
@@ -1541,8 +1644,136 @@ export async function PUT(request: NextRequest) {
       if (date !== undefined) updates.date = dateValue
       if (checklist !== undefined) updates.checklist = checklist
       if (requireChecklistComplete !== undefined) updates.require_checklist_complete = requireChecklistComplete
-      if (frequency !== undefined) updates.frequency = frequency || null
-      if (selectedDays !== undefined) updates.selected_days = selectedDays || []
+      
+      // Validate recurring step data before saving
+      // Get current step data to use for calculations
+      let currentStepForRecurring: any = null
+      const needsRecurringCalculation = frequency !== undefined || selectedDays !== undefined || recurringStartDate !== undefined || recurringEndDate !== undefined
+      if (needsRecurringCalculation) {
+        const currentStepResult = await sql`
+          SELECT 
+            frequency, 
+            COALESCE(selected_days, CAST('[]' AS jsonb)) as selected_days,
+            TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
+            TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date
+          FROM daily_steps
+          WHERE id = ${stepId} AND user_id = ${dbUser.id}
+        `
+        if (currentStepResult.length > 0) {
+          currentStepForRecurring = currentStepResult[0]
+        }
+      }
+      
+      if (frequency !== undefined) {
+        const finalFrequency = frequency || null
+        const finalSelectedDays = selectedDays !== undefined ? (selectedDays || []) : (currentStepForRecurring?.selected_days || [])
+        
+        // If frequency is set (recurring step), validate that it has required fields
+        if (finalFrequency && finalFrequency !== null) {
+          // For weekly and monthly, selectedDays must be provided and not empty
+          if (finalFrequency === 'weekly' || finalFrequency === 'monthly') {
+            // If selectedDays is being updated, check if it's empty
+            if (selectedDays !== undefined && (!Array.isArray(finalSelectedDays) || finalSelectedDays.length === 0)) {
+              return NextResponse.json({ 
+                error: 'Invalid recurring step configuration',
+                details: `Recurring step with frequency '${finalFrequency}' must have at least one selected day`
+              }, { status: 400 })
+            }
+            // If selectedDays is not being updated, check current value in DB
+            if (selectedDays === undefined && currentStepForRecurring) {
+              const currentSelectedDays = currentStepForRecurring.selected_days
+              if (!Array.isArray(currentSelectedDays) || currentSelectedDays.length === 0) {
+                return NextResponse.json({ 
+                  error: 'Invalid recurring step configuration',
+                  details: `Recurring step with frequency '${finalFrequency}' must have at least one selected day`
+                }, { status: 400 })
+              }
+            }
+          }
+        }
+        
+        updates.frequency = finalFrequency
+        if (selectedDays !== undefined) {
+          updates.selected_days = finalSelectedDays
+        }
+      } else if (selectedDays !== undefined) {
+        // If only selectedDays is being updated, check if step is recurring
+        if (currentStepForRecurring) {
+          const currentFrequency = currentStepForRecurring.frequency
+          const newSelectedDays = selectedDays || []
+          
+          // If step is recurring with weekly/monthly frequency, validate selectedDays
+          if (currentFrequency === 'weekly' || currentFrequency === 'monthly') {
+            if (!Array.isArray(newSelectedDays) || newSelectedDays.length === 0) {
+              return NextResponse.json({ 
+                error: 'Invalid recurring step configuration',
+                details: `Recurring step with frequency '${currentFrequency}' must have at least one selected day`
+              }, { status: 400 })
+            }
+          }
+        }
+        
+        updates.selected_days = selectedDays || []
+      }
+      
+      // Handle recurring start/end dates
+      if (recurringStartDate !== undefined) {
+        let recurringStartDateValue: string | null = null
+        if (recurringStartDate && typeof recurringStartDate === 'string' && recurringStartDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          recurringStartDateValue = recurringStartDate
+        }
+        updates.recurring_start_date = recurringStartDateValue
+      }
+      
+      if (recurringEndDate !== undefined) {
+        let recurringEndDateValue: string | null = null
+        if (recurringEndDate && typeof recurringEndDate === 'string' && recurringEndDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          recurringEndDateValue = recurringEndDate
+        } else if (recurringEndDate === null || recurringEndDate === '') {
+          recurringEndDateValue = null
+        }
+        updates.recurring_end_date = recurringEndDateValue
+      }
+      
+      // Calculate current_instance_date if recurring settings are being updated
+      if (needsRecurringCalculation) {
+        const finalFrequency = updates.frequency !== undefined ? updates.frequency : (currentStepForRecurring?.frequency || null)
+        const finalSelectedDays = updates.selected_days !== undefined ? updates.selected_days : (currentStepForRecurring?.selected_days || [])
+        const finalRecurringStartDate = updates.recurring_start_date !== undefined ? updates.recurring_start_date : (currentStepForRecurring?.recurring_start_date || null)
+        const finalRecurringEndDate = updates.recurring_end_date !== undefined ? updates.recurring_end_date : (currentStepForRecurring?.recurring_end_date || null)
+        
+        // Only calculate if step is or will be recurring
+        if (finalFrequency && finalFrequency !== null) {
+          const stepForCalculation = {
+            frequency: finalFrequency,
+            selected_days: Array.isArray(finalSelectedDays) ? finalSelectedDays : [],
+            recurring_start_date: finalRecurringStartDate,
+            recurring_end_date: finalRecurringEndDate
+          }
+          
+          const today = new Date()
+          today.setHours(0, 0, 0, 0)
+          const startDate = finalRecurringStartDate ? new Date(finalRecurringStartDate) : today
+          startDate.setHours(0, 0, 0, 0)
+          
+          // Ensure start date is at least today (never go back in time)
+          const actualStartDate = startDate < today ? today : startDate
+          
+          const nextDate = calculateNextRecurringDate(stepForCalculation, actualStartDate)
+          if (nextDate) {
+            const year = nextDate.getFullYear()
+            const month = String(nextDate.getMonth() + 1).padStart(2, '0')
+            const day = String(nextDate.getDate()).padStart(2, '0')
+            updates.current_instance_date = `${year}-${month}-${day}`
+          } else {
+            // No next occurrence - set to null
+            updates.current_instance_date = null
+          }
+        } else if (finalFrequency === null) {
+          // Step is no longer recurring - clear current_instance_date
+          updates.current_instance_date = null
+        }
+      }
 
       if (Object.keys(updates).length === 0) {
         return NextResponse.json({ error: 'No fields to update' }, { status: 400 })
@@ -1560,6 +1791,9 @@ export async function PUT(request: NextRequest) {
       if (!updatedStep) {
         return NextResponse.json({ error: 'Step not found' }, { status: 404 })
       }
+
+      // Recurring steps are now normal steps with current_instance_date - no separate instances are created
+      // The step itself is displayed according to current_instance_date
 
       const normalizedResult = {
         ...updatedStep,

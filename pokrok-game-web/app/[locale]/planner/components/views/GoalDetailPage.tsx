@@ -7,6 +7,7 @@ import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { MetricModal } from '../modals/MetricModal'
 import { groupMetricsByUnits, convertUnit, type GroupedMetric } from '@/lib/metric-units'
+import { StepsManagementView } from './StepsManagementView'
 
 interface GoalDetailPageProps {
   goal: any
@@ -110,6 +111,14 @@ interface GoalDetailPageProps {
   setEditingMetricIncrementalValue: (value: number) => void
   editingMetricUnit: string
   setEditingMetricUnit: (unit: string) => void
+  // Steps management props
+  goals?: any[]
+  userId?: string | null
+  player?: any
+  onDailyStepsUpdate?: (steps: any[]) => void
+  onStepImportantChange?: (stepId: string, isImportant: boolean) => Promise<void>
+  createNewStepTrigger?: number
+  setCreateNewStepTrigger?: (updater: (prev: number) => number) => void
 }
 
 export function GoalDetailPage({
@@ -206,12 +215,20 @@ export function GoalDetailPage({
   setEditingMetricIncrementalValue,
   editingMetricUnit,
   setEditingMetricUnit,
+  // Steps management props
+  goals = [],
+  userId,
+  player,
+  onDailyStepsUpdate,
+  onStepImportantChange,
+  createNewStepTrigger,
+  setCreateNewStepTrigger,
 }: GoalDetailPageProps) {
   // State for inline editing of current values
   const [editingCurrentValueForMetric, setEditingCurrentValueForMetric] = React.useState<Record<string, boolean>>({})
   const [editingCurrentValue, setEditingCurrentValue] = React.useState<Record<string, number>>({})
   const [metricsExpanded, setMetricsExpanded] = React.useState(false)
-  const [stepsExpanded, setStepsExpanded] = React.useState(false)
+  const [stepsExpanded, setStepsExpanded] = React.useState(true) // Defaultně rozbalené
   const [isProgressExpanded, setIsProgressExpanded] = React.useState(false)
   const [userSettings, setUserSettings] = useState<{ default_currency?: string; weight_unit_preference?: 'kg' | 'lbs' } | null>(null)
   const t = useTranslations()
@@ -236,21 +253,10 @@ export function GoalDetailPage({
   }, [])
 
   // Goal detail page - similar to overview but focused on this goal
-  // Get steps from cache first, then fallback to dailySteps prop
-  // Use cache version to trigger re-render when cache updates
-  const cacheVersion = stepsCacheVersion[goalId] || 0
-  const cachedSteps = stepsCacheRef.current[goalId]?.data || []
-  const propSteps = dailySteps.filter(step => step.goal_id === goalId)
-  // Combine both sources, preferring cache, and deduplicate by id
-  const allGoalSteps = [...cachedSteps, ...propSteps]
-  const uniqueStepsMap = new Map()
-  allGoalSteps.forEach(step => {
-    if (!uniqueStepsMap.has(step.id)) {
-      uniqueStepsMap.set(step.id, step)
-    }
-  })
-  // Use cache version in dependency to force re-render when cache updates
-  const goalSteps = Array.from(uniqueStepsMap.values())
+  // Pass all dailySteps to StepsManagementView and let it filter by goalFilter
+  // This ensures new steps appear immediately without needing to refilter
+  // Calculate step statistics - filter steps by goal_id for display
+  const goalSteps = dailySteps.filter(step => step.goal_id === goalId)
 
   // Format number helper - formats numbers with thousand separators and removes unnecessary decimals
   const formatNumber = (value: number): string => {
@@ -298,8 +304,9 @@ export function GoalDetailPage({
 
   // Calculate step statistics
   const totalSteps = goalSteps.length
-  const completedSteps = goalSteps.filter(s => s.completed).length
+  const completedSteps = goalSteps.filter(step => step.completed).length
   const remainingSteps = totalSteps - completedSteps
+  const stepsProgress = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0
 
   // Calculate progress locally based on aggregated metrics and steps
   const calculateLocalProgress = React.useMemo(() => {
@@ -1062,10 +1069,10 @@ export function GoalDetailPage({
                     setEditingMetricUnit(metric.unit)
                     setShowMetricModal(true)
                   }}
-                  className={`box-playful-highlight flex items-start gap-3 p-4 cursor-pointer transition-all duration-300 ${
+                  className={`flex items-start gap-3 p-4 cursor-pointer transition-all duration-300 rounded-playful-md ${
                     isCompleted
-                      ? 'bg-primary-100 opacity-75'
-                      : 'bg-white hover:bg-primary-50'
+                      ? 'opacity-75'
+                      : 'hover:bg-primary-50/50'
                   }`}
                 >
                   <div className="flex-1 min-w-0">
@@ -1185,18 +1192,16 @@ export function GoalDetailPage({
             }, [metrics, totalMetrics])
             
             return (
-              <div className="box-playful-highlight p-6 mb-6">
-                <div className="flex items-center justify-between">
-                  <div 
-                    className="flex items-center gap-2 flex-1 cursor-pointer"
-                    onClick={() => setMetricsExpanded(!metricsExpanded)}
-                  >
+              <div className="mb-6">
+                {/* Metrics Header - similar to goals header */}
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 px-4 py-3 mb-4">
+                  <div className="flex items-center gap-3 flex-1 cursor-pointer" onClick={() => setMetricsExpanded(!metricsExpanded)}>
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
                         setMetricsExpanded(!metricsExpanded)
                       }}
-                      className="btn-playful-base w-6 h-6 flex items-center justify-center text-primary-600 bg-white hover:bg-primary-50"
+                      className="flex items-center justify-center w-6 h-6 text-primary-600 hover:bg-primary-50 rounded-playful-sm transition-colors"
                       title={metricsExpanded ? 'Sbalit metriky' : 'Rozbalit metriky'}
                     >
                       {metricsExpanded ? (
@@ -1227,7 +1232,7 @@ export function GoalDetailPage({
                       setEditingMetricUnit('')
                       setShowMetricModal(true)
                     }}
-                    className="btn-playful-base w-8 h-8 flex items-center justify-center text-primary-600 bg-white hover:bg-primary-50"
+                    className="flex items-center justify-center w-8 h-8 text-primary-600 hover:bg-primary-50 rounded-playful-sm transition-colors"
                     title={t('common.metrics.create')}
                   >
                     <Plus className="w-5 h-5" strokeWidth={2.5} />
@@ -1235,7 +1240,7 @@ export function GoalDetailPage({
                 </div>
                 
                 {totalMetrics > 0 && metricsExpanded && (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                     {metrics.map(renderMetricCard)}
                   </div>
                 )}
@@ -1256,222 +1261,22 @@ export function GoalDetailPage({
               return `${day.toString().padStart(2, '0')}.${month.toString().padStart(2, '0')}.${year}`
             }
             
-            // Filter recurring steps to show only the nearest instance
-            // Group instances by their original recurring step template
-            // Include both completed and non-completed instances to find the nearest one
-            const recurringStepInstances = goalSteps.filter(step => {
-              // Show instances (non-recurring steps with title containing " - " followed by date pattern DD.MM.YYYY)
-              // Include both completed and non-completed instances
-              // Include instances with or without date
-              // Exclude hidden steps
-              // Instances have parent_recurring_step_id set
-              if (!step.frequency && step.parent_recurring_step_id && step.is_hidden !== true) {
-                return true
-              }
-              return false
-            })
-            
-            // Group instances by original recurring step
-            const instancesByRecurringStep = new Map<string, any[]>()
-            recurringStepInstances.forEach(step => {
-              if (!step.parent_recurring_step_id) return
-              const originalStep = goalSteps.find(s => 
-                s.id === step.parent_recurring_step_id &&
-                s.frequency !== null &&
-                s.is_hidden === true // Recurring step template is hidden
-              )
-              
-              if (originalStep) {
-                const key = originalStep.id
-                if (!instancesByRecurringStep.has(key)) {
-                  instancesByRecurringStep.set(key, [])
-                }
-                instancesByRecurringStep.get(key)!.push(step)
-              }
-            })
-            
-            // Get only the nearest non-completed instance for each recurring step (for "Remaining steps")
-            // For "Done steps", we'll show all completed instances
-            const nearestInstancesForRemaining = new Set<string>()
-            
-            instancesByRecurringStep.forEach((instances, recurringStepId) => {
-              // Sort instances by date (oldest first, instances without date go to end)
-              instances.sort((a, b) => {
-                const dateA = a.date ? new Date(normalizeDate(a.date)).getTime() : Number.MAX_SAFE_INTEGER
-                const dateB = b.date ? new Date(normalizeDate(b.date)).getTime() : Number.MAX_SAFE_INTEGER
-                return dateA - dateB
-              })
-              
-              // For "Remaining steps": get the nearest non-completed instance
-              const nonCompletedInstances = instances.filter((inst: any) => !inst.completed)
-              if (nonCompletedInstances.length > 0) {
-                nearestInstancesForRemaining.add(nonCompletedInstances[0].id)
-              }
-            })
-            
-            // Filter steps: exclude hidden templates
-            // For recurring step instances:
-            // - In "Remaining": show only the nearest non-completed instance
-            // - In "Done": show all completed instances
-            const filteredGoalSteps = goalSteps.filter(step => {
-              // Exclude hidden recurring step templates
-              if (step.is_hidden === true && step.frequency !== null) {
-                return false
-              }
-              
-              // For recurring step instances, apply different logic for remaining vs done
-              // Instances have parent_recurring_step_id set
-              if (!step.frequency && step.parent_recurring_step_id) {
-                // For non-completed instances: show only the nearest one (for Remaining section)
-                if (!step.completed) {
-                  return nearestInstancesForRemaining.has(step.id)
-                }
-                // For completed instances: show all (for Done section)
-                return true
-              }
-              
-              // Include all other steps
-              return true
-            })
-            
-            // Categorize steps into Remaining and Done
-            // Steps that are animating should stay in Remaining until animation completes
-            const remainingSteps = filteredGoalSteps.filter(s => !s.completed || animatingSteps.has(s.id))
-            const doneSteps = filteredGoalSteps.filter(s => s.completed && !animatingSteps.has(s.id))
-            
-            const totalSteps = filteredGoalSteps.length
-            const remainingCount = remainingSteps.length
-            const doneCount = doneSteps.length
-            const remainingPercentage = totalSteps > 0 ? Math.round((remainingCount / totalSteps) * 100) : 0
-            const donePercentage = totalSteps > 0 ? Math.round((doneCount / totalSteps) * 100) : 0
-            const averageProgress = donePercentage // Progress kroků je procento dokončených
-            
-            // Render step card
-            const renderStepCard = (step: any) => {
-              const stepDate = step.date ? new Date(normalizeDate(step.date)) : null
-              if (stepDate) stepDate.setHours(0, 0, 0, 0)
-              const isOverdue = stepDate && stepDate.getTime() < today.getTime() && !step.completed
-              const isToday = stepDate && stepDate.toDateString() === today.toDateString()
-              const stepDateFormatted = stepDate ? formatStepDate(stepDate) : null
-              const isAnimating = animatingSteps.has(step.id)
-              
-              // Check if this is a recurring step instance
-              // Instances have parent_recurring_step_id set
-              const isRecurringInstance = !step.frequency && step.parent_recurring_step_id
-              // Find the original recurring step template
-              const originalRecurringStep = isRecurringInstance ? goalSteps.find(s => {
-                return s.id === step.parent_recurring_step_id &&
-                       s.frequency !== null &&
-                       s.is_hidden === true
-              }) : null
-              
+            // Use StepsManagementView to display steps - same as UpcomingView
+            // This replaces the old two-column layout with inline expandable steps
+            // Hide filters (filter is clear - this goal, and show only incomplete)
+            // Hide completed steps
+            // Custom header for steps section (same style as metrics)
               return (
-                <div
-                  key={step.id}
-                  onClick={() => handleItemClick(step, 'step')}
-                  className={`box-playful-highlight flex items-start gap-3 p-4 cursor-pointer transition-all duration-300 ${
-                    isAnimating
-                      ? step.completed
-                        ? 'bg-primary-100 animate-pulse scale-110'
-                        : 'bg-primary-100 animate-pulse scale-110'
-                      : step.completed
-                        ? 'bg-primary-100 opacity-75'
-                        : isOverdue
-                          ? 'bg-red-50 hover:bg-red-100'
-                          : 'bg-white hover:bg-primary-50'
-                  }`}
-                >
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      if (!loadingSteps.has(step.id) && !isAnimating) {
-                        handleStepToggle(step.id, !step.completed)
-                      }
-                    }}
-                    disabled={loadingSteps.has(step.id) || isAnimating}
-                    className={`w-5 h-5 rounded-playful-sm border-2 flex items-center justify-center transition-all flex-shrink-0 mt-0.5 ${
-                      isAnimating
-                        ? step.completed
-                          ? 'bg-primary-500 border-primary-500 scale-110'
-                          : 'bg-primary-500 border-primary-500 scale-110'
-                        : step.completed 
-                          ? 'bg-primary-500 border-primary-500' 
-                          : isOverdue
-                            ? 'border-primary-500 hover:bg-primary-100'
-                            : 'border-primary-500 hover:bg-primary-100'
-                    }`}
-                  >
-                    {loadingSteps.has(step.id) ? (
-                      <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                    ) : (step.completed || isAnimating) ? (
-                      <Check className="w-3 h-3 text-white" strokeWidth={3} />
-                    ) : null}
-                  </button>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className={`font-medium text-sm font-playful ${
-                        step.completed 
-                          ? 'line-through text-gray-400' 
-                          : isOverdue 
-                            ? 'text-red-600 font-semibold' 
-                            : 'text-black'
-                      }`}>
-                        {step.title}
-                      </span>
-                      {isRecurringInstance && originalRecurringStep && (
-                        <span title={t('steps.recurring.recurring') || 'Opakující se krok'}>
-                          <Repeat className="w-4 h-4 text-primary-600 flex-shrink-0" />
-                        </span>
-                      )}
-                      {step.checklist && step.checklist.length > 0 && (
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-playful-sm flex-shrink-0 border-2 ${
-                          step.checklist.filter((c: any) => c.completed).length === step.checklist.length
-                            ? 'bg-primary-100 text-primary-600 border-primary-500'
-                            : 'bg-gray-100 text-gray-500 border-gray-300'
-                        }`}>
-                          {step.checklist.filter((c: any) => c.completed).length}/{step.checklist.length}
-                        </span>
-                      )}
-                    </div>
-                    {step.description && (
-                      <p className="text-xs text-gray-600 mb-2 line-clamp-2 font-playful">{step.description}</p>
-                    )}
-                    <div className="flex items-center gap-3 text-xs text-gray-500 font-playful">
-                      {stepDateFormatted && (
-                        <span className={isOverdue && !step.completed ? 'text-red-600 font-medium' : ''}>
-                          {isOverdue && !step.completed && '❗ '}
-                          {stepDateFormatted}
-                        </span>
-                      )}
-                      {step.estimated_time && (
-                        <span>⏱ {step.estimated_time} min</span>
-                      )}
-                      {!stepDateFormatted && (
-                        <span className="text-gray-400">{t('common.noDate')}</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )
-            }
-            
-            return (
-              <div className="box-playful-highlight p-6 mb-6">
-                <div className="flex items-center justify-between">
-                  <div 
-                    className="flex items-center gap-2 flex-1 cursor-pointer"
-                    onClick={() => setStepsExpanded(!stepsExpanded)}
-                  >
+              <div className="mb-6">
+                {/* Steps Header - similar to metrics header */}
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 px-4 py-3 mb-2">
+                  <div className="flex items-center gap-3 flex-1 cursor-pointer" onClick={() => setStepsExpanded(!stepsExpanded)}>
                   <button
                       onClick={(e) => {
                         e.stopPropagation()
                         setStepsExpanded(!stepsExpanded)
                       }}
-                      className="btn-playful-base w-6 h-6 flex items-center justify-center text-primary-600 bg-white hover:bg-primary-50"
+                      className="flex items-center justify-center w-6 h-6 text-primary-600 hover:bg-primary-50 rounded-playful-sm transition-colors"
                       title={stepsExpanded ? 'Sbalit kroky' : 'Rozbalit kroky'}
                     >
                       {stepsExpanded ? (
@@ -1481,91 +1286,58 @@ export function GoalDetailPage({
                       )}
                     </button>
                     <h2 className="text-xl font-bold text-black font-playful">
-                      {t('common.steps')}
+                      Kroky
                     </h2>
                     {totalSteps > 0 && (
                       <span className="text-sm text-gray-600 font-playful">
-                        {Math.round(averageProgress)}% ({totalSteps} {totalSteps === 1 ? t('common.step') : t('common.steps')}, {remainingCount} {t('common.remaining')})
+                        {stepsProgress}% ({completedSteps} / {totalSteps})
                       </span>
                     )}
                   </div>
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      const defaultDate = getLocalDateString(selectedDayDate)
-                      setStepModalData({
-                        id: null,
-                        title: '',
-                        description: '',
-                        date: defaultDate,
-                        goalId: goalId,
-                        areaId: '',
-                        completed: false,
-                        is_important: false,
-                        is_urgent: false,
-                        deadline: '',
-                        estimated_time: 0,
-                        checklist: [],
-                        require_checklist_complete: false
-                      })
-                      setShowStepModal(true)
+                      if (setCreateNewStepTrigger) {
+                        setCreateNewStepTrigger(prev => prev + 1)
+                      }
                     }}
-                    className="btn-playful-base w-8 h-8 flex items-center justify-center text-primary-600 bg-white hover:bg-primary-50"
-                    title={t('focus.addStep')}
+                    className="flex items-center justify-center w-8 h-8 text-primary-600 hover:bg-primary-50 rounded-playful-sm transition-colors"
+                    title={t('steps.add') || 'Přidat krok'}
                   >
                     <Plus className="w-5 h-5" strokeWidth={2.5} />
                   </button>
                 </div>
                 
-                {/* Two Column Layout */}
                 {stepsExpanded && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-                  {/* Remaining Column */}
-                  <div className="flex flex-col">
-                    <div className="mb-4 pb-3 border-b-2 border-primary-500">
-                      <h3 className="text-lg font-bold text-primary-600 mb-1 font-playful">
-                        {t('details.goal.remainingSteps')}
-                      </h3>
-                      <div className="flex items-center gap-2 text-sm text-gray-600 font-playful">
-                        <span className="font-semibold">{remainingCount}</span>
-                        <span>z {totalSteps}</span>
-                        <span className="text-primary-600 font-semibold">({remainingPercentage}%)</span>
-                      </div>
-                    </div>
-                    <div className="space-y-3 flex-1 overflow-y-auto max-h-[600px] pr-2">
-                      {remainingSteps.length > 0 ? (
-                        remainingSteps.map(renderStepCard)
-                      ) : (
-                        <div className="text-center py-8 text-gray-400">
-                          <p className="text-sm">{t('focus.noSteps')}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Done Column */}
-                  <div className="flex flex-col">
-                    <div className="mb-4 pb-3 border-b-2 border-primary-500">
-                      <h3 className="text-lg font-bold text-primary-600 mb-1 font-playful">
-                        {t('details.goal.done')}
-                      </h3>
-                      <div className="flex items-center gap-2 text-sm text-gray-600 font-playful">
-                        <span className="font-semibold">{doneCount}</span>
-                        <span>z {totalSteps}</span>
-                        <span className="text-primary-600 font-semibold">({donePercentage}%)</span>
-                      </div>
-                    </div>
-                    <div className="space-y-3 flex-1 overflow-y-auto max-h-[600px] pr-2">
-                      {doneSteps.length > 0 ? (
-                        doneSteps.map(renderStepCard)
-                      ) : (
-                        <div className="text-center py-8 text-gray-400">
-                          <p className="text-sm">{t('goals.noCompletedSteps') || 'No completed steps'}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                  <StepsManagementView
+                  dailySteps={dailySteps}
+                  goals={goals}
+                  areas={areas}
+                  userId={userId}
+                  player={player}
+                  onDailyStepsUpdate={onDailyStepsUpdate}
+                  onOpenStepModal={(step) => {
+                    // If step is provided, open modal for editing
+                    if (step) {
+                      handleItemClick(step, 'step')
+                    }
+                    // For new step (no step provided), createNewStepTrigger will handle inline creation
+                  }}
+                  onStepImportantChange={onStepImportantChange}
+                  handleStepToggle={handleStepToggle}
+                  loadingSteps={loadingSteps}
+                  createNewStepTrigger={createNewStepTrigger}
+                  onNewStepCreated={() => {
+                    // Reset trigger after step is created
+                    if (setCreateNewStepTrigger) {
+                      setCreateNewStepTrigger(() => 0)
+                    }
+                  }}
+                  hideHeader={true}
+                  hideFilters={true}
+                  showCompleted={false}
+                  goalFilter={goalId}
+                  />
                 )}
               </div>
             )
@@ -1589,6 +1361,33 @@ export function GoalDetailPage({
             }}
           >
             <div className="text-sm font-bold text-black font-playful mb-3">{t('common.newDate')}</div>
+            
+            {/* Month navigation */}
+            <div className="flex items-center justify-between mb-3">
+              <button
+                onClick={() => {
+                  const newMonth = new Date(goalDetailDatePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() - 1)
+                  setGoalDetailDatePickerMonth(newMonth)
+                }}
+                className="btn-playful-base p-1 text-gray-600"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <span className="text-xs font-medium text-black font-playful">
+                {goalDetailDatePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
+              </span>
+              <button
+                onClick={() => {
+                  const newMonth = new Date(goalDetailDatePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() + 1)
+                  setGoalDetailDatePickerMonth(newMonth)
+                }}
+                className="btn-playful-base p-1 text-gray-600"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
             
             {/* Day names */}
             <div className="grid grid-cols-7 gap-0.5 mb-1">
@@ -1647,7 +1446,11 @@ export function GoalDetailPage({
                   return (
                     <button
                       key={day.getTime()}
-                      onClick={() => handleGoalDateSelect(day)}
+                      onClick={async () => {
+                        const newDate = day.toISOString()
+                        await handleUpdateGoalForDetail(goalId, { target_date: newDate })
+                        setShowGoalDetailDatePicker(false)
+                      }}
                       className={`w-7 h-7 rounded-playful-sm text-xs font-medium font-playful transition-colors border-2 ${
                         isSelected
                           ? 'bg-primary-500 text-white border-primary-500'
@@ -1663,62 +1466,20 @@ export function GoalDetailPage({
               })()}
             </div>
             
-            {/* Month navigation */}
-            <div className="flex items-center justify-between mb-3">
-              <button
-                onClick={() => {
-                  const newMonth = new Date(goalDetailDatePickerMonth)
-                  newMonth.setMonth(newMonth.getMonth() - 1)
-                  setGoalDetailDatePickerMonth(newMonth)
-                }}
-                className="btn-playful-base p-1 text-gray-600"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <span className="text-xs font-medium text-black font-playful">
-                {goalDetailDatePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
-              </span>
-              <button
-                onClick={() => {
-                  const newMonth = new Date(goalDetailDatePickerMonth)
-                  newMonth.setMonth(newMonth.getMonth() + 1)
-                  setGoalDetailDatePickerMonth(newMonth)
-                }}
-                className="btn-playful-base p-1 text-gray-600"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-            
-            {/* Actions */}
+            {/* Actions - only Delete button */}
+            {goal.target_date && (
             <div className="flex gap-2">
-              <button
-                onClick={handleGoalDateSave}
-                className="btn-playful-base flex-1 px-3 py-1.5 text-xs font-medium text-primary-600 bg-white hover:bg-primary-50"
-              >
-                {t('common.save')}
-              </button>
-              {goal.target_date && (
                 <button
                   onClick={async () => {
                     await handleUpdateGoalForDetail(goalId, { target_date: null })
                     setShowGoalDetailDatePicker(false)
                   }}
-                  className="btn-playful-danger px-3 py-1.5 text-xs font-medium"
+                  className="btn-playful-danger flex-1 px-3 py-1.5 text-xs font-medium"
                 >
                   {t('common.delete')}
                 </button>
-              )}
-              <button
-                onClick={() => {
-                  setShowGoalDetailDatePicker(false)
-                  setSelectedGoalDate(goal.target_date ? new Date(goal.target_date) : null)
-                }}
-                className="btn-playful-base px-3 py-1.5 text-xs font-medium text-gray-600 bg-white hover:bg-primary-50"
-              >
-                {t('common.cancel')}
-              </button>
-            </div>
+              </div>
+            )}
           </div>
         </>
       )}
@@ -1739,6 +1500,33 @@ export function GoalDetailPage({
             }}
           >
             <div className="text-sm font-bold text-black font-playful mb-3">{t('common.newDate')}</div>
+            
+            {/* Month navigation */}
+            <div className="flex items-center justify-between mb-3">
+              <button
+                onClick={() => {
+                  const newMonth = new Date(goalDetailStartDatePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() - 1)
+                  setGoalDetailStartDatePickerMonth(newMonth)
+                }}
+                className="btn-playful-base p-1 text-gray-600"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <span className="text-xs font-medium text-black font-playful">
+                {goalDetailStartDatePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
+              </span>
+              <button
+                onClick={() => {
+                  const newMonth = new Date(goalDetailStartDatePickerMonth)
+                  newMonth.setMonth(newMonth.getMonth() + 1)
+                  setGoalDetailStartDatePickerMonth(newMonth)
+                }}
+                className="btn-playful-base p-1 text-gray-600"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
             
             {/* Day names */}
             <div className="grid grid-cols-7 gap-0.5 mb-1">
@@ -1797,7 +1585,11 @@ export function GoalDetailPage({
                   return (
                     <button
                       key={day.getTime()}
-                      onClick={() => handleGoalStartDateSelect(day)}
+                      onClick={async () => {
+                        const newDate = normalizeDate(day)
+                        await handleUpdateGoalForDetail(goalId, { start_date: newDate })
+                        setShowGoalDetailStartDatePicker(false)
+                      }}
                       className={`w-7 h-7 rounded-playful-sm text-xs font-medium font-playful transition-colors border-2 ${
                         isSelected
                           ? 'bg-primary-500 text-white border-primary-500'
@@ -1813,62 +1605,20 @@ export function GoalDetailPage({
               })()}
             </div>
             
-            {/* Month navigation */}
-            <div className="flex items-center justify-between mb-3">
-              <button
-                onClick={() => {
-                  const newMonth = new Date(goalDetailStartDatePickerMonth)
-                  newMonth.setMonth(newMonth.getMonth() - 1)
-                  setGoalDetailStartDatePickerMonth(newMonth)
-                }}
-                className="btn-playful-base p-1 text-gray-600"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <span className="text-xs font-medium text-black font-playful">
-                {goalDetailStartDatePickerMonth.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' })}
-              </span>
-              <button
-                onClick={() => {
-                  const newMonth = new Date(goalDetailStartDatePickerMonth)
-                  newMonth.setMonth(newMonth.getMonth() + 1)
-                  setGoalDetailStartDatePickerMonth(newMonth)
-                }}
-                className="btn-playful-base p-1 text-gray-600"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-            
-            {/* Actions */}
+            {/* Actions - only Delete button */}
+            {goal.start_date && (
             <div className="flex gap-2">
-              <button
-                onClick={handleGoalStartDateSave}
-                className="btn-playful-base flex-1 px-3 py-1.5 text-xs font-medium text-primary-600 bg-white hover:bg-primary-50"
-              >
-                {t('common.save')}
-              </button>
-              {goal.start_date && (
                 <button
                   onClick={async () => {
                     await handleUpdateGoalForDetail(goalId, { start_date: null })
                     setShowGoalDetailStartDatePicker(false)
                   }}
-                  className="btn-playful-base px-3 py-1.5 text-xs font-medium text-gray-600 bg-white hover:bg-gray-50"
+                  className="btn-playful-base flex-1 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white hover:bg-gray-50"
                 >
                   {t('common.delete')}
                 </button>
-              )}
-              <button
-                onClick={() => {
-                  setShowGoalDetailStartDatePicker(false)
-                  setSelectedGoalStartDate(goal.start_date ? new Date(goal.start_date) : null)
-                }}
-                className="btn-playful-base px-3 py-1.5 text-xs font-medium text-gray-600 bg-white hover:bg-gray-50"
-              >
-                {t('common.cancel')}
-              </button>
-            </div>
+              </div>
+            )}
           </div>
         </>
       )}

@@ -1206,9 +1206,12 @@
     "stepUrgent": "Urgentní",
     "addStepButton": "PŘIDAT KROK",
     "editStep": "Upravit krok",
+    "delete": "Odstranit",
     "deleteStep": "Smazat krok",
     "deleteConfirmTitle": "Smazat krok",
     "deleteConfirmText": "Opravdu chcete smazat krok \"{stepTitle}\"? Tato akce je nevratná.",
+    "confirmDelete": "Opravdu chcete odstranit tento krok?",
+    "deleteError": "Chyba při odstraňování kroku",
     "noSteps": "Žádné kroky",
     "noStepsDescription": "Přidejte první krok pro začátek",
     "dateOptional": "Datum (volitelné)",
@@ -1222,6 +1225,7 @@
     "checklistNoItemsDescription": "Přidejte pod-úkoly pro tento krok",
     "checklistItemPlaceholder": "Název položky...",
     "checklistAddItem": "Přidat položku",
+    "addChecklistItem": "Přidat položku",
     "checklistRequireComplete": "Vyžadovat splnění všech položek před dokončením kroku",
     "recurring": {
       "startDate": "Začátek opakování",
@@ -1232,7 +1236,20 @@
       "nextOnly": "Pouze nejbližší",
       "recurring": "Opakující se krok"
     },
-    "recurringCannotComplete": "Opakující se kroky nelze dokončit z této stránky"
+    "recurringCannotComplete": "Opakující se kroky nelze dokončit z této stránky",
+    "selectedDays": "Vybrané dny",
+    "frequency": "Frekvence",
+    "startDate": "Od",
+    "endDate": "Do",
+    "never": "Nikdy",
+    "refreshPendingTitle": "Ne všechna data jsou uložena",
+    "refreshPendingMessage": "Ukládá se {count} {count, plural, one {krok} few {kroky} other {kroků}}. Počkejte prosím, až se vše uloží.",
+    "refreshSavedMessage": "Všechna data jsou uložena.",
+    "saving": "Ukládání...",
+    "saved": "Uloženo",
+    "cancel": "Zrušit",
+    "stay": "Zůstat",
+    "refresh": "Obnovit"
   },
   "help": {
     "title": "Nápověda",

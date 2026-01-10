@@ -1207,9 +1207,12 @@
     "stepUrgent": "Urgent",
     "addStepButton": "ADD STEP",
     "editStep": "Edit step",
+    "delete": "Delete",
     "deleteStep": "Delete step",
     "deleteConfirmTitle": "Delete step",
     "deleteConfirmText": "Are you sure you want to delete the step \"{stepTitle}\"? This action cannot be undone.",
+    "confirmDelete": "Are you sure you want to delete this step?",
+    "deleteError": "Error deleting step",
     "noSteps": "No steps",
     "noStepsDescription": "Add your first step to get started",
     "dateOptional": "Date (optional)",
@@ -1223,6 +1226,7 @@
     "checklistNoItemsDescription": "Add sub-tasks for this step",
     "checklistItemPlaceholder": "Item name...",
     "checklistAddItem": "Add item",
+    "addChecklistItem": "Add item",
     "checklistRequireComplete": "Require all items to be completed before finishing the step",
     "recurring": {
       "startDate": "Recurring start date",
@@ -1233,7 +1237,20 @@
       "nextOnly": "Show nearest occurrence",
       "recurring": "Recurring step"
     },
-    "recurringCannotComplete": "Recurring steps cannot be completed from this page"
+    "recurringCannotComplete": "Recurring steps cannot be completed from this page",
+    "selectedDays": "Selected days",
+    "frequency": "Frequency",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "never": "Never",
+    "refreshPendingTitle": "Not all data is saved",
+    "refreshPendingMessage": "Saving {count} {count, plural, one {step} other {steps}}. Please wait until everything is saved.",
+    "refreshSavedMessage": "All data is saved.",
+    "saving": "Saving...",
+    "saved": "Saved",
+    "cancel": "Cancel",
+    "stay": "Stay",
+    "refresh": "Refresh"
   },
   "help": {
     "title": "Help",
