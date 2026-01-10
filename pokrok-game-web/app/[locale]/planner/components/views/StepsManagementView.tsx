@@ -1925,7 +1925,7 @@ export function StepsManagementView({
       )}
       
       {/* Steps List - using same design as UpcomingView feed */}
-      <div className="p-4 sm:p-6 lg:p-8 pt-2 space-y-2">
+      <div className={`space-y-2 ${hideHeader ? 'p-4 sm:p-6 lg:p-8 pt-2' : 'p-4 sm:p-6 lg:p-8 pt-2'}`}>
         {paginatedSteps.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-sm text-gray-600">{t('views.noSteps') || 'Žádné kroky'}</p>

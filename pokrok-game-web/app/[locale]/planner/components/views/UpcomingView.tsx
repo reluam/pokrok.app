@@ -1111,10 +1111,10 @@ export function UpcomingView({
       </div>
       
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pt-2 space-y-6">
+      <div className="flex-1 overflow-y-auto flex flex-col">
         {/* Today's Habits - only show if there are habits */}
         {todaysHabits.length > 0 && (
-          <div>
+          <div className="p-4 sm:p-6 lg:p-8 pt-2 pb-4">
             <div className="flex flex-wrap gap-3">
               {todaysHabits.map((habit) => {
                 const isCompleted = habit.habit_completions && habit.habit_completions[todayStr] === true
@@ -1137,8 +1137,8 @@ export function UpcomingView({
                     }}
                       disabled={isLoading}
                     className={`flex-shrink-0 w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors ${
-                        isCompleted
-                          ? 'bg-primary-500 border-primary-500'
+                      isCompleted
+                        ? 'bg-primary-500 border-primary-500'
                         : 'border-primary-500 hover:bg-primary-50'
                     }`}
                   >
