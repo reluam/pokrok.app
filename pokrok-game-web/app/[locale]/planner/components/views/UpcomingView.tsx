@@ -84,8 +84,6 @@ export function UpcomingView({
     const handleDailyStepsUpdated = (event: any) => {
       const { steps } = event.detail || {}
       if (steps && Array.isArray(steps)) {
-        console.log('[UpcomingView] Received dailyStepsUpdated event with', steps.length, 'steps')
-        
         // Update local state from event
         const currentStepsHash = JSON.stringify({
           length: steps.length,
@@ -100,7 +98,6 @@ export function UpcomingView({
         })
         
         if (currentStepsHash !== prevDailyStepsHashRef.current) {
-          console.log('[UpcomingView] Event triggered hash change, updating localDailySteps')
           prevDailyStepsHashRef.current = currentStepsHash
           
           setLocalDailySteps(prev => {
@@ -136,8 +133,6 @@ export function UpcomingView({
   }, [])
   
   useEffect(() => {
-    console.log('[UpcomingView] dailySteps prop changed, length:', (dailySteps || []).length)
-    
     // Create a hash of step IDs and their key properties (including completed status) to detect changes
     // This ensures we detect when a step's completed status changes, not just when IDs are added/removed
     // Also include title and length to catch new steps
@@ -155,11 +150,9 @@ export function UpcomingView({
     
     // Check if dailySteps prop actually changed (by IDs and key properties)
     if (currentStepsHash === prevDailyStepsHashRef.current) {
-      console.log('[UpcomingView] Hash unchanged, skipping update')
       return // No change, skip update
     }
     
-    console.log('[UpcomingView] Hash changed, updating localDailySteps')
     prevDailyStepsHashRef.current = currentStepsHash
     
     setLocalDailySteps(prev => {

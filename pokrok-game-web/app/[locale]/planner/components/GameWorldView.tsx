@@ -148,17 +148,11 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
 
   const handleDailyStepsUpdate = (steps: any[]) => {
     // Update both ref and state immediately to ensure consistency across all views
-    console.log('[GameWorldView] handleDailyStepsUpdate called with', steps.length, 'steps')
-    console.log('[GameWorldView] Previous dailySteps length:', dailySteps.length)
-    console.log('[GameWorldView] Steps IDs:', steps.map((s: any) => s?.id).slice(0, 5))
-    
     // Update ref first (synchronous, immediate)
     dailyStepsRef.current = steps
     
     // Update state (triggers re-render)
     setDailySteps(steps)
-    
-    console.log('[GameWorldView] State updated, new dailySteps length should be:', steps.length)
     
     // Also dispatch custom event as backup mechanism for cross-component synchronization
     // This ensures all views get updated even if prop chain is broken
@@ -173,7 +167,6 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
       const { steps, source } = event.detail || {}
       if (steps && Array.isArray(steps) && source !== 'GameWorldView') {
         // Only update if event didn't come from this component (avoid infinite loop)
-        console.log('[GameWorldView] Received dailyStepsUpdated event from', source, 'with', steps.length, 'steps')
         dailyStepsRef.current = steps
         setDailySteps(steps)
       }

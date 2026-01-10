@@ -219,15 +219,10 @@ export function StepsManagementView({
       })
       
       const allStepsWithNew = Array.from(allStepsMap.values())
-      console.log('[StepsManagementView] useEffect: Updating parent with new step, total', allStepsWithNew.length, 'steps')
-      console.log('[StepsManagementView] useEffect: onDailyStepsUpdate is', typeof onDailyStepsUpdate)
       
       // Update parent - useEffect runs after render, so it's safe
       if (onDailyStepsUpdate) {
-        console.log('[StepsManagementView] useEffect: Calling onDailyStepsUpdate now')
         onDailyStepsUpdate(allStepsWithNew)
-      } else {
-        console.error('[StepsManagementView] useEffect: onDailyStepsUpdate is not defined!')
       }
       
       // Also dispatch custom event as backup mechanism
@@ -1209,7 +1204,6 @@ export function StepsManagementView({
           })
           
           const allStepsWithNew = Array.from(allStepsMap.values())
-          console.log('[StepsManagementView] handleSaveNewStep: Updating parent with', allStepsWithNew.length, 'steps')
           
           // Update parent callback if provided
           if (onDailyStepsUpdate) {
