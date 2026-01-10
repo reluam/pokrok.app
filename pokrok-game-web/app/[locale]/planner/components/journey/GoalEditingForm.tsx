@@ -34,16 +34,16 @@ export function GoalEditingForm({
   const originalGoalRef = useRef({
     title: goal.title,
     description: goal.description || '',
-    target_date: goal.target_date ? new Date(goal.target_date).toISOString().split('T')[0] : '',
-    start_date: goal.start_date ? new Date(goal.start_date).toISOString().split('T')[0] : '',
+    target_date: goal.target_date ? normalizeDate(goal.target_date) : '',
+    start_date: goal.start_date ? normalizeDate(goal.start_date) : '',
     status: goal.status || 'active'
   })
   
   const [formData, setFormData] = useState({
     title: goal.title,
     description: goal.description || '',
-    target_date: goal.target_date ? new Date(goal.target_date).toISOString().split('T')[0] : '',
-    start_date: goal.start_date ? new Date(goal.start_date).toISOString().split('T')[0] : '',
+    target_date: goal.target_date ? normalizeDate(goal.target_date) : '',
+    start_date: goal.start_date ? normalizeDate(goal.start_date) : '',
     status: goal.status || 'active',
     steps: [] as Array<{ id: string; title: string; description?: string; date?: string; completed?: boolean; isEditing?: boolean }>
   })
@@ -313,7 +313,7 @@ export function GoalEditingForm({
     const updates = {
       title: formData.title,
       description: formData.description,
-      target_date: formData.target_date ? new Date(formData.target_date).toISOString() : null,
+      target_date: formData.target_date ? normalizeDate(formData.target_date) : null,
       start_date: formData.start_date ? normalizeDate(formData.start_date) : null,
       status: formData.status
     }
