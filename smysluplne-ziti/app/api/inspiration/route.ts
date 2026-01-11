@@ -3,7 +3,7 @@ import { getInspirationData, addInspirationItem, updateInspirationItem, deleteIn
 
 export async function GET() {
   try {
-    const data = getInspirationData()
+    const data = await getInspirationData()
     return NextResponse.json(data)
   } catch (error) {
     return NextResponse.json(
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const newItem = addInspirationItem(category, item)
+    const newItem = await addInspirationItem(category, item)
     return NextResponse.json(newItem, { status: 201 })
   } catch (error) {
     return NextResponse.json(
@@ -47,7 +47,7 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const updatedItem = updateInspirationItem(category, id, updates)
+    const updatedItem = await updateInspirationItem(category, id, updates)
     
     if (!updatedItem) {
       return NextResponse.json(
@@ -85,7 +85,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const success = deleteInspirationItem(category as 'articles' | 'videos' | 'books', id)
+    const success = await deleteInspirationItem(category as 'articles' | 'videos' | 'books', id)
     
     if (!success) {
       return NextResponse.json(

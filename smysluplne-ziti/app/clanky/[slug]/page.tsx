@@ -8,7 +8,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const article = getArticleBySlug(params.slug)
+  const article = await getArticleBySlug(params.slug)
   
   if (!article || !article.published) {
     return {
@@ -22,15 +22,15 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-export default function ArticlePage({ params }: { params: { slug: string } }) {
-  const article = getArticleBySlug(params.slug)
+export default async function ArticlePage({ params }: { params: { slug: string } }) {
+  const article = await getArticleBySlug(params.slug)
 
   if (!article || !article.published) {
     notFound()
   }
 
   // Načíst inspirace přiřazené k článku
-  const inspirationData = getInspirationData()
+  const inspirationData = await getInspirationData()
   const allInspirations = [
     ...(inspirationData.articles || []),
     ...(inspirationData.videos || []),

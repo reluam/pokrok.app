@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getArticles, saveArticles, getArticleById, generateSlug } from '@/lib/articles'
+import { getArticles, saveArticles, getArticleById, getArticleBySlug, generateSlug, createArticle, updateArticle, deleteArticle } from '@/lib/articles'
 import { cookies } from 'next/headers'
 
 async function isAuthenticated(): Promise<boolean> {
@@ -15,10 +15,8 @@ export async function GET(request: NextRequest) {
   const slug = searchParams.get('slug')
   const published = searchParams.get('published')
 
-  const data = getArticles()
-
   if (id) {
-    const article = getArticleById(id)
+    const article = await getArticleById(id)
     if (!article) {
       return NextResponse.json({ error: 'Článek nenalezen' }, { status: 404 })
     }
@@ -26,7 +24,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (slug) {
-    const article = data.articles.find(a => a.slug === slug)
+    const article = await getArticleBySlug(slug)
     if (!article) {
       return NextResponse.json({ error: 'Článek nenalezen' }, { status: 404 })
     }
@@ -39,6 +37,7 @@ export async function GET(request: NextRequest) {
 
   // Pokud je požadavek na publikované články (veřejné API)
   if (published === 'true') {
+    const data = await getArticles()
     const publishedArticles = data.articles
       .filter(a => a.published)
       .map(({ content, ...rest }) => rest) // Odstraníme content pro seznam
@@ -51,6 +50,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Neautorizováno' }, { status: 401 })
   }
 
+  const data = await getArticles()
   return NextResponse.json(data)
 }
 
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const data = getArticles()
+    const data = await getArticles()
     const slug = generateSlug(title)
     
     // Kontrola unikátnosti slug
@@ -83,26 +83,21 @@ export async function POST(request: NextRequest) {
       counter++
     }
 
-    const newArticle = {
-      id: Date.now().toString(),
+    const newArticle = await createArticle({
       title,
       slug: finalSlug,
       content,
       excerpt: excerpt || (content && content.length > 200 ? content.substring(0, 200) + '...' : content),
       published: published || false,
       inspirationIds: Array.isArray(inspirationIds) ? inspirationIds : [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
-
-    data.articles.push(newArticle)
-    saveArticles(data)
+      image: image || '',
+    })
 
     return NextResponse.json(newArticle, { status: 201 })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating article:', error)
     return NextResponse.json(
-      { error: 'Chyba při vytváření článku' },
+      { error: error.message || 'Chyba při vytváření článku' },
       { status: 500 }
     )
   }
@@ -126,25 +121,23 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const data = getArticles()
-    const articleIndex = data.articles.findIndex(a => a.id === id)
-
-    if (articleIndex === -1) {
+    const existingArticle = await getArticleById(id)
+    if (!existingArticle) {
       return NextResponse.json(
         { error: 'Článek nenalezen' },
         { status: 404 }
       )
     }
 
-    const existingArticle = data.articles[articleIndex]
     let finalSlug = slug || existingArticle.slug
 
     // Pokud se změnil název, vygeneruj nový slug
     if (title && title !== existingArticle.title) {
       finalSlug = generateSlug(title)
       // Kontrola unikátnosti
+      const data = await getArticles()
       let counter = 1
-      while (data.articles.some((a, idx) => a.slug === finalSlug && idx !== articleIndex)) {
+      while (data.articles.some(a => a.slug === finalSlug && a.id !== id)) {
         finalSlug = `${generateSlug(title)}-${counter}`
         counter++
       }
@@ -153,8 +146,7 @@ export async function PUT(request: NextRequest) {
     const finalContent = content || existingArticle.content
     const finalExcerpt = excerpt || existingArticle.excerpt || (finalContent && finalContent.length > 200 ? finalContent.substring(0, 200) + '...' : finalContent)
     
-    data.articles[articleIndex] = {
-      ...existingArticle,
+    const updatedArticle = await updateArticle(id, {
       title: title || existingArticle.title,
       slug: finalSlug,
       content: finalContent,
@@ -162,16 +154,20 @@ export async function PUT(request: NextRequest) {
       published: published !== undefined ? published : existingArticle.published,
       inspirationIds: Array.isArray(inspirationIds) ? inspirationIds : (existingArticle.inspirationIds || []),
       image: image !== undefined ? image : existingArticle.image,
-      updatedAt: new Date().toISOString(),
+    })
+
+    if (!updatedArticle) {
+      return NextResponse.json(
+        { error: 'Chyba při aktualizaci článku' },
+        { status: 500 }
+      )
     }
 
-    saveArticles(data)
-
-    return NextResponse.json(data.articles[articleIndex])
-  } catch (error) {
+    return NextResponse.json(updatedArticle)
+  } catch (error: any) {
     console.error('Error updating article:', error)
     return NextResponse.json(
-      { error: 'Chyba při aktualizaci článku' },
+      { error: error.message || 'Chyba při aktualizaci článku' },
       { status: 500 }
     )
   }
@@ -188,31 +184,27 @@ export async function DELETE(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const id = searchParams.get('id')
 
-  if (!id) {
-    return NextResponse.json(
-      { error: 'ID článku je povinné' },
-      { status: 400 }
-    )
-  }
+    if (!id) {
+      return NextResponse.json(
+        { error: 'ID článku je povinné' },
+        { status: 400 }
+      )
+    }
 
-  const data = getArticles()
-  const articleIndex = data.articles.findIndex(a => a.id === id)
+    const deleted = await deleteArticle(id)
 
-  if (articleIndex === -1) {
-    return NextResponse.json(
-      { error: 'Článek nenalezen' },
-      { status: 404 }
-    )
-  }
+    if (!deleted) {
+      return NextResponse.json(
+        { error: 'Článek nenalezen' },
+        { status: 404 }
+      )
+    }
 
-  data.articles.splice(articleIndex, 1)
-  saveArticles(data)
-
-  return NextResponse.json({ success: true })
-  } catch (error) {
+    return NextResponse.json({ success: true })
+  } catch (error: any) {
     console.error('Error deleting article:', error)
     return NextResponse.json(
-      { error: 'Chyba při mazání článku' },
+      { error: error.message || 'Chyba při mazání článku' },
       { status: 500 }
     )
   }
