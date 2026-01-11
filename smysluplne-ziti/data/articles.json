@@ -1,4 +1,29 @@
 {
-  "articles": []
+  "articles": [
+    {
+      "id": "1768145991166",
+      "title": "Smysluplné žití",
+      "slug": "smysluplne-ziti",
+      "content": "Když jsem přemýšlel, jaké téma by mohlo být vhodné pro první článek na Smyslužití, tak jsem dlouhou dobu nemohl přijít na to, co bych vlastně rád napsal. Původně jsem chtěl v prvním článku představit, o čem projekt je a co od něj můžete čekat. Pak mi ale došlo, že nejlepší bude začít na začátku, u otázky, která už od dětství do velké míry formovala můj život a díky které jsem se vydal na dlouhou cestu zkoumání sebe, ostatních lidí a světa okolo mě. U otázky, která stojí i za vznikem Smyslužití:\n\n## Jaký je můj smysl?\n\nPředtím, než můžeme začít žít život smysluplně, musíme vědět, co smysl znamená konkrétně pro nás. Žijeme v jedinečné době, kdy nám smysl není dán shůry, ale můžeme si jej svobodně vybrat / vytvořit. Což s sebou kromě obrovské zodpovědnosti a značné svobody přináší i riziko - protože pokud si náš smysl nedefinujeme nebo si jej definujeme špatně, tak se může stát, že život pouze přežijeme, místo toho, abychom jej skutečně prožili.\n\nCesta k nalezení našeho smyslu může být trnitá a dlouhá, zároveň ale můžeme najít útěchu ve vědomí, že v tom nejsme sami a že více a více lidí zkoumá, co to smysl vlastně vůbec je, jak se tvoří, a hlavně - jak ho najít. V rámci dalších článků se budu zaměřovat právě na jednotlivé aspekty hledání / tvoření smyslu a implementaci nalezeného smyslu do života.\n\n## Smysl Smyslužití\n\nSmyslem Smyslužití je pomoct lidem žít více kvalitní život skrze hledání a implementování svého smyslu - skrze každodenní činy, rozhodnutí, návyky a principy. Věřím, že ze smysluplnějšího života můžou benefitovat úplně všichni. Čím více lidí se bude snažit žít smysluplně, tím lépe bude celé společnosti, což je téma zase na další článek.\n\nPokud tedy chceš dodat svému životu smysl, budu rád, když se přidáš na mou cestu Smyslužití a vytvoříme spolu trošku smysluplnější svět.\n\nJako se vším, i se smysluplným žitím je nejdůležitější prostě začít. Nevadí, že nemáš dostatek informací nebo dovedností. Časem vše potřebné získáš. Pokud ale opravdu nevíš kudy kam a chceš aspoň nějakou berličku na start, tak doporučuji knížku *Člověk hledá smysl* od Viktora Frankla.\n\n## A jaký je tvůj smysl?\n\nProtože nemůžu nacpat 15 let zkoušení, zkoumání a bloudění do jednoho článku, tak se pro tento týden omezím pouze na jedinou otázku, kterou můžeš odstartovat svou vlastní cestu Smyslužití. Není cílem na ni odpovědět správně - důležité je si tu otázku pouze položit a sledovat, kam všude tě zavede (což si ideálně můžeš někam zapsat). Asi už tušíš, na co se zeptám, takže: \n**Jaký je tvůj smysl?**",
+      "excerpt": "První krok ke skutečnému prožití života začíná jedinou otázkou: Jaký je tvůj smysl? Úvodní článek projektu Smyslužití odhaluje, proč je v dnešní svobodě klíčové definovat si vlastní směr a jak může tato jedna otázka odstartovat vaši cestu k vědomějšímu a kvalitnějšímu životu.",
+      "published": true,
+      "inspirationIds": [
+        "1768146217486"
+      ],
+      "createdAt": "2026-01-11T15:39:51.166Z",
+      "updatedAt": "2026-01-11T17:59:33.351Z",
+      "image": "/articles/1768154304803-smysluziti_clanek_1.png"
+    },
+    {
+      "id": "1768153753753",
+      "title": "Test",
+      "slug": "test",
+      "content": "TsdlkNFalnvsv\na v adnfbvadbandfbadfbadfvdfv ad bv as dvbadfbkvadfbnad lnbad fadfnsfg lbm lketb,a d\nba\n ns gnadbanbm ab\natna\ntnkab",
+      "excerpt": "Testsetse",
+      "published": true,
+      "inspirationIds": [],
+      "createdAt": "2026-01-11T17:49:13.753Z",
+      "updatedAt": "2026-01-11T17:49:13.753Z"
+    }
+  ]
 }
-

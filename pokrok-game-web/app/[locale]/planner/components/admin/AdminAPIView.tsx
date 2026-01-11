@@ -21,6 +21,8 @@ export function AdminAPIView() {
   const [migrationResult, setMigrationResult] = useState<MigrationResult | null>(null)
   const [goalsMigrationLoading, setGoalsMigrationLoading] = useState(false)
   const [goalsMigrationResult, setGoalsMigrationResult] = useState<MigrationResult | null>(null)
+  const [stepsMigrationLoading, setStepsMigrationLoading] = useState(false)
+  const [stepsMigrationResult, setStepsMigrationResult] = useState<MigrationResult | null>(null)
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -154,6 +156,48 @@ export function AdminAPIView() {
     }
   }
 
+  const handleRunStepsMigration = async () => {
+    if (!confirm('Opravdu chcete spustit migraci šifrování daily steps? Tato operace může trvat několik sekund.')) {
+      return
+    }
+
+    setStepsMigrationLoading(true)
+    setStepsMigrationResult(null)
+
+    try {
+      const response = await fetch('/api/admin/migrate-encrypt-steps', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setStepsMigrationResult({
+          success: false,
+          error: data.error || 'Neznámá chyba',
+          details: data.details,
+        })
+      } else {
+        setStepsMigrationResult({
+          success: true,
+          summary: data.summary,
+          errors: data.errors,
+        })
+      }
+    } catch (error: any) {
+      setStepsMigrationResult({
+        success: false,
+        error: 'Chyba při komunikaci s API',
+        details: error.message,
+      })
+    } finally {
+      setStepsMigrationLoading(false)
+    }
+  }
+
   return (
     <div className="w-full h-full bg-white rounded-lg shadow-sm p-6">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">API Scripts</h2>
@@ -282,6 +326,71 @@ export function AdminAPIView() {
                   <p className="text-sm text-gray-700">{goalsMigrationResult.error}</p>
                   {goalsMigrationResult.details && (
                     <p className="text-sm text-gray-600 mt-1">{goalsMigrationResult.details}</p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Steps Migration Script */}
+        <div className="border border-gray-200 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Encrypt Daily Steps Migration</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Zašifruje všechny daily steps (title, description a checklist) pomocí aktuálního ENCRYPTION_MASTER_KEY
+              </p>
+            </div>
+            <button
+              onClick={handleRunStepsMigration}
+              disabled={stepsMigrationLoading}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            >
+              {stepsMigrationLoading ? 'Spouštím...' : 'Spustit migraci'}
+            </button>
+          </div>
+
+          {stepsMigrationResult && (
+            <div className={`mt-4 p-4 rounded-lg ${
+              stepsMigrationResult.success 
+                ? 'bg-green-50 border border-green-200' 
+                : 'bg-red-50 border border-red-200'
+            }`}>
+              {stepsMigrationResult.success ? (
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-green-600 font-semibold">✅ Migrace proběhla úspěšně</span>
+                  </div>
+                  {stepsMigrationResult.summary && (
+                    <div className="text-sm text-gray-700 space-y-1">
+                      <p>Celkem steps: {stepsMigrationResult.summary.total}</p>
+                      <p>Zašifrováno: {stepsMigrationResult.summary.encrypted}</p>
+                      <p>Přeskočeno: {stepsMigrationResult.summary.skipped}</p>
+                      {stepsMigrationResult.summary.errors > 0 && (
+                        <p className="text-red-600">Chyby: {stepsMigrationResult.summary.errors}</p>
+                      )}
+                    </div>
+                  )}
+                  {stepsMigrationResult.errors && stepsMigrationResult.errors.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-sm font-semibold text-gray-700 mb-1">Chyby:</p>
+                      <ul className="text-sm text-gray-600 list-disc list-inside space-y-1">
+                        {stepsMigrationResult.errors.map((error, index) => (
+                          <li key={index}>{error}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-red-600 font-semibold">❌ Migrace selhala</span>
+                  </div>
+                  <p className="text-sm text-gray-700">{stepsMigrationResult.error}</p>
+                  {stepsMigrationResult.details && (
+                    <p className="text-sm text-gray-600 mt-1">{stepsMigrationResult.details}</p>
                   )}
                 </div>
               )}

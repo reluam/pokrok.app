@@ -75,16 +75,13 @@ export default function CoachingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
       <Script src="https://assets.calendly.com/assets/external/widget.js" strategy="lazyOnload" />
       <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet" />
       
-      <section className="section-padding bg-gradient-to-br from-primary-50 via-background via-60% to-playful-yellow-light/30 relative overflow-hidden pt-20">
-        {/* Decorative elements */}
-        <div className="absolute top-10 right-20 w-80 h-80 bg-playful-purple-light rounded-full mix-blend-multiply filter blur-3xl opacity-25"></div>
-        <div className="absolute bottom-10 left-20 w-80 h-80 bg-playful-pink-light rounded-full mix-blend-multiply filter blur-3xl opacity-25"></div>
+      <section className="section-padding relative overflow-hidden pt-20">
         
-        <div className="max-w-7xl mx-auto container-padding relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           {/* Back button */}
           <Link
             href="/"
@@ -95,32 +92,32 @@ export default function CoachingPage() {
           </Link>
 
           {/* Main title */}
-          <div className="mb-12 text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary mb-6 leading-tight">
+          <div className="mb-8 md:mb-12 text-center">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-text-primary mb-4 md:mb-6 leading-tight px-4">
               <span className="gradient-text">Koučing</span>
             </h1>
-            <p className="text-xl md:text-2xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base md:text-lg lg:text-xl xl:text-2xl text-text-secondary max-w-3xl mx-auto leading-relaxed px-4">
               Pojďme společně prozkoumat vaše cíle, hodnoty a najít cestu k smysluplnějšímu životu.
             </p>
           </div>
 
           {/* Two column layout */}
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-12">
             {/* Placená konzultace - Calendly */}
-            <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-8 md:p-12 border border-primary-100">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="bg-primary-100 p-3 rounded-xl">
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="bg-primary-100 p-3">
                   <Target className="text-primary-600" size={28} />
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold text-text-primary">
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-text-primary">
                   Koučing
                 </h2>
               </div>
-              <div className="text-lg md:text-xl leading-relaxed text-text-primary space-y-4 mb-8">
+              <div className="text-base md:text-lg lg:text-xl leading-relaxed text-text-primary space-y-4">
                 <p>
                   Individuální koučovací sezení zaměřené na váš osobní rozvoj a nalezení smysluplnosti v životě.
                 </p>
-                <ul className="space-y-2 text-base md:text-lg">
+                <ul className="space-y-2 text-sm md:text-base lg:text-lg">
                   <li className="flex items-start gap-2">
                     <span className="text-primary-600 mt-1">•</span>
                     <span>Projdeme oblasti, které chcete řešit</span>
@@ -143,7 +140,7 @@ export default function CoachingPage() {
                     })
                   }
                 }}
-                className="w-full bg-primary-600 text-white py-4 px-6 rounded-full font-semibold text-lg hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform flex items-center justify-center gap-2"
+                className="w-full bg-primary-600 text-white py-3 md:py-4 px-6 text-base md:text-lg font-semibold rounded-full hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform flex items-center justify-center gap-2"
               >
                 <Calendar size={20} />
                 Rezervovat koučing
@@ -151,20 +148,20 @@ export default function CoachingPage() {
             </div>
 
             {/* Úvodní konzultace zdarma */}
-            <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-8 md:p-12 border border-primary-100">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="bg-primary-100 p-3 rounded-xl">
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="bg-primary-100 p-3">
                   <Gift className="text-primary-600" size={28} />
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold text-text-primary">
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-text-primary">
                   Úvodní konzultace zdarma
                 </h2>
               </div>
-              <div className="text-lg md:text-xl leading-relaxed text-text-primary space-y-4 mb-8">
+              <div className="text-base md:text-lg lg:text-xl leading-relaxed text-text-primary space-y-4">
                 <p>
                   Zkuste si zdarma, jestli je koučing pro vás. Bez závazků, bez rizika.
                 </p>
-                <ul className="space-y-2 text-base md:text-lg">
+                <ul className="space-y-2 text-sm md:text-base lg:text-lg">
                   <li className="flex items-start gap-2">
                     <span className="text-primary-600 mt-1">•</span>
                     <span>Projdeme oblasti, které byste chtěli řešit</span>
@@ -181,7 +178,7 @@ export default function CoachingPage() {
               </div>
               <button
                 onClick={() => setShowFreeModal(true)}
-                className="w-full bg-primary-600 text-white py-4 px-6 rounded-full font-semibold text-lg hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform flex items-center justify-center gap-2"
+                className="w-full bg-primary-600 text-white py-3 md:py-4 px-6 text-base md:text-lg font-semibold rounded-full hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform flex items-center justify-center gap-2"
               >
                 <Gift size={20} />
                 Rezervovat konzultaci zdarma
@@ -194,7 +191,7 @@ export default function CoachingPage() {
       {/* Modal for free consultation */}
       {showFreeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 md:p-8">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl md:text-3xl font-bold text-text-primary">
@@ -224,7 +221,7 @@ export default function CoachingPage() {
                     required
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full px-5 py-3 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+                    className="w-full px-5 py-3 border-2 border-primary-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
                     placeholder="Vaše jméno"
                   />
                 </div>
@@ -241,7 +238,7 @@ export default function CoachingPage() {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full px-5 py-3 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+                    className="w-full px-5 py-3 border-2 border-primary-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
                     placeholder="vas@email.cz"
                   />
                 </div>
@@ -259,7 +256,7 @@ export default function CoachingPage() {
                     value={formData.date}
                     onChange={handleChange}
                     min={new Date().toISOString().split('T')[0]}
-                    className="w-full px-5 py-3 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+                    className="w-full px-5 py-3 border-2 border-primary-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
                   />
                   <p className="mt-2 text-sm text-text-secondary">
                     S konkrétním časem vás budu kontaktovat emailem.
@@ -277,14 +274,14 @@ export default function CoachingPage() {
                     rows={4}
                     value={formData.message}
                     onChange={handleChange}
-                    className="w-full px-5 py-3 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all resize-none"
+                    className="w-full px-5 py-3 border-2 border-primary-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all resize-none"
                     placeholder="Napište mi, s čím vám mohu pomoci..."
                   />
                 </div>
 
                 {submitStatus.type && (
                   <div
-                    className={`p-4 rounded-xl ${
+                    className={`p-4 ${
                       submitStatus.type === 'success'
                         ? 'bg-green-50 text-green-800 border border-green-200'
                         : 'bg-red-50 text-red-800 border border-red-200'
@@ -316,6 +313,6 @@ export default function CoachingPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }

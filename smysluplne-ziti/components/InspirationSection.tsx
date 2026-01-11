@@ -3,10 +3,7 @@ import Link from 'next/link'
 
 export default function InspirationSection() {
   return (
-    <section id="inspirace" className="section-padding bg-background relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-playful-pink-light rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-playful-yellowGreen-light rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+    <section id="inspirace" className="section-padding relative overflow-hidden">
       
       <div className="max-w-7xl mx-auto container-padding relative">
         <div className="text-center mb-12">

@@ -1,59 +1,14 @@
 {
-  "articles": [
-    {
-      "id": "1",
-      "title": "Jak najít svůj životní smysl",
-      "description": "Praktický průvodce k objevení toho, co vám dává smysl v životě.",
-      "link": "#",
-      "type": "article"
-    },
-    {
-      "id": "2",
-      "title": "5 způsobů, jak budovat lepší návyky",
-      "description": "Vědecky podložené metody pro vytváření trvalých změn.",
-      "link": "#",
-      "type": "article"
-    },
-    {
-      "id": "3",
-      "title": "Mindfulness a jeho přínosy",
-      "description": "Jak může všímavost změnit váš přístup k životu.",
-      "link": "#",
-      "type": "article"
-    }
-  ],
-  "videos": [
-    {
-      "id": "1",
-      "title": "TED Talk: Síla zranitelnosti",
-      "description": "Brené Brown o tom, jak zranitelnost může být zdrojem síly.",
-      "link": "#",
-      "type": "video"
-    },
-    {
-      "id": "2",
-      "title": "Jak si stanovit a dosáhnout cílů",
-      "description": "Praktické tipy pro efektivní plánování a dosahování cílů.",
-      "link": "#",
-      "type": "video"
-    }
-  ],
+  "articles": [],
+  "videos": [],
   "books": [
     {
-      "id": "1",
-      "title": "Atomové návyky",
-      "author": "James Clear",
-      "description": "Malé změny, které vedou k pozoruhodným výsledkům.",
-      "link": "#",
-      "type": "book"
-    },
-    {
-      "id": "3",
-      "title": "Síla zvyku",
-      "author": "Charles Duhigg",
-      "description": "Proč děláme to, co děláme v životě a v práci.",
-      "link": "#",
-      "type": "book"
+      "type": "book",
+      "title": "Člověk hledá smysl",
+      "author": "Viktor E. Frankl",
+      "link": "https://www.databazeknih.cz/knihy/clovek-hleda-smysl-uvod-do-logoterapie-130156",
+      "description": "Kniha pro ty, co si myslí že to nejhorší na světě se stalo právě jim... Frankl po úvodu z koncentráku nepokládá otázku \"Jaký má život smysl\", ale \"Jaký smysl chci svému životu dát?",
+      "id": "1768146217486"
     }
   ]
 }

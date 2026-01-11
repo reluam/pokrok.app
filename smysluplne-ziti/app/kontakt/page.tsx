@@ -68,36 +68,32 @@ export default function KontaktPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <section className="section-padding relative overflow-hidden">
-        {/* Decorative background elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-playful-purple-light rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-playful-pink-light rounded-full mix-blend-multiply filter blur-3xl opacity-20 translate-y-1/2 -translate-x-1/2"></div>
+    <section className="section-padding relative overflow-hidden pt-20">
         
-        <div className="max-w-4xl mx-auto container-padding relative">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           {/* Back button */}
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-text-secondary hover:text-primary-600 mb-8 transition-colors"
+            className="inline-flex items-center gap-2 text-text-secondary hover:text-primary-600 mb-6 md:mb-8 transition-colors"
           >
-            <ArrowLeft size={20} />
-            <span>Zpět na hlavní stránku</span>
+            <ArrowLeft size={18} />
+            <span className="text-sm md:text-base">Zpět na hlavní stránku</span>
           </Link>
 
-          <div className="text-center mb-12">
-            <div className="inline-block px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-sm font-semibold mb-6">
+          <div className="text-center mb-8 md:mb-12">
+            <div className="inline-block px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-xs md:text-sm font-semibold mb-4 md:mb-6">
               Kontakt
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary mb-6">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-text-primary mb-4 md:mb-6">
               <span className="gradient-text">Kontaktujte mě</span>
             </h1>
-            <p className="text-xl md:text-2xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base md:text-lg lg:text-xl xl:text-2xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
               Máte dotaz nebo zájem o spolupráci? Neváhejte mě kontaktovat.
             </p>
           </div>
 
           {/* Contact form */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 md:p-12 border border-primary-100">
+          <div className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-text-primary mb-2">
@@ -111,7 +107,7 @@ export default function KontaktPage() {
                   required
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-5 py-3 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white/50 backdrop-blur-sm"
+                  className="w-full px-5 py-3 border-2 border-primary-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white/50 backdrop-blur-sm"
                   placeholder="Vaše jméno"
                 />
               </div>
@@ -128,7 +124,7 @@ export default function KontaktPage() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-5 py-3 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white/50 backdrop-blur-sm"
+                  className="w-full px-5 py-3 border-2 border-primary-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white/50 backdrop-blur-sm"
                   placeholder="vas@email.cz"
                 />
               </div>
@@ -145,18 +141,18 @@ export default function KontaktPage() {
                   required
                   value={formData.message}
                   onChange={handleChange}
-                  className="w-full px-5 py-3 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white/50 backdrop-blur-sm resize-none"
+                  className="w-full px-5 py-3 border-2 border-primary-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white/50 backdrop-blur-sm resize-none"
                   placeholder="Napište mi vaši zprávu..."
                 />
               </div>
 
               {submitStatus.type && (
                 <div
-                  className={`p-4 rounded-xl ${
-                    submitStatus.type === 'success'
-                      ? 'bg-green-50 text-green-800 border border-green-200'
-                      : 'bg-red-50 text-red-800 border border-red-200'
-                  }`}
+                  className={`p-4 ${
+                      submitStatus.type === 'success'
+                        ? 'bg-green-50 text-green-800 border border-green-200'
+                        : 'bg-red-50 text-red-800 border border-red-200'
+                    }`}
                 >
                   <p className="font-medium text-sm">{submitStatus.message}</p>
                 </div>
@@ -182,7 +178,6 @@ export default function KontaktPage() {
             </form>
           </div>
         </div>
-      </section>
-    </div>
+    </section>
   )
 }

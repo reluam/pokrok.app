@@ -27,63 +27,59 @@ export default function ClankyPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center pt-20">
         <div className="text-text-primary text-xl">Načítání...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <section className="section-padding relative overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-playful-purple-light rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-playful-pink-light rounded-full mix-blend-multiply filter blur-3xl opacity-20 translate-y-1/2 -translate-x-1/2"></div>
+    <section className="section-padding relative overflow-hidden pt-20">
         
-        <div className="max-w-7xl mx-auto container-padding relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           {/* Back button */}
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-text-secondary hover:text-primary-600 mb-8 transition-colors"
+            className="inline-flex items-center gap-2 text-text-secondary hover:text-primary-600 mb-6 md:mb-8 transition-colors"
           >
-            <ArrowRight className="rotate-180" size={20} />
-            <span>Zpět na hlavní stránku</span>
+            <ArrowRight className="rotate-180" size={18} />
+            <span className="text-sm md:text-base">Zpět na hlavní stránku</span>
           </Link>
 
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary mb-6">
+          <div className="text-center mb-8 md:mb-12">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-text-primary mb-4 md:mb-6">
               <span className="gradient-text">Články</span>
             </h1>
-            <p className="text-xl md:text-2xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base md:text-lg lg:text-xl xl:text-2xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
               Vlastní články o smysluplném žití, osobním rozvoji a dosahování cílů.
             </p>
           </div>
 
           {articles.length === 0 ? (
-            <div className="text-center py-16">
+            <div className="text-center py-12 md:py-16">
               <FileText className="mx-auto text-primary-200 mb-4" size={64} />
-              <h2 className="text-2xl font-bold text-text-primary mb-2">Zatím žádné články</h2>
+              <h2 className="text-xl md:text-2xl font-bold text-text-primary mb-2">Zatím žádné články</h2>
               <p className="text-text-secondary">Články se připravují.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {articles.map((article) => (
                 <Link
                   key={article.id}
                   href={`/clanky/${article.slug}`}
-                  className="group bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg p-6 border border-primary-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                  className="group p-4 md:p-6 border-2 border-primary-100 hover:border-primary-300 transition-all duration-300"
                 >
-                  <div className="flex items-center gap-2 mb-4">
-                    <FileText className="text-primary-600" size={20} />
-                    <span className="text-sm text-primary-600 font-semibold">Článek</span>
+                  <div className="flex items-center gap-2 mb-3 md:mb-4">
+                    <FileText className="text-primary-600" size={18} />
+                    <span className="text-xs md:text-sm text-primary-600 font-semibold">Článek</span>
                   </div>
-                  <h2 className="text-2xl font-bold text-text-primary mb-3 group-hover:text-primary-600 transition-colors">
+                  <h2 className="text-xl md:text-2xl font-bold text-text-primary mb-2 md:mb-3 group-hover:text-primary-600 transition-colors">
                     {article.title}
                   </h2>
-                  <p className="text-text-secondary mb-4 line-clamp-3">
+                  <p className="text-text-secondary mb-3 md:mb-4 line-clamp-3 text-sm md:text-base">
                     {article.excerpt}
                   </p>
-                  <div className="flex items-center justify-between text-sm text-text-light">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs md:text-sm text-text-light">
                     <div className="flex items-center gap-2">
                       <Calendar size={14} />
                       <span>{new Date(article.createdAt).toLocaleDateString('cs-CZ')}</span>
@@ -98,8 +94,7 @@ export default function ClankyPage() {
             </div>
           )}
         </div>
-      </section>
-    </div>
+    </section>
   )
 }
 

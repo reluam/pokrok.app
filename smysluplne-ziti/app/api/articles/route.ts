@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { title, content, excerpt, published } = body
+    const { title, content, excerpt, published, inspirationIds, image } = body
 
     if (!title || !content) {
       return NextResponse.json(
@@ -88,8 +88,9 @@ export async function POST(request: NextRequest) {
       title,
       slug: finalSlug,
       content,
-      excerpt: excerpt || content.substring(0, 200) + '...',
+      excerpt: excerpt || (content && content.length > 200 ? content.substring(0, 200) + '...' : content),
       published: published || false,
+      inspirationIds: Array.isArray(inspirationIds) ? inspirationIds : [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
@@ -116,7 +117,7 @@ export async function PUT(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { id, title, content, excerpt, published, slug } = body
+    const { id, title, content, excerpt, published, slug, inspirationIds, image } = body
 
     if (!id) {
       return NextResponse.json(
@@ -149,13 +150,18 @@ export async function PUT(request: NextRequest) {
       }
     }
 
+    const finalContent = content || existingArticle.content
+    const finalExcerpt = excerpt || existingArticle.excerpt || (finalContent && finalContent.length > 200 ? finalContent.substring(0, 200) + '...' : finalContent)
+    
     data.articles[articleIndex] = {
       ...existingArticle,
       title: title || existingArticle.title,
       slug: finalSlug,
-      content: content || existingArticle.content,
-      excerpt: excerpt || existingArticle.excerpt || (content || existingArticle.content).substring(0, 200) + '...',
+      content: finalContent,
+      excerpt: finalExcerpt,
       published: published !== undefined ? published : existingArticle.published,
+      inspirationIds: Array.isArray(inspirationIds) ? inspirationIds : (existingArticle.inspirationIds || []),
+      image: image !== undefined ? image : existingArticle.image,
       updatedAt: new Date().toISOString(),
     }
 

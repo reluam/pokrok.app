@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { FileText, Plus, Edit2, Trash2, X, ArrowLeft, Loader2, Eye, EyeOff, Save } from 'lucide-react'
+import { FileText, Plus, Edit2, Trash2, X, ArrowLeft, Loader2, Eye, EyeOff, Save, Upload, Image as ImageIcon } from 'lucide-react'
 import Link from 'next/link'
 import type { Article } from '@/lib/articles'
+import type { InspirationData, InspirationItem } from '@/lib/inspiration'
 
 export default function AdminClankyPage() {
   const [articles, setArticles] = useState<Article[]>([])
@@ -17,8 +18,41 @@ export default function AdminClankyPage() {
     content: '',
     excerpt: '',
     published: false,
+    inspirationIds: [] as string[],
+    image: '',
   })
+  const [inspirationData, setInspirationData] = useState<InspirationData | null>(null)
+  const [uploadingImage, setUploadingImage] = useState(false)
   const router = useRouter()
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingImage(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setFormData({ ...formData, image: data.url })
+      } else {
+        const error = await res.json()
+        alert(error.error || 'Chyba při nahrávání obrázku')
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      alert('Chyba při nahrávání obrázku')
+    } finally {
+      setUploadingImage(false)
+    }
+  }
 
   useEffect(() => {
     checkAuth()
@@ -32,6 +66,7 @@ export default function AdminClankyPage() {
       setIsAuthenticated(data.authenticated)
       if (data.authenticated) {
         fetchArticles()
+        fetchInspirations()
       } else {
         router.push('/admin')
       }
@@ -53,6 +88,16 @@ export default function AdminClankyPage() {
     }
   }
 
+  const fetchInspirations = async () => {
+    try {
+      const res = await fetch('/api/inspiration')
+      const data = await res.json()
+      setInspirationData(data)
+    } catch (error) {
+      console.error('Error fetching inspirations:', error)
+    }
+  }
+
   const openAddModal = () => {
     setEditingArticle(null)
     setFormData({
@@ -60,6 +105,8 @@ export default function AdminClankyPage() {
       content: '',
       excerpt: '',
       published: false,
+      inspirationIds: [],
+      image: '',
     })
     setShowModal(true)
   }
@@ -71,6 +118,8 @@ export default function AdminClankyPage() {
       content: article.content,
       excerpt: article.excerpt,
       published: article.published,
+      inspirationIds: article.inspirationIds || [],
+      image: article.image || '',
     })
     setShowModal(true)
   }
@@ -83,11 +132,13 @@ export default function AdminClankyPage() {
       content: '',
       excerpt: '',
       published: false,
+      inspirationIds: [],
+      image: '',
     })
   }
 
   const handleSave = async () => {
-    if (!formData.title.trim() || !formData.content.trim()) {
+    if (!formData.title?.trim() || !formData.content?.trim()) {
       alert('Vyplňte prosím název a obsah článku')
       return
     }
@@ -318,6 +369,65 @@ export default function AdminClankyPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-text-primary mb-2">
+                    Obrázek článku (volitelné)
+                  </label>
+                  
+                  {/* Upload button */}
+                  <div className="mb-3">
+                    <label className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl cursor-pointer hover:bg-primary-700 transition-colors">
+                      {uploadingImage ? (
+                        <>
+                          <Loader2 className="animate-spin" size={18} />
+                          <span>Nahrávání...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Upload size={18} />
+                          <span>Nahrát obrázek</span>
+                        </>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        disabled={uploadingImage}
+                      />
+                    </label>
+                    <p className="text-xs text-text-light mt-2">
+                      Nebo zadejte URL obrázku níže
+                    </p>
+                  </div>
+
+                  {/* URL input */}
+                  <input
+                    type="url"
+                    value={formData.image}
+                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                    placeholder="https://example.com/image.jpg nebo použijte tlačítko výše"
+                  />
+                  <p className="text-xs text-text-light mt-1">
+                    Obrázek se zobrazí v hero sekci jako pozadí pod celým článkem.
+                  </p>
+                  
+                  {/* Preview */}
+                  {formData.image && (
+                    <div className="mt-3">
+                      <img 
+                        src={formData.image} 
+                        alt="Preview" 
+                        className="max-w-full h-32 object-cover rounded-lg border-2 border-primary-200"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none'
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-2">
                     Úvodní text (excerpt)
                   </label>
                   <textarea
@@ -360,6 +470,60 @@ export default function AdminClankyPage() {
                   <label htmlFor="published" className="text-sm font-medium text-text-primary cursor-pointer">
                     Publikovat článek (bude viditelný na webu)
                   </label>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-2">
+                    Přiřazené inspirace
+                  </label>
+                  <div className="max-h-60 overflow-y-auto border-2 border-primary-200 rounded-xl p-4 space-y-2">
+                    {inspirationData ? (
+                      <>
+                        {[...(inspirationData.articles || []), ...(inspirationData.videos || []), ...(inspirationData.books || [])].map((inspiration) => (
+                          <label
+                            key={inspiration.id}
+                            className="flex items-start gap-2 p-2 hover:bg-primary-50 rounded-lg cursor-pointer"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={formData.inspirationIds?.includes(inspiration.id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setFormData({
+                                    ...formData,
+                                    inspirationIds: [...(formData.inspirationIds || []), inspiration.id],
+                                  })
+                                } else {
+                                  setFormData({
+                                    ...formData,
+                                    inspirationIds: formData.inspirationIds?.filter(id => id !== inspiration.id) || [],
+                                  })
+                                }
+                              }}
+                              className="mt-1 w-4 h-4 text-primary-600 border-2 border-primary-200 rounded focus:ring-primary-500"
+                            />
+                            <div className="flex-1">
+                              <div className="font-medium text-text-primary">{inspiration.title}</div>
+                              {inspiration.author && (
+                                <div className="text-sm text-primary-600">{inspiration.author}</div>
+                              )}
+                              <div className="text-xs text-text-secondary">{inspiration.description}</div>
+                            </div>
+                          </label>
+                        ))}
+                        {[...(inspirationData.articles || []), ...(inspirationData.videos || []), ...(inspirationData.books || [])].length === 0 && (
+                          <p className="text-sm text-text-secondary text-center py-4">
+                            Zatím nejsou žádné inspirace. Vytvořte je v sekci Inspirace.
+                          </p>
+                        )}
+                      </>
+                    ) : (
+                      <p className="text-sm text-text-secondary text-center py-4">Načítání inspirací...</p>
+                    )}
+                  </div>
+                  <p className="text-xs text-text-light mt-1">
+                    Vyberte inspirace, které chcete přiřadit k tomuto článku.
+                  </p>
                 </div>
               </div>
             </div>

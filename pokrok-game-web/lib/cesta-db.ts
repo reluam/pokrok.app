@@ -1,5 +1,5 @@
 import { neon } from '@neondatabase/serverless'
-import { encrypt, decryptFields } from './encryption'
+import { encrypt, decryptFields, encryptChecklist, decryptChecklist } from './encryption'
 
 const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
 
@@ -1411,7 +1411,16 @@ export async function getDailyStepsByUserId(
     }
     
     const steps = await query
-    return steps as DailyStep[]
+    
+    // Decrypt all steps (title, description, and checklist)
+    return steps.map(step => {
+      const decrypted = decryptFields(step, userId, ['title', 'description'])
+      // Decrypt checklist items
+      if (step.checklist) {
+        decrypted.checklist = decryptChecklist(step.checklist, userId)
+      }
+      return decrypted
+    }) as DailyStep[]
   } catch (error) {
     console.error('Error fetching daily steps:', error)
     return []
@@ -1552,8 +1561,17 @@ export async function createDailyStep(stepData: Omit<Partial<DailyStep>, 'date'>
     }
   }
   
-  // Use TO_CHAR to return date as YYYY-MM-DD string
-  const checklistJson = stepData.checklist ? JSON.stringify(stepData.checklist) : '[]'
+  // Encrypt text fields before inserting
+  const encryptedTitle = stepData.title ? encrypt(stepData.title, stepData.user_id!) : null
+  const encryptedDescription = stepData.description ? encrypt(stepData.description, stepData.user_id!) : null
+  
+  // Encrypt checklist items
+  let encryptedChecklist: any[] | null = null
+  if (stepData.checklist && Array.isArray(stepData.checklist)) {
+    encryptedChecklist = encryptChecklist(stepData.checklist, stepData.user_id!)
+  }
+  const checklistJson = encryptedChecklist ? JSON.stringify(encryptedChecklist) : '[]'
+  
   const selectedDaysJson = stepData.selected_days ? JSON.stringify(stepData.selected_days) : '[]'
   
   // Format current_instance_date if provided
@@ -1579,8 +1597,8 @@ export async function createDailyStep(stepData: Omit<Partial<DailyStep>, 'date'>
       frequency, selected_days, recurring_start_date, recurring_end_date, recurring_display_mode, is_hidden,
       current_instance_date
     ) VALUES (
-      ${id}, ${stepData.user_id}, ${stepData.goal_id || null}, ${stepData.title}, 
-      ${stepData.description || null}, ${stepData.completed || false}, 
+      ${id}, ${stepData.user_id}, ${stepData.goal_id || null}, ${encryptedTitle}, 
+      ${encryptedDescription}, ${stepData.completed || false}, 
       ${dateValue}, ${stepData.is_important || false}, 
       ${stepData.is_urgent || false}, ${stepData.aspiration_id || null}, ${stepData.area_id || null}, 
       ${stepData.estimated_time || 30},
@@ -1602,7 +1620,13 @@ export async function createDailyStep(stepData: Omit<Partial<DailyStep>, 'date'>
       recurring_display_mode, is_hidden,
       TO_CHAR(current_instance_date, 'YYYY-MM-DD') as current_instance_date
   `
-  return step[0] as DailyStep
+  
+  // Decrypt before returning
+  const decrypted = decryptFields(step[0], stepData.user_id!, ['title', 'description'])
+  if (step[0].checklist) {
+    decrypted.checklist = decryptChecklist(step[0].checklist, stepData.user_id!)
+  }
+  return decrypted as DailyStep
 }
 
 export async function toggleDailyStep(stepId: string): Promise<DailyStep> {
@@ -1634,7 +1658,13 @@ export async function toggleDailyStep(stepId: string): Promise<DailyStep> {
       await updateGoalProgressCombined(step.goal_id)
     }
 
-    return updatedStep[0] as DailyStep
+    // Decrypt before returning
+    const userId = step.user_id
+    const decrypted = decryptFields(updatedStep[0], userId, ['title', 'description'])
+    if (updatedStep[0].checklist) {
+      decrypted.checklist = decryptChecklist(updatedStep[0].checklist, userId)
+    }
+    return decrypted as DailyStep
   } catch (error) {
     console.error('Error toggling daily step:', error)
     throw error
@@ -1661,7 +1691,13 @@ export async function completeDailyStep(stepId: string): Promise<DailyStep> {
       await updateGoalProgressCombined(step.goal_id)
     }
     
-    return step
+    // Decrypt before returning
+    const userId = step.user_id
+    const decrypted = decryptFields(step, userId, ['title', 'description'])
+    if (step.checklist) {
+      decrypted.checklist = decryptChecklist(step.checklist, userId)
+    }
+    return decrypted as DailyStep
   } catch (error) {
     console.error('Error completing daily step:', error)
     throw error
@@ -1683,7 +1719,13 @@ export async function updateDailyStep(stepId: string, stepData: Partial<DailySte
       throw new Error('Step not found')
     }
     
-    return updatedStep[0] as DailyStep
+    // Decrypt before returning
+    const userId = updatedStep[0].user_id
+    const decrypted = decryptFields(updatedStep[0], userId, ['title', 'description'])
+    if (updatedStep[0].checklist) {
+      decrypted.checklist = decryptChecklist(updatedStep[0].checklist, userId)
+    }
+    return decrypted as DailyStep
   } catch (error) {
     console.error('Error updating daily step:', error)
     throw error
@@ -1692,17 +1734,32 @@ export async function updateDailyStep(stepId: string, stepData: Partial<DailySte
 
 export async function updateDailyStepFields(stepId: string, updates: Partial<DailyStep>): Promise<DailyStep | null> {
   try {
+    // First get the current step to get user_id
+    const currentStep = await sql`
+      SELECT user_id FROM daily_steps WHERE id = ${stepId}
+    `
+    
+    if (currentStep.length === 0) {
+      return null
+    }
+    
+    const userId = currentStep[0].user_id
+    
     // Build dynamic update query
     const setParts: string[] = []
     const values: any[] = []
     
     if (updates.title !== undefined) {
+      // Encrypt title before updating
+      const encryptedTitle = updates.title ? encrypt(updates.title, userId) : null
       setParts.push(`title = $${values.length + 1}`)
-      values.push(updates.title)
+      values.push(encryptedTitle)
     }
     if (updates.description !== undefined) {
+      // Encrypt description before updating
+      const encryptedDescription = updates.description ? encrypt(updates.description, userId) : null
       setParts.push(`description = $${values.length + 1}`)
-      values.push(updates.description)
+      values.push(encryptedDescription)
     }
     if (updates.completed !== undefined) {
       setParts.push(`completed = $${values.length + 1}`)
@@ -1795,8 +1852,13 @@ export async function updateDailyStepFields(stepId: string, updates: Partial<Dai
       values.push(updates.xp_reward)
     }
     if (updates.checklist !== undefined) {
+      // Encrypt checklist items before updating
+      let encryptedChecklist: any[] | null = null
+      if (updates.checklist && Array.isArray(updates.checklist)) {
+        encryptedChecklist = encryptChecklist(updates.checklist, userId)
+      }
       setParts.push(`checklist = $${values.length + 1}::jsonb`)
-      values.push(JSON.stringify(updates.checklist))
+      values.push(encryptedChecklist ? JSON.stringify(encryptedChecklist) : '[]')
     }
     if (updates.require_checklist_complete !== undefined) {
       setParts.push(`require_checklist_complete = $${values.length + 1}`)
@@ -1859,7 +1921,12 @@ export async function updateDailyStepFields(stepId: string, updates: Partial<Dai
         await updateGoalProgressCombined(rows[0].goal_id)
       }
       
-      return rows[0] as DailyStep
+      // Decrypt before returning
+      const decrypted = decryptFields(rows[0], userId, ['title', 'description'])
+      if (rows[0].checklist) {
+        decrypted.checklist = decryptChecklist(rows[0].checklist, userId)
+      }
+      return decrypted as DailyStep
     }
     
     // Fetch the step if no updates were made
@@ -1882,7 +1949,12 @@ export async function updateDailyStepFields(stepId: string, updates: Partial<Dai
       return null
     }
     
-    return step[0] as DailyStep
+    // Decrypt before returning
+    const decrypted = decryptFields(step[0], userId, ['title', 'description'])
+    if (step[0].checklist) {
+      decrypted.checklist = decryptChecklist(step[0].checklist, userId)
+    }
+    return decrypted as DailyStep
   } catch (error) {
     console.error('Error updating daily step fields:', error)
     return null

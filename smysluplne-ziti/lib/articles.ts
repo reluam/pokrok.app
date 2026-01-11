@@ -10,6 +10,8 @@ export interface Article {
   published: boolean
   createdAt: string
   updatedAt: string
+  inspirationIds?: string[] // IDs of inspirations linked to this article
+  image?: string // URL to article image
 }
 
 export interface ArticlesData {
