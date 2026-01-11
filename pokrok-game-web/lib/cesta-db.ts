@@ -1,5 +1,5 @@
 import { neon } from '@neondatabase/serverless'
-import { encrypt, decryptFields, encryptChecklist, decryptChecklist } from './encryption'
+import { encrypt, decryptFields, encryptFields, encryptChecklist, decryptChecklist } from './encryption'
 
 const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
 
@@ -4552,12 +4552,16 @@ export async function createHabit(habitData: Omit<Habit, 'id' | 'created_at' | '
     // Set start_date to today if not provided
     const startDate = (habitData as any).start_date || new Date().toISOString().split('T')[0]
     
+    // Encrypt name and description before inserting
+    const encryptedName = habitData.name ? encrypt(habitData.name, habitData.user_id) : null
+    const encryptedDescription = habitData.description ? encrypt(habitData.description, habitData.user_id) : null
+    
     const result = await sql`
       INSERT INTO habits (
         id, user_id, name, description, frequency, streak, 
         max_streak, category, difficulty, is_custom, reminder_time, notification_enabled, selected_days, xp_reward, aspiration_id, area_id, icon, "order", start_date
       ) VALUES (
-        ${id}, ${habitData.user_id}, ${habitData.name}, ${habitData.description}, 
+        ${id}, ${habitData.user_id}, ${encryptedName}, ${encryptedDescription}, 
         ${habitData.frequency}, ${habitData.streak}, ${habitData.max_streak}, 
         ${habitData.category}, ${habitData.difficulty}, ${habitData.is_custom}, ${habitData.reminder_time}, ${(habitData as any).notification_enabled || false}, ${habitData.selected_days}, ${habitData.xp_reward}, ${habitData.aspiration_id || null}, ${habitData.area_id || null}, ${habitData.icon || null}, ${(habitData as any).order || 0}, ${startDate}
       ) RETURNING *
@@ -4570,7 +4574,8 @@ export async function createHabit(habitData: Omit<Habit, 'id' | 'created_at' | '
     // Invalidate habits cache for this user
     invalidateHabitsCache(habitData.user_id)
     
-    return result[0] as Habit
+    // Decrypt before returning
+    return decryptFields(result[0], habitData.user_id, ['name', 'description']) as Habit
   } catch (error) {
     console.error('Error creating habit:', error)
     return null
@@ -4619,11 +4624,15 @@ export async function updateHabit(habitId: string, updates: Partial<Omit<Habit, 
     
     console.log('updateHabit: Updating habit:', { habitId, updates })
     
+    // Encrypt name and description if they are being updated
+    const encryptedName = updates.name !== undefined ? (updates.name ? encrypt(updates.name, userId) : null) : undefined
+    const encryptedDescription = updates.description !== undefined ? (updates.description ? encrypt(updates.description, userId) : null) : undefined
+    
     const result = await sql`
       UPDATE habits 
       SET 
-        name = COALESCE(${updates.name}, name),
-        description = COALESCE(${updates.description}, description),
+        name = ${encryptedName !== undefined ? encryptedName : sql`name`},
+        description = ${encryptedDescription !== undefined ? encryptedDescription : sql`description`},
         frequency = COALESCE(${updates.frequency}, frequency),
         category = COALESCE(${updates.category}, category),
         difficulty = COALESCE(${updates.difficulty}, difficulty),
@@ -4651,7 +4660,8 @@ export async function updateHabit(habitId: string, updates: Partial<Omit<Habit, 
     // Invalidate habits cache for this user
     invalidateHabitsCache(userId)
     
-    return result[0] as Habit
+    // Decrypt before returning
+    return decryptFields(result[0], userId, ['name', 'description']) as Habit
   } catch (error) {
     console.error('Error updating habit:', error)
     console.error('Error details:', { habitId, updates, errorMessage: error instanceof Error ? error.message : String(error) })
@@ -4690,10 +4700,14 @@ export async function getHabitsByUserId(userId: string, forceFresh: boolean = fa
       ORDER BY h.created_at DESC
     `
     
-    const habits = result.map((habit: any) => ({
-      ...habit,
-      habit_completions: habit.habit_completions || {}
-    })) as Habit[]
+    const habits = result.map((habit: any) => {
+      const habitWithCompletions = {
+        ...habit,
+        habit_completions: habit.habit_completions || {}
+      }
+      // Decrypt name and description
+      return decryptFields(habitWithCompletions, userId, ['name', 'description'])
+    }) as Habit[]
     
     // Cache the result
     if (habitsCache.size < MAX_CACHE_SIZE) {

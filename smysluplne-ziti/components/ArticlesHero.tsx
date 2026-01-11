@@ -72,10 +72,68 @@ export default function ArticlesHero() {
       )}
 
       <div className="relative z-10 w-full h-full">
-        <div className="relative h-full flex items-stretch">
-          {/* Left column - Article content (3/5) */}
-          <div className="w-3/5 bg-white/50 backdrop-blur-md shadow-2xl p-8 md:p-12 lg:p-16 flex flex-col justify-center relative">
-            {/* Left arrow */}
+        <div className="relative h-full flex flex-col md:flex-row items-stretch">
+          {/* Image with text overlay on mobile, separate on desktop */}
+          <div className="w-full md:w-2/5 relative h-[60vh] md:h-auto order-1 md:order-2">
+            {currentArticle.image ? (
+              <>
+                <Image
+                  src={currentArticle.image}
+                  alt={currentArticle.title}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+                {/* Filter overlay for better text readability on mobile */}
+                <div className="absolute inset-0 bg-black/50 md:bg-white/30"></div>
+                {/* Gradient overlay for readability */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/40 md:bg-gradient-to-l md:from-transparent md:via-primary-500/20 md:to-primary-600/30"></div>
+              </>
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200"></div>
+            )}
+
+            {/* Text content on image for mobile */}
+            <div className="md:hidden absolute inset-0 flex flex-col justify-end p-6 z-10">
+              <h1 className="text-3xl font-bold text-white mb-4 leading-tight drop-shadow-lg">
+                {currentArticle.title}
+              </h1>
+              <p className="text-lg text-white/90 leading-relaxed mb-6 drop-shadow-md line-clamp-3">
+                {currentArticle.excerpt}
+              </p>
+              <Link
+                href={`/clanky/${currentArticle.slug}`}
+                className="group inline-flex items-center gap-2 text-white hover:text-primary-200 font-semibold text-lg transition-all"
+              >
+                <span>Číst celý článek</span>
+                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            {/* Navigation arrows */}
+            {articles.length > 1 && (
+              <>
+                <button
+                  onClick={prevSlide}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-primary-200 transition-colors z-20 md:hidden"
+                  aria-label="Předchozí článek"
+                >
+                  <ChevronLeft size={32} />
+                </button>
+                <button
+                  onClick={nextSlide}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-primary-200 transition-colors z-20 md:z-10"
+                  aria-label="Další článek"
+                >
+                  <ChevronRight size={32} className="md:w-10 md:h-10" />
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Text content - desktop only (3/5) */}
+          <div className="hidden md:flex w-3/5 bg-white/50 backdrop-blur-md shadow-2xl p-8 md:p-12 lg:p-16 flex-col justify-center relative order-2 md:order-1">
+            {/* Left arrow - desktop only */}
             {articles.length > 1 && (
               <button
                 onClick={prevSlide}
@@ -87,11 +145,11 @@ export default function ArticlesHero() {
             )}
 
             <div className="flex-1 flex flex-col justify-center">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary mb-6 leading-tight">
+              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-text-primary mb-6 leading-tight">
                 {currentArticle.title}
               </h1>
 
-              <p className="text-xl md:text-2xl text-text-primary leading-relaxed">
+              <p className="text-xl lg:text-2xl text-text-primary leading-relaxed">
                 {currentArticle.excerpt}
               </p>
 
@@ -106,38 +164,6 @@ export default function ArticlesHero() {
                 </Link>
               </div>
             </div>
-          </div>
-
-          {/* Right column - Article image (2/5) */}
-          <div className="w-2/5 relative">
-            {currentArticle.image ? (
-              <>
-                <Image
-                  src={currentArticle.image}
-                  alt={currentArticle.title}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-                {/* Light filter overlay for brightness */}
-                <div className="absolute inset-0 bg-white/30"></div>
-                {/* Gradient overlay for readability */}
-                <div className="absolute inset-0 bg-gradient-to-l from-transparent via-primary-500/20 to-primary-600/30"></div>
-              </>
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200"></div>
-            )}
-
-            {/* Right arrow */}
-            {articles.length > 1 && (
-              <button
-                onClick={nextSlide}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-primary-200 transition-colors z-10"
-                aria-label="Další článek"
-              >
-                <ChevronRight size={32} className="md:w-10 md:h-10" />
-              </button>
-            )}
           </div>
         </div>
 

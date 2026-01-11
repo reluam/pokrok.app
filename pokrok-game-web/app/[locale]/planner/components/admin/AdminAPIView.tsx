@@ -23,6 +23,8 @@ export function AdminAPIView() {
   const [goalsMigrationResult, setGoalsMigrationResult] = useState<MigrationResult | null>(null)
   const [stepsMigrationLoading, setStepsMigrationLoading] = useState(false)
   const [stepsMigrationResult, setStepsMigrationResult] = useState<MigrationResult | null>(null)
+  const [habitsMigrationLoading, setHabitsMigrationLoading] = useState(false)
+  const [habitsMigrationResult, setHabitsMigrationResult] = useState<MigrationResult | null>(null)
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -195,6 +197,48 @@ export function AdminAPIView() {
       })
     } finally {
       setStepsMigrationLoading(false)
+    }
+  }
+
+  const handleRunHabitsMigration = async () => {
+    if (!confirm('Opravdu chcete spustit migraci šifrování habits? Tato operace může trvat několik sekund.')) {
+      return
+    }
+
+    setHabitsMigrationLoading(true)
+    setHabitsMigrationResult(null)
+
+    try {
+      const response = await fetch('/api/admin/migrate-encrypt-habits', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setHabitsMigrationResult({
+          success: false,
+          error: data.error || 'Neznámá chyba',
+          details: data.details,
+        })
+      } else {
+        setHabitsMigrationResult({
+          success: true,
+          summary: data.summary,
+          errors: data.errors,
+        })
+      }
+    } catch (error: any) {
+      setHabitsMigrationResult({
+        success: false,
+        error: 'Chyba při komunikaci s API',
+        details: error.message,
+      })
+    } finally {
+      setHabitsMigrationLoading(false)
     }
   }
 
@@ -391,6 +435,71 @@ export function AdminAPIView() {
                   <p className="text-sm text-gray-700">{stepsMigrationResult.error}</p>
                   {stepsMigrationResult.details && (
                     <p className="text-sm text-gray-600 mt-1">{stepsMigrationResult.details}</p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Habits Migration Script */}
+        <div className="border border-gray-200 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Encrypt Habits Migration</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Zašifruje všechny habits (name a description) pomocí aktuálního ENCRYPTION_MASTER_KEY
+              </p>
+            </div>
+            <button
+              onClick={handleRunHabitsMigration}
+              disabled={habitsMigrationLoading}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            >
+              {habitsMigrationLoading ? 'Spouštím...' : 'Spustit migraci'}
+            </button>
+          </div>
+
+          {habitsMigrationResult && (
+            <div className={`mt-4 p-4 rounded-lg ${
+              habitsMigrationResult.success 
+                ? 'bg-green-50 border border-green-200' 
+                : 'bg-red-50 border border-red-200'
+            }`}>
+              {habitsMigrationResult.success ? (
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-green-600 font-semibold">✅ Migrace proběhla úspěšně</span>
+                  </div>
+                  {habitsMigrationResult.summary && (
+                    <div className="text-sm text-gray-700 space-y-1">
+                      <p>Celkem habits: {habitsMigrationResult.summary.total}</p>
+                      <p>Zašifrováno: {habitsMigrationResult.summary.encrypted}</p>
+                      <p>Přeskočeno: {habitsMigrationResult.summary.skipped}</p>
+                      {habitsMigrationResult.summary.errors > 0 && (
+                        <p className="text-red-600">Chyby: {habitsMigrationResult.summary.errors}</p>
+                      )}
+                    </div>
+                  )}
+                  {habitsMigrationResult.errors && habitsMigrationResult.errors.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-sm font-semibold text-gray-700 mb-1">Chyby:</p>
+                      <ul className="text-sm text-gray-600 list-disc list-inside space-y-1">
+                        {habitsMigrationResult.errors.map((error, index) => (
+                          <li key={index}>{error}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-red-600 font-semibold">❌ Migrace selhala</span>
+                  </div>
+                  <p className="text-sm text-gray-700">{habitsMigrationResult.error}</p>
+                  {habitsMigrationResult.details && (
+                    <p className="text-sm text-gray-600 mt-1">{habitsMigrationResult.details}</p>
                   )}
                 </div>
               )}

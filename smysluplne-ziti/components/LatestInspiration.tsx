@@ -72,7 +72,7 @@ export default function LatestInspiration() {
             <span className="gradient-text">Poslední inspirace</span>
           </h2>
           <Link
-            href="/inspirace"
+            href="/blog"
             className="text-primary-600 hover:text-primary-700 font-semibold flex items-center justify-center gap-2 transition-colors text-lg"
           >
             Zobrazit všechny
