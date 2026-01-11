@@ -1695,7 +1695,7 @@ export async function completeDailyStep(stepId: string): Promise<DailyStep> {
     const userId = step.user_id
     const decrypted = decryptFields(step, userId, ['title', 'description'])
     if (step.checklist) {
-      decrypted.checklist = decryptChecklist(step.checklist, userId)
+      decrypted.checklist = decryptChecklist(step.checklist, userId) || undefined
     }
     return decrypted as DailyStep
   } catch (error) {
