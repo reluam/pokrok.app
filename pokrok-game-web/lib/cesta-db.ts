@@ -3101,7 +3101,7 @@ export async function createGoalMetric(metricData: Omit<GoalMetric, 'id' | 'crea
             name VARCHAR(255) NOT NULL,
             description TEXT,
             type VARCHAR(20) NOT NULL CHECK (type IN ('number', 'currency', 'percentage', 'distance', 'time', 'weight', 'custom')),
-            unit VARCHAR(50),
+            unit TEXT,
             target_value DECIMAL(10,2) NOT NULL,
             current_value DECIMAL(10,2) DEFAULT 0,
             initial_value DECIMAL(10,2) DEFAULT 0,
@@ -3160,6 +3160,11 @@ export async function createGoalMetric(metricData: Omit<GoalMetric, 'id' | 'crea
     const id = crypto.randomUUID()
     console.log('Generated metric ID:', id)
     
+    // Encrypt name, description, and unit before inserting
+    const encryptedName = metricData.name ? encrypt(metricData.name, metricData.user_id) : null
+    const encryptedDescription = metricData.description ? encrypt(metricData.description, metricData.user_id) : null
+    const encryptedUnit = metricData.unit ? encrypt(metricData.unit, metricData.user_id) : null
+    
     // Try with incremental_value first
     try {
       console.log('Attempting INSERT with incremental_value...')
@@ -3167,13 +3172,14 @@ export async function createGoalMetric(metricData: Omit<GoalMetric, 'id' | 'crea
         INSERT INTO goal_metrics (
           id, user_id, goal_id, name, description, type, unit, target_value, current_value, initial_value, incremental_value
         ) VALUES (
-          ${id}, ${metricData.user_id}, ${metricData.goal_id}, ${metricData.name}, 
-          ${metricData.description || null}, ${metricData.type}, ${metricData.unit}, 
+          ${id}, ${metricData.user_id}, ${metricData.goal_id}, ${encryptedName}, 
+          ${encryptedDescription}, ${metricData.type}, ${encryptedUnit}, 
           ${metricData.target_value}, ${metricData.current_value}, ${metricData.initial_value ?? 0}, ${metricData.incremental_value || 1}
         ) RETURNING *
       `
       console.log('INSERT successful, metric created:', metric[0])
-      return metric[0] as GoalMetric
+      // Decrypt before returning
+      return decryptFields(metric[0], metricData.user_id, ['name', 'description', 'unit']) as GoalMetric
     } catch (insertError: any) {
       console.error('INSERT with incremental_value failed:', {
         message: insertError?.message,
@@ -3189,14 +3195,16 @@ export async function createGoalMetric(metricData: Omit<GoalMetric, 'id' | 'crea
             INSERT INTO goal_metrics (
               id, user_id, goal_id, name, description, type, unit, target_value, current_value, initial_value
             ) VALUES (
-              ${id}, ${metricData.user_id}, ${metricData.goal_id}, ${metricData.name}, 
-              ${metricData.description || null}, ${metricData.type}, ${metricData.unit}, 
+              ${id}, ${metricData.user_id}, ${metricData.goal_id}, ${encryptedName}, 
+              ${encryptedDescription}, ${metricData.type}, ${encryptedUnit}, 
               ${metricData.target_value}, ${metricData.current_value}, ${metricData.initial_value ?? 0}
             ) RETURNING *
           `
           const result = metric[0] as any
           console.log('INSERT without incremental_value successful')
-          return { ...result, incremental_value: metricData.incremental_value || 1, initial_value: metricData.initial_value ?? 0 } as GoalMetric
+          // Decrypt before returning
+          const decrypted = decryptFields(result, metricData.user_id, ['name', 'description', 'unit'])
+          return { ...decrypted, incremental_value: metricData.incremental_value || 1, initial_value: metricData.initial_value ?? 0 } as GoalMetric
         } catch (fallbackError: any) {
           console.error('Fallback INSERT also failed:', {
             message: fallbackError?.message,
@@ -3228,7 +3236,10 @@ export async function getGoalMetricsByGoalId(goalId: string): Promise<GoalMetric
       WHERE goal_id = ${goalId}
       ORDER BY created_at ASC
     `
-    return metrics as GoalMetric[]
+    // Decrypt name, description, and unit for each metric
+    return metrics.map((metric: any) => 
+      decryptFields(metric, metric.user_id, ['name', 'description', 'unit'])
+    ) as GoalMetric[]
   } catch (error) {
     console.error('Error fetching goal metrics:', error)
     return []
@@ -3237,6 +3248,25 @@ export async function getGoalMetricsByGoalId(goalId: string): Promise<GoalMetric
 
 export async function updateGoalMetric(metricId: string, updates: Partial<Omit<GoalMetric, 'id' | 'user_id' | 'goal_id' | 'created_at'>>): Promise<GoalMetric> {
   try {
+    // Get user_id first (needed for encryption)
+    const existingMetric = await sql`SELECT user_id FROM goal_metrics WHERE id = ${metricId}`
+    if (!existingMetric || existingMetric.length === 0) {
+      throw new Error('Goal metric not found')
+    }
+    const userId = existingMetric[0].user_id
+    
+    // Migrate unit column from VARCHAR(50) to TEXT to support encrypted values
+    try {
+      await sql`
+        ALTER TABLE goal_metrics 
+        ALTER COLUMN unit TYPE TEXT
+      `
+      console.log('Migrated unit column from VARCHAR(50) to TEXT')
+    } catch (unitMigrationError: any) {
+      // Column might already be TEXT or migration might have failed
+      console.warn('Could not migrate unit column (might already be TEXT):', unitMigrationError?.message)
+    }
+    
     // Check if initial_value column exists, if not add it
     try {
       const columnCheck = await sql`
@@ -3254,15 +3284,20 @@ export async function updateGoalMetric(metricId: string, updates: Partial<Omit<G
       // Continue anyway, will try to update without it if column doesn't exist
     }
     
+    // Encrypt name, description, and unit if they are being updated
+    const encryptedName = updates.name !== undefined ? (updates.name ? encrypt(updates.name, userId) : null) : undefined
+    const encryptedDescription = updates.description !== undefined ? (updates.description ? encrypt(updates.description, userId) : null) : undefined
+    const encryptedUnit = updates.unit !== undefined ? (updates.unit ? encrypt(updates.unit, userId) : null) : undefined
+    
     // Build UPDATE query - COALESCE will use existing value if new value is NULL
     // We pass NULL for undefined values so COALESCE preserves the existing value
     const metric = await sql`
       UPDATE goal_metrics 
       SET 
-        name = COALESCE(${updates.name ?? null}, name),
-        description = COALESCE(${updates.description ?? null}, description),
+        name = ${encryptedName !== undefined ? encryptedName : sql`name`},
+        description = ${encryptedDescription !== undefined ? encryptedDescription : sql`description`},
         type = COALESCE(${updates.type ?? null}, type),
-        unit = COALESCE(${updates.unit ?? null}, unit),
+        unit = ${encryptedUnit !== undefined ? encryptedUnit : sql`unit`},
         target_value = COALESCE(${updates.target_value ?? null}, target_value),
         current_value = COALESCE(${updates.current_value ?? null}, current_value),
         initial_value = COALESCE(${updates.initial_value ?? null}, initial_value),
@@ -3271,7 +3306,8 @@ export async function updateGoalMetric(metricId: string, updates: Partial<Omit<G
       WHERE id = ${metricId}
       RETURNING *
     `
-    return metric[0] as GoalMetric
+    // Decrypt before returning
+    return decryptFields(metric[0], userId, ['name', 'description', 'unit']) as GoalMetric
   } catch (error) {
     console.error('Error updating goal metric:', error)
     throw error

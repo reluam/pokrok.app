@@ -25,6 +25,8 @@ export function AdminAPIView() {
   const [stepsMigrationResult, setStepsMigrationResult] = useState<MigrationResult | null>(null)
   const [habitsMigrationLoading, setHabitsMigrationLoading] = useState(false)
   const [habitsMigrationResult, setHabitsMigrationResult] = useState<MigrationResult | null>(null)
+  const [goalMetricsMigrationLoading, setGoalMetricsMigrationLoading] = useState(false)
+  const [goalMetricsMigrationResult, setGoalMetricsMigrationResult] = useState<MigrationResult | null>(null)
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -239,6 +241,48 @@ export function AdminAPIView() {
       })
     } finally {
       setHabitsMigrationLoading(false)
+    }
+  }
+
+  const handleRunGoalMetricsMigration = async () => {
+    if (!confirm('Opravdu chcete spustit migraci šifrování goal metrics? Tato operace může trvat několik sekund.')) {
+      return
+    }
+
+    setGoalMetricsMigrationLoading(true)
+    setGoalMetricsMigrationResult(null)
+
+    try {
+      const response = await fetch('/api/admin/migrate-encrypt-goal-metrics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setGoalMetricsMigrationResult({
+          success: false,
+          error: data.error || 'Neznámá chyba',
+          details: data.details,
+        })
+      } else {
+        setGoalMetricsMigrationResult({
+          success: true,
+          summary: data.summary,
+          errors: data.errors,
+        })
+      }
+    } catch (error: any) {
+      setGoalMetricsMigrationResult({
+        success: false,
+        error: 'Chyba při komunikaci s API',
+        details: error.message,
+      })
+    } finally {
+      setGoalMetricsMigrationLoading(false)
     }
   }
 
@@ -500,6 +544,71 @@ export function AdminAPIView() {
                   <p className="text-sm text-gray-700">{habitsMigrationResult.error}</p>
                   {habitsMigrationResult.details && (
                     <p className="text-sm text-gray-600 mt-1">{habitsMigrationResult.details}</p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Goal Metrics Migration Script */}
+        <div className="border border-gray-200 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Encrypt Goal Metrics Migration</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Zašifruje všechny goal metrics (name, description a unit) pomocí aktuálního ENCRYPTION_MASTER_KEY
+              </p>
+            </div>
+            <button
+              onClick={handleRunGoalMetricsMigration}
+              disabled={goalMetricsMigrationLoading}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            >
+              {goalMetricsMigrationLoading ? 'Spouštím...' : 'Spustit migraci'}
+            </button>
+          </div>
+
+          {goalMetricsMigrationResult && (
+            <div className={`mt-4 p-4 rounded-lg ${
+              goalMetricsMigrationResult.success 
+                ? 'bg-green-50 border border-green-200' 
+                : 'bg-red-50 border border-red-200'
+            }`}>
+              {goalMetricsMigrationResult.success ? (
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-green-600 font-semibold">✅ Migrace proběhla úspěšně</span>
+                  </div>
+                  {goalMetricsMigrationResult.summary && (
+                    <div className="text-sm text-gray-700 space-y-1">
+                      <p>Celkem goal metrics: {goalMetricsMigrationResult.summary.total}</p>
+                      <p>Zašifrováno: {goalMetricsMigrationResult.summary.encrypted}</p>
+                      <p>Přeskočeno: {goalMetricsMigrationResult.summary.skipped}</p>
+                      {goalMetricsMigrationResult.summary.errors > 0 && (
+                        <p className="text-red-600">Chyby: {goalMetricsMigrationResult.summary.errors}</p>
+                      )}
+                    </div>
+                  )}
+                  {goalMetricsMigrationResult.errors && goalMetricsMigrationResult.errors.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-sm font-semibold text-gray-700 mb-1">Chyby:</p>
+                      <ul className="text-sm text-gray-600 list-disc list-inside space-y-1">
+                        {goalMetricsMigrationResult.errors.map((error, index) => (
+                          <li key={index}>{error}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-red-600 font-semibold">❌ Migrace selhala</span>
+                  </div>
+                  <p className="text-sm text-gray-700">{goalMetricsMigrationResult.error}</p>
+                  {goalMetricsMigrationResult.details && (
+                    <p className="text-sm text-gray-600 mt-1">{goalMetricsMigrationResult.details}</p>
                   )}
                 </div>
               )}

@@ -11,7 +11,27 @@ export default function AppsSection() {
     <section id="aplikace" className="relative min-h-[90vh] flex items-center overflow-hidden">
       <div className="relative z-10 w-full h-full">
         <div className="relative h-full flex flex-col md:flex-row items-stretch">
-          {/* Text - on top for mobile, right for desktop (2/5) */}
+          {/* Left column - App image (3/5) */}
+          <div className="w-full md:w-3/5 relative aspect-video md:min-h-[600px] order-2 md:order-1">
+            <button
+              onClick={() => setIsImageModalOpen(true)}
+              className="relative w-full h-full cursor-pointer hover:opacity-95 transition-opacity block"
+            >
+              <Image
+                src="/pokrok-app.png"
+                alt="Aplikace Pokrok"
+                fill
+                className="object-cover object-left"
+                priority
+              />
+              {/* Light filter overlay for brightness */}
+              <div className="absolute inset-0 bg-white/30"></div>
+              {/* Gradient overlay for readability */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-500/20 to-primary-600/30"></div>
+            </button>
+          </div>
+
+          {/* Right column - App description (2/5) */}
           <div className="w-full md:w-2/5 bg-white/50 backdrop-blur-md shadow-2xl p-8 md:p-12 lg:p-16 flex flex-col justify-center order-1 md:order-2">
             <div className="flex-1 flex flex-col justify-center space-y-6">
               <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-text-primary">
@@ -42,28 +62,6 @@ export default function AppsSection() {
                 </a>
               </div>
             </div>
-          </div>
-
-          {/* Image - below text for mobile, left for desktop (3/5) */}
-          <div className="w-full md:w-3/5 relative order-2 md:order-1">
-            <button
-              onClick={() => setIsImageModalOpen(true)}
-              className="relative w-full cursor-pointer hover:opacity-95 transition-opacity block"
-            >
-              <div className="relative w-full aspect-video md:h-full">
-                <Image
-                  src="/pokrok-app.png"
-                  alt="Aplikace Pokrok"
-                  fill
-                  className="object-cover object-left"
-                  priority
-                />
-                {/* Light filter overlay for brightness */}
-                <div className="absolute inset-0 bg-white/30"></div>
-                {/* Gradient overlay for readability */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-500/20 to-primary-600/30"></div>
-              </div>
-            </button>
           </div>
         </div>
       </div>
