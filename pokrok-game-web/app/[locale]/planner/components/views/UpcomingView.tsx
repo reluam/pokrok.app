@@ -1055,14 +1055,14 @@ export function UpcomingView({
             </div>
           </div>
           <div className="flex justify-end">
-            <button
+              <button
               onClick={() => setCreateNewStepTrigger(prev => prev + 1)}
-              className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
-              title={t('steps.addStep') || 'Přidat krok'}
-            >
-              <Plus className="w-4 h-4" />
-              <span>{t('steps.addStep') || 'Přidat krok'}</span>
-            </button>
+                className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
+                title={t('steps.addStep') || 'Přidat krok'}
+              >
+                <Plus className="w-4 h-4" />
+                <span>{t('steps.addStep') || 'Přidat krok'}</span>
+              </button>
           </div>
         </div>
 
@@ -1073,14 +1073,14 @@ export function UpcomingView({
             <h1 className="text-2xl font-bold text-black font-playful">
               {t('views.upcoming.title') || 'Nadcházející'}
             </h1>
-            <button
+              <button
               onClick={() => setCreateNewStepTrigger(prev => prev + 1)}
-              className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
-              title={t('steps.addStep') || 'Přidat krok'}
-            >
-              <Plus className="w-4 h-4" />
-              <span>{t('steps.addStep') || 'Přidat krok'}</span>
-            </button>
+                className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
+                title={t('steps.addStep') || 'Přidat krok'}
+              >
+                <Plus className="w-4 h-4" />
+                <span>{t('steps.addStep') || 'Přidat krok'}</span>
+              </button>
           </div>
           {/* Second row: View mode switcher - centered */}
           <div className="flex justify-center">
@@ -1141,7 +1141,7 @@ export function UpcomingView({
                       isLoading
                         ? 'border-primary-500 bg-white'
                         : isCompleted
-                        ? 'bg-primary-500 border-primary-500'
+                          ? 'bg-primary-500 border-primary-500'
                         : 'border-primary-500 hover:bg-primary-50'
                     } ${isLoading ? 'cursor-not-allowed' : ''}`}
                   >
@@ -1353,8 +1353,8 @@ export function UpcomingView({
                           </>
         )}
           </>
-        )}
-        </div>
+                    )}
+                  </div>
       
       {/* Date Picker Modal */}
       {datePickerStep && datePickerPosition && (
