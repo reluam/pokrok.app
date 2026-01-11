@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { neon } from '@neondatabase/serverless'
-import { getUserByClerkId } from '@/lib/cesta-db'
+import { getUserByClerkId, getAreas } from '@/lib/cesta-db'
 
 const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
 
@@ -28,11 +28,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const areas = await sql`
-      SELECT * FROM areas 
-      WHERE user_id = ${targetUserId}
-      ORDER BY "order" ASC, created_at ASC
-    `
+    // Use getAreas function which handles decryption
+    const areas = await getAreas(targetUserId)
     
     return NextResponse.json({ areas })
   } catch (error: any) {

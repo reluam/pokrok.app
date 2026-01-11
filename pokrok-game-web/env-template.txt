@@ -11,3 +11,6 @@ NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/planner
 # Database (if needed)
 DATABASE_URL=your_database_url_here
 
+# Encryption Master Key (minimum 32 characters)
+# Generate with: openssl rand -base64 32
+ENCRYPTION_MASTER_KEY=8FiWs6D58y3gklZT9eQCDG6FrPv1Dx3HQMp8+KVDfWM=

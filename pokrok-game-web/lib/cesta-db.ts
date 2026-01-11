@@ -1,4 +1,5 @@
 import { neon } from '@neondatabase/serverless'
+import { encrypt, decryptFields } from './encryption'
 
 const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
 
@@ -4228,12 +4229,18 @@ export async function createArea(
   order: number = 0
 ): Promise<Area> {
   try {
+    // Encrypt text fields before inserting
+    const encryptedName = name ? encrypt(name, userId) : null
+    const encryptedDescription = description ? encrypt(description, userId) : null
+    
     const area = await sql`
       INSERT INTO areas (id, user_id, name, description, color, icon, "order")
-      VALUES (${crypto.randomUUID()}, ${userId}, ${name}, ${description || null}, ${color}, ${icon || null}, ${order})
+      VALUES (${crypto.randomUUID()}, ${userId}, ${encryptedName}, ${encryptedDescription}, ${color}, ${icon || null}, ${order})
       RETURNING *
     `
-    return area[0] as Area
+    
+    // Decrypt before returning (so API returns decrypted data)
+    return decryptFields(area[0], userId, ['name', 'description']) as Area
   } catch (error) {
     console.error('Error creating area:', error)
     throw error
@@ -4247,7 +4254,9 @@ export async function getAreas(userId: string): Promise<Area[]> {
       WHERE user_id = ${userId} 
       ORDER BY "order" ASC, created_at ASC
     `
-    return areas as Area[]
+    
+    // Decrypt all areas
+    return areas.map(area => decryptFields(area, userId, ['name', 'description'])) as Area[]
   } catch (error) {
     console.error('Error fetching areas:', error)
     return []
@@ -4259,16 +4268,32 @@ export async function updateArea(
   updates: Partial<Pick<Area, 'name' | 'description' | 'color' | 'icon' | 'order'>>
 ): Promise<Area> {
   try {
+    // First get the area to know the user_id
+    const existing = await sql`SELECT user_id FROM areas WHERE id = ${areaId}`
+    if (existing.length === 0) {
+      throw new Error('Area not found')
+    }
+    const userId = existing[0].user_id
+    
+    // Encrypt text fields that are being updated
+    const encryptedUpdates: any = { ...updates }
+    if (updates.name !== undefined) {
+      encryptedUpdates.name = updates.name ? encrypt(updates.name, userId) : null
+    }
+    if (updates.description !== undefined) {
+      encryptedUpdates.description = updates.description ? encrypt(updates.description, userId) : null
+    }
+    
     const setParts = []
     const values = []
     
-    if (updates.name !== undefined) {
+    if (encryptedUpdates.name !== undefined) {
       setParts.push(`name = $${setParts.length + 1}`)
-      values.push(updates.name)
+      values.push(encryptedUpdates.name)
     }
-    if (updates.description !== undefined) {
+    if (encryptedUpdates.description !== undefined) {
       setParts.push(`description = $${setParts.length + 1}`)
-      values.push(updates.description)
+      values.push(encryptedUpdates.description)
     }
     if (updates.color !== undefined) {
       setParts.push(`color = $${setParts.length + 1}`)
@@ -4298,7 +4323,9 @@ export async function updateArea(
     `
     
     const area = await sql.query(query, [...values, areaId])
-    return area[0] as Area
+    
+    // Decrypt before returning
+    return decryptFields(area[0], userId, ['name', 'description']) as Area
   } catch (error) {
     console.error('Error updating area:', error)
     throw error
