@@ -6,15 +6,6 @@ export default function AboutPage() {
     <section className="section-padding relative overflow-hidden pt-20">
         
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          {/* Back button */}
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-text-secondary hover:text-primary-600 mb-6 md:mb-8 transition-colors"
-          >
-            <ArrowLeft size={18} />
-            <span className="text-sm md:text-base">Zpět na hlavní stránku</span>
-          </Link>
-
           {/* Main title */}
           <div className="mb-8 md:mb-12">
             <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-text-primary mb-4 md:mb-6 leading-tight">

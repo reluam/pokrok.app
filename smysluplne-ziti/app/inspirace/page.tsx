@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Book, Video, FileText, ExternalLink, ArrowLeft, Calendar, ArrowRight } from 'lucide-react'
+import { Book, Video, FileText, ExternalLink, Calendar, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import type { InspirationData, InspirationItem } from '@/lib/inspiration'
 import type { Article } from '@/lib/articles'
@@ -74,15 +74,6 @@ export default function InspirationPage() {
     <section className="section-padding relative overflow-hidden pt-20">
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          {/* Back button */}
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-text-secondary hover:text-primary-600 mb-6 md:mb-8 transition-colors"
-          >
-            <ArrowLeft size={18} />
-            <span className="text-sm md:text-base">Zpět na hlavní stránku</span>
-          </Link>
-
           {/* Two column layout */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-12">
             {/* Left column - Articles (Blog) */}
@@ -103,27 +94,30 @@ export default function InspirationPage() {
                     <Link
                       key={article.id}
                       href={`/clanky/${article.slug}`}
-                      className="group block p-4 md:p-6 lg:p-8 border-b-2 border-primary-100 hover:border-primary-300 transition-all duration-300"
+                      className="group block p-4 md:p-6 lg:p-8 transition-all duration-300"
                     >
-                      <div className="flex items-center gap-2 mb-3 md:mb-4">
-                        <FileText className="text-primary-600" size={18} />
-                        <span className="text-xs md:text-sm text-primary-600 font-semibold">Článek</span>
-                      </div>
-                      <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-text-primary mb-3 md:mb-4 group-hover:text-primary-600 transition-colors">
-                        {article.title}
-                      </h2>
-                      <p className="text-text-secondary mb-4 text-base md:text-lg leading-relaxed">
-                        {article.excerpt}
-                      </p>
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs md:text-sm text-text-light">
-                        <div className="flex items-center gap-2">
-                          <Calendar size={14} />
-                          <span>{new Date(article.createdAt).toLocaleDateString('cs-CZ')}</span>
+                      {/* Content */}
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2 mb-3 md:mb-4">
+                          <FileText className="text-primary-600" size={18} />
+                          <span className="text-xs md:text-sm text-primary-600 font-semibold">Článek</span>
                         </div>
-                        <span className="text-primary-600 group-hover:text-primary-700 font-semibold flex items-center gap-1">
-                          Číst více
-                          <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                        </span>
+                        <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-text-primary mb-3 md:mb-4 group-hover:text-primary-600 transition-colors">
+                          {article.title}
+                        </h2>
+                        <p className="text-text-secondary mb-4 text-base md:text-lg leading-relaxed">
+                          {article.excerpt}
+                        </p>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs md:text-sm text-text-light mt-auto">
+                          <div className="flex items-center gap-2">
+                            <Calendar size={14} />
+                            <span>{new Date(article.createdAt).toLocaleDateString('cs-CZ')}</span>
+                          </div>
+                          <span className="text-primary-600 group-hover:text-primary-700 font-semibold flex items-center gap-1">
+                            Číst více
+                            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                          </span>
+                        </div>
                       </div>
                     </Link>
                   ))}

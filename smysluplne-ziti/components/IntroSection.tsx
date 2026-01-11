@@ -57,7 +57,7 @@ export default function IntroSection() {
             </div>
 
             {/* Tlačítka dole */}
-            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center pt-6 md:pt-8 border-t-2 border-primary-100/50">
+            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center pt-6 md:pt-8">
               <Link
                 href="/inspirace"
                 className="group flex items-center justify-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 rounded-full bg-primary-600 text-white font-semibold text-base md:text-lg hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform w-full sm:w-auto min-w-[160px] md:min-w-[180px]"

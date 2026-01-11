@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowLeft, User, Mail, MessageSquare, Loader2, Send } from 'lucide-react'
+import { User, Mail, MessageSquare, Loader2, Send } from 'lucide-react'
 import Link from 'next/link'
 
 export default function KontaktPage() {
@@ -71,15 +71,6 @@ export default function KontaktPage() {
     <section className="section-padding relative overflow-hidden pt-20">
         
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          {/* Back button */}
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-text-secondary hover:text-primary-600 mb-6 md:mb-8 transition-colors"
-          >
-            <ArrowLeft size={18} />
-            <span className="text-sm md:text-base">Zpět na hlavní stránku</span>
-          </Link>
-
           <div className="text-center mb-8 md:mb-12">
             <div className="inline-block px-4 py-2 rounded-full bg-primary-100 text-primary-700 text-xs md:text-sm font-semibold mb-4 md:mb-6">
               Kontakt

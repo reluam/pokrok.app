@@ -48,6 +48,10 @@ body {
   .container-padding {
     @apply px-4 sm:px-6 lg:px-8;
   }
+  
+  .bg-gradient-radial {
+    background: radial-gradient(circle, var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to));
+  }
 }
 
 /* Smooth animations */

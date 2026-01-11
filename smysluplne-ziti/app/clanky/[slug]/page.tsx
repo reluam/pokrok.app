@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { ArrowLeft, Calendar, FileText, Book, Video, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { getArticleBySlug } from '@/lib/articles'
 import { getInspirationData } from '@/lib/inspiration'
 import ReactMarkdown from 'react-markdown'
@@ -49,18 +50,9 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
   }
 
   return (
-    <article className="section-padding relative overflow-hidden pt-20">
+    <article className="section-padding relative overflow-hidden pt-20 min-h-screen">
         
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          {/* Back button */}
-          <Link
-            href="/clanky"
-            className="inline-flex items-center gap-2 text-text-secondary hover:text-primary-600 mb-6 md:mb-8 transition-colors"
-          >
-            <ArrowLeft size={18} />
-            <span className="text-sm md:text-base">Zpět na seznam článků</span>
-          </Link>
-
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           {/* Article header */}
           <header className="mb-8 md:mb-12">
             <div className="flex items-center gap-2 mb-3 md:mb-4">

@@ -31,17 +31,17 @@ export default function AdminClankyPage() {
 
     setUploadingImage(true)
     try {
-      const formData = new FormData()
-      formData.append('file', file)
+      const uploadFormData = new FormData()
+      uploadFormData.append('file', file)
 
       const res = await fetch('/api/upload', {
         method: 'POST',
-        body: formData,
+        body: uploadFormData,
       })
 
       if (res.ok) {
         const data = await res.json()
-        setFormData({ ...formData, image: data.url })
+        setFormData((prev) => ({ ...prev, image: data.url }))
       } else {
         const error = await res.json()
         alert(error.error || 'Chyba při nahrávání obrázku')

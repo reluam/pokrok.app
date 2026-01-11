@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Calendar, User, Mail, MessageSquare, Loader2, X, Gift, Target, Send } from 'lucide-react'
+import { Calendar, User, Mail, MessageSquare, Loader2, X, Gift, Target, Send } from 'lucide-react'
 import Link from 'next/link'
 import Script from 'next/script'
 
@@ -82,15 +82,6 @@ export default function CoachingPage() {
       <section className="section-padding relative overflow-hidden pt-20">
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          {/* Back button */}
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-text-secondary hover:text-primary-600 mb-8 transition-colors"
-          >
-            <ArrowLeft size={20} />
-            <span>Zpět na hlavní stránku</span>
-          </Link>
-
           {/* Main title */}
           <div className="mb-8 md:mb-12 text-center">
             <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-text-primary mb-4 md:mb-6 leading-tight px-4">
@@ -140,7 +131,7 @@ export default function CoachingPage() {
                     })
                   }
                 }}
-                className="w-full bg-primary-600 text-white py-3 md:py-4 px-6 text-base md:text-lg font-semibold rounded-full hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform flex items-center justify-center gap-2"
+                className="w-full border-2 border-primary-600 text-primary-600 bg-transparent py-3 md:py-4 px-6 text-base md:text-lg font-semibold hover:bg-primary-600 hover:text-white transition-all duration-300 flex items-center justify-center gap-2"
               >
                 <Calendar size={20} />
                 Rezervovat koučing
@@ -178,7 +169,7 @@ export default function CoachingPage() {
               </div>
               <button
                 onClick={() => setShowFreeModal(true)}
-                className="w-full bg-primary-600 text-white py-3 md:py-4 px-6 text-base md:text-lg font-semibold rounded-full hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform flex items-center justify-center gap-2"
+                className="w-full border-2 border-primary-600 text-primary-600 bg-transparent py-3 md:py-4 px-6 text-base md:text-lg font-semibold hover:bg-primary-600 hover:text-white transition-all duration-300 flex items-center justify-center gap-2"
               >
                 <Gift size={20} />
                 Rezervovat konzultaci zdarma
@@ -294,7 +285,7 @@ export default function CoachingPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-primary-600 text-white py-4 px-6 rounded-full font-semibold text-lg hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
+                  className="w-full border-2 border-primary-600 text-primary-600 bg-transparent py-4 px-6 font-semibold text-lg hover:bg-primary-600 hover:text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-primary-600 flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>
