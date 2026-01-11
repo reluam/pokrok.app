@@ -7,11 +7,22 @@ const KEY_LENGTH = 32
 const PBKDF2_ITERATIONS = 100000
 const PBKDF2_DIGEST = 'sha256'
 
+// PERFORMANCE: Request-scoped cache for encryption keys
+// This prevents recalculating PBKDF2 for the same userId multiple times during one request
+// Cache is cleared after each request (Next.js serverless functions are stateless)
+const encryptionKeyCache = new Map<string, Buffer>()
+
 /**
  * Derives encryption key for a specific user
  * Uses PBKDF2 with master key + user ID as salt
+ * CACHED: Key is cached per userId to avoid recalculating PBKDF2 multiple times
  */
 function getEncryptionKey(userId: string): Buffer {
+  // Check cache first (critical for performance when decrypting many items)
+  if (encryptionKeyCache.has(userId)) {
+    return encryptionKeyCache.get(userId)!
+  }
+  
   const masterKey = process.env.ENCRYPTION_MASTER_KEY
   
   if (!masterKey) {
@@ -23,13 +34,27 @@ function getEncryptionKey(userId: string): Buffer {
   }
   
   // Derive key using PBKDF2: master key as password, userId as salt
-  return crypto.pbkdf2Sync(
+  // This is expensive (100k iterations), so we cache it per userId
+  const key = crypto.pbkdf2Sync(
     masterKey,
     userId,
     PBKDF2_ITERATIONS,
     KEY_LENGTH,
     PBKDF2_DIGEST
   )
+  
+  // Cache the key for this request
+  encryptionKeyCache.set(userId, key)
+  
+  return key
+}
+
+/**
+ * Clears the encryption key cache
+ * Call this at the end of a request to free memory (optional, as cache will be cleared when function ends)
+ */
+export function clearEncryptionKeyCache(): void {
+  encryptionKeyCache.clear()
 }
 
 /**

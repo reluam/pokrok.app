@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import { ChevronLeft, ChevronRight, Sparkles, Search, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Sparkles, Search, X, Plus, Target, Footprints, CheckSquare, Layers } from 'lucide-react'
 import { AssistantPanelHeader } from './AssistantPanelHeader'
 import { AssistantSearch } from './AssistantSearch'
 import { AssistantTips } from './AssistantTips'
@@ -17,6 +17,9 @@ interface AssistantPanelProps {
   onNavigateToArea: (areaId: string) => void
   onNavigateToHabits: (habitId?: string) => void
   onMinimizeStateChange?: (isMinimized: boolean, isSmallScreen: boolean) => void
+  onOpenHabitModal?: (habit?: any) => void
+  onOpenAreasManagementModal?: () => void
+  onCreateGoal?: () => void
 }
 
 export function AssistantPanel({
@@ -27,7 +30,10 @@ export function AssistantPanel({
   onNavigateToGoal,
   onNavigateToArea,
   onNavigateToHabits,
-  onMinimizeStateChange
+  onMinimizeStateChange,
+  onOpenHabitModal,
+  onOpenAreasManagementModal,
+  onCreateGoal
 }: AssistantPanelProps) {
   const t = useTranslations()
   const [isEnabled, setIsEnabled] = useState(true) // Default true, will be loaded from settings
@@ -47,6 +53,7 @@ export function AssistantPanel({
     typeof window !== 'undefined' ? window.innerWidth < 640 : false
   )
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [showAddMenu, setShowAddMenu] = useState(false)
 
   // Load assistant enabled state and show tips setting from localStorage
   useEffect(() => {
@@ -144,14 +151,94 @@ export function AssistantPanel({
   if (isMobile) {
     return (
       <>
-        {/* Floating button - bottom right */}
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="fixed bottom-6 right-6 z-[99] w-14 h-14 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ease-in-out active:scale-95"
-          aria-label={t('assistant.expand')}
-        >
-          <Sparkles className="w-6 h-6" />
-        </button>
+        {/* Floating buttons - bottom right */}
+        <div className="fixed bottom-6 right-6 z-[99] flex flex-col gap-3 items-end">
+          {/* Add button with menu */}
+          {showAddMenu && (
+            <>
+              {/* Backdrop to close menu */}
+              <div 
+                className="fixed inset-0 z-[98]"
+                onClick={() => setShowAddMenu(false)}
+              />
+              <div className="flex flex-col gap-2 mb-2 z-[99] bg-white rounded-xl shadow-xl border-2 border-primary-200 p-2">
+                <button
+                  onClick={() => {
+                    if (onOpenAreasManagementModal) {
+                      onOpenAreasManagementModal()
+                    }
+                    setShowAddMenu(false)
+                  }}
+                  className="flex items-center gap-3 px-4 py-3 bg-white hover:bg-gray-50 active:bg-gray-100 text-primary-600 rounded-lg transition-all duration-200 border border-primary-200 min-w-[160px]"
+                  aria-label={t('areas.add') || 'Přidat oblast'}
+                >
+                  <Layers className="w-5 h-5 flex-shrink-0" />
+                  <span className="text-sm font-medium">{t('areas.add') || 'Přidat oblast'}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    if (onCreateGoal) {
+                      onCreateGoal()
+                    }
+                    setShowAddMenu(false)
+                  }}
+                  className="flex items-center gap-3 px-4 py-3 bg-white hover:bg-gray-50 active:bg-gray-100 text-primary-600 rounded-lg transition-all duration-200 border border-primary-200 min-w-[160px]"
+                  aria-label={t('goals.add') || 'Přidat cíl'}
+                >
+                  <Target className="w-5 h-5 flex-shrink-0" />
+                  <span className="text-sm font-medium">{t('goals.add') || 'Přidat cíl'}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    if (onOpenStepModal) {
+                      onOpenStepModal(undefined)
+                    }
+                    setShowAddMenu(false)
+                  }}
+                  className="flex items-center gap-3 px-4 py-3 bg-white hover:bg-gray-50 active:bg-gray-100 text-primary-600 rounded-lg transition-all duration-200 border border-primary-200 min-w-[160px]"
+                  aria-label={t('steps.addStep') || 'Přidat krok'}
+                >
+                  <Footprints className="w-5 h-5 flex-shrink-0" />
+                  <span className="text-sm font-medium">{t('steps.addStep') || 'Přidat krok'}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    if (onOpenHabitModal) {
+                      onOpenHabitModal(undefined)
+                    }
+                    setShowAddMenu(false)
+                  }}
+                  className="flex items-center gap-3 px-4 py-3 bg-white hover:bg-gray-50 active:bg-gray-100 text-primary-600 rounded-lg transition-all duration-200 border border-primary-200 min-w-[160px]"
+                  aria-label={t('habits.add') || 'Přidat návyk'}
+                >
+                  <CheckSquare className="w-5 h-5 flex-shrink-0" />
+                  <span className="text-sm font-medium">{t('habits.add') || 'Přidat návyk'}</span>
+                </button>
+              </div>
+            </>
+          )}
+          
+          {/* Assistant button - on top */}
+          <button
+            onClick={() => {
+              setShowAddMenu(false) // Close add menu when opening assistant
+              setIsModalOpen(true)
+            }}
+            className="w-14 h-14 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ease-in-out active:scale-95 z-[99]"
+            aria-label={t('assistant.expand')}
+          >
+            <Sparkles className="w-6 h-6" />
+          </button>
+          
+          {/* Add button - below assistant */}
+          <button
+            onClick={() => setShowAddMenu(!showAddMenu)}
+            className={`w-14 h-14 ${showAddMenu ? 'bg-primary-600' : 'bg-primary-500'} hover:bg-primary-600 active:bg-primary-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ease-in-out active:scale-95 z-[99]`}
+            aria-label={t('common.add') || 'Přidat'}
+          >
+            {showAddMenu ? <X className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
+          </button>
+        </div>
 
         {/* Fullscreen modal */}
         {isModalOpen && (

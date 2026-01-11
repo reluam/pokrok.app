@@ -1,5 +1,5 @@
 import { neon } from '@neondatabase/serverless'
-import { encrypt, decryptFields, encryptFields, encryptChecklist, decryptChecklist } from './encryption'
+import { encrypt, decryptFields, encryptFields, encryptChecklist, decryptChecklist, clearEncryptionKeyCache } from './encryption'
 
 const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
 
@@ -16,7 +16,7 @@ const HABITS_CACHE_TTL = 5000 // 5 seconds - short TTL to ensure fresh data afte
 
 // Cache for getGoalsByUserId (optimized TTL for better performance)
 const goalsCache = new Map<string, { goals: any[], timestamp: number }>()
-const GOALS_CACHE_TTL = 0 // Disable cache for immediate updates
+const GOALS_CACHE_TTL = 5000 // 5 seconds - short TTL to ensure fresh data after updates
 
 function cleanupCache() {
   const now = Date.now()
@@ -169,7 +169,6 @@ export interface DailyStep {
   created_at: Date
   aspiration_id?: string
   deadline?: Date
-  metric_id?: string
   area_id?: string
   isCompleting?: boolean // Loading state for completion
   estimated_time?: number
@@ -178,19 +177,6 @@ export interface DailyStep {
   require_checklist_complete?: boolean
   frequency?: string | null
   selected_days?: string[]
-}
-
-export interface Metric {
-  id: string
-  user_id: string
-  step_id: string
-  name: string
-  description?: string
-  target_value: number
-  current_value: number
-  unit: string
-  created_at: Date
-  updated_at: Date
 }
 
 export interface GoalMetric {
@@ -234,7 +220,6 @@ export interface Event {
   is_urgent: boolean
   created_at: Date
   event_type: 'metric_update' | 'step_reminder'
-  target_metric_id?: string
   target_step_id?: string
   update_value?: number
   update_unit?: string
@@ -603,23 +588,7 @@ export async function initializeCestaDatabase() {
       )
     `
 
-    // Create metrics table (legacy - for step metrics)
-    await sql`
-      CREATE TABLE IF NOT EXISTS metrics (
-        id VARCHAR(255) PRIMARY KEY,
-        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        step_id VARCHAR(255) NOT NULL REFERENCES daily_steps(id) ON DELETE CASCADE,
-        name VARCHAR(255) NOT NULL,
-        description TEXT,
-        target_value DECIMAL(10,2) NOT NULL,
-        current_value DECIMAL(10,2) DEFAULT 0,
-        unit VARCHAR(50) NOT NULL,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-      )
-    `
-
-    // Create goal_metrics table (new - for goal-level metrics)
+    // Create goal_metrics table (for goal-level metrics)
     await sql`
       CREATE TABLE IF NOT EXISTS goal_metrics (
         id VARCHAR(255) PRIMARY KEY,
@@ -749,7 +718,6 @@ export async function initializeCestaDatabase() {
         is_important BOOLEAN DEFAULT FALSE,
         is_urgent BOOLEAN DEFAULT FALSE,
         event_type VARCHAR(20) NOT NULL CHECK (event_type IN ('metric_update', 'step_reminder')),
-        target_metric_id VARCHAR(255) REFERENCES metrics(id) ON DELETE CASCADE,
         target_step_id VARCHAR(255) REFERENCES daily_steps(id) ON DELETE CASCADE,
         update_value DECIMAL(10,2),
         update_unit VARCHAR(50),
@@ -919,11 +887,6 @@ export async function initializeCestaDatabase() {
       )
     `
 
-    // Add metric_id column to daily_steps table
-    await sql`
-      ALTER TABLE daily_steps 
-      ADD COLUMN IF NOT EXISTS metric_id VARCHAR(255) REFERENCES metrics(id) ON DELETE SET NULL
-    `
 
     // Create indexes for better performance
     await sql`CREATE INDEX IF NOT EXISTS idx_values_user_id ON values(user_id)`
@@ -962,8 +925,6 @@ export async function initializeCestaDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_date ON daily_steps(date)`
     await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_completed ON daily_steps(completed)`
     await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_deadline ON daily_steps(deadline)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_metrics_user_id ON metrics(user_id)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_metrics_step_id ON metrics(step_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_goal_metrics_user_id ON goal_metrics(user_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_goal_metrics_goal_id ON goal_metrics(goal_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_automations_user_id ON automations(user_id)`
@@ -1348,7 +1309,17 @@ export async function getDailyStepsByUserId(
           TO_CHAR(current_instance_date, 'YYYY-MM-DD') as current_instance_date
         FROM daily_steps 
         WHERE user_id = ${userId}
-        AND (date >= ${startOfDay} AND date <= ${endOfDay} OR frequency IS NOT NULL)
+        AND (
+          -- Non-recurring steps with date in range
+          (frequency IS NULL AND date >= ${startOfDay} AND date <= ${endOfDay})
+          OR
+          -- Recurring steps with current_instance_date or date in range
+          (frequency IS NOT NULL AND (
+            (current_instance_date >= ${startOfDay} AND current_instance_date <= ${endOfDay})
+            OR
+            (current_instance_date IS NULL AND date >= ${startOfDay} AND date <= ${endOfDay})
+          ))
+        )
         ORDER BY 
           CASE WHEN completed THEN 1 ELSE 0 END,
           is_important DESC,
@@ -1357,6 +1328,8 @@ export async function getDailyStepsByUserId(
       `
     } else if (startDate && endDate) {
       // Get steps for date range (optimized query)
+      // PERFORMANCE FIX: Recurring steps now have correct date in database, so we can filter by date range
+      // Only include recurring steps that have current_instance_date or date within range
       query = sql`
         SELECT 
           id, user_id, goal_id, title, description, completed, 
@@ -1374,7 +1347,17 @@ export async function getDailyStepsByUserId(
           TO_CHAR(current_instance_date, 'YYYY-MM-DD') as current_instance_date
         FROM daily_steps 
         WHERE user_id = ${userId}
-        AND (date >= ${startDate}::date AND date <= ${endDate}::date OR frequency IS NOT NULL)
+        AND (
+          -- Non-recurring steps with date in range
+          (frequency IS NULL AND date >= ${startDate}::date AND date <= ${endDate}::date)
+          OR
+          -- Recurring steps with current_instance_date or date in range
+          (frequency IS NOT NULL AND (
+            (current_instance_date >= ${startDate}::date AND current_instance_date <= ${endDate}::date)
+            OR
+            (current_instance_date IS NULL AND date >= ${startDate}::date AND date <= ${endDate}::date)
+          ))
+        )
         ORDER BY 
           CASE WHEN completed THEN 1 ELSE 0 END,
           date ASC NULLS LAST,
@@ -1410,10 +1393,18 @@ export async function getDailyStepsByUserId(
       `
     }
     
+    const queryStartTime = performance.now()
     const steps = await query
+    const queryTime = performance.now() - queryStartTime
+    
+    if (steps.length > 0) {
+      console.log(`[Performance DB] SQL query returned ${steps.length} steps in ${queryTime.toFixed(2)}ms`)
+    }
     
     // Decrypt all steps (title, description, and checklist)
-    return steps.map(step => {
+    // PERFORMANCE: This can be slow for large datasets (decryption is CPU-intensive)
+    const decryptStartTime = performance.now()
+    const decryptedSteps = steps.map((step, index) => {
       const decrypted = decryptFields(step, userId, ['title', 'description'])
       // Decrypt checklist items
       if (step.checklist) {
@@ -1421,6 +1412,18 @@ export async function getDailyStepsByUserId(
       }
       return decrypted
     }) as DailyStep[]
+    const decryptTime = performance.now() - decryptStartTime
+    
+    if (decryptedSteps.length > 0) {
+      const avgTimePerStep = (decryptTime / decryptedSteps.length).toFixed(2)
+      console.log(`[Performance DB] Decrypted ${decryptedSteps.length} steps in ${decryptTime.toFixed(2)}ms (avg ${avgTimePerStep}ms per step)`)
+      console.log(`[Performance DB] Total: SQL ${queryTime.toFixed(2)}ms + Decrypt ${decryptTime.toFixed(2)}ms = ${(queryTime + decryptTime).toFixed(2)}ms`)
+    }
+    
+    // Clear encryption key cache after request to free memory
+    clearEncryptionKeyCache()
+    
+    return decryptedSteps
   } catch (error) {
     console.error('Error fetching daily steps:', error)
     return []
@@ -2503,11 +2506,6 @@ export async function deleteGoalById(goalId: string, deleteSteps: boolean = fals
         }
         
         await sql`
-          DELETE FROM metrics 
-          WHERE step_id = ANY(${stepIds})
-        `
-        
-        await sql`
           DELETE FROM automations 
           WHERE target_id = ANY(${stepIds})
         `
@@ -2643,13 +2641,6 @@ export async function deleteGoal(goalId: string, userId: string): Promise<void> 
         `
       }
       
-      // Delete related metrics
-      console.log('📊 Deleting metrics...')
-      await sql`
-        DELETE FROM metrics 
-        WHERE step_id = ANY(${stepIds})
-      `
-      
       // Delete related automations
       console.log('🤖 Deleting automations...')
       await sql`
@@ -2703,40 +2694,6 @@ export async function determineGoalCategoryWithSettings(targetDate: Date | null,
     return 'medium-term'
   } else {
     return 'long-term'
-  }
-}
-
-export async function updateGoalProgressFromMetrics(goalId: string) {
-  try {
-    // Use a single query to calculate and update progress
-    const result = await sql`
-      WITH step_progress AS (
-        SELECT 
-          CASE 
-            WHEN ds.metric_id IS NOT NULL AND m.target_value > 0 AND m.current_value IS NOT NULL THEN
-              LEAST((m.current_value / m.target_value) * 100, 100)
-            WHEN ds.completed THEN 100
-            ELSE 0
-          END as progress
-        FROM daily_steps ds
-        LEFT JOIN metrics m ON ds.metric_id = m.id
-        WHERE ds.goal_id = ${goalId}
-      )
-      UPDATE goals 
-      SET 
-        progress_percentage = COALESCE(
-          (SELECT ROUND(AVG(progress)) FROM step_progress), 
-          0
-        ),
-        updated_at = NOW()
-      WHERE id = ${goalId}
-    `
-
-    console.log(`Updated goal ${goalId} progress using optimized query`)
-    return result
-  } catch (error) {
-    console.error('Error updating goal progress from metrics:', error)
-    throw error
   }
 }
 
@@ -3476,12 +3433,12 @@ export async function createEvent(eventData: Omit<Event, 'id' | 'created_at'>): 
       INSERT INTO events (
         id, user_id, goal_id, automation_id, title, description, 
         completed, date, is_important, is_urgent, event_type,
-        target_metric_id, target_step_id, update_value, update_unit
+        target_step_id, update_value, update_unit
       ) VALUES (
         ${id}, ${eventData.user_id}, ${eventData.goal_id}, ${eventData.automation_id},
         ${eventData.title}, ${eventData.description || null}, ${eventData.completed},
         ${eventData.date}, ${eventData.is_important}, ${eventData.is_urgent},
-        ${eventData.event_type}, ${eventData.target_metric_id || null},
+        ${eventData.event_type},
         ${eventData.target_step_id || null}, ${eventData.update_value || null},
         ${eventData.update_unit || null}
       ) RETURNING *
@@ -4720,6 +4677,7 @@ export async function getHabitsByUserId(userId: string, forceFresh: boolean = fa
       habitsCache.delete(userId)
     }
 
+    // Only load completions from last 90 days to avoid loading excessive historical data
     const result = await sql`
       SELECT h.*, 
              COALESCE(
@@ -4730,7 +4688,8 @@ export async function getHabitsByUserId(userId: string, forceFresh: boolean = fa
                '{}'::json
              ) as habit_completions
       FROM habits h
-      LEFT JOIN habit_completions hc ON h.id = hc.habit_id
+      LEFT JOIN habit_completions hc ON h.id = hc.habit_id 
+        AND hc.completion_date >= CURRENT_DATE - INTERVAL '90 days'
       WHERE h.user_id = ${userId}
       GROUP BY h.id
       ORDER BY h.created_at DESC

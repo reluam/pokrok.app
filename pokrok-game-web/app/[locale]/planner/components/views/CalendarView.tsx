@@ -10,6 +10,7 @@ interface CalendarViewProps {
   goals?: any[]
   habits?: any[]
   dailySteps?: any[]
+  isLoadingSteps?: boolean
   selectedDayDate?: Date
   setSelectedDayDate?: (date: Date) => void
   setShowDatePickerModal?: (show: boolean) => void
@@ -46,6 +47,7 @@ export function CalendarView({
   goals = [],
   habits = [],
   dailySteps = [],
+  isLoadingSteps = false,
   selectedDayDate,
   setSelectedDayDate,
   setShowDatePickerModal,
@@ -86,6 +88,7 @@ export function CalendarView({
             goals={goals}
             habits={habits}
             dailySteps={dailySteps}
+            isLoadingSteps={isLoadingSteps}
             areas={areas}
             selectedDayDate={selectedDayDate || new Date()}
             setSelectedDayDate={setSelectedDayDate || (() => {})}

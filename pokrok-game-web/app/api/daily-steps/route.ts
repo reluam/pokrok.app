@@ -389,116 +389,45 @@ export async function GET(request: NextRequest) {
     }
 
     // Get daily steps for user with optional date filtering
+    const apiStartTime = Date.now()
     let steps
     if (startDate && endDate) {
       // Date range query (optimized)
+      console.log(`[API Performance] Fetching steps for range: ${startDate} to ${endDate}`)
       steps = await getDailyStepsByUserId(targetUserId, undefined, startDate, endDate)
     } else if (date) {
       // Single date query
+      console.log(`[API Performance] Fetching steps for date: ${date}`)
       steps = await getDailyStepsByUserId(targetUserId, new Date(date))
     } else {
       // All steps (fallback - should be avoided for performance)
+      console.log('[API Performance] WARNING: Fetching ALL steps (no date filter)')
       steps = await getDailyStepsByUserId(targetUserId)
     }
     
-    // Check if we need to create more instances for OLD recurring step templates (is_hidden = true)
-    // NEW recurring steps (is_hidden = false) are normal steps with current_instance_date - no separate instances needed
-    const oldRecurringStepTemplates = await sql`
-      SELECT 
-        id, user_id, goal_id, title, description, 
-        frequency, COALESCE(selected_days, CAST('[]' AS jsonb)) as selected_days,
-        is_important, is_urgent, aspiration_id, area_id,
-        estimated_time, xp_reward, deadline,
-        checklist, require_checklist_complete,
-        TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
-        TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
-        TO_CHAR(last_instance_date, 'YYYY-MM-DD') as last_instance_date
-      FROM daily_steps
-      WHERE user_id = ${targetUserId}
-      AND is_hidden = true
-      AND frequency IS NOT NULL
-    `
+    const apiTime = Date.now() - apiStartTime
+    console.log(`[API Performance] getDailyStepsByUserId returned ${steps.length} steps in ${apiTime}ms`)
     
-    // For each OLD recurring step template (backward compatibility), check if we need to create more instances
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const thirtyDaysFromNow = new Date(today)
-    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30)
+    // Log to client via response headers for debugging (if needed)
+    // Note: Server-side console.log appears in server logs, not browser console
     
-    for (const template of oldRecurringStepTemplates) {
-      try {
-        const lastInstanceDate = template.last_instance_date 
-          ? new Date(template.last_instance_date) 
-          : (template.recurring_start_date ? new Date(template.recurring_start_date) : today)
-        lastInstanceDate.setHours(0, 0, 0, 0)
-        
-        // If last instance is within 30 days, create more instances (only for old hidden templates)
-        if (lastInstanceDate <= thirtyDaysFromNow) {
-          const startDate = lastInstanceDate > today ? lastInstanceDate : new Date(today)
-          startDate.setDate(startDate.getDate() + 1) // Start from day after last instance
-          
-          const endDate = template.recurring_end_date ? new Date(template.recurring_end_date) : null
-          if (endDate) {
-            endDate.setHours(23, 59, 59, 999)
-          }
-          
-          // Calculate max date (2 months from start or end date, whichever is earlier)
-          const maxDate = new Date(startDate)
-          maxDate.setMonth(maxDate.getMonth() + 2)
-          const finalEndDate = endDate && endDate < maxDate ? endDate : maxDate
-          
-          // Collect all dates that should have instances
-          const targetDates: Date[] = []
-          let checkDate = new Date(startDate)
-          const maxInstances = 60 // Safety limit (2 months)
-          
-          while (checkDate <= finalEndDate && targetDates.length < maxInstances) {
-            if (isStepScheduledForDay(template, checkDate)) {
-              targetDates.push(new Date(checkDate))
-            }
-            checkDate.setDate(checkDate.getDate() + 1)
-          }
-          
-          // Create all instances in batch (much faster)
-          const createdCount = await createRecurringStepInstancesBatch(template, targetDates, targetUserId)
-          
-          // Update last_instance_date on the recurring step
-          if (targetDates.length > 0) {
-            const lastCreatedDate = targetDates[targetDates.length - 1]
-            const year = lastCreatedDate.getFullYear()
-            const month = String(lastCreatedDate.getMonth() + 1).padStart(2, '0')
-            const day = String(lastCreatedDate.getDate()).padStart(2, '0')
-            const lastInstanceDateStr = `${year}-${month}-${day}`
-            
-            await sql`
-              UPDATE daily_steps
-              SET last_instance_date = CAST(${lastInstanceDateStr}::text AS DATE)
-              WHERE id = ${template.id}
-            `
-          }
-        }
-      } catch (error) {
-        console.error(`Error creating instances for recurring step ${template.id}:`, error)
-        // Continue with other templates
-      }
-    }
-    
-    // Reload steps after creating new instances for OLD templates (if any were created)
-    if (oldRecurringStepTemplates.length > 0) {
-      if (startDate && endDate) {
-        steps = await getDailyStepsByUserId(targetUserId, undefined, startDate, endDate)
-      } else if (date) {
-        steps = await getDailyStepsByUserId(targetUserId, new Date(date))
-      } else {
-        steps = await getDailyStepsByUserId(targetUserId)
-      }
-    }
+    // PERFORMANCE OPTIMIZATION: Removed automatic instance creation for OLD recurring steps during GET
+    // This was causing significant slowdown (1-3 seconds) on every request
+    // TODO: Move instance creation to:
+    //   1. Background job (cron) - recommended
+    //   2. On-demand when user views recurring step details
+    //   3. When recurring step is created/updated
+    // OLD recurring steps system (is_hidden = true) should be migrated to new system
+    // NEW recurring steps use current_instance_date and don't need separate instances
     
     // Normalize all date fields to YYYY-MM-DD strings to avoid timezone issues
+    const normalizeStartTime = Date.now()
     let normalizedSteps = steps.map((step) => ({
       ...step,
       date: normalizeDateFromDB(step.date)
     }))
+    const normalizeTime = Date.now() - normalizeStartTime
+    console.log(`[API Performance] Normalized ${normalizedSteps.length} steps in ${normalizeTime}ms`)
     
     // If filterImportantOnly is requested, filter to only important steps for today
     if (filterImportantOnly && date) {

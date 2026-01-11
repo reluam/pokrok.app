@@ -26,16 +26,22 @@ async function addPerformanceIndexes() {
 
     // Indexy pro daily_steps
     console.log('Creating indexes for daily_steps...')
-    await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_user_date ON daily_steps(user_id, date)`
+    // Optimalizace pro date range queries (nejpoužívanější dotaz)
+    await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_user_date ON daily_steps(user_id, date) WHERE date IS NOT NULL`
     await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_user_goal_date ON daily_steps(user_id, goal_id, date) WHERE goal_id IS NOT NULL`
     await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_user_area_date ON daily_steps(user_id, area_id, date) WHERE area_id IS NOT NULL`
-    await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_user_completed ON daily_steps(user_id, completed, date)`
+    // Optimalizace pro completed filter queries
+    await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_user_completed_date ON daily_steps(user_id, completed, date) WHERE date IS NOT NULL`
+    // Index pro recurring steps queries (frequency IS NOT NULL)
+    await sql`CREATE INDEX IF NOT EXISTS idx_daily_steps_user_frequency ON daily_steps(user_id, frequency) WHERE frequency IS NOT NULL`
     console.log('✓ daily_steps indexes created')
 
     // Indexy pro goals
     console.log('Creating indexes for goals...')
     await sql`CREATE INDEX IF NOT EXISTS idx_goals_user_status_created ON goals(user_id, status, created_at DESC)`
     await sql`CREATE INDEX IF NOT EXISTS idx_goals_user_area ON goals(user_id, area_id) WHERE area_id IS NOT NULL`
+    // Index pro checkAndUpdateGoalsStatus funkci (optimizace pro start_date kontroly)
+    await sql`CREATE INDEX IF NOT EXISTS idx_goals_user_status_start_date ON goals(user_id, status, start_date) WHERE start_date IS NOT NULL AND status != 'completed'`
     console.log('✓ goals indexes created')
 
     // Indexy pro areas

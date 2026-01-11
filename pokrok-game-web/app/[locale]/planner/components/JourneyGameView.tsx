@@ -55,6 +55,7 @@ interface JourneyGameViewProps {
   goals?: any[]
   habits?: any[]
   dailySteps?: any[]
+  isLoadingSteps?: boolean
   onNavigateToGoals?: () => void
   onNavigateToHabits?: () => void
   onNavigateToSteps?: () => void
@@ -75,6 +76,7 @@ export function JourneyGameView({
   goals = [], 
   habits = [], 
   dailySteps = [],
+  isLoadingSteps = false,
   onNavigateToGoals,
   onNavigateToHabits,
   onNavigateToSteps,
@@ -1381,7 +1383,7 @@ export function JourneyGameView({
     }
     
     if (step) {
-      // Open existing step for editing
+      // Open existing step for editing - always use modal for editing
       const stepDate = step.date ? (typeof step.date === 'string' && step.date.match(/^\d{4}-\d{2}-\d{2}$/) ? step.date : step.date.split('T')[0]) : getLocalDateString(selectedDayDate)
       
       // If step has goal but no area, get area from goal
@@ -1435,36 +1437,28 @@ export function JourneyGameView({
         defaultAreaId = mainPanelSection.replace('area-', '')
       }
       
-      // Only open modal if we're NOT in inline editing mode (UpcomingView, Areas, Goals)
-      // In inline mode, StepsManagementView handles step creation directly on the page
-      const isInlineMode = mainPanelSection === 'focus-upcoming' || 
-                          mainPanelSection?.startsWith('area-') || 
-                          mainPanelSection?.startsWith('goal-')
-      
-      if (!isInlineMode) {
-        setStepModalData({
-          id: null,
-          title: '',
-          description: '',
-          date: defaultDate,
-          goalId: defaultGoalId,
-          areaId: defaultAreaId,
-          completed: false,
-          is_important: false,
-          is_urgent: false,
-          deadline: '',
-          estimated_time: 0,
-          checklist: [],
-          require_checklist_complete: false,
-          isRepeating: false,
-          frequency: null,
-          selected_days: [],
-          recurring_start_date: null,
-          recurring_end_date: null,
-          recurring_display_mode: 'next_only'
-        })
-        setShowStepModal(true)
-      }
+      setStepModalData({
+        id: null,
+        title: '',
+        description: '',
+        date: defaultDate,
+        goalId: defaultGoalId,
+        areaId: defaultAreaId,
+        completed: false,
+        is_important: false,
+        is_urgent: false,
+        deadline: '',
+        estimated_time: 0,
+        checklist: [],
+        require_checklist_complete: false,
+        isRepeating: false,
+        frequency: null,
+        selected_days: [],
+        recurring_start_date: null,
+        recurring_end_date: null,
+        recurring_display_mode: 'next_only'
+      })
+      setShowStepModal(true)
     }
   }
 
@@ -3899,6 +3893,7 @@ export function JourneyGameView({
           goals={goals}
           habits={habits}
           dailySteps={dailySteps}
+          isLoadingSteps={isLoadingSteps}
           player={player}
           userId={userId}
           areas={areas}
@@ -4102,7 +4097,15 @@ export function JourneyGameView({
           currentPage={currentPage}
           mainPanelSection={mainPanelSection}
           userId={userId || player?.user_id || null}
-          onOpenStepModal={handleOpenStepModal}
+          onOpenStepModal={mainPanelSection === 'focus-upcoming' || mainPanelSection?.startsWith('area-') || mainPanelSection?.startsWith('goal-') ? () => {
+            // For inline mode (focus-upcoming, area-*, goal-*), trigger inline creation via custom event
+            // PageContent listens for this event and increments createNewStepTriggerForSection
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('triggerInlineStepCreation', {
+                detail: { section: mainPanelSection }
+              }))
+            }
+          } : handleOpenStepModal}
           onNavigateToGoal={(goalId: string) => {
             setMainPanelSection(`goal-${goalId}`)
           }}
@@ -4115,6 +4118,9 @@ export function JourneyGameView({
               setMainPanelSection(`habit-${habitId}`)
             }
           }}
+          onOpenHabitModal={handleOpenHabitModal}
+          onOpenAreasManagementModal={handleOpenAreasManagementModal}
+          onCreateGoal={handleCreateGoal}
           onMinimizeStateChange={(isMinimized, isSmallScreen) => {
             setAssistantMinimized(isMinimized)
             setAssistantSmallScreen(isSmallScreen)

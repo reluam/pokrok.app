@@ -384,6 +384,41 @@ export function PageContent(props: PageContentProps) {
   const [createNewStepTriggerForSection, setCreateNewStepTriggerForSection] = React.useState<Record<string, number>>({})
   const [stepsMobileMenuOpen, setStepsMobileMenuOpen] = React.useState(false)
   
+  // Listen for inline step creation trigger from AssistantPanel
+  React.useEffect(() => {
+    const handleTriggerInlineStepCreation = (e: Event) => {
+      const customEvent = e as CustomEvent<{ section: string | null }>
+      const section = customEvent.detail?.section
+      if (!section) return
+      
+      if (section === 'focus-upcoming') {
+        setCreateNewStepTriggerForSection(prev => ({
+          ...prev,
+          'focus-upcoming': (prev['focus-upcoming'] || 0) + 1
+        }))
+      } else if (section.startsWith('area-')) {
+        const areaId = section.replace('area-', '')
+        setCreateNewStepTriggerForSection(prev => ({
+          ...prev,
+          [`area-${areaId}`]: (prev[`area-${areaId}`] || 0) + 1
+        }))
+      } else if (section.startsWith('goal-')) {
+        const goalId = section.replace('goal-', '')
+        setCreateNewStepTriggerForSection(prev => ({
+          ...prev,
+          [`goal-${goalId}`]: (prev[`goal-${goalId}`] || 0) + 1
+        }))
+      }
+    }
+    
+    if (typeof window !== 'undefined') {
+      window.addEventListener('triggerInlineStepCreation', handleTriggerInlineStepCreation)
+      return () => {
+        window.removeEventListener('triggerInlineStepCreation', handleTriggerInlineStepCreation)
+      }
+    }
+  }, [])
+  
   // Metrics state
   const [metrics, setMetrics] = React.useState<Record<string, any[]>>({})
   const [loadingMetrics, setLoadingMetrics] = React.useState<Set<string>>(new Set())
@@ -1380,6 +1415,7 @@ export function PageContent(props: PageContentProps) {
                   goals={goals}
                   habits={habits}
                   dailySteps={dailySteps}
+                  isLoadingSteps={props.isLoadingSteps}
                   selectedDayDate={selectedDayDate}
                   setSelectedDayDate={setSelectedDayDate}
                   setShowDatePickerModal={setShowDatePickerModal}

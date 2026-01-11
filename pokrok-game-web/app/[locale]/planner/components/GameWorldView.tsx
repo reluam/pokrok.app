@@ -41,9 +41,16 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
   // Only load if dailySteps is empty (initial load), to avoid overwriting updates from child components
   useEffect(() => {
     const loadDailySteps = async () => {
+      console.log('[GameWorldView] useEffect triggered', {
+        hasUserId: !!userId,
+        hasPlayerUserId: !!player?.user_id,
+        dailyStepsLength: dailySteps.length
+      })
+      
       // Use userId prop if available, otherwise fallback to player?.user_id
       const currentUserId = userId || player?.user_id
       if (!currentUserId) {
+        console.log('[GameWorldView] No userId, skipping load')
         setIsLoadingSteps(false)
         return
       }
@@ -51,37 +58,62 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
       // Only load if dailySteps is empty (initial load)
       // This prevents overwriting updates from child components when steps are created/updated
       if (dailySteps.length > 0) {
+        console.log('[GameWorldView] dailySteps already loaded, skipping fetch')
         setIsLoadingSteps(false)
         return
       }
+      
+      console.log('[GameWorldView] Starting to load daily steps for userId:', currentUserId)
 
       setIsLoadingSteps(true)
+      const fetchStartTime = performance.now()
+      
       try {
         const today = new Date()
         today.setHours(0, 0, 0, 0)
         
-        // Load all overdue steps (no startDate limit) + upcoming steps (next 30 days)
-        // Use a very old startDate (10 years ago) to get all overdue steps
+        // Load overdue steps (90 days back) + upcoming steps (next 30 days)
+        // Limit to 90 days to avoid loading excessive historical data
         const veryOldDate = new Date(today)
-        veryOldDate.setFullYear(veryOldDate.getFullYear() - 10)
+        veryOldDate.setDate(veryOldDate.getDate() - 90)
         const endDate = new Date(today)
         endDate.setDate(endDate.getDate() + 30)
+        
+        // Performance logging
+        console.log('[Performance] Starting fetch for daily steps...', {
+          startDate: veryOldDate.toISOString().split('T')[0],
+          endDate: endDate.toISOString().split('T')[0]
+        })
         
         // Load steps for date range
         const response = await fetch(
           `/api/daily-steps?userId=${currentUserId}&startDate=${veryOldDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`
         )
+        
+        const fetchTime = performance.now() - fetchStartTime
+        console.log('[Performance] Fetch completed in', fetchTime.toFixed(2), 'ms')
+        
         if (response.ok) {
+          const parseStartTime = performance.now()
           const steps = await response.json()
+          const parseTime = performance.now() - parseStartTime
+          console.log('[Performance] JSON parse completed in', parseTime.toFixed(2), 'ms')
+          console.log('[Performance] Loaded', steps.length, 'steps')
+          
+          const setStateStartTime = performance.now()
           setDailySteps(Array.isArray(steps) ? steps : [])
           dailyStepsRef.current = Array.isArray(steps) ? steps : []
+          const setStateTime = performance.now() - setStateStartTime
+          console.log('[Performance] setState completed in', setStateTime.toFixed(2), 'ms')
         } else {
           console.error('Failed to load daily steps, status:', response.status)
         }
       } catch (error) {
-        console.error('Error loading daily steps:', error)
+        console.error('[GameWorldView] Error loading daily steps:', error)
       } finally {
         setIsLoadingSteps(false)
+        const totalTime = performance.now() - fetchStartTime
+        console.log('[Performance] Total loading time:', totalTime.toFixed(2), 'ms')
       }
     }
 
@@ -188,6 +220,7 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
             goals={goals}
             habits={habits}
             dailySteps={dailySteps}
+            isLoadingSteps={isLoadingSteps}
             onNavigateToGoals={handleNavigateToGoals}
             onNavigateToHabits={handleNavigateToHabits}
             onNavigateToSteps={handleNavigateToSteps}

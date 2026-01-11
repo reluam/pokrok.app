@@ -13,6 +13,7 @@ interface UpcomingViewProps {
   goals?: any[]
   habits: any[]
   dailySteps: any[]
+  isLoadingSteps?: boolean
   areas?: any[]
   selectedDayDate: Date
   setSelectedDayDate: (date: Date) => void
@@ -39,6 +40,7 @@ export function UpcomingView({
   goals = [],
   habits,
   dailySteps,
+  isLoadingSteps = false,
   areas = [],
   selectedDayDate,
   setSelectedDayDate,
@@ -417,7 +419,9 @@ export function UpcomingView({
 
   // Get all steps for Feed view - sorted by date, with overdue first, then important first within each day
   // No limit, but filtered to max one month ahead (except overdue steps - show all overdue)
+  // SIMPLIFIED: All steps (including recurring) already have correct date in database, no calculations needed
   const allFeedSteps = useMemo(() => {
+    const computeStartTime = performance.now()
     const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isUrgent: boolean; isOverdue: boolean; goal: any; area: any }> = []
     
     // Ensure dailySteps is an array
@@ -426,66 +430,26 @@ export function UpcomingView({
       return []
     }
     
-    // Process non-repeating steps (exclude instances of recurring steps - they are handled separately)
-    // Also exclude hidden recurring step templates
-    dailySteps
-      .filter(step => {
-        // Exclude hidden steps (recurring step templates) - only if explicitly set to true
-        if (step.is_hidden === true) return false
-        // Include only non-recurring steps that are NOT instances of recurring steps
-        // Instances have parent_recurring_step_id set (link to template)
-        return (!step.frequency || step.frequency === null) && !step.parent_recurring_step_id
-      })
-      .forEach(step => {
-        // Skip completed steps
-        if (step.completed) return
-        
-        // If step has no date, skip it (we need date for Upcoming view)
-        if (!step.date) return
-      
-      const stepDate = new Date(normalizeDate(step.date))
-      stepDate.setHours(0, 0, 0, 0)
-      
-        const isOverdue = stepDate < today
-        
-        // Filter out steps more than one month ahead (but keep all overdue steps)
-        if (!isOverdue && stepDate > oneMonthFromToday) return
-        const goal = step.goal_id ? goalMap.get(step.goal_id) : null
-        // Get area from goal if exists, otherwise from step directly
-        const area = goal?.area_id 
-          ? areaMap.get(goal.area_id) 
-          : (step.area_id ? areaMap.get(step.area_id) : null)
-        
-        stepsWithDates.push({
-          step,
-          date: stepDate,
-          isImportant: step.is_important || false,
-          isUrgent: step.is_urgent || false,
-          isOverdue,
-          goal,
-          area
-        })
-    })
+    console.log(`[UpcomingView Performance] Computing allFeedSteps from ${dailySteps.length} steps`)
     
-    // NEW SIMPLIFIED LOGIC: Process recurring steps directly (no more instances)
-    // Recurring steps use current_instance_date instead of creating instances
+    // Process ALL steps (recurring steps already have correct date from database)
+    // Exclude hidden steps and completed steps
     dailySteps
       .filter(step => {
-        const isRecurringStep = step.frequency && step.frequency !== null
-        if (!isRecurringStep) return false
-        // Exclude hidden steps
+        // Exclude hidden steps (old recurring step templates)
         if (step.is_hidden === true) return false
-        // Recurring steps are never completed - they just move to next occurrence
+        // Exclude completed steps
         if (step.completed) return false
+        // Exclude steps without date (we need date for Upcoming view)
+        if (!step.date) return false
+        // Exclude old instances (they have parent_recurring_step_id)
+        if (step.parent_recurring_step_id) return false
         return true
       })
       .forEach(step => {
-        // For recurring steps, use current_instance_date
-        const stepDateField = step.current_instance_date || step.date
-        if (!stepDateField) return
-        
-        const stepDate = new Date(normalizeDate(stepDateField))
+        const stepDate = new Date(normalizeDate(step.date))
         stepDate.setHours(0, 0, 0, 0)
+        
         const isOverdue = stepDate < today
         
         // Filter out steps more than one month ahead (but keep all overdue steps)
@@ -507,8 +471,6 @@ export function UpcomingView({
           area
         })
       })
-    
-    // OLD LOGIC REMOVED: No more instances - recurring steps are handled directly with current_instance_date
     
     // Sort: overdue first, then by date, then by importance within same date
     stepsWithDates.sort((a, b) => {
@@ -544,20 +506,26 @@ export function UpcomingView({
     })
     
     // Return all steps with additional metadata (no limit)
-    return stepsWithDates.map(item => ({
+    const result = stepsWithDates.map(item => ({
       ...item.step,
       _isOverdue: item.isOverdue,
       _goal: item.goal,
       _area: item.area,
       _date: item.date
     }))
+    
+    const computeTime = performance.now() - computeStartTime
+    console.log(`[UpcomingView Performance] allFeedSteps computed: ${result.length} steps in ${computeTime.toFixed(2)}ms`)
+    
+    return result
   }, [dailySteps, today, oneMonthFromToday, goalMap, areaMap])
   
   // Get upcoming steps - sorted by date, with overdue first, then important first within each day
   // Limited to 15 steps total and max one month ahead (except overdue steps - show all overdue)
+  // SIMPLIFIED: All steps (including recurring) already have correct date in database, no calculations needed
   const upcomingSteps = useMemo(() => {
+    const computeStartTime = performance.now()
     const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isUrgent: boolean; isOverdue: boolean; goal: any; area: any }> = []
-    const addedStepIds = new Set<string>() // Track which steps have already been added to prevent duplicates
     
     // Ensure dailySteps is an array
     if (!Array.isArray(dailySteps)) {
@@ -565,47 +533,37 @@ export function UpcomingView({
       return []
     }
     
-    // Process non-repeating steps (exclude instances of recurring steps - they are handled separately)
-    // Also exclude hidden recurring step templates
+    console.log(`[UpcomingView Performance] Computing upcomingSteps from ${dailySteps.length} steps`)
+    
+    // Process ALL steps (recurring steps already have correct date from database)
+    // Exclude hidden steps and completed steps
     dailySteps
       .filter(step => {
-        // Exclude hidden steps (recurring step templates) - only if explicitly set to true
+        // Exclude hidden steps (old recurring step templates)
         if (step.is_hidden === true) return false
-        // Include only non-recurring steps that are NOT instances of recurring steps
-        // Instances have parent_recurring_step_id set (link to template)
-        if (!step.frequency && step.date && !step.completed && !step.parent_recurring_step_id) {
-      const stepDate = new Date(normalizeDate(step.date))
-      stepDate.setHours(0, 0, 0, 0)
-          const isOverdue = stepDate < today
-          // Include if overdue or within one month
-          return isOverdue || stepDate <= oneMonthFromToday
-        }
-        return false
+        // Exclude completed steps
+        if (step.completed) return false
+        // Exclude steps without date (we need date for Upcoming view)
+        if (!step.date) return false
+        // Exclude old instances (they have parent_recurring_step_id)
+        if (step.parent_recurring_step_id) return false
+        
+        // Check date range - include if overdue or within one month
+        const stepDate = new Date(normalizeDate(step.date))
+        stepDate.setHours(0, 0, 0, 0)
+        const isOverdue = stepDate < today
+        return isOverdue || stepDate <= oneMonthFromToday
       })
       .forEach(step => {
-        // Skip if already added
-        if (addedStepIds.has(step.id)) return
-        addedStepIds.add(step.id)
-        
         const stepDate = new Date(normalizeDate(step.date))
         stepDate.setHours(0, 0, 0, 0)
         const isOverdue = stepDate < today
         
-        // Find the original recurring step if this is an instance
-        // Instances have parent_recurring_step_id set
-        let originalStep = null
-        if (step.parent_recurring_step_id) {
-          originalStep = dailySteps.find(s => 
-            s.id === step.parent_recurring_step_id &&
-            s.frequency !== null &&
-            s.is_hidden === true // Recurring step template is hidden
-          )
-        }
-        
-        const goal = originalStep?.goal_id ? goalMap.get(originalStep.goal_id) : (step.goal_id ? goalMap.get(step.goal_id) : null)
+        const goal = step.goal_id ? goalMap.get(step.goal_id) : null
+        // Get area from goal if exists, otherwise from step directly
         const area = goal?.area_id 
           ? areaMap.get(goal.area_id) 
-          : (originalStep?.area_id ? areaMap.get(originalStep.area_id) : (step.area_id ? areaMap.get(step.area_id) : null))
+          : (step.area_id ? areaMap.get(step.area_id) : null)
         
         stepsWithDates.push({
           step,
@@ -617,96 +575,6 @@ export function UpcomingView({
           area
         })
       })
-    
-    // Process repeating steps - show actual instances from database
-    // Filter out recurring step templates (is_hidden = true)
-    // Show only instances (they have frequency = null and parent_recurring_step_id set)
-    // Exclude completed instances
-    // Always show only the nearest incomplete instance for each recurring step
-    
-    // First, collect all incomplete instances
-    const allRecurringInstances = dailySteps
-      .filter(step => {
-        // Show instances (non-recurring steps with parent_recurring_step_id set)
-        // Exclude completed instances and hidden steps (only if explicitly set to true)
-        if (!step.frequency && step.date && step.parent_recurring_step_id && !step.completed && step.is_hidden !== true) {
-          const stepDate = new Date(normalizeDate(step.date))
-          stepDate.setHours(0, 0, 0, 0)
-          const isOverdue = stepDate < today
-          // Include if overdue or within one month
-          return isOverdue || stepDate <= oneMonthFromToday
-        }
-        return false
-      })
-      .map(step => {
-        const stepDate = new Date(normalizeDate(step.date))
-        stepDate.setHours(0, 0, 0, 0)
-        const isOverdue = stepDate < today
-        
-        // Find the original recurring step by parent_recurring_step_id
-        const originalStep = dailySteps.find(s => 
-          s.id === step.parent_recurring_step_id &&
-          s.frequency !== null &&
-          s.is_hidden === true // Recurring step template is hidden
-        )
-        
-        if (!originalStep) return null // Skip if template not found
-        
-        return {
-          step,
-          date: stepDate,
-          isOverdue,
-          originalStep
-        }
-      })
-      .filter(item => item !== null) as Array<{ step: any; date: Date; isOverdue: boolean; originalStep: any }>
-    
-    // Group instances by original recurring step
-    const instancesByRecurringStepUpcoming = new Map<string, typeof allRecurringInstances>()
-    allRecurringInstances.forEach(item => {
-      if (item.originalStep) {
-        const key = item.originalStep.id
-        if (!instancesByRecurringStepUpcoming.has(key)) {
-          instancesByRecurringStepUpcoming.set(key, [])
-        }
-        instancesByRecurringStepUpcoming.get(key)!.push(item)
-      }
-    })
-    
-    // For each recurring step, show only the nearest incomplete instance
-    instancesByRecurringStepUpcoming.forEach((instances, recurringStepId) => {
-      const originalStep = instances[0]?.originalStep
-      if (!originalStep) {
-        // If we can't find the original step, skip these instances
-        return
-      }
-      
-      // Sort instances by date (oldest first) - this ensures we get the nearest one
-      instances.sort((a, b) => a.date.getTime() - b.date.getTime())
-      
-      // Show only the first (nearest) incomplete instance
-      const nearestInstance = instances[0]
-      if (!nearestInstance) return
-      
-      // Skip if already added (shouldn't happen, but safety check to prevent duplicate keys)
-      if (addedStepIds.has(nearestInstance.step.id)) return
-      addedStepIds.add(nearestInstance.step.id)
-      
-      const goal = originalStep.goal_id ? goalMap.get(originalStep.goal_id) : (nearestInstance.step.goal_id ? goalMap.get(nearestInstance.step.goal_id) : null)
-      const area = goal?.area_id 
-        ? areaMap.get(goal.area_id) 
-        : (originalStep.area_id ? areaMap.get(originalStep.area_id) : (nearestInstance.step.area_id ? areaMap.get(nearestInstance.step.area_id) : null))
-      
-      stepsWithDates.push({
-        step: nearestInstance.step,
-        date: nearestInstance.date,
-        isImportant: nearestInstance.step.is_important || false,
-        isUrgent: nearestInstance.step.is_urgent || false,
-        isOverdue: nearestInstance.isOverdue,
-        goal,
-        area
-      })
-    })
     
     // Sort: overdue first, then by date, then by importance within same date
     stepsWithDates.sort((a, b) => {
@@ -748,12 +616,17 @@ export function UpcomingView({
     const limitedSteps = [...overdueSteps, ...limitedNonOverdue]
     
     // Return steps with additional metadata
-    return limitedSteps.map(item => ({
+    const result = limitedSteps.map(item => ({
       ...item.step,
       _isOverdue: item.isOverdue,
       _goal: item.goal,
       _area: item.area
     }))
+    
+    const computeTime = performance.now() - computeStartTime
+    console.log(`[UpcomingView Performance] upcomingSteps computed: ${result.length} steps in ${computeTime.toFixed(2)}ms`)
+    
+    return result
   }, [dailySteps, today, oneMonthFromToday, goalMap, areaMap])
   
   // Group steps by area, then by goal
@@ -1112,8 +985,20 @@ export function UpcomingView({
       
       {/* Content */}
       <div className="flex-1 overflow-y-auto flex flex-col">
-        {/* Today's Habits - only show if there are habits */}
-        {todaysHabits.length > 0 && (
+        {/* Loading indicator for steps */}
+        {isLoadingSteps && (
+          <div className="flex-1 flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent mb-4"></div>
+              <p className="text-sm text-gray-600 font-medium">
+                {t('common.loadingData') || 'Načítání kroků...'}
+              </p>
+            </div>
+          </div>
+        )}
+        
+        {/* Today's Habits - only show if there are habits and not loading */}
+        {!isLoadingSteps && todaysHabits.length > 0 && (
           <div className="p-4 sm:p-6 lg:p-8 pt-2 pb-4">
             <div className="flex flex-wrap gap-3">
               {todaysHabits.map((habit) => {
@@ -1173,8 +1058,8 @@ export function UpcomingView({
           </div>
         )}
         
-        {/* Feed View or Areas View */}
-        {viewMode === 'feed' ? (
+        {/* Feed View or Areas View - only show if not loading */}
+        {!isLoadingSteps && viewMode === 'feed' ? (
           /* Feed View - using StepsManagementView */
           <StepsManagementView
             dailySteps={localDailySteps}
@@ -1218,7 +1103,7 @@ export function UpcomingView({
             hideHeader={true}
             showCompleted={false}
           />
-        ) : (
+        ) : !isLoadingSteps ? (
           /* Areas View - using StepsManagementView with new step at top */
           <>
             {/* New step will appear here if created - above all areas */}
@@ -1353,7 +1238,7 @@ export function UpcomingView({
                           </>
         )}
           </>
-                    )}
+                    ) : null}
                   </div>
       
       {/* Date Picker Modal */}
