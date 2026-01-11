@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import { AdminTipsView } from '../components/admin/AdminTipsView'
 import { AdminHelpView } from '../components/admin/AdminHelpView'
+import { AdminAPIView } from '../components/admin/AdminAPIView'
 
-type TabKey = 'tips' | 'help'
+type TabKey = 'tips' | 'help' | 'api'
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('tips')
@@ -26,10 +27,18 @@ export default function AdminDashboardPage() {
           >
             Help
           </button>
+          <button
+            className={`px-4 py-2 font-semibold ${activeTab === 'api' ? 'text-primary-700 border-b-4 border-primary-500' : 'text-gray-600'}`}
+            onClick={() => setActiveTab('api')}
+          >
+            API
+          </button>
         </div>
 
         <div className="flex-1 min-h-0">
-          {activeTab === 'tips' ? <AdminTipsView /> : <AdminHelpView />}
+          {activeTab === 'tips' && <AdminTipsView />}
+          {activeTab === 'help' && <AdminHelpView />}
+          {activeTab === 'api' && <AdminAPIView />}
         </div>
       </div>
     </div>
