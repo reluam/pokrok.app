@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { runMigration, migrateDataFromFiles } from '@/lib/db-migrate'
+import { getPool } from '@/lib/db'
 
 async function isAuthenticated(): Promise<boolean> {
   const cookieStore = await cookies()
@@ -8,13 +9,64 @@ async function isAuthenticated(): Promise<boolean> {
   return authCookie?.value === 'authenticated'
 }
 
+// GET - check migration status
+export async function GET(request: NextRequest) {
+  try {
+    const pool = getPool()
+    const client = await pool.connect()
+    try {
+      // Check if tables exist
+      const articlesCheck = await client.query(
+        "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'articles')"
+      )
+      const inspirationCheck = await client.query(
+        "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'inspiration')"
+      )
+      
+      const articlesCount = articlesCheck.rows[0].exists 
+        ? (await client.query('SELECT COUNT(*) as count FROM articles')).rows[0].count
+        : 0
+      const inspirationCount = inspirationCheck.rows[0].exists
+        ? (await client.query('SELECT COUNT(*) as count FROM inspiration')).rows[0].count
+        : 0
+
+      return NextResponse.json({
+        tablesExist: {
+          articles: articlesCheck.rows[0].exists,
+          inspiration: inspirationCheck.rows[0].exists,
+        },
+        dataCount: {
+          articles: parseInt(articlesCount),
+          inspiration: parseInt(inspirationCount),
+        }
+      })
+    } finally {
+      client.release()
+    }
+  } catch (error: any) {
+    console.error('Migration status check error:', error)
+    const errorMessage = error.message || 'Chyba při kontrole migrace'
+    const errorDetails = {
+      message: errorMessage,
+      code: error.code,
+      detail: error.detail,
+      hint: error.hint,
+      // Check if DATABASE_URL is set
+      hasDatabaseUrl: !!process.env.DATABASE_URL,
+      databaseUrlLength: process.env.DATABASE_URL?.length || 0,
+    }
+    return NextResponse.json(
+      { 
+        error: errorMessage,
+        details: errorDetails,
+      },
+      { status: 500 }
+    )
+  }
+}
+
 // POST - run database migration
 export async function POST(request: NextRequest) {
-  const authenticated = await isAuthenticated()
-  if (!authenticated) {
-    return NextResponse.json({ error: 'Neautorizováno' }, { status: 401 })
-  }
-
   try {
     // Run table creation migration
     await runMigration()
@@ -28,8 +80,21 @@ export async function POST(request: NextRequest) {
     })
   } catch (error: any) {
     console.error('Migration error:', error)
+    const errorMessage = error.message || 'Chyba při migraci dat'
+    const errorDetails = {
+      message: errorMessage,
+      code: error.code,
+      detail: error.detail,
+      hint: error.hint,
+      // Check if DATABASE_URL is set
+      hasDatabaseUrl: !!process.env.DATABASE_URL,
+      databaseUrlLength: process.env.DATABASE_URL?.length || 0,
+    }
     return NextResponse.json(
-      { error: error.message || 'Chyba při migraci dat' },
+      { 
+        error: errorMessage,
+        details: errorDetails,
+      },
       { status: 500 }
     )
   }
