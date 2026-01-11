@@ -1207,7 +1207,8 @@ export async function getGoalsByUserId(userId: string): Promise<Goal[]> {
     cleanupGoalsCache()
     const cached = goalsCache.get(userId)
     if (cached && (Date.now() - cached.timestamp) < GOALS_CACHE_TTL) {
-      return cached.goals as Goal[]
+      // Decrypt cached goals (cache stores encrypted data)
+      return cached.goals.map((goal: any) => decryptFields(goal, userId, ['title', 'description'])) as Goal[]
     }
 
     const goals = await sql`
@@ -1217,16 +1218,18 @@ export async function getGoalsByUserId(userId: string): Promise<Goal[]> {
       WHERE g.user_id = ${userId}
       ORDER BY g.created_at DESC
     `
-    const goalsArray = goals as Goal[]
+    
+    // Decrypt all goals
+    const goalsArray = goals.map(goal => decryptFields(goal, userId, ['title', 'description'])) as Goal[]
     
     // Check and update goal statuses based on start_date (async, don't wait)
     checkAndUpdateGoalsStatus(userId).catch(err => {
       console.error('Error updating goal statuses:', err)
     })
     
-    // Cache the result
+    // Cache the result (cache encrypted data)
     if (goalsCache.size < MAX_CACHE_SIZE) {
-      goalsCache.set(userId, { goals: goalsArray, timestamp: Date.now() })
+      goalsCache.set(userId, { goals: goals as Goal[], timestamp: Date.now() })
     }
     
     return goalsArray
@@ -1493,13 +1496,17 @@ export async function createGoal(goalData: Partial<Goal>): Promise<Goal> {
     }
   }
   
+  // Encrypt text fields before inserting
+  const encryptedTitle = goalData.title ? encrypt(goalData.title, goalData.user_id!) : null
+  const encryptedDescription = goalData.description ? encrypt(goalData.description, goalData.user_id!) : null
+  
   const goal = await sql`
     INSERT INTO goals (
       id, user_id, title, description, target_date, start_date, status, priority, 
       category, goal_type, progress_percentage, progress_type, 
       progress_target, progress_current, progress_unit, area_id, aspiration_id
     ) VALUES (
-      ${id}, ${goalData.user_id}, ${goalData.title}, ${goalData.description || null}, 
+      ${id}, ${goalData.user_id}, ${encryptedTitle}, ${encryptedDescription}, 
       ${goalData.target_date || null}, ${startDate}, ${status}, 
       ${goalData.priority || 'meaningful'}, ${goalData.category || 'medium-term'}, 
       ${goalData.goal_type || 'outcome'}, ${goalData.progress_percentage || 0}, 
@@ -1514,7 +1521,8 @@ export async function createGoal(goalData: Partial<Goal>): Promise<Goal> {
     invalidateGoalsCache(goalData.user_id)
   }
   
-  return goal[0] as Goal
+  // Decrypt before returning
+  return decryptFields(goal[0], goalData.user_id!, ['title', 'description']) as Goal
 }
 
 export async function createDailyStep(stepData: Omit<Partial<DailyStep>, 'date'> & { date?: Date | string, frequency?: string | null, selected_days?: string[] }): Promise<DailyStep> {
@@ -2021,7 +2029,13 @@ export async function getGoalById(goalId: string): Promise<Goal | null> {
     const goal = await sql`
       SELECT * FROM goals WHERE id = ${goalId}
     `
-    return goal[0] as Goal || null
+    if (!goal[0]) {
+      return null
+    }
+    
+    // Decrypt goal before returning
+    const userId = goal[0].user_id
+    return decryptFields(goal[0], userId, ['title', 'description']) as Goal
   } catch (error) {
     console.error('Error fetching goal:', error)
     return null
@@ -2033,7 +2047,13 @@ export async function getUpdatedGoalAfterStepCompletion(goalId: string): Promise
     const goal = await sql`
       SELECT * FROM goals WHERE id = ${goalId}
     `
-    return goal[0] as Goal
+    if (!goal || goal.length === 0) {
+      throw new Error('Goal not found')
+    }
+    
+    // Decrypt before returning
+    const userId = goal[0].user_id
+    return decryptFields(goal[0], userId, ['title', 'description']) as Goal
   } catch (error) {
     console.error('Error fetching updated goal:', error)
     throw error
@@ -2140,7 +2160,8 @@ export async function updateGoal(goalId: string, userId: string, goalData: Parti
     // Invalidate goals cache for this user
     invalidateGoalsCache(userId)
 
-    return row as Goal
+    // Decrypt before returning
+    return decryptFields(row, userId, ['title', 'description']) as Goal
   } catch (error) {
     console.error('Error updating goal:', error)
     throw error
@@ -2174,17 +2195,25 @@ export async function updateGoalById(goalId: string, updates: Partial<Goal>): Pr
       console.log('Note: start_date column may already exist')
     }
     
+    // Get userId first (needed for encryption)
+    const existingGoal = await sql`SELECT user_id FROM goals WHERE id = ${goalId}`
+    if (!existingGoal || existingGoal.length === 0) {
+      return null
+    }
+    const userId = existingGoal[0].user_id
+    
     // Build dynamic update query to only update provided fields
     const setParts: string[] = []
     const values: any[] = []
     
+    // Encrypt text fields that are being updated
     if (updates.title !== undefined) {
       setParts.push(`title = $${values.length + 1}`)
-      values.push(updates.title)
+      values.push(updates.title ? encrypt(updates.title, userId) : null)
     }
     if (updates.description !== undefined) {
       setParts.push(`description = $${values.length + 1}`)
-      values.push(updates.description)
+      values.push(updates.description ? encrypt(updates.description, userId) : null)
     }
     if (updates.area_id !== undefined) {
       if (updates.area_id === null) {
@@ -2344,12 +2373,17 @@ export async function updateGoalById(goalId: string, updates: Partial<Goal>): Pr
       WHERE g.id = ${goalId}
     `
     
-    // Invalidate goals cache for this user
-    if (goalWithArea.length > 0 && goalWithArea[0].user_id) {
-      invalidateGoalsCache(goalWithArea[0].user_id)
+    if (!goalWithArea || goalWithArea.length === 0) {
+      return null
     }
     
-    return goalWithArea[0] as Goal
+    // Invalidate goals cache for this user
+    if (userId) {
+      invalidateGoalsCache(userId)
+    }
+    
+    // Decrypt before returning
+    return decryptFields(goalWithArea[0], userId, ['title', 'description']) as Goal
   } catch (error) {
     console.error('Error updating goal:', error)
     throw error
