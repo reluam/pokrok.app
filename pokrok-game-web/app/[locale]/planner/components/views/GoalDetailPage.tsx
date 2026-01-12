@@ -401,7 +401,7 @@ export function GoalDetailPage({
   const handleMetricFieldChange = (field: string, value: any) => {
     if (!editingMetricData) return
     // Use functional updater to ensure we have the latest state
-    setEditingMetricData((prev) => ({
+    setEditingMetricData((prev: any) => ({
       ...prev,
       [field]: value
     }))
@@ -1618,7 +1618,7 @@ export function GoalDetailPage({
                                 }
                                 
                                 // Update both type and unit in a single state update
-                                setEditingMetricData((prev) => ({
+                                setEditingMetricData((prev: any) => ({
                                   ...prev,
                                   type: newType,
                                   unit: newUnit
