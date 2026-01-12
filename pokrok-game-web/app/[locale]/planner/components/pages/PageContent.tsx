@@ -21,7 +21,7 @@ import { GoalEditingForm } from '../journey/GoalEditingForm'
 import { DisplayContent } from '../content/DisplayContent'
 import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
-import { LayoutDashboard, ChevronLeft, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Menu, CheckSquare, Footprints, Plus } from 'lucide-react'
+import { LayoutDashboard, ChevronLeft, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Menu, CheckSquare, Footprints, Plus, AlertCircle } from 'lucide-react'
 import { SidebarNavigation } from '../layout/SidebarNavigation'
 import { LoadingSpinner } from '../ui/LoadingSpinner'
 import { GoalsManagementView } from '../views/GoalsManagementView'
@@ -272,6 +272,16 @@ export function PageContent(props: PageContentProps) {
   ];
   
   // Filters state for Goals page
+  // Helper function to check if goal is past deadline
+  const isGoalPastDeadline = (goal: any): boolean => {
+    if (!goal || !goal.target_date) return false
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const deadline = new Date(goal.target_date)
+    deadline.setHours(0, 0, 0, 0)
+    return deadline < today && goal.status === 'active'
+  }
+  
   const [goalsStatusFilters, setGoalsStatusFilters] = React.useState<Set<string>>(new Set(['active']))
   const [selectedGoalForDetail, setSelectedGoalForDetail] = React.useState<string | null>(null)
   const [goalsMobileMenuOpen, setGoalsMobileMenuOpen] = React.useState(false)
@@ -432,15 +442,16 @@ export function PageContent(props: PageContentProps) {
   const [editingMetricIncrementalValue, setEditingMetricIncrementalValue] = React.useState(1)
   const [editingMetricUnit, setEditingMetricUnit] = React.useState('')
   
-  // Sync selectedGoalForDetail with mainPanelSection when it's a goal detail
+  // Sync selectedGoalForDetail with mainPanelSection when it's a goal detail (only on main page, not on goals page)
   React.useEffect(() => {
-    if (mainPanelSection && mainPanelSection.startsWith('goal-')) {
+    // Only sync when on main page, not on goals page - goals page should work independently
+    if (currentPage === 'main' && mainPanelSection && mainPanelSection.startsWith('goal-')) {
       const goalId = mainPanelSection.replace('goal-', '')
       if (goalId && goalId !== selectedGoalForDetail) {
         setSelectedGoalForDetail(goalId)
       }
     }
-  }, [mainPanelSection, selectedGoalForDetail])
+  }, [mainPanelSection, selectedGoalForDetail, currentPage])
 
   // Load metrics for a goal
   React.useEffect(() => {
@@ -1754,10 +1765,14 @@ export function PageContent(props: PageContentProps) {
                         const goal = goals.find((g: any) => g.id === goalId)
                         if (!goal) return null
                         const IconComponent = getIconComponent(goal.icon)
+                        const isPastDeadline = isGoalPastDeadline(goal)
                         return (
                           <>
                             <IconComponent className="w-5 h-5 flex-shrink-0 text-gray-700" />
-                            <h2 className="text-lg font-bold text-gray-900 truncate">{goal.title}</h2>
+                            {isPastDeadline && (
+                              <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-600" />
+                            )}
+                            <h2 className={`text-lg font-bold truncate ${isPastDeadline ? 'text-red-600' : 'text-gray-900'}`}>{goal.title}</h2>
                           </>
                         )
                       })()}
@@ -1970,7 +1985,13 @@ export function PageContent(props: PageContentProps) {
               {/* Header */}
               <div className="p-4 border-b-2 border-primary-500">
                 <button
-                  onClick={() => setSelectedGoalForDetail(null)}
+                  onClick={() => {
+                    setSelectedGoalForDetail(null)
+                    // Clear main panel section when clicking on goals header to ensure independence
+                    if (mainPanelSection && mainPanelSection.startsWith('goal-')) {
+                      setMainPanelSection('goals')
+                    }
+                  }}
                   className="text-sm font-bold text-black font-playful mb-4 hover:text-primary-600 transition-colors cursor-pointer text-left w-full"
                 >
                   {t('navigation.goals')}
@@ -2036,7 +2057,13 @@ export function PageContent(props: PageContentProps) {
                       return (
                         <button
                           key={goal.id}
-                          onClick={() => setSelectedGoalForDetail(isSelected ? null : goal.id)}
+                          onClick={() => {
+                            setSelectedGoalForDetail(isSelected ? null : goal.id)
+                            // Clear main panel section when selecting goal on goals page to ensure independence
+                            if (mainPanelSection && mainPanelSection.startsWith('goal-')) {
+                              setMainPanelSection('goals')
+                            }
+                          }}
                           className={`w-full text-left px-3 py-2 mb-1 rounded-playful-sm text-sm font-playful transition-colors flex items-center gap-2 ${
                             isSelected
                               ? 'bg-primary-500 text-black font-semibold'
@@ -2044,7 +2071,10 @@ export function PageContent(props: PageContentProps) {
                           }`}
                         >
                           <IconComponent className="w-4 h-4 flex-shrink-0" />
-                          <span className="truncate">{goal.title}</span>
+                          {isGoalPastDeadline(goal) && (
+                            <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-600" />
+                          )}
+                          <span className={`truncate ${isGoalPastDeadline(goal) ? 'text-red-600' : ''}`}>{goal.title}</span>
                         </button>
                       )
                     })}
@@ -2302,6 +2332,10 @@ export function PageContent(props: PageContentProps) {
                   onGoalsUpdate={onGoalsUpdate}
                   onGoalClick={(goalId: string) => {
                     setSelectedGoalForDetail(goalId)
+                    // Clear main panel section when selecting goal on goals page to ensure independence
+                    if (mainPanelSection && mainPanelSection.startsWith('goal-')) {
+                      setMainPanelSection('goals')
+                    }
                   }}
                   dailySteps={dailySteps}
                   hideHeader={true}

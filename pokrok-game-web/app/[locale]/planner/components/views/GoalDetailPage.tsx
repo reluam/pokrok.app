@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { ChevronLeft, ChevronRight, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Check, Plus, Edit, Pencil, Minus, Repeat } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Check, Plus, Edit, Pencil, Minus, Repeat, AlertCircle } from 'lucide-react'
 import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { MetricModal } from '../modals/MetricModal'
-import { groupMetricsByUnits, convertUnit, type GroupedMetric } from '@/lib/metric-units'
+import { groupMetricsByUnits, convertUnit, type GroupedMetric, getUnitsByType, getDefaultCurrencyByLocale, type MetricType } from '@/lib/metric-units'
 import { StepsManagementView } from './StepsManagementView'
 
 interface GoalDetailPageProps {
@@ -231,7 +231,42 @@ export function GoalDetailPage({
   const [stepsExpanded, setStepsExpanded] = React.useState(true) // Defaultně rozbalené
   const [isProgressExpanded, setIsProgressExpanded] = React.useState(false)
   const [userSettings, setUserSettings] = useState<{ default_currency?: string; weight_unit_preference?: 'kg' | 'lbs' } | null>(null)
+  
+  // State for inline metric editing (desktop only)
+  const [editingMetricId, setEditingMetricId] = React.useState<string | null>(null)
+  const [expandedMetricId, setExpandedMetricId] = React.useState<string | null>(null)
+  const [editingMetricData, setEditingMetricData] = React.useState<any>(null)
+  const [newMetricId, setNewMetricId] = React.useState<string | null>(null)
+  const [isMobile, setIsMobile] = React.useState(false)
+  
+  // State for inline current value editing (additional states)
+  const [isEditingCurrentValue, setIsEditingCurrentValue] = React.useState<Record<string, boolean>>({})
+  const [originalCurrentValue, setOriginalCurrentValue] = React.useState<Record<string, number>>({})
+  
+  // Refs for metric containers to detect clicks outside
+  const metricRefs = React.useRef<Record<string, HTMLDivElement | null>>({})
+  
+  // Detect mobile view
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+  
   const t = useTranslations()
+  
+  // Helper function to check if goal is past deadline
+  const isGoalPastDeadline = (goal: any): boolean => {
+    if (!goal || !goal.target_date) return false
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const deadline = new Date(goal.target_date)
+    deadline.setHours(0, 0, 0, 0)
+    return deadline < today && goal.status === 'active'
+  }
   
   // Load user settings for metric defaults
   useEffect(() => {
@@ -251,6 +286,64 @@ export function GoalDetailPage({
     }
     loadUserSettings()
   }, [])
+  
+  // Handle clicks outside metric to close editing
+  useEffect(() => {
+    if ((!editingMetricId && !expandedMetricId) || isMobile) return
+    
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      
+      // Check if the click target or any parent is part of a metric container
+      // Use closest to check the entire DOM path
+      const metricContainer = target.closest('[data-metric-container="true"]')
+      
+      if (metricContainer) {
+        // Click is inside a metric container - don't close
+        return
+      }
+      
+      // Also check using refs as a backup
+      const clickedInside = Object.values(metricRefs.current).some(ref => {
+        if (!ref) return false
+        return ref.contains(target)
+      })
+      
+      if (clickedInside) {
+        // Click is inside a metric (via ref check) - don't close
+        return
+      }
+      
+      // Click is outside all metric containers - close the metric
+      // Get current editing data from state (use latest values)
+      const currentEditingData = editingMetricData
+      const currentEditingId = editingMetricId || expandedMetricId
+      const currentNewMetricId = newMetricId
+      
+      if (currentEditingData && currentEditingId) {
+        // Validate and save if valid, otherwise cancel
+        if (validateMetricData(currentEditingData)) {
+          handleSaveInlineMetric(currentEditingData)
+        } else {
+          // Only cancel if it's a new metric (not valid)
+          if (currentNewMetricId === currentEditingId) {
+            handleCancelInlineMetric()
+          }
+        }
+      } else if (expandedMetricId && !editingMetricId) {
+        // If just expanded but not editing, just collapse
+        setExpandedMetricId(null)
+      }
+    }
+    
+    // Use click event in capture phase to catch clicks before they reach target elements
+    // This ensures we can check if click is inside metric before any stopPropagation
+    document.addEventListener('click', handleClickOutside, true)
+    
+    return () => {
+      document.removeEventListener('click', handleClickOutside, true)
+    }
+  }, [editingMetricId, expandedMetricId, editingMetricData, isMobile, newMetricId])
 
   // Goal detail page - similar to overview but focused on this goal
   // Pass all dailySteps to StepsManagementView and let it filter by goalFilter
@@ -277,6 +370,149 @@ export function GoalDetailPage({
     const parts = formatted.split('.')
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
     return parts.join('.')
+  }
+  
+  // Helper functions for formatted number input (from MetricModal)
+  const formatNumberWithSpaces = (value: number | string): string => {
+    if (value === '' || value === null || value === undefined) return ''
+    const numStr = typeof value === 'string' ? value.replace(/\s/g, '') : value.toString()
+    if (numStr === '' || numStr === '-') return numStr
+    const parts = numStr.split('.')
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    return parts.join('.')
+  }
+  
+  const parseFormattedNumber = (value: string): number => {
+    const cleaned = value.replace(/\s/g, '').replace(',', '.')
+    const parsed = parseFloat(cleaned)
+    return isNaN(parsed) ? 0 : parsed
+  }
+  
+  // Helper to validate metric data
+  const validateMetricData = (data: any): boolean => {
+    if (!data.name || !data.name.trim()) return false
+    if (!data.type) return false
+    // Unit is required for all types except 'number' (where it can be empty)
+    if (data.type !== 'number' && (!data.unit || !data.unit.trim())) return false
+    return true
+  }
+  
+  // Helper to handle metric field change in inline editing
+  const handleMetricFieldChange = (field: string, value: any) => {
+    if (!editingMetricData) return
+    // Use functional updater to ensure we have the latest state
+    setEditingMetricData((prev) => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+  
+  // Helper to save inline metric (create or update)
+  const handleSaveInlineMetric = async (metricData: any) => {
+    if (!validateMetricData(metricData)) {
+      // Don't save if validation fails
+      return
+    }
+    
+    const unitValue = (metricData.type === 'number' && (!metricData.unit || metricData.unit === '')) 
+      ? null 
+      : metricData.unit || null
+    
+    if (metricData.id && metricData.id.startsWith('new-metric-')) {
+      // Create new metric
+      await handleMetricCreate(goalId, {
+        name: metricData.name,
+        type: metricData.type,
+        currentValue: metricData.currentValue || 0,
+        targetValue: metricData.targetValue || 0,
+        initialValue: metricData.initialValue || 0,
+        incrementalValue: metricData.incrementalValue || 1,
+        unit: unitValue
+      })
+      // Reset editing states
+      setNewMetricId(null)
+      setEditingMetricId(null)
+      setExpandedMetricId(null)
+      setEditingMetricData(null)
+    } else if (metricData.id) {
+      // Update existing metric
+      await handleMetricUpdate(metricData.id, goalId, {
+        name: metricData.name,
+        type: metricData.type,
+        currentValue: metricData.currentValue || 0,
+        targetValue: metricData.targetValue || 0,
+        initialValue: metricData.initialValue || 0,
+        incrementalValue: metricData.incrementalValue || 1,
+        unit: unitValue
+      })
+      // Reset editing states
+      setEditingMetricId(null)
+      setExpandedMetricId(null)
+      setEditingMetricData(null)
+    }
+  }
+  
+  // Helper to cancel inline metric editing
+  const handleCancelInlineMetric = () => {
+    setNewMetricId(null)
+    setEditingMetricId(null)
+    setExpandedMetricId(null)
+    setEditingMetricData(null)
+  }
+  
+  // Helper to start editing current value inline
+  const handleStartEditingCurrentValue = (metricId: string, currentValue: number) => {
+    setIsEditingCurrentValue(prev => ({ ...prev, [metricId]: true }))
+    setEditingCurrentValue(prev => ({ ...prev, [metricId]: currentValue }))
+    setOriginalCurrentValue(prev => ({ ...prev, [metricId]: currentValue }))
+  }
+  
+  // Helper to save current value inline
+  const handleSaveCurrentValue = async (metricId: string) => {
+    const newValue = editingCurrentValue[metricId]
+    if (newValue !== undefined && newValue !== originalCurrentValue[metricId]) {
+      // Find the metric to get its goalId
+      const metric = metrics?.find((m: any) => m.id === metricId)
+      if (metric) {
+        await handleMetricUpdate(metricId, goalId, {
+          currentValue: newValue
+        })
+      }
+    }
+    setIsEditingCurrentValue(prev => {
+      const next = { ...prev }
+      delete next[metricId]
+      return next
+    })
+    setEditingCurrentValue(prev => {
+      const next = { ...prev }
+      delete next[metricId]
+      return next
+    })
+    setOriginalCurrentValue(prev => {
+      const next = { ...prev }
+      delete next[metricId]
+      return next
+    })
+  }
+  
+  // Helper to cancel current value editing
+  const handleCancelCurrentValue = (metricId: string) => {
+    setIsEditingCurrentValue(prev => {
+      const next = { ...prev }
+      delete next[metricId]
+      return next
+    })
+    setEditingCurrentValue(prev => {
+      const next = { ...prev }
+      delete next[metricId]
+      return next
+    })
+    setOriginalCurrentValue(prev => {
+      const next = { ...prev }
+      delete next[metricId]
+      return next
+    })
   }
 
   // Format date helper with month in genitive case
@@ -523,9 +759,17 @@ export function GoalDetailPage({
           <div className="flex items-center gap-2">
             {(() => {
               const IconComponent = getIconComponent(goal.icon)
-              return <IconComponent className="w-5 h-5 text-primary-600" />
+              const isPastDeadline = isGoalPastDeadline(goal)
+              return (
+                <>
+                  <IconComponent className="w-5 h-5 text-primary-600" />
+                  {isPastDeadline && (
+                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                  )}
+                  <h2 className={`text-lg font-bold font-playful truncate ${isPastDeadline ? 'text-red-600' : 'text-black'}`}>{goal.title}</h2>
+                </>
+              )
             })()}
-            <h2 className="text-lg font-bold text-black font-playful truncate">{goal.title}</h2>
           </div>
           <button
             onClick={() => setMainPanelSection('overview')}
@@ -581,13 +825,22 @@ export function GoalDetailPage({
                     autoFocus
                   />
                 ) : (
-                  <h1 
-                    ref={goalTitleRef as React.RefObject<HTMLHeadingElement>}
-                    onClick={() => setEditingGoalDetailTitle(true)}
-                    className="text-2xl font-bold text-black font-playful cursor-pointer hover:text-primary-600 transition-colors"
-                  >
-                    {goal.title}
-                  </h1>
+                  <div className="flex items-center gap-2">
+                    {isGoalPastDeadline(goal) && (
+                      <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
+                    )}
+                    <h1 
+                      ref={goalTitleRef as React.RefObject<HTMLHeadingElement>}
+                      onClick={() => setEditingGoalDetailTitle(true)}
+                      className={`text-2xl font-bold font-playful cursor-pointer transition-colors ${
+                        isGoalPastDeadline(goal) 
+                          ? 'text-red-600 hover:text-red-700' 
+                          : 'text-black hover:text-primary-600'
+                      }`}
+                    >
+                      {goal.title}
+                    </h1>
+                  </div>
                 )}
                 <div className="flex items-center gap-3">
                   {/* Start Date */}
@@ -963,16 +1216,57 @@ export function GoalDetailPage({
             
             // Render metric card
             const renderMetricCard = (metric: any) => {
+              const isEditing = editingMetricId === metric.id
+              const isExpanded = expandedMetricId === metric.id
+              const isNewMetric = newMetricId === metric.id
+              
+              // If expanded but not editing, automatically start editing
+              if (isExpanded && !isEditing && !isNewMetric) {
+                // This will be handled by handleToggleExpand, but we ensure editingMetricData is set
+                if (!editingMetricData || editingMetricData.id !== metric.id) {
+                  const currentValue = typeof metric.current_value === 'number' 
+                    ? metric.current_value 
+                    : parseFloat(metric.current_value) || 0
+                  const targetValue = typeof metric.target_value === 'number'
+                    ? metric.target_value
+                    : parseFloat(metric.target_value) || 0
+                  const initialValue = typeof metric.initial_value === 'number'
+                    ? metric.initial_value
+                    : parseFloat(metric.initial_value) || 0
+                  
+                  setEditingMetricId(metric.id)
+                  setEditingMetricData({
+                    id: metric.id,
+                    name: metric.name,
+                    type: metric.type || 'number',
+                    currentValue: currentValue,
+                    targetValue: targetValue,
+                    initialValue: initialValue,
+                    incrementalValue: metric.incremental_value || 1,
+                    unit: metric.unit || ''
+                  })
+                }
+              }
+              
+              // For inline editing, use editingMetricData, otherwise use metric
+              const displayData = (isEditing || isExpanded) && editingMetricData && editingMetricData.id === metric.id ? editingMetricData : metric
+              
               // Ensure values are numbers for comparison
-              const currentValue = typeof metric.current_value === 'number' 
-                ? metric.current_value 
-                : parseFloat(metric.current_value) || 0
-              const targetValue = typeof metric.target_value === 'number'
-                ? metric.target_value
-                : parseFloat(metric.target_value) || 0
-              const initialValue = typeof metric.initial_value === 'number'
-                ? metric.initial_value
-                : parseFloat(metric.initial_value) || 0
+              const currentValue = typeof displayData.current_value === 'number' 
+                ? displayData.current_value 
+                : typeof displayData.currentValue === 'number'
+                ? displayData.currentValue
+                : parseFloat(displayData.current_value || displayData.currentValue) || 0
+              const targetValue = typeof displayData.target_value === 'number'
+                ? displayData.target_value
+                : typeof displayData.targetValue === 'number'
+                ? displayData.targetValue
+                : parseFloat(displayData.target_value || displayData.targetValue) || 0
+              const initialValue = typeof displayData.initial_value === 'number'
+                ? displayData.initial_value
+                : typeof displayData.initialValue === 'number'
+                ? displayData.initialValue
+                : parseFloat(displayData.initial_value || displayData.initialValue) || 0
               
               // Calculate progress: 0% at initial_value, 100% at target_value
               // If current_value > target_value, cap at 100%
@@ -999,165 +1293,511 @@ export function GoalDetailPage({
                 (initialValue <= targetValue && currentValue >= targetValue)
               )
               
-              const isEditingCurrentValue = editingCurrentValueForMetric[metric.id] || false
-              const editingValue = editingCurrentValue[metric.id] !== undefined 
-                ? editingCurrentValue[metric.id] 
-                : currentValue
+              const metricName = displayData.name || ''
+              // Use editingMetricData type if available and matches this metric, otherwise use displayData
+              const metricType = (isEditing || isExpanded) && editingMetricData && editingMetricData.id === metric.id 
+                ? (editingMetricData.type || 'number')
+                : (displayData.type || 'number')
+              const metricUnit = (isEditing || isExpanded) && editingMetricData && editingMetricData.id === metric.id
+                ? (editingMetricData.unit || '')
+                : (displayData.unit || '')
               
-              const handleCurrentValueSave = async () => {
-                const newValue = parseFloat(editingValue.toString()) || 0
-                await handleMetricUpdate(metric.id, goalId, {
-                  name: metric.name,
-                  currentValue: newValue,
-                  targetValue: metric.target_value,
-                  initialValue: metric.initial_value ?? 0,
-                  incrementalValue: metric.incremental_value,
-                  unit: metric.unit
-                })
-                setEditingCurrentValueForMetric(prev => {
-                  const newState = { ...prev }
-                  delete newState[metric.id]
-                  return newState
-                })
-                setEditingCurrentValue(prev => {
-                  const newState = { ...prev }
-                  delete newState[metric.id]
-                  return newState
-                })
+              // Get available units for type - recalculate when type changes
+              const availableUnits = getUnitsByType(
+                metricType,
+                userSettings?.weight_unit_preference || 'kg',
+                localeCode
+              )
+              
+              // Handle click on empty space to open metric (desktop only)
+              const handleEmptySpaceClick = (e: React.MouseEvent) => {
+                if (isMobile) {
+                  // Mobile: open modal
+                  const currentValue = typeof metric.current_value === 'number' 
+                    ? metric.current_value 
+                    : parseFloat(metric.current_value) || 0
+                  setMetricModalData({
+                    id: metric.id,
+                    name: metric.name,
+                    currentValue: currentValue,
+                    targetValue: metric.target_value,
+                    incrementalValue: metric.incremental_value,
+                    unit: metric.unit,
+                    type: metric.type || 'number'
+                  })
+                  setEditingMetricName(metric.name)
+                  setEditingMetricType(metric.type || 'number')
+                  setEditingMetricCurrentValue(currentValue)
+                  setEditingMetricTargetValue(metric.target_value)
+                  setEditingMetricInitialValue(metric.initial_value ?? 0)
+                  setEditingMetricIncrementalValue(metric.incremental_value)
+                  setEditingMetricUnit(metric.unit)
+                  setShowMetricModal(true)
+                } else {
+                  // Desktop: toggle inline editing
+                  if (isEditing) {
+                    // Cancel editing
+                    handleCancelInlineMetric()
+                  } else {
+                    // Start editing
+                    setEditingMetricId(metric.id)
+                    setExpandedMetricId(metric.id)
+                    setEditingMetricData({
+                      id: metric.id,
+                      name: metric.name,
+                      type: metric.type || 'number',
+                      currentValue: currentValue,
+                      targetValue: targetValue,
+                      initialValue: initialValue,
+                      incrementalValue: metric.incremental_value || 1,
+                      unit: metric.unit || ''
+                    })
+                  }
+                }
               }
               
-              const handleCurrentValueCancel = () => {
-                setEditingCurrentValueForMetric(prev => {
-                  const newState = { ...prev }
-                  delete newState[metric.id]
-                  return newState
-                })
-                setEditingCurrentValue(prev => {
-                  const newState = { ...prev }
-                  delete newState[metric.id]
-                  return newState
-                })
-              }
-              
-              const handleStartEditing = () => {
-                setEditingCurrentValueForMetric(prev => ({ ...prev, [metric.id]: true }))
-                setEditingCurrentValue(prev => ({ ...prev, [metric.id]: currentValue }))
+              // Handle toggle expand/collapse - when expanding, also start editing
+              const handleToggleExpand = (e: React.MouseEvent) => {
+                e.stopPropagation()
+                if (isEditing) {
+                  // If editing, clicking on expand button should save and close
+                  if (editingMetricData && validateMetricData(editingMetricData)) {
+                    handleSaveInlineMetric(editingMetricData)
+                  } else if (isNewMetric) {
+                    // If new metric and invalid, cancel
+                    handleCancelInlineMetric()
+                  }
+                } else {
+                  // If not editing, toggle expand/collapse and start editing
+                  if (isExpanded) {
+                    setExpandedMetricId(null)
+                    setEditingMetricId(null)
+                  } else {
+                    setExpandedMetricId(metric.id)
+                    setEditingMetricId(metric.id)
+                    setEditingMetricData({
+                      id: metric.id,
+                      name: metric.name,
+                      type: metric.type || 'number',
+                      currentValue: currentValue,
+                      targetValue: targetValue,
+                      initialValue: initialValue,
+                      incrementalValue: metric.incremental_value || 1,
+                      unit: metric.unit || ''
+                    })
+                  }
+                }
               }
               
               return (
                 <div
                   key={metric.id}
-                  onClick={() => {
-                    const currentValue = typeof metric.current_value === 'number' 
-                      ? metric.current_value 
-                      : parseFloat(metric.current_value) || 0
-                    setMetricModalData({
-                      id: metric.id,
-                      name: metric.name,
-                      currentValue: currentValue,
-                      targetValue: metric.target_value,
-                      incrementalValue: metric.incremental_value,
-                      unit: metric.unit,
-                      type: metric.type || 'number'
-                    })
-                    setEditingMetricName(metric.name)
-                    setEditingMetricType(metric.type || 'number')
-                    setEditingMetricCurrentValue(currentValue)
-                    setEditingMetricTargetValue(metric.target_value)
-                    setEditingMetricInitialValue(metric.initial_value ?? 0)
-                    setEditingMetricIncrementalValue(metric.incremental_value)
-                    setEditingMetricUnit(metric.unit)
-                    setShowMetricModal(true)
+                  data-metric-container="true"
+                  ref={(el) => {
+                    // Set ref if editing or expanded (to detect clicks outside)
+                    if (isEditing || isExpanded) {
+                      metricRefs.current[metric.id] = el
+                    } else {
+                      delete metricRefs.current[metric.id]
+                    }
                   }}
-                  className={`flex items-start gap-3 p-4 cursor-pointer transition-all duration-300 rounded-playful-md ${
-                    isCompleted
+                  className={`flex flex-col gap-3 p-4 transition-all duration-300 rounded-playful-md ${
+                    isCompleted && !isEditing
                       ? 'opacity-75'
                       : 'hover:bg-primary-50/50'
+                  } ${
+                    isExpanded || isEditing
+                      ? 'border-2 border-primary-500 bg-primary-50/30'
+                      : 'border-2 border-transparent'
                   }`}
                 >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className={`font-medium text-sm font-playful ${
-                        isCompleted 
-                          ? 'line-through text-gray-400' 
-                          : 'text-black'
-                      }`}>
-                        {metric.name}
-                      </span>
-                    </div>
-                    <div className="mb-2">
-                      <div className="flex items-center justify-between mb-1 text-xs text-gray-600 font-playful">
-                        <div className="flex items-center gap-2">
-                          {hasTarget ? (
-                            <>
-                              {isEditingCurrentValue ? (
-                                <div 
-                                  className="flex items-center gap-1"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <input
-                                    type="number"
-                                    step="0.01"
-                                    value={editingValue}
-                                    onChange={(e) => setEditingCurrentValue(prev => ({ ...prev, [metric.id]: parseFloat(e.target.value) || 0 }))}
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter') {
-                                        handleCurrentValueSave()
-                                      } else if (e.key === 'Escape') {
-                                        handleCurrentValueCancel()
-                                      }
+                  {/* Compact view - always visible */}
+                  <div className="flex items-start gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        {(isEditing || isExpanded) ? (
+                          <input
+                            type="text"
+                            value={metricName}
+                            onChange={(e) => {
+                              handleMetricFieldChange('name', e.target.value)
+                            }}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            onClick={(e) => e.stopPropagation()}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.currentTarget.blur()
+                              } else if (e.key === 'Escape') {
+                                handleCancelInlineMetric()
+                              }
+                            }}
+                            className="flex-1 min-w-0 text-sm px-2 py-1 bg-transparent border-0 border-b-2 border-b-gray-300 focus:border-b-primary-500 focus:outline-none rounded-none font-medium text-black"
+                            placeholder={t('common.metrics.namePlaceholder')}
+                            autoFocus
+                          />
+                        ) : (
+                          <span className={`font-medium text-sm font-playful ${
+                            isCompleted 
+                              ? 'line-through text-gray-400' 
+                              : 'text-black'
+                          }`}>
+                            {metricName || t('common.metrics.unnamed')}
+                          </span>
+                        )}
+                        {!isEditing && (
+                          <button
+                            onClick={handleToggleExpand}
+                            className="flex items-center justify-center w-5 h-5 text-primary-600 hover:bg-primary-100 rounded-playful-sm transition-colors"
+                            title={isExpanded ? t('common.collapse') : t('common.expand')}
+                          >
+                            {isExpanded ? (
+                              <ChevronDown className="w-4 h-4" />
+                            ) : (
+                              <ChevronRight className="w-4 h-4" />
+                            )}
+                          </button>
+                        )}
+                      </div>
+                      <div className="mb-2" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-between mb-1 text-xs text-gray-600 font-playful">
+                          <div className="flex items-center gap-2">
+                            {hasTarget ? (
+                              <>
+                                {isEditingCurrentValue[metric.id] ? (
+                                  <div className="flex items-center gap-1">
+                                    <input
+                                      type="number"
+                                      step="0.01"
+                                      value={editingCurrentValue[metric.id] ?? currentValue}
+                                      onChange={(e) => setEditingCurrentValue(prev => ({ ...prev, [metric.id]: parseFloat(e.target.value) || 0 }))}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                          e.preventDefault()
+                                          handleSaveCurrentValue(metric.id)
+                                        } else if (e.key === 'Escape') {
+                                          e.preventDefault()
+                                          handleCancelCurrentValue(metric.id)
+                                        }
+                                      }}
+                                      onBlur={() => handleSaveCurrentValue(metric.id)}
+                                      onMouseDown={(e) => e.stopPropagation()}
+                                      onClick={(e) => e.stopPropagation()}
+                                      onFocus={(e) => e.stopPropagation()}
+                                      autoFocus
+                                      className="w-20 px-2 py-1 text-xs border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-black"
+                                    />
+                                    <span>{metricUnit}</span>
+                                  </div>
+                                ) : (
+                                  <div 
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleStartEditingCurrentValue(metric.id, currentValue)
                                     }}
-                                    onBlur={handleCurrentValueSave}
-                                    onClick={(e) => e.stopPropagation()}
-                                    onFocus={(e) => e.stopPropagation()}
-                                    autoFocus
-                                    className="w-20 px-2 py-1 text-xs border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-black"
-                                  />
-                                  <span>{metric.unit}</span>
-                                </div>
-                              ) : (
-                                <div 
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleStartEditing()
-                                  }}
-                                  className="flex items-center gap-1 cursor-pointer hover:text-primary-600 transition-colors"
-                                  title={t('common.metrics.currentValue') || 'Klikněte pro úpravu'}
-                                >
-                                  <Pencil className="w-3 h-3 text-gray-400" />
-                                  <span className="hover:underline">{formatNumber(currentValue)} {metric.unit}</span>
-                                </div>
-                              )}
-                              <span> / {formatNumber(targetValue)} {metric.unit}</span>
-                            </>
-                          ) : (
-                            <div 
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleStartEditing()
+                                    className="flex items-center gap-1 cursor-pointer hover:text-primary-600 transition-colors"
+                                    title={t('common.metrics.currentValue') || 'Klikněte pro úpravu'}
+                                  >
+                                    <Pencil className="w-3 h-3 text-gray-400" />
+                                    <span className="hover:underline">{formatNumber(currentValue)} {metricUnit}</span>
+                                  </div>
+                                )}
+                                <span> / {formatNumber(targetValue)} {metricUnit}</span>
+                              </>
+                            ) : (
+                              <>
+                                {isEditingCurrentValue[metric.id] ? (
+                                  <div className="flex items-center gap-1">
+                                    <input
+                                      type="number"
+                                      step="0.01"
+                                      value={editingCurrentValue[metric.id] ?? currentValue}
+                                      onChange={(e) => setEditingCurrentValue(prev => ({ ...prev, [metric.id]: parseFloat(e.target.value) || 0 }))}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                          e.preventDefault()
+                                          handleSaveCurrentValue(metric.id)
+                                        } else if (e.key === 'Escape') {
+                                          e.preventDefault()
+                                          handleCancelCurrentValue(metric.id)
+                                        }
+                                      }}
+                                      onBlur={() => handleSaveCurrentValue(metric.id)}
+                                      onMouseDown={(e) => e.stopPropagation()}
+                                      onClick={(e) => e.stopPropagation()}
+                                      onFocus={(e) => e.stopPropagation()}
+                                      autoFocus
+                                      className="w-20 px-2 py-1 text-xs border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-black"
+                                    />
+                                    <span>{metricUnit}</span>
+                                  </div>
+                                ) : (
+                                  <div 
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleStartEditingCurrentValue(metric.id, currentValue)
+                                    }}
+                                    className="flex items-center gap-1 cursor-pointer hover:text-primary-600 transition-colors"
+                                    title={t('common.metrics.currentValue') || 'Klikněte pro úpravu'}
+                                  >
+                                    <Pencil className="w-3 h-3 text-gray-400" />
+                                    <span className="hover:underline">{t('common.metrics.remains') || 'Remains'}: {formatNumber(currentValue)} {metricUnit}</span>
+                                  </div>
+                                )}
+                              </>
+                            )}
+                          </div>
+                          {hasTarget && (
+                            <span className="text-primary-600 font-semibold">{Math.round(progress)}%</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    {/* Clickable empty space to open metric (desktop only) */}
+                    {!isMobile && !isEditing && (
+                      <div 
+                        className="flex-1 min-w-[60px] cursor-pointer hover:bg-primary-50/50 rounded-playful-sm transition-colors"
+                        onClick={handleEmptySpaceClick}
+                        title={t('common.metrics.clickToEdit') || 'Klikněte pro úpravu metriky'}
+                      />
+                    )}
+                  </div>
+                  
+                  {/* Progress bar - full width */}
+                  {hasTarget && (
+                    <div className="w-full bg-white border-2 border-primary-500 rounded-playful-sm h-2 overflow-hidden" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+                      <div 
+                        className="bg-primary-500 h-full rounded-playful-sm transition-all duration-300"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Expanded/Editing view - shown when expanded or editing */}
+                  {/* When expanded, automatically enable editing */}
+                  {(isExpanded || isEditing) && (
+                    <div className="space-y-3 pt-2 border-t-2 border-primary-200" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+                      {/* Type and Unit */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-700 mb-1 font-playful">
+                            {t('common.metrics.type')} <span className="text-primary-600">*</span>
+                          </label>
+                          {(isEditing || isExpanded) ? (
+                            <select
+                              value={editingMetricData?.type || metricType}
+                              onChange={(e) => {
+                                const newType = e.target.value as MetricType
+                                
+                                // Update type and unit in a single state update to avoid double render
+                                if (!editingMetricData) return
+                                
+                                // Check if current unit is compatible with new type
+                                const currentUnit = editingMetricData.unit || (displayData.unit || '')
+                                const availableUnits = getUnitsByType(
+                                  newType,
+                                  userSettings?.weight_unit_preference || 'kg',
+                                  localeCode
+                                )
+                                const currentUnitValues = availableUnits.map(u => u.value)
+                                const isCurrentUnitCompatible = currentUnitValues.includes(currentUnit)
+                                
+                                // If unit is not compatible with new type, set default unit
+                                let newUnit = currentUnit
+                                if (!isCurrentUnitCompatible) {
+                                  if (newType === 'currency') {
+                                    newUnit = userSettings?.default_currency || getDefaultCurrencyByLocale(localeCode)
+                                  } else if (newType === 'weight') {
+                                    newUnit = userSettings?.weight_unit_preference || 'kg'
+                                  } else if (newType === 'number') {
+                                    newUnit = ''
+                                  } else if (newType !== 'custom' && availableUnits.length > 0) {
+                                    newUnit = availableUnits[0].value
+                                  } else if (newType === 'custom') {
+                                    newUnit = currentUnit // Keep current unit for custom type
+                                  }
+                                }
+                                
+                                // Update both type and unit in a single state update
+                                setEditingMetricData((prev) => ({
+                                  ...prev,
+                                  type: newType,
+                                  unit: newUnit
+                                }))
+                                // Don't auto-save - save only when clicking outside metric
                               }}
-                              className="flex items-center gap-1 cursor-pointer hover:text-primary-600 transition-colors"
-                              title={t('common.metrics.currentValue') || 'Klikněte pro úpravu'}
+                              onMouseDown={(e) => e.stopPropagation()}
+                              onClick={(e) => e.stopPropagation()}
+                              onFocus={(e) => e.stopPropagation()}
+                              className="w-full px-2 py-1.5 text-xs bg-transparent border-0 border-b-2 border-b-gray-300 focus:border-b-primary-500 focus:outline-none rounded-none text-black appearance-none cursor-pointer"
                             >
-                              <Pencil className="w-3 h-3 text-gray-400" />
-                              <span className="hover:underline">{t('common.metrics.remains') || 'Remains'}: {formatNumber(currentValue)} {metric.unit}</span>
+                              <option value="number">{t('common.metrics.types.number') || 'Number'}</option>
+                              <option value="currency">{t('common.metrics.types.currency') || 'Currency'}</option>
+                              <option value="distance">{t('common.metrics.types.distance') || 'Distance'}</option>
+                              <option value="weight">{t('common.metrics.types.weight') || 'Weight'}</option>
+                              <option value="time">{t('common.metrics.types.time') || 'Time'}</option>
+                              <option value="percentage">{t('common.metrics.types.percentage') || 'Percentage'}</option>
+                              <option value="custom">{t('common.metrics.types.custom') || 'Custom'}</option>
+                            </select>
+                          ) : (
+                            <div className="px-2 py-1.5 text-xs bg-gray-50 rounded-playful-sm text-gray-700">
+                              {t(`common.metrics.types.${metricType}`) || metricType}
                             </div>
                           )}
                         </div>
-                        {hasTarget && (
-                          <span className="text-primary-600 font-semibold">{Math.round(progress)}%</span>
-                        )}
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-700 mb-1 font-playful">
+                            {t('common.metrics.unit')} {metricType !== 'number' && <span className="text-primary-600">*</span>}
+                          </label>
+                          {(isEditing || isExpanded) ? (
+                            <select
+                              value={metricUnit}
+                              onChange={(e) => {
+                                handleMetricFieldChange('unit', e.target.value)
+                                // Don't auto-save - save only when clicking outside metric
+                              }}
+                              onMouseDown={(e) => e.stopPropagation()}
+                              onClick={(e) => e.stopPropagation()}
+                              onFocus={(e) => e.stopPropagation()}
+                              className="w-full px-2 py-1.5 text-xs bg-transparent border-0 border-b-2 border-b-gray-300 focus:border-b-primary-500 focus:outline-none rounded-none text-black appearance-none cursor-pointer"
+                            >
+                              {/* Recalculate available units based on current metricType */}
+                              {(() => {
+                                const currentType = (isEditing || isExpanded) && editingMetricData && editingMetricData.id === metric.id 
+                                  ? (editingMetricData.type || 'number')
+                                  : metricType
+                                const currentAvailableUnits = getUnitsByType(
+                                  currentType,
+                                  userSettings?.weight_unit_preference || 'kg',
+                                  localeCode
+                                )
+                                return currentAvailableUnits.map((unit: any) => (
+                                  <option key={unit.value} value={unit.value}>
+                                    {unit.label}
+                                  </option>
+                                ))
+                              })()}
+                            </select>
+                          ) : (
+                            <div className="px-2 py-1.5 text-xs bg-gray-50 rounded-playful-sm text-gray-700">
+                              {metricUnit || t('common.metrics.noUnit')}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      {hasTarget && (
-                        <div className="w-full bg-white border-2 border-primary-500 rounded-playful-sm h-2 overflow-hidden">
-                          <div 
-                            className="bg-primary-500 h-full rounded-playful-sm transition-all duration-300"
-                            style={{ width: `${progress}%` }}
-                          />
+                      
+                      {/* Values */}
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-700 mb-1 font-playful">
+                            {t('common.metrics.initial')}
+                          </label>
+                          {(isEditing || isExpanded) ? (
+                            <input
+                              type="text"
+                              value={formatNumberWithSpaces(initialValue)}
+                              onChange={(e) => {
+                                const parsed = parseFormattedNumber(e.target.value)
+                                handleMetricFieldChange('initialValue', parsed)
+                              }}
+                              onMouseDown={(e) => e.stopPropagation()}
+                              onClick={(e) => e.stopPropagation()}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.currentTarget.blur()
+                                } else if (e.key === 'Escape') {
+                                  handleCancelInlineMetric()
+                                }
+                              }}
+                              className="w-full px-2 py-1.5 text-xs bg-transparent border-0 border-b-2 border-b-gray-300 focus:border-b-primary-500 focus:outline-none rounded-none text-black"
+                            />
+                          ) : (
+                            <div className="px-2 py-1.5 text-xs bg-gray-50 rounded-playful-sm text-gray-700">
+                              {formatNumber(initialValue)} {metricUnit}
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-700 mb-1 font-playful">
+                            {t('common.metrics.current')}
+                          </label>
+                          {(isEditing || isExpanded) ? (
+                            <input
+                              type="text"
+                              value={formatNumberWithSpaces(currentValue)}
+                              onChange={(e) => {
+                                const parsed = parseFormattedNumber(e.target.value)
+                                handleMetricFieldChange('currentValue', parsed)
+                              }}
+                              onMouseDown={(e) => e.stopPropagation()}
+                              onClick={(e) => e.stopPropagation()}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.currentTarget.blur()
+                                } else if (e.key === 'Escape') {
+                                  handleCancelInlineMetric()
+                                }
+                              }}
+                              className="w-full px-2 py-1.5 text-xs bg-transparent border-0 border-b-2 border-b-gray-300 focus:border-b-primary-500 focus:outline-none rounded-none text-black"
+                            />
+                          ) : (
+                            <div className="px-2 py-1.5 text-xs bg-gray-50 rounded-playful-sm text-gray-700">
+                              {formatNumber(currentValue)} {metricUnit}
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-700 mb-1 font-playful">
+                            {t('common.metrics.target')}
+                          </label>
+                          {(isEditing || isExpanded) ? (
+                            <input
+                              type="text"
+                              value={formatNumberWithSpaces(targetValue)}
+                              onChange={(e) => {
+                                const parsed = parseFormattedNumber(e.target.value)
+                                handleMetricFieldChange('targetValue', parsed)
+                              }}
+                              onMouseDown={(e) => e.stopPropagation()}
+                              onClick={(e) => e.stopPropagation()}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.currentTarget.blur()
+                                } else if (e.key === 'Escape') {
+                                  handleCancelInlineMetric()
+                                }
+                              }}
+                              className="w-full px-2 py-1.5 text-xs bg-transparent border-0 border-b-2 border-b-gray-300 focus:border-b-primary-500 focus:outline-none rounded-none text-black"
+                            />
+                          ) : (
+                            <div className="px-2 py-1.5 text-xs bg-gray-50 rounded-playful-sm text-gray-700">
+                              {formatNumber(targetValue)} {metricUnit}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Delete button - bottom left */}
+                      {!isNewMetric && (isEditing || isExpanded) && (
+                        <div className="flex justify-start pt-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              const confirmMessage = t('common.metrics.deleteConfirm') || 'Opravdu chcete smazat tuto metriku?'
+                              if (confirm(confirmMessage)) {
+                                handleMetricDelete(metric.id, goalId)
+                                handleCancelInlineMetric()
+                              }
+                            }}
+                            className="px-3 py-1.5 text-xs font-medium bg-red-500 text-white rounded-playful-sm hover:bg-red-600 transition-colors flex items-center gap-1.5"
+                            title={t('common.delete')}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            <span>{t('common.delete')}</span>
+                          </button>
                         </div>
                       )}
                     </div>
-                  </div>
+                  )}
                 </div>
               )
             }
@@ -1222,15 +1862,35 @@ export function GoalDetailPage({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      setMetricModalData({ id: null, name: '', currentValue: 0, targetValue: 0, initialValue: 0, incrementalValue: 1, unit: '', type: 'number' })
-                      setEditingMetricName('')
-                      setEditingMetricType('number')
-                      setEditingMetricCurrentValue(0)
-                      setEditingMetricTargetValue(0)
-                      setEditingMetricInitialValue(0)
-                      setEditingMetricIncrementalValue(1)
-                      setEditingMetricUnit('')
-                      setShowMetricModal(true)
+                      if (isMobile) {
+                        // Mobile: open modal
+                        setMetricModalData({ id: null, name: '', currentValue: 0, targetValue: 0, initialValue: 0, incrementalValue: 1, unit: '', type: 'number' })
+                        setEditingMetricName('')
+                        setEditingMetricType('number')
+                        setEditingMetricCurrentValue(0)
+                        setEditingMetricTargetValue(0)
+                        setEditingMetricInitialValue(0)
+                        setEditingMetricIncrementalValue(1)
+                        setEditingMetricUnit('')
+                        setShowMetricModal(true)
+                      } else {
+                        // Desktop: inline creation
+                        const newId = `new-metric-${Date.now()}`
+                        setNewMetricId(newId)
+                        setEditingMetricId(newId)
+                        setExpandedMetricId(newId)
+                        setEditingMetricData({
+                          id: newId,
+                          name: '',
+                          type: 'number',
+                          currentValue: 0,
+                          targetValue: 0,
+                          initialValue: 0,
+                          incrementalValue: 1,
+                          unit: ''
+                        })
+                        setMetricsExpanded(true)
+                      }
                     }}
                     className="flex items-center justify-center w-8 h-8 text-primary-600 hover:bg-primary-50 rounded-playful-sm transition-colors"
                     title={t('common.metrics.create')}
@@ -1239,8 +1899,24 @@ export function GoalDetailPage({
                   </button>
                 </div>
                 
-                {totalMetrics > 0 && metricsExpanded && (
+                {metricsExpanded && (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                    {/* Render new metric inline if creating */}
+                    {newMetricId && editingMetricData && (
+                      <div key={newMetricId}>
+                        {renderMetricCard({
+                          id: newMetricId,
+                          name: editingMetricData.name || '',
+                          type: editingMetricData.type || 'number',
+                          current_value: editingMetricData.currentValue || 0,
+                          target_value: editingMetricData.targetValue || 0,
+                          initial_value: editingMetricData.initialValue || 0,
+                          incremental_value: editingMetricData.incrementalValue || 1,
+                          unit: editingMetricData.unit || ''
+                        })}
+                      </div>
+                    )}
+                    {/* Render existing metrics */}
                     {metrics.map(renderMetricCard)}
                   </div>
                 )}

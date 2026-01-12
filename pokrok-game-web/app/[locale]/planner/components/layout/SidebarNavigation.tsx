@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Target, Plus, Footprints, CheckSquare, Settings, Calendar, CalendarRange, CalendarDays, CalendarCheck, BarChart3, ListTodo, Edit } from 'lucide-react'
+import { LayoutDashboard, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Target, Plus, Footprints, CheckSquare, Settings, Calendar, CalendarRange, CalendarDays, CalendarCheck, BarChart3, ListTodo, Edit, AlertCircle } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
 
 interface SidebarNavigationProps {
@@ -73,6 +73,21 @@ export function SidebarNavigation({
   const [hoveredGoalId, setHoveredGoalId] = useState<string | null>(null)
   const [hoveredPausedSectionId, setHoveredPausedSectionId] = useState<string | null>(null)
   const [hoveredCompletedSectionId, setHoveredCompletedSectionId] = useState<string | null>(null)
+  
+  // Helper function to check if goal is past deadline
+  const isGoalPastDeadline = (goal: any): boolean => {
+    if (!goal.target_date) return false
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const deadline = new Date(goal.target_date)
+    deadline.setHours(0, 0, 0, 0)
+    return deadline < today && goal.status === 'active'
+  }
+  
+  // Helper function to check if area has any past deadline goals
+  const hasAreaPastDeadlineGoals = (areaGoals: any[]): boolean => {
+    return areaGoals.some(goal => isGoalPastDeadline(goal))
+  }
   
   // Helper function to convert hex color to rgba with alpha
   const hexToRgba = (hex: string, alpha: number): string => {
@@ -270,6 +285,7 @@ export function SidebarNavigation({
                   const isExpanded = expandedAreas.has(area.id)
                   const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
                   const areaColor = area.color || '#ea580c'
+                  const hasPastDeadlineGoals = hasAreaPastDeadlineGoals(areaGoals)
                   
                   return (
                     <div 
@@ -295,7 +311,7 @@ export function SidebarNavigation({
                           title={area.name}
                         >
                           <IconComponent className="w-4 h-4 flex-shrink-0" style={mainPanelSection === `area-${area.id}` ? undefined : { color: areaColor }} />
-                          <span className="font-semibold text-sm truncate flex-1">
+                          <span className={`font-semibold text-sm truncate flex-1 ${hasPastDeadlineGoals ? 'text-red-600' : ''}`}>
                             {area.name}
                           </span>
                         </button>
@@ -359,6 +375,7 @@ export function SidebarNavigation({
                               const goalSectionId = `goal-${goal.id}`
                               const isSelected = mainPanelSection === goalSectionId
                               const progressPercentage = Math.round(goal.progress_percentage || 0)
+                              const isPastDeadline = isGoalPastDeadline(goal)
                               return (
                                 <button
                                   key={goal.id}
@@ -384,7 +401,10 @@ export function SidebarNavigation({
                                   <span className="text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right" style={{ color: areaColor }}>
                                     {progressPercentage}%
                                   </span>
-                                  <span className="font-medium text-xs truncate flex-1">
+                                  {isPastDeadline && (
+                                    <AlertCircle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
+                                  )}
+                                  <span className={`font-medium text-xs truncate flex-1 ${isPastDeadline ? 'text-red-600' : ''}`}>
                                     {goal.title}
                                   </span>
                                 </button>
@@ -418,6 +438,7 @@ export function SidebarNavigation({
                                       const goalSectionId = `goal-${goal.id}`
                                       const isSelected = mainPanelSection === goalSectionId
                                       const progressPercentage = Math.round(goal.progress_percentage || 0)
+                                      const isPastDeadline = isGoalPastDeadline(goal)
                                       return (
                                         <button
                                           key={goal.id}
@@ -443,7 +464,10 @@ export function SidebarNavigation({
                                   <span className="text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right" style={{ color: areaColor }}>
                                     {progressPercentage}%
                                   </span>
-                                          <span className="font-medium text-xs truncate flex-1">
+                                          {isPastDeadline && (
+                                            <AlertCircle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
+                                          )}
+                                          <span className={`font-medium text-xs truncate flex-1 ${isPastDeadline ? 'text-red-600' : ''}`}>
                                             {goal.title}
                                           </span>
                                         </button>
@@ -481,6 +505,7 @@ export function SidebarNavigation({
                                       const goalSectionId = `goal-${goal.id}`
                                       const isSelected = mainPanelSection === goalSectionId
                                       const progressPercentage = Math.round(goal.progress_percentage || 0)
+                                      const isPastDeadline = isGoalPastDeadline(goal)
                                       return (
                                         <button
                                           key={goal.id}
@@ -506,7 +531,10 @@ export function SidebarNavigation({
                                   <span className="text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right" style={{ color: areaColor }}>
                                     {progressPercentage}%
                                   </span>
-                                          <span className="font-medium text-xs truncate flex-1">
+                                          {isPastDeadline && (
+                                            <AlertCircle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
+                                          )}
+                                          <span className={`font-medium text-xs truncate flex-1 ${isPastDeadline ? 'text-red-600' : ''}`}>
                                             {goal.title}
                                           </span>
                                         </button>
@@ -533,6 +561,7 @@ export function SidebarNavigation({
                       const goalSectionId = `goal-${goal.id}`
                       const isSelected = mainPanelSection === goalSectionId
                       const progressPercentage = Math.round(goal.progress_percentage || 0)
+                      const isPastDeadline = isGoalPastDeadline(goal)
                       return (
                         <button
                           key={goal.id}
@@ -552,7 +581,10 @@ export function SidebarNavigation({
                           <span className={`text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right ${isSelected ? 'text-primary-600' : 'text-gray-600'}`}>
                             {progressPercentage}%
                           </span>
-                          <span className="font-medium text-xs truncate flex-1">
+                          {isPastDeadline && (
+                            <AlertCircle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
+                          )}
+                          <span className={`font-medium text-xs truncate flex-1 ${isPastDeadline ? 'text-red-600' : ''}`}>
                             {goal.title}
                           </span>
                         </button>

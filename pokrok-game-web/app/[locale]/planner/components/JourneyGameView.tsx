@@ -121,8 +121,8 @@ export function JourneyGameView({
     isLoadingUserRef.current = true
     const loadUserId = async () => {
       try {
-        console.log('Loading userId for Clerk ID:', user.id)
-        let response = await fetch(`/api/user?clerkId=${user.id}`)
+        console.log('Loading userId for authenticated user')
+        let response = await fetch(`/api/user`)
         let retryCount = 0
         const maxRetries = 3
         
@@ -130,7 +130,7 @@ export function JourneyGameView({
         while (!response.ok && response.status === 404 && retryCount < maxRetries) {
           console.log(`User not found, retrying (attempt ${retryCount + 1}/${maxRetries})...`)
           await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))) // Exponential backoff
-          response = await fetch(`/api/user?clerkId=${user.id}`)
+          response = await fetch(`/api/user`)
           retryCount++
         }
         

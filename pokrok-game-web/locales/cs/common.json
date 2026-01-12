@@ -44,6 +44,8 @@
     "backToCurrent": "Zpět na aktuální rok",
     "statistics": "Statistiky",
     "dragToReorder": "Přetáhněte pro změnu pořadí",
+    "expand": "Rozbalit",
+    "collapse": "Sbalit",
     "metrics": {
       "title": "Metriky",
       "metric": "metrika",
@@ -63,17 +65,21 @@
         "custom": "Vlastní"
       },
       "targetValue": "Cílová hodnota",
-      "initialValue": "Začáteční hodnota",
+      "initialValue": "Počáteční hodnota",
+      "initial": "Počáteční hodnota",
       "incrementalValue": "Inkrementální hodnota",
       "unit": "Jednotka",
       "unitPlaceholder": "Např. ks, kg, km",
       "selectUnit": "Vybrat jednotku...",
       "addValue": "Přidat hodnotu",
       "currentValue": "Aktuální hodnota",
+      "current": "Aktuální hodnota",
       "target": "Cíl",
       "progress": "Pokrok",
       "remains": "Zbývá",
-      "noMetrics": "Zatím žádné metriky"
+      "noMetrics": "Zatím žádné metriky",
+      "noUnit": "Bez jednotky",
+      "clickToEdit": "Klikněte pro úpravu metriky"
     }
   },
   "homepage": {

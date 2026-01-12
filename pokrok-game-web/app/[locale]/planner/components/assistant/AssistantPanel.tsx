@@ -149,12 +149,97 @@ export function AssistantPanel({
 
   // Don't render panel on mobile - use floating button + modal instead
   if (isMobile) {
+    // Determine which options are available based on current context
+    const canAddArea = currentPage === 'main' && mainPanelSection === 'focus-upcoming'
+    const canAddGoal = (currentPage === 'main' && mainPanelSection === 'focus-upcoming') || currentPage === 'goals'
+    const canAddStep = true // Can add step anywhere via modal
+    const canAddHabit = true // Can add habit anywhere via modal
+    
+    // Build menu items based on availability
+    const menuItems = []
+    
+    if (canAddArea) {
+      menuItems.push(
+        <button
+          key="area"
+          onClick={() => {
+            if (onOpenAreasManagementModal) {
+              onOpenAreasManagementModal()
+            }
+            setShowAddMenu(false)
+          }}
+          className="flex items-center gap-3 px-4 py-3 bg-white hover:bg-gray-50 active:bg-gray-100 text-primary-600 rounded-lg transition-all duration-200 border border-primary-200 min-w-[160px]"
+          aria-label={t('areas.add') || 'Přidat oblast'}
+        >
+          <Layers className="w-5 h-5 flex-shrink-0" />
+          <span className="text-sm font-medium">{t('areas.add') || 'Přidat oblast'}</span>
+        </button>
+      )
+    }
+    
+    if (canAddGoal) {
+      menuItems.push(
+        <button
+          key="goal"
+          onClick={() => {
+            if (onCreateGoal) {
+              onCreateGoal()
+            }
+            setShowAddMenu(false)
+          }}
+          className="flex items-center gap-3 px-4 py-3 bg-white hover:bg-gray-50 active:bg-gray-100 text-primary-600 rounded-lg transition-all duration-200 border border-primary-200 min-w-[160px]"
+          aria-label={t('goals.add') || 'Přidat cíl'}
+        >
+          <Target className="w-5 h-5 flex-shrink-0" />
+          <span className="text-sm font-medium">{t('goals.add') || 'Přidat cíl'}</span>
+        </button>
+      )
+    }
+    
+    if (canAddStep) {
+      menuItems.push(
+        <button
+          key="step"
+          onClick={() => {
+            if (onOpenStepModal) {
+              onOpenStepModal(undefined)
+            }
+            setShowAddMenu(false)
+          }}
+          className="flex items-center gap-3 px-4 py-3 bg-white hover:bg-gray-50 active:bg-gray-100 text-primary-600 rounded-lg transition-all duration-200 border border-primary-200 min-w-[160px]"
+          aria-label={t('steps.addStep') || 'Přidat krok'}
+        >
+          <Footprints className="w-5 h-5 flex-shrink-0" />
+          <span className="text-sm font-medium">{t('steps.addStep') || 'Přidat krok'}</span>
+        </button>
+      )
+    }
+    
+    if (canAddHabit) {
+      menuItems.push(
+        <button
+          key="habit"
+          onClick={() => {
+            if (onOpenHabitModal) {
+              onOpenHabitModal(undefined)
+            }
+            setShowAddMenu(false)
+          }}
+          className="flex items-center gap-3 px-4 py-3 bg-white hover:bg-gray-50 active:bg-gray-100 text-primary-600 rounded-lg transition-all duration-200 border border-primary-200 min-w-[160px]"
+          aria-label={t('habits.add') || 'Přidat návyk'}
+        >
+          <CheckSquare className="w-5 h-5 flex-shrink-0" />
+          <span className="text-sm font-medium">{t('habits.add') || 'Přidat návyk'}</span>
+        </button>
+      )
+    }
+    
     return (
       <>
         {/* Floating buttons - bottom right */}
         <div className="fixed bottom-6 right-6 z-[99] flex flex-col gap-3 items-end">
           {/* Add button with menu */}
-          {showAddMenu && (
+          {showAddMenu && menuItems.length > 0 && (
             <>
               {/* Backdrop to close menu */}
               <div 
@@ -162,58 +247,7 @@ export function AssistantPanel({
                 onClick={() => setShowAddMenu(false)}
               />
               <div className="flex flex-col gap-2 mb-2 z-[99] bg-white rounded-xl shadow-xl border-2 border-primary-200 p-2">
-                <button
-                  onClick={() => {
-                    if (onOpenAreasManagementModal) {
-                      onOpenAreasManagementModal()
-                    }
-                    setShowAddMenu(false)
-                  }}
-                  className="flex items-center gap-3 px-4 py-3 bg-white hover:bg-gray-50 active:bg-gray-100 text-primary-600 rounded-lg transition-all duration-200 border border-primary-200 min-w-[160px]"
-                  aria-label={t('areas.add') || 'Přidat oblast'}
-                >
-                  <Layers className="w-5 h-5 flex-shrink-0" />
-                  <span className="text-sm font-medium">{t('areas.add') || 'Přidat oblast'}</span>
-                </button>
-                <button
-                  onClick={() => {
-                    if (onCreateGoal) {
-                      onCreateGoal()
-                    }
-                    setShowAddMenu(false)
-                  }}
-                  className="flex items-center gap-3 px-4 py-3 bg-white hover:bg-gray-50 active:bg-gray-100 text-primary-600 rounded-lg transition-all duration-200 border border-primary-200 min-w-[160px]"
-                  aria-label={t('goals.add') || 'Přidat cíl'}
-                >
-                  <Target className="w-5 h-5 flex-shrink-0" />
-                  <span className="text-sm font-medium">{t('goals.add') || 'Přidat cíl'}</span>
-                </button>
-                <button
-                  onClick={() => {
-                    if (onOpenStepModal) {
-                      onOpenStepModal(undefined)
-                    }
-                    setShowAddMenu(false)
-                  }}
-                  className="flex items-center gap-3 px-4 py-3 bg-white hover:bg-gray-50 active:bg-gray-100 text-primary-600 rounded-lg transition-all duration-200 border border-primary-200 min-w-[160px]"
-                  aria-label={t('steps.addStep') || 'Přidat krok'}
-                >
-                  <Footprints className="w-5 h-5 flex-shrink-0" />
-                  <span className="text-sm font-medium">{t('steps.addStep') || 'Přidat krok'}</span>
-                </button>
-                <button
-                  onClick={() => {
-                    if (onOpenHabitModal) {
-                      onOpenHabitModal(undefined)
-                    }
-                    setShowAddMenu(false)
-                  }}
-                  className="flex items-center gap-3 px-4 py-3 bg-white hover:bg-gray-50 active:bg-gray-100 text-primary-600 rounded-lg transition-all duration-200 border border-primary-200 min-w-[160px]"
-                  aria-label={t('habits.add') || 'Přidat návyk'}
-                >
-                  <CheckSquare className="w-5 h-5 flex-shrink-0" />
-                  <span className="text-sm font-medium">{t('habits.add') || 'Přidat návyk'}</span>
-                </button>
+                {menuItems}
               </div>
             </>
           )}

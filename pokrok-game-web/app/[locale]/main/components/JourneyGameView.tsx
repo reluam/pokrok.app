@@ -119,8 +119,8 @@ export function JourneyGameView({
     isLoadingUserRef.current = true
     const loadUserId = async () => {
       try {
-        console.log('Loading userId for Clerk ID:', user.id)
-        const response = await fetch(`/api/user?clerkId=${user.id}`)
+        console.log('Loading userId for authenticated user')
+        const response = await fetch(`/api/user`)
         if (response.ok) {
           const dbUser = await response.json()
           console.log('User loaded from DB:', dbUser)

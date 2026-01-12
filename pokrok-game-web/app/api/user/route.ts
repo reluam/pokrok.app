@@ -4,32 +4,13 @@ import { createUser } from '@/lib/cesta-db'
 
 export async function GET(request: NextRequest) {
   try {
-    // Support both auth-based and clerkId query param
-    const { searchParams } = new URL(request.url)
-    const clerkIdParam = searchParams.get('clerkId')
-    
-    if (clerkIdParam) {
-      // If clerkId is provided, use it (for backward compatibility)
-      const { getUserByClerkId } = await import('@/lib/cesta-db')
-      console.log('[API/user] GET request with clerkId:', clerkIdParam)
-      const user = await getUserByClerkId(clerkIdParam)
-      console.log('[API/user] User found:', !!user, user ? `id: ${user.id}` : 'null')
-      
-      if (!user) {
-        console.error('[API/user] User not found for clerkId:', clerkIdParam)
-        return NextResponse.json({ error: 'User not found' }, { status: 404 })
-      }
-      
-      return NextResponse.json(user)
-    } else {
-      // Otherwise, use auth-based approach
-      const authResult = await requireAuth(request)
-      if (authResult instanceof NextResponse) return authResult
-      const { dbUser } = authResult
+    // ✅ SECURITY: Vždy vyžadovat autentizaci
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
 
-      // ✅ SECURITY: Vrátit pouze data autentizovaného uživatele
-      return NextResponse.json(dbUser)
-    }
+    // ✅ SECURITY: Vrátit pouze data autentizovaného uživatele
+    return NextResponse.json(dbUser)
   } catch (error) {
     console.error('Error fetching user:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'

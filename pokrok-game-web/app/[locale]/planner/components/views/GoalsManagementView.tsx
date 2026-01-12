@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString } from '../utils/dateHelpers'
-import { Plus, Target, Calendar, CheckCircle, Moon, ArrowRight } from 'lucide-react'
+import { Plus, Target, Calendar, CheckCircle, Moon, ArrowRight, AlertCircle } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
 
 interface GoalsManagementViewProps {
@@ -36,6 +36,16 @@ export function GoalsManagementView({
 }: GoalsManagementViewProps) {
   const t = useTranslations()
   const localeCode = useLocale()
+  
+  // Helper function to check if goal is past deadline
+  const isGoalPastDeadline = (goal: any): boolean => {
+    if (!goal.target_date) return false
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const deadline = new Date(goal.target_date)
+    deadline.setHours(0, 0, 0, 0)
+    return deadline < today && goal.status === 'active'
+  }
   
   // Status filters - defaultně pouze 'active' zaškrtnutý
   const [statusFilters, setStatusFilters] = useState<Set<string>>(new Set(['active']))
@@ -306,6 +316,7 @@ export function GoalsManagementView({
               // Determine styling based on status
               const isPaused = goal.status === 'paused'
               const isCompleted = goal.status === 'completed'
+              const isPastDeadline = isGoalPastDeadline(goal)
               
                 return (
                 <div
@@ -336,12 +347,15 @@ export function GoalsManagementView({
                               : 'text-primary-600'
                           }`} />
                     </div>
+                        {isPastDeadline && (
+                          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                        )}
                         <h3 className={`text-lg font-semibold truncate transition-colors font-playful ${
                           isPaused
                             ? 'text-gray-500'
                             : isCompleted
-                            ? 'text-black group-hover:text-primary-600'
-                            : 'text-black group-hover:text-primary-600'
+                            ? isPastDeadline ? 'text-red-600 group-hover:text-red-700' : 'text-black group-hover:text-primary-600'
+                            : isPastDeadline ? 'text-red-600 group-hover:text-red-700' : 'text-black group-hover:text-primary-600'
                         }`}>
                           {goal.title}
                     </h3>
