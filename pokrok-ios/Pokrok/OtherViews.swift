@@ -1250,8 +1250,8 @@ class HabitsDataProvider: ObservableObject {
         let dayEnName = enDayNames[weekday].lowercased()
         
         return habits.filter { habit in
-            switch habit.frequency {
-            case "daily":
+        switch habit.frequency {
+        case "daily":
                 return true
             case "weekly", "custom":
                 if let selectedDays = habit.selectedDays, !selectedDays.isEmpty {
@@ -1259,7 +1259,7 @@ class HabitsDataProvider: ObservableObject {
                     return normalizedSelectedDays.contains(dayCsName) || normalizedSelectedDays.contains(dayEnName)
                 }
                 return false
-            default:
+        default:
                 return false
             }
         }.count

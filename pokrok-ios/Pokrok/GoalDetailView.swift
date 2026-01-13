@@ -944,64 +944,89 @@ struct MetricCard: View {
     var body: some View {
         PlayfulCard(
             variant: .pink,
-            onTap: onTap
+            onTap: nil // Remove onTap from card, handle it separately
         ) {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                HStack {
-                    Text(metric.name)
-                        .font(DesignSystem.Typography.body)
-                        .fontWeight(.medium)
-                        .foregroundColor(isCompleted ? DesignSystem.Colors.textSecondary : DesignSystem.Colors.textPrimary)
-                        .strikethrough(isCompleted)
-                    
-                    Spacer()
-                    
-                    Text("\(Int(progress * 100))%")
-                        .font(DesignSystem.Typography.caption)
-                        .foregroundColor(DesignSystem.Colors.textSecondary)
-                }
-                
-                HStack {
-                    // Current value - editable inline
-                    HStack(spacing: 4) {
-                        TextField("0", text: $editingValue)
+                // Name row - clickable for full edit
+                Button(action: onTap) {
+                    HStack {
+                        Text(metric.name)
                             .font(DesignSystem.Typography.body)
-                            .fontWeight(.semibold)
-                            .foregroundColor(DesignSystem.Colors.dynamicPrimary)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                            .focused($isEditing)
-                            .autocorrectionDisabled()
-                            .textInputAutocapitalization(.never)
-                            .frame(minWidth: 60)
-                            .textFieldStyle(.roundedBorder)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                                    .stroke(isEditing ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.outline, lineWidth: isEditing ? 2 : 1)
-                            )
-                            .onChange(of: isEditing) { _, isFocused in
-                                if !isFocused {
-                                    saveValue()
-                                }
-                            }
-                            .toolbar {
-                                ToolbarItemGroup(placement: .keyboard) {
-                                    Spacer()
-                                    Button("Hotovo") {
-                                        isEditing = false
-                                        saveValue()
-                                    }
-                                    .foregroundColor(DesignSystem.Colors.dynamicPrimary)
-                                    .fontWeight(.semibold)
-                                }
-                            }
+                            .fontWeight(.medium)
+                            .foregroundColor(isCompleted ? DesignSystem.Colors.textSecondary : DesignSystem.Colors.textPrimary)
+                            .strikethrough(isCompleted)
                         
-                        if let unit = metric.unit, !unit.isEmpty {
-                            Text(unit)
+                        Spacer()
+                        
+                        Text("\(Int(progress * 100))%")
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                    }
+                }
+                .buttonStyle(PlainButtonStyle())
+                
+                HStack(alignment: .center, spacing: DesignSystem.Spacing.xs) {
+                    // Current value - show text or textfield based on editing state
+                    if isEditing {
+                        HStack(spacing: 4) {
+                            TextField("0", text: $editingValue)
                                 .font(DesignSystem.Typography.body)
                                 .fontWeight(.semibold)
                                 .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.trailing)
+                                .focused($isEditing)
+                                .autocorrectionDisabled()
+                                .textInputAutocapitalization(.never)
+                                .frame(minWidth: 60)
+                                .textFieldStyle(.roundedBorder)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                        .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                                )
+                                .onChange(of: isEditing) { _, isFocused in
+                                    if !isFocused {
+                                        saveValue()
+                                    }
+                                }
+                                .toolbar {
+                                    ToolbarItemGroup(placement: .keyboard) {
+                                        Spacer()
+                                        Button("Hotovo") {
+                                            isEditing = false
+                                            saveValue()
+                                        }
+                                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                                        .fontWeight(.semibold)
+                                    }
+                                }
+                            
+                            if let unit = metric.unit, !unit.isEmpty {
+                                Text(unit)
+                                    .font(DesignSystem.Typography.body)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                            }
                         }
+                    } else {
+                        Button(action: {
+                            isEditing = true
+                        }) {
+                            HStack(spacing: 4) {
+                                Text("\(formatValue(metric.currentValue))")
+                                    .font(DesignSystem.Typography.body)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                                
+                                if let unit = metric.unit, !unit.isEmpty {
+                                    Text(unit)
+                                        .font(DesignSystem.Typography.body)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                                }
+                            }
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
                     
                     Text("/")
@@ -1012,6 +1037,7 @@ struct MetricCard: View {
                         .font(DesignSystem.Typography.caption)
                         .foregroundColor(DesignSystem.Colors.textSecondary)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
                 
                 PlayfulProgressBar(
                     progress: progress,

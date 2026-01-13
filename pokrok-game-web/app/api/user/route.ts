@@ -5,12 +5,12 @@ import { createUser } from '@/lib/cesta-db'
 export async function GET(request: NextRequest) {
   try {
     // ✅ SECURITY: Vždy vyžadovat autentizaci
-    const authResult = await requireAuth(request)
-    if (authResult instanceof NextResponse) return authResult
-    const { dbUser } = authResult
+      const authResult = await requireAuth(request)
+      if (authResult instanceof NextResponse) return authResult
+      const { dbUser } = authResult
 
-    // ✅ SECURITY: Vrátit pouze data autentizovaného uživatele
-    return NextResponse.json(dbUser)
+      // ✅ SECURITY: Vrátit pouze data autentizovaného uživatele
+      return NextResponse.json(dbUser)
   } catch (error) {
     console.error('Error fetching user:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'

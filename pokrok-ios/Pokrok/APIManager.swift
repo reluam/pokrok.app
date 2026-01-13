@@ -8,11 +8,15 @@ class APIManager: ObservableObject {
     static let shared = APIManager()
     
     private let baseURL = "https://www.pokrok.app/api"
+    private let cacheManager = LocalCacheManager.shared
     
     // Cache for user data (1 second TTL)
     private var cachedUser: User?
     private var userCacheTimestamp: Date?
     private let userCacheTTL: TimeInterval = 1.0
+    
+    // Cache refresh interval (5 minutes)
+    private let cacheRefreshInterval: TimeInterval = 300
     
     private init() {}
     
@@ -55,7 +59,26 @@ class APIManager: ObservableObject {
     
     // MARK: - Goals API
     
-    func fetchGoals() async throws -> [Goal] {
+    func fetchGoals(forceRefresh: Bool = false) async throws -> [Goal] {
+        // Check if we should use cache
+        let shouldUseCache = !forceRefresh && shouldUseCache(for: "goals")
+        
+        // Return cached data immediately if available and fresh
+        if shouldUseCache, let cachedGoals = cacheManager.loadGoals() {
+            // Refresh in background if cache is older than refresh interval
+            if shouldRefreshCache(for: "goals") {
+                Task {
+                    try? await refreshGoalsFromAPI()
+                }
+            }
+            return cachedGoals
+        }
+        
+        // Fetch from API
+        return try await refreshGoalsFromAPI()
+    }
+    
+    private func refreshGoalsFromAPI() async throws -> [Goal] {
         // First, get userId from user endpoint
         let user = try await fetchUser()
         
@@ -93,6 +116,10 @@ class APIManager: ObservableObject {
         // Parse response - API returns array directly, not wrapped
         let decoder = createJSONDecoder()
         let goals = try decoder.decode([Goal].self, from: data)
+        
+        // Save to cache
+        cacheManager.saveGoals(goals)
+        
         return goals
     }
     
@@ -153,6 +180,10 @@ class APIManager: ObservableObject {
         // Parse response - API returns goal directly, not wrapped
         let decoder = createJSONDecoder()
         let createdGoal = try decoder.decode(Goal.self, from: data)
+        
+        // Update cache
+        cacheManager.updateGoal(createdGoal)
+        
         return createdGoal
     }
     
@@ -208,6 +239,10 @@ class APIManager: ObservableObject {
         // Parse response - API returns goal directly, not wrapped
         let decoder = createJSONDecoder()
         let updatedGoal = try decoder.decode(Goal.self, from: data)
+        
+        // Update cache
+        cacheManager.updateGoal(updatedGoal)
+        
         return updatedGoal
     }
     
@@ -553,6 +588,10 @@ class APIManager: ObservableObject {
         // Parse response - API returns step directly, not wrapped
         let decoder = createJSONDecoder()
         let createdStep = try decoder.decode(DailyStep.self, from: data)
+        
+        // Update cache
+        cacheManager.updateStep(createdStep)
+        
         return createdStep
     }
     
@@ -592,6 +631,10 @@ class APIManager: ObservableObject {
         // Parse response - API returns step directly, not wrapped
         let decoder = createJSONDecoder()
         let updatedStep = try decoder.decode(DailyStep.self, from: data)
+        
+        // Update cache
+        cacheManager.updateStep(updatedStep)
+        
         return updatedStep
     }
     
@@ -771,6 +814,24 @@ class APIManager: ObservableObject {
         userCacheTimestamp = nil
     }
     
+    // MARK: - Cache Helpers
+    
+    private func shouldUseCache(for key: String) -> Bool {
+        guard let lastSync = cacheManager.getLastSync(for: key) else {
+            return false // No cache exists
+        }
+        // Use cache if it's less than 5 minutes old
+        return Date().timeIntervalSince(lastSync) < cacheRefreshInterval
+    }
+    
+    private func shouldRefreshCache(for key: String) -> Bool {
+        guard let lastSync = cacheManager.getLastSync(for: key) else {
+            return true // No cache exists, should refresh
+        }
+        // Refresh if cache is older than refresh interval
+        return Date().timeIntervalSince(lastSync) >= cacheRefreshInterval
+    }
+    
     // MARK: - Habits API
     
     func createHabit(name: String, description: String?, frequency: String, reminderTime: String?, selectedDays: [String]?, xpReward: Int?, aspirationId: String?, icon: String?) async throws -> Habit {
@@ -849,7 +910,26 @@ class APIManager: ObservableObject {
         return createdHabit
     }
     
-    func fetchHabits() async throws -> [Habit] {
+    func fetchHabits(forceRefresh: Bool = false) async throws -> [Habit] {
+        // Check if we should use cache
+        let shouldUseCache = !forceRefresh && shouldUseCache(for: "habits")
+        
+        // Return cached data immediately if available and fresh
+        if shouldUseCache, let cachedHabits = cacheManager.loadHabits() {
+            // Refresh in background if cache is older than refresh interval
+            if shouldRefreshCache(for: "habits") {
+                Task {
+                    try? await refreshHabitsFromAPI()
+                }
+            }
+            return cachedHabits
+        }
+        
+        // Fetch from API
+        return try await refreshHabitsFromAPI()
+    }
+    
+    private func refreshHabitsFromAPI() async throws -> [Habit] {
         guard let url = URL(string: "\(baseURL)/habits") else {
             throw APIError.invalidURL
         }
@@ -876,10 +956,10 @@ class APIManager: ObservableObject {
         // Try direct decoding first (PostgreSQL returns JSONB as object, not string)
         let decoder = createJSONDecoder()
         
+        let habits: [Habit]
         do {
             // Try direct decoding - PostgreSQL JSONB should decode directly
-            let habits = try decoder.decode([Habit].self, from: data)
-            return habits
+            habits = try decoder.decode([Habit].self, from: data)
         } catch let decodingError {
             // If direct decoding fails, try manual parsing
             // Handle habit_completions as JSON dictionary
@@ -926,8 +1006,13 @@ class APIManager: ObservableObject {
                     continue
                 }
             }
-            return decodedHabits
+            habits = decodedHabits
         }
+        
+        // Save to cache
+        cacheManager.saveHabits(habits)
+        
+        return habits
     }
     
     func toggleHabitCompletion(habitId: String, date: String) async throws -> Habit {

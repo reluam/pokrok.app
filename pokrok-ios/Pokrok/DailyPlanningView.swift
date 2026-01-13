@@ -217,90 +217,75 @@ struct DailyPlanningView: View {
     
     // MARK: - Header Section with Progress
     private var headerSectionWithProgress: some View {
-        PlayfulCard(variant: isToday ? .pink : .purple) {
-            VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                // Date row with navigation arrows
-                HStack(alignment: .center, spacing: DesignSystem.Spacing.sm) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+            // Date row with navigation arrows and counters in one line
+            HStack(alignment: .center, spacing: DesignSystem.Spacing.md) {
                 // Left arrow button
                 Button(action: {
                     changeDate(by: -1)
                 }) {
                     Image(systemName: "chevron.left")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(isToday ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.textTertiary)
-                            .frame(width: 24, height: 24)
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                        .frame(width: 36, height: 36)
                 }
                 
-                // Date and day info
-                    HStack(alignment: .bottom, spacing: DesignSystem.Spacing.xs) {
-                        Text("\(dayNumber)")
-                            .font(DesignSystem.Typography.title1)
-                            .fontWeight(.bold)
-                            .foregroundColor(isToday ? DesignSystem.Colors.textPrimary : DesignSystem.Colors.textSecondary)
-                        
-                        Text(monthName)
+                // Date info - more prominent
+                HStack(alignment: .bottom, spacing: DesignSystem.Spacing.xs) {
+                    Text("\(dayNumber)")
+                        .font(.system(size: 32, weight: .bold))
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(monthName.capitalized)
                             .font(DesignSystem.Typography.body)
-                            .foregroundColor(isToday ? DesignSystem.Colors.textSecondary : DesignSystem.Colors.textTertiary)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
                         
                         Text(dayName)
-                            .font(DesignSystem.Typography.body)
-                            .foregroundColor(isToday ? DesignSystem.Colors.textSecondary : DesignSystem.Colors.textTertiary)
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                    }
                 }
                 
                 Spacer()
                 
-                // Right arrow button
-                Button(action: {
-                    changeDate(by: 1)
-                }) {
-                    Image(systemName: "chevron.right")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(isToday ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.textTertiary)
-                            .frame(width: 24, height: 24)
-                }
-                }
-                
-                // Counters for steps and habits
-                HStack(spacing: DesignSystem.Spacing.lg) {
+                // Counters - compact design
+                HStack(spacing: DesignSystem.Spacing.md) {
                     // Steps counter
-                    HStack(spacing: DesignSystem.Spacing.xs) {
-                        Text("\(stepStats.completed)")
-                            .font(DesignSystem.Typography.title2)
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("\(stepStats.completed)/\(stepStats.total)")
+                            .font(DesignSystem.Typography.title3)
                             .fontWeight(.bold)
                             .foregroundColor(DesignSystem.Colors.dynamicPrimary)
-                        Text("z")
-                            .font(DesignSystem.Typography.body)
-                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                        Text("\(stepStats.total)")
-                            .font(DesignSystem.Typography.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(DesignSystem.Colors.textPrimary)
                         Text("kroků")
                             .font(DesignSystem.Typography.caption)
                             .foregroundColor(DesignSystem.Colors.textSecondary)
                     }
                     
                     // Habits counter
-                    HStack(spacing: DesignSystem.Spacing.xs) {
-                        Text("\(habitStats.completed)")
-                            .font(DesignSystem.Typography.title2)
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("\(habitStats.completed)/\(habitStats.total)")
+                            .font(DesignSystem.Typography.title3)
                             .fontWeight(.bold)
-                            .foregroundColor(DesignSystem.Colors.Playful.yellow)
-                        Text("z")
-                            .font(DesignSystem.Typography.body)
-                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                        Text("\(habitStats.total)")
-                            .font(DesignSystem.Typography.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                            .foregroundColor(DesignSystem.Colors.dynamicPrimary)
                         Text("návyků")
                             .font(DesignSystem.Typography.caption)
                             .foregroundColor(DesignSystem.Colors.textSecondary)
                     }
                 }
+                
+                // Right arrow button
+                Button(action: {
+                    changeDate(by: 1)
+                }) {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                        .frame(width: 36, height: 36)
+                }
             }
-            .padding(DesignSystem.Spacing.sm) // Reduced padding from .md to .sm
         }
+        .padding(.vertical, DesignSystem.Spacing.md)
     }
     
     private func changeDate(by days: Int) {
@@ -334,10 +319,10 @@ struct DailyPlanningView: View {
             // Header with counter
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                 HStack {
-                    Text("Kroky")
+            Text("Kroky")
                         .font(DesignSystem.Typography.title3)
                         .fontWeight(.bold)
-                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
                     
                     Spacer()
                     
@@ -407,10 +392,10 @@ struct DailyPlanningView: View {
             // Header with counter
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                 HStack {
-                    Text("Návyky")
+            Text("Návyky")
                         .font(DesignSystem.Typography.title3)
                         .fontWeight(.bold)
-                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
                     
                     Spacer()
                     
