@@ -19,14 +19,14 @@ export async function GET(request: NextRequest) {
     // Check if user needs onboarding steps initialized
     // Skip this check if user has already completed onboarding to improve performance
     if (!dbUser.has_completed_onboarding) {
-      try {
-        // Check if user has onboarding area "Začínáme" or "Getting Started"
-        const existingArea = await sql`
-          SELECT id FROM areas 
-          WHERE user_id = ${dbUser.id} 
-          AND (name = 'Začínáme' OR name = 'Getting Started')
-          LIMIT 1
-        `
+    try {
+      // Check if user has onboarding area "Začínáme" or "Getting Started"
+      const existingArea = await sql`
+        SELECT id FROM areas 
+        WHERE user_id = ${dbUser.id} 
+        AND (name = 'Začínáme' OR name = 'Getting Started')
+        LIMIT 1
+      `
       
       if (existingArea.length === 0) {
         // User doesn't have onboarding area yet, initialize onboarding steps
@@ -75,9 +75,9 @@ export async function GET(request: NextRequest) {
           }
         }
       }
-      } catch (error) {
-        console.error('Error checking onboarding steps:', error)
-        // Don't fail the request if check fails
+    } catch (error) {
+      console.error('Error checking onboarding steps:', error)
+      // Don't fail the request if check fails
       }
     }
 

@@ -1007,29 +1007,29 @@ export function UpcomingView({
                 const isLoading = loadingHabits.has(loadingKey)
                 
                 return (
-                <div
-                  key={habit.id}
-                  onClick={() => handleItemClick(habit, 'habit')}
+                  <div
+                    key={habit.id}
+                    onClick={() => handleItemClick(habit, 'habit')}
                     className={`flex items-center gap-2 p-3 rounded-playful-md cursor-pointer transition-all flex-shrink-0 ${
                       isCompleted
                         ? 'bg-primary-100 opacity-75 hover:outline-2 hover:outline hover:outline-primary-300 hover:outline-offset-[-2px]'
                         : 'bg-white hover:bg-primary-50 hover:outline-2 hover:outline hover:outline-primary-500 hover:outline-offset-[-2px]'
                     } ${isLoading ? 'opacity-50' : ''}`}
-                >
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                        handleHabitToggle(habit.id, todayStr)
-                    }}
-                      disabled={isLoading}
-                    className={`flex-shrink-0 w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors ${
-                      isLoading
-                        ? 'border-primary-500 bg-white'
-                        : isCompleted
-                          ? 'bg-primary-500 border-primary-500'
-                        : 'border-primary-500 hover:bg-primary-50'
-                    } ${isLoading ? 'cursor-not-allowed' : ''}`}
                   >
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleHabitToggle(habit.id, todayStr)
+                      }}
+                      disabled={isLoading}
+                      className={`flex-shrink-0 w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors ${
+                        isLoading
+                          ? 'border-primary-500 bg-white'
+                          : isCompleted
+                            ? 'bg-primary-500 border-primary-500'
+                            : 'border-primary-500 hover:bg-primary-50'
+                      } ${isLoading ? 'cursor-not-allowed' : ''}`}
+                    >
                       {isLoading ? (
                         <div className="animate-spin h-4 w-4 border-2 border-primary-500 border-t-transparent rounded-full"></div>
                       ) : isCompleted ? (
@@ -1051,7 +1051,7 @@ export function UpcomingView({
                         {habit.name}
                       </span>
                     </div>
-                </div>
+                  </div>
                 )
               })}
             </div>
@@ -1182,6 +1182,12 @@ export function UpcomingView({
               
               return (
                     <div key={areaId} className="mb-6">
+                      {/* Area header */}
+                      <div className="mb-3 px-4 sm:px-6 lg:px-8">
+                        <h2 className="text-xl font-bold text-black font-playful">
+                          {area.name}
+                        </h2>
+                      </div>
                       <StepsManagementView
                         dailySteps={areaSteps}
                         goals={goals}
@@ -1211,6 +1217,12 @@ export function UpcomingView({
                 {/* Steps without area */}
                 {stepsByArea.noAreaSteps && stepsByArea.noAreaSteps.length > 0 && (
                   <div className="mb-6">
+                    {/* Area header for steps without area */}
+                    <div className="mb-3 px-4 sm:px-6 lg:px-8">
+                      <h2 className="text-xl font-bold text-black font-playful">
+                        {t('areas.noArea') || 'Bez oblasti'}
+                      </h2>
+                    </div>
                     <StepsManagementView
                       dailySteps={stepsByArea.noAreaSteps.map(({ step }) => step)}
                       goals={goals}

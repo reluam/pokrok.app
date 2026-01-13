@@ -46,7 +46,8 @@ struct OverviewView: View {
                 }
             }
         }
-        .onAppear {
+        .task {
+            // Load data only once when view appears
             loadData()
         }
         .sheet(isPresented: $showAddGoalModal) {
@@ -166,10 +167,19 @@ struct OverviewView: View {
     
     
     // MARK: - Data Loading
-    private func loadData() {
+    private func loadData(forceRefresh: Bool = false) {
         Task {
             do {
-                let fetchedGoals = try await apiManager.fetchGoals()
+                // First, try to load from cache immediately for instant display
+                if !forceRefresh, let cachedGoals = LocalCacheManager.shared.loadGoals() {
+                    await MainActor.run {
+                        self.goals = cachedGoals
+                        self.isLoading = false
+                    }
+                }
+                
+                // Then fetch from API (will use cache if fresh)
+                let fetchedGoals = try await apiManager.fetchGoals(forceRefresh: forceRefresh)
                 
                 await MainActor.run {
                     self.goals = fetchedGoals

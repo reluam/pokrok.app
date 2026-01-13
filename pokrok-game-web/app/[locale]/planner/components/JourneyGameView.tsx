@@ -1437,28 +1437,28 @@ export function JourneyGameView({
         defaultAreaId = mainPanelSection.replace('area-', '')
       }
       
-      setStepModalData({
-        id: null,
-        title: '',
-        description: '',
-        date: defaultDate,
-        goalId: defaultGoalId,
-        areaId: defaultAreaId,
-        completed: false,
-        is_important: false,
-        is_urgent: false,
-        deadline: '',
-        estimated_time: 0,
-        checklist: [],
-        require_checklist_complete: false,
-        isRepeating: false,
-        frequency: null,
-        selected_days: [],
-        recurring_start_date: null,
-        recurring_end_date: null,
-        recurring_display_mode: 'next_only'
-      })
-      setShowStepModal(true)
+        setStepModalData({
+          id: null,
+          title: '',
+          description: '',
+          date: defaultDate,
+          goalId: defaultGoalId,
+          areaId: defaultAreaId,
+          completed: false,
+          is_important: false,
+          is_urgent: false,
+          deadline: '',
+          estimated_time: 0,
+          checklist: [],
+          require_checklist_complete: false,
+          isRepeating: false,
+          frequency: null,
+          selected_days: [],
+          recurring_start_date: null,
+          recurring_end_date: null,
+          recurring_display_mode: 'next_only'
+        })
+        setShowStepModal(true)
     }
   }
 

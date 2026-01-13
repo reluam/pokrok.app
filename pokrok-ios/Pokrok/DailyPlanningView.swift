@@ -187,11 +187,13 @@ struct DailyPlanningView: View {
         .navigationTitle("Přehled")
         .navigationBarTitleDisplayMode(.large)
         .toolbarBackground(.hidden, for: .navigationBar)
-        .onAppear {
+        .task {
+            // Load data only once when view appears
             loadData()
             setRandomInspiration()
         }
         .onChange(of: selectedDate) {
+            // Only reload when date changes, not on every appear
             loadData()
         }
         .sheet(isPresented: $showAddStepModal) {
@@ -488,21 +490,48 @@ struct DailyPlanningView: View {
     }
     
     // MARK: - Data Loading
-    private func loadData() {
+    private func loadData(forceRefresh: Bool = false) {
         Task {
             do {
+                // First, try to load from cache immediately for instant display
+                if !forceRefresh {
+                    let cachedSteps = LocalCacheManager.shared.loadSteps() ?? []
+                    let cachedGoals = LocalCacheManager.shared.loadGoals() ?? []
+                    let cachedHabits = LocalCacheManager.shared.loadHabits() ?? []
+                    
+                    // Filter cached steps for the date range we need
+                    let calendar = Calendar.current
+                    let selectedDay = selectedDate
+                    let startDate = calendar.date(byAdding: .day, value: -7, to: selectedDay) ?? selectedDay
+                    let endDate = calendar.date(byAdding: .day, value: 14, to: selectedDay) ?? selectedDay
+                    
+                    let filteredCachedSteps = cachedSteps.filter { step in
+                        guard let stepDate = step.date else { return false }
+                        return stepDate >= startDate && stepDate <= endDate
+                    }
+                    
+                    // Show cached data immediately
+                    await MainActor.run {
+                        self.dailySteps = filteredCachedSteps
+                        self.goals = cachedGoals
+                        self.habits = cachedHabits
+                        self.isLoading = false
+                        self.updateStepStats()
+                    }
+                }
+                
                 // Calculate date range: 7 days ago to 14 days ahead (optimized)
                 let calendar = Calendar.current
                 let selectedDay = selectedDate
                 let startDate = calendar.date(byAdding: .day, value: -7, to: selectedDay) ?? selectedDay
                 let endDate = calendar.date(byAdding: .day, value: 14, to: selectedDay) ?? selectedDay
                 
-                // Load all data in parallel with optimized date range
+                // Load all data in parallel with optimized date range (will use cache if fresh)
                 async let settingsTask = apiManager.fetchUserSettings()
-                async let stepsTask = apiManager.fetchSteps(startDate: startDate, endDate: endDate)
-                async let goalsTask = apiManager.fetchGoals()
+                async let stepsTask = apiManager.fetchSteps(startDate: startDate, endDate: endDate, forceRefresh: forceRefresh)
+                async let goalsTask = apiManager.fetchGoals(forceRefresh: forceRefresh)
                 async let planningTask = apiManager.fetchDailyPlanning(date: selectedDate)
-                async let habitsTask = apiManager.fetchHabits()
+                async let habitsTask = apiManager.fetchHabits(forceRefresh: forceRefresh)
                 
                 // Wait for all tasks, but handle errors individually
                 let settings = try? await settingsTask

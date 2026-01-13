@@ -278,6 +278,9 @@ class APIManager: ObservableObject {
         guard httpResponse.statusCode == 200 else {
             throw APIError.requestFailed
         }
+        
+        // Update cache
+        cacheManager.deleteGoal(goalId)
     }
     
     // MARK: - Goal Metrics API
@@ -405,7 +408,57 @@ class APIManager: ObservableObject {
     
     // MARK: - Steps API
     
-    func fetchSteps(startDate: Date? = nil, endDate: Date? = nil) async throws -> [DailyStep] {
+    func fetchSteps(startDate: Date? = nil, endDate: Date? = nil, forceRefresh: Bool = false) async throws -> [DailyStep] {
+        // If no date range specified, use cache logic
+        if startDate == nil && endDate == nil {
+            // Check if we should use cache
+            let shouldUseCache = !forceRefresh && shouldUseCache(for: "steps")
+            
+            // Return cached data immediately if available and fresh
+            if shouldUseCache, let cachedSteps = cacheManager.loadSteps() {
+                // Refresh in background if cache is older than refresh interval
+                if shouldRefreshCache(for: "steps") {
+                    Task {
+                        try? await refreshStepsFromAPI()
+                    }
+                }
+                return cachedSteps
+            }
+            
+            // Fetch from API
+            return try await refreshStepsFromAPI()
+        }
+        
+        // For date-specific queries, always fetch from API but filter from cache first if available
+        if !forceRefresh, let cachedSteps = cacheManager.loadSteps() {
+            // Filter cached steps for the requested date range
+            let calendar = Calendar.current
+            let filteredSteps = cachedSteps.filter { step in
+                guard let stepDate = step.date else { return false }
+                if let start = startDate, let end = endDate {
+                    return stepDate >= start && stepDate <= end
+                } else if let start = startDate {
+                    return stepDate >= start
+                } else if let end = endDate {
+                    return stepDate <= end
+                }
+                return true
+            }
+            
+            // If we have cached data and it's fresh, return it immediately and refresh in background
+            if shouldUseCache(for: "steps") && !filteredSteps.isEmpty {
+                Task {
+                    try? await refreshStepsFromAPI(startDate: startDate, endDate: endDate)
+                }
+                return filteredSteps
+            }
+        }
+        
+        // Fetch from API with date range
+        return try await refreshStepsFromAPI(startDate: startDate, endDate: endDate)
+    }
+    
+    private func refreshStepsFromAPI(startDate: Date? = nil, endDate: Date? = nil) async throws -> [DailyStep] {
         // First, get userId from user endpoint
         let user = try await fetchUser()
         
@@ -453,15 +506,15 @@ class APIManager: ObservableObject {
         // Parse response - try both formats: wrapped in object or direct array
         let decoder = createJSONDecoder()
         
+        let steps: [DailyStep]
         do {
             // Try to decode as wrapped response first (new format)
             let response = try decoder.decode(StepsResponse.self, from: data)
-            return response.steps
+            steps = response.steps
         } catch {
             // Fallback to direct array (old format)
             do {
-        let steps = try decoder.decode([DailyStep].self, from: data)
-        return steps
+                steps = try decoder.decode([DailyStep].self, from: data)
             } catch {
                 // If both fail, print error for debugging
                 if let jsonString = String(data: data, encoding: .utf8) {
@@ -470,6 +523,25 @@ class APIManager: ObservableObject {
                 throw error
             }
         }
+        
+        // Save to cache only if fetching all steps (no date filter)
+        if startDate == nil && endDate == nil {
+            cacheManager.saveSteps(steps)
+        } else {
+            // Merge with existing cache for date-filtered queries
+            var allCachedSteps = cacheManager.loadSteps() ?? []
+            // Update or add steps from API response
+            for step in steps {
+                if let index = allCachedSteps.firstIndex(where: { $0.id == step.id }) {
+                    allCachedSteps[index] = step
+                } else {
+                    allCachedSteps.append(step)
+                }
+            }
+            cacheManager.saveSteps(allCachedSteps)
+        }
+        
+        return steps
     }
     
     func fetchStepsForDate(date: Date) async throws -> [DailyStep] {
@@ -713,6 +785,10 @@ class APIManager: ObservableObject {
         // Parse response - API returns step directly, not wrapped
         let decoder = createJSONDecoder()
         let updatedStep = try decoder.decode(DailyStep.self, from: data)
+        
+        // Update cache
+        cacheManager.updateStep(updatedStep)
+        
         return updatedStep
     }
     
@@ -747,6 +823,9 @@ class APIManager: ObservableObject {
         guard httpResponse.statusCode == 200 else {
             throw APIError.requestFailed
         }
+        
+        // Update cache
+        cacheManager.deleteStep(stepId)
     }
     
     // MARK: - User API
@@ -907,6 +986,10 @@ class APIManager: ObservableObject {
         
         let decoder = createJSONDecoder()
         let createdHabit = try decoder.decode(Habit.self, from: data)
+        
+        // Update cache
+        cacheManager.updateHabit(createdHabit)
+        
         return createdHabit
     }
     
@@ -1068,17 +1151,44 @@ class APIManager: ObservableObject {
             // Re-encode to Data for proper decoding
             let habitData = try JSONSerialization.data(withJSONObject: mutableHabitDict)
             let habit = try decoder.decode(Habit.self, from: habitData)
+            
+            // Update cache
+            cacheManager.updateHabit(habit)
+            
             return habit
         } else {
             // Fallback to direct decoding
             let habit = try decoder.decode(Habit.self, from: data)
+            
+            // Update cache
+            cacheManager.updateHabit(habit)
+            
             return habit
         }
     }
     
     // MARK: - Aspirations API
     
-    func fetchAspirations() async throws -> [Aspiration] {
+    func fetchAspirations(forceRefresh: Bool = false) async throws -> [Aspiration] {
+        // Check if we should use cache
+        let shouldUseCache = !forceRefresh && shouldUseCache(for: "aspirations")
+        
+        // Return cached data immediately if available and fresh
+        if shouldUseCache, let cachedAspirations = cacheManager.loadAspirations() {
+            // Refresh in background if cache is older than refresh interval
+            if shouldRefreshCache(for: "aspirations") {
+                Task {
+                    try? await refreshAspirationsFromAPI()
+                }
+            }
+            return cachedAspirations
+        }
+        
+        // Fetch from API
+        return try await refreshAspirationsFromAPI()
+    }
+    
+    private func refreshAspirationsFromAPI() async throws -> [Aspiration] {
         // Use /api/cesta/areas endpoint instead of /aspirations
         guard let url = URL(string: "\(baseURL)/cesta/areas") else {
             throw APIError.invalidURL
@@ -1129,7 +1239,7 @@ class APIManager: ObservableObject {
         let dateFormatter = ISO8601DateFormatter()
         dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         
-        return responseData.areas.map { area in
+        let aspirations = responseData.areas.map { area in
             Aspiration(
                 id: area.id,
                 userId: area.user_id,
@@ -1141,6 +1251,11 @@ class APIManager: ObservableObject {
                 updatedAt: area.updated_at != nil ? dateFormatter.date(from: area.updated_at!) ?? ISO8601DateFormatter().date(from: area.updated_at!) : nil
             )
         }
+        
+        // Save to cache
+        cacheManager.saveAspirations(aspirations)
+        
+        return aspirations
     }
     
     func createAspiration(_ aspiration: CreateAspirationRequest) async throws -> Aspiration {
@@ -1213,7 +1328,7 @@ class APIManager: ObservableObject {
         let dateFormatter = ISO8601DateFormatter()
         dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         
-        return Aspiration(
+        let aspiration = Aspiration(
             id: responseData.area.id,
             userId: responseData.area.user_id,
             title: responseData.area.name, // Map name to title
@@ -1223,6 +1338,11 @@ class APIManager: ObservableObject {
             createdAt: responseData.area.created_at != nil ? dateFormatter.date(from: responseData.area.created_at!) ?? ISO8601DateFormatter().date(from: responseData.area.created_at!) : nil,
             updatedAt: responseData.area.updated_at != nil ? dateFormatter.date(from: responseData.area.updated_at!) ?? ISO8601DateFormatter().date(from: responseData.area.updated_at!) : nil
         )
+        
+        // Update cache
+        cacheManager.updateAspiration(aspiration)
+        
+        return aspiration
     }
     
     func updateAspiration(aspirationId: String, title: String?, description: String?, color: String?, icon: String?) async throws -> Aspiration {
@@ -1299,7 +1419,7 @@ class APIManager: ObservableObject {
         let dateFormatter = ISO8601DateFormatter()
         dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         
-        return Aspiration(
+        let aspiration = Aspiration(
             id: responseData.area.id,
             userId: responseData.area.user_id,
             title: responseData.area.name, // Map name to title
@@ -1309,6 +1429,11 @@ class APIManager: ObservableObject {
             createdAt: responseData.area.created_at != nil ? dateFormatter.date(from: responseData.area.created_at!) ?? ISO8601DateFormatter().date(from: responseData.area.created_at!) : nil,
             updatedAt: responseData.area.updated_at != nil ? dateFormatter.date(from: responseData.area.updated_at!) ?? ISO8601DateFormatter().date(from: responseData.area.updated_at!) : nil
         )
+        
+        // Update cache
+        cacheManager.updateAspiration(aspiration)
+        
+        return aspiration
     }
     
     func deleteAspiration(aspirationId: String) async throws {
@@ -1345,6 +1470,9 @@ class APIManager: ObservableObject {
             print("Error deleting area: Status \(httpResponse.statusCode), Response: \(errorString)")
             throw APIError.requestFailed
         }
+        
+        // Update cache
+        cacheManager.deleteAspiration(aspirationId)
     }
     
     func fetchAspirationBalance(aspirationId: String) async throws -> AspirationBalance {
@@ -1993,9 +2121,17 @@ class APIManager: ObservableObject {
             
             let updatedData = try JSONSerialization.data(withJSONObject: mutableHabitDict)
             let updatedHabit = try decoder.decode(Habit.self, from: updatedData)
+            
+            // Update cache
+            cacheManager.updateHabit(updatedHabit)
+            
             return updatedHabit
         } else {
             let updatedHabit = try decoder.decode(Habit.self, from: data)
+            
+            // Update cache
+            cacheManager.updateHabit(updatedHabit)
+            
             return updatedHabit
         }
     }
