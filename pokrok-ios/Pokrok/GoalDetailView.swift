@@ -25,11 +25,23 @@ struct GoalDetailView: View {
     @State private var showDeleteConfirmation = false
     @State private var isDeleting = false
     @State private var deleteWithSteps = false
-    @State private var selectedTab: GoalDetailTab = .detail
+    @State private var selectedContentTab: ContentTab = .steps
+    @State private var showSettings = false
+    @State private var metricEditMode: MetricEditMode?
     
-    enum GoalDetailTab: String, CaseIterable {
-        case detail = "Detail"
-        case settings = "Nastavení"
+    enum MetricEditMode: Identifiable {
+        case full(GoalMetric)
+        
+        var id: String {
+            switch self {
+            case .full(let metric): return "full-\(metric.id)"
+            }
+        }
+    }
+    
+    enum ContentTab: String, CaseIterable {
+        case steps = "Kroky"
+        case metrics = "Metriky"
     }
     
     private var isCreating: Bool {
@@ -73,47 +85,122 @@ struct GoalDetailView: View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                    // Tab Picker (only for existing goals)
-                    if !isCreating {
-                        Picker("Sekce", selection: $selectedTab) {
-                            ForEach(GoalDetailTab.allCases, id: \.self) { tab in
-                                Text(tab.rawValue).tag(tab)
+                    if isCreating {
+                        settingsContent
+                    } else if let goal = goal {
+                        // Progress bar with percentage
+                        HStack(spacing: DesignSystem.Spacing.md) {
+                            PlayfulProgressBar(
+                                progress: Double(goal.progressPercentage) / 100,
+                                height: 16,
+                                variant: .yellowGreen
+                            )
+                            
+                            Text("\(goal.progressPercentage)%")
+                                .font(DesignSystem.Typography.title3)
+                                .fontWeight(.bold)
+                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                        }
+                        .padding(.horizontal, DesignSystem.Spacing.md)
+                        .padding(.top, DesignSystem.Spacing.md)
+                        
+                        // Custom Tab Picker for Steps/Metrics with counts
+                        HStack(spacing: 0) {
+                            // Steps Tab
+                            Button(action: {
+                                selectedContentTab = .steps
+                            }) {
+                                VStack(spacing: DesignSystem.Spacing.xs) {
+                                    HStack(spacing: DesignSystem.Spacing.xs) {
+                                        Text("Kroky")
+                                            .font(DesignSystem.Typography.headline)
+                                            .fontWeight(.semibold)
+                                        
+                                        // Count of incomplete steps
+                                        let incompleteCount = steps.filter { !$0.completed }.count
+                                        if incompleteCount > 0 {
+                                            Text("(\(incompleteCount))")
+                                                .font(DesignSystem.Typography.caption)
+                                                .fontWeight(.medium)
+                                        }
+                                    }
+                                }
+                                .foregroundColor(selectedContentTab == .steps ? .white : DesignSystem.Colors.textSecondary)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, DesignSystem.Spacing.sm)
+                                .background(
+                                    selectedContentTab == .steps ? DesignSystem.Colors.dynamicPrimary : Color.clear
+                                )
+                            }
+                            
+                            // Metrics Tab
+                            Button(action: {
+                                selectedContentTab = .metrics
+                            }) {
+                                VStack(spacing: DesignSystem.Spacing.xs) {
+                                    HStack(spacing: DesignSystem.Spacing.xs) {
+                                        Text("Metriky")
+                                            .font(DesignSystem.Typography.headline)
+                                            .fontWeight(.semibold)
+                                        
+                                        // Count of metrics
+                                        if metrics.count > 0 {
+                                            Text("(\(metrics.count))")
+                                                .font(DesignSystem.Typography.caption)
+                                                .fontWeight(.medium)
+                                        }
+                                    }
+                                }
+                                .foregroundColor(selectedContentTab == .metrics ? .white : DesignSystem.Colors.textSecondary)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, DesignSystem.Spacing.sm)
+                                .background(
+                                    selectedContentTab == .metrics ? DesignSystem.Colors.dynamicPrimary : Color.clear
+                                )
                             }
                         }
-                        .pickerStyle(.segmented)
+                        .background(DesignSystem.Colors.surface)
+                        .cornerRadius(DesignSystem.CornerRadius.md)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                                .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                        )
                         .padding(.horizontal, DesignSystem.Spacing.md)
-                        .padding(.top, DesignSystem.Spacing.sm)
-                    }
-                    
-                    // Content based on selected tab
-                    if isCreating || selectedTab == .settings {
-                        settingsContent
-                    } else {
-                        detailContent
+                        
+                        // Content based on selected tab
+                        if selectedContentTab == .steps {
+                            stepsContent
+                        } else {
+                            metricsContent
+                        }
                     }
                 }
                 .padding(.vertical, DesignSystem.Spacing.md)
+                .padding(.bottom, 100) // Padding for tab bar
             }
             .background(DesignSystem.Colors.background)
-            .navigationTitle(navigationTitle)
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Zrušit") {
-                        dismiss()
-                    }
-                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                // Title in the center
+                ToolbarItem(placement: .principal) {
+                    Text(navigationTitle)
+                        .font(DesignSystem.Typography.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
                 }
                 
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    if !isCreating {
-                        Button("Uložit") {
-                            saveGoal()
+                // Settings or Create button on the right
+                if !isCreating {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: {
+                            showSettings = true
+                        }) {
+                            Image(systemName: "gearshape.fill")
+                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
                         }
-                        .font(DesignSystem.Typography.body)
-                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
-                        .disabled(isSaving)
-                    } else {
+                    }
+                } else {
+                    ToolbarItem(placement: .navigationBarTrailing) {
                         Button("Vytvořit") {
                             saveGoal()
                         }
@@ -121,6 +208,36 @@ struct GoalDetailView: View {
                         .foregroundColor(DesignSystem.Colors.dynamicPrimary)
                         .disabled(isSaving || editingTitle.isEmpty)
                     }
+                }
+            }
+            .sheet(isPresented: $showSettings) {
+                NavigationView {
+                    settingsContent
+                        .navigationTitle("Nastavení cíle")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button("Hotovo") {
+                                    showSettings = false
+                                }
+                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                            }
+                        }
+                        .onChange(of: editingTitle) { _, _ in
+                            autoSave()
+                        }
+                        .onChange(of: editingDescription) { _, _ in
+                            autoSave()
+                        }
+                        .onChange(of: editingTargetDate) { _, _ in
+                            autoSave()
+                        }
+                        .onChange(of: editingAreaId) { _, _ in
+                            autoSave()
+                        }
+                        .onChange(of: editingIcon) { _, _ in
+                            autoSave()
+                        }
                 }
             }
             .alert("Chyba", isPresented: $showError) {
@@ -140,99 +257,66 @@ struct GoalDetailView: View {
             } message: {
                 Text("Opravdu chcete smazat tento cíl? Můžete zvolit, zda smazat i všechny kroky k tomuto cíli.")
             }
+            .sheet(item: $metricEditMode) { mode in
+                NavigationView {
+                    switch mode {
+                    case .full(let metric):
+                        MetricEditView(metric: metric, onMetricUpdated: {
+                            loadData()
+                        })
+                    }
+                }
+            }
             .onAppear {
                 loadData()
             }
         }
     }
     
-    // MARK: - Detail Content (Metrics and Steps)
-    private var detailContent: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-            if let goal = goal {
-                // Progress Card
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                    Text("Pokrok")
-                        .font(DesignSystem.Typography.headline)
-                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
-                    
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                        HStack {
-                            Text("Pokrok")
-                                .font(DesignSystem.Typography.caption)
-                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
-                            
-                            Spacer()
-                            
-                            Text("\(goal.progressPercentage)%")
-                                        .font(DesignSystem.Typography.caption)
-                                .fontWeight(.semibold)
-                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+    // MARK: - Steps Content
+    private var stepsContent: some View {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+            if sortedSteps.isEmpty {
+                Text("Žádné kroky")
+                    .font(DesignSystem.Typography.body)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                    .padding(DesignSystem.Spacing.md)
+            } else {
+                LazyVStack(spacing: DesignSystem.Spacing.sm) {
+                    ForEach(sortedSteps, id: \.id) { step in
+                        StepCardView(step: step) {
+                            toggleStepCompletion(stepId: step.id, completed: !step.completed)
                         }
-                        
-                        PlayfulProgressBar(
-                            progress: Double(goal.progressPercentage) / 100,
-                            height: 12,
-                            variant: .yellowGreen
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, DesignSystem.Spacing.md)
+    }
+    
+    // MARK: - Metrics Content
+    private var metricsContent: some View {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+            if metrics.isEmpty {
+                Text("Žádné metriky")
+                    .font(DesignSystem.Typography.body)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                    .padding(DesignSystem.Spacing.md)
+            } else {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                    ForEach(metrics, id: \.id) { metric in
+                        MetricCard(
+                            metric: metric,
+                            onTap: {
+                                metricEditMode = .full(metric)
+                            },
+                            onValueChanged: { newValue in
+                                updateMetricValue(metricId: metric.id, goalId: metric.goalId, newValue: newValue)
+                            }
                         )
                     }
                 }
-                .padding(DesignSystem.Spacing.md)
-                .background(DesignSystem.Colors.surface)
-                .overlay(
-                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                        .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
-                )
-                .cornerRadius(DesignSystem.CornerRadius.md)
-                .shadow(color: Color(UIColor { traitCollection in
-                    switch traitCollection.userInterfaceStyle {
-                    case .dark:
-                        return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(0.2))
-                    default:
-                        return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(1.0))
-                    }
-                }), radius: 0, x: 3, y: 3)
-                
-                // Metrics Section
-                if !metrics.isEmpty {
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                        Text("Metriky")
-                            .font(DesignSystem.Typography.headline)
-                            .foregroundColor(DesignSystem.Colors.dynamicPrimary)
-                        
-                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                            ForEach(metrics, id: \.id) { metric in
-                                MetricCard(metric: metric)
-                            }
-                        }
-                    }
-                    .padding(DesignSystem.Spacing.md)
-                    .background(DesignSystem.Colors.surface)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                            .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
-                    )
-                    .cornerRadius(DesignSystem.CornerRadius.md)
-                    .shadow(color: Color(UIColor { traitCollection in
-                        switch traitCollection.userInterfaceStyle {
-                        case .dark:
-                            return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(0.2))
-                        default:
-                            return UIColor(DesignSystem.Colors.dynamicPrimary.opacity(1.0))
-                        }
-                    }), radius: 0, x: 3, y: 3)
-                    }
-                    
-                    // Steps Section - displayed directly on background like in feed
-                    if !sortedSteps.isEmpty {
-                        LazyVStack(spacing: DesignSystem.Spacing.sm) {
-                            ForEach(sortedSteps, id: \.id) { step in
-                                StepCardView(step: step) {
-                                    toggleStepCompletion(stepId: step.id, completed: !step.completed)
-                                }
-                            }
-                        }
-                    }
+                .padding(.horizontal, DesignSystem.Spacing.md)
             }
         }
         .padding(.horizontal, DesignSystem.Spacing.md)
@@ -565,34 +649,93 @@ struct GoalDetailView: View {
                 if let goal = goal {
                     async let stepsTask = apiManager.fetchSteps()
                     async let metricsTask = apiManager.fetchGoalMetrics(goalId: goal.id)
-                    let (fetchedAspirations, allSteps, fetchedMetrics) = try await (aspirationsTask, stepsTask, metricsTask)
+                    
+                    // Load aspirations first
+                    let fetchedAspirations = try await aspirationsTask
+                    
+                    // Try to load steps and metrics, but don't fail if metrics fail
+                    var allSteps: [DailyStep] = []
+                    var fetchedMetrics: [GoalMetric] = []
+                    
+                    do {
+                        allSteps = try await stepsTask
+                    } catch {
+                        print("Error loading steps: \(error)")
+                    }
+                    
+                    do {
+                        fetchedMetrics = try await metricsTask
+                    } catch {
+                        print("Error loading metrics: \(error)")
+                        // Metrics are optional, continue without them
+                    }
                     
                     await MainActor.run {
                         self.aspirations = fetchedAspirations
+                        
+                        // Filter steps for this goal (include all steps, even without date)
                         self.steps = allSteps.filter { $0.goalId == goal.id }
-                            .compactMap { step -> (step: DailyStep, date: Date)? in
-                                guard let stepDate = step.date else { return nil }
-                                return (step: step, date: stepDate)
+                            .sorted { step1, step2 in
+                                // Sort by date if available, otherwise put at end
+                                let date1 = step1.date ?? Date.distantFuture
+                                let date2 = step2.date ?? Date.distantFuture
+                                if date1 == date2 {
+                                    // If same date, incomplete first
+                                    if step1.completed == step2.completed {
+                                        return step1.id < step2.id
+                                    }
+                                    return !step1.completed && step2.completed
+                                }
+                                return date1 < date2
                             }
-                            .sorted { $0.date < $1.date }
-                            .map { $0.step }
+                        
                         self.metrics = fetchedMetrics
                         self.isLoading = false
+                        
+                        print("✅ Loaded \(self.steps.count) steps and \(self.metrics.count) metrics for goal \(goal.id)")
                     }
                 } else {
                     let fetchedAspirations = try await aspirationsTask
                 
-                await MainActor.run {
+                    await MainActor.run {
                         self.aspirations = fetchedAspirations
-                    self.isLoading = false
+                        self.isLoading = false
                     }
                 }
             } catch {
                 await MainActor.run {
-                    self.errorMessage = error.localizedDescription
+                    self.errorMessage = "Chyba při načítání dat: \(error.localizedDescription)"
                     self.showError = true
                     self.isLoading = false
                 }
+            }
+        }
+    }
+    
+    // Auto-save function for settings
+    private func autoSave() {
+        guard !isCreating, let goal = goal else { return }
+        guard !editingTitle.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        
+        // Debounce auto-save to avoid too many API calls
+        Task {
+            try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second delay
+            
+            do {
+                _ = try await apiManager.updateGoal(
+                    goalId: goal.id,
+                    title: editingTitle,
+                    description: editingDescription.isEmpty ? nil : editingDescription,
+                    targetDate: editingTargetDate,
+                    aspirationId: editingAreaId
+                )
+                
+                await MainActor.run {
+                    onGoalAdded?()
+                }
+            } catch {
+                // Silently fail for auto-save
+                print("Auto-save failed: \(error)")
             }
         }
     }
@@ -619,6 +762,12 @@ struct GoalDetailView: View {
                         aspirationId: editingAreaId
                     )
                     _ = try await apiManager.createGoal(createRequest)
+                    
+                    await MainActor.run {
+                        isSaving = false
+                        onGoalAdded?()
+                        dismiss()
+                    }
                 } else if let goal = goal {
                     // Update existing goal
                     _ = try await apiManager.updateGoal(
@@ -628,12 +777,14 @@ struct GoalDetailView: View {
                         targetDate: editingTargetDate,
                         aspirationId: editingAreaId
                     )
-                }
-                
-                await MainActor.run {
-                    isSaving = false
-                    onGoalAdded?()
-                    dismiss()
+                    
+                    await MainActor.run {
+                        isSaving = false
+                        onGoalAdded?()
+                        if !showSettings {
+                            dismiss()
+                        }
+                    }
                 }
             } catch {
                 await MainActor.run {
@@ -694,11 +845,39 @@ struct GoalDetailView: View {
             }
         }
     }
+    
+    private func updateMetricValue(metricId: String, goalId: String, newValue: Decimal) {
+        Task {
+            do {
+                _ = try await apiManager.updateGoalMetric(
+                    metricId: metricId,
+                    goalId: goalId,
+                    currentValue: newValue
+                )
+                
+                // Reload data to get updated metric
+                await MainActor.run {
+                    loadData()
+                }
+            } catch {
+                await MainActor.run {
+                    errorMessage = error.localizedDescription
+                    showError = true
+                }
+            }
+        }
+    }
 }
 
 // MARK: - Metric Card Component
 struct MetricCard: View {
     let metric: GoalMetric
+    let onTap: () -> Void
+    let onValueChanged: (Decimal) -> Void
+    
+    @State private var editingValue: String
+    @FocusState private var isEditing: Bool
+    @StateObject private var apiManager = APIManager.shared
     
     private var progress: Double {
         let current = NSDecimalNumber(decimal: metric.currentValue).doubleValue
@@ -740,49 +919,134 @@ struct MetricCard: View {
         return formatter.string(from: number) ?? "0"
     }
     
-    var body: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-            HStack {
-                Text(metric.name)
-                    .font(DesignSystem.Typography.body)
-                    .fontWeight(.medium)
-                    .foregroundColor(isCompleted ? DesignSystem.Colors.textSecondary : DesignSystem.Colors.textPrimary)
-                    .strikethrough(isCompleted)
-                
-                Spacer()
-                
-                Text("\(Int(progress * 100))%")
-                    .font(DesignSystem.Typography.caption)
-                    .foregroundColor(DesignSystem.Colors.textSecondary)
-            }
-            
-            HStack {
-                Text("\(formatValue(metric.currentValue))\(metric.unit.isEmpty ? "" : " \(metric.unit)")")
-                    .font(DesignSystem.Typography.caption)
-                    .foregroundColor(DesignSystem.Colors.textSecondary)
-                
-                Text("/")
-                    .font(DesignSystem.Typography.caption)
-                    .foregroundColor(DesignSystem.Colors.textSecondary)
-                
-                Text("\(formatValue(metric.targetValue))\(metric.unit.isEmpty ? "" : " \(metric.unit)")")
-                    .font(DesignSystem.Typography.caption)
-                    .foregroundColor(DesignSystem.Colors.textSecondary)
-            }
-            
-            PlayfulProgressBar(
-                progress: progress,
-                height: 8,
-                variant: isCompleted ? .yellowGreen : .pink
-            )
+    private func parseDecimal(_ string: String) -> Decimal? {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        if let number = formatter.number(from: string) {
+            return number.decimalValue
         }
-        .padding(DesignSystem.Spacing.sm)
-        .background(isCompleted ? DesignSystem.Colors.primaryLightBackground : DesignSystem.Colors.surface)
-        .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 1)
-        )
-        .cornerRadius(DesignSystem.CornerRadius.sm)
+        return nil
+    }
+    
+    init(metric: GoalMetric, onTap: @escaping () -> Void, onValueChanged: @escaping (Decimal) -> Void) {
+        self.metric = metric
+        self.onTap = onTap
+        self.onValueChanged = onValueChanged
+        
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 2
+        formatter.minimumFractionDigits = 0
+        let number = NSDecimalNumber(decimal: metric.currentValue)
+        self._editingValue = State(initialValue: formatter.string(from: number) ?? "0")
+    }
+    
+    var body: some View {
+        PlayfulCard(
+            variant: .pink,
+            onTap: onTap
+        ) {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                HStack {
+                    Text(metric.name)
+                        .font(DesignSystem.Typography.body)
+                        .fontWeight(.medium)
+                        .foregroundColor(isCompleted ? DesignSystem.Colors.textSecondary : DesignSystem.Colors.textPrimary)
+                        .strikethrough(isCompleted)
+                    
+                    Spacer()
+                    
+                    Text("\(Int(progress * 100))%")
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                }
+                
+                HStack {
+                    // Current value - editable inline
+                    HStack(spacing: 4) {
+                        TextField("0", text: $editingValue)
+                            .font(DesignSystem.Typography.body)
+                            .fontWeight(.semibold)
+                            .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .focused($isEditing)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
+                            .frame(minWidth: 60)
+                            .textFieldStyle(.roundedBorder)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                    .stroke(isEditing ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.outline, lineWidth: isEditing ? 2 : 1)
+                            )
+                            .onChange(of: isEditing) { _, isFocused in
+                                if !isFocused {
+                                    saveValue()
+                                }
+                            }
+                            .toolbar {
+                                ToolbarItemGroup(placement: .keyboard) {
+                                    Spacer()
+                                    Button("Hotovo") {
+                                        isEditing = false
+                                        saveValue()
+                                    }
+                                    .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                                    .fontWeight(.semibold)
+                                }
+                            }
+                        
+                        if let unit = metric.unit, !unit.isEmpty {
+                            Text(unit)
+                                .font(DesignSystem.Typography.body)
+                                .fontWeight(.semibold)
+                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                        }
+                    }
+                    
+                    Text("/")
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                    
+                    Text("\(formatValue(metric.targetValue))\(metric.unit.map { " \($0)" } ?? "")")
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                }
+                
+                PlayfulProgressBar(
+                    progress: progress,
+                    height: 8,
+                    variant: .pink
+                )
+            }
+        }
+        .onChange(of: metric.currentValue) { _, newValue in
+            // Update editing value when metric changes externally
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            formatter.maximumFractionDigits = 2
+            formatter.minimumFractionDigits = 0
+            let number = NSDecimalNumber(decimal: newValue)
+            editingValue = formatter.string(from: number) ?? "0"
+        }
+    }
+    
+    private func saveValue() {
+        guard let newValue = parseDecimal(editingValue) else {
+            // Reset to original value if invalid
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            formatter.maximumFractionDigits = 2
+            formatter.minimumFractionDigits = 0
+            let number = NSDecimalNumber(decimal: metric.currentValue)
+            editingValue = formatter.string(from: number) ?? "0"
+            return
+        }
+        
+        // Only save if value actually changed
+        if newValue != metric.currentValue {
+            onValueChanged(newValue)
+        }
     }
 }
 

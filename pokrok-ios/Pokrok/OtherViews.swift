@@ -1222,9 +1222,6 @@ class HabitsDataProvider: ObservableObject {
         let dateStr = formatDateString(date)
         
         let habitsForDate = habits.filter { habit in
-            if habit.alwaysShow {
-                return true
-            }
             switch habit.frequency {
             case "daily":
                 return true
@@ -1253,11 +1250,8 @@ class HabitsDataProvider: ObservableObject {
         let dayEnName = enDayNames[weekday].lowercased()
         
         return habits.filter { habit in
-            if habit.alwaysShow {
-                return true
-            }
-        switch habit.frequency {
-        case "daily":
+            switch habit.frequency {
+            case "daily":
                 return true
             case "weekly", "custom":
                 if let selectedDays = habit.selectedDays, !selectedDays.isEmpty {
@@ -1265,7 +1259,7 @@ class HabitsDataProvider: ObservableObject {
                     return normalizedSelectedDays.contains(dayCsName) || normalizedSelectedDays.contains(dayEnName)
                 }
                 return false
-        default:
+            default:
                 return false
             }
         }.count
@@ -1403,10 +1397,6 @@ struct HabitsView: View {
         
         return habits.filter { habit in
             // Check if habit is scheduled for this day
-            if habit.alwaysShow {
-                return true
-            }
-            
             switch habit.frequency {
             case "daily":
                 return true

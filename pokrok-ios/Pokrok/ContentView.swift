@@ -27,6 +27,7 @@ struct ContentView: View {
     @State private var showAddStepModal = false
     @State private var showAddHabitModal = false
     @State private var showAddMenu = false
+    @State private var showAssistant = false
     
     var body: some View {
         Group {
@@ -51,7 +52,7 @@ struct ContentView: View {
                     // Custom Playful Tab Bar
                     VStack {
                         Spacer()
-                        PlayfulTabBar(selectedTab: $selectedTab, showAddMenu: $showAddMenu)
+                        PlayfulTabBar(selectedTab: $selectedTab, showAddMenu: $showAddMenu, showAssistant: $showAssistant)
                     }
                     .ignoresSafeArea(.keyboard, edges: .bottom)
                 }
@@ -82,6 +83,9 @@ struct ContentView: View {
                         showAddHabitModal: $showAddHabitModal
                     )
                 }
+                .sheet(isPresented: $showAssistant) {
+                    AssistantView()
+                }
                 .onChange(of: navigationManager.navigateToTab) { _, newTab in
                     if let tab = newTab {
                         selectedTab = tab
@@ -100,6 +104,7 @@ struct ContentView: View {
 struct PlayfulTabBar: View {
     @Binding var selectedTab: Tab
     @Binding var showAddMenu: Bool
+    @Binding var showAssistant: Bool
     @ObservedObject private var settingsManager = UserSettingsManager.shared
     
     var body: some View {
@@ -116,22 +121,29 @@ struct PlayfulTabBar: View {
                 .frame(maxWidth: .infinity)
             }
             
-            // Central Add Button
+            // Central Assistant Button
             Button(action: {
-                showAddMenu = true
+                showAssistant = true
             }) {
                 Circle()
-                    .fill(DesignSystem.Colors.dynamicPrimary)
+                    .fill(
+                        LinearGradient(
+                            colors: [settingsManager.primaryColor, settingsManager.primaryColor.opacity(0.8)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     .frame(width: 56, height: 56)
                     .overlay(
                         Circle()
                             .stroke(DesignSystem.Colors.outline, lineWidth: 2)
                     )
                     .overlay(
-                        Image(systemName: "plus")
+                        Image(systemName: "sparkles")
                             .font(.system(size: 24, weight: .bold))
                             .foregroundColor(.white)
                     )
+                    .shadow(color: settingsManager.primaryColor.opacity(0.3), radius: 8, x: 0, y: 4)
             }
             .buttonStyle(PlainButtonStyle())
             .padding(.horizontal, DesignSystem.Spacing.xs)

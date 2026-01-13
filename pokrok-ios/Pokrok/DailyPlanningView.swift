@@ -91,11 +91,7 @@ struct DailyPlanningView: View {
         let todayEnName = enDayNames[weekday].lowercased()
         
         return habits.filter { habit in
-            // Check if habit is scheduled for today
-            if habit.alwaysShow {
-                return true
-            }
-            
+            // Check if habit is scheduled for today based on frequency and selectedDays
             switch habit.frequency {
             case "daily":
                 return true
@@ -114,7 +110,6 @@ struct DailyPlanningView: View {
     }
     
     // Filter habits for progress calculation - only habits actually scheduled for this day
-    // Always_show habits are only counted if they are also scheduled for this day
     private var habitsForProgress: [Habit] {
         let weekday = Calendar.current.component(.weekday, from: today)
         let csDayNames = ["", "neděle", "pondělí", "úterý", "středa", "čtvrtek", "pátek", "sobota"]
@@ -137,7 +132,6 @@ struct DailyPlanningView: View {
             default:
                 return false
             }
-            // Always_show habits are NOT counted unless they are also scheduled for this day
         }
     }
     
@@ -266,11 +260,44 @@ struct DailyPlanningView: View {
                 }
                 }
                 
-                // Progress bar (without percentage)
-                PlayfulProgressBar(
-                    progress: progressPercentageValue,
-                    variant: .yellowGreen
-                )
+                // Counters for steps and habits
+                HStack(spacing: DesignSystem.Spacing.lg) {
+                    // Steps counter
+                    HStack(spacing: DesignSystem.Spacing.xs) {
+                        Text("\(stepStats.completed)")
+                            .font(DesignSystem.Typography.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                        Text("z")
+                            .font(DesignSystem.Typography.body)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                        Text("\(stepStats.total)")
+                            .font(DesignSystem.Typography.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                        Text("kroků")
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                    }
+                    
+                    // Habits counter
+                    HStack(spacing: DesignSystem.Spacing.xs) {
+                        Text("\(habitStats.completed)")
+                            .font(DesignSystem.Typography.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(DesignSystem.Colors.Playful.yellow)
+                        Text("z")
+                            .font(DesignSystem.Typography.body)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                        Text("\(habitStats.total)")
+                            .font(DesignSystem.Typography.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                        Text("návyků")
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                    }
+                }
             }
             .padding(DesignSystem.Spacing.sm) // Reduced padding from .md to .sm
         }
@@ -304,9 +331,26 @@ struct DailyPlanningView: View {
     // MARK: - Steps Section
     private var stepsSection: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-            Text("Kroky")
-                .font(DesignSystem.Typography.headline)
-                .foregroundColor(DesignSystem.Colors.textPrimary)
+            // Header with counter
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                HStack {
+                    Text("Kroky")
+                        .font(DesignSystem.Typography.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                    
+                    Spacer()
+                    
+                    Text("\(stepStats.completed) z \(stepStats.total)")
+                        .font(DesignSystem.Typography.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                }
+            }
+            .padding(.vertical, DesignSystem.Spacing.sm)
+            
+            Divider()
+                .background(DesignSystem.Colors.outline.opacity(0.3))
             
             if todaySteps.isEmpty {
                 // Empty state - show "Add new step" button
@@ -360,9 +404,26 @@ struct DailyPlanningView: View {
     // MARK: - Habits Section
     private var habitsSection: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-            Text("Návyky")
-                .font(DesignSystem.Typography.headline)
-                .foregroundColor(DesignSystem.Colors.textPrimary)
+            // Header with counter
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                HStack {
+                    Text("Návyky")
+                        .font(DesignSystem.Typography.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                    
+                    Spacer()
+                    
+                    Text("\(habitStats.completed) z \(habitStats.total)")
+                        .font(DesignSystem.Typography.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(DesignSystem.Colors.Playful.yellow)
+                }
+            }
+            .padding(.vertical, DesignSystem.Spacing.sm)
+            
+            Divider()
+                .background(DesignSystem.Colors.outline.opacity(0.3))
             
             if todaysHabits.isEmpty {
                 Text("Žádné návyky na dnes")
@@ -504,7 +565,7 @@ struct DailyPlanningView: View {
             total: stepsForProgress.count
         )
         
-        // Count habits for progress (only scheduled habits, not always_show unless scheduled)
+        // Count habits for progress (only scheduled habits)
         let todayStr = formatDateString(today)
         let habitsForProgressList = habitsForProgress
         
@@ -692,7 +753,6 @@ struct HabitAspirationEditorView: View {
                     frequency: nil,
                     reminderTime: nil,
                     selectedDays: nil,
-                    alwaysShow: nil,
                     xpReward: nil,
                     aspirationId: selectedAspirationId
                 )

@@ -163,7 +163,7 @@ struct Provider: AppIntentTimelineProvider {
         
         // Use cached habits
         let todayHabits = filterTodayHabits(Provider.cachedHabits)
-        // For progress calculation, only count habits scheduled for today (not always_show unless scheduled)
+        // For progress calculation, only count habits scheduled for today
         let habitsForProgress = filterHabitsForProgress(Provider.cachedHabits)
         let habitStats = (
             completed: habitsForProgress.filter { isHabitCompleted($0) }.count,
@@ -194,10 +194,6 @@ struct Provider: AppIntentTimelineProvider {
         let todayEnName = enDayNames[weekday].lowercased()
         
         return habits.filter { habit in
-            if habit.alwaysShow {
-                return true
-            }
-            
             switch habit.frequency {
             case "daily":
                 return true
@@ -214,7 +210,6 @@ struct Provider: AppIntentTimelineProvider {
     }
     
     // Filter habits for progress calculation - only habits actually scheduled for today
-    // Always_show habits are only counted if they are also scheduled for today
     private func filterHabitsForProgress(_ habits: [Habit]) -> [Habit] {
         let weekday = Calendar.current.component(.weekday, from: Date())
         let csDayNames = ["", "neděle", "pondělí", "úterý", "středa", "čtvrtek", "pátek", "sobota"]
@@ -237,7 +232,6 @@ struct Provider: AppIntentTimelineProvider {
             default:
                 return false
             }
-            // Always_show habits are NOT counted unless they are also scheduled for today
         }
     }
     

@@ -284,6 +284,90 @@ class APIManager: ObservableObject {
         return metricsResponse.metrics
     }
     
+    func updateGoalMetric(
+        metricId: String,
+        goalId: String?,
+        name: String? = nil,
+        description: String? = nil,
+        type: String? = nil,
+        unit: String? = nil,
+        targetValue: Decimal? = nil,
+        currentValue: Decimal? = nil,
+        initialValue: Decimal? = nil,
+        incrementalValue: Decimal? = nil
+    ) async throws -> GoalMetric {
+        guard let url = URL(string: "\(baseURL)/goal-metrics") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add Clerk token if available
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        // Create request body
+        var requestBody: [String: Any] = [
+            "metricId": metricId
+        ]
+        
+        if let goalId = goalId {
+            requestBody["goalId"] = goalId
+        }
+        
+        if let name = name {
+            requestBody["name"] = name
+        }
+        
+        if let description = description {
+            requestBody["description"] = description
+        }
+        
+        if let type = type {
+            requestBody["type"] = type
+        }
+        
+        if let unit = unit {
+            requestBody["unit"] = unit
+        }
+        
+        if let targetValue = targetValue {
+            requestBody["targetValue"] = NSDecimalNumber(decimal: targetValue).doubleValue
+        }
+        
+        if let currentValue = currentValue {
+            requestBody["currentValue"] = NSDecimalNumber(decimal: currentValue).doubleValue
+        }
+        
+        if let initialValue = initialValue {
+            requestBody["initialValue"] = NSDecimalNumber(decimal: initialValue).doubleValue
+        }
+        
+        if let incrementalValue = incrementalValue {
+            requestBody["incrementalValue"] = NSDecimalNumber(decimal: incrementalValue).doubleValue
+        }
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+        request.httpBody = jsonData
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.requestFailed
+        }
+        
+        let decoder = createJSONDecoder()
+        let responseData = try decoder.decode(MetricUpdateResponse.self, from: data)
+        return responseData.metric
+    }
+    
     // MARK: - Steps API
     
     func fetchSteps(startDate: Date? = nil, endDate: Date? = nil) async throws -> [DailyStep] {
@@ -689,7 +773,7 @@ class APIManager: ObservableObject {
     
     // MARK: - Habits API
     
-    func createHabit(name: String, description: String?, frequency: String, reminderTime: String?, selectedDays: [String]?, alwaysShow: Bool, xpReward: Int?, aspirationId: String?, icon: String?) async throws -> Habit {
+    func createHabit(name: String, description: String?, frequency: String, reminderTime: String?, selectedDays: [String]?, xpReward: Int?, aspirationId: String?, icon: String?) async throws -> Habit {
         guard let url = URL(string: "\(baseURL)/habits") else {
             throw APIError.invalidURL
         }
@@ -707,7 +791,6 @@ class APIManager: ObservableObject {
         var requestBody: [String: Any] = [
             "name": name,
             "frequency": frequency,
-            "alwaysShow": alwaysShow,
             "category": "custom",
             "difficulty": "medium",
             "isCustom": true
@@ -1744,7 +1827,7 @@ class APIManager: ObservableObject {
         return dailyPlanningResponse.planning
     }
     
-    func updateHabit(habitId: String, name: String?, description: String?, frequency: String?, reminderTime: String?, selectedDays: [String]?, alwaysShow: Bool?, xpReward: Int?, aspirationId: String?) async throws -> Habit {
+    func updateHabit(habitId: String, name: String?, description: String?, frequency: String?, reminderTime: String?, selectedDays: [String]?, xpReward: Int?, aspirationId: String?) async throws -> Habit {
         guard let url = URL(string: "\(baseURL)/habits") else {
             throw APIError.invalidURL
         }
@@ -1781,10 +1864,6 @@ class APIManager: ObservableObject {
         
         if let selectedDays = selectedDays {
             requestBody["selectedDays"] = selectedDays
-        }
-        
-        if let alwaysShow = alwaysShow {
-            requestBody["alwaysShow"] = alwaysShow
         }
         
         if let xpReward = xpReward {
@@ -1834,5 +1913,49 @@ class APIManager: ObservableObject {
             let updatedHabit = try decoder.decode(Habit.self, from: data)
             return updatedHabit
         }
+    }
+    
+    // MARK: - Assistant Search API
+    
+    func searchAssistant(query: String) async throws -> [AssistantSearchResult] {
+        guard var urlComponents = URLComponents(string: "\(baseURL)/assistant/search") else {
+            throw APIError.invalidURL
+        }
+        
+        urlComponents.queryItems = [
+            URLQueryItem(name: "q", value: query)
+        ]
+        
+        guard let url = urlComponents.url else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add Clerk token if available
+        if let token = await getClerkToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.requestFailed
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.requestFailed
+        }
+        
+        // Parse response
+        let decoder = createJSONDecoder()
+        struct SearchResponse: Codable {
+            let results: [AssistantSearchResult]
+        }
+        
+        let searchResponse = try decoder.decode(SearchResponse.self, from: data)
+        return searchResponse.results
     }
 }

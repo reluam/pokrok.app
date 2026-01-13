@@ -118,7 +118,6 @@ struct Habit: Codable, Identifiable {
     let reminderTime: String?
     let selectedDays: [String]?
     let habitCompletions: [String: Bool]?
-    let alwaysShow: Bool
     let xpReward: Int
     let aspirationId: String?
     let createdAt: Date?
@@ -138,7 +137,6 @@ struct Habit: Codable, Identifiable {
         case reminderTime = "reminder_time"
         case selectedDays = "selected_days"
         case habitCompletions = "habit_completions"
-        case alwaysShow = "always_show"
         case xpReward = "xp_reward"
         case aspirationId = "aspiration_id"
         case createdAt = "created_at"

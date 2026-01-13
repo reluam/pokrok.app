@@ -12,7 +12,6 @@ struct HabitDetailView: View {
     @State private var editingDescription: String
     @State private var editingFrequency: String
     @State private var editingSelectedDays: [String]
-    @State private var editingAlwaysShow: Bool
     @State private var editingReminderTime: String
     @State private var editingNotificationEnabled: Bool
     @State private var editingAreaId: String?
@@ -36,7 +35,6 @@ struct HabitDetailView: View {
             self._editingDescription = State(initialValue: habit.description ?? "")
             self._editingFrequency = State(initialValue: habit.frequency)
             self._editingSelectedDays = State(initialValue: habit.selectedDays ?? [])
-            self._editingAlwaysShow = State(initialValue: habit.alwaysShow)
             self._editingReminderTime = State(initialValue: habit.reminderTime ?? "09:00")
             self._editingNotificationEnabled = State(initialValue: habit.reminderTime != nil)
             self._editingAreaId = State(initialValue: habit.aspirationId)
@@ -45,7 +43,6 @@ struct HabitDetailView: View {
             self._editingDescription = State(initialValue: "")
             self._editingFrequency = State(initialValue: "daily")
             self._editingSelectedDays = State(initialValue: [])
-            self._editingAlwaysShow = State(initialValue: false)
             self._editingReminderTime = State(initialValue: "09:00")
             self._editingNotificationEnabled = State(initialValue: false)
             self._editingAreaId = State(initialValue: nil)
@@ -226,12 +223,6 @@ struct HabitDetailView: View {
                                 }
                             }
                         }
-                        
-                        // Always show toggle
-                        Toggle("Vždy zobrazovat (i když není naplánováno)", isOn: $editingAlwaysShow)
-                            .font(DesignSystem.Typography.caption)
-                            .foregroundColor(DesignSystem.Colors.textPrimary)
-                            .tint(DesignSystem.Colors.dynamicPrimary)
                     }
                     .padding(DesignSystem.Spacing.md)
                     .background(DesignSystem.Colors.surface)
@@ -439,7 +430,6 @@ struct HabitDetailView: View {
                         frequency: editingFrequency,
                         reminderTime: reminderTime,
                         selectedDays: selectedDays.isEmpty ? nil : selectedDays,
-                        alwaysShow: editingAlwaysShow,
                         xpReward: 1,
                         aspirationId: editingAreaId,
                         icon: nil // Default icon will be used
@@ -463,7 +453,6 @@ struct HabitDetailView: View {
                         frequency: editingFrequency,
                         reminderTime: reminderTime,
                         selectedDays: selectedDays.isEmpty ? nil : selectedDays,
-                        alwaysShow: editingAlwaysShow,
                         xpReward: nil,
                         aspirationId: editingAreaId
                     )
@@ -515,7 +504,6 @@ struct HabitDetailView: View {
             reminderTime: "09:00",
             selectedDays: nil,
             habitCompletions: nil,
-            alwaysShow: false,
             xpReward: 1,
             aspirationId: nil,
             createdAt: Date(),

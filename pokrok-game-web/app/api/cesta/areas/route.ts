@@ -371,10 +371,13 @@ export async function DELETE(request: NextRequest) {
     
     return NextResponse.json({ success: true })
   } catch (error: any) {
-    console.error('Error deleting area:', error)
+    // Safely log error without circular references
+    const errorMessage = error?.message || String(error) || 'Unknown error'
+    console.error('Error deleting area:', errorMessage)
+    
     return NextResponse.json({ 
       error: 'Internal server error',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
     }, { status: 500 })
   }
 }

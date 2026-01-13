@@ -413,7 +413,6 @@ struct Habit: Codable, Identifiable {
     let reminderTime: String?
     let selectedDays: [String]?
     let habitCompletions: [String: Bool]?
-    let alwaysShow: Bool
     let xpReward: Int
     let aspirationId: String?
     let createdAt: Date?
@@ -433,7 +432,6 @@ struct Habit: Codable, Identifiable {
         case reminderTime = "reminder_time"
         case selectedDays = "selected_days"
         case habitCompletions = "habit_completions"
-        case alwaysShow = "always_show"
         case xpReward = "xp_reward"
         case aspirationId = "aspiration_id"
         case createdAt = "created_at"
@@ -515,7 +513,7 @@ struct GoalMetric: Codable, Identifiable {
     let name: String
     let description: String?
     let type: String // 'number' | 'currency' | 'percentage' | 'distance' | 'time' | 'weight' | 'custom'
-    let unit: String
+    let unit: String? // Can be null in database
     let targetValue: Decimal
     let currentValue: Decimal
     let initialValue: Decimal?
@@ -538,10 +536,65 @@ struct GoalMetric: Codable, Identifiable {
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        userId = try container.decode(String.self, forKey: .userId)
+        goalId = try container.decode(String.self, forKey: .goalId)
+        name = try container.decode(String.self, forKey: .name)
+        description = try container.decodeIfPresent(String.self, forKey: .description)
+        type = try container.decode(String.self, forKey: .type)
+        unit = try container.decodeIfPresent(String.self, forKey: .unit)
+        
+        // Decode Decimal values from numbers or strings
+        if let targetValueDouble = try? container.decode(Double.self, forKey: .targetValue) {
+            targetValue = Decimal(targetValueDouble)
+        } else if let targetValueString = try? container.decode(String.self, forKey: .targetValue),
+                  let targetValueDecimal = Decimal(string: targetValueString) {
+            targetValue = targetValueDecimal
+        } else {
+            throw DecodingError.typeMismatch(Decimal.self, DecodingError.Context(codingPath: [CodingKeys.targetValue], debugDescription: "Cannot decode target_value"))
+        }
+        
+        if let currentValueDouble = try? container.decode(Double.self, forKey: .currentValue) {
+            currentValue = Decimal(currentValueDouble)
+        } else if let currentValueString = try? container.decode(String.self, forKey: .currentValue),
+                  let currentValueDecimal = Decimal(string: currentValueString) {
+            currentValue = currentValueDecimal
+        } else {
+            throw DecodingError.typeMismatch(Decimal.self, DecodingError.Context(codingPath: [CodingKeys.currentValue], debugDescription: "Cannot decode current_value"))
+        }
+        
+        if let initialValueDouble = try? container.decodeIfPresent(Double.self, forKey: .initialValue) {
+            initialValue = Decimal(initialValueDouble)
+        } else if let initialValueString = try? container.decodeIfPresent(String.self, forKey: .initialValue),
+                  let initialValueDecimal = Decimal(string: initialValueString) {
+            initialValue = initialValueDecimal
+        } else {
+            initialValue = nil
+        }
+        
+        if let incrementalValueDouble = try? container.decodeIfPresent(Double.self, forKey: .incrementalValue) {
+            incrementalValue = Decimal(incrementalValueDouble)
+        } else if let incrementalValueString = try? container.decodeIfPresent(String.self, forKey: .incrementalValue),
+                  let incrementalValueDecimal = Decimal(string: incrementalValueString) {
+            incrementalValue = incrementalValueDecimal
+        } else {
+            incrementalValue = nil
+        }
+        
+        createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt)
+        updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt)
+    }
 }
 
 struct MetricsResponse: Codable {
     let metrics: [GoalMetric]
+}
+
+struct MetricUpdateResponse: Codable {
+    let metric: GoalMetric
 }
 
 enum APIError: Error, LocalizedError {

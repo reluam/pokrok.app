@@ -452,11 +452,7 @@ struct WeekView: View {
         let dayEnName = enDayNames[weekday].lowercased()
         
         return habits.filter { habit in
-            // Check if habit is scheduled for this day
-            if habit.alwaysShow {
-                return true
-            }
-            
+            // Check if habit is scheduled for this day based on frequency and selectedDays
             switch habit.frequency {
             case "daily":
                 return true

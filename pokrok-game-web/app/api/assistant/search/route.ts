@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth-helpers'
 import { neon } from '@neondatabase/serverless'
 import { decryptFields, isEncrypted } from '@/lib/encryption'
+import { getDailyStepsByUserId } from '@/lib/cesta-db'
+import { getGoalsByUserId } from '@/lib/cesta-db'
+import { getHabitsByUserId } from '@/lib/cesta-db'
 
 const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
 
@@ -53,68 +56,37 @@ export async function GET(request: NextRequest) {
     const results: any[] = []
 
     // Search Steps
-    // NOTE: Steps are encrypted, so we need to load all steps, decrypt them, then search in memory
+    // NOTE: Use getDailyStepsByUserId which already handles decryption correctly
     if (filters.types?.includes('step')) {
-      let allSteps
+      // Calculate date range - get steps from last 365 days or use filters
+      const today = new Date()
+      const oneYearAgo = new Date(today)
+      oneYearAgo.setFullYear(today.getFullYear() - 1)
+      
+      const startDate = filters.dateFrom || oneYearAgo.toISOString().split('T')[0]
+      const endDate = filters.dateTo || today.toISOString().split('T')[0]
+      
+      // Get all steps (already decrypted by getDailyStepsByUserId)
+      const allSteps = await getDailyStepsByUserId(targetUserId, undefined, startDate, endDate)
+      
+      // Filter by additional criteria
+      let filteredSteps = allSteps
+      
       if (filters.completed !== undefined) {
-        allSteps = await sql`
-          SELECT 
-            id, title, description, 
-            TO_CHAR(date, 'YYYY-MM-DD') as date,
-            completed, goal_id, area_id
-          FROM daily_steps
-          WHERE user_id = ${targetUserId} 
-          AND completed = ${filters.completed}
-          ${filters.goalId ? sql`AND goal_id = ${filters.goalId}` : sql``}
-          ${filters.areaId ? sql`AND area_id = ${filters.areaId}` : sql``}
-          ${filters.dateFrom ? sql`AND date >= ${filters.dateFrom}` : sql``}
-          ${filters.dateTo ? sql`AND date <= ${filters.dateTo}` : sql``}
-          ORDER BY date DESC
-          LIMIT 100
-        `
-      } else {
-        allSteps = await sql`
-          SELECT 
-            id, title, description, 
-            TO_CHAR(date, 'YYYY-MM-DD') as date,
-            completed, goal_id, area_id
-          FROM daily_steps
-          WHERE user_id = ${targetUserId} 
-          ${filters.goalId ? sql`AND goal_id = ${filters.goalId}` : sql``}
-          ${filters.areaId ? sql`AND area_id = ${filters.areaId}` : sql``}
-          ${filters.dateFrom ? sql`AND date >= ${filters.dateFrom}` : sql``}
-          ${filters.dateTo ? sql`AND date <= ${filters.dateTo}` : sql``}
-          ORDER BY date DESC
-          LIMIT 100
-        `
+        filteredSteps = filteredSteps.filter((step: any) => step.completed === filters.completed)
       }
       
-      // Decrypt steps and search in memory
-      const decryptedSteps = allSteps.map((step: any) => {
-        const decrypted = decryptFields(step, targetUserId, ['title', 'description'])
-        // Double-check: if still encrypted, try again or skip
-        let title = decrypted.title || ''
-        let description = decrypted.description || null
-        
-        // If title is still encrypted (contains :), try to decrypt again
-        if (title && isEncrypted(title)) {
-          console.warn('Step title still encrypted after decryptFields, skipping:', step.id)
-          title = '' // Skip this step from results
-        }
-        if (description && isEncrypted(description)) {
-          description = null
-        }
-        
-        return {
-          ...decrypted,
-          title,
-          description
-        }
-      }).filter((step: any) => step.title && step.title.length > 0) // Filter out steps with empty titles
+      if (filters.goalId) {
+        filteredSteps = filteredSteps.filter((step: any) => step.goal_id === filters.goalId)
+      }
       
-      // Search in decrypted data
+      if (filters.areaId) {
+        filteredSteps = filteredSteps.filter((step: any) => step.area_id === filters.areaId)
+      }
+      
+      // Search in decrypted data (steps are already decrypted by getDailyStepsByUserId)
       const queryLower = query.toLowerCase()
-      const matchingSteps = decryptedSteps
+      const matchingSteps = filteredSteps
         .filter((step: any) => {
           const titleMatch = step.title?.toLowerCase().includes(queryLower) ?? false
           const descMatch = step.description?.toLowerCase().includes(queryLower) ?? false
@@ -128,7 +100,7 @@ export async function GET(request: NextRequest) {
         title: step.title || '',
         description: step.description || null,
         metadata: {
-          date: step.date,
+          date: step.date ? (typeof step.date === 'string' ? step.date : step.date.toISOString().split('T')[0]) : null,
           completed: step.completed,
           goal_id: step.goal_id,
           area_id: step.area_id
@@ -137,44 +109,25 @@ export async function GET(request: NextRequest) {
     }
 
     // Search Goals
-    // NOTE: Goals are encrypted, so we need to load all goals, decrypt them, then search in memory
+    // NOTE: Use getGoalsByUserId which already handles decryption correctly
     if (filters.types?.includes('goal')) {
-      const allGoals = await sql`
-        SELECT id, title, description, status, target_date, area_id
-        FROM goals
-        WHERE user_id = ${targetUserId} 
-        ${filters.status && filters.status.length > 0 ? sql`AND status = ANY(${filters.status})` : sql``}
-        ${filters.areaId ? sql`AND area_id = ${filters.areaId}` : sql``}
-        ORDER BY created_at DESC
-        LIMIT 100
-      `
+      // Get all goals (already decrypted by getGoalsByUserId)
+      const allGoals = await getGoalsByUserId(targetUserId)
       
-      // Decrypt goals and search in memory
-      const decryptedGoals = allGoals.map((goal: any) => {
-        const decrypted = decryptFields(goal, targetUserId, ['title', 'description'])
-        // Double-check: if still encrypted, try again or skip
-        let title = decrypted.title || ''
-        let description = decrypted.description || null
-        
-        // If title is still encrypted (contains :), try to decrypt again
-        if (title && isEncrypted(title)) {
-          console.warn('Goal title still encrypted after decryptFields, skipping:', goal.id)
-          title = '' // Skip this goal from results
-        }
-        if (description && isEncrypted(description)) {
-          description = null
-        }
-        
-        return {
-          ...decrypted,
-          title,
-          description
-        }
-      }).filter((goal: any) => goal.title && goal.title.length > 0) // Filter out goals with empty titles
+      // Filter by additional criteria
+      let filteredGoals = allGoals
       
-      // Search in decrypted data
+      if (filters.status && filters.status.length > 0) {
+        filteredGoals = filteredGoals.filter((goal: any) => filters.status?.includes(goal.status))
+      }
+      
+      if (filters.areaId) {
+        filteredGoals = filteredGoals.filter((goal: any) => goal.area_id === filters.areaId)
+      }
+      
+      // Search in decrypted data (goals are already decrypted by getGoalsByUserId)
       const queryLower = query.toLowerCase()
-      const matchingGoals = decryptedGoals
+      const matchingGoals = filteredGoals
         .filter((goal: any) => {
           const titleMatch = goal.title?.toLowerCase().includes(queryLower) ?? false
           const descMatch = goal.description?.toLowerCase().includes(queryLower) ?? false
@@ -189,7 +142,7 @@ export async function GET(request: NextRequest) {
         description: goal.description || null,
         metadata: {
           status: goal.status,
-          target_date: goal.target_date,
+          target_date: goal.target_date ? (typeof goal.target_date === 'string' ? goal.target_date : goal.target_date.toISOString().split('T')[0]) : null,
           area_id: goal.area_id
         }
       })))
@@ -218,43 +171,21 @@ export async function GET(request: NextRequest) {
     }
 
     // Search Habits
-    // NOTE: Habits are encrypted, so we need to load all habits, decrypt them, then search in memory
+    // NOTE: Use getHabitsByUserId which already handles decryption correctly
     if (filters.types?.includes('habit')) {
-      const allHabits = await sql`
-        SELECT id, name, description, frequency, category
-        FROM habits
-        WHERE user_id = ${targetUserId} 
-        ${filters.areaId ? sql`AND area_id = ${filters.areaId}` : sql``}
-        ORDER BY created_at DESC
-        LIMIT 100
-      `
+      // Get all habits (already decrypted by getHabitsByUserId)
+      const allHabits = await getHabitsByUserId(targetUserId)
       
-      // Decrypt habits and search in memory
-      const decryptedHabits = allHabits.map((habit: any) => {
-        const decrypted = decryptFields(habit, targetUserId, ['name', 'description'])
-        // Double-check: if still encrypted, try again or skip
-        let name = decrypted.name || ''
-        let description = decrypted.description || null
-        
-        // If name is still encrypted (contains :), try to decrypt again
-        if (name && isEncrypted(name)) {
-          console.warn('Habit name still encrypted after decryptFields, skipping:', habit.id)
-          name = '' // Skip this habit from results
-        }
-        if (description && isEncrypted(description)) {
-          description = null
-        }
-        
-        return {
-          ...decrypted,
-          name,
-          description
-        }
-      }).filter((habit: any) => habit.name && habit.name.length > 0) // Filter out habits with empty names
+      // Filter by additional criteria
+      let filteredHabits = allHabits
       
-      // Search in decrypted data
+      if (filters.areaId) {
+        filteredHabits = filteredHabits.filter((habit: any) => habit.area_id === filters.areaId)
+      }
+      
+      // Search in decrypted data (habits are already decrypted by getHabitsByUserId)
       const queryLower = query.toLowerCase()
-      const matchingHabits = decryptedHabits
+      const matchingHabits = filteredHabits
         .filter((habit: any) => {
           const nameMatch = habit.name?.toLowerCase().includes(queryLower) ?? false
           const descMatch = habit.description?.toLowerCase().includes(queryLower) ?? false

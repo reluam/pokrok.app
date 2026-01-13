@@ -1079,8 +1079,10 @@ export function GoalDetailPage({
                       </span>
                     </div>
                     <div className="mb-2">
-                      <div className="flex items-center justify-between mb-1 text-xs text-gray-600 font-playful">
-                        <div className="flex items-center gap-2">
+                      {/* Values and percentage - properly aligned */}
+                      <div className="flex items-center justify-between mb-2 text-sm w-full gap-4">
+                        {/* Left: Current / Target */}
+                        <div className="flex items-center gap-2 text-gray-700">
                           {hasTarget ? (
                             <>
                               {isEditingCurrentValue ? (
@@ -1104,9 +1106,9 @@ export function GoalDetailPage({
                                     onClick={(e) => e.stopPropagation()}
                                     onFocus={(e) => e.stopPropagation()}
                                     autoFocus
-                                    className="w-20 px-2 py-1 text-xs border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-black"
+                                    className="w-20 px-2 py-1 text-sm border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-black"
                                   />
-                                  <span>{metric.unit}</span>
+                                  <span className="text-sm">{metric.unit}</span>
                                 </div>
                               ) : (
                                 <div 
@@ -1118,10 +1120,11 @@ export function GoalDetailPage({
                                   title={t('common.metrics.currentValue') || 'Klikněte pro úpravu'}
                                 >
                                   <Pencil className="w-3 h-3 text-gray-400" />
-                                  <span className="hover:underline">{formatNumber(currentValue)} {metric.unit}</span>
+                                  <span className="hover:underline font-medium">{formatNumber(currentValue)} {metric.unit}</span>
                                 </div>
                               )}
-                              <span> / {formatNumber(targetValue)} {metric.unit}</span>
+                              <span className="text-gray-500">/</span>
+                              <span className="font-medium">{formatNumber(targetValue)} {metric.unit}</span>
                             </>
                           ) : (
                             <div 
@@ -1133,14 +1136,16 @@ export function GoalDetailPage({
                               title={t('common.metrics.currentValue') || 'Klikněte pro úpravu'}
                             >
                               <Pencil className="w-3 h-3 text-gray-400" />
-                              <span className="hover:underline">{t('common.metrics.remains') || 'Remains'}: {formatNumber(currentValue)} {metric.unit}</span>
+                              <span className="hover:underline font-medium">{t('common.metrics.remains') || 'Remains'}: {formatNumber(currentValue)} {metric.unit}</span>
                             </div>
                           )}
                         </div>
+                        {/* Right: Percentage - pushed to the right edge */}
                         {hasTarget && (
-                          <span className="text-primary-600 font-semibold">{Math.round(progress)}%</span>
+                          <span className="text-primary-600 font-semibold text-sm flex-shrink-0">{Math.round(progress)}%</span>
                         )}
                       </div>
+                      {/* Progress bar - same width as values */}
                       {hasTarget && (
                         <div className="w-full bg-white border-2 border-primary-500 rounded-playful-sm h-2 overflow-hidden">
                           <div 

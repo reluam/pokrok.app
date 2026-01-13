@@ -1993,7 +1993,9 @@ export function JourneyGameView({
         alert(t('areas.deleteError') || `Nepodařilo se smazat oblast: ${errorData.error || 'Neznámá chyba'}`)
       }
     } catch (error) {
-      console.error('Error deleting area:', error)
+      // Safely log error without circular references
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      console.error('Error deleting area:', errorMessage)
       alert(t('areas.deleteError') || 'Chyba při mazání oblasti')
     } finally {
       setIsDeletingArea(false)
