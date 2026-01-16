@@ -59,18 +59,18 @@ export default function IntroSection() {
             {/* Tlačítka dole */}
             <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center pt-6 md:pt-8">
               <Link
+                href="#coaching"
+                className="group flex items-center justify-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 rounded-full bg-primary-600 text-white font-semibold text-base md:text-lg hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform w-full sm:w-auto min-w-[160px] md:min-w-[180px]"
+              >
+                <Target size={20} />
+                Koučing
+              </Link>
+              <Link
                 href="/blog"
                 className="group flex items-center justify-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 rounded-full bg-primary-600 text-white font-semibold text-base md:text-lg hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform w-full sm:w-auto min-w-[160px] md:min-w-[180px]"
               >
                 <FileText size={20} />
                 Blog a inspirace
-              </Link>
-              <Link
-                href="/coaching"
-                className="group flex items-center justify-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 rounded-full bg-primary-600 text-white font-semibold text-base md:text-lg hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform w-full sm:w-auto min-w-[160px] md:min-w-[180px]"
-              >
-                <Target size={20} />
-                Koučing
               </Link>
               <Link
                 href="#aplikace"

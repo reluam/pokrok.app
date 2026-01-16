@@ -1,15 +1,17 @@
-import ArticlesHero from '@/components/ArticlesHero'
-import IntroSection from '@/components/IntroSection'
-import AppsSection from '@/components/AppsSection'
-import AboutSection from '@/components/AboutSection'
+import HeroSection from '@/components/HeroSection'
+import LatestFromLab from '@/components/LatestFromLab'
+import ThreePillars from '@/components/ThreePillars'
+import NewsletterSection from '@/components/NewsletterSection'
+import AboutMeSection from '@/components/AboutMeSection'
 
 export default function Home() {
   return (
     <>
-      <ArticlesHero />
-      <IntroSection />
-      <AppsSection />
-      <AboutSection />
+      <HeroSection />
+      <LatestFromLab />
+      <ThreePillars />
+      <NewsletterSection />
+      <AboutMeSection />
     </>
   )
 }

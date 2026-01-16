@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { title, content, excerpt, published, inspirationIds, image } = body
+    const { title, content, excerpt, published, featured, featuredOrder, inspirationIds, image } = body
 
     if (!title || !content) {
       return NextResponse.json(
@@ -112,7 +112,7 @@ export async function PUT(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { id, title, content, excerpt, published, slug, inspirationIds, image } = body
+    const { id, title, content, excerpt, published, featured, featuredOrder, slug, inspirationIds, image } = body
 
     if (!id) {
       return NextResponse.json(
@@ -152,6 +152,8 @@ export async function PUT(request: NextRequest) {
       content: finalContent,
       excerpt: finalExcerpt,
       published: published !== undefined ? published : existingArticle.published,
+      featured: featured !== undefined ? featured : (existingArticle.featured || false),
+      featuredOrder: featuredOrder !== undefined ? featuredOrder : (existingArticle.featuredOrder || 0),
       inspirationIds: Array.isArray(inspirationIds) ? inspirationIds : (existingArticle.inspirationIds || []),
       image: image !== undefined ? image : existingArticle.image,
     })

@@ -2,33 +2,82 @@ import { getPool } from './db'
 import fs from 'fs'
 import path from 'path'
 
-// Run migration SQL file
-export async function runMigration() {
+// Create migrations table to track which migrations have been run
+async function ensureMigrationsTable(client: any) {
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS migrations (
+      id VARCHAR(255) PRIMARY KEY,
+      "runAt" TIMESTAMP DEFAULT NOW()
+    )
+  `)
+}
+
+// Check if migration has been run
+async function hasMigrationRun(client: any, migrationId: string): Promise<boolean> {
+  const result = await client.query(
+    'SELECT EXISTS (SELECT 1 FROM migrations WHERE id = $1)',
+    [migrationId]
+  )
+  return result.rows[0].exists
+}
+
+// Mark migration as run
+async function markMigrationRun(client: any, migrationId: string) {
+  await client.query(
+    'INSERT INTO migrations (id) VALUES ($1) ON CONFLICT (id) DO NOTHING',
+    [migrationId]
+  )
+}
+
+// Run all migrations
+export async function runMigrations() {
   const pool = getPool()
   const client = await pool.connect()
   try {
-    // Check if tables already exist
-    const checkResult = await client.query(
-      "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'articles')"
-    )
+    await ensureMigrationsTable(client)
     
-    if (checkResult.rows[0].exists) {
-      console.log('Tables already exist, skipping migration')
-      return
+    // List of migrations in order
+    const migrations = [
+      '001_create_tables',
+      '002_add_featured_and_small_things',
+      '003_add_category_to_small_things',
+      '004_create_categories',
+      '005_add_image_to_small_things',
+      '006_move_image_to_small_things_page',
+      '007_create_questions',
+    ]
+    
+    for (const migrationId of migrations) {
+      const hasRun = await hasMigrationRun(client, migrationId)
+      
+      if (hasRun) {
+        console.log(`Migration ${migrationId} already run, skipping`)
+        continue
+      }
+      
+      console.log(`Running migration ${migrationId}...`)
+      const migrationSQL = fs.readFileSync(
+        path.join(process.cwd(), 'migrations', `${migrationId}.sql`),
+        'utf8'
+      )
+      
+      await client.query(migrationSQL)
+      await markMigrationRun(client, migrationId)
+      console.log(`Migration ${migrationId} completed successfully`)
     }
     
-    const migrationSQL = fs.readFileSync(
-      path.join(process.cwd(), 'migrations', '001_create_tables.sql'),
-      'utf8'
-    )
-    await client.query(migrationSQL)
-    console.log('Migration completed successfully')
+    console.log('All migrations completed successfully')
   } catch (error) {
     console.error('Migration failed:', error)
     throw error
   } finally {
     client.release()
   }
+}
+
+// Run migration SQL file (legacy function for backward compatibility)
+export async function runMigration() {
+  return runMigrations()
 }
 
 // Migrate data from JSON files to database

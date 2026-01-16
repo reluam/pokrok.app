@@ -18,6 +18,8 @@ export default function AdminClankyPage() {
     content: '',
     excerpt: '',
     published: false,
+    featured: false,
+    featuredOrder: 0,
     inspirationIds: [] as string[],
     image: '',
   })
@@ -105,6 +107,8 @@ export default function AdminClankyPage() {
       content: '',
       excerpt: '',
       published: false,
+      featured: false,
+      featuredOrder: 0,
       inspirationIds: [],
       image: '',
     })
@@ -118,6 +122,8 @@ export default function AdminClankyPage() {
       content: article.content,
       excerpt: article.excerpt,
       published: article.published,
+      featured: article.featured || false,
+      featuredOrder: article.featuredOrder || 0,
       inspirationIds: article.inspirationIds || [],
       image: article.image || '',
     })
@@ -132,6 +138,8 @@ export default function AdminClankyPage() {
       content: '',
       excerpt: '',
       published: false,
+      featured: false,
+      featuredOrder: 0,
       inspirationIds: [],
       image: '',
     })
@@ -459,17 +467,48 @@ export default function AdminClankyPage() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="published"
-                    checked={formData.published}
-                    onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
-                    className="w-5 h-5 text-primary-600 border-2 border-primary-200 rounded focus:ring-primary-500"
-                  />
-                  <label htmlFor="published" className="text-sm font-medium text-text-primary cursor-pointer">
-                    Publikovat článek (bude viditelný na webu)
-                  </label>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="published"
+                      checked={formData.published}
+                      onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
+                      className="w-5 h-5 text-primary-600 border-2 border-primary-200 rounded focus:ring-primary-500"
+                    />
+                    <label htmlFor="published" className="text-sm font-medium text-text-primary cursor-pointer">
+                      Publikovat článek (bude viditelný na webu)
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="featured"
+                      checked={formData.featured}
+                      onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                      className="w-5 h-5 text-primary-600 border-2 border-primary-200 rounded focus:ring-primary-500"
+                    />
+                    <label htmlFor="featured" className="text-sm font-medium text-text-primary cursor-pointer">
+                      Zobrazit na hlavní stránce (featured)
+                    </label>
+                  </div>
+                  
+                  {formData.featured && (
+                    <div>
+                      <label htmlFor="featuredOrder" className="block text-sm font-medium text-text-primary mb-2">
+                        Pořadí na hlavní stránce (nižší číslo = výše)
+                      </label>
+                      <input
+                        type="number"
+                        id="featuredOrder"
+                        value={formData.featuredOrder}
+                        onChange={(e) => setFormData({ ...formData, featuredOrder: parseInt(e.target.value) || 0 })}
+                        min="0"
+                        className="w-full px-4 py-2 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div>

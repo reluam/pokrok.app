@@ -42,12 +42,13 @@ export default function Navigation() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-center space-x-1">
+          <div className="hidden md:flex items-center space-x-6">
+            <div className="flex items-center space-x-1">
               {[
-                { href: '/coaching', label: 'Koučing' },
-                { href: '/blog', label: 'Blog a inspirace' },
-                { href: '/o-projektu', label: 'O projektu' },
+                { href: '/blog', label: 'Články a inspirace' },
+                { href: '/aplikace', label: 'Aplikace Pokrok' },
+                { href: '/coaching', label: 'Coaching' },
+                { href: '/o-projektu', label: 'O smyslužití' },
               ].map((item) => (
                 <Link
                   key={item.href}
@@ -59,6 +60,12 @@ export default function Navigation() {
                 </Link>
               ))}
             </div>
+            <Link
+              href="#newsletter"
+              className="px-5 py-2.5 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-full transition-colors"
+            >
+              Připojit se ke komunitě
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -80,9 +87,10 @@ export default function Navigation() {
       }`}>
         <div className="px-4 pt-2 pb-4 space-y-1 bg-white/95 backdrop-blur-md border-t border-primary-100">
           {[
-            { href: '/coaching', label: 'Koučing' },
             { href: '/blog', label: 'Články a inspirace' },
-            { href: '/o-projektu', label: 'O projektu' },
+            { href: '/aplikace', label: 'Aplikace Pokrok' },
+            { href: '/coaching', label: 'Coaching' },
+            { href: '/o-projektu', label: 'O smyslužití' },
           ].map((item) => (
             <Link
               key={item.href}

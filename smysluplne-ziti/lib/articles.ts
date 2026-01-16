@@ -7,6 +7,8 @@ export interface Article {
   content: string
   excerpt: string
   published: boolean
+  featured?: boolean // Whether article is featured on homepage
+  featuredOrder?: number // Order in featured section
   createdAt: string
   updatedAt: string
   inspirationIds?: string[] // IDs of inspirations linked to this article
@@ -29,6 +31,24 @@ export async function getArticles(): Promise<ArticlesData> {
     console.error('Error fetching articles from database:', error)
     // Fallback to empty array if DB is not available
     return { articles: [] }
+  }
+}
+
+// Get featured articles for homepage
+export async function getFeaturedArticles(limit: number = 3): Promise<Article[]> {
+  try {
+    const pool = getPool()
+    const result = await pool.query(
+      `SELECT * FROM articles 
+       WHERE featured = true AND published = true 
+       ORDER BY COALESCE("featuredOrder", 999), "createdAt" DESC 
+       LIMIT $1`,
+      [limit]
+    )
+    return result.rows
+  } catch (error) {
+    console.error('Error fetching featured articles:', error)
+    return []
   }
 }
 
@@ -126,8 +146,8 @@ export async function createArticle(article: Omit<Article, 'id' | 'createdAt' | 
     const now = new Date().toISOString()
     
     const result = await client.query(
-      `INSERT INTO articles (id, title, slug, content, excerpt, published, "inspirationIds", image, "createdAt", "updatedAt")
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      `INSERT INTO articles (id, title, slug, content, excerpt, published, featured, "featuredOrder", "inspirationIds", image, "createdAt", "updatedAt")
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
        RETURNING *`,
       [
         id,
@@ -136,6 +156,8 @@ export async function createArticle(article: Omit<Article, 'id' | 'createdAt' | 
         article.content,
         article.excerpt,
         article.published,
+        article.featured || false,
+        article.featuredOrder || null,
         article.inspirationIds || [],
         article.image || null,
         now,
@@ -185,6 +207,14 @@ export async function updateArticle(id: string, updates: Partial<Article>): Prom
     if (updates.image !== undefined) {
       setClauses.push(`image = $${paramIndex++}`)
       values.push(updates.image)
+    }
+    if (updates.featured !== undefined) {
+      setClauses.push(`featured = $${paramIndex++}`)
+      values.push(updates.featured)
+    }
+    if (updates.featuredOrder !== undefined) {
+      setClauses.push(`"featuredOrder" = $${paramIndex++}`)
+      values.push(updates.featuredOrder)
     }
     
     setClauses.push(`"updatedAt" = $${paramIndex++}`)

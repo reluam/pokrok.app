@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Book, Video, FileText, Lock, LogOut, Loader2 } from 'lucide-react'
+import { Book, Video, FileText, Lock, LogOut, Loader2, Sparkles, HelpCircle } from 'lucide-react'
 import Link from 'next/link'
 
 export default function AdminPage() {
@@ -190,6 +190,44 @@ export default function AdminPage() {
               </div>
               <p className="text-text-secondary">
                 Vytvářejte a spravujte vlastní články, které budou zobrazeny na webu.
+              </p>
+            </Link>
+
+            {/* Malé věci */}
+            <Link
+              href="/admin/male-veci"
+              className="group bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 border border-primary-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div className="bg-primary-100 p-4 rounded-xl group-hover:bg-primary-200 transition-colors">
+                  <Sparkles className="text-primary-600" size={32} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-text-primary">Malé věci s velkým dopadem</h2>
+                  <p className="text-text-secondary text-sm">Tipy pro život</p>
+                </div>
+              </div>
+              <p className="text-text-secondary">
+                Spravujte malé tipy pro kvalitnější život, které se zobrazí na stránce "Malé věci s velkým dopadem".
+              </p>
+            </Link>
+
+            {/* Otázky */}
+            <Link
+              href="/admin/otazky"
+              className="group bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 border border-primary-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div className="bg-primary-100 p-4 rounded-xl group-hover:bg-primary-200 transition-colors">
+                  <HelpCircle className="text-primary-600" size={32} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-text-primary">Otázky ke smysluplnému životu</h2>
+                  <p className="text-text-secondary text-sm">Reflexe a seberozvoj</p>
+                </div>
+              </div>
+              <p className="text-text-secondary">
+                Spravujte otázky pro reflexi a seberozvoj, které se zobrazí na stránce "Otázky ke smysluplnému životu".
               </p>
             </Link>
           </div>
