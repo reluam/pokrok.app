@@ -161,39 +161,37 @@ export default function OtazkyPage() {
                   const categoryName = categoryMap.get(categoryId) || categoryId
                   return (
                     <section key={categoryId} id={`kategorie-${categoryId}`} className="scroll-mt-24">
-                      <h2 className="text-2xl md:text-3xl font-bold text-text-primary mb-6">
+                      <h2 className="text-lg md:text-xl font-semibold text-text-primary mb-3">
                         {categoryName}
                       </h2>
-                      <div className="space-y-4">
+                      <div className="space-y-1">
                         {questions.map((question) => {
                           const isOpen = openItems.has(question.id)
                           return (
                             <div
                               key={question.id}
                               id={`otazka-${question.id}`}
-                              className="bg-white rounded-lg border border-primary-100 hover:border-primary-300 transition-all duration-300 scroll-mt-24"
+                              className="scroll-mt-24"
                             >
                               <button
                                 onClick={() => toggleItem(question.id)}
-                                className="w-full p-6 text-left flex items-center justify-between gap-4 hover:bg-primary-50 transition-colors rounded-lg"
+                                className="w-full py-2 px-2 text-left flex items-center justify-between gap-3 hover:text-primary-600 transition-colors cursor-pointer"
                               >
-                                <h3 className="text-lg md:text-xl font-bold text-text-primary flex-1">
+                                <span className="text-base font-medium text-text-primary flex-1">
                                   {question.question}
-                                </h3>
+                                </span>
                                 {isOpen ? (
-                                  <ChevronUp className="flex-shrink-0 text-primary-600" size={24} />
+                                  <ChevronUp className="flex-shrink-0 text-primary-600" size={16} />
                                 ) : (
-                                  <ChevronDown className="flex-shrink-0 text-primary-600" size={24} />
+                                  <ChevronDown className="flex-shrink-0 text-text-secondary" size={16} />
                                 )}
                               </button>
                               {isOpen && question.description && (
-                                <div className="px-6 pb-6 pt-0">
-                                  <div className="pt-4 border-t border-primary-100">
-                                    <div className="prose prose-base max-w-none text-text-secondary leading-relaxed">
-                                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                        {question.description}
-                                      </ReactMarkdown>
-                                    </div>
+                                <div className="px-2 pb-3 pt-1">
+                                  <div className="prose prose-sm max-w-none text-text-secondary leading-relaxed">
+                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                      {question.description}
+                                    </ReactMarkdown>
                                   </div>
                                 </div>
                               )}
