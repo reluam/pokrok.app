@@ -56,6 +56,7 @@ export async function POST(request: NextRequest) {
       title: data.title,
       description: data.description,
       sourceUrl: data.sourceUrl,
+      category: data.category,
       displayOrder: data.displayOrder,
     })
 

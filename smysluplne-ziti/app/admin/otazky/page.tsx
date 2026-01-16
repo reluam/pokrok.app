@@ -297,7 +297,7 @@ export default function AdminOtazkyPage() {
                 onClick={() => {
                   if (pageContent) {
                     setPageFormData({ 
-                      introText: pageContent.introText || pageContent.intro_text || '', 
+                      introText: pageContent.introText || '', 
                       image: pageContent.image || '' 
                     })
                   }

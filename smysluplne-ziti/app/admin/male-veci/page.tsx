@@ -378,7 +378,10 @@ export default function AdminMaleVeciPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => {
-                  setPageFormData({ introText: pageContent?.introText || '' })
+                  setPageFormData({ 
+                    introText: pageContent?.introText || '', 
+                    image: pageContent?.image || '' 
+                  })
                   setShowPageModal(true)
                 }}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-primary-100 text-primary-700 rounded-lg hover:bg-primary-200 transition-colors"
@@ -501,7 +504,7 @@ export default function AdminMaleVeciPage() {
                   setShowModal(false)
                   setEditingThing(null)
                   const defaultCategory = categories.length > 0 ? categories[0].id : 'bez-kategorie'
-                  setFormData({ title: '', description: '', sourceUrl: '', image: '', category: defaultCategory, displayOrder: 0 })
+                  setFormData({ title: '', description: '', sourceUrl: '', category: defaultCategory, displayOrder: 0 })
                 }}
                 className="text-text-secondary hover:text-text-primary"
               >

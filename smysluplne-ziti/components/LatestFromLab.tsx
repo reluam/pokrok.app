@@ -173,6 +173,17 @@ export default async function LatestFromLab() {
             </div>
           </Link>
         </div>
+        
+        {/* Link to all articles */}
+        <div className="mt-12 text-center">
+          <Link
+            href="/clanky"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white font-semibold rounded-full hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+          >
+            <span>Zobrazit všechny články</span>
+            <ArrowRight size={18} />
+          </Link>
+        </div>
       </div>
     </section>
   )

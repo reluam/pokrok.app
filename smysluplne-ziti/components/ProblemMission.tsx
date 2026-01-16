@@ -3,7 +3,7 @@ export default function ProblemMission() {
     <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto text-center">
         <blockquote className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary mb-8 leading-tight italic">
-          "Vaše hodnota nezávisí na počtu odškrtnutých úkolů."
+          &quot;Vaše hodnota nezávisí na počtu odškrtnutých úkolů.&quot;
         </blockquote>
         <div className="prose prose-lg max-w-none text-text-secondary leading-relaxed space-y-4">
           <p>

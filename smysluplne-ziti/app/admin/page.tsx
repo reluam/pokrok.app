@@ -208,7 +208,7 @@ export default function AdminPage() {
                 </div>
               </div>
               <p className="text-text-secondary">
-                Spravujte malé tipy pro kvalitnější život, které se zobrazí na stránce "Malé věci s velkým dopadem".
+                Spravujte malé tipy pro kvalitnější život, které se zobrazí na stránce &quot;Malé věci s velkým dopadem&quot;.
               </p>
             </Link>
 
@@ -227,7 +227,7 @@ export default function AdminPage() {
                 </div>
               </div>
               <p className="text-text-secondary">
-                Spravujte otázky pro reflexi a seberozvoj, které se zobrazí na stránce "Otázky ke smysluplnému životu".
+                Spravujte otázky pro reflexi a seberozvoj, které se zobrazí na stránce &quot;Otázky ke smysluplnému životu&quot;.
               </p>
             </Link>
           </div>
