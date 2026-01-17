@@ -177,7 +177,7 @@ export default function OtazkyPage() {
                                 onClick={() => toggleItem(question.id)}
                                 className="w-full py-2 px-2 text-left flex items-center justify-between gap-3 hover:text-primary-600 transition-colors cursor-pointer"
                               >
-                                <span className="text-base font-medium text-text-primary flex-1">
+                                <span className="text-base font-medium text-text-primary flex-1 font-handwriting text-lg">
                                   {question.question}
                                 </span>
                                 {isOpen ? (

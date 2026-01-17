@@ -146,7 +146,7 @@ export default async function ArticlePage({ params }: { params: { slug: string }
               <div className="flex items-center gap-3 mb-6">
                 <div className="h-1 w-16 bg-gradient-to-r from-primary-400 to-primary-600 rounded-full"></div>
                 <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-text-primary">
-                  Související inspirace
+                  Související {articleInspirations.length === 1 ? 'zdroj' : 'zdroje'}
                 </h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">

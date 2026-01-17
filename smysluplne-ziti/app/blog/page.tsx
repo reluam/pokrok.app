@@ -125,10 +125,10 @@ export default function InspirationPage() {
               )}
             </div>
 
-            {/* Right column - Inspirations (Sidebar) */}
+            {/* Right column - Knihovna (Sidebar) */}
             <div className="lg:col-span-1">
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-text-primary mb-6 md:mb-8 text-center lg:text-left">
-                <span className="gradient-text">Inspirace</span>
+                <span className="gradient-text">Knihovna</span>
               </h2>
 
               {allInspirations.length === 0 ? (

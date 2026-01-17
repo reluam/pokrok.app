@@ -178,7 +178,7 @@ export default function MaleVeciPage() {
                                 onClick={() => toggleItem(thing.id)}
                                 className="w-full py-2 px-2 text-left flex items-center justify-between gap-3 hover:text-primary-600 transition-colors cursor-pointer"
                               >
-                                <span className="text-base font-medium text-text-primary flex-1">
+                                <span className="text-base font-medium text-text-primary flex-1 font-handwriting text-lg">
                                   {thing.title}
                                 </span>
                                 {isOpen ? (

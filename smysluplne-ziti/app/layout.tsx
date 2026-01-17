@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Caveat } from 'next/font/google'
 import './globals.css'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 
 const inter = Inter({ subsets: ['latin', 'latin-ext'] })
+const caveat = Caveat({ subsets: ['latin', 'latin-ext'], weight: ['400', '600'] })
 
 export const metadata: Metadata = {
   title: 'Smyslužití',
