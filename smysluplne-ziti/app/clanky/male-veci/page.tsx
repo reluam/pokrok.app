@@ -16,6 +16,7 @@ export default function MaleVeciPage() {
   const [thingsByCategory, setThingsByCategory] = useState<Record<string, SmallThing[]>>({})
   const [pageContent, setPageContent] = useState<any>(null)
   const [categories, setCategories] = useState<Category[]>([])
+  const [inspirationData, setInspirationData] = useState<any>(null)
   const [openItems, setOpenItems] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
 
@@ -52,6 +53,11 @@ export default function MaleVeciPage() {
       if (categoriesRes.ok) {
         const data = await categoriesRes.json()
         setCategories(data.categories || [])
+      }
+
+      if (inspirationRes.ok) {
+        const data = await inspirationRes.json()
+        setInspirationData(data)
       }
     } catch (error) {
       console.error('Error loading data:', error)

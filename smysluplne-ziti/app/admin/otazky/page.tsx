@@ -317,7 +317,7 @@ export default function AdminOtazkyPage() {
                 onClick={() => {
                   setEditingQuestion(null)
                   const defaultCategory = categories.length > 0 ? categories[0].id : 'obecne'
-                  setFormData({ question: '', description: '', category: defaultCategory, displayOrder: questions.length + 1 })
+                  setFormData({ question: '', description: '', whenText: '', answer: '', category: defaultCategory, displayOrder: questions.length + 1 })
                   setShowModal(true)
                 }}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
