@@ -55,7 +55,9 @@ export async function POST(request: NextRequest) {
     const thing = await createSmallThing({
       title: data.title,
       description: data.description,
-      sourceUrl: data.sourceUrl,
+      why: data.why,
+      how: data.how,
+      inspirationId: data.inspirationId,
       category: data.category,
       displayOrder: data.displayOrder,
     })

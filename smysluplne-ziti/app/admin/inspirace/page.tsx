@@ -435,20 +435,18 @@ export default function AdminInspirationPage() {
                   />
                 </div>
 
-                {(formData.type === 'book' || editingItem?.category === 'books') && (
-                  <div>
-                    <label className="block text-sm font-medium text-text-primary mb-2">
-                      Autor
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.author || ''}
-                      onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                      className="w-full px-4 py-3 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
-                      placeholder="Autor knihy"
-                    />
-                  </div>
-                )}
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-2">
+                    Autor (volitelné)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.author || ''}
+                    onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-primary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                    placeholder={formData.type === 'book' ? 'Autor knihy' : formData.type === 'video' ? 'Autor videa' : 'Autor článku'}
+                  />
+                </div>
 
                 <div>
                   <label className="block text-sm font-medium text-text-primary mb-2">

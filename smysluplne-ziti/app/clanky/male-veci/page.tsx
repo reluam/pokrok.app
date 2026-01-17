@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react'
 import { getSmallThingsByCategory, getSmallThingsPage } from '@/lib/small-things'
 import { getCategories } from '@/lib/categories'
+import { getInspirationData } from '@/lib/inspiration'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Image from 'next/image'
+import Link from 'next/link'
 import { ExternalLink, ChevronDown, ChevronUp } from 'lucide-react'
 import type { SmallThing } from '@/lib/small-things'
 import type { Category } from '@/lib/categories'
@@ -23,10 +25,11 @@ export default function MaleVeciPage() {
 
   const loadData = async () => {
     try {
-      const [thingsRes, pageRes, categoriesRes] = await Promise.all([
+      const [thingsRes, pageRes, categoriesRes, inspirationRes] = await Promise.all([
         fetch('/api/small-things'),
         fetch('/api/small-things?type=page'),
         fetch('/api/categories'),
+        fetch('/api/inspiration'),
       ])
 
       if (thingsRes.ok) {
@@ -156,15 +159,12 @@ export default function MaleVeciPage() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-12">
+              <div className="space-y-1">
                 {sortedCategoryIds.map((categoryId) => {
                   const things = thingsByCategory[categoryId] || []
-                  const categoryName = categoryMap.get(categoryId) || categoryId
                   return (
-                    <section key={categoryId} id={`kategorie-${categoryId}`} className="scroll-mt-24">
-                      <h2 className="text-lg md:text-xl font-semibold text-text-primary mb-3">
-                        {categoryName}
-                      </h2>
+                    <div key={categoryId}>
+                      <div id={`kategorie-${categoryId}`} className="scroll-mt-24"></div>
                       <div className="space-y-1">
                         {things.map((thing) => {
                           const isOpen = openItems.has(thing.id)
@@ -178,7 +178,7 @@ export default function MaleVeciPage() {
                                 onClick={() => toggleItem(thing.id)}
                                 className="w-full py-2 px-2 text-left flex items-center justify-between gap-3 hover:text-primary-600 transition-colors cursor-pointer"
                               >
-                                <span className="text-base font-medium text-text-primary flex-1 font-handwriting text-lg">
+                                <span className="text-2xl md:text-3xl font-medium text-text-primary flex-1 font-handwriting">
                                   {thing.title}
                                 </span>
                                 {isOpen ? (
@@ -188,28 +188,54 @@ export default function MaleVeciPage() {
                                 )}
                               </button>
                               {isOpen && (
-                                <div className="px-2 pb-3 pt-1">
-                                  <p className="text-sm text-text-secondary leading-relaxed mb-3">
-                                    {thing.description}
-                                  </p>
-                                  {thing.sourceUrl && (
-                                    <a
-                                      href={thing.sourceUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="inline-flex items-center gap-2 text-xs text-primary-600 hover:text-primary-700 transition-colors"
-                                    >
-                                      <span>Zdroj</span>
-                                      <ExternalLink size={14} />
-                                    </a>
+                                <div className="px-2 pb-3 pt-1 space-y-3">
+                                  {thing.how && (
+                                    <div>
+                                      <p className="text-base md:text-lg font-semibold text-text-primary mb-2">Jak?</p>
+                                      <div className="text-sm text-text-secondary leading-relaxed prose prose-sm max-w-none">
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                          {thing.how}
+                                        </ReactMarkdown>
+                                      </div>
+                                    </div>
                                   )}
+                                  {thing.why && (
+                                    <div>
+                                      <p className="text-base md:text-lg font-semibold text-text-primary mb-2">Proč?</p>
+                                      <div className="text-sm text-text-secondary leading-relaxed prose prose-sm max-w-none">
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                          {thing.why}
+                                        </ReactMarkdown>
+                                      </div>
+                                    </div>
+                                  )}
+                                  {thing.inspirationId && inspirationData && (() => {
+                                    const allItems = [
+                                      ...(inspirationData.articles || []),
+                                      ...(inspirationData.videos || []),
+                                      ...(inspirationData.books || []),
+                                    ]
+                                    const inspirationItem = allItems.find((item: any) => item.id === thing.inspirationId)
+                                    if (inspirationItem) {
+                                      return (
+                                        <Link
+                                          href={`/knihovna#item-${inspirationItem.id}`}
+                                          className="inline-flex items-center gap-2 text-xs text-primary-600 hover:text-primary-700 transition-colors"
+                                        >
+                                          <span>Zdroj: {inspirationItem.title}</span>
+                                          <ExternalLink size={14} />
+                                        </Link>
+                                      )
+                                    }
+                                    return null
+                                  })()}
                                 </div>
                               )}
                             </div>
                           )
                         })}
                       </div>
-                    </section>
+                    </div>
                   )
                 })}
               </div>

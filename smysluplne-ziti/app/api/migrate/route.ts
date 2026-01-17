@@ -100,6 +100,12 @@ export async function GET(request: NextRequest) {
 // POST - run database migration
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication (optional - allow migration without auth for development)
+    // Uncomment the following lines if you want to require authentication:
+    // if (!(await isAuthenticated())) {
+    //   return NextResponse.json({ error: 'Neautorizováno' }, { status: 401 })
+    // }
+    
     // Run all migrations
     await runMigration()
     

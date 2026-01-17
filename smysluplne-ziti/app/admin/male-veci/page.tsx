@@ -20,10 +20,13 @@ export default function AdminMaleVeciPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    sourceUrl: '',
+    why: '',
+    how: '',
+    inspirationId: '',
     category: 'bez-kategorie',
     displayOrder: 0,
   })
+  const [inspirationItems, setInspirationItems] = useState<any[]>([])
   const [categoryFormData, setCategoryFormData] = useState({
     name: '',
     displayOrder: 0,
@@ -53,10 +56,11 @@ export default function AdminMaleVeciPage() {
 
   const loadData = async () => {
     try {
-      const [thingsRes, pageRes, categoriesRes] = await Promise.all([
+      const [thingsRes, pageRes, categoriesRes, inspirationRes] = await Promise.all([
         fetch('/api/small-things'),
         fetch('/api/small-things?type=page'),
         fetch('/api/categories'),
+        fetch('/api/inspiration'),
       ])
 
       if (thingsRes.ok) {
@@ -113,7 +117,7 @@ export default function AdminMaleVeciPage() {
         setShowModal(false)
         setEditingThing(null)
         const defaultCategory = categories.length > 0 ? categories[0].id : 'bez-kategorie'
-        setFormData({ title: '', description: '', sourceUrl: '', category: defaultCategory, displayOrder: 0 })
+        setFormData({ title: '', description: '', why: '', how: '', inspirationId: '', category: defaultCategory, displayOrder: 0 })
         loadData()
       } else {
         const error = await res.json()
@@ -228,7 +232,9 @@ export default function AdminMaleVeciPage() {
     setFormData({
       title: thing.title,
       description: thing.description,
-      sourceUrl: thing.sourceUrl || '',
+      why: thing.why || '',
+      how: thing.how || '',
+      inspirationId: thing.inspirationId || '',
       category: thing.category || defaultCategory,
       displayOrder: thing.displayOrder,
     })
@@ -402,7 +408,7 @@ export default function AdminMaleVeciPage() {
                 onClick={() => {
                   setEditingThing(null)
                   const defaultCategory = categories.length > 0 ? categories[0].id : 'bez-kategorie'
-                  setFormData({ title: '', description: '', sourceUrl: '', category: defaultCategory, displayOrder: things.length + 1 })
+                  setFormData({ title: '', description: '', why: '', how: '', inspirationId: '', category: defaultCategory, displayOrder: things.length + 1 })
                   setShowModal(true)
                 }}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
@@ -439,16 +445,25 @@ export default function AdminMaleVeciPage() {
                           {thing.title}
                         </h3>
                       </div>
-                      <p className="text-text-secondary mb-2">{thing.description}</p>
-                      {thing.sourceUrl && (
-                        <a
-                          href={thing.sourceUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-primary-600 hover:underline"
-                        >
-                          Zdroj: {new URL(thing.sourceUrl).hostname}
-                        </a>
+                      {thing.how && (
+                        <div className="mb-2">
+                          <p className="text-sm font-semibold text-text-primary mb-1">Jak?</p>
+                          <p className="text-text-secondary text-sm">{thing.how}</p>
+                        </div>
+                      )}
+                      {thing.why && (
+                        <div className="mb-2">
+                          <p className="text-sm font-semibold text-text-primary mb-1">Proč?</p>
+                          <p className="text-text-secondary text-sm">{thing.why}</p>
+                        </div>
+                      )}
+                      {thing.description && (
+                        <p className="text-text-secondary mb-2 text-sm italic">{thing.description}</p>
+                      )}
+                      {thing.inspirationId && (
+                        <div className="text-sm text-primary-600">
+                          Knihovna: {inspirationItems.find(i => i.id === thing.inspirationId)?.title || thing.inspirationId}
+                        </div>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
@@ -504,7 +519,7 @@ export default function AdminMaleVeciPage() {
                   setShowModal(false)
                   setEditingThing(null)
                   const defaultCategory = categories.length > 0 ? categories[0].id : 'bez-kategorie'
-                  setFormData({ title: '', description: '', sourceUrl: '', category: defaultCategory, displayOrder: 0 })
+                  setFormData({ title: '', description: '', why: '', how: '', inspirationId: '', category: defaultCategory, displayOrder: 0 })
                 }}
                 className="text-text-secondary hover:text-text-primary"
               >
@@ -527,28 +542,45 @@ export default function AdminMaleVeciPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-text-primary mb-2">
-                  Popis *
+                  Jak? (volitelné, podporuje Markdown)
                 </label>
                 <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  required
+                  value={formData.how}
+                  onChange={(e) => setFormData({ ...formData, how: e.target.value })}
                   rows={4}
-                  className="w-full px-4 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="Tohle ti umožní zůstat o chvíli déle 'odpojený' od digitálního světa..."
+                  className="w-full px-4 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono text-sm"
+                  placeholder="Jak na to? Konkrétní kroky... (Můžeš použít **tučné**, *kurzívu*, seznamy, atd.)"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-text-primary mb-2">
-                  URL zdroje (volitelné)
+                  Proč? (volitelné, podporuje Markdown)
                 </label>
-                <input
-                  type="url"
-                  value={formData.sourceUrl}
-                  onChange={(e) => setFormData({ ...formData, sourceUrl: e.target.value })}
-                  className="w-full px-4 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="https://..."
+                <textarea
+                  value={formData.why}
+                  onChange={(e) => setFormData({ ...formData, why: e.target.value })}
+                  rows={4}
+                  className="w-full px-4 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono text-sm"
+                  placeholder="Proč je tato malá věc důležitá? (Můžeš použít **tučné**, *kurzívu*, seznamy, atd.)"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-primary mb-2">
+                  Item z knihovny (volitelné)
+                </label>
+                <select
+                  value={formData.inspirationId}
+                  onChange={(e) => setFormData({ ...formData, inspirationId: e.target.value })}
+                  className="w-full px-4 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                >
+                  <option value="">-- Vyber item z knihovny --</option>
+                  {inspirationItems.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      [{item.type === 'article' ? 'Článek' : item.type === 'video' ? 'Video' : 'Kniha'}] {item.title}
+                      {item.author && ` - ${item.author}`}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-text-primary mb-2">
@@ -603,7 +635,7 @@ export default function AdminMaleVeciPage() {
                     setShowModal(false)
                     setEditingThing(null)
                     const defaultCategory = categories.length > 0 ? categories[0].id : 'bez-kategorie'
-                    setFormData({ title: '', description: '', sourceUrl: '', category: defaultCategory, displayOrder: 0 })
+                    setFormData({ title: '', description: '', why: '', how: '', inspirationId: '', category: defaultCategory, displayOrder: 0 })
                   }}
                   className="px-4 py-2 border border-primary-200 text-text-primary rounded-lg hover:bg-primary-50"
                 >

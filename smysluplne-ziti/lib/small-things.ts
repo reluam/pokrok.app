@@ -4,7 +4,10 @@ export interface SmallThing {
   id: string
   title: string
   description: string
-  sourceUrl?: string
+  why?: string
+  how?: string
+  sourceUrl?: string // Deprecated, kept for backward compatibility
+  inspirationId?: string
   category: string
   displayOrder: number
   createdAt: string
@@ -87,14 +90,17 @@ export async function createSmallThing(thing: Omit<SmallThing, 'id' | 'createdAt
     }
     
     const result = await client.query(
-      `INSERT INTO small_things (id, title, description, source_url, category, "displayOrder", "createdAt", "updatedAt")
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `INSERT INTO small_things (id, title, description, why, how, source_url, inspiration_id, category, "displayOrder", "createdAt", "updatedAt")
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
       [
         id,
         thing.title,
         thing.description,
+        thing.why || null,
+        thing.how || null,
         thing.sourceUrl || null,
+        thing.inspirationId || null,
         thing.category || 'bez-kategorie',
         displayOrder,
         now,
@@ -125,9 +131,21 @@ export async function updateSmallThing(id: string, updates: Partial<SmallThing>)
       setClauses.push(`description = $${paramIndex++}`)
       values.push(updates.description)
     }
+    if (updates.why !== undefined) {
+      setClauses.push(`why = $${paramIndex++}`)
+      values.push(updates.why || null)
+    }
+    if (updates.how !== undefined) {
+      setClauses.push(`how = $${paramIndex++}`)
+      values.push(updates.how || null)
+    }
     if (updates.sourceUrl !== undefined) {
       setClauses.push(`source_url = $${paramIndex++}`)
       values.push(updates.sourceUrl || null)
+    }
+    if (updates.inspirationId !== undefined) {
+      setClauses.push(`inspiration_id = $${paramIndex++}`)
+      values.push(updates.inspirationId || null)
     }
     if (updates.displayOrder !== undefined) {
       setClauses.push(`"displayOrder" = $${paramIndex++}`)
