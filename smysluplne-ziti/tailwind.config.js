@@ -49,6 +49,43 @@ module.exports = {
             lighter: '#A1887F',
           },
         },
+        // Minimalist Design Colors
+        sage: {
+          50: '#f6f7f6',
+          100: '#e3e7e3',
+          200: '#c7d0c7',
+          300: '#a3b0a3',
+          400: '#7d8f7d',
+          500: '#637363', // Šalvějová zelená
+          600: '#4f5f4f',
+          700: '#414f41',
+          800: '#374237',
+          900: '#2f3a2f',
+        },
+        cream: {
+          50: '#fefcf9',
+          100: '#fdf8f0',
+          200: '#faefe0',
+          300: '#f5e1c8',
+          400: '#eecfa5',
+          500: '#e5b882', // Krémová
+          600: '#d99f5f',
+          700: '#c2854a',
+          800: '#a06a3e',
+          900: '#825736',
+        },
+        anthracite: {
+          50: '#f6f6f6',
+          100: '#e7e7e7',
+          200: '#d1d1d1',
+          300: '#b0b0b0',
+          400: '#888888',
+          500: '#6d6d6d',
+          600: '#5d5d5d',
+          700: '#4f4f4f',
+          800: '#454545',
+          900: '#3d3d3d', // Antracitová
+        },
         // Text colors
         'text-primary': '#5D4037',
         'text-secondary': '#8D6E63',
