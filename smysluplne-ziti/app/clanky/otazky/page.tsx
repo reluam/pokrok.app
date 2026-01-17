@@ -186,13 +186,35 @@ export default function OtazkyPage() {
                                   <ChevronDown className="flex-shrink-0 text-text-secondary" size={16} />
                                 )}
                               </button>
-                              {isOpen && question.description && (
-                                <div className="px-2 pb-3 pt-1">
-                                  <div className="prose prose-sm max-w-none text-text-secondary leading-relaxed">
-                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                      {question.description}
-                                    </ReactMarkdown>
-                                  </div>
+                              {isOpen && (
+                                <div className="px-2 pb-3 pt-1 space-y-3">
+                                  {question.whenText && (
+                                    <div>
+                                      <p className="text-sm md:text-base font-semibold text-text-primary mb-2">Kdy?</p>
+                                      <div className="text-sm text-text-secondary leading-relaxed prose prose-sm max-w-none">
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                          {question.whenText}
+                                        </ReactMarkdown>
+                                      </div>
+                                    </div>
+                                  )}
+                                  {question.answer && (
+                                    <div>
+                                      <p className="text-sm md:text-base font-semibold text-text-primary mb-2">Odpověď</p>
+                                      <div className="text-sm text-text-secondary leading-relaxed prose prose-sm max-w-none">
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                          {question.answer}
+                                        </ReactMarkdown>
+                                      </div>
+                                    </div>
+                                  )}
+                                  {question.description && (
+                                    <div className="text-sm text-text-secondary leading-relaxed prose prose-sm max-w-none">
+                                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                        {question.description}
+                                      </ReactMarkdown>
+                                    </div>
+                                  )}
                                 </div>
                               )}
                             </div>

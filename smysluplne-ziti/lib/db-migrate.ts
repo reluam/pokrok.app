@@ -48,6 +48,7 @@ export async function runMigrations() {
       '008_add_why_and_how_to_small_things',
       '009_change_source_url_to_inspiration_id',
       '010_add_inspiration_id_to_questions',
+      '011_add_when_and_answer_to_questions',
     ]
     
     for (const migrationId of migrations) {

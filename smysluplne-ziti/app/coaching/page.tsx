@@ -146,7 +146,7 @@ export default function CoachingPage() {
                   Hledání směru
                 </h3>
                 <p className="text-text-secondary leading-relaxed">
-                  Žiješ podle cizích očekávání? Najdeme tvůj vlastní 'vnitřní kompas', aby ses už nemusel ptát, jestli to, co děláš, má cenu.
+                  Žiješ podle cizích očekávání? Najdeme tvůj vlastní &apos;vnitřní kompas&apos;, aby ses už nemusel ptát, jestli to, co děláš, má cenu.
                 </p>
               </div>
 

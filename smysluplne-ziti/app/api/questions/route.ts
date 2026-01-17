@@ -55,6 +55,8 @@ export async function POST(request: NextRequest) {
     const question = await createQuestion({
       question: data.question,
       description: data.description,
+      whenText: data.whenText,
+      answer: data.answer,
       displayOrder: data.displayOrder,
       category: data.category || 'obecne',
     })

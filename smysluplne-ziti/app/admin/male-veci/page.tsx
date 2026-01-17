@@ -42,6 +42,7 @@ export default function AdminMaleVeciPage() {
   useEffect(() => {
     checkAuth()
     loadData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const checkAuth = async () => {

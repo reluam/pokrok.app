@@ -18,6 +18,8 @@ export default function AdminOtazkyPage() {
   const [formData, setFormData] = useState({
     question: '',
     description: '',
+    whenText: '',
+    answer: '',
     category: 'obecne',
     displayOrder: 0,
   })
@@ -31,6 +33,7 @@ export default function AdminOtazkyPage() {
   useEffect(() => {
     checkAuth()
     loadData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const checkAuth = async () => {
@@ -103,7 +106,7 @@ export default function AdminOtazkyPage() {
         setShowModal(false)
         setEditingQuestion(null)
         const defaultCategory = categories.length > 0 ? categories[0].id : 'obecne'
-        setFormData({ question: '', description: '', category: defaultCategory, displayOrder: 0 })
+        setFormData({ question: '', description: '', whenText: '', answer: '', category: defaultCategory, displayOrder: 0 })
         loadData()
       } else {
         const error = await res.json()
@@ -213,6 +216,8 @@ export default function AdminOtazkyPage() {
     setFormData({
       question: question.question,
       description: question.description || '',
+      whenText: question.whenText || '',
+      answer: question.answer || '',
       category: question.category || defaultCategory,
       displayOrder: question.displayOrder,
     })
@@ -349,8 +354,20 @@ export default function AdminOtazkyPage() {
                           {question.question}
                         </h3>
                       </div>
+                      {question.whenText && (
+                        <div className="mb-2">
+                          <p className="text-sm font-semibold text-text-primary mb-1">Kdy?</p>
+                          <p className="text-text-secondary text-sm line-clamp-2">{question.whenText}</p>
+                        </div>
+                      )}
+                      {question.answer && (
+                        <div className="mb-2">
+                          <p className="text-sm font-semibold text-text-primary mb-1">Odpověď</p>
+                          <p className="text-text-secondary text-sm line-clamp-2">{question.answer}</p>
+                        </div>
+                      )}
                       {question.description && (
-                        <p className="text-text-secondary mb-2 line-clamp-2">{question.description}</p>
+                        <p className="text-text-secondary mb-2 text-sm italic line-clamp-2">{question.description}</p>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
@@ -406,7 +423,7 @@ export default function AdminOtazkyPage() {
                   setShowModal(false)
                   setEditingQuestion(null)
                   const defaultCategory = categories.length > 0 ? categories[0].id : 'obecne'
-                  setFormData({ question: '', description: '', category: defaultCategory, displayOrder: 0 })
+                  setFormData({ question: '', description: '', whenText: '', answer: '', category: defaultCategory, displayOrder: 0 })
                 }}
                 className="text-text-secondary hover:text-text-primary"
               >
@@ -429,14 +446,26 @@ export default function AdminOtazkyPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-text-primary mb-2">
-                  Popis (volitelné)
+                  Kdy? (volitelné, podporuje Markdown)
                 </label>
                 <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={6}
-                  className="w-full px-4 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="Rozšířený popis nebo kontext k otázce..."
+                  value={formData.whenText}
+                  onChange={(e) => setFormData({ ...formData, whenText: e.target.value })}
+                  rows={4}
+                  className="w-full px-4 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono text-sm"
+                  placeholder="Kdy je tato otázka relevantní? (Můžeš použít **tučné**, *kurzívu*, seznamy, atd.)"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-primary mb-2">
+                  Odpověď (volitelné, podporuje Markdown)
+                </label>
+                <textarea
+                  value={formData.answer}
+                  onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
+                  rows={4}
+                  className="w-full px-4 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono text-sm"
+                  placeholder="Odpověď na otázku... (Můžeš použít **tučné**, *kurzívu*, seznamy, atd.)"
                 />
               </div>
               <div>
@@ -492,7 +521,7 @@ export default function AdminOtazkyPage() {
                     setShowModal(false)
                     setEditingQuestion(null)
                     const defaultCategory = categories.length > 0 ? categories[0].id : 'obecne'
-                    setFormData({ question: '', description: '', category: defaultCategory, displayOrder: 0 })
+                    setFormData({ question: '', description: '', whenText: '', answer: '', category: defaultCategory, displayOrder: 0 })
                   }}
                   className="px-4 py-2 border border-primary-200 text-text-primary rounded-lg hover:bg-primary-50"
                 >

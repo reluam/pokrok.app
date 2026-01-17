@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { ArrowDown, ArrowRight } from 'lucide-react'
 
 export default function HeroSection() {
@@ -9,16 +8,14 @@ export default function HeroSection() {
     <section className="relative min-h-[85vh] flex items-center justify-center pt-20 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
-        <Image
+        <img
           src="/hero-background.jpg"
           alt=""
-          fill
-          className="object-cover"
-          priority
-          quality={90}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ zIndex: 0 }}
         />
         {/* Overlay for better text readability */}
-        <div className="absolute inset-0 bg-background/60 backdrop-blur-md"></div>
+        <div className="absolute inset-0 bg-background/60 backdrop-blur-md" style={{ zIndex: 1 }}></div>
       </div>
       
       <div className="max-w-4xl mx-auto text-center relative z-10">
