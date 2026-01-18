@@ -8,7 +8,7 @@ export default function ServicesSection() {
       icon: Users,
       title: 'Komunita Smyslužití',
       tag: 'Sdílená cesta',
-      description: 'Smysl se lépe hledá i žije ve skupině. Připoj se k lidem, kteří stejně jako ty chtějí vystoupit z autopilota. Sdílíme své pokroky, výzvy a vzájemně se držíme nohama na zemi v bezpečném prostoru platformy Skool.',
+      description: 'Smysl se lépe žije ve skupině. Připoj se k lidem na stejné cestě a sdílej své pokroky v naší komunitě na platformě Skool.',
       href: 'https://www.skool.com/smysluziti-9755',
       buttonText: 'Vstoupit do komunity',
     },
