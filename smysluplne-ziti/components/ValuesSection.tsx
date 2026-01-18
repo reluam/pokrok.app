@@ -32,7 +32,7 @@ export default function ValuesSection() {
         </h2>
         
         {/* Grid: 4 hodnoty v jednom řádku */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-12 md:mb-16">
           {values.map((value) => {
             const Icon = value.icon
             return (
@@ -52,6 +52,13 @@ export default function ValuesSection() {
               </div>
             )
           })}
+        </div>
+
+        {/* Propojovací text */}
+        <div className="max-w-4xl mx-auto">
+          <p className="text-lg md:text-xl text-text-secondary text-center leading-relaxed">
+            Tyto hodnoty nejsou jen slova na webu, ale způsob, jakým přistupuji ke všemu, co dělám. Ať už hledáš inspiraci, nástroj pro své dny, nebo parťáka na cestu, Smyslužití ti nabízí tři konkrétní cesty, jak tyto hodnoty přenést i do tvého života.
+          </p>
         </div>
       </div>
     </section>

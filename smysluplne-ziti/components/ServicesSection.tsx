@@ -31,13 +31,6 @@ export default function ServicesSection() {
   return (
     <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-primary-50/30">
       <div className="max-w-7xl mx-auto">
-        {/* Propojovací text */}
-        <div className="max-w-4xl mx-auto mb-12 md:mb-16">
-          <p className="text-lg md:text-xl text-text-secondary text-center leading-relaxed">
-            Tyto hodnoty nejsou jen slova na webu, ale způsob, jakým přistupuji ke všemu, co dělám. Ať už hledáš inspiraci, nástroj pro své dny, nebo parťáka na cestu, Smyslužití ti nabízí tři konkrétní cesty, jak tyto hodnoty přenést i do tvého života.
-          </p>
-        </div>
-
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary mb-12 md:mb-16 text-center">
           Cesty ke <span className="gradient-text">Smyslužití</span>
         </h2>
