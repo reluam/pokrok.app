@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { FileText, Calendar, ArrowRight, Book, Video, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import type { Article } from '@/lib/articles'
 import type { InspirationData, InspirationItem } from '@/lib/inspiration'
 
@@ -152,23 +153,35 @@ export default function ClankyPage() {
                     href={`/clanky/${article.slug}`}
                     className="group block p-4 md:p-6 lg:p-8 transition-all duration-300"
                   >
-                    <div className="flex flex-col">
-                      <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-text-primary mb-3 md:mb-4 group-hover:text-primary-600 transition-colors">
-                        {article.title}
-                      </h3>
-                      <p className="text-text-secondary mb-4 text-base md:text-lg leading-relaxed">
-                        {article.excerpt}
-                      </p>
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs md:text-sm text-text-light mt-auto">
-                        <div className="flex items-center gap-2">
-                          <Calendar size={14} />
-                          <span>{new Date(article.createdAt).toLocaleDateString('cs-CZ')}</span>
+                    <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+                      <div className="flex-1">
+                        <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-text-primary mb-3 md:mb-4 group-hover:text-primary-600 transition-colors">
+                          {article.title}
+                        </h3>
+                        <p className="text-text-secondary mb-4 text-base md:text-lg leading-relaxed">
+                          {article.excerpt}
+                        </p>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs md:text-sm text-text-light mt-auto">
+                          <div className="flex items-center gap-2">
+                            <Calendar size={14} />
+                            <span>{new Date(article.createdAt).toLocaleDateString('cs-CZ')}</span>
+                          </div>
+                          <span className="text-primary-600 group-hover:text-primary-700 font-semibold flex items-center gap-1">
+                            Číst více
+                            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                          </span>
                         </div>
-                        <span className="text-primary-600 group-hover:text-primary-700 font-semibold flex items-center gap-1">
-                          Číst více
-                          <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                        </span>
                       </div>
+                      {article.image && (
+                        <div className="relative w-full md:w-48 lg:w-64 h-48 md:h-full flex-shrink-0 rounded-lg overflow-hidden">
+                          <Image
+                            src={article.image}
+                            alt={article.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      )}
                     </div>
                   </Link>
                 ))}

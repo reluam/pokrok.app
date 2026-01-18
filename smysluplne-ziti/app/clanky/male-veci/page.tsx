@@ -165,12 +165,15 @@ export default function MaleVeciPage() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-1">
+              <div className="space-y-12">
                 {sortedCategoryIds.map((categoryId) => {
                   const things = thingsByCategory[categoryId] || []
+                  const categoryName = categoryMap.get(categoryId) || categoryId
                   return (
-                    <div key={categoryId}>
-                      <div id={`kategorie-${categoryId}`} className="scroll-mt-24"></div>
+                    <section key={categoryId} id={`kategorie-${categoryId}`} className="scroll-mt-24">
+                      <h2 className="text-lg md:text-xl font-semibold text-text-primary mb-3">
+                        {categoryName}
+                      </h2>
                       <div className="space-y-1">
                         {things.map((thing) => {
                           const isOpen = openItems.has(thing.id)
@@ -241,7 +244,7 @@ export default function MaleVeciPage() {
                           )
                         })}
                       </div>
-                    </div>
+                    </section>
                   )
                 })}
               </div>

@@ -7,7 +7,7 @@ export default function WhereToStart() {
       icon: BookOpen,
       title: 'Začněte čtením',
       description: 'Prozkoumejte články z laboratoře a najděte inspiraci pro svou cestu.',
-      href: '/blog',
+      href: '/clanky',
       cta: 'Číst články',
     },
     {

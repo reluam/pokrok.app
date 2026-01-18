@@ -44,7 +44,7 @@ export default function IntroSection() {
                     <Link href="/o-projektu" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">Smyslužití</Link> jsem založil proto, abych lidem pomohl vytvořit a žít více smysluplný život a abych co nejvíce smysluplný život mohl žít sám.
                   </p>
                   <p className="text-base md:text-lg lg:text-xl">
-                    Na Smyslužití najdeš <Link href="/blog" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">články</Link>, kde sdílím své poznatky, experimenty a zkušenosti o smysluplném žití. Najdeš tam také <Link href="/blog" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">inspiraci</Link> ve formě knih, videí a doporučení a <Link href="#aplikace" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">aplikaci Pokrok</Link>, kde můžeš snadno plánovat a dosahovat (nejen) smysluplných cílů.
+                    Na Smyslužití najdeš <Link href="/clanky" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">články</Link>, kde sdílím své poznatky, experimenty a zkušenosti o smysluplném žití. Najdeš tam také <Link href="/clanky" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">inspiraci</Link> ve formě knih, videí a doporučení a <Link href="#aplikace" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">aplikaci Pokrok</Link>, kde můžeš snadno plánovat a dosahovat (nejen) smysluplných cílů.
                   </p>
                   <p className="text-base md:text-lg lg:text-xl">
                     Pokud chceš jít trochu více do hloubky, můžeme se spolu potkat na <Link href="/coaching" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">koučovacím sezení</Link>, kde probereme, jak můžeš smysluplnost více zakomponovat do tvé konkrétní situace.
@@ -66,7 +66,7 @@ export default function IntroSection() {
                 Koučing
               </Link>
               <Link
-                href="/blog"
+                href="/clanky"
                 className="group flex items-center justify-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 rounded-full bg-primary-600 text-white font-semibold text-base md:text-lg hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 transform w-full sm:w-auto min-w-[160px] md:min-w-[180px]"
               >
                 <FileText size={20} />

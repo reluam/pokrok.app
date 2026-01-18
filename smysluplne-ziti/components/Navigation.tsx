@@ -45,7 +45,7 @@ export default function Navigation() {
           <div className="hidden md:flex items-center space-x-6">
             <div className="flex items-center space-x-1">
               {[
-                { href: '/blog', label: 'Články a inspirace' },
+                { href: '/clanky', label: 'Články a inspirace' },
                 { href: '/aplikace', label: 'Aplikace Pokrok' },
                 { href: '/coaching', label: 'Coaching' },
                 { href: '/o-projektu', label: 'O smyslužití' },
@@ -87,7 +87,7 @@ export default function Navigation() {
       }`}>
         <div className="px-4 pt-2 pb-4 space-y-1 bg-white/95 backdrop-blur-md border-t border-primary-100">
           {[
-            { href: '/blog', label: 'Články a inspirace' },
+            { href: '/clanky', label: 'Články a inspirace' },
             { href: '/aplikace', label: 'Aplikace Pokrok' },
             { href: '/coaching', label: 'Coaching' },
             { href: '/o-projektu', label: 'O smyslužití' },
