@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Target, Plus, Footprints, CheckSquare, Settings, Calendar, CalendarRange, CalendarDays, CalendarCheck, BarChart3, ListTodo, Edit, AlertCircle, Sparkles, GripVertical } from 'lucide-react'
+import { LayoutDashboard, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Target, Plus, Footprints, CheckSquare, Settings, Calendar, CalendarRange, CalendarDays, CalendarCheck, BarChart3, ListTodo, AlertCircle, Sparkles, GripVertical } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
 import {
   DndContext,
@@ -28,7 +28,6 @@ function SortableArea({
   children, 
   isExpanded, 
   onToggleExpand, 
-  onEdit, 
   mainPanelSection, 
   setMainPanelSection,
   hoveredAreaId,
@@ -95,18 +94,6 @@ function SortableArea({
         <button
           onClick={(e) => {
             e.stopPropagation()
-            onEdit(area)
-          }}
-          className={`px-2 py-2 rounded-playful-sm transition-all bg-transparent text-black hover:bg-primary-50 border-none ${
-            hoveredAreaId === area.id ? 'opacity-100' : 'opacity-0'
-          }`}
-          title={t('areas.edit') || 'Upravit oblast'}
-        >
-          <Edit className="w-3.5 h-3.5" />
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
             onToggleExpand()
           }}
           className="px-2 py-2 rounded-playful-sm transition-all bg-transparent text-black hover:bg-primary-50 border-none"
@@ -124,81 +111,6 @@ function SortableArea({
   )
 }
 
-// Sortable Goal Component
-function SortableGoal({
-  goal,
-  areaColor,
-  mainPanelSection,
-  setMainPanelSection,
-  onGoalClick,
-  hoveredGoalId,
-  setHoveredGoalId,
-  goalButtonRefs,
-  isPastDeadline,
-  hexToRgba,
-}: any) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: goal.id })
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  }
-
-  const goalSectionId = `goal-${goal.id}`
-  const isSelected = mainPanelSection === goalSectionId
-  const progressPercentage = Math.round(goal.progress_percentage || 0)
-
-  return (
-    <div ref={setNodeRef} style={style} className="flex items-center gap-1">
-      <button
-        {...attributes}
-        {...listeners}
-        className="px-1 py-1.5 rounded-playful-sm transition-all bg-transparent text-gray-400 hover:bg-primary-50 border-none cursor-grab active:cursor-grabbing"
-        title="Přetáhněte pro změnu pořadí"
-      >
-        <GripVertical className="w-3 h-3" />
-      </button>
-      <button
-        ref={goalButtonRefs?.get(goal.id)}
-        onClick={() => {
-          if (onGoalClick) {
-            onGoalClick(goal.id)
-          } else {
-            setMainPanelSection(goalSectionId)
-          }
-        }}
-        onMouseEnter={() => setHoveredGoalId(goal.id)}
-        onMouseLeave={() => setHoveredGoalId(null)}
-        className={`btn-playful-nav flex-1 flex items-center gap-2 px-3 py-1.5 text-left border-2 ${
-          isSelected ? 'active' : ''
-        }`}
-        style={{
-          borderColor: areaColor,
-          ...(hoveredGoalId === goal.id ? { backgroundColor: hexToRgba(areaColor, 0.2) } : {})
-        }}
-        title={goal.title}
-      >
-        <span className="text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right" style={{ color: areaColor }}>
-          {progressPercentage}%
-        </span>
-        {isPastDeadline && (
-          <AlertCircle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
-        )}
-        <span className={`font-medium text-xs truncate flex-1 ${isPastDeadline ? 'text-red-600' : ''}`}>
-          {goal.title}
-        </span>
-      </button>
-    </div>
-  )
-}
 
 interface SidebarNavigationProps {
   sidebarCollapsed: boolean
@@ -232,7 +144,6 @@ interface SidebarNavigationProps {
   onGoalClick?: (goalId: string) => void
   onAssistantClick?: () => void
   onAreasReorder?: (areaIds: string[]) => void
-  onGoalsReorder?: (areaId: string, goalIds: string[]) => void
   onAreasUpdate?: (areas: any[]) => void
 }
 
@@ -268,7 +179,6 @@ export function SidebarNavigation({
   onGoalClick,
   onAssistantClick,
   onAreasReorder,
-  onGoalsReorder,
   onAreasUpdate
 }: SidebarNavigationProps) {
   const t = useTranslations()
@@ -301,21 +211,6 @@ export function SidebarNavigation({
     }
   }
   
-  // Handle drag end for goals within an area
-  const handleGoalsDragEnd = (event: DragEndEvent, areaId: string, goals: any[]) => {
-    const { active, over } = event
-    
-    if (over && active.id !== over.id && onGoalsReorder) {
-      const oldIndex = goals.findIndex((goal) => goal.id === active.id)
-      const newIndex = goals.findIndex((goal) => goal.id === over.id)
-      
-      if (oldIndex !== -1 && newIndex !== -1) {
-        const newGoals = arrayMove(goals, oldIndex, newIndex)
-        const goalIds = newGoals.map(goal => goal.id)
-        onGoalsReorder(areaId, goalIds)
-      }
-    }
-  }
   
   // Helper function to check if goal is past deadline
   const isGoalPastDeadline = (goal: any): boolean => {
@@ -573,7 +468,6 @@ export function SidebarNavigation({
                           setExpandedAreas(new Set([area.id]))
                         }
                       }}
-                      onEdit={handleOpenAreaEditModal}
                       mainPanelSection={mainPanelSection}
                       setMainPanelSection={setMainPanelSection}
                       hoveredAreaId={hoveredAreaId}
@@ -605,37 +499,45 @@ export function SidebarNavigation({
                             style={isOnboardingClickGoalStep && isAreaSelected ? undefined : { borderColor: areaColor }}
                           >
                             {/* Active goals - always visible */}
-                            {activeGoals.length > 0 && (
-                              <DndContext
-                                sensors={sensors}
-                                collisionDetection={closestCenter}
-                                onDragEnd={(event) => handleGoalsDragEnd(event, area.id, activeGoals)}
-                              >
-                                <SortableContext
-                                  items={activeGoals.map(goal => goal.id)}
-                                  strategy={verticalListSortingStrategy}
+                            {activeGoals.map((goal) => {
+                              const goalSectionId = `goal-${goal.id}`
+                              const isSelected = mainPanelSection === goalSectionId
+                              const progressPercentage = Math.round(goal.progress_percentage || 0)
+                              const isPastDeadline = isGoalPastDeadline(goal)
+                              return (
+                                <button
+                                  key={goal.id}
+                                  ref={goalButtonRefs?.get(goal.id)}
+                                  onClick={() => {
+                                    if (onGoalClick) {
+                                      onGoalClick(goal.id)
+                                    } else {
+                                      setMainPanelSection(goalSectionId)
+                                    }
+                                  }}
+                                  onMouseEnter={() => setHoveredGoalId(goal.id)}
+                                  onMouseLeave={() => setHoveredGoalId(null)}
+                                  className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left border-2 ${
+                                    isSelected ? 'active' : ''
+                                  }`}
+                                  style={{
+                                    borderColor: areaColor,
+                                    ...(hoveredGoalId === goal.id ? { backgroundColor: hexToRgba(areaColor, 0.2) } : {})
+                                  }}
+                                  title={goal.title}
                                 >
-                                  {activeGoals.map((goal) => {
-                                    const isPastDeadline = isGoalPastDeadline(goal)
-                                    return (
-                                      <SortableGoal
-                                        key={goal.id}
-                                        goal={goal}
-                                        areaColor={areaColor}
-                                        mainPanelSection={mainPanelSection}
-                                        setMainPanelSection={setMainPanelSection}
-                                        onGoalClick={onGoalClick}
-                                        hoveredGoalId={hoveredGoalId}
-                                        setHoveredGoalId={setHoveredGoalId}
-                                        goalButtonRefs={goalButtonRefs}
-                                        isPastDeadline={isPastDeadline}
-                                        hexToRgba={hexToRgba}
-                                      />
-                                    )
-                                  })}
-                                </SortableContext>
-                              </DndContext>
-                            )}
+                                  <span className="text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right" style={{ color: areaColor }}>
+                                    {progressPercentage}%
+                                  </span>
+                                  {isPastDeadline && (
+                                    <AlertCircle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
+                                  )}
+                                  <span className={`font-medium text-xs truncate flex-1 ${isPastDeadline ? 'text-red-600' : ''}`}>
+                                    {goal.title}
+                                  </span>
+                                </button>
+                              )
+                            })}
                             
                             {/* Paused goals section */}
                             {pausedGoals.length > 0 && (
@@ -660,35 +562,45 @@ export function SidebarNavigation({
                                 </button>
                                 {isPausedExpanded && pausedGoals.length > 0 && (
                                   <div className="pl-4 space-y-1">
-                                    <DndContext
-                                      sensors={sensors}
-                                      collisionDetection={closestCenter}
-                                      onDragEnd={(event) => handleGoalsDragEnd(event, area.id, pausedGoals)}
-                                    >
-                                      <SortableContext
-                                        items={pausedGoals.map(goal => goal.id)}
-                                        strategy={verticalListSortingStrategy}
-                                      >
-                                        {pausedGoals.map((goal) => {
-                                          const isPastDeadline = isGoalPastDeadline(goal)
-                                          return (
-                                            <SortableGoal
-                                              key={goal.id}
-                                              goal={goal}
-                                              areaColor={areaColor}
-                                              mainPanelSection={mainPanelSection}
-                                              setMainPanelSection={setMainPanelSection}
-                                              onGoalClick={onGoalClick}
-                                              hoveredGoalId={hoveredGoalId}
-                                              setHoveredGoalId={setHoveredGoalId}
-                                              goalButtonRefs={goalButtonRefs}
-                                              isPastDeadline={isPastDeadline}
-                                              hexToRgba={hexToRgba}
-                                            />
-                                          )
-                                        })}
-                                      </SortableContext>
-                                    </DndContext>
+                                    {pausedGoals.map((goal) => {
+                                      const goalSectionId = `goal-${goal.id}`
+                                      const isSelected = mainPanelSection === goalSectionId
+                                      const progressPercentage = Math.round(goal.progress_percentage || 0)
+                                      const isPastDeadline = isGoalPastDeadline(goal)
+                                      return (
+                                        <button
+                                          key={goal.id}
+                                          ref={goalButtonRefs?.get(goal.id)}
+                                          onClick={() => {
+                                            if (onGoalClick) {
+                                              onGoalClick(goal.id)
+                                            } else {
+                                              setMainPanelSection(goalSectionId)
+                                            }
+                                          }}
+                                          onMouseEnter={() => setHoveredGoalId(goal.id)}
+                                          onMouseLeave={() => setHoveredGoalId(null)}
+                                          className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left border-2 ${
+                                            isSelected ? 'active' : ''
+                                          }`}
+                                          style={{
+                                            borderColor: areaColor,
+                                            ...(hoveredGoalId === goal.id ? { backgroundColor: hexToRgba(areaColor, 0.2) } : {})
+                                          }}
+                                          title={goal.title}
+                                        >
+                                          <span className="text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right" style={{ color: areaColor }}>
+                                            {progressPercentage}%
+                                          </span>
+                                          {isPastDeadline && (
+                                            <AlertCircle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
+                                          )}
+                                          <span className={`font-medium text-xs truncate flex-1 ${isPastDeadline ? 'text-red-600' : ''}`}>
+                                            {goal.title}
+                                          </span>
+                                        </button>
+                                      )
+                                    })}
                                   </div>
                                 )}
                               </div>
@@ -717,35 +629,45 @@ export function SidebarNavigation({
                                 </button>
                                 {isCompletedExpanded && completedGoals.length > 0 && (
                                   <div className="pl-4 space-y-1">
-                                    <DndContext
-                                      sensors={sensors}
-                                      collisionDetection={closestCenter}
-                                      onDragEnd={(event) => handleGoalsDragEnd(event, area.id, completedGoals)}
-                                    >
-                                      <SortableContext
-                                        items={completedGoals.map(goal => goal.id)}
-                                        strategy={verticalListSortingStrategy}
-                                      >
-                                        {completedGoals.map((goal) => {
-                                          const isPastDeadline = isGoalPastDeadline(goal)
-                                          return (
-                                            <SortableGoal
-                                              key={goal.id}
-                                              goal={goal}
-                                              areaColor={areaColor}
-                                              mainPanelSection={mainPanelSection}
-                                              setMainPanelSection={setMainPanelSection}
-                                              onGoalClick={onGoalClick}
-                                              hoveredGoalId={hoveredGoalId}
-                                              setHoveredGoalId={setHoveredGoalId}
-                                              goalButtonRefs={goalButtonRefs}
-                                              isPastDeadline={isPastDeadline}
-                                              hexToRgba={hexToRgba}
-                                            />
-                                          )
-                                        })}
-                                      </SortableContext>
-                                    </DndContext>
+                                    {completedGoals.map((goal) => {
+                                      const goalSectionId = `goal-${goal.id}`
+                                      const isSelected = mainPanelSection === goalSectionId
+                                      const progressPercentage = Math.round(goal.progress_percentage || 0)
+                                      const isPastDeadline = isGoalPastDeadline(goal)
+                                      return (
+                                        <button
+                                          key={goal.id}
+                                          ref={goalButtonRefs?.get(goal.id)}
+                                          onClick={() => {
+                                            if (onGoalClick) {
+                                              onGoalClick(goal.id)
+                                            } else {
+                                              setMainPanelSection(goalSectionId)
+                                            }
+                                          }}
+                                          onMouseEnter={() => setHoveredGoalId(goal.id)}
+                                          onMouseLeave={() => setHoveredGoalId(null)}
+                                          className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left border-2 ${
+                                            isSelected ? 'active' : ''
+                                          }`}
+                                          style={{
+                                            borderColor: areaColor,
+                                            ...(hoveredGoalId === goal.id ? { backgroundColor: hexToRgba(areaColor, 0.2) } : {})
+                                          }}
+                                          title={goal.title}
+                                        >
+                                          <span className="text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right" style={{ color: areaColor }}>
+                                            {progressPercentage}%
+                                          </span>
+                                          {isPastDeadline && (
+                                            <AlertCircle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
+                                          )}
+                                          <span className={`font-medium text-xs truncate flex-1 ${isPastDeadline ? 'text-red-600' : ''}`}>
+                                            {goal.title}
+                                          </span>
+                                        </button>
+                                      )
+                                    })}
                                   </div>
                                 )}
                               </div>

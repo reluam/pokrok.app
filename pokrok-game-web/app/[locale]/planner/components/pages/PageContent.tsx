@@ -1674,19 +1674,6 @@ export function PageContent(props: PageContentProps) {
                   console.error('Error updating area order:', error)
                 }
               }}
-              onGoalsReorder={async (areaId: string, goalIds: string[]) => {
-                try {
-                  // For goals, we'll use localStorage for now (as it's already used in JourneyGameView)
-                  // Store order per area
-                  const orderKey = `goals-order-${areaId}`
-                  localStorage.setItem(orderKey, JSON.stringify(goalIds))
-                  
-                  // Also update the main goals order if needed
-                  // This is a simplified approach - in production you might want to store this in the database
-                } catch (error) {
-                  console.error('Error updating goal order:', error)
-                }
-              }}
             />
 
             {/* Right content area */}

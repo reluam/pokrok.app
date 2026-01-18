@@ -135,72 +135,85 @@ export function ContributionGraph({ dailyData, selectedYear }: ContributionGraph
     return allDays
   }, [dataMap, selectedYear])
 
-  // Group days by week (starting from Sunday)
+  // Group days by week (starting from Monday)
   const weeks = useMemo(() => {
     const weekGroups: DayData[][] = []
-    let currentWeek: DayData[] = []
-    
-    // Find the first Sunday before or on the first day
+
+    // Find the first Monday before or on the first day
     const firstDay = days[0]
     if (!firstDay) return []
-    
-    const firstDate = new Date(firstDay.date)
-    const dayOfWeek = firstDate.getDay() // 0 = Sunday, 1 = Monday, etc.
-    
-    // Add empty days at the start to align with Sunday
-    for (let i = 0; i < dayOfWeek; i++) {
-      currentWeek.push({
-        date: new Date(firstDate),
-        dateStr: '',
-        completedSteps: 0,
-        completedHabits: 0,
-        plannedSteps: 0,
-        plannedHabits: 0,
-        total: 0,
-        level: 0,
-        isPlanned: false
-      })
-      firstDate.setDate(firstDate.getDate() - 1)
-    }
-    currentWeek.reverse()
-    
-    days.forEach((day) => {
-      const dayOfWeek = day.date.getDay()
-      
-      if (dayOfWeek === 0 && currentWeek.length > 0) {
-        // Start new week on Sunday
-        weekGroups.push(currentWeek)
-        currentWeek = [day]
-      } else {
-        currentWeek.push(day)
-      }
-    })
-    
-    if (currentWeek.length > 0) {
-      weekGroups.push(currentWeek)
-    }
-    
-    return weekGroups
-  }, [days])
 
-  // Get month labels
-  const monthLabels = useMemo(() => {
-    const labels: { month: string; weekIndex: number }[] = []
-    const seenMonths = new Set<string>()
-    
-    weeks.forEach((week, weekIndex) => {
-      if (week.length > 0) {
-        const firstDay = week.find(d => d.dateStr)
-        if (firstDay) {
-          const month = firstDay.date.toLocaleDateString('cs-CZ', { month: 'short' })
-          if (!seenMonths.has(month)) {
-            seenMonths.add(month)
-            labels.push({ month, weekIndex })
-          }
+    const firstDate = new Date(firstDay.date)
+    const dayOfWeek = firstDay.date.getDay() // 0 = Sunday, 1 = Monday, etc.
+
+    // Calculate how many days to go back to reach Monday
+    // If dayOfWeek is 0 (Sunday), go back 6 days. If 1 (Monday), go back 0 days, etc.
+    const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+
+    // Start from Monday of the first week
+    const weekStart = new Date(firstDate)
+    weekStart.setDate(weekStart.getDate() - daysToMonday)
+
+    // Create weeks with 7 days each (Monday to Sunday)
+    for (let weekIndex = 0; ; weekIndex++) {
+      const week: DayData[] = []
+
+      for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+        const currentDate = new Date(weekStart)
+        currentDate.setDate(weekStart.getDate() + (weekIndex * 7) + dayIndex)
+
+        // Check if this date is within our data range
+        const dateStr = currentDate.toISOString().split('T')[0]
+        const existing = dataMap.get(dateStr)
+
+        if (existing) {
+          week.push(existing)
+        } else {
+          const today = new Date()
+          today.setHours(0, 0, 0, 0)
+          const isPlanned = currentDate > today
+
+          week.push({
+            date: new Date(currentDate),
+            dateStr,
+            completedSteps: 0,
+            completedHabits: 0,
+            plannedSteps: 0,
+            plannedHabits: 0,
+            total: 0,
+            level: 0,
+            isPlanned
+          })
         }
       }
+
+      // Stop if we've gone past our data range
+      const lastDayOfWeek = week[6] // Sunday
+      if (lastDayOfWeek.date > days[days.length - 1]?.date) {
+        break
+      }
+
+      weekGroups.push(week)
+    }
+
+    return weekGroups
+  }, [days, dataMap])
+
+  // Get month labels - show month at the week where the month starts
+  const monthLabels = useMemo(() => {
+    const labels: { month: string; weekIndex: number }[] = []
+
+    weeks.forEach((week, weekIndex) => {
+      week.forEach(day => {
+        if (day.dateStr && day.date.getDate() === 1) {
+          // First day of month
+          const month = day.date.toLocaleDateString('cs-CZ', { month: 'short' })
+          labels.push({ month, weekIndex })
+          return // Only add once per week
+        }
+      })
     })
-    
+
     return labels
   }, [weeks])
 
@@ -256,52 +269,12 @@ export function ContributionGraph({ dailyData, selectedYear }: ContributionGraph
   const plannedSteps = days.reduce((sum, day) => sum + day.plannedSteps, 0)
   const plannedHabits = days.reduce((sum, day) => sum + day.plannedHabits, 0)
 
-  // Calculate responsive size based on number of weeks
-  const numberOfWeeks = weeks.length
-  const containerRef = useRef<HTMLDivElement>(null)
-  const calendarRef = useRef<HTMLDivElement>(null)
-  const [squareSize, setSquareSize] = useState(3)
-
-  useEffect(() => {
-    const updateSize = () => {
-      if (!containerRef.current || numberOfWeeks === 0) return
-
-      const containerWidth = containerRef.current.offsetWidth
-      // Account for day labels (if visible) - about 40px on sm+
-      const labelsWidth = window.innerWidth >= 640 ? 48 : 0
-
-      // Available width for calendar (7 days per week, no gaps)
-      const availableWidth = containerWidth - labelsWidth
-
-      // Calculate size: available width / number of weeks / 7 days
-      const calculatedSize = Math.max(2, Math.min(16, Math.floor(availableWidth / numberOfWeeks / 7)))
-
-      setSquareSize(calculatedSize)
-    }
-
-    // Use ResizeObserver for better performance
-    const resizeObserver = new ResizeObserver(() => {
-      updateSize()
-    })
-
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current)
-    }
-
-    // Also update on window resize for window width changes (affects labels)
-    window.addEventListener('resize', updateSize)
-
-    // Initial update
-    updateSize()
-
-    return () => {
-      resizeObserver.disconnect()
-      window.removeEventListener('resize', updateSize)
-    }
-  }, [numberOfWeeks])
+  // Fixed square size with consistent 2px gaps - no responsive sizing
+  const squareSize = 10 // Fixed 10px squares
+  const gapSize = 2 // Fixed 2px gaps between squares
 
   return (
-    <div className="w-full" ref={containerRef}>
+    <div className="w-full hidden md:block">
       <div className="mb-4">
         <h3 className="text-lg font-bold font-playful text-text-primary mb-1">
           {completedSteps} {completedSteps === 1 ? 'krok' : completedSteps < 5 ? 'kroky' : 'kroků'}
@@ -315,48 +288,68 @@ export function ContributionGraph({ dailyData, selectedYear }: ContributionGraph
         <div className="flex items-center gap-2 text-sm text-text-secondary">
           <span>{t('statistics.less') || 'Méně'}</span>
           <div className="flex gap-1">
-            <div className="w-3 h-3 rounded bg-gray-100"></div>
-            <div className="w-3 h-3 rounded bg-primary-200"></div>
-            <div className="w-3 h-3 rounded bg-primary-400"></div>
-            <div className="w-3 h-3 rounded bg-primary-600"></div>
-            <div className="w-3 h-3 rounded bg-primary-800"></div>
+            <div className="w-2 h-2 rounded-sm bg-gray-100"></div>
+            <div className="w-2 h-2 rounded-sm bg-primary-200"></div>
+            <div className="w-2 h-2 rounded-sm bg-primary-400"></div>
+            <div className="w-2 h-2 rounded-sm bg-primary-600"></div>
+            <div className="w-2 h-2 rounded-sm bg-primary-800"></div>
           </div>
           <span>{t('statistics.more') || 'Více'}</span>
         </div>
       </div>
 
       <div className="relative w-full">
-        <div className="flex gap-1 w-full">
-          {/* Day labels - hidden on small screens */}
-          <div className="hidden sm:flex flex-col gap-1 pr-2 flex-shrink-0">
-            <div className="h-3"></div>
-            {['Po', 'St', 'Pá'].map((day, i) => (
-              <div key={i} className="h-3 text-xs text-text-secondary flex items-center">
+        {/* Month labels on top - using flex layout to match weeks */}
+        <div className="flex mb-2">
+          <div className="w-8"></div> {/* Space for day labels */}
+          <div className="flex flex-1 min-w-0" style={{ gap: `${gapSize}px` }}>
+            {weeks.map((week, weekIndex) => {
+              const monthLabel = monthLabels.find(m => m.weekIndex === weekIndex)
+              return (
+                <div key={weekIndex} className="flex flex-col items-center" style={{ width: `${squareSize * 7 + (gapSize * 6)}px` }}>
+                  {monthLabel && (
+                    <div className="text-xs text-text-secondary font-medium h-4 flex items-center">
+                      {monthLabel.month}
+                    </div>
+                  )}
+                  {!monthLabel && <div className="h-4"></div>}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Main grid with day labels and calendar */}
+        <div className="flex">
+          {/* Day labels on the left */}
+          <div className="flex flex-col pr-2" style={{ gap: `${gapSize}px` }}>
+            {['', 'Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map((day, i) => (
+              <div key={i} className="h-3 text-xs text-text-secondary flex items-center justify-end w-8">
                 {day}
               </div>
             ))}
           </div>
 
-          {/* Calendar grid - responsive width using calculated size */}
-          <div ref={calendarRef} className="flex gap-1 flex-1 min-w-0">
+          {/* Calendar grid */}
+          <div className="flex flex-1 min-w-0" style={{ gap: `${gapSize}px` }}>
             {weeks.map((week, weekIndex) => (
-              <div key={weekIndex} className="flex flex-col gap-1 flex-shrink-0" style={{ width: `${squareSize * 7}px` }}>
-                {/* Month label */}
-                {monthLabels.find(m => m.weekIndex === weekIndex) && (
-                  <div className="h-3 text-xs text-text-secondary whitespace-nowrap">
-                    {monthLabels.find(m => m.weekIndex === weekIndex)?.month}
-                  </div>
-                )}
-                {!monthLabels.find(m => m.weekIndex === weekIndex) && (
-                  <div className="h-3"></div>
-                )}
-                
-                {/* Days */}
-                {week.map((day, dayIndex) => {
-                  if (!day.dateStr) {
-                    return <div key={dayIndex} style={{ width: `${squareSize}px`, height: `${squareSize}px` }}></div>
+              <div key={weekIndex} className="flex flex-col" style={{ gap: `${gapSize}px`, width: `${squareSize * 7 + (gapSize * 6)}px` }}>
+                {/* Days for this week (7 days, Sunday to Saturday) */}
+                {Array.from({ length: 7 }, (_, dayIndex) => {
+                  const day = week[dayIndex]
+                  if (!day || !day.dateStr) {
+                    return (
+                      <div
+                        key={dayIndex}
+                        className="rounded-sm bg-gray-50"
+                        style={{
+                          width: `${squareSize}px`,
+                          height: `${squareSize}px`
+                        }}
+                      />
+                    )
                   }
-                  
+
                   return (
                     <div
                       key={day.dateStr}
@@ -371,9 +364,7 @@ export function ContributionGraph({ dailyData, selectedYear }: ContributionGraph
                         }`}
                         style={{
                           width: `${squareSize}px`,
-                          height: `${squareSize}px`,
-                          minWidth: '2px',
-                          minHeight: '2px'
+                          height: `${squareSize}px`
                         }}
                         title={day.total > 0 ? `${day.total} ${t('statistics.contributions') || 'příspěvků'} ${formatDate(day.date)}` : formatDate(day.date)}
                       />

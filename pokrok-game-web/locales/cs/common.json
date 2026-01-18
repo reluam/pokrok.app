@@ -44,7 +44,6 @@
     "nextYear": "Další rok",
     "backToCurrent": "Zpět na aktuální rok",
     "statistics": "Statistiky",
-    "dragToReorder": "Přetáhněte pro změnu pořadí",
     "expand": "Rozbalit",
     "collapse": "Sbalit",
     "metrics": {
@@ -811,7 +810,8 @@
     "areaNotFound": "Oblast nenalezena",
     "backToOverview": "Zpět na přehled",
     "expandArea": "Rozbalit oblast",
-    "collapseArea": "Sbalit oblast"
+    "collapseArea": "Sbalit oblast",
+    "dragToReorder": "Přetáhněte pro změnu pořadí"
   },
   "progress": {
     "title": "Pokrok",

@@ -44,7 +44,6 @@
     "nextYear": "Next year",
     "backToCurrent": "Back to current year",
     "statistics": "Statistics",
-    "dragToReorder": "Drag to reorder",
     "metrics": {
       "title": "Metrics",
       "metric": "metric",
@@ -802,7 +801,8 @@
     "areaNotFound": "Area not found",
     "backToOverview": "Back to overview",
     "expandArea": "Expand area",
-    "collapseArea": "Collapse area"
+    "collapseArea": "Collapse area",
+    "dragToReorder": "Drag to reorder"
   },
   "progress": {
     "title": "Progress",
