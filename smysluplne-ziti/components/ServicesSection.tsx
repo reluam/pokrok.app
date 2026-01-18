@@ -1,4 +1,4 @@
-import { BookOpen, Smartphone, User } from 'lucide-react'
+import { BookOpen, Users, User } from 'lucide-react'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 
@@ -12,11 +12,12 @@ export default function ServicesSection() {
       buttonText: 'Číst články',
     },
     {
-      icon: Smartphone,
-      title: 'Aplikace Pokrok',
-      description: 'Nástroj pro tvůj růst. Postavená tak, aby ti pomohla srovnat chaos a soustředit se na to podstatné.',
-      href: '/aplikace',
-      buttonText: 'Vyzkoušet aplikaci',
+      icon: Users,
+      title: 'Komunita Smyslužití',
+      tag: 'Sdílená cesta',
+      description: 'Smysl se lépe hledá i žije ve skupině. Připoj se k lidem, kteří stejně jako ty chtějí vystoupit z autopilota. Sdílíme své pokroky, výzvy a vzájemně se držíme nohama na zemi v bezpečném prostoru platformy Skool.',
+      href: 'https://www.skool.com/smysluziti-9755',
+      buttonText: 'Vstoupit do komunity',
     },
     {
       icon: User,
@@ -53,19 +54,36 @@ export default function ServicesSection() {
                   <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-primary-100 text-primary-600 mb-6 group-hover:bg-primary-200 transition-colors">
                     <Icon size={32} />
                   </div>
+                  {service.tag && (
+                    <span className="inline-block px-3 py-1 text-xs font-semibold text-primary-600 bg-primary-50 rounded-full mb-3">
+                      {service.tag}
+                    </span>
+                  )}
                   <h3 className="text-2xl md:text-3xl font-bold text-text-primary mb-4 group-hover:text-primary-600 transition-colors font-serif">
                     {service.title}
                   </h3>
                   <p className="text-text-secondary leading-relaxed mb-6 text-base md:text-lg">
                     {service.description}
                   </p>
-                  <Link
-                    href={service.href}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white font-semibold rounded-full hover:bg-primary-700 transition-all duration-300 group-hover:shadow-lg"
-                  >
-                    <span>{service.buttonText}</span>
-                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                  </Link>
+                  {service.href.startsWith('http') ? (
+                    <a
+                      href={service.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white font-semibold rounded-full hover:bg-primary-700 transition-all duration-300 group-hover:shadow-lg"
+                    >
+                      <span>{service.buttonText}</span>
+                      <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    </a>
+                  ) : (
+                    <Link
+                      href={service.href}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white font-semibold rounded-full hover:bg-primary-700 transition-all duration-300 group-hover:shadow-lg"
+                    >
+                      <span>{service.buttonText}</span>
+                      <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  )}
                 </div>
               </div>
             )
