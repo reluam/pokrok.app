@@ -90,12 +90,6 @@ export default function ClankyPage() {
     <section className="section-padding relative overflow-hidden pt-20">
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center mb-8 md:mb-12">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-text-primary mb-4 md:mb-6">
-              <span className="gradient-text">Články a inspirace</span>
-            </h1>
-          </div>
-
           {/* Two column layout */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-12">
             {/* Left column - Articles (2/3) */}
