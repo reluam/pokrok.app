@@ -143,7 +143,7 @@ export default async function ArticlePage({ params }: { params: { slug: string }
           {/* Bio / Medailonek */}
           <div className="mt-12 md:mt-16 pt-8 md:pt-12 border-t border-primary-200">
             <p className="text-base md:text-lg text-text-secondary leading-relaxed">
-              Jsem Matěj a mým cílem je pomáhat lidem najít cestu z autopilota k vědomému bytí. Skrze projekt Smyslužití vytvářím prostor a nástroje pro každého, kdo chce konečně žít život, který ti dává smysl.
+              Jsem Matěj a mým cílem je pomáhat lidem najít cestu z autopilota k vědomému bytí. Skrze projekt Smyslužití vytvářím prostor a nástroje pro každého, kdo chce konečně žít život podle sebe.
             </p>
           </div>
 
