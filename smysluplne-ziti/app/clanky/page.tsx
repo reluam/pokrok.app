@@ -196,9 +196,12 @@ export default function ClankyPage() {
             {/* Right column - Knihovna (1/3) */}
             <div className="lg:col-span-1">
               {/* Knihovna */}
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-text-primary mb-6 md:mb-8 text-center lg:text-left">
-                <span className="gradient-text">Knihovna</span>
-              </h2>
+              <Link href="/knihovna" className="block mb-6 md:mb-8 text-center lg:text-left group">
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-text-primary group-hover:text-primary-600 transition-colors inline-flex items-center gap-2">
+                  <span className="gradient-text group-hover:text-primary-600">Knihovna</span>
+                  <ArrowRight size={24} className="opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                </h2>
+              </Link>
 
               {allInspirations.length === 0 ? (
                 <div className="text-center py-8">
