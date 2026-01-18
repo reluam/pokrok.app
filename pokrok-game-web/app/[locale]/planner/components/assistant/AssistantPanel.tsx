@@ -2,11 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import { ChevronLeft, ChevronRight, Sparkles, Search, X, Plus, Target, Footprints, CheckSquare, Layers } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Sparkles, X, Plus, Target, Footprints, CheckSquare, Layers } from 'lucide-react'
 import { AssistantPanelHeader } from './AssistantPanelHeader'
 import { AssistantSearch } from './AssistantSearch'
 import { AssistantTips } from './AssistantTips'
-import { AssistantSearchResults } from './AssistantSearchResults'
 
 interface AssistantPanelProps {
   currentPage: string
@@ -20,6 +19,7 @@ interface AssistantPanelProps {
   onOpenHabitModal?: (habit?: any) => void
   onOpenAreasManagementModal?: () => void
   onCreateGoal?: () => void
+  sidebarCollapsed?: boolean
 }
 
 export function AssistantPanel({
@@ -33,7 +33,8 @@ export function AssistantPanel({
   onMinimizeStateChange,
   onOpenHabitModal,
   onOpenAreasManagementModal,
-  onCreateGoal
+  onCreateGoal,
+  sidebarCollapsed = false
 }: AssistantPanelProps) {
   const t = useTranslations()
   const [isEnabled, setIsEnabled] = useState(true) // Default true, will be loaded from settings
@@ -41,8 +42,7 @@ export function AssistantPanel({
   const [isMinimized, setIsMinimized] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [shouldFocusSearch, setShouldFocusSearch] = useState(false)
-  const [hasSearchResults, setHasSearchResults] = useState(false)
-  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [assistantResult, setAssistantResult] = useState<{ message: string; success: boolean; actions?: any[]; preview?: { items: any[]; summary: string }; instructions?: any[]; requiresConfirmation?: boolean } | null>(null)
 
   // Check if we're on small screen (< 1024px) and mobile (< 640px)
   // Initialize with window check for SSR compatibility
@@ -86,6 +86,16 @@ export function AssistantPanel({
 
     window.addEventListener('assistantSettingsChanged', handleSettingsChange)
     return () => window.removeEventListener('assistantSettingsChanged', handleSettingsChange)
+  }, [])
+
+  // Listen for custom event to open assistant
+  useEffect(() => {
+    const handleOpenAssistant = () => {
+      setIsModalOpen(true)
+    }
+    
+    window.addEventListener('openAssistant', handleOpenAssistant)
+    return () => window.removeEventListener('openAssistant', handleOpenAssistant)
   }, [])
 
   // Auto-minimize on small screens when resizing down (but allow user to expand manually)
@@ -236,7 +246,8 @@ export function AssistantPanel({
     
     return (
       <>
-        {/* Floating buttons - bottom right */}
+        {/* Floating buttons - bottom right (hidden when sidebar is collapsed) */}
+        {!sidebarCollapsed && (
         <div className="fixed bottom-6 right-6 z-[99] flex flex-col gap-3 items-end">
           {/* Add button with menu */}
           {showAddMenu && menuItems.length > 0 && (
@@ -273,6 +284,7 @@ export function AssistantPanel({
             {showAddMenu ? <X className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
           </button>
         </div>
+        )}
 
         {/* Fullscreen modal */}
         {isModalOpen && (
@@ -302,37 +314,27 @@ export function AssistantPanel({
                   onNavigateToArea={onNavigateToArea}
                   onNavigateToHabits={onNavigateToHabits}
                   shouldFocus={false}
-                  onResultsChange={(hasResults) => setHasSearchResults(hasResults)}
-                  onSearchResultsChange={(results) => setSearchResults(results)}
+                  onResultChange={(result) => setAssistantResult(result)}
                 />
               </div>
-              {hasSearchResults && searchResults.length > 0 ? (
-                <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
-                  <AssistantSearchResults
-                    results={searchResults}
-                    onResultClick={(result) => {
-                      switch (result.type) {
-                        case 'step':
-                          onOpenStepModal(result)
-                          break
-                        case 'goal':
-                          onNavigateToGoal(result.id)
-                          break
-                        case 'area':
-                          onNavigateToArea(result.id)
-                          break
-                        case 'habit':
-                          onNavigateToHabits(result.id)
-                          break
-                      }
-                      // Close modal after clicking result on mobile
-                      setIsModalOpen(false)
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
-                  {showTips ? (
+              <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+                {assistantResult ? (
+                  <div className={`p-4 ${assistantResult.success ? 'bg-primary-50' : 'bg-red-50'}`}>
+                    <div className={`text-sm ${assistantResult.success ? 'text-primary-700' : 'text-red-700'}`}>
+                      {assistantResult.message}
+                    </div>
+                    {assistantResult.actions && assistantResult.actions.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {assistantResult.actions.map((action: any, index: number) => (
+                          <div key={index} className="text-xs text-primary-600">
+                            {action.success ? '✅' : '❌'} {action.message}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  showTips ? (
                     <AssistantTips
                       currentPage={currentPage}
                       mainPanelSection={mainPanelSection}
@@ -345,9 +347,9 @@ export function AssistantPanel({
                         {t('assistant.tips.disabled') || 'Tipy jsou vypnuté v nastavení.'}
                       </p>
                     </div>
-                  )}
-                </div>
-              )}
+                  )
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -360,6 +362,85 @@ export function AssistantPanel({
   //   - minimized: normal flex (takes 48px space), page adjusts
   //   - expanded: fixed overlay (overlays page)
   // On large screens: normal flex layout (always takes space)
+  // Hide panel when sidebar is collapsed (assistant icon is shown in sidebar instead)
+  // But still show modal if it's open
+  const shouldHidePanel = sidebarCollapsed && !isMobile && !isModalOpen
+  
+  // Show modal even when panel is hidden
+  if (shouldHidePanel) {
+    return (
+      <>
+        {/* Fullscreen modal */}
+        {isModalOpen && (
+          <div className="fixed z-[100] bg-primary-50 flex flex-col" style={{ top: '64px', left: 0, right: 0, bottom: 0 }}>
+            {/* Modal header */}
+            <div className="flex items-center justify-between p-4 border-b-2 border-primary-200 bg-white flex-shrink-0">
+              <h2 className="text-lg font-semibold text-primary-900 flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-primary-600" />
+                {t('assistant.title')}
+              </h2>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="p-2 hover:bg-primary-100 active:bg-primary-200 rounded-lg transition-colors touch-manipulation flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-label={t('common.close')}
+              >
+                <X className="w-6 h-6 text-primary-900" />
+              </button>
+            </div>
+
+            {/* Modal content */}
+            <div className="flex-1 overflow-hidden min-h-0 flex flex-col">
+              <div className="flex-shrink-0">
+                <AssistantSearch
+                  userId={userId}
+                  onOpenStepModal={onOpenStepModal}
+                  onNavigateToGoal={onNavigateToGoal}
+                  onNavigateToArea={onNavigateToArea}
+                  onNavigateToHabits={onNavigateToHabits}
+                  shouldFocus={false}
+                  onResultChange={(result) => setAssistantResult(result)}
+                />
+              </div>
+              <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+                {assistantResult ? (
+                  <div className={`p-4 ${assistantResult.success ? 'bg-primary-50' : 'bg-red-50'}`}>
+                    <div className={`text-sm ${assistantResult.success ? 'text-primary-700' : 'text-red-700'}`}>
+                      {assistantResult.message}
+                    </div>
+                    {assistantResult.actions && assistantResult.actions.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {assistantResult.actions.map((action: any, index: number) => (
+                          <div key={index} className="text-xs text-primary-600">
+                            {action.success ? '✅' : '❌'} {action.message}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  showTips ? (
+                    <AssistantTips
+                      currentPage={currentPage}
+                      mainPanelSection={mainPanelSection}
+                      userId={userId}
+                      showTips={showTips}
+                    />
+                  ) : (
+                    <div className="p-4">
+                      <p className="text-xs text-primary-600 text-center">
+                        {t('assistant.tips.disabled') || 'Tipy jsou vypnuté v nastavení.'}
+                      </p>
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    )
+  }
+  
   const panelClasses = isSmallScreen
     ? isMinimized 
       ? `flex flex-col fixed right-0 top-16 bottom-0 z-50 w-12`  // Fixed position, always at right edge
@@ -385,16 +466,16 @@ export function AssistantPanel({
               title={t('assistant.expand')}
               aria-label={t('assistant.expand')}
             >
-              <Sparkles className="w-5 h-5 text-primary-600 group-hover:text-primary-700" />
+              <ChevronLeft className="w-5 h-5 text-primary-600 group-hover:text-primary-700" />
             </button>
             <div className="w-full border-b border-primary-300"></div>
             <button
               onClick={handleOpenSearch}
               className="w-full p-3 hover:bg-primary-100 transition-colors flex items-center justify-center group"
-              title={t('assistant.search.placeholder')}
-              aria-label={t('assistant.search.placeholder')}
+              title={t('assistant.prompt.placeholder') || 'Napiš, co chceš udělat...'}
+              aria-label={t('assistant.prompt.placeholder') || 'Napiš, co chceš udělat...'}
             >
-              <Search className="w-5 h-5 text-primary-600 group-hover:text-primary-700" />
+              <Sparkles className="w-5 h-5 text-primary-600 group-hover:text-primary-700" />
             </button>
           </div>
         ) : (
@@ -410,35 +491,27 @@ export function AssistantPanel({
                   onNavigateToHabits={onNavigateToHabits}
                   shouldFocus={shouldFocusSearch}
                   onFocusHandled={() => setShouldFocusSearch(false)}
-                  onResultsChange={(hasResults) => setHasSearchResults(hasResults)}
-                  onSearchResultsChange={(results) => setSearchResults(results)}
+                  onResultChange={(result) => setAssistantResult(result)}
                 />
               </div>
-              {hasSearchResults && searchResults.length > 0 ? (
-                <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
-                  <AssistantSearchResults
-                    results={searchResults}
-                    onResultClick={(result) => {
-                      switch (result.type) {
-                        case 'step':
-                          onOpenStepModal(result)
-                          break
-                        case 'goal':
-                          onNavigateToGoal(result.id)
-                          break
-                        case 'area':
-                          onNavigateToArea(result.id)
-                          break
-                        case 'habit':
-                          onNavigateToHabits(result.id)
-                          break
-                      }
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
-                  {showTips ? (
+              <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+                {assistantResult ? (
+                  <div className={`p-4 ${assistantResult.success ? 'bg-primary-50' : 'bg-red-50'}`}>
+                    <div className={`text-sm ${assistantResult.success ? 'text-primary-700' : 'text-red-700'}`}>
+                      {assistantResult.message}
+                    </div>
+                    {assistantResult.actions && assistantResult.actions.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {assistantResult.actions.map((action: any, index: number) => (
+                          <div key={index} className="text-xs text-primary-600">
+                            {action.success ? '✅' : '❌'} {action.message}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  showTips ? (
                     <AssistantTips
                       currentPage={currentPage}
                       mainPanelSection={mainPanelSection}
@@ -451,9 +524,9 @@ export function AssistantPanel({
                         {t('assistant.tips.disabled') || 'Tipy jsou vypnuté v nastavení.'}
                       </p>
                     </div>
-                  )}
-                </div>
-              )}
+                  )
+                )}
+              </div>
             </div>
           </>
         )}

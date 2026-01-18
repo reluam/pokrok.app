@@ -128,11 +128,125 @@ export function UpcomingView({
       }
     }
     
+    // Listen for assistant action completion events
+    const handleAssistantActionCompleted = async (event: any) => {
+      const { actions } = event.detail || {}
+      if (!actions || !Array.isArray(actions)) {
+        console.log('[UpcomingView] assistantActionCompleted: no actions or invalid format')
+        return
+      }
+      
+      console.log('[UpcomingView] assistantActionCompleted:', { actionsCount: actions.length, actions })
+      
+      // Find all step-related actions (create, update, complete)
+      const stepActions = actions.filter((action: any) => 
+        action.type === 'step' && (action.operation === 'create' || action.operation === 'update') && action.success && action.data?.step
+      )
+      
+      // Find completed step actions
+      const completedStepActions = actions.filter((action: any) => 
+        action.type === 'step' && action.operation === 'complete' && action.success
+      )
+      
+      console.log('[UpcomingView] Step actions found:', { 
+        stepActions: stepActions.length, 
+        completedStepActions: completedStepActions.length 
+      })
+      
+      if (stepActions.length > 0 || completedStepActions.length > 0) {
+        // Fetch updated steps from server
+        try {
+          const currentUserId = userId || player?.user_id
+          if (!currentUserId) {
+            console.error('Cannot fetch updated steps: userId is not available')
+            return
+          }
+          
+          // Use the same date range as initial load (90 days back, 30 days forward)
+          const today = new Date()
+          today.setHours(0, 0, 0, 0)
+          const veryOldDate = new Date(today)
+          veryOldDate.setDate(veryOldDate.getDate() - 90)
+          const endDate = new Date(today)
+          endDate.setDate(endDate.getDate() + 30)
+          
+          const startDateStr = getLocalDateString(veryOldDate)
+          const endDateStr = getLocalDateString(endDate)
+          
+          const response = await fetch(`/api/daily-steps?userId=${currentUserId}&startDate=${startDateStr}&endDate=${endDateStr}`)
+          if (response.ok) {
+            const updatedSteps = await response.json()
+            
+            // Track new step IDs for animation
+            const newStepIds = new Set<string>()
+            stepActions.forEach((action: any) => {
+              if (action.data?.step?.id) {
+                newStepIds.add(action.data.step.id)
+              }
+            })
+            
+            // Update local state with animation - replace all steps with fresh data from server
+            const finalSteps = updatedSteps.map((step: any) => {
+              if (step && step.id && !deletedStepIdsRef.current.has(step.id)) {
+                // Mark as new for animation
+                if (newStepIds.has(step.id)) {
+                  step._isNew = true
+                  // Remove animation flag after animation completes
+                  setTimeout(() => {
+                    setLocalDailySteps(current => 
+                      current.map(s => s.id === step.id ? { ...s, _isNew: false } : s)
+                    )
+                  }, 1000)
+                }
+                return step
+              }
+              return null
+            }).filter((step: any) => step !== null)
+            
+            console.log('[UpcomingView] Updating steps after assistant action:', { 
+              finalStepsCount: finalSteps.length,
+              newStepIds: Array.from(newStepIds)
+            })
+            
+            setLocalDailySteps(finalSteps)
+            
+            // Notify parent component - this is critical for updating the parent state
+            if (onDailyStepsUpdateProp) {
+              console.log('[UpcomingView] Calling onDailyStepsUpdateProp with', finalSteps.length, 'steps')
+              onDailyStepsUpdateProp(finalSteps)
+            } else {
+              console.warn('[UpcomingView] onDailyStepsUpdateProp is not defined!')
+            }
+            
+            // Also dispatch event to ensure all components are updated
+            console.log('[UpcomingView] Dispatching dailyStepsUpdated event')
+            window.dispatchEvent(new CustomEvent('dailyStepsUpdated', { 
+              detail: { steps: finalSteps, source: 'UpcomingView-assistant' } 
+            }))
+          }
+        } catch (error) {
+          console.error('Error fetching updated steps after assistant action:', error)
+        }
+      }
+      
+      // Handle habit completion updates
+      const habitActions = actions.filter((action: any) => 
+        action.type === 'habit' && action.operation === 'complete' && action.success
+      )
+      
+      if (habitActions.length > 0) {
+        // Trigger a refresh of habits (parent component should handle this)
+        window.dispatchEvent(new CustomEvent('habitsUpdated'))
+      }
+    }
+    
     window.addEventListener('dailyStepsUpdated', handleDailyStepsUpdated)
+    window.addEventListener('assistantActionCompleted', handleAssistantActionCompleted)
     return () => {
       window.removeEventListener('dailyStepsUpdated', handleDailyStepsUpdated)
+      window.removeEventListener('assistantActionCompleted', handleAssistantActionCompleted)
     }
-  }, [])
+  }, [onDailyStepsUpdateProp])
   
   useEffect(() => {
     // Create a hash of step IDs and their key properties (including completed status) to detect changes
@@ -421,7 +535,6 @@ export function UpcomingView({
   // No limit, but filtered to max one month ahead (except overdue steps - show all overdue)
   // SIMPLIFIED: All steps (including recurring) already have correct date in database, no calculations needed
   const allFeedSteps = useMemo(() => {
-    const computeStartTime = performance.now()
     const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isUrgent: boolean; isOverdue: boolean; goal: any; area: any }> = []
     
     // Ensure dailySteps is an array
@@ -429,8 +542,6 @@ export function UpcomingView({
       console.error('dailySteps is not an array:', dailySteps)
       return []
     }
-    
-    console.log(`[UpcomingView Performance] Computing allFeedSteps from ${dailySteps.length} steps`)
     
     // Process ALL steps (recurring steps already have correct date from database)
     // Exclude hidden steps and completed steps
@@ -514,9 +625,6 @@ export function UpcomingView({
       _date: item.date
     }))
     
-    const computeTime = performance.now() - computeStartTime
-    console.log(`[UpcomingView Performance] allFeedSteps computed: ${result.length} steps in ${computeTime.toFixed(2)}ms`)
-    
     return result
   }, [dailySteps, today, oneMonthFromToday, goalMap, areaMap])
   
@@ -524,7 +632,6 @@ export function UpcomingView({
   // Limited to 15 steps total and max one month ahead (except overdue steps - show all overdue)
   // SIMPLIFIED: All steps (including recurring) already have correct date in database, no calculations needed
   const upcomingSteps = useMemo(() => {
-    const computeStartTime = performance.now()
     const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isUrgent: boolean; isOverdue: boolean; goal: any; area: any }> = []
     
     // Ensure dailySteps is an array
@@ -532,8 +639,6 @@ export function UpcomingView({
       console.error('dailySteps is not an array:', dailySteps)
       return []
     }
-    
-    console.log(`[UpcomingView Performance] Computing upcomingSteps from ${dailySteps.length} steps`)
     
     // Process ALL steps (recurring steps already have correct date from database)
     // Exclude hidden steps and completed steps
@@ -549,10 +654,10 @@ export function UpcomingView({
         if (step.parent_recurring_step_id) return false
         
         // Check date range - include if overdue or within one month
-        const stepDate = new Date(normalizeDate(step.date))
-        stepDate.setHours(0, 0, 0, 0)
-        const isOverdue = stepDate < today
-        return isOverdue || stepDate <= oneMonthFromToday
+      const stepDate = new Date(normalizeDate(step.date))
+      stepDate.setHours(0, 0, 0, 0)
+          const isOverdue = stepDate < today
+          return isOverdue || stepDate <= oneMonthFromToday
       })
       .forEach(step => {
         const stepDate = new Date(normalizeDate(step.date))
@@ -571,10 +676,10 @@ export function UpcomingView({
           isImportant: step.is_important || false,
           isUrgent: step.is_urgent || false,
           isOverdue,
-          goal,
-          area
-        })
+        goal,
+        area
       })
+    })
     
     // Sort: overdue first, then by date, then by importance within same date
     stepsWithDates.sort((a, b) => {
@@ -622,9 +727,6 @@ export function UpcomingView({
       _goal: item.goal,
       _area: item.area
     }))
-    
-    const computeTime = performance.now() - computeStartTime
-    console.log(`[UpcomingView Performance] upcomingSteps computed: ${result.length} steps in ${computeTime.toFixed(2)}ms`)
     
     return result
   }, [dailySteps, today, oneMonthFromToday, goalMap, areaMap])
@@ -1007,29 +1109,29 @@ export function UpcomingView({
                 const isLoading = loadingHabits.has(loadingKey)
                 
                 return (
-                  <div
-                    key={habit.id}
-                    onClick={() => handleItemClick(habit, 'habit')}
+                <div
+                  key={habit.id}
+                  onClick={() => handleItemClick(habit, 'habit')}
                     className={`flex items-center gap-2 p-3 rounded-playful-md cursor-pointer transition-all flex-shrink-0 ${
                       isCompleted
                         ? 'bg-primary-100 opacity-75 hover:outline-2 hover:outline hover:outline-primary-300 hover:outline-offset-[-2px]'
                         : 'bg-white hover:bg-primary-50 hover:outline-2 hover:outline hover:outline-primary-500 hover:outline-offset-[-2px]'
                     } ${isLoading ? 'opacity-50' : ''}`}
-                  >
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
+                >
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
                         handleHabitToggle(habit.id, todayStr)
-                      }}
+                    }}
                       disabled={isLoading}
-                      className={`flex-shrink-0 w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors ${
-                        isLoading
-                          ? 'border-primary-500 bg-white'
-                          : isCompleted
-                            ? 'bg-primary-500 border-primary-500'
-                            : 'border-primary-500 hover:bg-primary-50'
-                      } ${isLoading ? 'cursor-not-allowed' : ''}`}
-                    >
+                    className={`flex-shrink-0 w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors ${
+                      isLoading
+                        ? 'border-primary-500 bg-white'
+                        : isCompleted
+                          ? 'bg-primary-500 border-primary-500'
+                        : 'border-primary-500 hover:bg-primary-50'
+                    } ${isLoading ? 'cursor-not-allowed' : ''}`}
+                  >
                       {isLoading ? (
                         <div className="animate-spin h-4 w-4 border-2 border-primary-500 border-t-transparent rounded-full"></div>
                       ) : isCompleted ? (
@@ -1051,7 +1153,7 @@ export function UpcomingView({
                         {habit.name}
                       </span>
                     </div>
-                  </div>
+                </div>
                 )
               })}
             </div>

@@ -13,6 +13,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const period = searchParams.get('period') || 'all' // 'week', 'month', 'year', 'all'
     const previousPeriod = searchParams.get('previousPeriod') === 'true' // If true, return previous period data
+    const startDateParam = searchParams.get('startDate')
+    const endDateParam = searchParams.get('endDate')
     const userId = dbUser.id
 
     // Calculate date ranges
@@ -22,7 +24,13 @@ export async function GET(request: NextRequest) {
     let startDate: Date
     let endDate: Date = new Date(today)
     
-    if (previousPeriod) {
+    // If startDate and endDate are provided, use them directly
+    if (startDateParam && endDateParam) {
+      startDate = new Date(startDateParam)
+      endDate = new Date(endDateParam)
+      startDate.setHours(0, 0, 0, 0)
+      endDate.setHours(23, 59, 59, 999)
+    } else if (previousPeriod) {
       // Calculate previous period dates
       switch (period) {
         case 'week':
@@ -119,15 +127,26 @@ export async function GET(request: NextRequest) {
     `
 
     // Get daily completion data for charts
+    // For recurring steps, only show the nearest instance (current_instance_date)
+    const todayStr = today.toISOString().split('T')[0]
+    
     const dailyCompletions = await sql`
       SELECT 
         TO_CHAR(date, 'YYYY-MM-DD') as date,
         COUNT(*) FILTER (WHERE completed = true) as completed_steps,
-        COUNT(*) as total_steps
+        COUNT(*) as total_steps,
+        COUNT(*) FILTER (WHERE date > ${todayStr}::date AND completed = false) as planned_steps
       FROM daily_steps
       WHERE user_id = ${userId}
       AND date >= ${startDateStr}::date
       AND date <= ${endDateStr}::date
+      AND (
+        -- Non-recurring steps
+        frequency IS NULL
+        OR
+        -- Recurring steps: only show if this is the current instance (current_instance_date matches date)
+        (frequency IS NOT NULL AND current_instance_date = date)
+      )
       GROUP BY date
       ORDER BY date
     `
@@ -254,7 +273,9 @@ export async function GET(request: NextRequest) {
         completed_steps: 0,
         total_steps: 0,
         completed_habits: 0,
-        total_habits: 0
+        total_habits: 0,
+        planned_steps: 0,
+        planned_habits: 0
       })
     })
     
@@ -265,10 +286,13 @@ export async function GET(request: NextRequest) {
         completed_steps: 0,
         total_steps: 0,
         completed_habits: 0,
-        total_habits: 0
+        total_habits: 0,
+        planned_steps: 0,
+        planned_habits: 0
       }
       existing.completed_steps = parseInt(row.completed_steps) || 0
       existing.total_steps = parseInt(row.total_steps) || 0
+      existing.planned_steps = parseInt(row.planned_steps) || 0
       dailyDataMap.set(row.date, existing)
     })
 
@@ -289,6 +313,7 @@ export async function GET(request: NextRequest) {
     allDates.forEach((dateStr) => {
       const date = new Date(dateStr)
       date.setHours(0, 0, 0, 0)
+      const isPlanned = date > today
       
       let plannedHabitsCount = 0
       allHabits.forEach((habit: any) => {
@@ -302,9 +327,14 @@ export async function GET(request: NextRequest) {
         completed_steps: 0,
         total_steps: 0,
         completed_habits: 0,
-        total_habits: 0
+        total_habits: 0,
+        planned_steps: 0,
+        planned_habits: 0
       }
       existing.total_habits = plannedHabitsCount
+      if (isPlanned) {
+        existing.planned_habits = plannedHabitsCount
+      }
       dailyDataMap.set(dateStr, existing)
     })
 

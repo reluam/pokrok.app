@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { CheckCircle } from 'lucide-react'
 import { Chart } from './Chart'
+import { ContributionGraph } from './ContributionGraph'
 
 interface OverviewStatisticsProps {
 }
@@ -33,6 +34,9 @@ interface StatisticsData {
     completed_steps: number
     total_steps: number
     completed_habits: number
+    total_habits: number
+    planned_steps?: number
+    planned_habits?: number
   }>
   weeklyData?: Array<{
     week: string
@@ -106,9 +110,14 @@ export function OverviewStatistics({}: OverviewStatisticsProps) {
         </div>
       </div>
 
-      <h2 className="text-2xl font-bold font-playful text-text-primary">
+      <h2 className="text-2xl font-bold font-playful text-text-primary mb-6">
         {t('statistics.overview.title') || 'Přehled'}
       </h2>
+
+      {/* Contribution Graph */}
+      <div className="mb-8">
+        <ContributionGraph dailyData={allTimeStats.dailyData} />
+      </div>
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

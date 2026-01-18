@@ -52,12 +52,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     
-    // ✅ SECURITY: Ověření vlastnictví areaId (which is actually aspirationId), pokud je poskytnut
+    // ✅ SECURITY: Ověření vlastnictví areaId, pokud je poskytnut
     if (areaId) {
-      // iOS app sends areaId but it's actually an aspiration ID, so check aspirations table
-      const aspirationOwned = await verifyEntityOwnership(areaId, 'aspirations', dbUser)
-      if (!aspirationOwned) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      // Check if areaId is null (allowed - means unassigning from area)
+      if (areaId === null || areaId === 'null' || areaId === '') {
+        // Null is allowed - user can unassign goal from area
+      } else {
+        // Check ownership in areas table (web app uses areas, iOS app uses aspirations)
+        // Try areas table first (web app)
+        const areaOwned = await verifyEntityOwnership(areaId, 'areas', dbUser)
+        if (!areaOwned) {
+          // If not found in areas, try aspirations table (iOS app compatibility)
+          const aspirationOwned = await verifyEntityOwnership(areaId, 'aspirations', dbUser)
+          if (!aspirationOwned) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+          }
+        }
       }
     }
     
@@ -143,12 +153,22 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     
-    // ✅ SECURITY: Ověření vlastnictví areaId (which is actually aspirationId), pokud je poskytnut
+    // ✅ SECURITY: Ověření vlastnictví areaId, pokud je poskytnut
     if (areaId) {
-      // iOS app sends areaId but it's actually an aspiration ID, so check aspirations table
-      const aspirationOwned = await verifyEntityOwnership(areaId, 'aspirations', dbUser)
-      if (!aspirationOwned) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      // Check if areaId is null (allowed - means unassigning from area)
+      if (areaId === null || areaId === 'null' || areaId === '') {
+        // Null is allowed - user can unassign goal from area
+      } else {
+        // Check ownership in areas table (web app uses areas, iOS app uses aspirations)
+        // Try areas table first (web app)
+        const areaOwned = await verifyEntityOwnership(areaId, 'areas', dbUser)
+        if (!areaOwned) {
+          // If not found in areas, try aspirations table (iOS app compatibility)
+          const aspirationOwned = await verifyEntityOwnership(areaId, 'aspirations', dbUser)
+          if (!aspirationOwned) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+          }
+        }
       }
     }
 

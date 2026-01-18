@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Target, Plus, Footprints, CheckSquare, Settings, Calendar, CalendarRange, CalendarDays, CalendarCheck, BarChart3, ListTodo, Edit, AlertCircle } from 'lucide-react'
+import { LayoutDashboard, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Target, Plus, Footprints, CheckSquare, Settings, Calendar, CalendarRange, CalendarDays, CalendarCheck, BarChart3, ListTodo, Edit, AlertCircle, Sparkles } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
 
 interface SidebarNavigationProps {
@@ -35,6 +35,7 @@ interface SidebarNavigationProps {
   areaButtonRefs?: Map<string, React.RefObject<HTMLButtonElement>>
   goalButtonRefs?: Map<string, React.RefObject<HTMLButtonElement>>
   onGoalClick?: (goalId: string) => void
+  onAssistantClick?: () => void
 }
 
 export function SidebarNavigation({
@@ -66,7 +67,8 @@ export function SidebarNavigation({
   onOnboardingGoalClick,
   areaButtonRefs,
   goalButtonRefs,
-  onGoalClick
+  onGoalClick,
+  onAssistantClick
 }: SidebarNavigationProps) {
   const t = useTranslations()
   const [hoveredAreaId, setHoveredAreaId] = useState<string | null>(null)
@@ -167,7 +169,29 @@ export function SidebarNavigation({
 
   return (
     <div className={`hidden md:flex ${sidebarCollapsed ? 'w-14' : 'w-64'} border-r-4 border-primary-500 bg-white flex-shrink-0 transition-all duration-300 relative h-full flex flex-col`}>
-      <div className={`${sidebarCollapsed ? 'p-2 pt-12' : 'p-4'} flex-1 overflow-y-auto`}>
+      {/* Assistant button when collapsed - temporarily hidden */}
+      {false && sidebarCollapsed && (
+        <div className="flex flex-col items-center pt-12 pb-2 border-b-2 border-primary-200">
+          <button
+            onClick={() => {
+              if (onAssistantClick) {
+                onAssistantClick()
+              } else {
+                // Fallback: dispatch custom event to open assistant
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new CustomEvent('openAssistant'))
+                }
+              }
+            }}
+            className="w-10 h-10 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ease-in-out active:scale-95"
+            aria-label={t('assistant.expand') || 'Asistent'}
+            title={t('assistant.expand') || 'Asistent'}
+          >
+            <Sparkles className="w-5 h-5" />
+          </button>
+        </div>
+      )}
+      <div className={`${sidebarCollapsed ? 'p-2 pt-2' : 'p-4'} flex-1 overflow-y-auto`}>
         {!sidebarCollapsed && (
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-black font-playful">{t('navigation.title')}</h2>

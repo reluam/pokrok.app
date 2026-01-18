@@ -35,6 +35,7 @@
     "of": "of",
     "yes": "Yes",
     "no": "No",
+    "clear": "Clear",
     "steps": "Steps",
     "step": "step",
     "addStep": "Add step",
@@ -1836,6 +1837,10 @@
     "expand": "Expand",
     "minimize": "Minimize",
     "maximize": "Maximize",
+    "prompt": {
+      "placeholder": "Type what you want to do...",
+      "send": "Send"
+    },
     "search": {
       "placeholder": "Search steps, goals, areas, habits...",
       "noResults": "No results",
@@ -1907,6 +1912,55 @@
         }
       }
     }
+  },
+  "statistics": {
+    "title": "STATISTICS",
+    "level": "Level",
+    "xp": "XP",
+    "completedTasks": "Completed tasks",
+    "gameDay": "Game day",
+    "progressToNextLevel": "PROGRESS TO NEXT LEVEL",
+    "overview": {
+      "title": "Overview"
+    },
+    "period": {
+      "week": "Weekly",
+      "month": "Monthly",
+      "year": "Yearly"
+    },
+    "wip": {
+      "title": "Work in Progress",
+      "message": "Statistics are currently under development and will be adjusted."
+    },
+    "steps": {
+      "title": "Steps",
+      "completed": "Completed",
+      "planned": "Planned",
+      "completionRate": "Completion rate"
+    },
+    "habits": {
+      "title": "HABITS",
+      "total": "Total habits:",
+      "completed": "Completed",
+      "totalStreak": "Total streak:",
+      "bestStreak": "Best streak:",
+      "averageStreak": "Average streak:",
+      "byCategory": "HABITS BY CATEGORY",
+      "noHabits": "You don't have any habits yet"
+    },
+    "goals": {
+      "title": "GOALS",
+      "total": "Total goals:",
+      "completed": "Completed:",
+      "active": "Active:",
+      "successRate": "Success rate:",
+      "byCategory": "GOALS BY CATEGORY",
+      "noGoals": "You don't have any goals yet"
+    },
+    "contributions": "contributions",
+    "less": "Less",
+    "more": "More",
+    "noData": "No data"
   }
 }
 

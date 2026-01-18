@@ -3072,7 +3072,11 @@ export function PageContent(props: PageContentProps) {
                 {t('common.cancel') || 'Zrušit'}
               </button>
               <button
-                onClick={handleDeleteAreaConfirm}
+                onClick={(e) => {
+                  e.preventDefault()
+                  // Call with undefined to use fallback values from JourneyGameView
+                  handleDeleteAreaConfirm(undefined, undefined)
+                }}
                 disabled={props.isDeletingArea}
                 className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >

@@ -43,6 +43,7 @@ export default function RootLayout({
             dangerouslySetInnerHTML={{
               __html: `
                 // Suppress Speed Insights errors when blocked by content blockers
+                // Also safely handle error objects to prevent circular JSON errors
                 (function() {
                   const originalError = console.error;
                   console.error = function(...args) {
@@ -50,7 +51,42 @@ export default function RootLayout({
                     if (message.includes('speed-insights') || message.includes('_vercel') || message.includes('ERR_BLOCKED_BY_CONTENT_BLOCKER')) {
                       return; // Silently ignore Speed Insights errors
                     }
-                    originalError.apply(console, args);
+                    // Safely serialize error objects to prevent circular JSON errors
+                    const safeArgs = args.map(arg => {
+                      // If it's already a string, number, boolean, null, or undefined, use it as-is
+                      if (arg === null || arg === undefined || typeof arg === 'string' || typeof arg === 'number' || typeof arg === 'boolean') {
+                        return arg;
+                      }
+                      // If it's an Error object, extract message safely
+                      if (arg instanceof Error) {
+                        try {
+                          return arg.message || 'Error (no message)';
+                        } catch (e) {
+                          return 'Error (could not extract message)';
+                        }
+                      }
+                      // If it's an object, try to serialize it safely
+                      if (arg && typeof arg === 'object') {
+                        try {
+                          // Test if it can be serialized
+                          JSON.stringify(arg);
+                          return arg;
+                        } catch (e) {
+                          // Circular reference detected, return a safe string
+                          if (arg.constructor && arg.constructor.name) {
+                            return '[Object ' + arg.constructor.name + ' with circular reference]';
+                          }
+                          return '[Object with circular reference]';
+                        }
+                      }
+                      // For anything else, try to convert to string safely
+                      try {
+                        return String(arg);
+                      } catch (e) {
+                        return '[Could not convert to string]';
+                      }
+                    });
+                    originalError.apply(console, safeArgs);
                   };
                 })();
               `,

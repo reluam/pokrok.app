@@ -197,6 +197,91 @@ export function JourneyGameView({
   // Selected goal ID (extracted from mainPanelSection if it's a goal)
   const selectedGoalId = mainPanelSection?.startsWith('goal-') ? mainPanelSection.replace('goal-', '') : null
   
+  // Local state for dailySteps to allow updates from child components
+  const [localDailySteps, setLocalDailySteps] = useState<any[]>(dailySteps)
+  
+  // Sync localDailySteps with prop
+  useEffect(() => {
+    setLocalDailySteps(dailySteps)
+  }, [dailySteps])
+  
+  // Listen for dailyStepsUpdated event to update local state
+  useEffect(() => {
+    const handleDailyStepsUpdated = (event: any) => {
+      const { steps, source } = event.detail || {}
+      if (steps && Array.isArray(steps)) {
+        console.log('[JourneyGameView] dailyStepsUpdated event received:', { 
+          stepsCount: steps.length, 
+          source 
+        })
+        setLocalDailySteps(steps)
+        // DON'T call onDailyStepsUpdate if event came from GameWorldView
+        // This would cause infinite loop: GameWorldView -> event -> JourneyGameView -> onDailyStepsUpdate -> GameWorldView -> event...
+        // GameWorldView already has the updated state, we just need to sync local state
+        if (source === 'GameWorldView') {
+          console.log('[JourneyGameView] Event from GameWorldView - skipping onDailyStepsUpdate to avoid loop')
+          return
+        }
+        
+        // Only call onDailyStepsUpdate for events from other sources (e.g., UpcomingView)
+        if (onDailyStepsUpdate) {
+          console.log('[JourneyGameView] Calling onDailyStepsUpdate with', steps.length, 'steps')
+          onDailyStepsUpdate(steps)
+        } else {
+          console.warn('[JourneyGameView] onDailyStepsUpdate is not defined!')
+        }
+      }
+    }
+    
+    window.addEventListener('dailyStepsUpdated', handleDailyStepsUpdated)
+    return () => {
+      window.removeEventListener('dailyStepsUpdated', handleDailyStepsUpdated)
+    }
+  }, [onDailyStepsUpdate])
+  
+  // Also listen for assistantActionCompleted to trigger refresh
+  useEffect(() => {
+    const handleAssistantActionCompleted = async (event: any) => {
+      const { actions } = event.detail || {}
+      if (!actions || !Array.isArray(actions)) return
+      
+      const stepActions = actions.filter((action: any) => 
+        action.type === 'step' && (action.operation === 'create' || action.operation === 'update') && action.success
+      )
+      
+      if (stepActions.length > 0 && userId) {
+        console.log('[JourneyGameView] assistantActionCompleted: refreshing steps')
+        // Reload steps from server
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const veryOldDate = new Date(today)
+        veryOldDate.setDate(veryOldDate.getDate() - 90)
+        const endDate = new Date(today)
+        endDate.setDate(endDate.getDate() + 30)
+        
+        try {
+          const response = await fetch(
+            `/api/daily-steps?userId=${userId}&startDate=${veryOldDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`
+          )
+          if (response.ok) {
+            const steps = await response.json()
+            setLocalDailySteps(Array.isArray(steps) ? steps : [])
+            if (onDailyStepsUpdate) {
+              onDailyStepsUpdate(Array.isArray(steps) ? steps : [])
+            }
+          }
+        } catch (error) {
+          console.error('[JourneyGameView] Error refreshing steps after assistant action:', error)
+        }
+      }
+    }
+    
+    window.addEventListener('assistantActionCompleted', handleAssistantActionCompleted)
+    return () => {
+      window.removeEventListener('assistantActionCompleted', handleAssistantActionCompleted)
+    }
+  }, [userId, onDailyStepsUpdate])
+  
   // Sidebar collapsed state
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
@@ -1931,30 +2016,84 @@ export function JourneyGameView({
   }
 
   const handleDeleteAreaConfirm = async (areaId?: string, deleteRelated?: boolean) => {
+    // Log only primitive values to avoid circular reference issues
+    console.log('Delete area: Function called', 'areaId:', areaId, 'deleteRelated:', deleteRelated, 'areaToDelete:', areaToDelete, 'deleteAreaWithRelated:', deleteAreaWithRelated)
+    
     const targetAreaId = areaId || areaToDelete
     const shouldDeleteRelated = deleteRelated !== undefined ? deleteRelated : deleteAreaWithRelated
     
-    if (!targetAreaId) return
+    console.log('Delete area: Resolved values', 'targetAreaId:', targetAreaId, 'shouldDeleteRelated:', shouldDeleteRelated)
+    
+    if (!targetAreaId) {
+      console.log('Delete area: No target area ID, returning')
+      return
+    }
 
+    console.log('Delete area: Setting isDeletingArea to true')
     setIsDeletingArea(true)
+    
     try {
-      const response = await fetch('/api/cesta/areas', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
+      console.log('Delete area: Starting delete request', 'targetAreaId:', targetAreaId, 'shouldDeleteRelated:', shouldDeleteRelated)
+      
+      // Prepare request body safely
+      let requestBody: string
+      try {
+        const bodyData = { 
           id: targetAreaId,
           deleteRelated: shouldDeleteRelated
-        }),
-      })
+        }
+        requestBody = JSON.stringify(bodyData)
+        console.log('Delete area: Request body prepared:', requestBody)
+      } catch (stringifyError) {
+        console.error('Delete area: Failed to stringify request body')
+        throw new Error('Failed to prepare request body')
+      }
+      
+      let response: Response
+      try {
+        response = await fetch('/api/cesta/areas', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: requestBody,
+        })
+        console.log('Delete area: Fetch completed', 'status:', response.status, 'statusText:', response.statusText, 'ok:', response.ok)
+      } catch (fetchError) {
+        console.error('Delete area: Fetch failed')
+        if (fetchError instanceof Error) {
+          throw new Error(`Network error: ${fetchError.message}`)
+        }
+        throw new Error('Network error: Unknown error')
+      }
 
+      console.log('Delete area response status:', response.status, response.statusText, 'ok:', response.ok)
+      
       if (response.ok) {
-        // Reload areas
-        const areasResponse = await fetch('/api/cesta/areas')
-        if (areasResponse.ok) {
-          const data = await areasResponse.json()
-          setAreas(data.areas || [])
+        console.log('Delete area: Success, reloading data...')
+        
+        try {
+          // Reload areas
+          const areasResponse = await fetch('/api/cesta/areas')
+          if (areasResponse.ok) {
+            try {
+              const data = await areasResponse.json()
+              setAreas(data.areas || [])
+              console.log('Delete area: Areas reloaded successfully')
+            } catch (parseError) {
+              console.error('Delete area: Failed to parse areas response')
+              if (parseError instanceof Error) {
+                console.error('Parse error:', parseError.message)
+              }
+            }
+          } else {
+            console.error('Delete area: Failed to reload areas, status:', areasResponse.status)
+          }
+        } catch (e) {
+          console.error('Delete area: Error reloading areas')
+          if (e instanceof Error) {
+            console.error('Reload error:', e.message)
+          }
         }
         
         // If we're on the area page, navigate back to overview
@@ -1968,35 +2107,127 @@ export function JourneyGameView({
         setDeleteAreaWithRelated(false)
         
         // Reload goals, steps, and habits (either deleted or unlinked)
-        const goalsResponse = await fetch('/api/goals')
-        if (goalsResponse.ok && onGoalsUpdate) {
-          const goalsData = await goalsResponse.json()
-          // API returns array directly, not wrapped in { goals: [...] }
-          onGoalsUpdate(Array.isArray(goalsData) ? goalsData : (goalsData.goals || []))
+        try {
+          const goalsResponse = await fetch('/api/goals')
+          if (goalsResponse.ok && onGoalsUpdate) {
+            try {
+              const goalsData = await goalsResponse.json()
+              // API returns array directly, not wrapped in { goals: [...] }
+              onGoalsUpdate(Array.isArray(goalsData) ? goalsData : (goalsData.goals || []))
+            } catch (parseError) {
+              console.error('Delete area: Failed to parse goals response')
+            }
+          }
+        } catch (e) {
+          console.error('Delete area: Error fetching goals')
         }
         
-        const stepsResponse = await fetch('/api/daily-steps')
-        if (stepsResponse.ok && onDailyStepsUpdate) {
-          const stepsData = await stepsResponse.json()
-          // API returns array directly, not wrapped in { steps: [...] }
-          onDailyStepsUpdate(Array.isArray(stepsData) ? stepsData : (stepsData.steps || []))
+        try {
+          const stepsResponse = await fetch('/api/daily-steps')
+          if (stepsResponse.ok && onDailyStepsUpdate) {
+            try {
+              const stepsData = await stepsResponse.json()
+              // API returns array directly, not wrapped in { steps: [...] }
+              onDailyStepsUpdate(Array.isArray(stepsData) ? stepsData : (stepsData.steps || []))
+            } catch (parseError) {
+              console.error('Delete area: Failed to parse steps response')
+            }
+          }
+        } catch (e) {
+          console.error('Delete area: Error fetching steps')
         }
         
-        const habitsResponse = await fetch('/api/habits')
-        if (habitsResponse.ok && onHabitsUpdate) {
-          const habitsData = await habitsResponse.json()
-          // API returns array directly, not wrapped in { habits: [...] }
-          onHabitsUpdate(Array.isArray(habitsData) ? habitsData : (habitsData.habits || []))
+        try {
+          const habitsResponse = await fetch('/api/habits')
+          if (habitsResponse.ok && onHabitsUpdate) {
+            try {
+              const habitsData = await habitsResponse.json()
+              // API returns array directly, not wrapped in { habits: [...] }
+              onHabitsUpdate(Array.isArray(habitsData) ? habitsData : (habitsData.habits || []))
+            } catch (parseError) {
+              console.error('Delete area: Failed to parse habits response')
+            }
+          }
+        } catch (e) {
+          console.error('Delete area: Error fetching habits')
         }
+        
+        console.log('Delete area: All data reloaded successfully')
       } else {
-        const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
-        alert(t('areas.deleteError') || `Nepodařilo se smazat oblast: ${errorData.error || 'Neznámá chyba'}`)
+        let errorMessage = 'Neznámá chyba'
+        try {
+          const responseText = await response.text()
+          console.log('Delete area: Error response text:', responseText)
+          
+          if (responseText) {
+            try {
+              const errorData = JSON.parse(responseText)
+              console.log('Delete area: Parsed error data:', errorData)
+              errorMessage = errorData.error || errorData.details || errorMessage
+            } catch (parseError) {
+              // If response is not valid JSON, use the text as error message
+              console.log('Delete area: Response is not JSON, using text as error')
+              errorMessage = responseText.substring(0, 200) || response.statusText || `HTTP ${response.status}`
+            }
+          } else {
+            errorMessage = response.statusText || `HTTP ${response.status}`
+          }
+        } catch (e) {
+          // If we can't read response at all, use status
+          console.log('Delete area: Failed to read error response')
+          errorMessage = response.statusText || `HTTP ${response.status}`
+        }
+        console.error('Delete area failed with status:', response.status, 'Error:', errorMessage)
+        alert(t('areas.deleteError') || `Nepodařilo se smazat oblast: ${errorMessage}`)
       }
     } catch (error) {
       // Safely log error without circular references
-      const errorMessage = error instanceof Error ? error.message : String(error)
+      // NEVER try to JSON.stringify the error object or create objects with error properties
+      console.log('Delete area catch block - error type:', typeof error, 'is Error:', error instanceof Error)
+      
+      let errorMessage = 'Neznámá chyba'
+      
+      try {
+        if (error instanceof Error) {
+          // Extract only primitive string values - never the error object itself
+          const msg = (error.message && typeof error.message === 'string') ? error.message : ''
+          const name = (error.name && typeof error.name === 'string') ? error.name : 'Error'
+          const stack = (error.stack && typeof error.stack === 'string') ? error.stack.substring(0, 500) : ''
+          
+          // Log only primitive values, never the error object
+          console.log('Error name:', name)
+          console.log('Error message:', msg)
+          if (stack) {
+            console.log('Error stack:', stack)
+          }
+          
+          if (msg && msg.length > 0 && !msg.includes('circular') && !msg.includes('HTMLButtonElement') && !msg.includes('FiberNode')) {
+            errorMessage = `${name}: ${msg}`
+          } else if (name) {
+            errorMessage = name
+          }
+        } else if (typeof error === 'string' && error.length < 200) {
+          errorMessage = error
+        } else {
+          // For non-Error, non-string errors, try String() conversion
+          // This is safe as it doesn't use JSON.stringify
+          try {
+            const errorStr = String(error)
+            if (errorStr && errorStr.length < 200 && !errorStr.includes('[object Object]')) {
+              errorMessage = errorStr
+            }
+          } catch (e) {
+            // If even String() fails, just use default message
+            console.log('Could not convert error to string')
+          }
+        }
+      } catch (e) {
+        // If anything fails, just use default message
+        console.log('Error extracting error message')
+      }
+      
       console.error('Error deleting area:', errorMessage)
-      alert(t('areas.deleteError') || 'Chyba při mazání oblasti')
+      alert(t('areas.deleteError') || `Chyba při mazání oblasti: ${errorMessage}`)
     } finally {
       setIsDeletingArea(false)
     }
@@ -2648,10 +2879,15 @@ export function JourneyGameView({
           setSelectedItem(updatedGoal)
         }
       } else {
-        console.error('Failed to update goal')
-        alert('Nepodařilo se aktualizovat cíl')
-            }
-          } catch (error) {
+        const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
+        const errorMessage = errorData.error || `HTTP ${response.status}`
+        console.error('Failed to update goal:', errorMessage)
+        alert(`Nepodařilo se aktualizovat cíl: ${errorMessage}`)
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      console.error('Error updating goal:', errorMessage)
+      alert('Chyba při aktualizaci cíle')
       console.error('Error updating goal:', error)
       alert('Chyba při aktualizaci cíle')
     }
@@ -3894,7 +4130,7 @@ export function JourneyGameView({
           selectedItemType={selectedItemType}
           goals={goals}
           habits={habits}
-          dailySteps={dailySteps}
+          dailySteps={localDailySteps}
           isLoadingSteps={isLoadingSteps}
           player={player}
           userId={userId}
@@ -4094,40 +4330,43 @@ export function JourneyGameView({
         />
         </div>
 
-        {/* Assistant Panel */}
-        <AssistantPanel
-          currentPage={currentPage}
-          mainPanelSection={mainPanelSection}
-          userId={userId || player?.user_id || null}
-          onOpenStepModal={mainPanelSection === 'focus-upcoming' || mainPanelSection?.startsWith('area-') || mainPanelSection?.startsWith('goal-') ? () => {
-            // For inline mode (focus-upcoming, area-*, goal-*), trigger inline creation via custom event
-            // PageContent listens for this event and increments createNewStepTriggerForSection
-            if (typeof window !== 'undefined') {
-              window.dispatchEvent(new CustomEvent('triggerInlineStepCreation', {
-                detail: { section: mainPanelSection }
-              }))
-            }
-          } : handleOpenStepModal}
-          onNavigateToGoal={(goalId: string) => {
-            setMainPanelSection(`goal-${goalId}`)
-          }}
-          onNavigateToArea={(areaId: string) => {
-            setMainPanelSection(`area-${areaId}`)
-          }}
-          onNavigateToHabits={(habitId?: string) => {
-            setCurrentPage('habits')
-            if (habitId) {
-              setMainPanelSection(`habit-${habitId}`)
-            }
-          }}
-          onOpenHabitModal={handleOpenHabitModal}
-          onOpenAreasManagementModal={handleOpenAreasManagementModal}
-          onCreateGoal={handleCreateGoal}
-          onMinimizeStateChange={(isMinimized, isSmallScreen) => {
-            setAssistantMinimized(isMinimized)
-            setAssistantSmallScreen(isSmallScreen)
-          }}
-        />
+        {/* Assistant Panel - Temporarily hidden */}
+        {false && (
+          <AssistantPanel
+            currentPage={currentPage}
+            mainPanelSection={mainPanelSection}
+            userId={userId || player?.user_id || null}
+            sidebarCollapsed={sidebarCollapsed}
+            onOpenStepModal={mainPanelSection === 'focus-upcoming' || mainPanelSection?.startsWith('area-') || mainPanelSection?.startsWith('goal-') ? () => {
+              // For inline mode (focus-upcoming, area-*, goal-*), trigger inline creation via custom event
+              // PageContent listens for this event and increments createNewStepTriggerForSection
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('triggerInlineStepCreation', {
+                  detail: { section: mainPanelSection }
+                }))
+              }
+            } : handleOpenStepModal}
+            onNavigateToGoal={(goalId: string) => {
+              setMainPanelSection(`goal-${goalId}`)
+            }}
+            onNavigateToArea={(areaId: string) => {
+              setMainPanelSection(`area-${areaId}`)
+            }}
+            onNavigateToHabits={(habitId?: string) => {
+              setCurrentPage('habits')
+              if (habitId) {
+                setMainPanelSection(`habit-${habitId}`)
+              }
+            }}
+            onOpenHabitModal={handleOpenHabitModal}
+            onOpenAreasManagementModal={handleOpenAreasManagementModal}
+            onCreateGoal={handleCreateGoal}
+            onMinimizeStateChange={(isMinimized, isSmallScreen) => {
+              setAssistantMinimized(isMinimized)
+              setAssistantSmallScreen(isSmallScreen)
+            }}
+          />
+        )}
       </div>
 
       {/* Date Picker Modal */}
@@ -4184,7 +4423,7 @@ export function JourneyGameView({
         areas={areas}
         userId={userId}
         player={player}
-        dailySteps={dailySteps}
+        dailySteps={localDailySteps}
         onDailyStepsUpdate={onDailyStepsUpdate}
         selectedItem={selectedItem}
         setSelectedItem={setSelectedItem}
@@ -4253,7 +4492,7 @@ export function JourneyGameView({
         onClose={() => setShowAreasManagementModal(false)}
         areas={areas}
         goals={goals}
-        dailySteps={dailySteps}
+        dailySteps={localDailySteps}
         habits={habits}
         onEditArea={handleOpenAreaEditModal}
         onDeleteArea={handleDeleteArea}

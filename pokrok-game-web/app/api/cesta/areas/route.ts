@@ -33,7 +33,8 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json({ areas })
   } catch (error: any) {
-    console.error('Error fetching areas:', error)
+    const errorMessage = error?.message || String(error) || 'Unknown error'
+    console.error('Error fetching areas:', errorMessage)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -74,8 +75,9 @@ export async function POST(request: NextRequest) {
           WHERE user_id = ${dbUser.id}
         `
         areaOrder = (maxOrderResult[0]?.max_order || 0) + 1
-      } catch (orderError) {
-        console.error('Error getting max order:', orderError)
+      } catch (orderError: any) {
+        const errorMessage = orderError?.message || String(orderError) || 'Unknown error'
+        console.error('Error getting max order:', errorMessage)
         areaOrder = 1 // Default to 1 if query fails
       }
     }
@@ -108,12 +110,13 @@ export async function POST(request: NextRequest) {
       console.log('Area created successfully:', area[0])
       return NextResponse.json({ area: area[0] })
     } catch (sqlError: any) {
-      console.error('SQL error creating area:', sqlError)
+      const errorMessage = sqlError?.message || String(sqlError) || 'Unknown error'
+      console.error('SQL error creating area:', errorMessage)
       console.error('SQL error details:', {
-        message: sqlError.message,
-        code: sqlError.code,
-        detail: sqlError.detail,
-        hint: sqlError.hint
+        message: sqlError?.message || 'Unknown',
+        code: sqlError?.code || 'Unknown',
+        detail: sqlError?.detail || 'Unknown',
+        hint: sqlError?.hint || 'Unknown'
       })
       
       // Check if it's a varchar length error
@@ -140,8 +143,9 @@ export async function POST(request: NextRequest) {
       throw sqlError // Re-throw to be caught by outer catch
     }
   } catch (error: any) {
-    console.error('Error creating area:', error)
-    console.error('Error stack:', error.stack)
+    const errorMessage = error?.message || String(error) || 'Unknown error'
+    console.error('Error creating area:', errorMessage)
+    console.error('Error stack:', error?.stack || 'No stack trace')
     
     // Check if it's a varchar length error in the outer catch too
     if (error.code === '22001' && error.message?.includes('character varying')) {
@@ -237,7 +241,8 @@ export async function PUT(request: NextRequest) {
       
       return NextResponse.json({ area: area[0] })
     } catch (sqlError: any) {
-      console.error('SQL error updating area:', sqlError)
+      const errorMessage = sqlError?.message || String(sqlError) || 'Unknown error'
+      console.error('SQL error updating area:', errorMessage)
       
       // Check if it's a varchar length error
       if (sqlError.code === '22001' && sqlError.message?.includes('character varying')) {
@@ -262,7 +267,8 @@ export async function PUT(request: NextRequest) {
       throw sqlError
     }
   } catch (error: any) {
-    console.error('Error updating area:', error)
+    const errorMessage = error?.message || String(error) || 'Unknown error'
+    console.error('Error updating area:', errorMessage)
     
     // Check if it's a varchar length error in the outer catch too
     if (error.code === '22001' && error.message?.includes('character varying')) {
@@ -284,18 +290,33 @@ export async function DELETE(request: NextRequest) {
     const { userId: clerkUserId } = await auth()
     
     if (!clerkUserId) {
+      console.log('DELETE area: Unauthorized - no clerkUserId')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const dbUser = await getUserByClerkId(clerkUserId)
     if (!dbUser) {
+      console.log('DELETE area: User not found for clerkUserId:', clerkUserId)
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    const body = await request.json()
+    let body: any = {}
+    try {
+      const bodyText = await request.text()
+      if (bodyText) {
+        body = JSON.parse(bodyText)
+      }
+    } catch (parseError: any) {
+      console.log('DELETE area: Failed to parse request body:', parseError?.message || String(parseError))
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+    }
+    
     const { id, deleteRelated } = body
     
+    console.log('DELETE area request:', { id, deleteRelated, dbUserId: dbUser.id })
+    
     if (!id) {
+      console.log('DELETE area: Area ID is required')
       return NextResponse.json({ error: 'Area ID is required' }, { status: 400 })
     }
 
@@ -304,11 +325,15 @@ export async function DELETE(request: NextRequest) {
       SELECT user_id FROM areas WHERE id = ${id}
     `
     
+    console.log('DELETE area: Existing area check:', { found: existingArea.length > 0, userId: existingArea[0]?.user_id, dbUserId: dbUser.id })
+    
     if (existingArea.length === 0) {
+      console.log('DELETE area: Area not found:', id)
       return NextResponse.json({ error: 'Area not found' }, { status: 404 })
     }
     
     if (existingArea[0].user_id !== dbUser.id) {
+      console.log('DELETE area: Unauthorized - user mismatch')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
@@ -365,15 +390,21 @@ export async function DELETE(request: NextRequest) {
       RETURNING id
     `
     
+    console.log('DELETE area: Delete result:', { deleted: result.length > 0, id: result[0]?.id })
+    
     if (result.length === 0) {
+      console.log('DELETE area: Area not found after delete attempt:', id)
       return NextResponse.json({ error: 'Area not found' }, { status: 404 })
     }
     
+    console.log('DELETE area: Success')
     return NextResponse.json({ success: true })
   } catch (error: any) {
     // Safely log error without circular references
     const errorMessage = error?.message || String(error) || 'Unknown error'
     console.error('Error deleting area:', errorMessage)
+    console.error('Error stack:', error?.stack)
+    console.error('Error code:', error?.code)
     
     return NextResponse.json({ 
       error: 'Internal server error',

@@ -66,7 +66,6 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
       console.log('[GameWorldView] Starting to load daily steps for userId:', currentUserId)
 
       setIsLoadingSteps(true)
-      const fetchStartTime = performance.now()
       
       try {
         const today = new Date()
@@ -79,32 +78,15 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
         const endDate = new Date(today)
         endDate.setDate(endDate.getDate() + 30)
         
-        // Performance logging
-        console.log('[Performance] Starting fetch for daily steps...', {
-          startDate: veryOldDate.toISOString().split('T')[0],
-          endDate: endDate.toISOString().split('T')[0]
-        })
-        
         // Load steps for date range
         const response = await fetch(
           `/api/daily-steps?userId=${currentUserId}&startDate=${veryOldDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`
         )
         
-        const fetchTime = performance.now() - fetchStartTime
-        console.log('[Performance] Fetch completed in', fetchTime.toFixed(2), 'ms')
-        
         if (response.ok) {
-          const parseStartTime = performance.now()
           const steps = await response.json()
-          const parseTime = performance.now() - parseStartTime
-          console.log('[Performance] JSON parse completed in', parseTime.toFixed(2), 'ms')
-          console.log('[Performance] Loaded', steps.length, 'steps')
-          
-          const setStateStartTime = performance.now()
           setDailySteps(Array.isArray(steps) ? steps : [])
           dailyStepsRef.current = Array.isArray(steps) ? steps : []
-          const setStateTime = performance.now() - setStateStartTime
-          console.log('[Performance] setState completed in', setStateTime.toFixed(2), 'ms')
         } else {
           console.error('Failed to load daily steps, status:', response.status)
         }
@@ -112,8 +94,6 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
         console.error('[GameWorldView] Error loading daily steps:', error)
       } finally {
         setIsLoadingSteps(false)
-        const totalTime = performance.now() - fetchStartTime
-        console.log('[Performance] Total loading time:', totalTime.toFixed(2), 'ms')
       }
     }
 

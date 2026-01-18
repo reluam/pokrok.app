@@ -35,6 +35,7 @@
     "of": "z",
     "yes": "Ano",
     "no": "Ne",
+    "clear": "Vymazat",
     "steps": "Kroky",
     "step": "krok",
     "addStep": "Přidat krok",
@@ -934,6 +935,35 @@
     "completedTasks": "Dokončené úkoly",
     "gameDay": "Den hry",
     "progressToNextLevel": "PROGRESS K DALŠÍMU LEVELU",
+    "overview": {
+      "title": "Přehled"
+    },
+    "period": {
+      "week": "Týdenní",
+      "month": "Měsíční",
+      "year": "Roční"
+    },
+    "wip": {
+      "title": "Work in Progress",
+      "message": "Statistiky jsou momentálně ve vývoji a budou se ještě upravovat."
+    },
+    "steps": {
+      "title": "Kroky",
+      "completed": "Dokončeno",
+      "planned": "Naplánováno",
+      "completionRate": "Úspěšnost"
+    },
+    "habits": {
+      "title": "NÁVYKY",
+      "total": "Celkem návyků:",
+      "completed": "Dokončeno",
+      "totalStreak": "Celkový streak:",
+      "bestStreak": "Nejlepší streak:",
+      "averageStreak": "Průměrný streak:",
+      "byCategory": "NÁVYKY PODLE KATEGORIÍ",
+      "noHabits": "Zatím nemáš žádné návyky",
+      "completed": "dokončených návyků"
+    },
     "goals": {
       "title": "CÍLE",
       "total": "Celkem cílů:",
@@ -943,15 +973,11 @@
       "byCategory": "CÍLE PODLE KATEGORIÍ",
       "noGoals": "Zatím nemáš žádné cíle"
     },
-    "habits": {
-      "title": "NÁVYKY",
-      "total": "Celkem návyků:",
-      "totalStreak": "Celkový streak:",
-      "bestStreak": "Nejlepší streak:",
-      "averageStreak": "Průměrný streak:",
-      "byCategory": "NÁVYKY PODLE KATEGORIÍ",
-      "noHabits": "Zatím nemáš žádné návyky"
-    }
+    "contributions": "příspěvků",
+    "activities": "aktivit",
+    "less": "Méně",
+    "more": "Více",
+    "noData": "Žádná data"
   },
   "achievements": {
     "title": "ÚSPĚCHY",
@@ -1841,6 +1867,10 @@
     "expand": "Rozbalit",
     "minimize": "Minimalizovat",
     "maximize": "Maximalizovat",
+    "prompt": {
+      "placeholder": "Napiš, co chceš udělat...",
+      "send": "Odeslat"
+    },
     "search": {
       "placeholder": "Hledat kroky, cíle, oblasti, návyky...",
       "noResults": "Žádné výsledky",

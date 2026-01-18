@@ -4,6 +4,7 @@ import React, { useMemo, useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { normalizeDate } from '../utils/dateHelpers'
+import { ContributionGraph } from '../statistics/ContributionGraph'
 
 interface YearViewProps {
   goals: any[]
@@ -38,6 +39,10 @@ export function YearView({
   // Responsive state - detect if we should show quarters instead of months
   const [showQuarters, setShowQuarters] = useState(false)
   
+  // Statistics data for contribution graph
+  const [statisticsData, setStatisticsData] = useState<any>(null)
+  const [isLoadingStats, setIsLoadingStats] = useState(true)
+  
   useEffect(() => {
     const checkWidth = () => {
       // Check if container is too narrow for 12 months
@@ -52,6 +57,32 @@ export function YearView({
     window.addEventListener('resize', checkWidth)
     return () => window.removeEventListener('resize', checkWidth)
   }, [])
+  
+  // Load statistics data for contribution graph
+  useEffect(() => {
+    const loadStats = async () => {
+      setIsLoadingStats(true)
+      try {
+        // Calculate date range for selected year
+        const yearStart = new Date(displayYear, 0, 1)
+        const yearEnd = new Date(displayYear, 11, 31, 23, 59, 59)
+        const startDate = yearStart.toISOString().split('T')[0]
+        const endDate = yearEnd.toISOString().split('T')[0]
+        
+        const response = await fetch(`/api/statistics?startDate=${startDate}&endDate=${endDate}`)
+        if (response.ok) {
+          const data = await response.json()
+          setStatisticsData(data)
+        }
+      } catch (error) {
+        console.error('Error loading statistics:', error)
+      } finally {
+        setIsLoadingStats(false)
+      }
+    }
+    
+    loadStats()
+  }, [displayYear])
   
   // Month names
   const monthNames = localeCode === 'cs-CZ' 
@@ -373,61 +404,20 @@ export function YearView({
       
       {/* Statistics */}
       <div className="px-6 pt-3 pb-6 bg-primary-50 border-b-2 border-primary-500">
-        <h3 className="text-xl font-bold text-black font-playful mb-4">
-          {t('common.statistics') || 'Statistiky'}
-        </h3>
-        
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {/* Completed Habits */}
-          <div className="box-playful-highlight p-4 bg-white">
-            <div className="text-sm text-gray-600 font-playful mb-1">
-              {t('habits.completed') || 'Splněné návyky'}
+        {/* Contribution Graph */}
+        {isLoadingStats ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-primary-500 border-t-transparent mb-4"></div>
+              <p className="text-gray-600">{t('common.loading') || 'Načítání...'}</p>
             </div>
-            <div className="text-2xl font-bold text-primary-600 font-playful">
-              {stats.completedHabits}
-              </div>
-            </div>
-            
-          {/* Goals completed in target */}
-          <div className="box-playful-highlight p-4 bg-white">
-            <div className="text-sm text-gray-600 font-playful mb-1">
-              {t('goals.completedInTarget') || 'Cíle splněné v targetu'}
-                </div>
-            <div className="text-2xl font-bold text-green-600 font-playful">
-              {stats.goalsCompletedInTarget}
-                </div>
-                </div>
-          
-          {/* Goals completed after target */}
-          <div className="box-playful-highlight p-4 bg-white">
-            <div className="text-sm text-gray-600 font-playful mb-1">
-              {t('goals.completedAfterTarget') || 'Cíle splněné po targetu'}
-                  </div>
-            <div className="text-2xl font-bold text-orange-600 font-playful">
-              {stats.goalsCompletedAfterTarget}
-              </div>
-            </div>
-            
-          {/* Steps completed in target */}
-          <div className="box-playful-highlight p-4 bg-white">
-            <div className="text-sm text-gray-600 font-playful mb-1">
-              {t('steps.completedInTarget') || 'Kroky splněné v targetu'}
-            </div>
-            <div className="text-2xl font-bold text-green-600 font-playful">
-              {stats.stepsCompletedInTarget}
-                  </div>
-                </div>
-          
-          {/* Steps completed after target */}
-          <div className="box-playful-highlight p-4 bg-white">
-            <div className="text-sm text-gray-600 font-playful mb-1">
-              {t('steps.completedAfterTarget') || 'Kroky splněné po targetu'}
-            </div>
-            <div className="text-2xl font-bold text-orange-600 font-playful">
-              {stats.stepsCompletedAfterTarget}
-              </div>
           </div>
-        </div>
+        ) : statisticsData?.dailyData ? (
+          <div className="mb-6">
+            <ContributionGraph dailyData={statisticsData.dailyData} selectedYear={displayYear} />
+          </div>
+        ) : null}
+        
       </div>
       
       {/* Goals Roadmap */}
