@@ -71,14 +71,9 @@ export default async function LatestFromLab() {
                   </div>
                 )}
                 <div className="p-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2 text-sm text-text-secondary">
-                      <Calendar size={16} />
-                      <span>{formattedDate}</span>
-                    </div>
-                    <span className="inline-block px-3 py-1 text-xs font-semibold text-primary-600 bg-primary-50 rounded-full">
-                      {tag}
-                    </span>
+                  <div className="flex items-center gap-2 text-sm text-text-secondary mb-3">
+                    <Calendar size={16} />
+                    <span>{formattedDate}</span>
                   </div>
                   <h3 className="text-xl font-bold text-text-primary mb-3 group-hover:text-primary-600 transition-colors">
                     {article.title}
@@ -119,9 +114,6 @@ export default async function LatestFromLab() {
               </div>
             )}
             <div className="p-6">
-              <span className="inline-block px-3 py-1 text-xs font-semibold text-primary-600 bg-primary-50 rounded-full mb-3">
-                Reflexe
-              </span>
               <h3 className="text-xl font-bold text-text-primary mb-3 group-hover:text-primary-600 transition-colors">
                 Otázky ke smysluplnému životu
               </h3>
@@ -157,9 +149,6 @@ export default async function LatestFromLab() {
               </div>
             )}
             <div className="p-6">
-              <span className="inline-block px-3 py-1 text-xs font-semibold text-primary-600 bg-primary-50 rounded-full mb-3">
-                Tipy
-              </span>
               <h3 className="text-xl font-bold text-text-primary mb-3 group-hover:text-primary-600 transition-colors">
                 Malé věci s velkým dopadem
               </h3>

@@ -106,10 +106,6 @@ export default function ClankyPage() {
                     className="group block p-4 md:p-6 lg:p-8 transition-all duration-300"
                   >
                     <div className="flex flex-col">
-                      <div className="flex items-center gap-2 mb-3 md:mb-4">
-                        <span className="text-lg">✨</span>
-                        <span className="text-xs md:text-sm text-primary-600 font-semibold">Tipy</span>
-                      </div>
                       <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-text-primary mb-3 md:mb-4 group-hover:text-primary-600 transition-colors">
                         Malé věci s velkým dopadem
                       </h3>
@@ -133,10 +129,6 @@ export default function ClankyPage() {
                     className="group block p-4 md:p-6 lg:p-8 transition-all duration-300"
                   >
                     <div className="flex flex-col">
-                      <div className="flex items-center gap-2 mb-3 md:mb-4">
-                        <span className="text-lg">❓</span>
-                        <span className="text-xs md:text-sm text-primary-600 font-semibold">Reflexe</span>
-                      </div>
                       <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-text-primary mb-3 md:mb-4 group-hover:text-primary-600 transition-colors">
                         Otázky ke smysluplnému životu
                       </h3>
@@ -161,10 +153,6 @@ export default function ClankyPage() {
                     className="group block p-4 md:p-6 lg:p-8 transition-all duration-300"
                   >
                     <div className="flex flex-col">
-                      <div className="flex items-center gap-2 mb-3 md:mb-4">
-                        <FileText className="text-primary-600" size={18} />
-                        <span className="text-xs md:text-sm text-primary-600 font-semibold">Článek</span>
-                      </div>
                       <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-text-primary mb-3 md:mb-4 group-hover:text-primary-600 transition-colors">
                         {article.title}
                       </h3>
