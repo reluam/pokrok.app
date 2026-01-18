@@ -4135,6 +4135,7 @@ export function JourneyGameView({
           player={player}
           userId={userId}
           areas={areas}
+          onAreasUpdate={setAreas}
           editingStepTitle={editingStepTitle}
           setEditingStepTitle={setEditingStepTitle}
           stepTitle={stepTitle}

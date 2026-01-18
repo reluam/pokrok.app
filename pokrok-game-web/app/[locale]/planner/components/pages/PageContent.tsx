@@ -1652,6 +1652,7 @@ export function PageContent(props: PageContentProps) {
               areaButtonRefs={props.areaButtonRefs}
               goalButtonRefs={props.goalButtonRefs}
               onGoalClick={props.onGoalClick}
+              onAreasUpdate={props.onAreasUpdate}
               onAreasReorder={async (areaIds: string[]) => {
                 try {
                   const response = await fetch('/api/cesta/areas', {
@@ -1661,12 +1662,12 @@ export function PageContent(props: PageContentProps) {
                     },
                     body: JSON.stringify({ areaIds }),
                   })
-                  if (response.ok) {
+                  if (response.ok && props.onAreasUpdate) {
                     // Reload areas to get updated order
                     const areasResponse = await fetch('/api/cesta/areas')
                     if (areasResponse.ok) {
                       const data = await areasResponse.json()
-                      setAreas(data.areas || [])
+                      props.onAreasUpdate(data.areas || [])
                     }
                   }
                 } catch (error) {

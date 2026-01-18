@@ -251,14 +251,66 @@ export function ContributionGraph({ dailyData, selectedYear }: ContributionGraph
   }
 
   const totalContributions = days.reduce((sum, day) => sum + day.total, 0)
-  const totalSteps = days.reduce((sum, day) => sum + day.completedSteps + day.plannedSteps, 0)
-  const totalHabits = days.reduce((sum, day) => sum + day.completedHabits + day.plannedHabits, 0)
+  const completedSteps = days.reduce((sum, day) => sum + day.completedSteps, 0)
+  const completedHabits = days.reduce((sum, day) => sum + day.completedHabits, 0)
+  const plannedSteps = days.reduce((sum, day) => sum + day.plannedSteps, 0)
+  const plannedHabits = days.reduce((sum, day) => sum + day.plannedHabits, 0)
+
+  // Calculate responsive size based on number of weeks
+  const numberOfWeeks = weeks.length
+  const containerRef = useRef<HTMLDivElement>(null)
+  const calendarRef = useRef<HTMLDivElement>(null)
+  const [squareSize, setSquareSize] = useState(3)
+
+  useEffect(() => {
+    const updateSize = () => {
+      if (!containerRef.current || numberOfWeeks === 0) return
+
+      const containerWidth = containerRef.current.offsetWidth
+      // Account for day labels (if visible) - about 40px on sm+
+      const labelsWidth = window.innerWidth >= 640 ? 48 : 0
+
+      // Available width for calendar (7 days per week, no gaps)
+      const availableWidth = containerWidth - labelsWidth
+
+      // Calculate size: available width / number of weeks / 7 days
+      const calculatedSize = Math.max(2, Math.min(16, Math.floor(availableWidth / numberOfWeeks / 7)))
+
+      setSquareSize(calculatedSize)
+    }
+
+    // Use ResizeObserver for better performance
+    const resizeObserver = new ResizeObserver(() => {
+      updateSize()
+    })
+
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current)
+    }
+
+    // Also update on window resize for window width changes (affects labels)
+    window.addEventListener('resize', updateSize)
+
+    // Initial update
+    updateSize()
+
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', updateSize)
+    }
+  }, [numberOfWeeks])
 
   return (
-    <div className="w-full">
+    <div className="w-full" ref={containerRef}>
       <div className="mb-4">
         <h3 className="text-lg font-bold font-playful text-text-primary mb-1">
-          {totalSteps} {totalSteps === 1 ? 'krok' : totalSteps < 5 ? 'kroky' : 'kroků'} • {totalHabits} {totalHabits === 1 ? 'návyk' : totalHabits < 5 ? 'návyky' : 'návyků'} {selectedYear ? `v roce ${selectedYear}` : 'v posledním roce'}
+          {completedSteps} {completedSteps === 1 ? 'krok' : completedSteps < 5 ? 'kroky' : 'kroků'}
+          {plannedSteps > 0 && ` (${plannedSteps} naplánováno)`}
+          {' • '}
+          {completedHabits} {completedHabits === 1 ? 'návyk' : completedHabits < 5 ? 'návyky' : 'návyků'}
+          {plannedHabits > 0 && ` (${plannedHabits} naplánováno)`}
+          {' '}
+          {selectedYear ? `v roce ${selectedYear}` : 'v posledním roce'}
         </h3>
         <div className="flex items-center gap-2 text-sm text-text-secondary">
           <span>{t('statistics.less') || 'Méně'}</span>
@@ -273,62 +325,66 @@ export function ContributionGraph({ dailyData, selectedYear }: ContributionGraph
         </div>
       </div>
 
-      <div className="relative">
-        <div className="overflow-x-auto">
-          <div className="inline-flex gap-1">
-            {/* Day labels */}
-            <div className="flex flex-col gap-1 pr-2">
-              <div className="h-3"></div>
-              {['Po', 'St', 'Pá'].map((day, i) => (
-                <div key={i} className="h-3 text-xs text-text-secondary flex items-center">
-                  {day}
-                </div>
-              ))}
-            </div>
+      <div className="relative w-full">
+        <div className="flex gap-1 w-full">
+          {/* Day labels - hidden on small screens */}
+          <div className="hidden sm:flex flex-col gap-1 pr-2 flex-shrink-0">
+            <div className="h-3"></div>
+            {['Po', 'St', 'Pá'].map((day, i) => (
+              <div key={i} className="h-3 text-xs text-text-secondary flex items-center">
+                {day}
+              </div>
+            ))}
+          </div>
 
-            {/* Calendar grid */}
-            <div className="flex gap-1">
-              {weeks.map((week, weekIndex) => (
-                <div key={weekIndex} className="flex flex-col gap-1">
-                  {/* Month label */}
-                  {monthLabels.find(m => m.weekIndex === weekIndex) && (
-                    <div className="h-3 text-xs text-text-secondary">
-                      {monthLabels.find(m => m.weekIndex === weekIndex)?.month}
-                    </div>
-                  )}
-                  {!monthLabels.find(m => m.weekIndex === weekIndex) && (
-                    <div className="h-3"></div>
-                  )}
+          {/* Calendar grid - responsive width using calculated size */}
+          <div ref={calendarRef} className="flex gap-1 flex-1 min-w-0">
+            {weeks.map((week, weekIndex) => (
+              <div key={weekIndex} className="flex flex-col gap-1 flex-shrink-0" style={{ width: `${squareSize * 7}px` }}>
+                {/* Month label */}
+                {monthLabels.find(m => m.weekIndex === weekIndex) && (
+                  <div className="h-3 text-xs text-text-secondary whitespace-nowrap">
+                    {monthLabels.find(m => m.weekIndex === weekIndex)?.month}
+                  </div>
+                )}
+                {!monthLabels.find(m => m.weekIndex === weekIndex) && (
+                  <div className="h-3"></div>
+                )}
+                
+                {/* Days */}
+                {week.map((day, dayIndex) => {
+                  if (!day.dateStr) {
+                    return <div key={dayIndex} style={{ width: `${squareSize}px`, height: `${squareSize}px` }}></div>
+                  }
                   
-                  {/* Days */}
-                  {week.map((day, dayIndex) => {
-                    if (!day.dateStr) {
-                      return <div key={dayIndex} className="w-3 h-3"></div>
-                    }
-                    
-                    return (
+                  return (
+                    <div
+                      key={day.dateStr}
+                      data-day={day.dateStr}
+                      className="relative group"
+                      onMouseEnter={() => handleDayHover(day)}
+                      onMouseLeave={() => setHoveredDay(null)}
+                    >
                       <div
-                        key={day.dateStr}
-                        data-day={day.dateStr}
-                        className="relative group"
-                        onMouseEnter={() => handleDayHover(day)}
-                        onMouseLeave={() => setHoveredDay(null)}
-                      >
-                        <div
-                          className={`w-3 h-3 rounded-sm cursor-pointer transition-all ${getColorClass(day.level, day.isPlanned)} ${
-                            day.total > 0 ? 'hover:ring-2 hover:ring-primary-500 hover:ring-offset-1' : ''
-                          }`}
-                          title={day.total > 0 ? `${day.total} ${t('statistics.contributions') || 'příspěvků'} ${formatDate(day.date)}` : formatDate(day.date)}
-                        />
-                        {hoveredDay?.dateStr === day.dateStr && day.total > 0 && (
-                          <TooltipComponent day={day} parentSelector={`[data-day="${day.dateStr}"]`} />
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              ))}
-            </div>
+                        className={`rounded-sm cursor-pointer transition-all ${getColorClass(day.level, day.isPlanned)} ${
+                          day.total > 0 ? 'hover:ring-2 hover:ring-primary-500 hover:ring-offset-1' : ''
+                        }`}
+                        style={{
+                          width: `${squareSize}px`,
+                          height: `${squareSize}px`,
+                          minWidth: '2px',
+                          minHeight: '2px'
+                        }}
+                        title={day.total > 0 ? `${day.total} ${t('statistics.contributions') || 'příspěvků'} ${formatDate(day.date)}` : formatDate(day.date)}
+                      />
+                      {hoveredDay?.dateStr === day.dateStr && day.total > 0 && (
+                        <TooltipComponent day={day} parentSelector={`[data-day="${day.dateStr}"]`} />
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            ))}
           </div>
         </div>
 

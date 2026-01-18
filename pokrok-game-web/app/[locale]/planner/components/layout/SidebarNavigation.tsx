@@ -233,6 +233,7 @@ interface SidebarNavigationProps {
   onAssistantClick?: () => void
   onAreasReorder?: (areaIds: string[]) => void
   onGoalsReorder?: (areaId: string, goalIds: string[]) => void
+  onAreasUpdate?: (areas: any[]) => void
 }
 
 export function SidebarNavigation({
@@ -267,7 +268,8 @@ export function SidebarNavigation({
   onGoalClick,
   onAssistantClick,
   onAreasReorder,
-  onGoalsReorder
+  onGoalsReorder,
+  onAreasUpdate
 }: SidebarNavigationProps) {
   const t = useTranslations()
   const [hoveredAreaId, setHoveredAreaId] = useState<string | null>(null)

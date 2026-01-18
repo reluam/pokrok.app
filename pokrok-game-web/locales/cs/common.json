@@ -307,7 +307,9 @@
       "paused": "Odložený"
     },
     "filters": {
+      "title": "Filtry",
       "status": {
+        "title": "Status",
         "all": "Všechny statusy",
         "active": "Aktivní",
         "completed": "Splněné",
@@ -447,7 +449,9 @@
       "maxStreak": "Nejdelší streak"
     },
     "filters": {
-      "frequency": {
+      "title": "Filtry",
+      "frequency": "Frekvence",
+      "frequencyOptions": {
         "all": "Všechny frekvence",
         "daily": "Denní",
         "weekly": "Týdenní",
@@ -1173,6 +1177,7 @@
     "completedInTarget": "Splněné v targetu",
     "completedAfterTarget": "Splněné po targetu",
     "filters": {
+      "title": "Filtry",
       "showCompleted": "Zobrazit dokončené",
       "showRepeatingSteps": "Opakující se kroky",
       "status": {
