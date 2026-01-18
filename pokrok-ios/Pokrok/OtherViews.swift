@@ -9,22 +9,12 @@ struct CombinedDatePicker: View {
     var totalSteps: Int
     var completedHabits: Int
     var totalHabits: Int
+    var onAddStep: (() -> Void)? = nil
+    var onAddHabit: (() -> Void)? = nil
+    var showHabits: Bool = false // If true, show habits count instead of steps
     
     private var selectedDate: Date {
         dateManager.selectedDate
-    }
-    
-    private var combinedCompleted: Int {
-        completedSteps + completedHabits
-    }
-    
-    private var combinedTotal: Int {
-        totalSteps + totalHabits
-    }
-    
-    private var combinedProgress: Double {
-        guard combinedTotal > 0 else { return 0 }
-        return min(Double(combinedCompleted) / Double(combinedTotal), 1.0)
     }
     
     private let calendar = Calendar.current
@@ -51,30 +41,9 @@ struct CombinedDatePicker: View {
         calendar.isDate(selectedDate, inSameDayAs: Date())
     }
     
-    private var isPast: Bool {
-        let today = calendar.startOfDay(for: Date())
-        let selectedDay = calendar.startOfDay(for: selectedDate)
-        return selectedDay < today
-    }
-    
-    private var isFuture: Bool {
-        let today = calendar.startOfDay(for: Date())
-        let selectedDay = calendar.startOfDay(for: selectedDate)
-        return selectedDay > today
-    }
-    
-    private var cardBackgroundColor: Color {
-        if isToday {
-            return DesignSystem.Colors.dynamicPrimaryLight
-        } else {
-            return DesignSystem.Colors.dynamicPrimaryLight
-                .mix(with: DesignSystem.Colors.surface, by: 0.5)
-        }
-    }
-    
     var body: some View {
-        VStack(spacing: DesignSystem.Spacing.xs) {
-            // Custom card with better background color control for contrast
+        VStack(spacing: 0) {
+            // Simple header without box - just content and divider
             HStack(alignment: .center, spacing: DesignSystem.Spacing.md) {
                 // Left arrow button
                 Button(action: {
@@ -88,7 +57,7 @@ struct CombinedDatePicker: View {
                         .frame(width: 24, height: 24)
                 }
                 
-                // Two columns: Date info and Progress info
+                // Two columns: Date info and Count
                 HStack(alignment: .center, spacing: DesignSystem.Spacing.md) {
                     // Left column: Day name and day number
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
@@ -106,76 +75,66 @@ struct CombinedDatePicker: View {
                     
                     Spacer()
                     
-                    // Right column: Progress bar and percentage with steps and habits count
-                    VStack(alignment: .trailing, spacing: DesignSystem.Spacing.xs) {
-                        // Progress bar - using full primary color (same as border)
-                        GeometryReader { geometry in
-                            ZStack(alignment: .leading) {
-                                // Background
-                                RoundedRectangle(cornerRadius: 3)
-                                    .fill(DesignSystem.Colors.surfaceSecondary)
-                                    .frame(height: 6)
-                                
-                                // Progress - using full primary color
-                                RoundedRectangle(cornerRadius: 3)
-                                    .fill(DesignSystem.Colors.dynamicPrimary)
-                                    .frame(width: geometry.size.width * combinedProgress, height: 6)
-                                    .animation(.easeInOut(duration: 0.3), value: combinedProgress)
-                                
-                                // Outline - using full primary color (same as fill)
-                                RoundedRectangle(cornerRadius: 3)
-                                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
-                                    .frame(height: 6)
-                            }
-                        }
-                        .frame(height: 6)
-                        
-                        // Percentage and fraction with steps and habits breakdown
-                        let percentage = Int(combinedProgress * 100)
-                        Text("\(percentage)% (\(combinedCompleted)/\(combinedTotal))")
-                            .font(DesignSystem.Typography.caption)
-                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                    // Right column: Count for selected date (steps or habits)
+                    if showHabits {
+                        Text("\(completedHabits)/\(totalHabits)")
+                            .font(DesignSystem.Typography.title3)
+                            .fontWeight(.bold)
+                            .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                    } else {
+                        Text("\(completedSteps)/\(totalSteps)")
+                            .font(DesignSystem.Typography.title3)
+                            .fontWeight(.bold)
+                            .foregroundColor(DesignSystem.Colors.dynamicPrimary)
                     }
                 }
                 
-                // Right arrow button
-                Button(action: {
-                    if let nextDate = calendar.date(byAdding: .day, value: 1, to: selectedDate) {
-                        dateManager.selectedDate = nextDate
+                // Right side: Add button and arrow button
+                HStack(spacing: DesignSystem.Spacing.sm) {
+                    // Add button (always visible)
+                    if showHabits, let onAddHabit = onAddHabit {
+                        Button(action: onAddHabit) {
+                            Image(systemName: "plus")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                                .frame(width: 32, height: 32)
+                                .background(
+                                    Circle()
+                                        .fill(DesignSystem.Colors.dynamicPrimary.opacity(0.1))
+                                )
+                        }
+                    } else if !showHabits, let onAddStep = onAddStep {
+                        Button(action: onAddStep) {
+                            Image(systemName: "plus")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                                .frame(width: 32, height: 32)
+                                .background(
+                                    Circle()
+                                        .fill(DesignSystem.Colors.dynamicPrimary.opacity(0.1))
+                                )
+                        }
                     }
-                }) {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(isToday ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.textTertiary)
-                        .frame(width: 24, height: 24)
+                    
+                    // Right arrow button
+                    Button(action: {
+                        if let nextDate = calendar.date(byAdding: .day, value: 1, to: selectedDate) {
+                            dateManager.selectedDate = nextDate
+                        }
+                    }) {
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(isToday ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.textTertiary)
+                            .frame(width: 24, height: 24)
+                    }
                 }
             }
-            .padding(DesignSystem.Spacing.sm)
-            .background(cardBackgroundColor)
-            .overlay(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
-                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
-            )
-            .cornerRadius(DesignSystem.CornerRadius.lg)
-            .background(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
-                    .fill(DesignSystem.Shadows.card)
-                    .offset(
-                        x: DesignSystem.Shadows.cardOffsetX,
-                        y: DesignSystem.Shadows.cardOffsetY
-                    )
-            )
+            .padding(.vertical, DesignSystem.Spacing.md)
+            .padding(.horizontal, DesignSystem.Spacing.md)
             
-            // "Přejít na dnešek" link (only if not today)
-            if !isToday {
-                Button(action: {
-                    dateManager.selectedDate = Date()
-                }) {
-                    Text("Přejít na dnešek")
-                        .font(DesignSystem.Typography.caption)
-                        .foregroundColor(DesignSystem.Colors.dynamicPrimary)
-                }
-            }
+            // Divider below header
+            Divider()
+                .background(DesignSystem.Colors.outline)
         }
     }
 }
@@ -444,57 +403,104 @@ struct AspirationProgressSection: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Section header with colored accent - clickable to expand/collapse
+            // Large aspiration header - prominent and clickable to expand/collapse
             Button(action: {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                     isExpanded.toggle()
                 }
             }) {
-                HStack(spacing: DesignSystem.Spacing.sm) {
-                    // Colored indicator
-                    RoundedRectangle(cornerRadius: 2)
-                        .fill(sectionColor)
-                        .frame(width: 3, height: 18)
-                    
-                    if let iconName = sectionIcon {
-                        LucideIcon(iconName, size: 16, color: DesignSystem.Colors.textPrimary)
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                    HStack(alignment: .center, spacing: DesignSystem.Spacing.md) {
+                        // Large colored indicator bar
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(sectionColor)
+                            .frame(width: 6, height: 48)
+                        
+                        // Icon and title section
+                        HStack(spacing: DesignSystem.Spacing.md) {
+                            if let iconName = sectionIcon {
+                                LucideIcon(iconName, size: 32, color: sectionColor)
+                                    .frame(width: 48, height: 48)
+                                    .background(
+                                        Circle()
+                                            .fill(sectionColor.opacity(0.15))
+                                    )
+                            } else {
+                                Circle()
+                                    .fill(sectionColor.opacity(0.15))
+                                    .frame(width: 48, height: 48)
+                                    .overlay(
+                                        Image(systemName: "folder.fill")
+                                            .font(.system(size: 24, weight: .semibold))
+                                            .foregroundColor(sectionColor)
+                                    )
+                            }
+                            
+                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                                Text(sectionTitle)
+                                    .font(DesignSystem.Typography.title2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                                
+                                if let aspiration = aspiration, let description = aspiration.description, !description.isEmpty {
+                                    Text(description)
+                                        .font(DesignSystem.Typography.caption)
+                                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                                        .lineLimit(2)
+                                }
+                            }
+                            
+                            Spacer()
+                        }
                     }
                     
-                    Text(sectionTitle)
-                        .font(DesignSystem.Typography.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(DesignSystem.Colors.textPrimary)
-                    
-                    Spacer()
-                    
-                    // Step indicator (stock market style)
-                    stepIndicatorView
-                    
-                    // Goals count
-                    Text("\(goals.count)")
-                        .font(DesignSystem.Typography.caption)
-                        .foregroundColor(DesignSystem.Colors.textSecondary)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
+                    // Stats row
+                    HStack(spacing: DesignSystem.Spacing.lg) {
+                        // Step indicator (stock market style)
+                        stepIndicatorView
+                        
+                        // Goals count
+                        HStack(spacing: DesignSystem.Spacing.xs) {
+                            Image(systemName: "flag.fill")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(sectionColor)
+                            
+                            Text("\(goals.count) \(goals.count == 1 ? "cíl" : goals.count < 5 ? "cíle" : "cílů")")
+                                .font(DesignSystem.Typography.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
+                        }
+                        .padding(.horizontal, DesignSystem.Spacing.md)
+                        .padding(.vertical, DesignSystem.Spacing.sm)
                         .background(
                             Capsule()
-                                .fill(DesignSystem.Colors.surfaceSecondary)
+                                .fill(sectionColor.opacity(0.1))
                         )
-                    
-                    // Expand/collapse icon
-                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(DesignSystem.Colors.textSecondary)
-                        .rotationEffect(.degrees(isExpanded ? 0 : 0))
+                        
+                        Spacer()
+                        
+                        // Expand/collapse icon
+                        Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                    }
+                    .padding(.leading, 58) // Align with icon
                 }
-                .padding(.horizontal, DesignSystem.Spacing.md)
-                .padding(.vertical, DesignSystem.Spacing.sm)
+                .padding(DesignSystem.Spacing.lg)
+                .background(
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                        .fill(DesignSystem.Colors.surface)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                                .stroke(sectionColor.opacity(0.3), lineWidth: 2)
+                        )
+                )
             }
             .buttonStyle(PlainButtonStyle())
             
             // Goals list - shown when expanded
             if isExpanded {
-                VStack(spacing: DesignSystem.Spacing.xs) {
+                VStack(spacing: DesignSystem.Spacing.sm) {
                     ForEach(goals, id: \.id) { goal in
                         NavigationLink(destination: GoalDetailView(goal: goal)) {
                             CompactGoalProgressRow(goal: goal, dailySteps: dailySteps)
@@ -502,7 +508,8 @@ struct AspirationProgressSection: View {
                         .buttonStyle(PlainButtonStyle())
                     }
                 }
-                .padding(.leading, DesignSystem.Spacing.md)
+                .padding(.top, DesignSystem.Spacing.md)
+                .padding(.leading, DesignSystem.Spacing.lg)
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
@@ -513,26 +520,31 @@ struct AspirationProgressSection: View {
     private var stepIndicatorView: some View {
         let stats = stepStats
         
-        HStack(spacing: 5) {
+        HStack(spacing: DesignSystem.Spacing.xs) {
             Image(systemName: stats.indicatorIcon)
-                .font(.system(size: 13, weight: .bold))
+                .font(.system(size: 16, weight: .bold))
                 .foregroundColor(stats.indicatorColor)
             
             if stats.overdue > 0 || stats.completed > 0 {
-                Text("\(stats.completed)/\(stats.overdue + stats.completed)")
-                    .font(DesignSystem.Typography.caption)
+                Text("\(stats.completed)/\(stats.overdue + stats.completed) kroků")
+                    .font(DesignSystem.Typography.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(stats.indicatorColor)
+            } else {
+                Text("0 kroků")
+                    .font(DesignSystem.Typography.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
             }
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
+        .padding(.horizontal, DesignSystem.Spacing.md)
+        .padding(.vertical, DesignSystem.Spacing.sm)
         .background(
-            RoundedRectangle(cornerRadius: 5)
-                .fill(stats.indicatorColor.opacity(0.2))
+            Capsule()
+                .fill(stats.indicatorColor.opacity(0.15))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 5)
-                        .stroke(stats.indicatorColor.opacity(0.4), lineWidth: 1)
+                    Capsule()
+                        .stroke(stats.indicatorColor.opacity(0.3), lineWidth: 1.5)
                 )
         )
     }
@@ -789,7 +801,10 @@ struct StepsView: View {
                         completedSteps: stepsForSelectedDate.filter { $0.completed }.count,
                         totalSteps: stepsForSelectedDate.count,
                         completedHabits: HabitsDataProvider.shared.getCompletedHabitsCount(for: selectedDate),
-                        totalHabits: HabitsDataProvider.shared.getTotalHabitsCount(for: selectedDate)
+                        totalHabits: HabitsDataProvider.shared.getTotalHabitsCount(for: selectedDate),
+                        onAddStep: {
+                            showAddStepModal = true
+                        }
                     )
                     .padding(.horizontal, DesignSystem.Spacing.md)
                     .padding(.top, DesignSystem.Spacing.md)
@@ -830,6 +845,26 @@ struct StepsView: View {
                     }
                 }
                 .background(DesignSystem.Colors.background)
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 50)
+                        .onEnded { value in
+                            let calendar = Calendar.current
+                            if abs(value.translation.width) > abs(value.translation.height) {
+                                // Horizontal swipe
+                                if value.translation.width > 50 {
+                                    // Swipe right - previous day
+                                    if let prevDate = calendar.date(byAdding: .day, value: -1, to: selectedDate) {
+                                        dateManager.selectedDate = prevDate
+                                    }
+                                } else if value.translation.width < -50 {
+                                    // Swipe left - next day
+                                    if let nextDate = calendar.date(byAdding: .day, value: 1, to: selectedDate) {
+                                        dateManager.selectedDate = nextDate
+                                    }
+                                }
+                            }
+                        }
+                )
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -1282,6 +1317,7 @@ struct HabitsView: View {
     @State private var errorMessage = ""
     @State private var showError = false
     @State private var loadingHabits: Set<String> = []
+    @State private var showAddHabitModal = false
     
     private var selectedDate: Date {
         dateManager.selectedDate
@@ -1294,12 +1330,16 @@ struct HabitsView: View {
             } else {
                 ScrollView {
                     LazyVStack(spacing: DesignSystem.Spacing.lg) {
-                        // Combined Date Picker with Steps and Habits Progress
+                        // Combined Date Picker with Habits Progress
                         CombinedDatePicker(
-                            completedSteps: StepsDataProvider.shared.getCompletedStepsCount(for: selectedDate),
-                            totalSteps: StepsDataProvider.shared.getTotalStepsCount(for: selectedDate),
+                            completedSteps: 0,
+                            totalSteps: 0,
                             completedHabits: completedHabitsForSelectedDate,
-                            totalHabits: habitsForSelectedDate.count
+                            totalHabits: habitsForSelectedDate.count,
+                            onAddHabit: {
+                                showAddHabitModal = true
+                            },
+                            showHabits: true
                         )
                             .padding(.top, DesignSystem.Spacing.md)
                         
@@ -1322,10 +1362,37 @@ struct HabitsView: View {
                     .padding(.horizontal, DesignSystem.Spacing.md)
                 }
                 .background(DesignSystem.Colors.background)
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 50)
+                        .onEnded { value in
+                            let calendar = Calendar.current
+                            if abs(value.translation.width) > abs(value.translation.height) {
+                                // Horizontal swipe
+                                if value.translation.width > 50 {
+                                    // Swipe right - previous day
+                                    if let prevDate = calendar.date(byAdding: .day, value: -1, to: selectedDate) {
+                                        dateManager.selectedDate = prevDate
+                                    }
+                                } else if value.translation.width < -50 {
+                                    // Swipe left - next day
+                                    if let nextDate = calendar.date(byAdding: .day, value: 1, to: selectedDate) {
+                                        dateManager.selectedDate = nextDate
+                                    }
+                                }
+                            }
+                        }
+                )
             }
         }
         .navigationTitle("Návyky")
         .navigationBarTitleDisplayMode(.large)
+        .sheet(isPresented: $showAddHabitModal) {
+            NavigationView {
+                HabitDetailView(onHabitAdded: {
+                    loadHabits()
+                })
+            }
+        }
         .onAppear {
             loadHabits()
         }

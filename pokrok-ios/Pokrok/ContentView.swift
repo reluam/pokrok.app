@@ -9,7 +9,7 @@ enum Tab: String, CaseIterable {
     
     var icon: String {
         switch self {
-        case .steps: return "checkmark.circle.fill"
+        case .steps: return "shoeprints.fill"
         case .habits: return "repeat.circle.fill"
         case .goals: return "chart.bar.fill"
         case .settings: return "gear"
@@ -27,7 +27,8 @@ struct ContentView: View {
     @State private var showAddStepModal = false
     @State private var showAddHabitModal = false
     @State private var showAddMenu = false
-    @State private var showAssistant = false
+    @State private var showQuickAddSheet = false
+    @State private var quickAddStepTitle: String? = nil
     
     var body: some View {
         Group {
@@ -52,7 +53,7 @@ struct ContentView: View {
                     // Custom Playful Tab Bar
                     VStack {
                         Spacer()
-                        PlayfulTabBar(selectedTab: $selectedTab, showAddMenu: $showAddMenu, showAssistant: $showAssistant)
+                        PlayfulTabBar(selectedTab: $selectedTab, showAddMenu: $showAddMenu, showQuickAddSheet: $showQuickAddSheet)
                     }
                     .ignoresSafeArea(.keyboard, edges: .bottom)
                 }
@@ -83,8 +84,24 @@ struct ContentView: View {
                         showAddHabitModal: $showAddHabitModal
                     )
                 }
-                .sheet(isPresented: $showAssistant) {
-                    AssistantView()
+                .sheet(isPresented: $showQuickAddSheet) {
+                    QuickAddSheet(
+                        showAddAspirationModal: $showAddAspirationModal,
+                        showAddGoalModal: $showAddGoalModal,
+                        showAddStepModal: $showAddStepModal,
+                        showAddHabitModal: $showAddHabitModal,
+                        quickAddStepTitle: $quickAddStepTitle
+                    )
+                }
+                .sheet(isPresented: Binding(
+                    get: { quickAddStepTitle != nil },
+                    set: { if !$0 { quickAddStepTitle = nil } }
+                )) {
+                    NavigationView {
+                        StepDetailView(initialDate: Date(), initialTitle: quickAddStepTitle, onStepAdded: {
+                            quickAddStepTitle = nil
+                        })
+                    }
                 }
                 .onChange(of: navigationManager.navigateToTab) { _, newTab in
                     if let tab = newTab {
@@ -104,7 +121,7 @@ struct ContentView: View {
 struct PlayfulTabBar: View {
     @Binding var selectedTab: Tab
     @Binding var showAddMenu: Bool
-    @Binding var showAssistant: Bool
+    @Binding var showQuickAddSheet: Bool
     @ObservedObject private var settingsManager = UserSettingsManager.shared
     
     var body: some View {
@@ -121,9 +138,9 @@ struct PlayfulTabBar: View {
                 .frame(maxWidth: .infinity)
             }
             
-            // Central Assistant Button
+            // Central Add Step Button
             Button(action: {
-                showAssistant = true
+                showQuickAddSheet = true
             }) {
                 Circle()
                     .fill(
@@ -139,7 +156,7 @@ struct PlayfulTabBar: View {
                             .stroke(DesignSystem.Colors.outline, lineWidth: 2)
                     )
                     .overlay(
-                        Image(systemName: "sparkles")
+                        Image(systemName: "plus")
                             .font(.system(size: 24, weight: .bold))
                             .foregroundColor(.white)
                     )
@@ -266,7 +283,7 @@ struct AddMenuSheet: View {
                         }
                         
                         AddMenuButton(
-                            icon: "checkmark.circle.fill",
+                            icon: "shoeprints.fill",
                             title: "Krok",
                             color: settingsManager.primaryColor
                         ) {
@@ -405,5 +422,205 @@ struct AddHabitModal: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Quick Add Sheet
+struct QuickAddSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @Binding var showAddAspirationModal: Bool
+    @Binding var showAddGoalModal: Bool
+    @Binding var showAddStepModal: Bool
+    @Binding var showAddHabitModal: Bool
+    @Binding var quickAddStepTitle: String?
+    
+    @State private var stepTitle: String = ""
+    @FocusState private var isStepTitleFocused: Bool
+    @ObservedObject private var settingsManager = UserSettingsManager.shared
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: DesignSystem.Spacing.lg) {
+                    // Step input box
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                        Text("Nový krok")
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                        
+                        TextField("Název kroku", text: $stepTitle)
+                            .font(DesignSystem.Typography.body)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                            .textFieldStyle(.plain)
+                            .focused($isStepTitleFocused)
+                            .padding(DesignSystem.Spacing.md)
+                            .background(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                                    .fill(DesignSystem.Colors.surface)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                                            .stroke(DesignSystem.Colors.outline, lineWidth: 1)
+                                    )
+                            )
+                        
+                        Button(action: {
+                            dismiss()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                showStepDetail = true
+                            }
+                        }) {
+                            HStack {
+                                Text("Upravit detaily")
+                                    .font(DesignSystem.Typography.body)
+                                    .fontWeight(.medium)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 14, weight: .medium))
+                            }
+                            .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                            .padding(DesignSystem.Spacing.md)
+                        }
+                    }
+                    .padding(DesignSystem.Spacing.md)
+                    .background(
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                            .fill(DesignSystem.Colors.surface)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                                    .stroke(DesignSystem.Colors.dynamicPrimary, lineWidth: 2)
+                            )
+                    )
+                    .padding(.horizontal, DesignSystem.Spacing.md)
+                    .padding(.top, DesignSystem.Spacing.lg)
+                    
+                    // Other options
+                    VStack(spacing: DesignSystem.Spacing.md) {
+                        Text("Nebo přidat")
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, DesignSystem.Spacing.md)
+                        
+                        QuickAddOptionButton(
+                            icon: "repeat.circle.fill",
+                            title: "Návyk",
+                            color: DesignSystem.Colors.Playful.yellow
+                        ) {
+                            dismiss()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                showAddHabitModal = true
+                            }
+                        }
+                        
+                        QuickAddOptionButton(
+                            icon: "flag.fill",
+                            title: "Cíl",
+                            color: DesignSystem.Colors.Playful.yellowGreen
+                        ) {
+                            dismiss()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                showAddGoalModal = true
+                            }
+                        }
+                        
+                        QuickAddOptionButton(
+                            icon: "folder.fill",
+                            title: "Oblast",
+                            color: DesignSystem.Colors.Playful.purple
+                        ) {
+                            dismiss()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                showAddAspirationModal = true
+                            }
+                        }
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.md)
+                    
+                    Spacer(minLength: 100)
+                }
+            }
+            .background(DesignSystem.Colors.background)
+            .navigationTitle("Přidat")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Zrušit") {
+                        dismiss()
+                    }
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Vytvořit") {
+                        if !stepTitle.trimmingCharacters(in: .whitespaces).isEmpty {
+                            showStepDetail = true
+                        }
+                    }
+                    .foregroundColor(DesignSystem.Colors.dynamicPrimary)
+                    .fontWeight(.semibold)
+                    .disabled(stepTitle.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
+            }
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    isStepTitleFocused = true
+                }
+            }
+            .sheet(isPresented: $showStepDetail) {
+                NavigationView {
+                    StepDetailView(initialDate: Date(), initialTitle: stepTitle.isEmpty ? nil : stepTitle, onStepAdded: {
+                        dismiss()
+                    })
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Quick Add Option Button
+struct QuickAddOptionButton: View {
+    let icon: String
+    let title: String
+    let color: Color
+    let action: () -> Void
+    @ObservedObject private var settingsManager = UserSettingsManager.shared
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: DesignSystem.Spacing.md) {
+                ZStack {
+                    Circle()
+                        .fill(color.mix(with: DesignSystem.Colors.surface, by: 0.85))
+                        .frame(width: 40, height: 40)
+                        .overlay(
+                            Circle()
+                                .stroke(settingsManager.primaryColor, lineWidth: 2)
+                        )
+                    
+                    Image(systemName: icon)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(color)
+                }
+                
+                Text(title)
+                    .font(DesignSystem.Typography.body)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(DesignSystem.Colors.textTertiary)
+            }
+            .padding(DesignSystem.Spacing.md)
+            .background(
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                    .fill(DesignSystem.Colors.surface)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                            .stroke(settingsManager.primaryColor, lineWidth: 2)
+                    )
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }

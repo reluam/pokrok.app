@@ -558,9 +558,9 @@ export function UpcomingView({
         return true
       })
       .forEach(step => {
-        const stepDate = new Date(normalizeDate(step.date))
-        stepDate.setHours(0, 0, 0, 0)
-        
+      const stepDate = new Date(normalizeDate(step.date))
+      stepDate.setHours(0, 0, 0, 0)
+      
         const isOverdue = stepDate < today
         
         // Filter out steps more than one month ahead (but keep all overdue steps)

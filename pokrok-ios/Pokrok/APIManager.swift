@@ -432,7 +432,6 @@ class APIManager: ObservableObject {
         // For date-specific queries, always fetch from API but filter from cache first if available
         if !forceRefresh, let cachedSteps = cacheManager.loadSteps() {
             // Filter cached steps for the requested date range
-            let calendar = Calendar.current
             let filteredSteps = cachedSteps.filter { step in
                 guard let stepDate = step.date else { return false }
                 if let start = startDate, let end = endDate {

@@ -20,7 +20,7 @@ export default function HeroSection() {
       
       <div className="max-w-4xl mx-auto text-center relative z-10">
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-text-primary mb-6 leading-tight">
-          Žij život, který dává smysl tobě.
+          Žij život, který ti dává smysl.
         </h1>
         <p className="text-lg md:text-xl lg:text-2xl text-text-secondary max-w-3xl mx-auto leading-relaxed mb-10">
           Protože svět se nikdy nezastaví a úkoly nikdy neskončí. Nečekej, až se všechno uklidní – vezmi svůj život do vlastních rukou. Se Smyslužitím ti pomůžu najít tvůj směr a podpořím tě na tvé vlastní cestě za smysluplným životem.

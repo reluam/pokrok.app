@@ -40,7 +40,7 @@ struct StepDetailView: View {
         step == nil || (step?.id.isEmpty ?? false)
     }
     
-    init(step: DailyStep? = nil, goalTitle: String? = nil, initialDate: Date? = nil, onStepAdded: (() -> Void)? = nil) {
+    init(step: DailyStep? = nil, goalTitle: String? = nil, initialDate: Date? = nil, initialTitle: String? = nil, onStepAdded: (() -> Void)? = nil) {
         self.step = step
         self.goalTitle = goalTitle
         self.initialDate = initialDate
@@ -65,7 +65,7 @@ struct StepDetailView: View {
             self._editingRecurringDisplayMode = State(initialValue: step.recurringDisplayMode ?? "next_only")
         } else {
             self._isCompleted = State(initialValue: false)
-            self._editingTitle = State(initialValue: "")
+            self._editingTitle = State(initialValue: initialTitle ?? "")
             self._editingDescription = State(initialValue: "")
             self._editingDate = State(initialValue: initialDate ?? Date())
             self._editingGoalId = State(initialValue: nil)

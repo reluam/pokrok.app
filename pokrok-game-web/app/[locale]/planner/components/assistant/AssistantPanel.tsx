@@ -317,7 +317,7 @@ export function AssistantPanel({
                   onResultChange={(result) => setAssistantResult(result)}
                 />
               </div>
-              <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
                 {assistantResult ? (
                   <div className={`p-4 ${assistantResult.success ? 'bg-primary-50' : 'bg-red-50'}`}>
                     <div className={`text-sm ${assistantResult.success ? 'text-primary-700' : 'text-red-700'}`}>
@@ -332,8 +332,8 @@ export function AssistantPanel({
                         ))}
                       </div>
                     )}
-                  </div>
-                ) : (
+                </div>
+              ) : (
                   showTips ? (
                     <AssistantTips
                       currentPage={currentPage}
@@ -348,8 +348,8 @@ export function AssistantPanel({
                       </p>
                     </div>
                   )
-                )}
-              </div>
+                  )}
+                </div>
             </div>
           </div>
         )}
@@ -494,7 +494,7 @@ export function AssistantPanel({
                   onResultChange={(result) => setAssistantResult(result)}
                 />
               </div>
-              <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
                 {assistantResult ? (
                   <div className={`p-4 ${assistantResult.success ? 'bg-primary-50' : 'bg-red-50'}`}>
                     <div className={`text-sm ${assistantResult.success ? 'text-primary-700' : 'text-red-700'}`}>
@@ -509,8 +509,8 @@ export function AssistantPanel({
                         ))}
                       </div>
                     )}
-                  </div>
-                ) : (
+                </div>
+              ) : (
                   showTips ? (
                     <AssistantTips
                       currentPage={currentPage}
@@ -525,8 +525,8 @@ export function AssistantPanel({
                       </p>
                     </div>
                   )
-                )}
-              </div>
+                  )}
+                </div>
             </div>
           </>
         )}

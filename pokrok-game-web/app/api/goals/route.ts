@@ -63,9 +63,9 @@ export async function POST(request: NextRequest) {
         const areaOwned = await verifyEntityOwnership(areaId, 'areas', dbUser)
         if (!areaOwned) {
           // If not found in areas, try aspirations table (iOS app compatibility)
-          const aspirationOwned = await verifyEntityOwnership(areaId, 'aspirations', dbUser)
-          if (!aspirationOwned) {
-            return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      const aspirationOwned = await verifyEntityOwnership(areaId, 'aspirations', dbUser)
+      if (!aspirationOwned) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
           }
         }
       }
@@ -164,9 +164,9 @@ export async function PUT(request: NextRequest) {
         const areaOwned = await verifyEntityOwnership(areaId, 'areas', dbUser)
         if (!areaOwned) {
           // If not found in areas, try aspirations table (iOS app compatibility)
-          const aspirationOwned = await verifyEntityOwnership(areaId, 'aspirations', dbUser)
-          if (!aspirationOwned) {
-            return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      const aspirationOwned = await verifyEntityOwnership(areaId, 'aspirations', dbUser)
+      if (!aspirationOwned) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
           }
         }
       }

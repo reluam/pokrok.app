@@ -2052,10 +2052,10 @@ export function JourneyGameView({
       let response: Response
       try {
         response = await fetch('/api/cesta/areas', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
           body: requestBody,
         })
         console.log('Delete area: Fetch completed', 'status:', response.status, 'statusText:', response.statusText, 'ok:', response.ok)
@@ -2068,17 +2068,17 @@ export function JourneyGameView({
       }
 
       console.log('Delete area response status:', response.status, response.statusText, 'ok:', response.ok)
-      
+
       if (response.ok) {
         console.log('Delete area: Success, reloading data...')
         
         try {
-          // Reload areas
-          const areasResponse = await fetch('/api/cesta/areas')
-          if (areasResponse.ok) {
+        // Reload areas
+        const areasResponse = await fetch('/api/cesta/areas')
+        if (areasResponse.ok) {
             try {
-              const data = await areasResponse.json()
-              setAreas(data.areas || [])
+          const data = await areasResponse.json()
+          setAreas(data.areas || [])
               console.log('Delete area: Areas reloaded successfully')
             } catch (parseError) {
               console.error('Delete area: Failed to parse areas response')
@@ -2108,12 +2108,12 @@ export function JourneyGameView({
         
         // Reload goals, steps, and habits (either deleted or unlinked)
         try {
-          const goalsResponse = await fetch('/api/goals')
-          if (goalsResponse.ok && onGoalsUpdate) {
+        const goalsResponse = await fetch('/api/goals')
+        if (goalsResponse.ok && onGoalsUpdate) {
             try {
-              const goalsData = await goalsResponse.json()
-              // API returns array directly, not wrapped in { goals: [...] }
-              onGoalsUpdate(Array.isArray(goalsData) ? goalsData : (goalsData.goals || []))
+          const goalsData = await goalsResponse.json()
+          // API returns array directly, not wrapped in { goals: [...] }
+          onGoalsUpdate(Array.isArray(goalsData) ? goalsData : (goalsData.goals || []))
             } catch (parseError) {
               console.error('Delete area: Failed to parse goals response')
             }
@@ -2123,12 +2123,12 @@ export function JourneyGameView({
         }
         
         try {
-          const stepsResponse = await fetch('/api/daily-steps')
-          if (stepsResponse.ok && onDailyStepsUpdate) {
+        const stepsResponse = await fetch('/api/daily-steps')
+        if (stepsResponse.ok && onDailyStepsUpdate) {
             try {
-              const stepsData = await stepsResponse.json()
-              // API returns array directly, not wrapped in { steps: [...] }
-              onDailyStepsUpdate(Array.isArray(stepsData) ? stepsData : (stepsData.steps || []))
+          const stepsData = await stepsResponse.json()
+          // API returns array directly, not wrapped in { steps: [...] }
+          onDailyStepsUpdate(Array.isArray(stepsData) ? stepsData : (stepsData.steps || []))
             } catch (parseError) {
               console.error('Delete area: Failed to parse steps response')
             }
@@ -2138,12 +2138,12 @@ export function JourneyGameView({
         }
         
         try {
-          const habitsResponse = await fetch('/api/habits')
-          if (habitsResponse.ok && onHabitsUpdate) {
+        const habitsResponse = await fetch('/api/habits')
+        if (habitsResponse.ok && onHabitsUpdate) {
             try {
-              const habitsData = await habitsResponse.json()
-              // API returns array directly, not wrapped in { habits: [...] }
-              onHabitsUpdate(Array.isArray(habitsData) ? habitsData : (habitsData.habits || []))
+          const habitsData = await habitsResponse.json()
+          // API returns array directly, not wrapped in { habits: [...] }
+          onHabitsUpdate(Array.isArray(habitsData) ? habitsData : (habitsData.habits || []))
             } catch (parseError) {
               console.error('Delete area: Failed to parse habits response')
             }
@@ -2883,8 +2883,8 @@ export function JourneyGameView({
         const errorMessage = errorData.error || `HTTP ${response.status}`
         console.error('Failed to update goal:', errorMessage)
         alert(`Nepodařilo se aktualizovat cíl: ${errorMessage}`)
-      }
-    } catch (error) {
+            }
+          } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
       console.error('Error updating goal:', errorMessage)
       alert('Chyba při aktualizaci cíle')
@@ -4332,10 +4332,10 @@ export function JourneyGameView({
 
         {/* Assistant Panel - Temporarily hidden */}
         {false && (
-          <AssistantPanel
-            currentPage={currentPage}
-            mainPanelSection={mainPanelSection}
-            userId={userId || player?.user_id || null}
+        <AssistantPanel
+          currentPage={currentPage}
+          mainPanelSection={mainPanelSection}
+          userId={userId || player?.user_id || null}
             sidebarCollapsed={sidebarCollapsed}
             onOpenStepModal={mainPanelSection === 'focus-upcoming' || mainPanelSection?.startsWith('area-') || mainPanelSection?.startsWith('goal-') ? () => {
               // For inline mode (focus-upcoming, area-*, goal-*), trigger inline creation via custom event
@@ -4346,26 +4346,26 @@ export function JourneyGameView({
                 }))
               }
             } : handleOpenStepModal}
-            onNavigateToGoal={(goalId: string) => {
-              setMainPanelSection(`goal-${goalId}`)
-            }}
-            onNavigateToArea={(areaId: string) => {
-              setMainPanelSection(`area-${areaId}`)
-            }}
-            onNavigateToHabits={(habitId?: string) => {
-              setCurrentPage('habits')
-              if (habitId) {
-                setMainPanelSection(`habit-${habitId}`)
-              }
-            }}
-            onOpenHabitModal={handleOpenHabitModal}
-            onOpenAreasManagementModal={handleOpenAreasManagementModal}
-            onCreateGoal={handleCreateGoal}
-            onMinimizeStateChange={(isMinimized, isSmallScreen) => {
-              setAssistantMinimized(isMinimized)
-              setAssistantSmallScreen(isSmallScreen)
-            }}
-          />
+          onNavigateToGoal={(goalId: string) => {
+            setMainPanelSection(`goal-${goalId}`)
+          }}
+          onNavigateToArea={(areaId: string) => {
+            setMainPanelSection(`area-${areaId}`)
+          }}
+          onNavigateToHabits={(habitId?: string) => {
+            setCurrentPage('habits')
+            if (habitId) {
+              setMainPanelSection(`habit-${habitId}`)
+            }
+          }}
+          onOpenHabitModal={handleOpenHabitModal}
+          onOpenAreasManagementModal={handleOpenAreasManagementModal}
+          onCreateGoal={handleCreateGoal}
+          onMinimizeStateChange={(isMinimized, isSmallScreen) => {
+            setAssistantMinimized(isMinimized)
+            setAssistantSmallScreen(isSmallScreen)
+          }}
+        />
         )}
       </div>
 
