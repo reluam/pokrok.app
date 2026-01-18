@@ -187,27 +187,7 @@ export default function OtazkyPage() {
                                 )}
                               </button>
                               {isOpen && (
-                                <div className="px-2 pb-3 pt-1 space-y-3">
-                                  {question.whenText && (
-                                    <div>
-                                      <p className="text-sm md:text-base font-semibold text-text-primary mb-2">Kdy?</p>
-                                      <div className="text-sm text-text-secondary leading-relaxed prose prose-sm max-w-none">
-                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                          {question.whenText}
-                                        </ReactMarkdown>
-                                      </div>
-                                    </div>
-                                  )}
-                                  {question.answer && (
-                                    <div>
-                                      <p className="text-sm md:text-base font-semibold text-text-primary mb-2">Odpověď</p>
-                                      <div className="text-sm text-text-secondary leading-relaxed prose prose-sm max-w-none">
-                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                          {question.answer}
-                                        </ReactMarkdown>
-                                      </div>
-                                    </div>
-                                  )}
+                                <div className="px-2 pb-3 pt-1">
                                   {question.description && (
                                     <div className="text-sm text-text-secondary leading-relaxed prose prose-sm max-w-none">
                                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
