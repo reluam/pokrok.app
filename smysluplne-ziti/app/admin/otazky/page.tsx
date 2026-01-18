@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Plus, Edit2, Trash2, X, ArrowLeft, Loader2, Save, ArrowUp, ArrowDown, FileText, Upload, HelpCircle } from 'lucide-react'
+import { Plus, Edit2, Trash2, X, ArrowLeft, Loader2, Save, ArrowUp, ArrowDown, FileText, Upload, HelpCircle, Tag } from 'lucide-react'
 import Link from 'next/link'
 import type { Question, QuestionsPage } from '@/lib/questions'
 import type { Category } from '@/lib/categories'
@@ -14,11 +14,17 @@ export default function AdminOtazkyPage() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [showPageModal, setShowPageModal] = useState(false)
+  const [showCategoryModal, setShowCategoryModal] = useState(false)
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null)
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null)
   const [formData, setFormData] = useState({
     question: '',
     description: '',
     category: 'obecne',
+    displayOrder: 0,
+  })
+  const [categoryFormData, setCategoryFormData] = useState({
+    name: '',
     displayOrder: 0,
   })
   const [pageFormData, setPageFormData] = useState({
@@ -220,6 +226,73 @@ export default function AdminOtazkyPage() {
     setShowModal(true)
   }
 
+  const handleCategorySubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSaving(true)
+
+    try {
+      const url = '/api/categories'
+      const method = editingCategory ? 'PUT' : 'POST'
+      const body = editingCategory
+        ? { id: editingCategory.id, ...categoryFormData }
+        : categoryFormData
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+      if (res.ok) {
+        setShowCategoryModal(false)
+        setEditingCategory(null)
+        setCategoryFormData({ name: '', displayOrder: 0 })
+        loadData()
+      } else {
+        const error = await res.json()
+        alert(error.error || 'Chyba při ukládání')
+      }
+    } catch (error) {
+      console.error('Error saving category:', error)
+      alert('Chyba při ukládání')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCategoryDelete = async (id: string) => {
+    if (id === 'obecne') {
+      alert('Nelze smazat výchozí kategorii "Obecné"')
+      return
+    }
+
+    if (!confirm('Opravdu chcete smazat tuto kategorii? Všechny otázky v této kategorii budou přesunuty do kategorie "Obecné".')) return
+
+    try {
+      const res = await fetch(`/api/categories?id=${id}`, {
+        method: 'DELETE',
+      })
+
+      if (res.ok) {
+        loadData()
+      } else {
+        const error = await res.json()
+        alert(error.error || 'Chyba při mazání')
+      }
+    } catch (error) {
+      console.error('Error deleting category:', error)
+      alert('Chyba při mazání')
+    }
+  }
+
+  const handleCategoryEdit = (category: Category) => {
+    setEditingCategory(category)
+    setCategoryFormData({
+      name: category.name,
+      displayOrder: category.displayOrder,
+    })
+  }
+
   const handleMove = async (id: string, direction: 'up' | 'down') => {
     const index = questions.findIndex((q) => q.id === id)
     if (index === -1) return
@@ -294,6 +367,17 @@ export default function AdminOtazkyPage() {
               </p>
             </div>
             <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowCategoryModal(true)
+                  setEditingCategory(null)
+                  setCategoryFormData({ name: '', displayOrder: 0 })
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-primary-100 text-primary-700 rounded-lg hover:bg-primary-200 transition-colors"
+              >
+                <Tag size={20} />
+                <span>Spravovat kategorie</span>
+              </button>
               <button
                 onClick={() => {
                   if (pageContent) {
@@ -506,6 +590,136 @@ export default function AdminOtazkyPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Category Management Modal */}
+      {showCategoryModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-primary-100 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-text-primary">Spravovat kategorie</h2>
+              <button
+                onClick={() => {
+                  setShowCategoryModal(false)
+                  setEditingCategory(null)
+                  setCategoryFormData({ name: '', displayOrder: 0 })
+                }}
+                className="text-text-secondary hover:text-text-primary"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              {/* Add/Edit Category Form */}
+              <form onSubmit={handleCategorySubmit} className="mb-8 p-4 bg-primary-50 rounded-lg">
+                <h3 className="text-lg font-bold text-text-primary mb-4">
+                  {editingCategory ? 'Upravit kategorii' : 'Přidat kategorii'}
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-text-primary mb-2">
+                      Název kategorie *
+                    </label>
+                    <input
+                      type="text"
+                      value={categoryFormData.name}
+                      onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })}
+                      required
+                      disabled={editingCategory?.id === 'obecne'}
+                      className="w-full px-4 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
+                      placeholder="Např. Zdraví"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text-primary mb-2">
+                      Pořadí
+                    </label>
+                    <input
+                      type="number"
+                      value={categoryFormData.displayOrder}
+                      onChange={(e) => setCategoryFormData({ ...categoryFormData, displayOrder: parseInt(e.target.value) || 0 })}
+                      min="0"
+                      className="w-full px-4 py-2 border border-primary-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    />
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
+                    >
+                      {saving ? (
+                        <>
+                          <Loader2 size={20} className="animate-spin" />
+                          <span>Ukládám...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Save size={20} />
+                          <span>Uložit</span>
+                        </>
+                      )}
+                    </button>
+                    {editingCategory && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingCategory(null)
+                          setCategoryFormData({ name: '', displayOrder: 0 })
+                        }}
+                        className="px-4 py-2 border border-primary-200 text-text-primary rounded-lg hover:bg-primary-50"
+                      >
+                        Zrušit úpravu
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </form>
+
+              {/* Categories List */}
+              <div>
+                <h3 className="text-lg font-bold text-text-primary mb-4">Seznam kategorií</h3>
+                <div className="space-y-2">
+                  {categories.map((category) => (
+                    <div
+                      key={category.id}
+                      className="flex items-center justify-between p-4 bg-white border border-primary-100 rounded-lg hover:bg-primary-50/50"
+                    >
+                      <div className="flex items-center gap-4">
+                        <span className="text-sm text-text-secondary font-medium">
+                          #{category.displayOrder}
+                        </span>
+                        <span className="font-semibold text-text-primary">{category.name}</span>
+                        {category.id === 'obecne' && (
+                          <span className="text-xs text-text-secondary">(výchozí)</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleCategoryEdit(category)}
+                          disabled={category.id === 'obecne'}
+                          className="p-2 text-primary-600 hover:text-primary-700 disabled:opacity-30 disabled:cursor-not-allowed"
+                          title="Upravit"
+                        >
+                          <Edit2 size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleCategoryDelete(category.id)}
+                          disabled={category.id === 'obecne'}
+                          className="p-2 text-red-600 hover:text-red-700 disabled:opacity-30 disabled:cursor-not-allowed"
+                          title="Smazat"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
