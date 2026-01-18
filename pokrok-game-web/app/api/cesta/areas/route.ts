@@ -413,3 +413,44 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
+export async function PATCH(request: NextRequest) {
+  try {
+    const { userId: clerkUserId } = await auth()
+    
+    if (!clerkUserId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const dbUser = await getUserByClerkId(clerkUserId)
+    if (!dbUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
+    const body = await request.json()
+    const { areaIds } = body
+    
+    if (!Array.isArray(areaIds)) {
+      return NextResponse.json({ error: 'areaIds must be an array' }, { status: 400 })
+    }
+
+    // Update order for each area
+    for (let i = 0; i < areaIds.length; i++) {
+      const areaId = areaIds[i]
+      await sql`
+        UPDATE areas 
+        SET "order" = ${i + 1}, updated_at = NOW()
+        WHERE id = ${areaId} AND user_id = ${dbUser.id}
+      `
+    }
+    
+    return NextResponse.json({ success: true })
+  } catch (error: any) {
+    const errorMessage = error?.message || String(error) || 'Unknown error'
+    console.error('Error updating area order:', errorMessage)
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+    }, { status: 500 })
+  }
+}
+

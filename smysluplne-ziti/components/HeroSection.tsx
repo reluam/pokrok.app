@@ -27,7 +27,7 @@ export default function HeroSection() {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <a
-            href="#clanky"
+            href="#cesty-ke-smysluziti"
             className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary-600 text-white font-semibold text-lg rounded-full hover:bg-primary-700 transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105"
           >
             <span>Kde začít</span>

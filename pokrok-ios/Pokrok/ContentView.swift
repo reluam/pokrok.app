@@ -435,7 +435,13 @@ struct QuickAddSheet: View {
     @Binding var quickAddStepTitle: String?
     
     @State private var stepTitle: String = ""
+    @State private var isCreating = false
+    @State private var showError = false
+    @State private var errorMessage = ""
+    @State private var titleFieldOffset: CGFloat = 0
+    @State private var titleFieldHighlighted = false
     @FocusState private var isStepTitleFocused: Bool
+    @StateObject private var apiManager = APIManager.shared
     @ObservedObject private var settingsManager = UserSettingsManager.shared
     
     var body: some View {
@@ -459,14 +465,20 @@ struct QuickAddSheet: View {
                                     .fill(DesignSystem.Colors.surface)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                                            .stroke(DesignSystem.Colors.outline, lineWidth: 1)
+                                            .stroke(titleFieldHighlighted ? DesignSystem.Colors.dynamicPrimary : DesignSystem.Colors.outline, lineWidth: titleFieldHighlighted ? 2 : 1)
                                     )
                             )
+                            .offset(x: titleFieldOffset)
+                            .animation(.easeInOut(duration: 0.1), value: titleFieldOffset)
+                            .animation(.easeInOut(duration: 0.2), value: titleFieldHighlighted)
                         
                         Button(action: {
-                            dismiss()
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                showStepDetail = true
+                            if stepTitle.trimmingCharacters(in: .whitespaces).isEmpty {
+                                // Animate field if empty
+                                animateTitleField()
+                            } else {
+                                quickAddStepTitle = stepTitle
+                                dismiss()
                             }
                         }) {
                             HStack {
@@ -551,13 +563,11 @@ struct QuickAddSheet: View {
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Vytvořit") {
-                        if !stepTitle.trimmingCharacters(in: .whitespaces).isEmpty {
-                            showStepDetail = true
-                        }
+                        createStepDirectly()
                     }
                     .foregroundColor(DesignSystem.Colors.dynamicPrimary)
                     .fontWeight(.semibold)
-                    .disabled(stepTitle.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .disabled(stepTitle.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
                 }
             }
             .onAppear {
@@ -565,11 +575,87 @@ struct QuickAddSheet: View {
                     isStepTitleFocused = true
                 }
             }
-            .sheet(isPresented: $showStepDetail) {
-                NavigationView {
-                    StepDetailView(initialDate: Date(), initialTitle: stepTitle.isEmpty ? nil : stepTitle, onStepAdded: {
-                        dismiss()
-                    })
+            .alert("Chyba", isPresented: $showError) {
+                Button("OK") { }
+            } message: {
+                Text(errorMessage)
+            }
+        }
+    }
+    
+    private func animateTitleField() {
+        // Vibrate left-right animation
+        withAnimation(.easeInOut(duration: 0.1)) {
+            titleFieldOffset = -10
+            titleFieldHighlighted = true
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            withAnimation(.easeInOut(duration: 0.1)) {
+                titleFieldOffset = 10
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            withAnimation(.easeInOut(duration: 0.1)) {
+                titleFieldOffset = -10
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            withAnimation(.easeInOut(duration: 0.1)) {
+                titleFieldOffset = 10
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            withAnimation(.easeInOut(duration: 0.1)) {
+                titleFieldOffset = 0
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            titleFieldHighlighted = false
+            isStepTitleFocused = true
+        }
+    }
+    
+    private func createStepDirectly() {
+        let trimmedTitle = stepTitle.trimmingCharacters(in: .whitespaces)
+        guard !trimmedTitle.isEmpty else {
+            animateTitleField()
+            return
+        }
+        
+        isCreating = true
+        
+        Task {
+            do {
+                let createRequest = CreateStepRequest(
+                    title: trimmedTitle,
+                    description: nil,
+                    date: Date(), // Today's date
+                    goalId: nil, // No goal
+                    areaId: nil, // No area
+                    isRepeating: nil,
+                    frequency: nil,
+                    selectedDays: nil,
+                    recurringStartDate: nil,
+                    recurringEndDate: nil,
+                    recurringDisplayMode: nil
+                )
+                
+                _ = try await apiManager.createStep(createRequest)
+                
+                await MainActor.run {
+                    isCreating = false
+                    dismiss()
+                }
+            } catch {
+                await MainActor.run {
+                    isCreating = false
+                    errorMessage = error.localizedDescription
+                    showError = true
                 }
             }
         }

@@ -1652,6 +1652,40 @@ export function PageContent(props: PageContentProps) {
               areaButtonRefs={props.areaButtonRefs}
               goalButtonRefs={props.goalButtonRefs}
               onGoalClick={props.onGoalClick}
+              onAreasReorder={async (areaIds: string[]) => {
+                try {
+                  const response = await fetch('/api/cesta/areas', {
+                    method: 'PATCH',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ areaIds }),
+                  })
+                  if (response.ok) {
+                    // Reload areas to get updated order
+                    const areasResponse = await fetch('/api/cesta/areas')
+                    if (areasResponse.ok) {
+                      const data = await areasResponse.json()
+                      setAreas(data.areas || [])
+                    }
+                  }
+                } catch (error) {
+                  console.error('Error updating area order:', error)
+                }
+              }}
+              onGoalsReorder={async (areaId: string, goalIds: string[]) => {
+                try {
+                  // For goals, we'll use localStorage for now (as it's already used in JourneyGameView)
+                  // Store order per area
+                  const orderKey = `goals-order-${areaId}`
+                  localStorage.setItem(orderKey, JSON.stringify(goalIds))
+                  
+                  // Also update the main goals order if needed
+                  // This is a simplified approach - in production you might want to store this in the database
+                } catch (error) {
+                  console.error('Error updating goal order:', error)
+                }
+              }}
             />
 
             {/* Right content area */}

@@ -25,7 +25,15 @@ function ServiceImage({ src, alt }: { src: string; alt: string }) {
 }
 
 export default function ServicesSection() {
-  const services = [
+  const services: Array<{
+    icon: typeof Users
+    title: string
+    description: string
+    href: string
+    buttonText: string
+    image: string
+    tag?: string
+  }> = [
     {
       icon: Users,
       title: 'Komunita Smyslužití',

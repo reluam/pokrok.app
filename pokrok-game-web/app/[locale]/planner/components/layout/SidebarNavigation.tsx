@@ -656,47 +656,37 @@ export function SidebarNavigation({
                                   <ChevronDown className={`w-3 h-3 transition-transform ${isPausedExpanded ? 'rotate-180' : ''}`} />
                                   <span>{t('goals.filters.status.paused') || 'Odložené'} ({pausedGoals.length})</span>
                                 </button>
-                                {isPausedExpanded && (
+                                {isPausedExpanded && pausedGoals.length > 0 && (
                                   <div className="pl-4 space-y-1">
-                                    {pausedGoals.map((goal) => {
-                                      const goalSectionId = `goal-${goal.id}`
-                                      const isSelected = mainPanelSection === goalSectionId
-                                      const progressPercentage = Math.round(goal.progress_percentage || 0)
-                                      const isPastDeadline = isGoalPastDeadline(goal)
-                                      return (
-                                        <button
-                                          key={goal.id}
-                                          ref={goalButtonRefs?.get(goal.id)}
-                                          onClick={() => {
-                                            if (onGoalClick) {
-                                              onGoalClick(goal.id)
-                                            } else {
-                                              setMainPanelSection(goalSectionId)
-                                            }
-                                          }}
-                                          onMouseEnter={() => setHoveredGoalId(goal.id)}
-                                          onMouseLeave={() => setHoveredGoalId(null)}
-                                          className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left border-2 ${
-                                            isSelected ? 'active' : ''
-                                          }`}
-                                          style={{
-                                            borderColor: areaColor,
-                                            ...(hoveredGoalId === goal.id ? { backgroundColor: hexToRgba(areaColor, 0.2) } : {})
-                                          }}
-                                          title={goal.title}
-                                        >
-                                  <span className="text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right" style={{ color: areaColor }}>
-                                    {progressPercentage}%
-                                  </span>
-                                          {isPastDeadline && (
-                                            <AlertCircle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
-                                          )}
-                                          <span className={`font-medium text-xs truncate flex-1 ${isPastDeadline ? 'text-red-600' : ''}`}>
-                                            {goal.title}
-                                          </span>
-                                        </button>
-                                      )
-                                    })}
+                                    <DndContext
+                                      sensors={sensors}
+                                      collisionDetection={closestCenter}
+                                      onDragEnd={(event) => handleGoalsDragEnd(event, area.id, pausedGoals)}
+                                    >
+                                      <SortableContext
+                                        items={pausedGoals.map(goal => goal.id)}
+                                        strategy={verticalListSortingStrategy}
+                                      >
+                                        {pausedGoals.map((goal) => {
+                                          const isPastDeadline = isGoalPastDeadline(goal)
+                                          return (
+                                            <SortableGoal
+                                              key={goal.id}
+                                              goal={goal}
+                                              areaColor={areaColor}
+                                              mainPanelSection={mainPanelSection}
+                                              setMainPanelSection={setMainPanelSection}
+                                              onGoalClick={onGoalClick}
+                                              hoveredGoalId={hoveredGoalId}
+                                              setHoveredGoalId={setHoveredGoalId}
+                                              goalButtonRefs={goalButtonRefs}
+                                              isPastDeadline={isPastDeadline}
+                                              hexToRgba={hexToRgba}
+                                            />
+                                          )
+                                        })}
+                                      </SortableContext>
+                                    </DndContext>
                                   </div>
                                 )}
                               </div>
@@ -723,47 +713,37 @@ export function SidebarNavigation({
                                   <ChevronDown className={`w-3 h-3 transition-transform ${isCompletedExpanded ? 'rotate-180' : ''}`} />
                                   <span>{t('goals.filters.status.completed') || 'Hotové'} ({completedGoals.length})</span>
                                 </button>
-                                {isCompletedExpanded && (
+                                {isCompletedExpanded && completedGoals.length > 0 && (
                                   <div className="pl-4 space-y-1">
-                                    {completedGoals.map((goal) => {
-                                      const goalSectionId = `goal-${goal.id}`
-                                      const isSelected = mainPanelSection === goalSectionId
-                                      const progressPercentage = Math.round(goal.progress_percentage || 0)
-                                      const isPastDeadline = isGoalPastDeadline(goal)
-                                      return (
-                                        <button
-                                          key={goal.id}
-                                          ref={goalButtonRefs?.get(goal.id)}
-                                          onClick={() => {
-                                            if (onGoalClick) {
-                                              onGoalClick(goal.id)
-                                            } else {
-                                              setMainPanelSection(goalSectionId)
-                                            }
-                                          }}
-                                          onMouseEnter={() => setHoveredGoalId(goal.id)}
-                                          onMouseLeave={() => setHoveredGoalId(null)}
-                                          className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left border-2 ${
-                                            isSelected ? 'active' : ''
-                                          }`}
-                                          style={{
-                                            borderColor: areaColor,
-                                            ...(hoveredGoalId === goal.id ? { backgroundColor: hexToRgba(areaColor, 0.2) } : {})
-                                          }}
-                                          title={goal.title}
-                                        >
-                                  <span className="text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right" style={{ color: areaColor }}>
-                                    {progressPercentage}%
-                                  </span>
-                                          {isPastDeadline && (
-                                            <AlertCircle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
-                                          )}
-                                          <span className={`font-medium text-xs truncate flex-1 ${isPastDeadline ? 'text-red-600' : ''}`}>
-                                            {goal.title}
-                                          </span>
-                                        </button>
-                                      )
-                                    })}
+                                    <DndContext
+                                      sensors={sensors}
+                                      collisionDetection={closestCenter}
+                                      onDragEnd={(event) => handleGoalsDragEnd(event, area.id, completedGoals)}
+                                    >
+                                      <SortableContext
+                                        items={completedGoals.map(goal => goal.id)}
+                                        strategy={verticalListSortingStrategy}
+                                      >
+                                        {completedGoals.map((goal) => {
+                                          const isPastDeadline = isGoalPastDeadline(goal)
+                                          return (
+                                            <SortableGoal
+                                              key={goal.id}
+                                              goal={goal}
+                                              areaColor={areaColor}
+                                              mainPanelSection={mainPanelSection}
+                                              setMainPanelSection={setMainPanelSection}
+                                              onGoalClick={onGoalClick}
+                                              hoveredGoalId={hoveredGoalId}
+                                              setHoveredGoalId={setHoveredGoalId}
+                                              goalButtonRefs={goalButtonRefs}
+                                              isPastDeadline={isPastDeadline}
+                                              hexToRgba={hexToRgba}
+                                            />
+                                          )
+                                        })}
+                                      </SortableContext>
+                                    </DndContext>
                                   </div>
                                 )}
                               </div>
