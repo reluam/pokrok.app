@@ -208,7 +208,7 @@ export function StepModal({
                         {(() => {
                           const selectedGoal = goals.find((g: any) => g.id === stepModalData.goalId)
                           const goalArea = selectedGoal?.area_id ? areas.find((a: any) => a.id === selectedGoal.area_id) : null
-                          return goalArea ? goalArea.name : (t('details.goal.noArea') || 'Bez oblasti')
+                          return goalArea ? goalArea.name : (t('details.goal.noArea') || 'Bez výzvy')
                         })()}
                       </div>
                     ) : (
@@ -224,7 +224,7 @@ export function StepModal({
                         }}
                       className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
                       >
-                        <option value="">{t('details.goal.noArea') || 'Bez oblasti'}</option>
+                        <option value="">{t('details.goal.noArea') || 'Bez výzvy'}</option>
                         {areas.map((area) => (
                           <option key={area.id} value={area.id}>{area.name}</option>
                         ))}

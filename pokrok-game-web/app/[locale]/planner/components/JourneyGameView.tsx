@@ -1937,13 +1937,13 @@ export function JourneyGameView({
 
   const handleSaveArea = async () => {
     if (!areaModalName.trim()) {
-      alert(t('areas.nameRequired') || 'Název oblasti je povinný')
+      alert(t('areas.nameRequired') || 'Název výzvy je povinný')
       return
     }
 
     // Validate name length
     if (areaModalName.trim().length > 255) {
-      const nameTooLongMsg = t('areas.nameTooLong') || 'Název oblasti je příliš dlouhý. Maximální délka je 255 znaků. Aktuální délka: {length} znaků.'
+      const nameTooLongMsg = t('areas.nameTooLong') || 'Název výzvy je příliš dlouhý. Maximální délka je 255 znaků. Aktuální délka: {length} znaků.'
       alert(nameTooLongMsg.replace('{length}', String(areaModalName.trim().length)))
       return
     }
@@ -1998,12 +1998,12 @@ export function JourneyGameView({
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
         const errorMessage = errorData.details 
           ? `${errorData.error || 'Chyba'}: ${errorData.details}`
-          : (errorData.error || 'Nepodařilo se uložit oblast')
-        alert(`Chyba při ${isNewArea ? 'vytváření' : 'aktualizaci'} oblasti: ${errorMessage}`)
+          : (errorData.error || 'Nepodařilo se uložit výzvu')
+        alert(`Chyba při ${isNewArea ? 'vytváření' : 'aktualizaci'} výzvy: ${errorMessage}`)
       }
     } catch (error) {
       console.error('Error saving area:', error)
-      alert(`Chyba při ${editingArea ? 'aktualizaci' : 'vytváření'} oblasti`)
+        alert(`Chyba při ${editingArea ? 'aktualizaci' : 'vytváření'} výzvy`)
     } finally {
       setIsSavingArea(false)
     }
@@ -2178,7 +2178,7 @@ export function JourneyGameView({
           errorMessage = response.statusText || `HTTP ${response.status}`
         }
         console.error('Delete area failed with status:', response.status, 'Error:', errorMessage)
-        alert(t('areas.deleteError') || `Nepodařilo se smazat oblast: ${errorMessage}`)
+        alert(t('areas.deleteError') || `Nepodařilo se smazat výzvu: ${errorMessage}`)
       }
     } catch (error) {
       // Safely log error without circular references
@@ -2227,7 +2227,7 @@ export function JourneyGameView({
       }
       
       console.error('Error deleting area:', errorMessage)
-      alert(t('areas.deleteError') || `Chyba při mazání oblasti: ${errorMessage}`)
+      alert(t('areas.deleteError') || `Chyba při mazání výzvy: ${errorMessage}`)
     } finally {
       setIsDeletingArea(false)
     }
@@ -2897,11 +2897,11 @@ export function JourneyGameView({
     // Validate name if it's being updated
     if (updates.name !== undefined) {
       if (!updates.name || !updates.name.trim()) {
-        alert(t('areas.nameRequired') || 'Název oblasti je povinný')
+        alert(t('areas.nameRequired') || 'Název výzvy je povinný')
         return
       }
       if (updates.name.trim().length > 255) {
-        const nameTooLongMsg = t('areas.nameTooLong') || 'Název oblasti je příliš dlouhý. Maximální délka je 255 znaků. Aktuální délka: {length} znaků.'
+        const nameTooLongMsg = t('areas.nameTooLong') || 'Název výzvy je příliš dlouhý. Maximální délka je 255 znaků. Aktuální délka: {length} znaků.'
         alert(nameTooLongMsg.replace('{length}', String(updates.name.trim().length)))
         return
       }
@@ -2949,12 +2949,12 @@ export function JourneyGameView({
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
         const errorMessage = errorData.details 
           ? `${errorData.error || 'Chyba'}: ${errorData.details}`
-          : (errorData.error || 'Nepodařilo se uložit oblast')
+          : (errorData.error || 'Nepodařilo se uložit výzvu')
         alert(errorMessage)
             }
           } catch (error) {
       console.error('Error updating area:', error)
-      alert('Chyba při aktualizaci oblasti')
+      alert('Chyba při aktualizaci výzvy')
     }
   }
 

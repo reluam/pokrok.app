@@ -1322,7 +1322,7 @@ export function UpcomingView({
                     {/* Area header for steps without area */}
                     <div className="mb-3 px-4 sm:px-6 lg:px-8">
                       <h2 className="text-xl font-bold text-black font-playful">
-                        {t('areas.noArea') || 'Bez oblasti'}
+                        {t('areas.noArea') || 'Bez výzvy'}
                       </h2>
                     </div>
                     <StepsManagementView

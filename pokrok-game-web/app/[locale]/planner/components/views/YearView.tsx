@@ -453,8 +453,8 @@ export function YearView({
             const goalsByArea = activeGoals.reduce((acc, goal) => {
               const areaId = goal.area_id || 'no-area'
               const areaName = goal.area_id 
-                ? (areas.find(area => area.id === goal.area_id)?.name || t('goals.unknownArea') || 'Neznámá oblast')
-                : (t('goals.noArea') || 'Bez oblasti')
+                ? (areas.find(area => area.id === goal.area_id)?.name || t('goals.unknownArea') || 'Neznámá výzva')
+                : (t('goals.noArea') || 'Bez výzvy')
               
               if (!acc[areaId]) {
                 acc[areaId] = {
@@ -705,9 +705,9 @@ export function YearView({
                 <span className="font-bold text-green-700">
                   {Math.round(stats.topArea.completionRate)}%
                 </span>{' '}
-                {t('yearView.stepsFromArea') || 'splněných kroků bylo z oblasti'}{' '}
+                {t('yearView.stepsFromArea') || 'splněných kroků bylo z výzvy'}{' '}
                 <span className="font-semibold text-green-800">
-                  {stats.topArea.area?.name || t('goals.noArea') || 'Bez oblasti'}
+                  {stats.topArea.area?.name || t('goals.noArea') || 'Bez výzvy'}
                 </span>
                 {stats.topArea.total > 0 && (
                   <> ({stats.topArea.completed} / {stats.topArea.total})</>
@@ -763,8 +763,8 @@ export function YearView({
                   {stats.areasWithNoActivity.length}
                 </span>{' '}
                 {stats.areasWithNoActivity.length === 1
-                  ? (t('yearView.areaNoActivity') || 'oblast nemá žádnou aktivitu')
-                  : (t('yearView.areasNoActivity') || 'oblastí nemá žádnou aktivitu')
+                  ? (t('yearView.areaNoActivity') || 'výzva nemá žádnou aktivitu')
+                  : (t('yearView.areasNoActivity') || 'výzev nemá žádnou aktivitu')
                 }
                 {': '}
                 {stats.areasWithNoActivity.map(a => a.name).join(', ')}

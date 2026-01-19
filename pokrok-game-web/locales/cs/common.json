@@ -89,7 +89,7 @@
     "trialInfo": "14denní zkušební verze zdarma • Bez platební karty",
     "hero": {
       "title": "Životní plánovač pro lidi, kteří chtějí dosáhnout svých cílů",
-      "description": "Pokrok vám pomůže získat jasnost a smysluplnost v tom, jak dosáhnout toho, co v životě chcete. Rozdělte velké cíle na malé kroky, budujte návyky a sledujte svůj pokrok."
+      "description": "Pokrok vám pomůže získat jasnost a smysluplnost v tom, jak dosáhnout toho, co v životě chcete. Rozdělte velké milníky na malé kroky, budujte návyky a sledujte svůj pokrok."
     },
     "philosophy": {
       "title": "Pokrok není další aplikace pro produktivitu",
@@ -97,18 +97,18 @@
       "flexibility": "Používejte Pokrok tak, jak potřebujete - denně pro každodenní plánování, týdně pro přehled nad týdnem, nebo dokonce měsíčně pro reflexi a plánování dopředu. Pokrok je váš parťák k životu, jaký chcete mít."
     },
     "problem": {
-      "title": "Máte velké cíle, ale nevíte, kde začít?",
+      "title": "Máte velké milníky, ale nevíte, kde začít?",
       "subtitle": "Mnoho lidí má představu o tom, čeho chtějí dosáhnout, ale chybí jim jasnost v tom, jak na to.",
       "overwhelmed": "Cítíte se přehlceni všemi věcmi, které chcete udělat",
       "overwhelmedDesc": "Máte spoustu nápadů a cílů, ale nevíte, na co se soustředit",
       "noClarity": "Chybí vám jasnost v prioritách",
-      "noClarityDesc": "Nevíte, které cíle jsou důležité a které mohou počkat",
+      "noClarityDesc": "Nevíte, které milníky jsou důležité a které mohou počkat",
       "noProgress": "Nevidíte pokrok směrem k cílům",
-      "noProgressDesc": "Cíle zůstávají jen na papíře, bez konkrétních kroků k jejich dosažení"
+      "noProgressDesc": "Milníky zůstávají jen na papíře, bez konkrétních kroků k jejich dosažení"
     },
     "solution": {
       "title": "Pokrok vám pomůže získat jasnost",
-      "subtitle": "Rozdělte své cíle na malé kroky, budujte návyky a sledujte pokrok. Získejte smysluplnost v tom, jak dosáhnout toho, co chcete.",
+      "subtitle": "Rozdělte své milníky na malé kroky, budujte návyky a sledujte pokrok. Získejte smysluplnost v tom, jak dosáhnout toho, co chcete.",
       "clarity": "Získejte jasnost",
       "clarityDesc": "Vidíte přesně, na co se máte soustředit dnes a proč",
       "meaning": "Najděte smysluplnost",
@@ -134,10 +134,10 @@
         "habit2": "Čtení 30 minut"
       },
       "management": {
-        "title": "Rozdělte cíle na kroky a budujte návyky",
+        "title": "Rozdělte milníky na kroky a budujte návyky",
         "goals": {
-          "title": "Cíle",
-          "description": "Nastavte si krátkodobé i dlouhodobé cíle. Organizujte je podle priorit a sledujte pokrok. Každý cíl má svůj smysl a vede vás k tomu, čeho chcete dosáhnout."
+          "title": "Milníky",
+          "description": "Nastavte si krátkodobé i dlouhodobé milníky. Organizujte je podle priorit a sledujte pokrok. Každý milník má svůj smysl a vede vás k tomu, čeho chcete dosáhnout."
         },
         "habits": {
           "title": "Návyky",
@@ -145,11 +145,11 @@
         },
         "steps": {
           "title": "Kroky",
-          "description": "Rozdělte své cíle na malé, dosažitelné kroky. Plánujte je na konkrétní dny a sledujte jejich dokončení. Každý krok vás přibližuje k vašim cílům."
+          "description": "Rozdělte své milníky na malé, dosažitelné kroky. Plánujte je na konkrétní dny a sledujte jejich dokončení. Každý krok vás přibližuje k vašim cílům."
         },
         "areas": {
-          "title": "Oblasti",
-          "description": "Organizujte své cíle, návyky a kroky do oblastí života, jako je Zdraví, Kariéra, Vztahy nebo cokoliv jiného, co má pro vás smysl. Oblasti vám pomohou mít přehled o různých aspektech vašeho života."
+          "title": "Výzvy",
+          "description": "Organizujte své milníky, návyky a kroky do oblastí života, jako je Zdraví, Kariéra, Vztahy nebo cokoliv jiného, co má pro vás smysl. Výzvy vám pomohou mít přehled o různých aspektech vašeho života."
         }
       },
       "calendar": {
@@ -174,7 +174,7 @@
       "startDay": {
         "title": "Začněte svůj den",
         "subtitle": "Začněte každý den s jasností",
-        "description": "Plánujte svůj den s úmyslem tím, že sladíte své cíle, upřednostníte úkoly a nastavíte realistickou pracovní zátěž.",
+        "description": "Plánujte svůj den s úmyslem tím, že sladíte své milníky, upřednostníte úkoly a nastavíte realistickou pracovní zátěž.",
         "benefit1": "Plánujte, co potřebujete udělat dnes, aniž byste ztratili zaměření na zítřek",
         "benefit2": "Vizualizujte a blokujte čas pro práci ve svém kalendáři",
         "benefit3": "Sjednoťte svou práci napříč různými nástroji a organizujte ji",
@@ -209,11 +209,11 @@
       },
       "overview": {
         "title": "VELKÝ PŘEHLED",
-        "description": "Mějte přehled o všech svých cílech, návycích a krocích na jednom místě"
+        "description": "Mějte přehled o všech svých milníkych, návycích a krocích na jednom místě"
       },
       "steps": {
         "title": "KONKRÉTNÍ KROKY",
-        "description": "Rozdělte své cíle na malé, dosažitelné kroky a sledujte pokrok"
+        "description": "Rozdělte své milníky na malé, dosažitelné kroky a sledujte pokrok"
       },
       "motivation": {
         "title": "VYŠŠÍ MOTIVACE",
@@ -248,12 +248,12 @@
     "devVersionTooltip": "Vývojová verze - Aplikace je stále ve vývoji, mohou se vyskytovat chyby a bugy. Aplikace se může ještě změnit."
   },
   "goals": {
-    "title": "CÍLE",
-    "goal": "cíl",
-    "goals": "cílů",
+    "title": "MILNÍKY",
+    "goal": "milník",
+    "goals": "milníků",
     "add": "Přidat cíl",
-    "endingThisYear": "Cíle končící v tomto roce",
-    "endingFutureYears": "Cíle končící v následujících letech",
+    "endingThisYear": "Milníky končící v tomto roce",
+    "endingFutureYears": "Milníky končící v následujících letech",
     "completedInTarget": "Splněné v targetu",
     "completedAfterTarget": "Splněné po targetu",
     "startDate": "Datum startu",
@@ -266,15 +266,15 @@
     "goalTitlePlaceholder": "Např. Naučit se programovat",
     "newGoalTitle": "Nový cíl",
     "goalDescription": "POPIS (volitelné)",
-    "goalDescriptionPlaceholder": "Podrobnější popis cíle...",
+    "goalDescriptionPlaceholder": "Podrobnější popis milníky...",
     "addDescription": "Přidat popis",
     "category": "KATEGORIE",
     "deadline": "DEADLINE (volitelné)",
     "addDate": "Přidat datum",
     "addGoalButton": "PŘIDAT CÍL",
     "cancelButton": "ZRUŠIT",
-    "noGoals": "Žádné cíle nejsou nastavené",
-    "noGoalsDescription": "Klikněte na tlačítko níže pro přidání nového cíle",
+    "noGoals": "Žádné milníky nejsou nastavené",
+    "noGoalsDescription": "Klikněte na tlačítko níže pro přidání nového milníky",
     "noCompletedSteps": "Žádné dokončené kroky",
     "categoryLabel": "Kategorie",
     "deadlineLabel": "Deadline",
@@ -502,7 +502,7 @@
     "tabs": {
       "user": "Uživatel",
       "areas": "Životní oblasti",
-      "goals": "Cíle",
+      "goals": "Milníky",
       "steps": "Kroky",
       "dailyPlan": "Denní plán",
     "display": "Zobrazení",
@@ -569,7 +569,7 @@
     "goals": {
       "title": "NASTAVENÍ CÍLŮ",
       "basicSettings": "Základní nastavení",
-      "defaultStatus": "Výchozí stav cíle",
+      "defaultStatus": "Výchozí stav milníky",
       "active": "Aktivní",
       "completed": "Splněný",
       "autoComplete": "Automaticky označit cíl jako splněný při dokončení všech kroků",
@@ -686,12 +686,12 @@
         "confirmPlaceholder": "smazat účet",
         "error": "Nepodařilo se smazat účet. Zkuste to prosím znovu."
       },
-      "resetData": {
-        "title": "Resetovat všechna data",
-        "description": "Smaže všechny Oblasti, Cíle, Kroky a Návyky a všechna nastavení vrátí do defaultu. Postava zůstane zachována.",
-        "button": "Resetovat všechna data",
-        "dialogTitle": "Resetovat všechna data",
-        "dialogWarning": "Tato akce je nevratná! Smažou se všechny vaše Oblasti, Cíle, Kroky, Návyky a všechna nastavení se vrátí do výchozího stavu. Postava zůstane zachována.",
+        "resetData": {
+          "title": "Resetovat všechna data",
+          "description": "Smaže všechny Výzvy, Milníky, Kroky a Návyky a všechna nastavení vrátí do defaultu. Postava zůstane zachována.",
+          "button": "Resetovat všechna data",
+          "dialogTitle": "Resetovat všechna data",
+          "dialogWarning": "Tato akce je nevratná! Smažou se všechny vaše Výzvy, Milníky, Kroky, Návyky a všechna nastavení se vrátí do výchozího stavu. Postava zůstane zachována.",
         "confirmPrompt": "Pro potvrzení napište:",
         "confirmText": "smazat data",
         "confirmPlaceholder": "smazat data",
@@ -796,13 +796,13 @@
     "focusMonth": "Měsíc",
     "focusYear": "Rok",
     "calendar": "Kalendář",
-    "goals": "Cíle",
+    "goals": "Milníky",
     "steps": "Kroky",
     "habits": "Návyky",
-    "areas": "Oblasti",
+    "areas": "Výzvy",
     "workflows": "Workflows",
     "timeBased": "Časové",
-    "noGoals": "Žádné cíle",
+    "noGoals": "Žádné milníky",
     "noHabits": "Žádné návyky",
     "noAreas": "Žádné oblasti",
     "goalNotFound": "Cíl nenalezen",
@@ -829,16 +829,16 @@
     "custom": "Vlastní",
     "daily": "Denní",
     "habitName": "Název návyku",
-    "goalName": "Název cíle",
+    "goalName": "Název milníky",
     "stepName": "Název kroku",
-    "goalNameRequired": "Název cíle je povinný",
+    "goalNameRequired": "Název milníky je povinný",
     "stepNameRequired": "Název kroku je povinný",
     "habitNameRequired": "Název návyku je povinný"
   },
   "modal": {
     "generalInfo": "Obecné informace",
     "addToFocus": "Přidat do fokusu",
-    "focusDescription": "Cíle ve fokusu budou zvýrazněny a zobrazí se na hlavním panelu",
+    "focusDescription": "Milníky ve fokusu budou zvýrazněny a zobrazí se na hlavním panelu",
     "enableReminder": "Zapnout připomenutí",
     "showAlways": "Zobrazit vždy",
     "showAlwaysDescription": "Návyk se zobrazí v hlavním panelu nehledě na frekvenci"
@@ -888,7 +888,7 @@
       "backToGame": "Zpět do hry",
       "mainPanel": "Hlavní panel",
       "management": "Správa",
-      "goals": "Cíle",
+      "goals": "Milníky",
       "aspirace": "Aspirace",
       "habits": "Návyky",
       "steps": "Kroky",
@@ -904,7 +904,7 @@
   },
   "aspirace": {
     "title": "Aspirace",
-    "description": "Životní cíle a směr",
+    "description": "Životní milníky a směr",
     "loading": "Načítám přehled...",
     "noAspirace": "Žádné aspirace",
     "noAspiraceDescription": "Vytvořte svou první aspiraci, která vás povede k vašim životním cílům",
@@ -912,8 +912,8 @@
     "editAspirace": "Upravit aspirace",
     "newAspirace": "Nová aspirace",
     "editTitle": "Upravit aspiraci",
-    "noGoalsHabits": "Tato aspirace zatím nemá přiřazené cíle ani návyky",
-    "noGoalsHabitsDescription": "Přiřaďte cíle nebo návyky k této aspiraci pro sledování pokroku",
+    "noGoalsHabits": "Tato aspirace zatím nemá přiřazené milníky ani návyky",
+    "noGoalsHabitsDescription": "Přiřaďte milníky nebo návyky k této aspiraci pro sledování pokroku",
     "insights": {
       "title": "Přehled",
       "easy": "Lehké",
@@ -975,7 +975,7 @@
       "active": "Aktivní:",
       "successRate": "Úspěšnost:",
       "byCategory": "CÍLE PODLE KATEGORIÍ",
-      "noGoals": "Zatím nemáš žádné cíle"
+      "noGoals": "Zatím nemáš žádné milníky"
     },
     "contributions": "příspěvků",
     "activities": "aktivit",
@@ -1091,7 +1091,7 @@
       "change": "Změnit",
       "progress": "Pokrok",
       "selectGoal": "Vybrat cíl",
-      "noGoals": "Nemáte žádné aktivní cíle"
+      "noGoals": "Nemáte žádné aktivní milníky"
     },
     "complete": "Dokončit",
     "saving": "Ukládání...",
@@ -1112,7 +1112,7 @@
       "important": "Důležité",
       "urgent": "Urgentní",
       "goal": "Cíl",
-      "noGoal": "Bez cíle",
+      "noGoal": "Bez milníky",
       "area": "Oblast",
       "noArea": "Bez oblasti",
       "selectArea": "Vybrat oblast",
@@ -1147,7 +1147,7 @@
       "futureDay": "Budoucí den - nelze upravit"
     },
     "goal": {
-      "titleRequired": "Název cíle je povinný",
+      "titleRequired": "Název milníky je povinný",
       "deleteConfirm": "Opravdu chcete smazat tento cíl? Tato akce je nevratná.",
       "deleteError": "Nepodařilo se smazat cíl",
       "progress": "Pokrok",
@@ -1199,8 +1199,8 @@
       },
       "goal": {
         "title": "Cíl",
-        "all": "Všechny cíle",
-        "withoutGoal": "Bez cíle"
+        "all": "Všechny milníky",
+        "withoutGoal": "Bez milníky"
       },
       "aspiration": {
         "all": "Všechny aspirace"
@@ -1221,7 +1221,7 @@
     "date": "Datum",
     "repeating": "Opakující se",
     "goal": "Cíl",
-    "noGoal": "Bez cíle",
+    "noGoal": "Bez milníky",
     "completed": "Dokončeno",
     "finishRecurring": "Dokončit",
     "finishRecurringConfirm": "Opravdu chcete dokončit tento opakující se krok? Krok bude ukončen k dnešnímu datu a již se nebude opakovat. Statistiky zůstanou zachovány.",
@@ -1296,8 +1296,8 @@
       "focus": "Focus",
       "views": "Zobrazení",
       "navigation": "Navigace",
-      "areas": "Oblasti",
-      "goals": "Cíle",
+      "areas": "Výzvy",
+      "goals": "Milníky",
       "steps": "Kroky",
       "habits": "Návyky"
     },
@@ -1307,17 +1307,17 @@
       "benefits": {
         "overview": "Nadhled",
         "clarity": "Jasnost",
-        "goals": "Cíle"
+        "goals": "Milníky"
       },
       "stepsToSuccess": "4 kroky k úspěchu",
       "step0": {
-        "title": "Oblasti",
-        "subtitle": "První věc, se kterou se v Pokroku setkáte jsou <strong>Oblasti</strong>. Oblasti reflektují různé části Vašeho života a v aplikaci slouží primárně pro jednodušší zobrazení a filtrování. Do Oblastí si můžete přidávat <strong>Návyky</strong>, <strong>Cíle</strong> i <strong>Kroky</strong>. Oblasti jsou zamýšlené jako oblasti života - například Kariéra, finance nebo zdraví, ale můžete je používat i pro větší projekty nebo Vaše vlastní zobrazení různých cílů / kroků / návyků. Když jste v nějaké oblasti a přidáte krok, cíl nebo návyk, tak se automaticky přiřadí do této oblasti.",
-        "button": "Vytvořit oblast"
+        "title": "Výzvy",
+        "subtitle": "První věc, se kterou se v Pokroku setkáte jsou <strong>Výzvy</strong>. Výzvy reflektují různé části Vašeho života a v aplikaci slouží primárně pro jednodušší zobrazení a filtrování. Do Výzev si můžete přidávat <strong>Návyky</strong>, <strong>Milníky</strong> i <strong>Kroky</strong>. Výzvy jsou zamýšlené jako oblasti života - například Kariéra, finance nebo zdraví, ale můžete je používat i pro větší projekty nebo Vaše vlastní zobrazení různých cílů / kroků / návyků. Když jste v nějaké výzvě a přidáte krok, cíl nebo návyk, tak se automaticky přiřadí do této výzvy.",
+        "button": "Vytvořit výzvu"
       },
       "step1": {
         "title": "Vytvořte cíl",
-        "subtitle": "<strong>Cíle</strong> jsou největší <strong>stavební bloky</strong> Pokroku. Jsou to všechny věci, kterých chcete dosáhnout a které <strong>nejsou řešitelné v rámci jednoho sezení</strong>. Cíle si můžete vytvořit jak potřebujete a ideálně můžete použít framework <strong>SMART</strong> - tedy udělat cíle <strong>Specifické, Měřitelné, Ambiciózní, Relevantní, Časově rámované</strong>. K tomu můžete v Pokroku použít právě <strong>Kroky</strong> - pro dílčí části, případně <strong>návyky</strong> - pro opakované a měřitelné úkoly.",
+        "subtitle": "<strong>Milníky</strong> jsou největší <strong>stavební bloky</strong> Pokroku. Jsou to všechny věci, kterých chcete dosáhnout a které <strong>nejsou řešitelné v rámci jednoho sezení</strong>. Milníky si můžete vytvořit jak potřebujete a ideálně můžete použít framework <strong>SMART</strong> - tedy udělat milníky <strong>Specifické, Měřitelné, Ambiciózní, Relevantní, Časově rámované</strong>. K tomu můžete v Pokroku použít právě <strong>Kroky</strong> - pro dílčí části, případně <strong>návyky</strong> - pro opakované a měřitelné úkoly.",
         "example": "Naučit se React",
         "exampleDesc": "Chci vytvořit vlastní webovou aplikaci",
         "exampleDeadline": "Do 15. března",
@@ -1328,7 +1328,7 @@
       },
       "step2": {
         "title": "Přidejte kroky",
-        "subtitle": "<strong>Kroky</strong> můžou být použité jako <strong>To-Do bez jakéhokoliv cíle</strong>, ale jejich <strong>primární účel</strong> je pomoct rozložit <strong>Cíle na menší části</strong> - ideálně takové části, které se dají udělat <strong>během jednoho dne</strong>. Dosahováním kroků se poté <strong>navyšuje progress cíle</strong>. Pokud je potřeba, Krok se dá pro větší kontrolu v nastavení kroku dále rozpadnout na jednotlivé položky v <strong>checklistu</strong>.",
+        "subtitle": "<strong>Kroky</strong> můžou být použité jako <strong>To-Do bez jakéhokoliv milníky</strong>, ale jejich <strong>primární účel</strong> je pomoct rozložit <strong>Milníky na menší části</strong> - ideálně takové části, které se dají udělat <strong>během jednoho dne</strong>. Dosahováním kroků se poté <strong>navyšuje progress milníky</strong>. Pokud je potřeba, Krok se dá pro větší kontrolu v nastavení kroku dále rozpadnout na jednotlivé položky v <strong>checklistu</strong>.",
         "example1": "Nainstalovat Node.js",
         "example2": "Projít tutorial",
         "example1Time": "30 min",
@@ -1378,16 +1378,16 @@
       "useCase3": {
         "title": "🎯 Prioritizace",
         "description": "Máte mnoho úkolů, ale nevíte, na co se zaměřit.",
-        "step1": "Vytvořte všechny cíle",
-        "step2": "Nastavte status 'Aktivní' pro důležité cíle",
-        "step3": "Zaměřte se na aktivní cíle v sekci Focus",
+        "step1": "Vytvořte všechny milníky",
+        "step2": "Nastavte status 'Aktivní' pro důležité milníky",
+        "step3": "Zaměřte se na aktivní milníky v sekci Focus",
         "step4": "Pravidelně revidujte priority",
         "result": "💡 Výsledek: Jasnost - víte, co dělat dnes"
       },
       "quickStart": {
         "title": "🚀 Rychlý start",
         "day1": "Den 1:",
-        "day1Task": "Vytvořte 1-2 cíle",
+        "day1Task": "Vytvořte 1-2 milníky",
         "day23": "Den 2-3:",
         "day23Task": "Přidejte kroky",
         "day45": "Den 4-5:",
@@ -1425,19 +1425,19 @@
       "subtitle": "Jak se orientovat v aplikaci a najít potřebné funkce"
     },
     "areasHelp": {
-      "title": "Oblasti",
-      "subtitle": "Organizujte své cíle, kroky a návyky do logických skupin"
+      "title": "Výzvy",
+      "subtitle": "Organizujte své milníky, kroky a návyky do logických skupin"
     },
     "goalsHelp": {
-      "title": "Cíle",
+      "title": "Milníky",
       "subtitle": "Dlouhodobé výsledky, které chcete dosáhnout.",
       "add": "Přidat",
-      "whatAreGoals": "Co jsou cíle?",
-      "whatAreGoalsDesc": "Cíle jsou vaše dlouhodobé výsledky a sny. Mohou být krátkodobé (týden) i dlouhodobé (rok).",
+      "whatAreGoals": "Co jsou milníky?",
+      "whatAreGoalsDesc": "Milníky jsou vaše dlouhodobé výsledky a sny. Mohou být krátkodobé (týden) i dlouhodobé (rok).",
       "measurable": "Měřitelné",
       "withDeadline": "S termínem",
       "inFocus": "Ve fokusu",
-      "exampleTitle": "Ukázka cíle",
+      "exampleTitle": "Ukázka milníky",
       "exampleName": "Naučit se React",
       "exampleDesc": "Chci vytvořit vlastní webovou aplikaci",
       "exampleDeadline": "Do 15. března",
@@ -1457,23 +1457,23 @@
       "tableExample3": "Přečíst 12 knih",
       "postponed": "Odložený",
       "completed": "Dokončený",
-      "tableClickHint": "📌 Kliknutím na řádek otevřete detail cíle",
-      "cardsClickHint": "📌 Kliknutím na kartu otevřete detail cíle",
+      "tableClickHint": "📌 Kliknutím na řádek otevřete detail milníky",
+      "cardsClickHint": "📌 Kliknutím na kartu otevřete detail milníky",
       "cardsFiltersHint": "☑️ Použijte filtry nahoře pro zobrazení pouze aktivních, odložených nebo dokončených cílů",
       "cardsStatusHint": "🔄 Status = Aktivní (právě na něm pracujete) / Odložený (pozastavený) / Dokončený (splněný)",
       "tableStarHint": "⭐ Hvězdička = Ve fokusu (kliknutím přepnete)",
       "tableStatusHint": "🔄 Stav = Aktivní / Odložený / Dokončený",
       "howToCreate": "Jak vytvořit cíl?",
-      "howToStep1": "Přejděte do sekce Cíle (v levém menu)",
+      "howToStep1": "Přejděte do sekce Milníky (v levém menu)",
       "howToStep2": "Klikněte na 'Přidat cíl' - automaticky se vytvoří nový cíl",
-      "howToStep3": "Na stránce detailu cíle upravte název, popis a termín",
-      "howToStep4": "Nastavte status 'Aktivní' pro důležité cíle",
+      "howToStep3": "Na stránce detailu milníky upravte název, popis a termín",
+      "howToStep4": "Nastavte status 'Aktivní' pro důležité milníky",
       "howToStep5": "Přidejte kroky pomocí tlačítka '+' u sekce STEPS",
       "createGoal": "Vytvořit cíl",
       "goToGoals": "Přejít do Cílů",
       "tips": "Tipy",
-      "tip1": "Nastavte status 'Aktivní' pro důležité cíle",
-      "tip2": "Velké cíle rozdělte na menší kroky",
+      "tip1": "Nastavte status 'Aktivní' pro důležité milníky",
+      "tip2": "Velké milníky rozdělte na menší kroky",
       "tip3": "Kliknutím na kartu otevřete detail a editaci",
       "tip4": "Použijte filtry pro zobrazení pouze aktivních, odložených nebo dokončených cílů"
     },
@@ -1580,11 +1580,11 @@
     "contact": "Kontakt"
   },
   "areas": {
-    "title": "Oblasti",
-    "add": "Přidat oblast",
-    "create": "Vytvořit oblast",
-    "edit": "Upravit oblast",
-    "delete": "Smazat oblast",
+    "title": "Výzvy",
+    "add": "Přidat výzvu",
+    "create": "Vytvořit výzvu",
+    "edit": "Upravit výzvu",
+    "delete": "Smazat výzvu",
     "name": "Název oblasti",
     "namePlaceholder": "Např. Zdraví, Kariéra, Vztahy",
     "description": "Popis",
@@ -1592,10 +1592,10 @@
     "color": "Barva",
     "icon": "Ikona",
     "noAreas": "Zatím nemáte žádné oblasti",
-    "noAreasDescription": "Oblasti slouží k rozdělení cílů, návyků a kroků na jednotlivé oblasti tak, jak chcete - například Zdraví, Práce, Projekt, atd.",
+    "noAreasDescription": "Výzvy slouží k rozdělení milníků, návyků a kroků na jednotlivé oblasti tak, jak chcete - například Zdraví, Práce, Projekt, atd.",
     "selectArea": "Vybrat oblast",
     "noArea": "Bez oblasti",
-    "areaGoals": "Cíle v oblasti",
+    "areaGoals": "Milníky ve výzvě",
     "areaSteps": "Kroky v oblasti",
     "areaHabits": "Návyky v oblasti",
     "nameRequired": "Název oblasti je povinný",
@@ -1607,8 +1607,8 @@
     "manage": "Spravovat oblasti",
     "addFirst": "Vytvořit první oblast",
     "deleteConfirm": "Opravdu chcete smazat tuto oblast?",
-    "deleteConfirmDescription": "Cíle, kroky a návyky přiřazené k této oblasti budou odpojeny. Tato akce je nevratná.",
-    "deleteWithRelated": "Odstranit i cíle, kroky a návyky přiřazené k této oblasti",
+    "deleteConfirmDescription": "Milníky, kroky a návyky přiřazené k této výzvě budou odpojeny. Tato akce je nevratná.",
+    "deleteWithRelated": "Odstranit i milníky, kroky a návyky přiřazené k této oblasti",
     "deleteError": "Nepodařilo se smazat oblast"
   },
   "onboarding": {
@@ -1618,16 +1618,16 @@
     "intro": {
       "title": "Co je Pokrok?",
       "description": "Pokrok je nástroj pro organizaci Vašeho života založený na smysluplném přistupu k osobní produktivitě.",
-      "detailed": "Umožňuje vám organizovat vaše cíle, rozdělit je na dosažitelné kroky a sledovat, jak se posouváte směrem k životu, který chcete žít.",
+      "detailed": "Umožňuje vám organizovat vaše milníky, rozdělit je na dosažitelné kroky a sledovat, jak se posouváte směrem k životu, který chcete žít.",
       "philosophy": "Zaměřujeme se na smysluplnost, ne jen na produktivitu. Každý cíl, krok a návyk by měl mít svůj důvod a přispívat k životu, jaký chcete mít."
     },
     "creating": {
       "title": "Co vše se dá tvořit?",
       "description": "V Pokroku jsou čtyři základní bloky, které Vám pomohou organizovat Váš život.",
-      "areas": "Oblasti",
-      "areasDesc": "Organizujte své cíle, kroky a návyky do oblastí",
-      "goals": "Cíle",
-      "goalsDesc": "Dlouhodobé cíle, které chcete dosáhnout",
+      "areas": "Výzvy",
+      "areasDesc": "Organizujte své milníky, kroky a návyky do oblastí",
+      "goals": "Milníky",
+      "goalsDesc": "Dlouhodobé milníky, které chcete dosáhnout",
       "steps": "Kroky",
       "stepsDesc": "Konkrétní akce vedoucí k vašim cílům",
       "habits": "Návyky",
@@ -1635,7 +1635,7 @@
     },
     "plusButton": {
       "title": "Plus tlačítko v navigaci",
-      "description": "Na levé straně hlavního panelu najdete Plus tlačítko. Přes něj můžete každý den vytvářet nové building blocky - oblasti, cíle, kroky a návyky.",
+      "description": "Na levé straně hlavního panelu najdete Plus tlačítko. Přes něj můžete každý den vytvářet nové building blocky - oblasti, milníky, kroky a návyky.",
       "menuTitle": "Menu pro vytváření",
       "menuDesc": "Klikněte na Plus tlačítko pro zobrazení možností",
       "createArea": "Vytvořit oblast",
@@ -1646,23 +1646,23 @@
       "hint": "Plus tlačítko najdete na spodku levého navigačního panelu. Po kliknutí se zobrazí menu s možnostmi pro vytváření."
     },
     "areas": {
-      "title": "Oblasti",
-      "description": "Oblasti jsou větší životní oblasti nebo rozsáhlejší projekty. Shlukují cíle, kroky a návyky do logických skupin. Největší přínos oblastí je přehlednost a sledování pokroku.",
-      "createYourself": "Oblasti si vytváříte sami",
+      "title": "Výzvy",
+      "description": "Výzvy jsou větší životní oblasti nebo rozsáhlejší projekty. Shlukují milníky, kroky a návyky do logických skupin. Největší přínos výzev je přehlednost a sledování pokroku.",
+      "createYourself": "Výzvy si vytváříte sami",
       "examples": "Ideálně to mají být větší životní oblasti (např. Zdraví, Kariéra, Vztahy) nebo rozsáhlejší projekty (např. Nový byt, Vlastní firma).",
-      "contains": "Obsahuje cíle, kroky a návyky",
-      "function": "Oblasti umožňují filtrovat a zobrazit pouze relevantní obsah pro danou oblast vašeho života."
+      "contains": "Obsahuje milníky, kroky a návyky",
+      "function": "Výzvy umožňují filtrovat a zobrazit pouze relevantní obsah pro danou oblast vašeho života."
     },
     "goals": {
-      "title": "Cíle",
-      "description": "Cíle jsou smysluplné výsledky, které chcete dosáhnout. Nejsou to jen úkoly - jsou to cesty k životu, jaký chcete žít. Ke každému cíli můžete přidat kroky a metriky, díky čemuž vidíte, jak se blížíte k jeho dosažení.",
+      "title": "Milníky",
+      "description": "Milníky jsou smysluplné výsledky, které chcete dosáhnout. Nejsou to jen úkoly - jsou to cesty k životu, jaký chcete žít. Ke každému milníku můžete přidat kroky a metriky, díky čemuž vidíte, jak se blížíte k jeho dosažení.",
       "steps": "Kroky: 5/10",
       "metrics": "Metriky: 2",
-      "detail": "V detailu cíle můžete přidávat kroky, nastavovat metriky a sledovat pokrok v čase. Každý krok vás přibližuje k životu, jaký chcete žít."
+      "detail": "V detailu milníku můžete přidávat kroky, nastavovat metriky a sledovat pokrok v čase. Každý krok vás přibližuje k životu, jaký chcete žít."
     },
     "steps": {
       "title": "Kroky",
-      "description": "Kroky slouží dvojímu účelu: jsou to jednotlivé kroky vedoucí k dosažení cíle, ale zároveň také To-Do úkoly, které můžete plánovat na konkrétní dny.",
+      "description": "Kroky slouží dvojímu účelu: jsou to jednotlivé kroky vedoucí k dosažení milníky, ale zároveň také To-Do úkoly, které můžete plánovat na konkrétní dny.",
       "function": "Kroky můžete přiřadit k cílům a naplánovat je na konkrétní datum. Každý krok může mít odhadovaný čas a může být označen jako splněný.",
       "date": "Datum:"
     },
@@ -1694,15 +1694,15 @@
     },
     "clickArea": {
       "title": "Klikněte na oblast",
-      "description": "Klikněte na právě vytvořenou oblast v navigačním menu vlevo. Poté budete moci vytvářet cíle, kroky a návyky přímo v této oblasti."
+      "description": "Klikněte na právě vytvořenou oblast v navigačním menu vlevo. Poté budete moci vytvářet milníky, kroky a návyky přímo v této oblasti."
     },
     "createGoal": {
       "title": "Vytvořte cíl",
-      "description": "Nyní vytvořte cíl v této oblasti. Stejným způsobem si můžete vytvořit další oblasti, cíle a kroky pro jednotlivé cíle nebo oblasti."
+      "description": "Nyní vytvořte cíl v této oblasti. Stejným způsobem si můžete vytvořit další oblasti, milníky a kroky pro jednotlivé milníky nebo oblasti."
     },
     "clickGoal": {
       "title": "Cíl vytvořen",
-      "description": "Váš cíl byl vytvořen. Najdete ho vlevo v navigačním menu v oblasti, nebo dole pod oblastmi, pokud není přiřazen k žádné oblasti. V cílech můžete dále vytvářet kroky."
+      "description": "Váš cíl byl vytvořen. Najdete ho vlevo v navigačním menu v oblasti, nebo dole pod oblastmi, pokud není přiřazen k žádné oblasti. V milníkych můžete dále vytvářet kroky."
     },
     "habitsInfo": {
       "title": "Návyky",
@@ -1719,7 +1719,7 @@
       "monthly": "Měsíční",
       "monthlyDesc": "Slouží k většímu overview. Zobrazuje kalendář s kroky a návyky pro celý měsíc.",
       "yearly": "Roční",
-      "yearlyDesc": "Přehled posunu v jednotlivých cílech. Zobrazuje timeline s progress bary pro všechny cíle."
+      "yearlyDesc": "Přehled posunu v jednotlivých milníkych. Zobrazuje timeline s progress bary pro všechny milníky."
     },
     "complete": {
       "title": "Tutoriál dokončen!",
@@ -1733,11 +1733,11 @@
       },
       "afterArea": {
         "title": "Oblast vytvořena",
-        "description": "Skvělé! Nyní můžete vytvořit cíle, kroky a návyky v této oblasti. Klikněte na oblast v navigačním menu vlevo, pak na tlačítko \"+\" a vyberte \"Cíl\"."
+        "description": "Skvělé! Nyní můžete vytvořit milníky, kroky a návyky v této oblasti. Klikněte na oblast v navigačním menu vlevo, pak na tlačítko \"+\" a vyberte \"Cíl\"."
       },
       "afterGoal": {
         "title": "Cíl vytvořen",
-        "description": "Výborně! Cíle najdete v navigačním menu vlevo. V cílech můžete vytvářet kroky, které vás dovedou k jejich dosažení."
+        "description": "Výborně! Milníky najdete v navigačním menu vlevo. V milnících můžete vytvářet kroky, které vás dovedou k jejich dosažení."
       }
     }
   },
@@ -1768,7 +1768,7 @@
     "goalsNoProgress": "cílů ještě nemá žádný pokrok",
     "areaNoActivity": "oblast nemá žádnou aktivitu",
     "areasNoActivity": "oblastí nemá žádnou aktivitu",
-    "noInsights": "Zatím nemáme dostatek dat pro poznatky. Pokračujte v práci na svých cílech!"
+    "noInsights": "Zatím nemáme dostatek dat pro poznatky. Pokračujte v práci na svých milníkych!"
   },
   "views": {
     "title": "Úrovně zobrazení",
@@ -1812,7 +1812,7 @@
         "overdueSteps": "Zpožděné kroky",
         "calendar": "Kalendář",
         "statistics": "Statistiky",
-        "goals": "Cíle",
+        "goals": "Milníky",
         "insights": "Přehledy",
         "steps": "Kroky",
         "upcomingSteps": "Nadcházející kroky"
@@ -1832,7 +1832,7 @@
     "allDone": "Vše je splněno! Dobrá práce! 🎉",
     "futureStepsNote": "Níže jsou úkoly do budoucna, které ale ještě vydrží.",
     "feed": "Feed",
-    "areas": "Oblasti",
+    "areas": "Výzvy",
     "daily": "Denní",
     "dailyDesc": "Ideální pro každodenní práci a rutiny. Zobrazuje kroky a návyky pro konkrétní den.",
     "weekly": "Týdenní",
@@ -1840,7 +1840,7 @@
     "monthly": "Měsíční",
     "monthlyDesc": "Slouží k většímu overview. Zobrazuje kalendář s kroky a návyky pro celý měsíc.",
     "yearly": "Roční",
-    "yearlyDesc": "Přehled posunu v jednotlivých cílech. Zobrazuje timeline s progress bary pro všechny cíle."
+    "yearlyDesc": "Přehled posunu v jednotlivých milníkych. Zobrazuje timeline s progress bary pro všechny milníky."
   },
   "contact": {
     "title": "Kontakt",
@@ -1877,12 +1877,12 @@
       "send": "Odeslat"
     },
     "search": {
-      "placeholder": "Hledat kroky, cíle, oblasti, návyky...",
+      "placeholder": "Hledat kroky, milníky, oblasti, návyky...",
       "noResults": "Žádné výsledky",
       "results": "Výsledky",
       "steps": "Kroky",
-      "goals": "Cíle",
-      "areas": "Oblasti",
+      "goals": "Milníky",
+      "areas": "Výzvy",
       "habits": "Návyky",
       "filters": "Filtry",
       "filterTypes": "Typy výsledků",
@@ -1899,7 +1899,7 @@
       "onboarding": {
         "intro": {
           "title": "Vítejte v Pokroku!",
-          "description": "Pokrok je aplikace navržená pro sledování pokroku v životních snech a cílech. Aplikace jako taková je v podstatě podpůrná berle a motivace pro setrvání."
+          "description": "Pokrok je aplikace navržená pro sledování pokroku v životních snech a milníkych. Aplikace jako taková je v podstatě podpůrná berle a motivace pro setrvání."
         },
         "assistant": {
           "title": "Funkce asistenta",
@@ -1907,23 +1907,23 @@
         },
         "setup": {
           "title": "Nastavení aplikace",
-          "description": "Pro správné fungování aplikace musíte nastavit své cíle, ideálně i oblasti a na základě toho potom i jednotlivé kroky a návyky."
+          "description": "Pro správné fungování aplikace musíte nastavit své milníky, ideálně i oblasti a na základě toho potom i jednotlivé kroky a návyky."
         },
         "goalsLocation": {
-          "title": "Kde najít cíle",
-          "description": "Cíle najdete v navigačním menu vlevo. Klikněte na 'Cíle' a poté na tlačítko 'Přidat cíl' v pravém horním rohu."
+          "title": "Kde najít milníky",
+          "description": "Milníky najdete v navigačním menu vlevo. Klikněte na 'Milníky' a poté na tlačítko 'Přidat milník' v pravém horním rohu."
         },
         "smartGoals": {
-          "title": "Vytvoření cíle podle SMART",
-          "description": "Při vytváření cíle můžete nastavit termín, metriky, název a další parametry. SMART znamená Specifický, Měřitelný, Dosažitelný, Relevantní a Časově vymezený."
+          "title": "Vytvoření milníky podle SMART",
+          "description": "Při vytváření milníky můžete nastavit termín, metriky, název a další parametry. SMART znamená Specifický, Měřitelný, Dosažitelný, Relevantní a Časově vymezený."
         },
         "areas": {
           "title": "Přidání oblasti",
-          "description": "Oblast můžete přidat v hlavním panelu kliknutím na 'Přidat oblast'. Do oblasti můžete přiřadit kolik chcete cílů. Oblasti vlastně akorát seskupují jednotlivé cíle do logických celků pro přehled a filtrování."
+          "description": "Výzvu můžete přidat v hlavním panelu kliknutím na 'Přidat výzvu'. Do výzvy můžete přiřadit kolik chcete milníků. Výzvy vlastně akorát seskupují jednotlivé milníky do logických celků pro přehled a filtrování."
         },
         "stepsIntro": {
           "title": "Co jsou kroky",
-          "description": "Kroky jsou to-do úkoly zamýšlené jako kroky pro cíle. Tohle jsou spolu s návyky ty denodenní detaily, na kterých budete pracovat, aby se reálně posunuli k tomu životu, který chcete."
+          "description": "Kroky jsou to-do úkoly zamýšlené jako kroky pro milníky. Tohle jsou spolu s návyky ty denodenní detaily, na kterých budete pracovat, aby se reálně posunuli k tomu životu, který chcete."
         },
         "stepsLocation": {
           "title": "Kde nastavit kroky",

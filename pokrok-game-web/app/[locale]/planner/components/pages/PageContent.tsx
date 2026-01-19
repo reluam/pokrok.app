@@ -1011,7 +1011,7 @@ export function PageContent(props: PageContentProps) {
                               handleDeleteArea(areaId)
                             }}
                             className="flex items-center gap-2 px-3 py-1.5 text-sm border-2 border-red-300 bg-red-50 text-red-700 rounded-lg transition-all hover:bg-red-100 flex-shrink-0"
-                            title={t('areas.delete') || 'Smazat oblast'}
+                            title={t('areas.delete') || 'Smazat výzvu'}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -2674,8 +2674,8 @@ export function PageContent(props: PageContentProps) {
                     onChange={(e) => setStepsAreaFilter(e.target.value || null)}
                     className="w-full px-2 py-1.5 text-xs border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
                   >
-                    <option value="">{t('steps.filters.area.all') || 'Všechny oblasti'}</option>
-                    <option value="none">{t('steps.filters.area.withoutArea') || 'Bez oblasti'}</option>
+                    <option value="">{t('steps.filters.area.all') || 'Všechny výzvy'}</option>
+                    <option value="none">{t('steps.filters.area.withoutArea') || 'Bez výzvy'}</option>
                     {areas && areas.length > 0 && areas.map((area: any) => (
                       <option key={area.id} value={area.id}>
                         {area.name || t('areas.unnamed')}
@@ -2783,8 +2783,8 @@ export function PageContent(props: PageContentProps) {
                                     onChange={(e) => setStepsAreaFilter(e.target.value || null)}
                                     className="w-full px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white"
                                   >
-                                    <option value="">{t('steps.filters.area.all') || 'Všechny oblasti'}</option>
-                                    <option value="none">{t('steps.filters.area.withoutArea') || 'Bez oblasti'}</option>
+                                    <option value="">{t('steps.filters.area.all') || 'Všechny výzvy'}</option>
+                                    <option value="none">{t('steps.filters.area.withoutArea') || 'Bez výzvy'}</option>
                                     {areas && areas.length > 0 && areas.map((area: any) => (
                                       <option key={area.id} value={area.id}>
                                         {area.name || t('areas.unnamed')}
@@ -3054,10 +3054,10 @@ export function PageContent(props: PageContentProps) {
             }}
           >
             <h3 className="text-lg font-bold text-gray-900 mb-4">
-              {t('areas.deleteConfirm') || 'Opravdu chcete smazat tuto oblast?'}
+              {t('areas.deleteConfirm') || 'Opravdu chcete smazat tuto výzvu?'}
             </h3>
             <p className="text-sm text-gray-600 mb-4">
-              {t('areas.deleteConfirmDescription') || 'Cíle, kroky a návyky přiřazené k této oblasti budou odpojeny. Tato akce je nevratná.'}
+              {t('areas.deleteConfirmDescription') || 'Milníky, kroky a návyky přiřazené k této výzvě budou odpojeny. Tato akce je nevratná.'}
             </p>
             
             {/* Checkbox for deleting related items */}
@@ -3073,7 +3073,7 @@ export function PageContent(props: PageContentProps) {
                 className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
               />
               <span className="text-sm text-black font-playful">
-                {t('areas.deleteWithRelated') || 'Odstranit i cíle, kroky a návyky přiřazené k této oblasti'}
+                {t('areas.deleteWithRelated') || 'Odstranit i milníky, kroky a návyky přiřazené k této výzvě'}
               </span>
             </label>
             

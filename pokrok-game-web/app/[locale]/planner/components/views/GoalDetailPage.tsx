@@ -2393,7 +2393,7 @@ export function GoalDetailPage({
                 }
               }}
             >
-              <span>{t('details.goal.noArea') || 'Bez oblasti'}</span>
+              <span>{t('details.goal.noArea') || 'Bez výzvy'}</span>
             </button>
             {areas.map((area) => {
               const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')

@@ -87,12 +87,12 @@
   },
   "homepage": {
     "tagline": "Life planning app",
-    "description": "Pokrok connects the big overview with concrete steps, helping to increase motivation and reduce overwhelm. Plan your life effectively and achieve your goals step by step.",
+    "description": "Pokrok connects the big overview with concrete steps, helping to increase motivation and reduce overwhelm. Plan your life effectively and achieve your milestones step by step.",
     "startFree": "Start for Free",
     "trialInfo": "14-day free trial • No credit card required",
     "hero": {
-      "title": "Life planner for people who want to achieve their goals",
-      "description": "Pokrok helps you gain clarity and meaning in how to achieve what you want in life. Break down big goals into small steps, build habits, and track your progress."
+      "title": "Life planner for people who want to achieve their milestones",
+      "description": "Pokrok helps you gain clarity and meaning in how to achieve what you want in life. Break down big milestones into small steps, build habits, and track your progress."
     },
     "philosophy": {
       "title": "Pokrok is not another productivity app",
@@ -100,33 +100,33 @@
       "flexibility": "Use Pokrok as you need - daily for everyday planning, weekly for an overview of the week, or even monthly for reflection and planning ahead. Pokrok is your partner for the life you want to have."
     },
     "problem": {
-      "title": "You have big goals, but don't know where to start?",
+      "title": "You have big milestones, but don't know where to start?",
       "subtitle": "Many people have an idea of what they want to achieve, but lack clarity on how to do it.",
       "overwhelmed": "You feel overwhelmed by all the things you want to do",
-      "overwhelmedDesc": "You have lots of ideas and goals, but don't know what to focus on",
+      "overwhelmedDesc": "You have lots of ideas and milestones, but don't know what to focus on",
       "noClarity": "You lack clarity in priorities",
-      "noClarityDesc": "You don't know which goals are important and which can wait",
-      "noProgress": "You don't see progress towards goals",
-      "noProgressDesc": "Goals remain just on paper, without concrete steps to achieve them"
+      "noClarityDesc": "You don't know which milestones are important and which can wait",
+      "noProgress": "You don't see progress towards milestones",
+      "noProgressDesc": "Milestones remain just on paper, without concrete steps to achieve them"
     },
     "solution": {
       "title": "Pokrok helps you gain clarity",
-      "subtitle": "Break down your goals into small steps, build habits, and track progress. Gain meaning in how to achieve what you want.",
+      "subtitle": "Break down your milestones into small steps, build habits, and track progress. Gain meaning in how to achieve what you want.",
       "clarity": "Get clarity",
       "clarityDesc": "You see exactly what to focus on today and why",
       "meaning": "Find meaning",
-      "meaningDesc": "Every step has its purpose and leads you to your goals",
+      "meaningDesc": "Every step has its purpose and leads you to your milestones",
       "progress": "Track progress",
       "progressDesc": "You see how you're moving forward and what you've already achieved"
     },
     "features": {
-      "title": "How Pokrok helps you achieve your goals",
+      "title": "How Pokrok helps you achieve your milestones",
       "subtitle": "Simple tools for life planning that give you clarity and meaning",
       "clarity": {
         "title": "Clarity - Focus on what matters",
         "subtitle": "Start each day with clarity",
-        "description": "Focus view shows you only what you need to focus on today. See your habits, steps from active goals, and everything you need to complete. No distractions, just what's important.",
-        "benefit1": "Shows only steps from active goals - you see what's really important",
+        "description": "Focus view shows you only what you need to focus on today. See your habits, steps from active milestones, and everything you need to complete. No distractions, just what's important.",
+        "benefit1": "Shows only steps from active milestones - you see what's really important",
         "benefit2": "Compact overview of today's habits - build positive routines",
         "benefit3": "Quick overview of progress - you see how you're moving forward",
         "exampleTitle": "Today's Focus",
@@ -137,10 +137,10 @@
         "habit2": "Read 30 minutes"
       },
       "management": {
-        "title": "Break down goals into steps and build habits",
-        "goals": {
-          "title": "Goals",
-          "description": "Set short-term and long-term goals. Organize them by priority and track progress. Every goal has its purpose and leads you to what you want to achieve."
+        "title": "Break down milestones into steps and build habits",
+        "milestones": {
+          "title": "Milestones",
+          "description": "Set short-term and long-term milestones. Organize them by priority and track progress. Every goal has its purpose and leads you to what you want to achieve."
         },
         "habits": {
           "title": "Habits",
@@ -148,16 +148,16 @@
         },
         "steps": {
           "title": "Steps",
-          "description": "Break down your goals into small, achievable steps. Plan them for specific days and track their completion. Every step brings you closer to your goals."
+          "description": "Break down your milestones into small, achievable steps. Plan them for specific days and track their completion. Every step brings you closer to your milestones."
         },
-        "areas": {
-          "title": "Areas",
-          "description": "Organize your goals, habits, and steps into life areas such as Health, Career, Relationships, or anything else that makes sense to you. Areas help you keep track of different aspects of your life."
+        "challenges": {
+          "title": "Challenges",
+          "description": "Organize your milestones, habits, and steps into life challenges such as Health, Career, Relationships, or anything else that makes sense to you. Challenges help you keep track of different aspects of your life."
         }
       },
       "calendar": {
         "title": "Calendar",
-        "description": "Visualize your steps and habits in calendar view. Plan ahead and keep track of your time. You see how your efforts accumulate and bring you closer to your goals.",
+        "description": "Visualize your steps and habits in calendar view. Plan ahead and keep track of your time. You see how your efforts accumulate and bring you closer to your milestones.",
         "benefit1": "Daily, weekly, monthly, and yearly views",
         "benefit2": "Visual overview of completed tasks",
         "benefit3": "Easy planning and moving steps"
@@ -169,7 +169,7 @@
       },
       "statistics": {
         "title": "Statistics",
-        "description": "Track your progress with detailed statistics. See how many steps you've completed, your streak length, and overall progress. Every completed step brings you closer to your goals.",
+        "description": "Track your progress with detailed statistics. See how many steps you've completed, your streak length, and overall progress. Every completed step brings you closer to your milestones.",
         "benefit1": "Overview of completed steps and habits",
         "benefit2": "Streak statistics for habits",
         "benefit3": "Overall progress in percentage"
@@ -177,7 +177,7 @@
       "startDay": {
         "title": "Start your Day",
         "subtitle": "Start each day with clarity",
-        "description": "Plan your day with intention by aligning your goals, prioritizing tasks, and setting a realistic workload.",
+        "description": "Plan your day with intention by aligning your milestones, prioritizing tasks, and setting a realistic workload.",
         "benefit1": "Plan what you need to get done today, without losing focus on tomorrow",
         "benefit2": "Visualize and block time for work on your calendar",
         "benefit3": "Unify your work across your different tools and organize it",
@@ -212,11 +212,11 @@
       },
       "overview": {
         "title": "BIG OVERVIEW",
-        "description": "Keep track of all your goals, habits, and steps in one place"
+        "description": "Keep track of all your milestones, habits, and steps in one place"
       },
       "steps": {
         "title": "CONCRETE STEPS",
-        "description": "Break down your goals into small, achievable steps and track progress"
+        "description": "Break down your milestones into small, achievable steps and track progress"
       },
       "motivation": {
         "title": "HIGHER MOTIVATION",
@@ -236,7 +236,7 @@
       "role3": "CEO @ Names and Faces"
     },
     "cta": {
-      "title": "Start achieving your goals",
+      "title": "Start achieving your milestones",
       "subtitle": "Gain clarity and meaning in how to achieve what you want in life"
     },
     "footer": {
@@ -250,13 +250,13 @@
     "devVersion": "Development version",
     "devVersionTooltip": "Development version - The application is still in development, errors and bugs may occur. The application may still change."
   },
-  "goals": {
+  "milestones": {
     "title": "GOALS",
     "goal": "goal",
-    "goals": "goals",
+    "milestones": "milestones",
     "add": "Add goal",
-    "endingThisYear": "Goals ending this year",
-    "endingFutureYears": "Goals ending in future years",
+    "endingThisYear": "Milestones ending this year",
+    "endingFutureYears": "Milestones ending in future years",
     "completedInTarget": "Completed in target",
     "completedAfterTarget": "Completed after target",
     "startDate": "Start date",
@@ -276,8 +276,8 @@
     "addDate": "Add date",
     "addGoalButton": "ADD GOAL",
     "cancelButton": "CANCEL",
-    "noGoals": "No goals set",
-    "noGoalsDescription": "Click the button below to add a new goal",
+    "noMilestones": "No milestones set",
+    "noMilestonesDescription": "Click the button below to add a new goal",
     "noCompletedSteps": "No completed steps",
     "categoryLabel": "Category",
     "deadlineLabel": "Deadline",
@@ -316,7 +316,7 @@
         "paused": "Paused"
       },
       "area": {
-        "all": "All areas"
+        "all": "All challenges"
       },
       "aspiration": {
         "all": "All aspirations"
@@ -492,8 +492,8 @@
     "title": "SETTINGS",
     "tabs": {
       "user": "User",
-      "areas": "Life Areas",
-      "goals": "Goals",
+      "challenges": "Life Challenges",
+      "milestones": "Milestones",
       "steps": "Steps",
       "dailyPlan": "Daily Plan",
       "display": "Display",
@@ -539,7 +539,7 @@
             "description": "This unit will be used as default when creating new weight metrics."
           }
         },
-    "areas": {
+    "challenges": {
       "title": "LIFE AREAS",
       "addArea": "Add Area",
       "cancel": "Cancel",
@@ -555,9 +555,9 @@
       "edit": "Edit",
       "delete": "Delete",
       "deleting": "Deleting...",
-      "noAreas": "You don't have any areas yet"
+      "noChallenges": "You don't have any challenges yet"
     },
-    "goals": {
+    "milestones": {
       "title": "GOALS SETTINGS",
       "basicSettings": "Basic Settings",
       "defaultStatus": "Default Goal Status",
@@ -679,10 +679,10 @@
       },
       "resetData": {
         "title": "Reset All Data",
-        "description": "Deletes all Areas, Goals, Steps and Habits and resets all settings to default. Character will be preserved.",
+        "description": "Deletes all Challenges, Milestones, Steps and Habits and resets all settings to default. Character will be preserved.",
         "button": "Reset All Data",
         "dialogTitle": "Reset All Data",
-        "dialogWarning": "This action is irreversible! All your Areas, Goals, Steps, Habits will be deleted and all settings will be reset to default. Character will be preserved.",
+        "dialogWarning": "This action is irreversible! All your Challenges, Milestones, Steps, Habits will be deleted and all settings will be reset to default. Character will be preserved.",
         "confirmPrompt": "To confirm, type:",
         "confirmText": "delete data",
         "confirmPlaceholder": "delete data",
@@ -764,7 +764,7 @@
   "dailyPlanning": {
     "title": "DAILY PLANNING",
     "loading": "Loading daily steps...",
-    "startPlanning": "Prepare your daily plan and start achieving your goals!",
+    "startPlanning": "Prepare your daily plan and start achieving your milestones!",
     "startButton": "START PLANNING",
     "current": "Current",
     "remove": "Remove",
@@ -787,15 +787,15 @@
     "focusMonth": "Month",
     "focusYear": "Year",
     "calendar": "Calendar",
-    "goals": "Goals",
+    "milestones": "Milestones",
     "steps": "Steps",
     "habits": "Habits",
-    "areas": "Areas",
+    "challenges": "Challenges",
     "workflows": "Workflows",
     "timeBased": "Time-based",
-    "noGoals": "No goals",
+    "noMilestones": "No milestones",
     "noHabits": "No habits",
-    "noAreas": "No areas",
+    "noChallenges": "No challenges",
     "goalNotFound": "Goal not found",
     "habitNotFound": "Habit not found",
     "areaNotFound": "Area not found",
@@ -830,7 +830,7 @@
   "modal": {
     "generalInfo": "General information",
     "addToFocus": "Add to focus",
-    "focusDescription": "Goals in focus will be highlighted and shown on the main panel",
+    "focusDescription": "Milestones in focus will be highlighted and shown on the main panel",
     "enableReminder": "Enable reminder",
     "showAlways": "Show always",
     "showAlwaysDescription": "Habit will be shown on the main panel regardless of frequency"
@@ -880,7 +880,7 @@
       "backToGame": "Back to Game",
       "mainPanel": "Main Panel",
       "management": "Management",
-      "goals": "Goals",
+      "milestones": "Milestones",
       "aspirace": "Aspirations",
       "habits": "Habits",
       "steps": "Steps",
@@ -896,16 +896,16 @@
   },
   "aspirace": {
     "title": "Aspirations",
-    "description": "Life goals and direction",
+    "description": "Life milestones and direction",
     "loading": "Loading overview...",
     "noAspirace": "No aspirations",
-    "noAspiraceDescription": "Create your first aspiration that will guide you to your life goals",
+    "noAspiraceDescription": "Create your first aspiration that will guide you to your life milestones",
     "addAspirace": "Add aspiration",
     "editAspirace": "Edit aspiration",
     "newAspirace": "New aspiration",
     "editTitle": "Edit aspiration",
-    "noGoalsHabits": "This aspiration doesn't have any assigned goals or habits yet",
-    "noGoalsHabitsDescription": "Assign goals or habits to this aspiration to track progress",
+    "noMilestonesHabits": "This aspiration doesn't have any assigned milestones or habits yet",
+    "noMilestonesHabitsDescription": "Assign milestones or habits to this aspiration to track progress",
     "insights": {
       "title": "Overview",
       "easy": "Easy",
@@ -931,14 +931,14 @@
     "completedTasks": "Completed Tasks",
     "gameDay": "Game Day",
     "progressToNextLevel": "PROGRESS TO NEXT LEVEL",
-    "goals": {
+    "milestones": {
       "title": "GOALS",
-      "total": "Total Goals:",
+      "total": "Total Milestones:",
       "completed": "Completed:",
       "active": "Active:",
       "successRate": "Success Rate:",
       "byCategory": "GOALS BY CATEGORY",
-      "noGoals": "You don't have any goals yet"
+      "noMilestones": "You don't have any milestones yet"
     },
     "habits": {
       "title": "HABITS",
@@ -978,7 +978,7 @@
     },
     "goalSetter": {
       "title": "Goal Setter",
-      "description": "Create 5 goals"
+      "description": "Create 5 milestones"
     },
     "habitBuilder": {
       "title": "Habit Builder",
@@ -1038,7 +1038,7 @@
   "sections": {
     "habits": "HABITS",
     "steps": "STEPS",
-    "goals": "GOALS",
+    "milestones": "GOALS",
     "notes": "NOTES"
   },
   "dailyReview": {
@@ -1058,7 +1058,7 @@
       "change": "Change",
       "progress": "Progress",
       "selectGoal": "Select Goal",
-      "noGoals": "You don't have any active goals"
+      "noMilestones": "You don't have any active milestones"
     },
     "complete": "Complete",
     "saving": "Saving...",
@@ -1159,12 +1159,12 @@
       },
       "area": {
         "title": "Area",
-        "all": "All areas",
+        "all": "All challenges",
         "withoutArea": "Without area"
       },
       "goal": {
         "title": "Goal",
-        "all": "All goals",
+        "all": "All milestones",
         "withoutGoal": "Without goal"
       },
       "aspiration": {
@@ -1261,28 +1261,28 @@
       "focus": "Focus",
       "views": "Views",
       "navigation": "Navigation",
-      "areas": "Areas",
-      "goals": "Goals",
+      "challenges": "Challenges",
+      "milestones": "Milestones",
       "steps": "Steps",
       "habits": "Habits"
     },
     "gettingStarted": {
       "welcome": "Welcome to Pokrok!",
-      "tagline": "Gain <strong>perspective</strong>, <strong>clarity</strong> and achieve your <strong>goals</strong>.",
+      "tagline": "Gain <strong>perspective</strong>, <strong>clarity</strong> and achieve your <strong>milestones</strong>.",
       "benefits": {
         "overview": "Perspective",
         "clarity": "Clarity",
-        "goals": "Goals"
+        "milestones": "Milestones"
       },
       "stepsToSuccess": "4 steps to success",
       "step0": {
-        "title": "Areas",
-        "subtitle": "The first thing you'll encounter in Pokrok are <strong>Areas</strong>. Areas reflect different parts of your life and in the app they primarily serve for easier viewing and filtering. You can add <strong>Habits</strong>, <strong>Goals</strong>, and <strong>Steps</strong> to Areas. Areas are intended as life areas - for example Career, finances, or health, but you can also use them for larger projects or your own view of different goals / steps / habits. When you're in an area and add a step, goal, or habit, it will automatically be assigned to that area.",
+        "title": "Challenges",
+        "subtitle": "The first thing you'll encounter in Pokrok are <strong>Challenges</strong>. Challenges reflect different parts of your life and in the app they primarily serve for easier viewing and filtering. You can add <strong>Habits</strong>, <strong>Milestones</strong>, and <strong>Steps</strong> to Challenges. Challenges are intended as life challenges - for example Career, finances, or health, but you can also use them for larger projects or your own view of different milestones / steps / habits. When you're in an area and add a step, goal, or habit, it will automatically be assigned to that area.",
         "button": "Create area"
       },
       "step1": {
         "title": "Create a goal",
-        "subtitle": "<strong>Goals</strong> are the largest <strong>building blocks</strong> of Pokrok. They are all the things you want to achieve that <strong>cannot be solved within a single session</strong>. You can create goals as needed and ideally use the <strong>SMART</strong> framework - making goals <strong>Specific, Measurable, Ambitious, Relevant, and Time-bound</strong>. For this, you can use <strong>Steps</strong> in Pokrok - for sub-parts, or <strong>habits</strong> - for repeated and measurable tasks.",
+        "subtitle": "<strong>Milestones</strong> are the largest <strong>building blocks</strong> of Pokrok. They are all the things you want to achieve that <strong>cannot be solved within a single session</strong>. You can create milestones as needed and ideally use the <strong>SMART</strong> framework - making milestones <strong>Specific, Measurable, Ambitious, Relevant, and Time-bound</strong>. For this, you can use <strong>Steps</strong> in Pokrok - for sub-parts, or <strong>habits</strong> - for repeated and measurable tasks.",
         "example": "Learn React",
         "exampleDesc": "I want to create my own web application",
         "exampleDeadline": "Until March 15th",
@@ -1293,7 +1293,7 @@
       },
       "step2": {
         "title": "Add steps",
-        "subtitle": "<strong>Steps</strong> can be used as <strong>To-Do items without any goal</strong>, but their <strong>primary purpose</strong> is to help break down <strong>Goals into smaller parts</strong> - ideally parts that can be done <strong>within one day</strong>. Completing steps then <strong>increases the goal's progress</strong>. If needed, a Step can be further broken down into individual <strong>checklist</strong> items in the step settings for better control.",
+        "subtitle": "<strong>Steps</strong> can be used as <strong>To-Do items without any goal</strong>, but their <strong>primary purpose</strong> is to help break down <strong>Milestones into smaller parts</strong> - ideally parts that can be done <strong>within one day</strong>. Completing steps then <strong>increases the goal's progress</strong>. If needed, a Step can be further broken down into individual <strong>checklist</strong> items in the step settings for better control.",
         "example1": "Install Node.js",
         "example2": "Complete tutorial",
         "example1Time": "30 min",
@@ -1304,7 +1304,7 @@
       },
       "step3": {
         "title": "Build habits",
-        "subtitle": "The third fundamental building block is <strong>habits</strong>, which are actions that are <strong>repeatable and measurable</strong>. Habits can be set to <strong>Daily, weekly, monthly, or in custom intervals</strong>. Habits are <strong>not assigned to goals</strong> as such. Instead, I recommend creating a <strong>Step</strong> that specifies how many times, for example, I must complete the habit - (Meditation - 5x per week for one year).",
+        "subtitle": "The third fundamental building block is <strong>habits</strong>, which are actions that are <strong>repeatable and measurable</strong>. Habits can be set to <strong>Daily, weekly, monthly, or in custom intervals</strong>. Habits are <strong>not assigned to milestones</strong> as such. Instead, I recommend creating a <strong>Step</strong> that specifies how many times, for example, I must complete the habit - (Meditation - 5x per week for one year).",
         "example1": "Morning exercise",
         "example2": "Reading",
         "everyDay": "Every day",
@@ -1343,16 +1343,16 @@
       "useCase3": {
         "title": "🎯 Prioritization",
         "description": "You have many tasks but don't know what to focus on.",
-        "step1": "Create all your goals",
-        "step2": "Set status 'Active' for important goals",
-        "step3": "Focus on active goals in the Focus section",
+        "step1": "Create all your milestones",
+        "step2": "Set status 'Active' for important milestones",
+        "step3": "Focus on active milestones in the Focus section",
         "step4": "Regularly review priorities",
         "result": "💡 Result: Clarity - you know what to do today"
       },
       "quickStart": {
         "title": "🚀 Quick start",
         "day1": "Day 1:",
-        "day1Task": "Create 1-2 goals",
+        "day1Task": "Create 1-2 milestones",
         "day23": "Day 2-3:",
         "day23Task": "Add steps",
         "day45": "Day 4-5:",
@@ -1389,16 +1389,16 @@
       "title": "Navigation",
       "subtitle": "How to navigate the app and find the features you need"
     },
-    "areasHelp": {
-      "title": "Areas",
-      "subtitle": "Organize your goals, steps, and habits into logical groups"
+    "challengesHelp": {
+      "title": "Challenges",
+      "subtitle": "Organize your milestones, steps, and habits into logical groups"
     },
-    "goalsHelp": {
-      "title": "Goals",
+    "milestonesHelp": {
+      "title": "Milestones",
       "subtitle": "Long-term outcomes you want to achieve.",
       "add": "Add",
-      "whatAreGoals": "What are goals?",
-      "whatAreGoalsDesc": "Goals are your long-term outcomes and dreams. They can be short-term (week) or long-term (year).",
+      "whatAreMilestones": "What are milestones?",
+      "whatAreMilestonesDesc": "Milestones are your long-term outcomes and dreams. They can be short-term (week) or long-term (year).",
       "measurable": "Measurable",
       "withDeadline": "With deadline",
       "inFocus": "In Focus",
@@ -1411,8 +1411,8 @@
       "focusExplanation": "In Focus = Important goal, shown in daily overview",
       "activeExplanation": "Active = Currently working on (can change to Postponed)",
       "deadlineExplanation": "Deadline = Optional, helps with motivation",
-      "tableTitle": "Goals table example",
-      "cardsTitle": "Goals cards example",
+      "tableTitle": "Milestones table example",
+      "cardsTitle": "Milestones cards example",
       "tableName": "Name",
       "tableStatus": "Status",
       "tableDeadline": "Deadline",
@@ -1424,30 +1424,30 @@
       "completed": "Completed",
       "tableClickHint": "📌 Click on a row to open goal details",
       "cardsClickHint": "📌 Click on a card to open goal details",
-      "cardsFiltersHint": "☑️ Use filters at the top to show only active, postponed, or completed goals",
+      "cardsFiltersHint": "☑️ Use filters at the top to show only active, postponed, or completed milestones",
       "cardsStatusHint": "🔄 Status = Active (currently working on) / Postponed (paused) / Completed (finished)",
       "tableStarHint": "⭐ Star = In Focus (click to toggle)",
       "tableStatusHint": "🔄 Status = Active / Postponed / Completed",
       "howToCreate": "How to create a goal?",
-      "howToStep1": "Go to the Goals section (in left menu)",
+      "howToStep1": "Go to the Milestones section (in left menu)",
       "howToStep2": "Click 'Add goal' - a new goal will be automatically created",
       "howToStep3": "On the goal detail page, edit name, description, and deadline",
-      "howToStep4": "Set status 'Active' for important goals",
+      "howToStep4": "Set status 'Active' for important milestones",
       "howToStep5": "Add steps using the '+' button next to STEPS section",
       "createGoal": "Create goal",
-      "goToGoals": "Go to Goals",
+      "goToMilestones": "Go to Milestones",
       "tips": "Tips",
-      "tip1": "Set status 'Active' for important goals",
-      "tip2": "Break big goals into smaller steps",
+      "tip1": "Set status 'Active' for important milestones",
+      "tip2": "Break big milestones into smaller steps",
       "tip3": "Click on a card to open details and edit",
-      "tip4": "Use filters to show only active, postponed, or completed goals"
+      "tip4": "Use filters to show only active, postponed, or completed milestones"
     },
     "stepsHelp": {
       "title": "Steps",
-      "subtitle": "Concrete actions leading to your goals.",
+      "subtitle": "Concrete actions leading to your milestones.",
       "add": "Add",
       "whatAreSteps": "What are steps?",
-      "whatAreStepsDesc": "Steps are specific tasks scheduled for specific days. You can assign them to goals.",
+      "whatAreStepsDesc": "Steps are specific tasks scheduled for specific days. You can assign them to milestones.",
       "scheduled": "Scheduled",
       "toGoal": "To goal",
       "timeEstimate": "Time estimate",
@@ -1544,8 +1544,8 @@
     },
     "contact": "Contact"
   },
-  "areas": {
-    "title": "Areas",
+  "challenges": {
+    "title": "Challenges",
     "add": "Add area",
     "create": "Create area",
     "edit": "Edit area",
@@ -1556,11 +1556,11 @@
     "descriptionPlaceholder": "Area description...",
     "color": "Color",
     "icon": "Icon",
-    "noAreas": "No areas",
-    "noAreasDescription": "Areas serve to organize your goals, habits, and steps into different areas as you wish - for example Health, Work, Project, etc.",
+    "noChallenges": "No challenges",
+    "noChallengesDescription": "Challenges serve to organize your milestones, habits, and steps into different challenges as you wish - for example Health, Work, Project, etc.",
     "selectArea": "Select area",
     "noArea": "No area",
-    "areaGoals": "Goals in area",
+    "areaMilestones": "Milestones in area",
     "areaSteps": "Steps in area",
     "areaHabits": "Habits in area",
     "nameRequired": "Area name is required",
@@ -1568,12 +1568,12 @@
     "addDescription": "Click to add description",
     "iconTooLong": "Icon name is too long. Maximum length is 50 characters. Current length: {length} characters. Please choose a shorter icon.",
     "generalSettings": "General Settings",
-    "generalSettingsDescription": "Here you can manage general settings for areas.",
-    "manage": "Manage areas",
+    "generalSettingsDescription": "Here you can manage general settings for challenges.",
+    "manage": "Manage challenges",
     "addFirst": "Create first area",
     "deleteConfirm": "Are you sure you want to delete this area?",
-    "deleteConfirmDescription": "Goals, steps and habits assigned to this area will be unlinked. This action cannot be undone.",
-    "deleteWithRelated": "Also delete goals, steps and habits assigned to this area",
+    "deleteConfirmDescription": "Milestones, steps and habits assigned to this area will be unlinked. This action cannot be undone.",
+    "deleteWithRelated": "Also delete milestones, steps and habits assigned to this area",
     "deleteError": "Failed to delete area"
   },
   "onboarding": {
@@ -1583,24 +1583,24 @@
     "intro": {
       "title": "What is Pokrok?",
       "description": "Pokrok is a tool for organizing your life based on a meaningful approach to personal productivity.",
-      "detailed": "It allows you to organize your goals, break them down into achievable steps, and track how you're moving toward the life you want to live.",
+      "detailed": "It allows you to organize your milestones, break them down into achievable steps, and track how you're moving toward the life you want to live.",
       "philosophy": "We focus on meaning, not just productivity. Every goal, step, and habit should have its purpose and contribute to the life you want to have."
     },
     "creating": {
       "title": "What can you create?",
       "description": "In Pokrok, there are four basic building blocks that will help you organize your life.",
-      "areas": "Areas",
-      "areasDesc": "Organize your goals, steps and habits into areas",
-      "goals": "Goals",
-      "goalsDesc": "Long-term goals you want to achieve",
+      "challenges": "Challenges",
+      "challengesDesc": "Organize your milestones, steps and habits into challenges",
+      "milestones": "Milestones",
+      "milestonesDesc": "Long-term milestones you want to achieve",
       "steps": "Steps",
-      "stepsDesc": "Concrete actions leading to your goals",
+      "stepsDesc": "Concrete actions leading to your milestones",
       "habits": "Habits",
       "habitsDesc": "Repeating routines you build long-term"
     },
     "plusButton": {
       "title": "Plus button in navigation",
-      "description": "On the left side of the main panel, you'll find the Plus button. Through it, you can create new building blocks mentioned earlier, that will help you organize your life and achieve meaningful goals - areas, goals, steps, and habits.",
+      "description": "On the left side of the main panel, you'll find the Plus button. Through it, you can create new building blocks mentioned earlier, that will help you organize your life and achieve meaningful milestones - challenges, milestones, steps, and habits.",
       "menuTitle": "Create menu",
       "menuDesc": "Click the Plus button to see options",
       "createArea": "Create area",
@@ -1610,17 +1610,17 @@
       "mainContent": "Main application panel",
       "hint": "The Plus button is located at the bottom of the left navigation panel. After clicking, a menu with creation options will appear."
     },
-    "areas": {
-      "title": "Areas",
-      "description": "Areas are larger life areas or extensive projects. They group goals, steps, and habits into logical groups. The biggest benefit of areas is clarity and tracking progress.",
-      "createYourself": "You create areas yourself",
-      "examples": "Ideally, they should be larger life areas (e.g., Health, Career, Relationships) or extensive projects (e.g., New Apartment, Own Business).",
-      "contains": "Contains goals, steps, and habits",
-      "function": "Areas allow you to filter and display only relevant content for a specific area of your life."
+    "challenges": {
+      "title": "Challenges",
+      "description": "Challenges are larger life challenges or extensive projects. They group milestones, steps, and habits into logical groups. The biggest benefit of challenges is clarity and tracking progress.",
+      "createYourself": "You create challenges yourself",
+      "examples": "Ideally, they should be larger life challenges (e.g., Health, Career, Relationships) or extensive projects (e.g., New Apartment, Own Business).",
+      "contains": "Contains milestones, steps, and habits",
+      "function": "Challenges allow you to filter and display only relevant content for a specific area of your life."
     },
-    "goals": {
-      "title": "Goals",
-      "description": "Goals are meaningful outcomes you want to achieve. They're not just tasks - they're paths to the life you want to live. For each goal, you can add steps and metrics, allowing you to see how you're approaching achievement.",
+    "milestones": {
+      "title": "Milestones",
+      "description": "Milestones are meaningful outcomes you want to achieve. They're not just tasks - they're paths to the life you want to live. For each goal, you can add steps and metrics, allowing you to see how you're approaching achievement.",
       "steps": "Steps: 5/10",
       "metrics": "Metrics: 2",
       "detail": "In the goal detail, you can add steps, set metrics, and track progress over time. Each step brings you closer to the life you want to live."
@@ -1628,7 +1628,7 @@
     "steps": {
       "title": "Steps",
       "description": "Steps serve a dual purpose: they are individual steps leading to goal achievement, but also To-Do tasks that you can schedule for specific days.",
-      "function": "You can assign steps to goals and schedule them for specific dates. Each step can have an estimated time and can be marked as completed.",
+      "function": "You can assign steps to milestones and schedule them for specific dates. Each step can have an estimated time and can be marked as completed.",
       "date": "Date:"
     },
     "habits": {
@@ -1640,7 +1640,7 @@
     },
     "complete": {
       "title": "Tutorial Complete!",
-      "description": "Now you know how to use Pokrok. Start creating your areas, goals, steps and habits and move toward a life full of meaning and fulfillment!",
+      "description": "Now you know how to use Pokrok. Start creating your challenges, milestones, steps and habits and move toward a life full of meaning and fulfillment!",
       "message": "Everything is ready! You can start using the app.",
       "button": "Complete"
     },
@@ -1665,15 +1665,15 @@
     },
     "clickArea": {
       "title": "Click on the area",
-      "description": "Click on the newly created area in the navigation menu on the left. Then you will be able to create goals, steps and habits directly in this area."
+      "description": "Click on the newly created area in the navigation menu on the left. Then you will be able to create milestones, steps and habits directly in this area."
     },
     "createGoal": {
       "title": "Create a goal",
-      "description": "Now create a goal in this area. In the same way, you can create additional areas, goals and steps for individual goals or areas."
+      "description": "Now create a goal in this area. In the same way, you can create additional challenges, milestones and steps for individual milestones or challenges."
     },
     "clickGoal": {
       "title": "Goal Created",
-      "description": "Your goal has been created. You can find it in the left navigation menu in the area, or below the areas if it's not assigned to any area. In goals, you can further create steps."
+      "description": "Your goal has been created. You can find it in the left navigation menu in the area, or below the challenges if it's not assigned to any area. In milestones, you can further create steps."
     },
     "habitsInfo": {
       "title": "Habits",
@@ -1690,7 +1690,7 @@
       "monthly": "Monthly",
       "monthlyDesc": "Serves for a larger overview. Displays a calendar with steps and habits for the entire month.",
       "yearly": "Yearly",
-      "yearlyDesc": "Overview of progress in individual goals. Displays a timeline with progress bars for all goals."
+      "yearlyDesc": "Overview of progress in individual milestones. Displays a timeline with progress bars for all milestones."
     },
     "mobile": {
       "createArea": {
@@ -1698,11 +1698,11 @@
       },
       "afterArea": {
         "title": "Area created",
-        "description": "Great! Now you can create goals, steps and habits in this area. Click on the area in the left navigation menu, then on the \"+\" button and select \"Goal\"."
+        "description": "Great! Now you can create milestones, steps and habits in this area. Click on the area in the left navigation menu, then on the \"+\" button and select \"Goal\"."
       },
       "afterGoal": {
         "title": "Goal created",
-        "description": "Excellent! You can find goals in the left navigation menu. In goals, you can create steps that will lead you to achieving them."
+        "description": "Excellent! You can find milestones in the left navigation menu. In milestones, you can create steps that will lead you to achieving them."
       }
     }
   },
@@ -1730,10 +1730,10 @@
     "leastCompletedHabit": "was the least completed habit",
     "completions": "completions",
     "goalNoProgress": "goal has no progress yet",
-    "goalsNoProgress": "goals have no progress yet",
+    "milestonesNoProgress": "milestones have no progress yet",
     "areaNoActivity": "area has no activity",
-    "areasNoActivity": "areas have no activity",
-    "noInsights": "We don't have enough data for insights yet. Keep working on your goals!"
+    "challengesNoActivity": "challenges have no activity",
+    "noInsights": "We don't have enough data for insights yet. Keep working on your milestones!"
   },
   "views": {
     "title": "View levels",
@@ -1777,7 +1777,7 @@
         "overdueSteps": "Overdue Steps",
         "calendar": "Calendar",
         "statistics": "Statistics",
-        "goals": "Goals",
+        "milestones": "Milestones",
         "insights": "Insights",
         "steps": "Steps",
         "upcomingSteps": "Upcoming steps"
@@ -1797,7 +1797,7 @@
     "allDone": "All done! Great job! 🎉",
     "futureStepsNote": "Below are future tasks that can wait.",
     "feed": "Feed",
-    "areas": "Areas",
+    "challenges": "Challenges",
     "daily": "Daily",
     "dailyDesc": "Ideal for daily work and routines. Displays steps and habits for a specific day.",
     "weekly": "Weekly",
@@ -1805,7 +1805,7 @@
     "monthly": "Monthly",
     "monthlyDesc": "Serves for a larger overview. Displays a calendar with steps and habits for the entire month.",
     "yearly": "Yearly",
-    "yearlyDesc": "Overview of progress in individual goals. Displays a timeline with progress bars for all goals."
+    "yearlyDesc": "Overview of progress in individual milestones. Displays a timeline with progress bars for all milestones."
   },
   "contact": {
     "title": "Contact",
@@ -1842,12 +1842,12 @@
       "send": "Send"
     },
     "search": {
-      "placeholder": "Search steps, goals, areas, habits...",
+      "placeholder": "Search steps, milestones, challenges, habits...",
       "noResults": "No results",
       "results": "Results",
       "steps": "Steps",
-      "goals": "Goals",
-      "areas": "Areas",
+      "milestones": "Milestones",
+      "challenges": "Challenges",
       "habits": "Habits",
       "filters": "Filters",
       "filterTypes": "Result types",
@@ -1864,7 +1864,7 @@
       "onboarding": {
         "intro": {
           "title": "Welcome to Progress!",
-          "description": "Progress is an application designed for tracking progress in life dreams and goals. The application itself is essentially a support crutch and motivation for persistence."
+          "description": "Progress is an application designed for tracking progress in life dreams and milestones. The application itself is essentially a support crutch and motivation for persistence."
         },
         "assistant": {
           "title": "Assistant function",
@@ -1872,23 +1872,23 @@
         },
         "setup": {
           "title": "Application setup",
-          "description": "For the application to work properly, you must set up your goals, ideally also areas, and based on that, then individual steps and habits."
+          "description": "For the application to work properly, you must set up your milestones, ideally also challenges, and based on that, then individual steps and habits."
         },
-        "goalsLocation": {
-          "title": "Where to find goals",
-          "description": "You can find goals in the left navigation menu. Click on 'Goals' and then on the 'Add Goal' button in the top right corner."
+        "milestonesLocation": {
+          "title": "Where to find milestones",
+          "description": "You can find milestones in the left navigation menu. Click on 'Milestones' and then on the 'Add Goal' button in the top right corner."
         },
-        "smartGoals": {
+        "smartMilestones": {
           "title": "Creating a goal using SMART",
           "description": "When creating a goal, you can set a deadline, metrics, name, and other parameters. SMART means Specific, Measurable, Achievable, Relevant, and Time-bound."
         },
-        "areas": {
+        "challenges": {
           "title": "Adding an area",
-          "description": "You can add an area in the main panel by clicking 'Add Area'. You can assign as many goals as you want to an area. Areas essentially group individual goals into logical units for overview and filtering."
+          "description": "You can add an area in the main panel by clicking 'Add Area'. You can assign as many milestones as you want to an area. Challenges essentially group individual milestones into logical units for overview and filtering."
         },
         "stepsIntro": {
           "title": "What are steps",
-          "description": "Steps are to-do tasks intended as steps for goals. These are, together with habits, the daily details you will work on to actually move towards the life you want."
+          "description": "Steps are to-do tasks intended as steps for milestones. These are, together with habits, the daily details you will work on to actually move towards the life you want."
         },
         "stepsLocation": {
           "title": "Where to set up steps",
@@ -1948,14 +1948,14 @@
       "byCategory": "HABITS BY CATEGORY",
       "noHabits": "You don't have any habits yet"
     },
-    "goals": {
+    "milestones": {
       "title": "GOALS",
-      "total": "Total goals:",
+      "total": "Total milestones:",
       "completed": "Completed:",
       "active": "Active:",
       "successRate": "Success rate:",
       "byCategory": "GOALS BY CATEGORY",
-      "noGoals": "You don't have any goals yet"
+      "noMilestones": "You don't have any milestones yet"
     },
     "contributions": "contributions",
     "less": "Less",
