@@ -45,9 +45,9 @@ export default function Navigation() {
           <div className="hidden md:flex items-center space-x-6">
             <div className="flex items-center space-x-1">
               {[
-                { href: '/clanky', label: 'Články a inspirace' },
+                { href: '/knihovna', label: 'Knihovna' },
                 { href: '/aplikace', label: 'Aplikace Pokrok' },
-                { href: '/coaching', label: 'Coaching' },
+                { href: '/coaching', label: 'Koučing' },
                 { href: '/o-projektu', label: 'O smyslužití' },
               ].map((item) => (
                 <Link
@@ -87,9 +87,9 @@ export default function Navigation() {
       }`}>
         <div className="px-4 pt-2 pb-4 space-y-1 bg-white/95 backdrop-blur-md border-t border-primary-100">
           {[
-            { href: '/clanky', label: 'Články a inspirace' },
+            { href: '/knihovna', label: 'Knihovna' },
             { href: '/aplikace', label: 'Aplikace Pokrok' },
-            { href: '/coaching', label: 'Coaching' },
+            { href: '/coaching', label: 'Koučing' },
             { href: '/o-projektu', label: 'O smyslužití' },
           ].map((item) => (
             <Link

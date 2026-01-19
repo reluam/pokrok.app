@@ -52,6 +52,17 @@ export default async function ArticlePage({ params }: { params: { slug: string }
     <article className="section-padding relative overflow-hidden pt-20 min-h-screen">
         
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          {/* Navigation back to library */}
+          <div className="mb-6">
+            <Link
+              href="/knihovna"
+              className="inline-flex items-center gap-2 text-text-secondary hover:text-primary-600 transition-colors"
+            >
+              <ArrowLeft size={18} />
+              <span>Zpět do knihovny</span>
+            </Link>
+          </div>
+
           {/* Article header */}
           <header className="mb-8 md:mb-12">
             <div className="flex items-center gap-2 mb-3 md:mb-4">

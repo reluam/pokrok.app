@@ -454,28 +454,13 @@ struct AspirationProgressSection: View {
                         }
                     }
                     
-                    // Stats row
-                    HStack(spacing: DesignSystem.Spacing.lg) {
-                        // Step indicator (stock market style)
-                        stepIndicatorView
+                    // Stats row - redesigned badges
+                    HStack(spacing: DesignSystem.Spacing.md) {
+                        // Step badge
+                        stepBadgeView
                         
-                        // Goals count
-                        HStack(spacing: DesignSystem.Spacing.xs) {
-                            Image(systemName: "flag.fill")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(sectionColor)
-                            
-                            Text("\(goals.count) \(goals.count == 1 ? "cíl" : goals.count < 5 ? "cíle" : "cílů")")
-                                .font(DesignSystem.Typography.subheadline)
-                                .fontWeight(.medium)
-                                .foregroundColor(DesignSystem.Colors.textPrimary)
-                        }
-                        .padding(.horizontal, DesignSystem.Spacing.md)
-                        .padding(.vertical, DesignSystem.Spacing.sm)
-                        .background(
-                            Capsule()
-                                .fill(sectionColor.opacity(0.1))
-                        )
+                        // Goals badge
+                        goalsBadgeView
                         
                         Spacer()
                         
@@ -515,36 +500,73 @@ struct AspirationProgressSection: View {
         }
     }
     
-    // MARK: - Step Indicator View (Stock Market Style)
+    // MARK: - Step Badge View
     @ViewBuilder
-    private var stepIndicatorView: some View {
+    private var stepBadgeView: some View {
         let stats = stepStats
+        let totalSteps = stats.overdue + stats.completed
         
         HStack(spacing: DesignSystem.Spacing.xs) {
-            Image(systemName: stats.indicatorIcon)
-                .font(.system(size: 16, weight: .bold))
-                .foregroundColor(stats.indicatorColor)
-            
-            if stats.overdue > 0 || stats.completed > 0 {
-                Text("\(stats.completed)/\(stats.overdue + stats.completed) kroků")
-                    .font(DesignSystem.Typography.subheadline)
-                    .fontWeight(.semibold)
+            if totalSteps > 0 {
+                Image(systemName: stats.indicatorIcon)
+                    .font(.system(size: 12, weight: .bold))
                     .foregroundColor(stats.indicatorColor)
+                
+                Text("\(stats.completed)/\(totalSteps)")
+                    .font(DesignSystem.Typography.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                
+                Text("kroků")
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
             } else {
+                Image(systemName: "minus")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(DesignSystem.Colors.textTertiary)
+                
                 Text("0 kroků")
-                    .font(DesignSystem.Typography.subheadline)
-                    .fontWeight(.medium)
+                    .font(DesignSystem.Typography.caption)
                     .foregroundColor(DesignSystem.Colors.textSecondary)
             }
         }
-        .padding(.horizontal, DesignSystem.Spacing.md)
-        .padding(.vertical, DesignSystem.Spacing.sm)
+        .padding(.horizontal, DesignSystem.Spacing.sm)
+        .padding(.vertical, DesignSystem.Spacing.xs)
         .background(
-            Capsule()
-                .fill(stats.indicatorColor.opacity(0.15))
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                .fill(totalSteps > 0 ? stats.indicatorColor.opacity(0.12) : DesignSystem.Colors.surface)
                 .overlay(
-                    Capsule()
-                        .stroke(stats.indicatorColor.opacity(0.3), lineWidth: 1.5)
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                        .stroke(totalSteps > 0 ? stats.indicatorColor.opacity(0.3) : DesignSystem.Colors.outline, lineWidth: 1)
+                )
+        )
+    }
+    
+    // MARK: - Goals Badge View
+    @ViewBuilder
+    private var goalsBadgeView: some View {
+        HStack(spacing: DesignSystem.Spacing.xs) {
+            Image(systemName: "flag.fill")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(sectionColor)
+            
+            Text("\(goals.count)")
+                .font(DesignSystem.Typography.caption)
+                .fontWeight(.semibold)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
+            
+            Text(goals.count == 1 ? "cíl" : goals.count < 5 ? "cíle" : "cílů")
+                .font(DesignSystem.Typography.caption)
+                .foregroundColor(DesignSystem.Colors.textSecondary)
+        }
+        .padding(.horizontal, DesignSystem.Spacing.sm)
+        .padding(.vertical, DesignSystem.Spacing.xs)
+        .background(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                .fill(sectionColor.opacity(0.12))
+                .overlay(
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                        .stroke(sectionColor.opacity(0.3), lineWidth: 1)
                 )
         )
     }

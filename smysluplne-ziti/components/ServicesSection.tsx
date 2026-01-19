@@ -36,7 +36,7 @@ export default function ServicesSection() {
   }> = [
     {
       icon: Users,
-      title: 'Komunita Smyslužití',
+      title: 'Komunita',
       description: 'Smysl se lépe žije ve skupině. Připoj se k lidem na stejné cestě a sdílej své pokroky v naší komunitě na platformě Skool.',
       href: 'https://www.skool.com/smysluziti-9755',
       buttonText: 'Vstoupit do komunity',
@@ -44,15 +44,15 @@ export default function ServicesSection() {
     },
     {
       icon: BookOpen,
-      title: 'Články a inspirace',
-      description: 'Ztělesnění zvídavosti. Sdílím studie, reporty z mých experimentů a cestu z hlavy zpátky do reality.',
-      href: '/clanky',
+      title: 'Knihovna',
+      description: 'Ztělesnění zvídavosti. Sdílím články, videa, reporty z mých experimentů a vše ostatní, co může přispět k plnějšímu životu.',
+      href: '/knihovna',
       buttonText: 'Číst články',
       image: '/clanky.png',
     },
     {
       icon: User,
-      title: 'Individuální Coaching',
+      title: 'Individuální koučing',
       description: 'Upřímný pohled na tvůj směr. Podpořím tě na tvé vlastní cestě Smyslužitím.',
       href: '/coaching',
       buttonText: 'Chci začít svou cestu',

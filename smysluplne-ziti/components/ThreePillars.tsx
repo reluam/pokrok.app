@@ -8,7 +8,7 @@ export default function ThreePillars() {
       title: 'Inspirace & Realita',
       subtitle: 'Studovna',
       description: 'Sdílím články a výsledky svých pokusů. Žádné teorie z klobouku, ale věci, které mají hlavu a patu.',
-      href: '/clanky',
+      href: '/knihovna',
     },
     {
       icon: Smartphone,

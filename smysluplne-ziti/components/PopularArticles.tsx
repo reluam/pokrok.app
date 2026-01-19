@@ -68,7 +68,7 @@ export default async function PopularArticles() {
         </div>
         <div className="text-center mt-12">
           <Link
-            href="/clanky"
+            href="/knihovna"
             className="inline-flex items-center gap-2 px-8 py-4 border-2 border-primary-600 text-primary-600 font-semibold rounded-full hover:bg-primary-600 hover:text-white transition-all duration-300"
           >
             <span>Zobrazit všechny články</span>
