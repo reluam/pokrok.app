@@ -3912,16 +3912,11 @@ export function JourneyGameView({
             setOnboardingStep('create-area')
           }}
           onOnboardingGoalClick={() => {
-            // Navigate to goals page and set onboarding step to create-goal
-            setCurrentPage('goals')
+            // Set onboarding step to create-goal and create goal directly
             setOnboardingStep('create-goal')
-            // Wait a bit for page to render, then create goal
+            // Wait a bit, then create goal
             setTimeout(() => {
               handleCreateGoal()
-              // After creating goal, navigate back to main page to see sidebar
-              setTimeout(() => {
-                setCurrentPage('main')
-              }, 500)
             }, 100)
           }}
           areaButtonRefs={areaButtonRefs.current}

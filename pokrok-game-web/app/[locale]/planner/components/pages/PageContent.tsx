@@ -340,12 +340,6 @@ export function PageContent(props: PageContentProps) {
     }
   }, [currentPage])
   
-  // Reset selectedGoalForDetail when navigating to goals page
-  React.useEffect(() => {
-    if (currentPage === 'goals') {
-      setSelectedGoalForDetail(null)
-    }
-  }, [currentPage])
 
   // Load all steps without date limit when on steps page
   React.useEffect(() => {
@@ -444,7 +438,7 @@ export function PageContent(props: PageContentProps) {
   
   // Sync selectedGoalForDetail with mainPanelSection when it's a goal detail (only on main page, not on goals page)
   React.useEffect(() => {
-    // Only sync when on main page, not on goals page - goals page should work independently
+    // Only sync when on main page
     if (currentPage === 'main' && mainPanelSection && mainPanelSection.startsWith('goal-')) {
       const goalId = mainPanelSection.replace('goal-', '')
       if (goalId && goalId !== selectedGoalForDetail) {
@@ -2081,10 +2075,6 @@ export function PageContent(props: PageContentProps) {
                           key={goal.id}
                           onClick={() => {
                             setSelectedGoalForDetail(isSelected ? null : goal.id)
-                            // Clear main panel section when selecting goal on goals page to ensure independence
-                            if (mainPanelSection && mainPanelSection.startsWith('goal-')) {
-                              setMainPanelSection('goals')
-                            }
                           }}
                           className={`w-full text-left px-3 py-2 mb-1 rounded-playful-sm text-sm font-playful transition-colors flex items-center gap-2 ${
                             isSelected

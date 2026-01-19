@@ -2818,8 +2818,8 @@ export function JourneyGameView({
         // Close modal
         setShowDeleteGoalModal(false)
         setDeleteGoalWithSteps(false)
-        // Redirect to goals page
-        setMainPanelSection('goals')
+        // Redirect to main focus panel
+        setMainPanelSection('focus-upcoming')
       } else {
         console.error('Failed to delete goal')
         alert(t('details.goal.deleteError') || 'Nepodařilo se smazat cíl')
