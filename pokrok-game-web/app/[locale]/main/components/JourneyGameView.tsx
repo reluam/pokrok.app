@@ -92,9 +92,8 @@ export function JourneyGameView({
   const locale = useLocale()
   const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
   
-  // Top menu items (Goals, Habits, Steps) - defined at top level for use in header
+  // Top menu items (Habits, Steps) - defined at top level for use in header
   const topMenuItems = [
-    { id: 'goals' as const, label: t('navigation.goals'), icon: Target },
     { id: 'habits' as const, label: t('navigation.habits'), icon: CheckSquare },
     { id: 'steps' as const, label: t('navigation.steps'), icon: Footprints },
   ]
@@ -2517,8 +2516,8 @@ export function JourneyGameView({
         // Close modal
         setShowDeleteGoalModal(false)
         setDeleteGoalWithSteps(false)
-        // Redirect to goals page
-        setMainPanelSection('goals')
+        // Redirect to main focus panel
+        setMainPanelSection('focus-upcoming')
       } else {
         console.error('Failed to delete goal')
         alert(t('details.goal.deleteError') || 'Nepodařilo se smazat cíl')

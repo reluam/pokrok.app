@@ -326,12 +326,6 @@ export function PageContent(props: PageContentProps) {
     }
   }, [currentPage])
   
-  // Reset selectedGoalForDetail when navigating to goals page
-  React.useEffect(() => {
-    if (currentPage === 'goals') {
-      setSelectedGoalForDetail(null)
-    }
-  }, [currentPage])
 
   // Load all steps without date limit when on steps page
   React.useEffect(() => {
