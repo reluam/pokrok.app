@@ -1,20 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
-import { getUserByClerkId, getUserSettings, createOrUpdateUserSettings } from '@/lib/cesta-db'
+import { requireAuth } from '@/lib/auth-helpers'
+import { getUserSettings, createOrUpdateUserSettings } from '@/lib/cesta-db'
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId: clerkUserId } = await auth()
-    
-    if (!clerkUserId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Get user from database
-    const dbUser = await getUserByClerkId(clerkUserId)
-    if (!dbUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
-    }
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
 
     // Get user settings
     let settings = await getUserSettings(dbUser.id)
@@ -33,17 +26,10 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const { userId: clerkUserId } = await auth()
-    
-    if (!clerkUserId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Get user from database
-    const dbUser = await getUserByClerkId(clerkUserId)
-    if (!dbUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
-    }
+    // ✅ SECURITY: Ověření autentizace
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) return authResult
+    const { dbUser } = authResult
 
     const body = await request.json()
     const { daily_steps_count, workflow, filters, default_view, date_format, primary_color, default_currency, weight_unit_preference, assistant_enabled } = body

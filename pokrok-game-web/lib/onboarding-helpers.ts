@@ -133,12 +133,12 @@ export async function initializeOnboardingSteps(userId: string, locale: string =
         goal_id: goalId
       },
       {
-        title: isEnglish 
-          ? '6/7 Explore the Areas view' 
-          : '6/7 Prozkoumejte zobrazení Oblastí',
-        description: isEnglish 
-          ? 'The Areas view groups your goals and steps by areas, helping you organize your work by different life domains.' 
-          : 'Zobrazení Oblastí seskupuje vaše cíle a kroky podle oblastí, což vám pomáhá organizovat práci podle různých životních domén.',
+        title: isEnglish
+          ? '6/7 Explore the Challenges view'
+          : '6/7 Prozkoumejte zobrazení Výzev',
+        description: isEnglish
+          ? 'The Challenges view groups your milestones and steps by challenges, helping you organize your work by different life domains.'
+          : 'Zobrazení Výzev seskupuje vaše milníky a kroky podle výzev, což vám pomáhá organizovat práci podle různých životních domén.',
         date: today,
         estimated_time: 5,
         goal_id: goalId

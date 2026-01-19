@@ -136,9 +136,6 @@ export interface Goal {
   goal_type: 'process' | 'outcome'
   progress_percentage: number
   progress_type: 'percentage' | 'count' | 'amount' | 'steps'
-  progress_target?: number
-  progress_current?: number
-  progress_unit?: string
   progress_calculation_type?: 'metrics' | 'metrics_and_steps'
   icon?: string
   area_id?: string
@@ -550,9 +547,6 @@ export async function initializeCestaDatabase() {
         goal_type VARCHAR(20) DEFAULT 'outcome' CHECK (goal_type IN ('process', 'outcome')),
         progress_percentage INTEGER DEFAULT 0 CHECK (progress_percentage >= 0 AND progress_percentage <= 100),
         progress_type VARCHAR(20) DEFAULT 'percentage' CHECK (progress_type IN ('percentage', 'count', 'amount', 'steps')),
-        progress_target INTEGER,
-        progress_current INTEGER DEFAULT 0,
-        progress_unit VARCHAR(50),
         icon VARCHAR(50),
         area_id VARCHAR(255) REFERENCES areas(id) ON DELETE SET NULL,
         aspiration_id VARCHAR(255) REFERENCES aspirations(id) ON DELETE SET NULL,
@@ -1433,14 +1427,13 @@ export async function createGoal(goalData: Partial<Goal>): Promise<Goal> {
     INSERT INTO goals (
       id, user_id, title, description, target_date, start_date, status, priority, 
       category, goal_type, progress_percentage, progress_type, 
-      progress_target, progress_current, progress_unit, area_id, aspiration_id
+      area_id, aspiration_id
     ) VALUES (
       ${id}, ${goalData.user_id}, ${encryptedTitle}, ${encryptedDescription}, 
       ${goalData.target_date || null}, ${startDate}, ${status}, 
       ${goalData.priority || 'meaningful'}, ${goalData.category || 'medium-term'}, 
       ${goalData.goal_type || 'outcome'}, ${goalData.progress_percentage || 0}, 
-      ${goalData.progress_type || 'percentage'}, ${goalData.progress_target || null}, 
-      ${goalData.progress_current || 0}, ${goalData.progress_unit || null},
+      ${goalData.progress_type || 'percentage'},
       ${goalData.area_id || null}, ${goalData.aspiration_id || null}
     ) RETURNING *
   `
@@ -2089,18 +2082,6 @@ export async function updateGoal(goalId: string, userId: string, goalData: Parti
     if (goalData.progress_type !== undefined) {
       setParts.push(`progress_type = $${setParts.length + 1}`)
       values.push(goalData.progress_type)
-    }
-    if (goalData.progress_target !== undefined) {
-      setParts.push(`progress_target = $${setParts.length + 1}`)
-      values.push(goalData.progress_target)
-    }
-    if (goalData.progress_current !== undefined) {
-      setParts.push(`progress_current = $${setParts.length + 1}`)
-      values.push(goalData.progress_current)
-    }
-    if (goalData.progress_unit !== undefined) {
-      setParts.push(`progress_unit = $${setParts.length + 1}`)
-      values.push(goalData.progress_unit)
     }
     if (goalData.area_id !== undefined && goalData.area_id !== null) {
       setParts.push(`area_id = $${setParts.length + 1}`)
