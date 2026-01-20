@@ -1959,10 +1959,8 @@ export function PageContent(props: PageContentProps) {
                       selectedDayDate={selectedDayDate}
                       setStepModalData={setStepModalData}
                       setShowStepModal={setShowStepModal}
-                      goals={goals}
                       userId={userId}
                       player={player}
-                      createNewStepTrigger={createNewStepTrigger}
                       goalDetailTitleValue={goalDetailTitleValue}
                       setGoalDetailTitleValue={setGoalDetailTitleValue}
                       editingGoalDetailTitle={editingGoalDetailTitle}
@@ -2692,6 +2690,7 @@ export function PageContent(props: PageContentProps) {
                         onNavigateToSteps={onNavigateToSteps}
                         onStepDateChange={handleStepDateChange}
                         onStepTimeChange={handleStepTimeChange}
+                        handleStepToggle={handleStepToggle}
                       />
                   </div>
                     </div>

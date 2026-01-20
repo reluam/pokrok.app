@@ -59,35 +59,6 @@ export default function LatestFromLibrary() {
         })
       }
 
-      // Questions
-      if (questionsRes.ok) {
-        const data = await questionsRes.json()
-        const questions: Question[] = data.questions || []
-        questions.forEach((question) => {
-          allItems.push({
-            id: question.id,
-            title: question.question,
-            description: question.description,
-            type: 'questions',
-            createdAt: question.createdAt,
-          })
-        })
-      }
-
-      // Small things
-      if (smallThingsRes.ok) {
-        const data = await smallThingsRes.json()
-        const things: SmallThing[] = data.things || []
-        things.forEach((thing) => {
-          allItems.push({
-            id: thing.id,
-            title: thing.title,
-            description: thing.how || thing.why || thing.description,
-            type: 'small-things',
-            createdAt: thing.createdAt,
-          })
-        })
-      }
 
       // Inspiration items
       if (inspirationRes.ok) {
@@ -197,17 +168,26 @@ export default function LatestFromLibrary() {
   return (
     <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-background">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-12">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary">
-            Nejnovější z <span className="gradient-text">knihovny</span>
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary mb-6">
+            Inspirace pro tvou <span className="gradient-text">cestu</span>
           </h2>
+          <p className="text-lg md:text-xl text-text-secondary max-w-3xl mx-auto leading-relaxed mb-8">
+            Každý týden sem přidávám nové podněty, které mi pomáhají žít život, který mi dává smysl. Najdeš tu tipy na knihy, zajímavá videa a jednou měsíčně i hlubší autorský článek. Je to prostor pro tvoji reflexi a nové úhly pohledu na každodenní realitu.
+          </p>
           <Link
             href="/knihovna"
-            className="hidden md:flex items-center gap-2 text-primary-600 hover:text-primary-700 font-semibold transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white font-semibold rounded-full hover:bg-primary-700 transition-all shadow-lg hover:shadow-xl"
           >
-            <span>Zobrazit vše</span>
+            <span>Prozkoumat inspiraci</span>
             <ArrowRight size={20} />
           </Link>
+        </div>
+
+        <div className="mb-12">
+          <h3 className="text-2xl md:text-3xl font-bold text-text-primary mb-8 text-center">
+            Nejnovější příspěvky
+          </h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
@@ -286,12 +266,12 @@ export default function LatestFromLibrary() {
           })}
         </div>
 
-        <div className="mt-8 md:hidden text-center">
+        <div className="mt-8 text-center">
           <Link
             href="/knihovna"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white font-semibold rounded-full hover:bg-primary-700 transition-all"
+            className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-semibold transition-colors"
           >
-            <span>Zobrazit vše</span>
+            <span>Zobrazit všechny příspěvky</span>
             <ArrowRight size={18} />
           </Link>
         </div>

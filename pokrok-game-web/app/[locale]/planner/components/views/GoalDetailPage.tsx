@@ -202,7 +202,10 @@ export function GoalDetailPage({
   createMenuButtonRef,
   areaColorRef,
   createNewStepTrigger,
-  onNewStepCreated
+  setCreateNewStepTrigger,
+  onNewStepCreated,
+  userId,
+  player
 }: GoalDetailPageProps) {
   const t = useTranslations()
 
@@ -501,7 +504,7 @@ export function GoalDetailPage({
                   <button
                 onClick={() => {
                   if (setCreateNewStepTrigger) {
-                    setCreateNewStepTrigger(prev => prev + 1)
+                    setCreateNewStepTrigger(current => current + 1)
                   } else if (onOpenStepModal) {
                     onOpenStepModal(selectedDayDate.toISOString().split('T')[0])
                       } else {
@@ -530,8 +533,8 @@ export function GoalDetailPage({
               dailySteps={goalSteps}
               goals={[goal]}
                   areas={areas}
-              userId={null}
-              player={null}
+              userId={userId}
+              player={player}
                   onDailyStepsUpdate={onDailyStepsUpdate}
                   onOpenStepModal={(step) => {
                     if (step) {

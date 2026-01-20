@@ -93,27 +93,6 @@ export default function KnihovnaPage() {
       })
     })
 
-    // Questions - store full data
-    questions.forEach((question) => {
-      items.push({
-        id: question.id,
-        title: question.question,
-        description: question.description,
-        type: 'questions',
-        questionData: question,
-      })
-    })
-
-    // Small things - store full data
-    smallThings.forEach((thing) => {
-      items.push({
-        id: thing.id,
-        title: thing.title,
-        description: thing.how || thing.why || thing.description,
-        type: 'small-things',
-        smallThingData: thing,
-      })
-    })
 
     // Inspiration items
     if (inspirationData) {
@@ -223,10 +202,10 @@ export default function KnihovnaPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
           <header className="mb-12">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary mb-6">
-              Knihovna
+              Inspirace
             </h1>
             <p className="text-lg md:text-xl text-text-secondary max-w-3xl leading-relaxed">
-              Všechny zdroje inspirace - blog, otázky, malé věci, knihy, články a videa, které ti mohou pomoci na cestě ke smysluplnému životu.
+              Všechny zdroje inspirace - blog, knihy, články a videa, které ti mohou pomoci na cestě ke smysluplnému životu.
             </p>
           </header>
 
@@ -253,26 +232,6 @@ export default function KnihovnaPage() {
                 }`}
               >
                 Blog
-              </button>
-              <button
-                onClick={() => setFilterType('questions')}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  filterType === 'questions'
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-white text-text-primary border border-primary-200 hover:bg-primary-50'
-                }`}
-              >
-                Otázky
-              </button>
-              <button
-                onClick={() => setFilterType('small-things')}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  filterType === 'small-things'
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-white text-text-primary border border-primary-200 hover:bg-primary-50'
-                }`}
-              >
-                Malé věci
               </button>
               <button
                 onClick={() => setFilterType('books')}

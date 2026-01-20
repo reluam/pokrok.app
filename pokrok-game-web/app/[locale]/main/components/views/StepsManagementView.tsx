@@ -9,28 +9,42 @@ import { getLocalDateString } from '../utils/dateHelpers'
 interface StepsManagementViewProps {
   dailySteps: any[]
   goals: any[]
+  areas?: any[]
   onDailyStepsUpdate?: (steps: any[]) => void
   userId?: string | null
   player?: any
   onOpenStepModal?: (step?: any) => void
+  onStepImportantChange?: (stepId: string, isImportant: boolean) => Promise<void>
+  handleStepToggle?: (stepId: string, completed: boolean, completionDate?: string) => Promise<void>
+  loadingSteps?: Set<string>
+  createNewStepTrigger?: number
+  onNewStepCreated?: () => void
   hideHeader?: boolean
   showCompleted?: boolean
   showRepeatingSteps?: boolean
   goalFilter?: string | null
+  areaFilter?: string | null
   dateFilter?: string | null
 }
 
 export function StepsManagementView({
   dailySteps = [],
   goals = [],
+  areas = [],
   onDailyStepsUpdate,
   userId,
   player,
   onOpenStepModal,
+  onStepImportantChange,
+  handleStepToggle,
+  loadingSteps: loadingStepsProp,
+  createNewStepTrigger,
+  onNewStepCreated,
   hideHeader = false,
   showCompleted: showCompletedProp,
   showRepeatingSteps: showRepeatingStepsProp,
   goalFilter: goalFilterProp,
+  areaFilter: areaFilterProp,
   dateFilter: dateFilterProp
 }: StepsManagementViewProps) {
   const t = useTranslations()
@@ -56,7 +70,9 @@ export function StepsManagementView({
   const effectiveShowCompleted = showCompletedProp !== undefined ? showCompletedProp : showCompleted
   const effectiveShowRepeatingSteps = showRepeatingStepsProp !== undefined ? showRepeatingStepsProp : showRepeatingSteps
   const effectiveGoalFilter = goalFilterProp !== undefined ? goalFilterProp : stepsGoalFilter
+  const effectiveAreaFilter = areaFilterProp !== undefined ? areaFilterProp : null
   const effectiveDateFilter = dateFilterProp !== undefined ? dateFilterProp : stepsDateFilter
+  const effectiveLoadingSteps = loadingStepsProp !== undefined ? loadingStepsProp : loadingSteps
 
   // Quick edit modals for steps
   const [quickEditStepId, setQuickEditStepId] = useState<string | null>(null)
