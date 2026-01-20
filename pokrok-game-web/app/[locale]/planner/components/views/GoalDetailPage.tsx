@@ -201,6 +201,7 @@ export function GoalDetailPage({
   setShowCreateMenu,
   createMenuButtonRef,
   areaColorRef,
+  createNewStepTrigger,
   onNewStepCreated
 }: GoalDetailPageProps) {
   const t = useTranslations()

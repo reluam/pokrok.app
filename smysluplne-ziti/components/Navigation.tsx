@@ -60,7 +60,7 @@ export default function Navigation() {
               ))}
             </div>
             <Link
-              href="#konzultace"
+              href="/#konzultace"
               className="px-6 py-3 text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 rounded-full transition-all shadow-lg hover:shadow-xl"
             >
               Konzultace zdarma
@@ -100,7 +100,7 @@ export default function Navigation() {
             </Link>
           ))}
           <Link
-            href="#konzultace"
+            href="/#konzultace"
             className="block mt-4 px-6 py-3 text-base font-bold text-center text-white bg-primary-600 hover:bg-primary-700 rounded-full transition-all"
             onClick={() => setIsOpen(false)}
           >

@@ -1137,7 +1137,7 @@ export function PageContent(props: PageContentProps) {
                   goals={goals}
                   habits={habits}
                   dailySteps={dailySteps}
-                  isLoadingSteps={props.isLoadingSteps}
+                  loadingSteps={loadingSteps}
                   selectedDayDate={selectedDayDate}
                   setSelectedDayDate={setSelectedDayDate}
                   setShowDatePickerModal={setShowDatePickerModal}
@@ -1160,9 +1160,7 @@ export function PageContent(props: PageContentProps) {
                   } : handleOpenStepModal}
                   onStepDateChange={onStepDateChange}
                   onStepTimeChange={onStepTimeChange}
-                  onStepImportantChange={props.onStepImportantChange}
                   loadingHabits={loadingHabits}
-                  loadingSteps={loadingSteps}
                   animatingSteps={animatingSteps}
                   player={player}
                   onNavigateToHabits={onNavigateToHabits}
@@ -1177,16 +1175,6 @@ export function PageContent(props: PageContentProps) {
                   visibleSections={visibleSections}
                   viewType={getViewType(mainPanelSection)}
                   maxUpcomingSteps={maxUpcomingSteps}
-                  createNewStepTrigger={mainPanelSection === 'focus-upcoming' ? (createNewStepTriggerForSection['focus-upcoming'] || 0) : undefined}
-                  onNewStepCreatedForUpcoming={() => {
-                    // Reset trigger for upcoming section after step is created
-                    if (mainPanelSection === 'focus-upcoming') {
-                      setCreateNewStepTriggerForSection(prev => ({
-                        ...prev,
-                        'focus-upcoming': 0
-                      }))
-                    }
-                  }}
                 />
               )
             case 'goals':
