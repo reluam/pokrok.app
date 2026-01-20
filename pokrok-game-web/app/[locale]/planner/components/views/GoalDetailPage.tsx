@@ -315,8 +315,16 @@ export function GoalDetailPage({
                   return (
                     <>
                       <div
-                  ref={goalIconRef}
-                        className={`flex items-center justify-center w-10 h-10 rounded-playful-md ${
+                        ref={goalIconRef}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          if (goalIconRef.current) {
+                            const rect = goalIconRef.current.getBoundingClientRect()
+                            setGoalDetailIconPickerPosition({ top: rect.bottom + 5, left: rect.left })
+                            setShowGoalDetailIconPicker(true)
+                          }
+                        }}
+                        className={`flex items-center justify-center w-10 h-10 rounded-playful-md cursor-pointer hover:opacity-70 transition-opacity ${
                           isPastDeadline ? 'bg-red-100' : 'bg-primary-100'
                         }`}
                       >

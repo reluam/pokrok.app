@@ -172,16 +172,9 @@ export default function LatestFromLibrary() {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary mb-6">
             Inspirace pro tvou <span className="gradient-text">cestu</span>
           </h2>
-          <p className="text-lg md:text-xl text-text-secondary max-w-3xl mx-auto leading-relaxed mb-8">
+          <p className="text-lg md:text-xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
             Každý týden sem přidávám nové podněty, které mi pomáhají žít život, který mi dává smysl. Najdeš tu tipy na knihy, zajímavá videa a jednou měsíčně i hlubší autorský článek. Je to prostor pro tvoji reflexi a nové úhly pohledu na každodenní realitu.
           </p>
-          <Link
-            href="/knihovna"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white font-semibold rounded-full hover:bg-primary-700 transition-all shadow-lg hover:shadow-xl"
-          >
-            <span>Prozkoumat inspiraci</span>
-            <ArrowRight size={20} />
-          </Link>
         </div>
 
         <div className="mb-12">
