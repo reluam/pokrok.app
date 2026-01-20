@@ -120,6 +120,7 @@ interface SidebarNavigationProps {
   sidebarItems: Array<{ id: string; label: string; icon: any }>
   areas: any[]
   sortedGoalsForSidebar: any[]
+  dailySteps: any[]
   expandedAreas: Set<string>
   setExpandedAreas: (areas: Set<string>) => void
   expandedGoalSections: Set<string>
@@ -155,6 +156,7 @@ export function SidebarNavigation({
   sidebarItems,
   areas,
   sortedGoalsForSidebar,
+  dailySteps,
   expandedAreas,
   setExpandedAreas,
   expandedGoalSections,
@@ -211,7 +213,37 @@ export function SidebarNavigation({
     }
   }
   
-  
+
+  // Helper function to calculate goal trend based on last 7 days
+  const calculateGoalTrend = (goalId: string): number => {
+    const now = new Date()
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+
+    // Filter steps for this goal from last 7 days
+    const goalSteps = dailySteps.filter(step => step.goal_id === goalId)
+    const recentSteps = goalSteps.filter(step => {
+      const stepDate = new Date(step.scheduled_date)
+      return stepDate >= sevenDaysAgo && stepDate <= now
+    })
+
+    // Count completed steps in last 7 days
+    const completed = recentSteps.filter(step => step.completed).length
+
+    // Count overdue steps (scheduled before today but not completed)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const overdue = recentSteps.filter(step => {
+      const stepDate = new Date(step.scheduled_date)
+      stepDate.setHours(0, 0, 0, 0)
+      return stepDate < today && !step.completed
+    }).length
+
+    // Calculate trend: positive when completed > overdue, negative when overdue > completed
+    const total = completed + overdue
+    return total > 0 ? ((completed - overdue) / total) * 100 : 0
+  }
+
   // Helper function to check if goal is past deadline
   const isGoalPastDeadline = (goal: any): boolean => {
     if (!goal.target_date) return false
@@ -458,16 +490,16 @@ export function SidebarNavigation({
                   
                   return (
                     <SortableArea
-                      key={area.id}
+                      key={area.id} 
                       area={area}
                       isExpanded={isExpanded}
                       onToggleExpand={() => {
-                        if (isExpanded) {
-                          setExpandedAreas(new Set())
-                        } else {
-                          setExpandedAreas(new Set([area.id]))
-                        }
-                      }}
+                            if (isExpanded) {
+                              setExpandedAreas(new Set())
+                            } else {
+                              setExpandedAreas(new Set([area.id]))
+                            }
+                          }}
                       mainPanelSection={mainPanelSection}
                       setMainPanelSection={setMainPanelSection}
                       hoveredAreaId={hoveredAreaId}
@@ -502,7 +534,7 @@ export function SidebarNavigation({
                             {activeGoals.map((goal) => {
                               const goalSectionId = `goal-${goal.id}`
                               const isSelected = mainPanelSection === goalSectionId
-                              const progressPercentage = Math.round(goal.progress_percentage || 0)
+                              const trendValue = calculateGoalTrend(goal.id)
                               const isPastDeadline = isGoalPastDeadline(goal)
                               return (
                                 <button
@@ -526,9 +558,30 @@ export function SidebarNavigation({
                                   }}
                                   title={goal.title}
                                 >
-                                  <span className="text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right" style={{ color: areaColor }}>
-                                    {progressPercentage}%
-                                  </span>
+                                  <div className="flex-shrink-0 min-w-[2.5rem] flex justify-center items-center">
+                                    {trendValue > 5 ? (
+                                      <ChevronUp
+                                        className="text-green-600"
+                                        style={{
+                                          height: `${Math.max(8, Math.min(20, 12 + Math.abs(trendValue) * 0.2))}px`,
+                                          width: '12px'
+                                        }}
+                                      />
+                                    ) : trendValue < -5 ? (
+                                      <ChevronDown
+                                        className="text-red-600"
+                                        style={{
+                                          height: `${Math.max(8, Math.min(20, 12 + Math.abs(trendValue) * 0.2))}px`,
+                                          width: '12px'
+                                        }}
+                                      />
+                                    ) : (
+                                      <div
+                                        className="w-2 h-2 rounded-full bg-yellow-500"
+                                        style={{ backgroundColor: areaColor }}
+                                      />
+                                    )}
+                                  </div>
                                   {isPastDeadline && (
                                     <AlertCircle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
                                   )}
@@ -565,7 +618,7 @@ export function SidebarNavigation({
                                     {pausedGoals.map((goal) => {
                                       const goalSectionId = `goal-${goal.id}`
                                       const isSelected = mainPanelSection === goalSectionId
-                                      const progressPercentage = Math.round(goal.progress_percentage || 0)
+                                      const trendValue = calculateGoalTrend(goal.id)
                                       const isPastDeadline = isGoalPastDeadline(goal)
                                       return (
                                         <button
@@ -589,9 +642,30 @@ export function SidebarNavigation({
                                           }}
                                           title={goal.title}
                                         >
-                                          <span className="text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right" style={{ color: areaColor }}>
-                                            {progressPercentage}%
-                                          </span>
+                                  <div className="flex-shrink-0 min-w-[2.5rem] flex justify-center items-center">
+                                    {trendValue > 5 ? (
+                                      <ChevronUp
+                                        className="text-green-600"
+                                        style={{
+                                          height: `${Math.max(8, Math.min(20, 12 + Math.abs(trendValue) * 0.2))}px`,
+                                          width: '12px'
+                                        }}
+                                      />
+                                    ) : trendValue < -5 ? (
+                                      <ChevronDown
+                                        className="text-red-600"
+                                        style={{
+                                          height: `${Math.max(8, Math.min(20, 12 + Math.abs(trendValue) * 0.2))}px`,
+                                          width: '12px'
+                                        }}
+                                      />
+                                    ) : (
+                                      <div
+                                        className="w-2 h-2 rounded-full bg-yellow-500"
+                                        style={{ backgroundColor: areaColor }}
+                                      />
+                                    )}
+                                  </div>
                                           {isPastDeadline && (
                                             <AlertCircle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
                                           )}
@@ -632,7 +706,7 @@ export function SidebarNavigation({
                                     {completedGoals.map((goal) => {
                                       const goalSectionId = `goal-${goal.id}`
                                       const isSelected = mainPanelSection === goalSectionId
-                                      const progressPercentage = Math.round(goal.progress_percentage || 0)
+                                      const trendValue = calculateGoalTrend(goal.id)
                                       const isPastDeadline = isGoalPastDeadline(goal)
                                       return (
                                         <button
@@ -656,9 +730,30 @@ export function SidebarNavigation({
                                           }}
                                           title={goal.title}
                                         >
-                                          <span className="text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right" style={{ color: areaColor }}>
-                                            {progressPercentage}%
-                                          </span>
+                                  <div className="flex-shrink-0 min-w-[2.5rem] flex justify-center items-center">
+                                    {trendValue > 5 ? (
+                                      <ChevronUp
+                                        className="text-green-600"
+                                        style={{
+                                          height: `${Math.max(8, Math.min(20, 12 + Math.abs(trendValue) * 0.2))}px`,
+                                          width: '12px'
+                                        }}
+                                      />
+                                    ) : trendValue < -5 ? (
+                                      <ChevronDown
+                                        className="text-red-600"
+                                        style={{
+                                          height: `${Math.max(8, Math.min(20, 12 + Math.abs(trendValue) * 0.2))}px`,
+                                          width: '12px'
+                                        }}
+                                      />
+                                    ) : (
+                                      <div
+                                        className="w-2 h-2 rounded-full bg-yellow-500"
+                                        style={{ backgroundColor: areaColor }}
+                                      />
+                                    )}
+                                  </div>
                                           {isPastDeadline && (
                                             <AlertCircle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
                                           )}

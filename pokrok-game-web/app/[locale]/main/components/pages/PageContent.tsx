@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { ItemDetailRenderer } from '../details/ItemDetailRenderer'
 import { HabitsPage } from '../views/HabitsPage'
 import { HabitDetailPage } from '../views/HabitDetailPage'
 import { GoalDetailPage } from '../views/GoalDetailPage'
 import { UnifiedDayView } from '../views/UnifiedDayView'
-import { AreaStepsView } from '../views/AreaStepsView'
+// import { AreaStepsView } from '../views/AreaStepsView' // Replaced with StepsManagementView
 import { CalendarView } from '../views/CalendarView'
 import { DayView } from '../views/DayView'
 import { WeekView } from '../views/WeekView'
@@ -21,7 +21,7 @@ import { GoalEditingForm } from '../journey/GoalEditingForm'
 import { DisplayContent } from '../content/DisplayContent'
 import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
-import { LayoutDashboard, ChevronLeft, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Menu, CheckSquare, Footprints, Plus } from 'lucide-react'
+import { LayoutDashboard, ChevronLeft, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Menu, CheckSquare, Footprints, Plus, AlertCircle } from 'lucide-react'
 import { SidebarNavigation } from '../layout/SidebarNavigation'
 import { LoadingSpinner } from '../ui/LoadingSpinner'
 import { GoalsManagementView } from '../views/GoalsManagementView'
@@ -92,12 +92,12 @@ export function PageContent(props: PageContentProps) {
     setEditingHabitFrequency,
     editingHabitSelectedDays,
     setEditingHabitSelectedDays,
-    editingHabitAlwaysShow,
-    setEditingHabitAlwaysShow,
     editingHabitCategory,
     setEditingHabitCategory,
     editingHabitDifficulty,
     setEditingHabitDifficulty,
+    editingHabitAlwaysShow,
+    setEditingHabitAlwaysShow,
     editingHabitReminderTime,
     setEditingHabitReminderTime,
     handleCloseDetail,
@@ -126,6 +126,7 @@ export function PageContent(props: PageContentProps) {
     onNavigateToSteps,
     onStepDateChange,
     onStepTimeChange,
+    onStepImportantChange,
     handleCreateGoal,
     handleOpenStepModal,
     handleOpenHabitModal,
@@ -158,8 +159,13 @@ export function PageContent(props: PageContentProps) {
     setAreaDetailTitleValue,
     editingAreaDetailTitle,
     setEditingAreaDetailTitle,
+    areaDetailDescriptionValue,
+    setAreaDetailDescriptionValue,
+    editingAreaDetailDescription,
+    setEditingAreaDetailDescription,
     areaIconRef,
     areaTitleRef,
+    areaDescriptionRef,
     habitsRef,
     stepsRef,
     handleWorkflowComplete,
@@ -268,6 +274,16 @@ export function PageContent(props: PageContentProps) {
   ];
   
   // Filters state for Goals page
+  // Helper function to check if goal is past deadline
+  const isGoalPastDeadline = (goal: any): boolean => {
+    if (!goal || !goal.target_date) return false
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const deadline = new Date(goal.target_date)
+    deadline.setHours(0, 0, 0, 0)
+    return deadline < today && goal.status === 'active'
+  }
+  
   const [goalsStatusFilters, setGoalsStatusFilters] = React.useState<Set<string>>(new Set(['active']))
   const [selectedGoalForDetail, setSelectedGoalForDetail] = React.useState<string | null>(null)
   const [goalsMobileMenuOpen, setGoalsMobileMenuOpen] = React.useState(false)
@@ -326,6 +342,12 @@ export function PageContent(props: PageContentProps) {
     }
   }, [currentPage])
   
+  // Reset selectedGoalForDetail when navigating to goals page
+  React.useEffect(() => {
+    if (currentPage === 'goals') {
+      setSelectedGoalForDetail(null)
+    }
+  }, [currentPage])
 
   // Load all steps without date limit when on steps page
   React.useEffect(() => {
@@ -367,257 +389,49 @@ export function PageContent(props: PageContentProps) {
   
   // Filters state for Steps page
   const [stepsShowCompleted, setStepsShowCompleted] = React.useState(false)
-  const [stepsShowRepeatingSteps, setStepsShowRepeatingSteps] = React.useState(false)
   const [stepsGoalFilter, setStepsGoalFilter] = React.useState<string | null>(null)
+  const [stepsAreaFilter, setStepsAreaFilter] = React.useState<string | null>(null)
   const [stepsDateFilter, setStepsDateFilter] = React.useState<string | null>(null)
+  const [createNewStepTrigger, setCreateNewStepTrigger] = React.useState(0)
+  const [createNewStepTriggerForSection, setCreateNewStepTriggerForSection] = React.useState<Record<string, number>>({})
   const [stepsMobileMenuOpen, setStepsMobileMenuOpen] = React.useState(false)
   
+  // Listen for inline step creation trigger from AssistantPanel
+  React.useEffect(() => {
+    const handleTriggerInlineStepCreation = (e: Event) => {
+      const customEvent = e as CustomEvent<{ section: string | null }>
+      const section = customEvent.detail?.section
+      if (!section) return
+      
+      if (section === 'focus-upcoming') {
+        setCreateNewStepTriggerForSection(prev => ({
+          ...prev,
+          'focus-upcoming': (prev['focus-upcoming'] || 0) + 1
+        }))
+      } else if (section.startsWith('area-')) {
+        const areaId = section.replace('area-', '')
+        setCreateNewStepTriggerForSection(prev => ({
+          ...prev,
+          [`area-${areaId}`]: (prev[`area-${areaId}`] || 0) + 1
+        }))
+      } else if (section.startsWith('goal-')) {
+        const goalId = section.replace('goal-', '')
+        setCreateNewStepTriggerForSection(prev => ({
+          ...prev,
+          [`goal-${goalId}`]: (prev[`goal-${goalId}`] || 0) + 1
+        }))
+      }
+    }
+    
+    if (typeof window !== 'undefined') {
+      window.addEventListener('triggerInlineStepCreation', handleTriggerInlineStepCreation)
+      return () => {
+        window.removeEventListener('triggerInlineStepCreation', handleTriggerInlineStepCreation)
+      }
+    }
+  }, [])
+  
   // Metrics state
-  const [metrics, setMetrics] = React.useState<Record<string, any[]>>({})
-  const [loadingMetrics, setLoadingMetrics] = React.useState<Set<string>>(new Set())
-  const [showMetricModal, setShowMetricModal] = React.useState(false)
-  const [metricModalData, setMetricModalData] = React.useState<any>({ id: null, name: '', targetValue: 0, incrementalValue: 1, unit: '' })
-  const [editingMetricName, setEditingMetricName] = React.useState('')
-  const [editingMetricType, setEditingMetricType] = React.useState<'number' | 'currency' | 'percentage' | 'distance' | 'time' | 'weight' | 'custom'>('number')
-  const [editingMetricCurrentValue, setEditingMetricCurrentValue] = React.useState(0)
-  const [editingMetricTargetValue, setEditingMetricTargetValue] = React.useState(0)
-  const [editingMetricInitialValue, setEditingMetricInitialValue] = React.useState(0)
-  const [editingMetricIncrementalValue, setEditingMetricIncrementalValue] = React.useState(1)
-  const [editingMetricUnit, setEditingMetricUnit] = React.useState('')
-  
-  // Sync selectedGoalForDetail with mainPanelSection when it's a goal detail
-  React.useEffect(() => {
-    if (mainPanelSection && mainPanelSection.startsWith('goal-')) {
-      const goalId = mainPanelSection.replace('goal-', '')
-      if (goalId && goalId !== selectedGoalForDetail) {
-        setSelectedGoalForDetail(goalId)
-      }
-    }
-  }, [mainPanelSection, selectedGoalForDetail])
-
-  // Load metrics for a goal
-  React.useEffect(() => {
-    if (selectedGoalForDetail) {
-      const loadMetrics = async () => {
-        try {
-          const response = await fetch(`/api/goal-metrics?goalId=${selectedGoalForDetail}`)
-          if (response.ok) {
-            const data = await response.json()
-            setMetrics(prev => ({ ...prev, [selectedGoalForDetail]: data.metrics || [] }))
-          }
-        } catch (error) {
-          console.error('Error loading metrics:', error)
-        }
-      }
-      loadMetrics()
-    } else {
-      // Clear metrics when no goal is selected
-      setMetrics({})
-    }
-  }, [selectedGoalForDetail])
-  
-  // Metric functions
-  const handleMetricIncrement = React.useCallback(async (metricId: string, goalId: string) => {
-    console.log('handleMetricIncrement called with:', { metricId, goalId })
-    setLoadingMetrics(prev => new Set(prev).add(metricId))
-    try {
-      console.log('Sending PATCH request to /api/goal-metrics')
-      const response = await fetch('/api/goal-metrics', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ metricId, goalId })
-      })
-      console.log('PATCH response status:', response.status)
-      if (response.ok) {
-        const data = await response.json()
-        console.log('PATCH response data:', data)
-        setMetrics(prev => ({
-          ...prev,
-          [goalId]: (prev[goalId] || []).map(m => m.id === metricId ? data.metric : m)
-        }))
-        // Update goal if it was returned in response
-        if (data.goal && onGoalsUpdate) {
-          const updatedGoals = goals.map((g: any) => g.id === goalId ? data.goal : g)
-          onGoalsUpdate(updatedGoals)
-        } else if (onGoalsUpdate) {
-          // Fallback: reload all goals from API
-          const goalsResponse = await fetch(`/api/goals?t=${Date.now()}`, {
-            cache: 'no-store',
-            headers: {
-              'Cache-Control': 'no-cache'
-            }
-          })
-          if (goalsResponse.ok) {
-            const goalsData = await goalsResponse.json()
-            onGoalsUpdate(goalsData.goals || goalsData || [])
-          }
-        }
-      } else {
-        const errorData = await response.json().catch(() => ({}))
-        console.error('PATCH response not OK:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData
-        })
-        alert(`Chyba při přidání hodnoty: ${errorData.details || errorData.error || 'Neznámá chyba'}`)
-      }
-    } catch (error) {
-      console.error('Error incrementing metric:', error)
-      alert(`Chyba při přidání hodnoty: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
-    } finally {
-      setLoadingMetrics(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(metricId)
-        return newSet
-      })
-    }
-  }, [onGoalsUpdate])
-  
-  const handleMetricCreate = React.useCallback(async (goalId: string, metricData: any) => {
-    try {
-      const response = await fetch('/api/goal-metrics', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          goalId,
-          name: metricData.name,
-          type: metricData.type || 'number',
-          unit: metricData.unit,
-          targetValue: metricData.targetValue,
-          currentValue: metricData.currentValue || 0,
-          initialValue: metricData.initialValue ?? 0,
-          incrementalValue: metricData.incrementalValue
-        })
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setMetrics(prev => ({
-          ...prev,
-          [goalId]: [...(prev[goalId] || []), data.metric]
-        }))
-        // Reload metrics to ensure consistency
-        const reloadResponse = await fetch(`/api/goal-metrics?goalId=${goalId}`)
-        if (reloadResponse.ok) {
-          const reloadData = await reloadResponse.json()
-          setMetrics(prev => ({ ...prev, [goalId]: reloadData.metrics || [] }))
-        }
-        // Update goal if it was returned in response
-        if (data.goal && onGoalsUpdate) {
-          const updatedGoals = goals.map((g: any) => g.id === goalId ? data.goal : g)
-          onGoalsUpdate(updatedGoals)
-        } else if (onGoalsUpdate) {
-          // Fallback: reload all goals from API
-          const goalsResponse = await fetch(`/api/goals?t=${Date.now()}`, {
-            cache: 'no-store',
-            headers: {
-              'Cache-Control': 'no-cache'
-            }
-          })
-          if (goalsResponse.ok) {
-            const goalsData = await goalsResponse.json()
-            onGoalsUpdate(goalsData.goals || goalsData || [])
-          }
-        }
-      } else {
-        const errorData = await response.json().catch(() => ({}))
-        console.error('Error creating metric - response not OK:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData
-        })
-        alert(`Chyba při vytváření metriky: ${errorData.details || errorData.error || 'Neznámá chyba'}`)
-      }
-    } catch (error: any) {
-      console.error('Error creating metric:', error)
-      alert(`Chyba při vytváření metriky: ${error?.message || 'Neznámá chyba'}`)
-    }
-  }, [onGoalsUpdate])
-  
-  const handleMetricUpdate = React.useCallback(async (metricId: string, goalId: string, metricData: any) => {
-    try {
-      const response = await fetch('/api/goal-metrics', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          metricId,
-          goalId,
-          name: metricData.name,
-          type: metricData.type || 'number',
-          unit: metricData.unit,
-          currentValue: metricData.currentValue,
-          targetValue: metricData.targetValue,
-          initialValue: metricData.initialValue ?? 0,
-          incrementalValue: metricData.incrementalValue
-        })
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setMetrics(prev => ({
-          ...prev,
-          [goalId]: (prev[goalId] || []).map(m => m.id === metricId ? data.metric : m)
-        }))
-        // Update goal if it was returned in response
-        if (data.goal && onGoalsUpdate) {
-          const updatedGoals = goals.map((g: any) => g.id === goalId ? data.goal : g)
-          onGoalsUpdate(updatedGoals)
-          // Return updated goal for immediate use
-          return data.goal
-        } else if (onGoalsUpdate) {
-          // Fallback: reload all goals from API
-          const goalsResponse = await fetch(`/api/goals?t=${Date.now()}`, {
-            cache: 'no-store',
-            headers: {
-              'Cache-Control': 'no-cache'
-            }
-          })
-          if (goalsResponse.ok) {
-            const goalsData = await goalsResponse.json()
-            onGoalsUpdate(goalsData.goals || goalsData || [])
-            const updatedGoal = (goalsData.goals || goalsData || []).find((g: any) => g.id === goalId)
-            return updatedGoal
-          }
-        }
-      }
-      return null
-    } catch (error) {
-      console.error('Error updating metric:', error)
-      return null
-    }
-  }, [goals, onGoalsUpdate])
-  
-  const handleMetricDelete = React.useCallback(async (metricId: string, goalId: string) => {
-    try {
-      const response = await fetch(`/api/goal-metrics?metricId=${metricId}&goalId=${goalId}`, {
-        method: 'DELETE'
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setMetrics(prev => ({
-          ...prev,
-          [goalId]: (prev[goalId] || []).filter(m => m.id !== metricId)
-        }))
-        // Update goal if it was returned in response
-        if (data.goal && onGoalsUpdate) {
-          const updatedGoals = goals.map((g: any) => g.id === goalId ? data.goal : g)
-          onGoalsUpdate(updatedGoals)
-        } else if (onGoalsUpdate) {
-          // Fallback: reload all goals from API
-          const goalsResponse = await fetch(`/api/goals?t=${Date.now()}`, {
-            cache: 'no-store',
-            headers: {
-              'Cache-Control': 'no-cache'
-            }
-          })
-          if (goalsResponse.ok) {
-            const goalsData = await goalsResponse.json()
-            onGoalsUpdate(goalsData.goals || goalsData || [])
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error deleting metric:', error)
-    }
-  }, [onGoalsUpdate])
   
   return (
     <>
@@ -664,12 +478,12 @@ export function PageContent(props: PageContentProps) {
               setEditingHabitFrequency={setEditingHabitFrequency}
               editingHabitSelectedDays={editingHabitSelectedDays}
               setEditingHabitSelectedDays={setEditingHabitSelectedDays}
-              editingHabitAlwaysShow={editingHabitAlwaysShow}
-              setEditingHabitAlwaysShow={setEditingHabitAlwaysShow}
               editingHabitCategory={editingHabitCategory}
               setEditingHabitCategory={setEditingHabitCategory}
               editingHabitDifficulty={editingHabitDifficulty}
               setEditingHabitDifficulty={setEditingHabitDifficulty}
+              editingHabitAlwaysShow={editingHabitAlwaysShow}
+              setEditingHabitAlwaysShow={setEditingHabitAlwaysShow}
               editingHabitReminderTime={editingHabitReminderTime}
               setEditingHabitReminderTime={setEditingHabitReminderTime}
               handleCloseDetail={handleCloseDetail}
@@ -796,22 +610,25 @@ export function PageContent(props: PageContentProps) {
               )
             }
             
-            // Filter steps and habits by area
+            // Get goals for this area (needed for StepsManagementView)
             const areaGoals = goals.filter((goal: any) => goal.area_id === areaId && goal.status === 'active')
             const areaGoalIds = areaGoals.map((goal: any) => goal.id).filter(Boolean)
+            const areaHabits = habits.filter((habit: any) => habit.area_id === areaId)
             
-            // Include steps that are directly assigned to the area OR belong to goals in this area
+            // Calculate area steps statistics
             const areaSteps = dailySteps.filter((step: any) =>
               step.area_id === areaId ||
               (step.goal_id && areaGoalIds.includes(step.goal_id))
             )
-            const areaHabits = habits.filter((habit: any) => habit.area_id === areaId)
+            const totalAreaSteps = areaSteps.length
+            const completedAreaSteps = areaSteps.filter((step: any) => step.completed).length
+            const areaStepsProgress = totalAreaSteps > 0 ? Math.round((completedAreaSteps / totalAreaSteps) * 100) : 0
             
             const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
             const areaColor = area.color || '#ea580c'
             
             return (
-              <div className="w-full flex flex-col bg-primary-50" style={{ height: '100%' }}>
+              <div key={`area-${areaId}-${area.icon}-${area.color}`} className="w-full flex flex-col bg-primary-50" style={{ height: '100%' }}>
                 {/* Area detail content */}
                 <div className="flex-1 flex flex-col overflow-hidden" style={{ minHeight: 0 }}>
                   <div className="p-6 flex-shrink-0">
@@ -875,8 +692,45 @@ export function PageContent(props: PageContentProps) {
                                 {area.name}
                               </h1>
                             )}
-                            {area.description && (
-                              <p className="text-sm text-gray-600 mt-0.5 truncate">{area.description}</p>
+                            {editingAreaDetailDescription ? (
+                              <textarea
+                                ref={areaDescriptionRef as React.RefObject<HTMLTextAreaElement>}
+                                value={areaDetailDescriptionValue}
+                                onChange={(e) => setAreaDetailDescriptionValue(e.target.value)}
+                                onBlur={async () => {
+                                  if (areaDetailDescriptionValue !== (area.description || '')) {
+                                    await handleUpdateAreaForDetail(areaId, { description: areaDetailDescriptionValue.trim() || null })
+                                  } else {
+                                    setAreaDetailDescriptionValue(area.description || '')
+                                  }
+                                  setEditingAreaDetailDescription(false)
+                                }}
+                                onKeyDown={async (e) => {
+                                  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                                    if (areaDetailDescriptionValue !== (area.description || '')) {
+                                      await handleUpdateAreaForDetail(areaId, { description: areaDetailDescriptionValue.trim() || null })
+                                    }
+                                    setEditingAreaDetailDescription(false)
+                                  } else if (e.key === 'Escape') {
+                                    setAreaDetailDescriptionValue(area.description || '')
+                                    setEditingAreaDetailDescription(false)
+                                  }
+                                }}
+                                className="text-sm text-gray-600 mt-0.5 bg-transparent border-2 border-primary-500 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500 w-full resize-none"
+                                rows={2}
+                                autoFocus
+                              />
+                            ) : (
+                              <p 
+                                ref={areaDescriptionRef as React.RefObject<HTMLParagraphElement>}
+                                onClick={() => {
+                                  setAreaDetailDescriptionValue(area.description || '')
+                                  setEditingAreaDetailDescription(true)
+                                }}
+                                className={`text-sm text-gray-600 mt-0.5 truncate cursor-pointer hover:text-primary-600 transition-colors ${!area.description ? 'italic text-gray-400' : ''}`}
+                              >
+                                {area.description || (t('areas.addDescription') || 'Klikněte pro přidání popisku')}
+                              </p>
                             )}
                           </div>
                         </div>
@@ -924,17 +778,63 @@ export function PageContent(props: PageContentProps) {
                     </div>
                   </div>
                     
-                    {/* Area Steps View */}
+                    {/* Area Steps View - using StepsManagementView */}
+                    {/* Pass all dailySteps and let StepsManagementView filter by areaFilter */}
                     <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
-                      <AreaStepsView
-                        goals={areaGoals}
-                        dailySteps={areaSteps}
-                        handleItemClick={handleItemClick}
-                        handleStepToggle={handleStepToggle}
-                        loadingSteps={loadingSteps}
-                        onOpenStepModal={handleOpenStepModal}
-                        maxUpcomingSteps={15}
-                      />
+                      {/* Steps Header - similar to metrics header */}
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 px-4 py-3 mb-2">
+                        <div className="flex items-center gap-3">
+                          <h2 className="text-xl font-bold text-black font-playful">
+                            Kroky
+                          </h2>
+                          {totalAreaSteps > 0 && (
+                            <span className="text-sm text-gray-600 font-playful">
+                              {areaStepsProgress}% ({completedAreaSteps} / {totalAreaSteps})
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => {
+                            const sectionKey = `area-${areaId}`
+                            setCreateNewStepTriggerForSection(prev => ({
+                              ...prev,
+                              [sectionKey]: (prev[sectionKey] || 0) + 1
+                            }))
+                          }}
+                          className="flex items-center justify-center w-8 h-8 text-primary-600 hover:bg-primary-50 rounded-playful-sm transition-colors"
+                          title={t('steps.add') || 'Přidat krok'}
+                        >
+                          <Plus className="w-5 h-5" strokeWidth={2.5} />
+                        </button>
+                      </div>
+                      
+                      <div className="p-4 sm:p-6 lg:p-8 pt-2">
+                        <StepsManagementView
+                        dailySteps={dailySteps}
+                        goals={goals}
+                        userId={userId}
+                        player={player}
+                        onDailyStepsUpdate={onDailyStepsUpdate}
+                        onOpenStepModal={(step) => {
+                          // For area view, if step is provided, open modal
+                          // Otherwise (new step), trigger inline creation
+                          if (step) {
+                            if (handleOpenStepModal) {
+                              handleOpenStepModal(undefined, step)
+                            }
+                          } else {
+                            // Trigger new step creation using section-specific trigger
+                            const sectionKey = `area-${areaId}`
+                            setCreateNewStepTriggerForSection(prev => ({
+                              ...prev,
+                              [sectionKey]: (prev[sectionKey] || 0) + 1
+                            }))
+                          }
+                        }}
+                        hideHeader={true}
+                        showCompleted={false}
+                        />
+                      </div>
                     </div>
                 </div>
                 
@@ -1144,7 +1044,7 @@ export function PageContent(props: PageContentProps) {
             
               return (
               <GoalDetailPage
-                goal={goal}
+                goals={[goal]}
                 goalId={goalId}
                 areas={areas}
                 dailySteps={dailySteps}
@@ -1161,30 +1061,8 @@ export function PageContent(props: PageContentProps) {
                 selectedDayDate={selectedDayDate}
                 setStepModalData={setStepModalData}
                 setShowStepModal={setShowStepModal}
-                metrics={metrics[goalId] || []}
-                loadingMetrics={loadingMetrics}
-                handleMetricIncrement={handleMetricIncrement}
-                handleMetricCreate={handleMetricCreate}
-                handleMetricUpdate={handleMetricUpdate}
-                handleMetricDelete={handleMetricDelete}
-                showMetricModal={showMetricModal}
-                setShowMetricModal={setShowMetricModal}
-                metricModalData={metricModalData}
-                setMetricModalData={setMetricModalData}
-                editingMetricName={editingMetricName}
-                setEditingMetricName={setEditingMetricName}
-                editingMetricType={editingMetricType}
-                setEditingMetricType={setEditingMetricType}
-                editingMetricCurrentValue={editingMetricCurrentValue}
-                setEditingMetricCurrentValue={setEditingMetricCurrentValue}
-                editingMetricTargetValue={editingMetricTargetValue}
-                setEditingMetricTargetValue={setEditingMetricTargetValue}
-                editingMetricInitialValue={editingMetricInitialValue}
-                setEditingMetricInitialValue={setEditingMetricInitialValue}
-                editingMetricIncrementalValue={editingMetricIncrementalValue}
-                setEditingMetricIncrementalValue={setEditingMetricIncrementalValue}
-                editingMetricUnit={editingMetricUnit}
-                setEditingMetricUnit={setEditingMetricUnit}
+                userId={userId}
+                player={player}
                 goalDetailTitleValue={goalDetailTitleValue}
                 setGoalDetailTitleValue={setGoalDetailTitleValue}
                 editingGoalDetailTitle={editingGoalDetailTitle}
@@ -1236,6 +1114,7 @@ export function PageContent(props: PageContentProps) {
                 goalStartDateRef={goalStartDateRef}
                 goalStatusRef={goalStatusRef}
                 goalAreaRef={goalAreaRef}
+                onOpenStepModal={onOpenStepModal}
               />
             )
           }
@@ -1258,6 +1137,7 @@ export function PageContent(props: PageContentProps) {
                   goals={goals}
                   habits={habits}
                   dailySteps={dailySteps}
+                  isLoadingSteps={props.isLoadingSteps}
                   selectedDayDate={selectedDayDate}
                   setSelectedDayDate={setSelectedDayDate}
                   setShowDatePickerModal={setShowDatePickerModal}
@@ -1266,9 +1146,21 @@ export function PageContent(props: PageContentProps) {
                   handleStepToggle={handleStepToggle}
                   setSelectedItem={setSelectedItem}
                   setSelectedItemType={setSelectedItemType}
-                  onOpenStepModal={handleOpenStepModal}
+                  onOpenStepModal={mainPanelSection === 'focus-upcoming' ? (step?: any) => {
+                    // For UpcomingView, create new step directly on page instead of opening modal
+                    if (step) {
+                      handleOpenStepModal(undefined, step)
+                    } else {
+                      // Trigger new step creation using section-specific trigger
+                      setCreateNewStepTriggerForSection(prev => ({
+                        ...prev,
+                        'focus-upcoming': (prev['focus-upcoming'] || 0) + 1
+                      }))
+                    }
+                  } : handleOpenStepModal}
                   onStepDateChange={onStepDateChange}
                   onStepTimeChange={onStepTimeChange}
+                  onStepImportantChange={props.onStepImportantChange}
                   loadingHabits={loadingHabits}
                   loadingSteps={loadingSteps}
                   animatingSteps={animatingSteps}
@@ -1285,6 +1177,16 @@ export function PageContent(props: PageContentProps) {
                   visibleSections={visibleSections}
                   viewType={getViewType(mainPanelSection)}
                   maxUpcomingSteps={maxUpcomingSteps}
+                  createNewStepTrigger={mainPanelSection === 'focus-upcoming' ? (createNewStepTriggerForSection['focus-upcoming'] || 0) : undefined}
+                  onNewStepCreatedForUpcoming={() => {
+                    // Reset trigger for upcoming section after step is created
+                    if (mainPanelSection === 'focus-upcoming') {
+                      setCreateNewStepTriggerForSection(prev => ({
+                        ...prev,
+                        'focus-upcoming': 0
+                      }))
+                    }
+                  }}
                 />
               )
             case 'goals':
@@ -1359,14 +1261,30 @@ export function PageContent(props: PageContentProps) {
                   <StepsManagementView
                     dailySteps={dailySteps}
                     goals={goals}
+                    areas={areas}
                     onDailyStepsUpdate={onDailyStepsUpdate}
                     userId={userId}
                     player={player}
+                    onStepImportantChange={onStepImportantChange}
+                    handleStepToggle={handleStepToggle}
+                    loadingSteps={loadingSteps}
+                    createNewStepTrigger={createNewStepTriggerForSection['steps'] || 0}
+                    onNewStepCreated={() => {
+                      // Reset trigger for steps section after step is created
+                      setCreateNewStepTriggerForSection(prev => ({
+                        ...prev,
+                        'steps': 0
+                      }))
+                    }}
                     onOpenStepModal={(step?: any) => {
                       if (step) {
                         handleOpenStepModal(undefined, step)
                       } else {
-                        handleOpenStepModal()
+                        // For new step, trigger creation instead of opening modal
+                        setCreateNewStepTriggerForSection(prev => ({
+                          ...prev,
+                          'steps': (prev['steps'] || 0) + 1
+                        }))
                       }
                     }}
                   />
@@ -1392,7 +1310,7 @@ export function PageContent(props: PageContentProps) {
         }
         
         return (
-          <div className="w-full flex bg-primary-50 overflow-hidden" style={{ height: '100%' }}>
+          <div className="flex-1 flex bg-primary-50 overflow-hidden h-full">
             {/* Left sidebar - Navigation - Hidden on mobile */}
             <SidebarNavigation
               sidebarCollapsed={sidebarCollapsed}
@@ -1408,7 +1326,28 @@ export function PageContent(props: PageContentProps) {
               setExpandedGoalSections={setExpandedGoalSections}
               handleOpenAreasManagementModal={handleOpenAreasManagementModal}
               handleCreateGoal={handleCreateGoal}
-              handleOpenStepModal={handleOpenStepModal}
+              handleOpenStepModal={mainPanelSection === 'focus-upcoming' || mainPanelSection.startsWith('area-') || mainPanelSection.startsWith('goal-') ? () => {
+                // For UpcomingView, Area views, and Goal views, trigger new step creation instead of opening modal
+                // Use section-specific trigger
+                if (mainPanelSection === 'focus-upcoming') {
+                  setCreateNewStepTriggerForSection(prev => ({
+                    ...prev,
+                    'focus-upcoming': (prev['focus-upcoming'] || 0) + 1
+                  }))
+                } else if (mainPanelSection.startsWith('area-')) {
+                  const areaId = mainPanelSection.replace('area-', '')
+                  setCreateNewStepTriggerForSection(prev => ({
+                    ...prev,
+                    [`area-${areaId}`]: (prev[`area-${areaId}`] || 0) + 1
+                  }))
+                } else if (mainPanelSection.startsWith('goal-')) {
+                  const goalId = mainPanelSection.replace('goal-', '')
+                  setCreateNewStepTriggerForSection(prev => ({
+                    ...prev,
+                    [`goal-${goalId}`]: (prev[`goal-${goalId}`] || 0) + 1
+                  }))
+                }
+              } : handleOpenStepModal}
               handleOpenHabitModal={handleOpenHabitModal}
               handleOpenAreaEditModal={handleOpenAreaEditModal}
               showCreateMenu={showCreateMenu}
@@ -1424,6 +1363,28 @@ export function PageContent(props: PageContentProps) {
               areaButtonRefs={props.areaButtonRefs}
               goalButtonRefs={props.goalButtonRefs}
               onGoalClick={props.onGoalClick}
+              onAreasUpdate={props.onAreasUpdate}
+              onAreasReorder={async (areaIds: string[]) => {
+                try {
+                  const response = await fetch('/api/cesta/areas', {
+                    method: 'PATCH',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ areaIds }),
+                  })
+                  if (response.ok && props.onAreasUpdate) {
+                    // Reload areas to get updated order
+                    const areasResponse = await fetch('/api/cesta/areas')
+                    if (areasResponse.ok) {
+                      const data = await areasResponse.json()
+                      props.onAreasUpdate(data.areas || [])
+                    }
+                  }
+                } catch (error) {
+                  console.error('Error updating area order:', error)
+                }
+              }}
             />
 
             {/* Right content area */}
@@ -1537,10 +1498,14 @@ export function PageContent(props: PageContentProps) {
                         const goal = goals.find((g: any) => g.id === goalId)
                         if (!goal) return null
                         const IconComponent = getIconComponent(goal.icon)
+                        const isPastDeadline = isGoalPastDeadline(goal)
                         return (
                           <>
                             <IconComponent className="w-5 h-5 flex-shrink-0 text-gray-700" />
-                            <h2 className="text-lg font-bold text-gray-900 truncate">{goal.title}</h2>
+                            {isPastDeadline && (
+                              <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-600" />
+                            )}
+                            <h2 className={`text-lg font-bold truncate ${isPastDeadline ? 'text-red-600' : 'text-gray-900'}`}>{goal.title}</h2>
                           </>
                         )
                       })()}
@@ -1676,7 +1641,8 @@ export function PageContent(props: PageContentProps) {
 
       case 'help': {
         return (
-          <HelpView
+          <div className="w-full h-full">
+            <HelpView
             onAddGoal={async () => {
               setCurrentPage('main')
               // Create goal and redirect to its detail page
@@ -1685,9 +1651,12 @@ export function PageContent(props: PageContentProps) {
             onAddStep={() => {
               setCurrentPage('main')
               setMainPanelSection('steps')
-              // Open step modal after a short delay to ensure component is mounted
+              // Trigger new step creation after a short delay to ensure component is mounted
               setTimeout(() => {
-                handleOpenStepModal()
+                setCreateNewStepTriggerForSection(prev => ({
+                  ...prev,
+                  'steps': (prev['steps'] || 0) + 1
+                }))
               }, 300)
             }}
             onAddHabit={() => {
@@ -1722,6 +1691,7 @@ export function PageContent(props: PageContentProps) {
             realHabits={habits}
             realSteps={dailySteps}
           />
+          </div>
         );
       }
 
@@ -1742,13 +1712,19 @@ export function PageContent(props: PageContentProps) {
         }
 
         return (
-          <div className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 overflow-hidden h-full">
             {/* Left Panel - Filters and Add button - hidden on mobile */}
-            <div className="hidden md:flex w-64 border-r-2 border-primary-500 bg-white flex flex-col">
+            <div className={`hidden md:flex ${sidebarCollapsed ? 'w-14' : 'w-64'} border-r-2 border-primary-500 bg-white flex flex-col h-full flex-shrink-0 transition-all duration-300`}>
               {/* Header */}
               <div className="p-4 border-b-2 border-primary-500">
                 <button
-                  onClick={() => setSelectedGoalForDetail(null)}
+                  onClick={() => {
+                    setSelectedGoalForDetail(null)
+                    // Clear main panel section when clicking on goals header to ensure independence
+                    if (mainPanelSection && mainPanelSection.startsWith('goal-')) {
+                      setMainPanelSection('goals')
+                    }
+                  }}
                   className="text-sm font-bold text-black font-playful mb-4 hover:text-primary-600 transition-colors cursor-pointer text-left w-full"
                 >
                   {t('navigation.goals')}
@@ -1814,7 +1790,13 @@ export function PageContent(props: PageContentProps) {
                       return (
                         <button
                           key={goal.id}
-                          onClick={() => setSelectedGoalForDetail(isSelected ? null : goal.id)}
+                          onClick={() => {
+                            setSelectedGoalForDetail(isSelected ? null : goal.id)
+                            // Clear main panel section when selecting goal on goals page to ensure independence
+                            if (mainPanelSection && mainPanelSection.startsWith('goal-')) {
+                              setMainPanelSection('goals')
+                            }
+                          }}
                           className={`w-full text-left px-3 py-2 mb-1 rounded-playful-sm text-sm font-playful transition-colors flex items-center gap-2 ${
                             isSelected
                               ? 'bg-primary-500 text-black font-semibold'
@@ -1822,7 +1804,10 @@ export function PageContent(props: PageContentProps) {
                           }`}
                         >
                           <IconComponent className="w-4 h-4 flex-shrink-0" />
-                          <span className="truncate">{goal.title}</span>
+                          {isGoalPastDeadline(goal) && (
+                            <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-600" />
+                          )}
+                          <span className={`truncate ${isGoalPastDeadline(goal) ? 'text-red-600' : ''}`}>{goal.title}</span>
                         </button>
                       )
                     })}
@@ -1969,7 +1954,7 @@ export function PageContent(props: PageContentProps) {
               {selectedGoalForDetail && selectedGoal ? (
                 <GoalDetailPage
                   key={`goal-${selectedGoalForDetail}-${selectedGoal.progress_percentage || 0}`}
-                  goal={selectedGoal}
+                  goals={[selectedGoal]}
                       goalId={selectedGoalForDetail}
                       areas={areas}
                       dailySteps={dailySteps}
@@ -1986,30 +1971,10 @@ export function PageContent(props: PageContentProps) {
                       selectedDayDate={selectedDayDate}
                       setStepModalData={setStepModalData}
                       setShowStepModal={setShowStepModal}
-                      metrics={metrics[selectedGoalForDetail] || []}
-                      loadingMetrics={loadingMetrics}
-                      handleMetricIncrement={handleMetricIncrement}
-                      handleMetricCreate={handleMetricCreate}
-                      handleMetricUpdate={handleMetricUpdate}
-                      handleMetricDelete={handleMetricDelete}
-                      showMetricModal={showMetricModal}
-                      setShowMetricModal={setShowMetricModal}
-                      metricModalData={metricModalData}
-                      setMetricModalData={setMetricModalData}
-                      editingMetricName={editingMetricName}
-                      setEditingMetricName={setEditingMetricName}
-                      editingMetricType={editingMetricType}
-                      setEditingMetricType={setEditingMetricType}
-                      editingMetricCurrentValue={editingMetricCurrentValue}
-                      setEditingMetricCurrentValue={setEditingMetricCurrentValue}
-                      editingMetricTargetValue={editingMetricTargetValue}
-                      setEditingMetricTargetValue={setEditingMetricTargetValue}
-                      editingMetricInitialValue={editingMetricInitialValue}
-                      setEditingMetricInitialValue={setEditingMetricInitialValue}
-                      editingMetricIncrementalValue={editingMetricIncrementalValue}
-                      setEditingMetricIncrementalValue={setEditingMetricIncrementalValue}
-                      editingMetricUnit={editingMetricUnit}
-                      setEditingMetricUnit={setEditingMetricUnit}
+                      goals={goals}
+                      userId={userId}
+                      player={player}
+                      createNewStepTrigger={createNewStepTrigger}
                       goalDetailTitleValue={goalDetailTitleValue}
                       setGoalDetailTitleValue={setGoalDetailTitleValue}
                       editingGoalDetailTitle={editingGoalDetailTitle}
@@ -2061,6 +2026,7 @@ export function PageContent(props: PageContentProps) {
                       goalStartDateRef={goalStartDateRef}
                       goalStatusRef={goalStatusRef}
                       goalAreaRef={goalAreaRef}
+                      onOpenStepModal={onOpenStepModal}
                     />
               ) : selectedGoalForDetail ? (
                 <div className="p-6 text-center">
@@ -2074,6 +2040,10 @@ export function PageContent(props: PageContentProps) {
                   onGoalsUpdate={onGoalsUpdate}
                   onGoalClick={(goalId: string) => {
                     setSelectedGoalForDetail(goalId)
+                    // Clear main panel section when selecting goal on goals page to ensure independence
+                    if (mainPanelSection && mainPanelSection.startsWith('goal-')) {
+                      setMainPanelSection('goals')
+                    }
                   }}
                   dailySteps={dailySteps}
                   hideHeader={true}
@@ -2106,11 +2076,11 @@ export function PageContent(props: PageContentProps) {
         const selectedHabit = selectedHabitForDetail ? habits.find((h: any) => h.id === selectedHabitForDetail) : null
         
         return (
-          <div className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 overflow-hidden h-full">
             {/* Left Panel - List of habits - Hidden on mobile */}
-            <div className="hidden md:flex w-64 border-r-2 border-primary-500 bg-white flex flex-col">
+            <div className={`hidden md:flex ${sidebarCollapsed ? 'w-14' : 'w-64'} border-r-2 border-primary-500 bg-white flex flex-col h-full flex-shrink-0 transition-all duration-300`}>
               {/* Header */}
-              <div className="p-4 border-b-2 border-primary-500">
+              <div className="p-4 border-b-2 border-primary-500 flex-shrink-0">
                 <button
                   onClick={() => setSelectedHabitForDetail(null)}
                   className="text-sm font-bold text-black font-playful mb-2 hover:text-primary-600 transition-colors cursor-pointer text-left w-full"
@@ -2123,7 +2093,7 @@ export function PageContent(props: PageContentProps) {
               </div>
               
               {/* Habits list */}
-              <div className="flex-1 overflow-y-auto">
+              <div className="flex-1 overflow-y-auto min-h-0">
                 {filteredHabits.length === 0 ? (
                   <div className="p-4 text-xs text-gray-500 text-center">
                     {t('habits.noHabits') || 'Žádné návyky'}
@@ -2160,7 +2130,7 @@ export function PageContent(props: PageContentProps) {
               </div>
 
               {/* Add button at bottom */}
-              <div className="p-4 border-t-2 border-primary-500">
+              <div className="p-4 border-t-2 border-primary-500 flex-shrink-0">
                 <button
                   onClick={() => handleOpenHabitModal(null)}
                   className="btn-playful-base w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-white hover:bg-primary-50"
@@ -2359,11 +2329,11 @@ export function PageContent(props: PageContentProps) {
         const stepsCount = filteredSteps.length
 
         return (
-          <div className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 overflow-hidden h-full">
             {/* Left Panel - Filters and Add button - Hidden on mobile */}
-            <div className="hidden md:flex w-64 border-r-2 border-primary-500 bg-white flex flex-col">
+            <div className={`hidden md:flex ${sidebarCollapsed ? 'w-14' : 'w-64'} border-r-2 border-primary-500 bg-white flex flex-col h-full flex-shrink-0 transition-all duration-300`}>
               {/* Filters at top */}
-              <div className="p-4 border-b-2 border-primary-500 overflow-y-auto">
+              <div className="p-4 border-b-2 border-primary-500 flex-shrink-0">
                 <h3 className="text-sm font-bold text-black font-playful mb-4">{t('navigation.steps')}</h3>
                 <p className="text-xs text-gray-600 mb-4">
                   {stepsCount} {stepsCount === 1 ? (localeCode === 'cs-CZ' ? 'krok' : 'step') : (localeCode === 'cs-CZ' ? 'kroků' : 'steps')}
@@ -2382,17 +2352,22 @@ export function PageContent(props: PageContentProps) {
                   </label>
                 </div>
                 
-                {/* Show Repeating Steps Checkbox */}
+                {/* Area Filter */}
                 <div className="mb-3">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={stepsShowRepeatingSteps}
-                      onChange={(e) => setStepsShowRepeatingSteps(e.target.checked)}
-                      className="w-4 h-4 text-primary-600 border-primary-500 rounded-playful-sm focus:ring-primary-500"
-                    />
-                    <span className="text-xs font-medium text-black">{t('steps.filters.showRepeatingSteps') || 'Opakující se kroky'}</span>
-                  </label>
+                  <label className="text-xs font-semibold text-black mb-1.5 block">{t('steps.filters.area.title') || 'Oblast'}</label>
+                  <select
+                    value={stepsAreaFilter || ''}
+                    onChange={(e) => setStepsAreaFilter(e.target.value || null)}
+                    className="w-full px-2 py-1.5 text-xs border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                  >
+                    <option value="">{t('steps.filters.area.all') || 'Všechny oblasti'}</option>
+                    <option value="none">{t('steps.filters.area.withoutArea') || 'Bez oblasti'}</option>
+                    {areas && areas.length > 0 && areas.map((area: any) => (
+                      <option key={area.id} value={area.id}>
+                        {area.name || t('areas.unnamed')}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 
                 {/* Goal Filter */}
@@ -2434,9 +2409,9 @@ export function PageContent(props: PageContentProps) {
               </div>
 
               {/* Add button at bottom */}
-              <div className="mt-auto p-4 border-t-2 border-primary-500">
+              <div className="mt-auto p-4 border-t-2 border-primary-500 flex-shrink-0">
                 <button
-                  onClick={() => handleOpenStepModal()}
+                  onClick={() => setCreateNewStepTrigger(prev => prev + 1)}
                   className="btn-playful-base w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-white hover:bg-primary-50"
                 >
                   <Plus className="w-5 h-5" />
@@ -2486,16 +2461,23 @@ export function PageContent(props: PageContentProps) {
                                   <span className="text-sm font-medium text-black">{t('steps.filters.showCompleted')}</span>
                                 </label>
                                 
-                                {/* Show Repeating Steps Checkbox */}
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={stepsShowRepeatingSteps}
-                                    onChange={(e) => setStepsShowRepeatingSteps(e.target.checked)}
-                                    className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
-                                  />
-                                  <span className="text-sm font-medium text-black">{t('steps.filters.showRepeatingSteps') || 'Opakující se kroky'}</span>
-                                </label>
+                                {/* Area Filter */}
+                                <div>
+                                  <label className="text-xs font-semibold text-black mb-1.5 block">{t('steps.filters.area.title') || 'Oblast'}</label>
+                                  <select
+                                    value={stepsAreaFilter || ''}
+                                    onChange={(e) => setStepsAreaFilter(e.target.value || null)}
+                                    className="w-full px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white"
+                                  >
+                                    <option value="">{t('steps.filters.area.all') || 'Všechny oblasti'}</option>
+                                    <option value="none">{t('steps.filters.area.withoutArea') || 'Bez oblasti'}</option>
+                                    {areas && areas.length > 0 && areas.map((area: any) => (
+                                      <option key={area.id} value={area.id}>
+                                        {area.name || t('areas.unnamed')}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
                                 
                                 {/* Goal Filter */}
                                 <div>
@@ -2540,7 +2522,7 @@ export function PageContent(props: PageContentProps) {
                             <div className="px-4 py-2">
                               <button
                                 onClick={() => {
-                                  handleOpenStepModal()
+                                  setCreateNewStepTrigger(prev => prev + 1)
                                   setStepsMobileMenuOpen(false)
                                 }}
                                 className="btn-playful-base w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-white hover:bg-primary-50"
@@ -2565,11 +2547,15 @@ export function PageContent(props: PageContentProps) {
                 player={player}
                 userId={userId}
                 onDailyStepsUpdate={onDailyStepsUpdate}
+                onStepImportantChange={onStepImportantChange}
+                handleStepToggle={handleStepToggle}
+                loadingSteps={loadingSteps}
+                createNewStepTrigger={createNewStepTrigger}
                 onOpenStepModal={handleOpenStepModal}
                 hideHeader={true}
                 showCompleted={stepsShowCompleted}
-                showRepeatingSteps={stepsShowRepeatingSteps}
                 goalFilter={stepsGoalFilter}
+                areaFilter={stepsAreaFilter}
                 dateFilter={stepsDateFilter}
               />
               </div>
@@ -2592,7 +2578,6 @@ export function PageContent(props: PageContentProps) {
                       const dayOfWeek = now.getDay()
                       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
                       const visibleHabits = habits.filter((habit: any) => {
-                        if (habit.always_show) return true
                         if (habit.frequency === 'daily') return true
                         if ((habit.frequency === 'custom' || habit.frequency === 'weekly') && habit.selected_days) {
                           return habit.selected_days.includes(dayNames[dayOfWeek])
@@ -2611,7 +2596,6 @@ export function PageContent(props: PageContentProps) {
                       const now = new Date()
                       const dayOfWeek = now.getDay()
                       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-                      if (h.always_show) return true
                       if (h.frequency === 'daily') return true
                       if ((h.frequency === 'custom' || h.frequency === 'weekly') && h.selected_days) {
                         return h.selected_days.includes(dayNames[dayOfWeek])
@@ -2682,12 +2666,12 @@ export function PageContent(props: PageContentProps) {
                         setEditingHabitFrequency={setEditingHabitFrequency}
                         editingHabitSelectedDays={editingHabitSelectedDays}
                         setEditingHabitSelectedDays={setEditingHabitSelectedDays}
-                        editingHabitAlwaysShow={editingHabitAlwaysShow}
-                        setEditingHabitAlwaysShow={setEditingHabitAlwaysShow}
                         editingHabitCategory={editingHabitCategory}
                         setEditingHabitCategory={setEditingHabitCategory}
                         editingHabitDifficulty={editingHabitDifficulty}
                         setEditingHabitDifficulty={setEditingHabitDifficulty}
+                        editingHabitAlwaysShow={editingHabitAlwaysShow}
+                        setEditingHabitAlwaysShow={setEditingHabitAlwaysShow}
                         editingHabitReminderTime={editingHabitReminderTime}
                         setEditingHabitReminderTime={setEditingHabitReminderTime}
                         handleCloseDetail={handleCloseDetail}
@@ -2712,7 +2696,6 @@ export function PageContent(props: PageContentProps) {
                         dailySteps={dailySteps}
                         handleItemClick={handleItemClick}
                         handleHabitToggle={handleHabitToggle}
-                        handleStepToggle={handleStepToggle}
                         loadingHabits={loadingHabits}
                         loadingSteps={loadingSteps}
                         animatingSteps={animatingSteps}
@@ -2798,7 +2781,11 @@ export function PageContent(props: PageContentProps) {
                 {t('common.cancel') || 'Zrušit'}
               </button>
               <button
-                onClick={handleDeleteAreaConfirm}
+                onClick={(e) => {
+                  e.preventDefault()
+                  // Call with undefined to use fallback values from JourneyGameView
+                  handleDeleteAreaConfirm(undefined, undefined)
+                }}
                 disabled={props.isDeletingArea}
                 className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
@@ -2821,4 +2808,3 @@ export function PageContent(props: PageContentProps) {
           </>
         )
 }
-

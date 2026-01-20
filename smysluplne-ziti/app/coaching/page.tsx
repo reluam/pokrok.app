@@ -272,13 +272,15 @@ export default function CoachingPage() {
               </div>
 
               {/* "nebo" divider */}
-              <div className="flex items-center justify-center lg:py-8">
+              <div className="flex items-center justify-center">
+                <div className="hidden lg:flex items-center justify-center h-full">
+                  <span className="text-text-secondary font-semibold text-lg bg-primary-100/50 px-4 py-2 rounded-full">nebo</span>
+                </div>
                 <div className="lg:hidden flex items-center gap-4 w-full">
                   <div className="h-px bg-primary-200 flex-1"></div>
                   <span className="text-text-secondary font-semibold">nebo</span>
                   <div className="h-px bg-primary-200 flex-1"></div>
                 </div>
-                <span className="hidden lg:inline text-text-secondary font-semibold text-lg">nebo</span>
               </div>
 
               {/* Right: Contact Form */}

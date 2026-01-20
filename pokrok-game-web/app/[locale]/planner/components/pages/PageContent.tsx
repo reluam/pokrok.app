@@ -18,6 +18,7 @@ import { WorkflowsPage } from './WorkflowsPage'
 import { AreasSettingsView } from '../AreasSettingsView'
 import { HelpView } from '../views/HelpView'
 import { GoalEditingForm } from '../journey/GoalEditingForm'
+import { StepModal } from '../modals/StepModal'
 import { DisplayContent } from '../content/DisplayContent'
 import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
@@ -37,6 +38,10 @@ import { OnlyTheImportantView } from '../views/OnlyTheImportantView'
 
 interface PageContentProps {
   currentPage: 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas'
+  showStepModal?: boolean
+  setShowStepModal?: (show: boolean) => void
+  stepModalData?: any
+  setStepModalData?: (data: any) => void
   [key: string]: any // Allow any props - this function uses many variables from parent
 }
 
@@ -228,8 +233,10 @@ export function PageContent(props: PageContentProps) {
     visibleSections = undefined,
     setShowDatePickerModal,
     setSelectedItemType,
-    setStepModalData,
+    showStepModal = false,
     setShowStepModal,
+    stepModalData = null,
+    setStepModalData,
     stepsCacheVersion,
     // Optional variables that may not be passed
     mobileMenuOpen,
@@ -263,7 +270,7 @@ export function PageContent(props: PageContentProps) {
     createMenuButtonRef,
     areaColorRef
   } = props;
-  
+
   // Define topMenuItems locally since it's not passed as prop
   const topMenuItems = [
     { id: 'goals' as const, label: t('navigation.goals'), icon: Target },
@@ -340,6 +347,12 @@ export function PageContent(props: PageContentProps) {
     }
   }, [currentPage])
   
+  // Reset selectedGoalForDetail when navigating to goals page
+  React.useEffect(() => {
+    if (currentPage === 'goals') {
+      setSelectedGoalForDetail(null)
+    }
+  }, [currentPage])
 
   // Load all steps without date limit when on steps page
   React.useEffect(() => {
@@ -379,6 +392,7 @@ export function PageContent(props: PageContentProps) {
     }
   }, [currentPage])
   
+
   // Filters state for Steps page
   const [stepsShowCompleted, setStepsShowCompleted] = React.useState(false)
   const [stepsGoalFilter, setStepsGoalFilter] = React.useState<string | null>(null)
@@ -438,7 +452,7 @@ export function PageContent(props: PageContentProps) {
   
   // Sync selectedGoalForDetail with mainPanelSection when it's a goal detail (only on main page, not on goals page)
   React.useEffect(() => {
-    // Only sync when on main page
+    // Only sync when on main page, not on goals page - goals page should work independently
     if (currentPage === 'main' && mainPanelSection && mainPanelSection.startsWith('goal-')) {
       const goalId = mainPanelSection.replace('goal-', '')
       if (goalId && goalId !== selectedGoalForDetail) {
@@ -1005,7 +1019,7 @@ export function PageContent(props: PageContentProps) {
                               handleDeleteArea(areaId)
                             }}
                             className="flex items-center gap-2 px-3 py-1.5 text-sm border-2 border-red-300 bg-red-50 text-red-700 rounded-lg transition-all hover:bg-red-100 flex-shrink-0"
-                            title={t('areas.delete') || 'Smazat výzvu'}
+                            title={t('areas.delete') || 'Smazat oblast'}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -1294,7 +1308,7 @@ export function PageContent(props: PageContentProps) {
             
               return (
               <GoalDetailPage
-                goal={goal}
+                goals={[goal]}
                 goalId={goalId}
                 areas={areas}
                 dailySteps={dailySteps}
@@ -1345,6 +1359,13 @@ export function PageContent(props: PageContentProps) {
                   setCreateNewStepTriggerForSection(prev => ({
                     ...prev,
                     [`goal-${goalId}`]: fn(prev[`goal-${goalId}`] || 0)
+                  }))
+                }}
+                onNewStepCreated={() => {
+                  // Reset trigger for this goal section after step is created
+                  setCreateNewStepTriggerForSection(prev => ({
+                    ...prev,
+                    [`goal-${goalId}`]: 0
                   }))
                 }}
                 goalDetailTitleValue={goalDetailTitleValue}
@@ -1398,6 +1419,7 @@ export function PageContent(props: PageContentProps) {
                 goalStartDateRef={goalStartDateRef}
                 goalStatusRef={goalStatusRef}
                 goalAreaRef={goalAreaRef}
+                onOpenStepModal={onOpenStepModal}
               />
             )
           }
@@ -1420,7 +1442,7 @@ export function PageContent(props: PageContentProps) {
                   goals={goals}
                   habits={habits}
                   dailySteps={dailySteps}
-                  isLoadingSteps={props.isLoadingSteps}
+                  loadingSteps={loadingSteps}
                   selectedDayDate={selectedDayDate}
                   setSelectedDayDate={setSelectedDayDate}
                   setShowDatePickerModal={setShowDatePickerModal}
@@ -1603,6 +1625,7 @@ export function PageContent(props: PageContentProps) {
               sidebarItems={sidebarItems}
               areas={areas}
               sortedGoalsForSidebar={sortedGoalsForSidebar}
+              dailySteps={dailySteps}
               expandedAreas={expandedAreas}
               setExpandedAreas={setExpandedAreas}
               expandedGoalSections={expandedGoalSections}
@@ -2075,6 +2098,10 @@ export function PageContent(props: PageContentProps) {
                           key={goal.id}
                           onClick={() => {
                             setSelectedGoalForDetail(isSelected ? null : goal.id)
+                            // Clear main panel section when selecting goal on goals page to ensure independence
+                            if (mainPanelSection && mainPanelSection.startsWith('goal-')) {
+                              setMainPanelSection('goals')
+                            }
                           }}
                           className={`w-full text-left px-3 py-2 mb-1 rounded-playful-sm text-sm font-playful transition-colors flex items-center gap-2 ${
                             isSelected
@@ -2664,8 +2691,8 @@ export function PageContent(props: PageContentProps) {
                     onChange={(e) => setStepsAreaFilter(e.target.value || null)}
                     className="w-full px-2 py-1.5 text-xs border-2 border-primary-500 rounded-playful-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
                   >
-                    <option value="">{t('steps.filters.area.all') || 'Všechny výzvy'}</option>
-                    <option value="none">{t('steps.filters.area.withoutArea') || 'Bez výzvy'}</option>
+                    <option value="">{t('steps.filters.area.all') || 'Všechny oblasti'}</option>
+                    <option value="none">{t('steps.filters.area.withoutArea') || 'Bez oblasti'}</option>
                     {areas && areas.length > 0 && areas.map((area: any) => (
                       <option key={area.id} value={area.id}>
                         {area.name || t('areas.unnamed')}
@@ -2773,8 +2800,8 @@ export function PageContent(props: PageContentProps) {
                                     onChange={(e) => setStepsAreaFilter(e.target.value || null)}
                                     className="w-full px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white"
                                   >
-                                    <option value="">{t('steps.filters.area.all') || 'Všechny výzvy'}</option>
-                                    <option value="none">{t('steps.filters.area.withoutArea') || 'Bez výzvy'}</option>
+                                    <option value="">{t('steps.filters.area.all') || 'Všechny oblasti'}</option>
+                                    <option value="none">{t('steps.filters.area.withoutArea') || 'Bez oblasti'}</option>
                                     {areas && areas.length > 0 && areas.map((area: any) => (
                                       <option key={area.id} value={area.id}>
                                         {area.name || t('areas.unnamed')}
@@ -3044,10 +3071,10 @@ export function PageContent(props: PageContentProps) {
             }}
           >
             <h3 className="text-lg font-bold text-gray-900 mb-4">
-              {t('areas.deleteConfirm') || 'Opravdu chcete smazat tuto výzvu?'}
+              {t('areas.deleteConfirm') || 'Opravdu chcete smazat tuto oblast?'}
             </h3>
             <p className="text-sm text-gray-600 mb-4">
-              {t('areas.deleteConfirmDescription') || 'Milníky, kroky a návyky přiřazené k této výzvě budou odpojeny. Tato akce je nevratná.'}
+              {t('areas.deleteConfirmDescription') || 'Cíle, kroky a návyky přiřazené k této oblasti budou odpojeny. Tato akce je nevratná.'}
             </p>
             
             {/* Checkbox for deleting related items */}
@@ -3063,7 +3090,7 @@ export function PageContent(props: PageContentProps) {
                 className="w-4 h-4 text-primary-600 border-2 border-primary-500 rounded-playful-sm focus:ring-primary-500"
               />
               <span className="text-sm text-black font-playful">
-                {t('areas.deleteWithRelated') || 'Odstranit i milníky, kroky a návyky přiřazené k této výzvě'}
+                {t('areas.deleteWithRelated') || 'Odstranit i cíle, kroky a návyky přiřazené k této oblasti'}
               </span>
             </label>
             
@@ -3108,6 +3135,40 @@ export function PageContent(props: PageContentProps) {
           </div>
         </>
       )}
+
+      {/* Step Modal */}
+      <StepModal
+        show={showStepModal}
+        stepModalData={stepModalData}
+        onClose={() => {
+          setShowStepModal(false)
+          setStepModalData({
+            id: null,
+            title: '',
+            description: '',
+            date: '',
+            goalId: '',
+            estimated_time: 30,
+            is_important: false,
+            checklist: []
+          })
+        }}
+        onSave={async () => {
+          if (handleSaveStep) {
+            await handleSaveStep(stepModalData)
+          }
+          setShowStepModal(false)
+        }}
+        onDelete={stepModalData.id ? async () => {
+          // This will be handled by the parent component
+          setShowStepModal(false)
+        } : undefined}
+        isSaving={false}
+        goals={goals}
+        areas={areas}
+        userSettings={null}
+        setStepModalData={setStepModalData}
+      />
           </>
         )
 }

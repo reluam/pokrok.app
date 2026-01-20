@@ -8,7 +8,6 @@ import { locales, type Locale } from '@/i18n/config'
 import { User, Target, Footprints, BarChart3, Eye, UserCircle, Menu, CreditCard } from 'lucide-react'
 import { UserProfile, PricingTable, Protect } from '@clerk/nextjs'
 import { colorPalettes, applyColorTheme } from '@/lib/color-utils'
-import { getDefaultCurrencyByLocale } from '@/lib/metric-units'
 
 interface SettingsViewProps {
   player: any

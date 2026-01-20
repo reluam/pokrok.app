@@ -3009,7 +3009,7 @@ export function StepsManagementView({
                                       }}
                                       className="w-full px-3 py-2 text-xs text-left hover:bg-primary-50 border-b border-primary-200 last:border-b-0"
                                     >
-                                      {t('details.goal.noArea') || 'Bez výzvy'}
+                                      {t('details.goal.noArea') || 'Bez oblasti'}
                     </button>
                                     {areas.map((a) => (
                   <button

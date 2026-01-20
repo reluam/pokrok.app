@@ -45,10 +45,9 @@ export default function Navigation() {
           <div className="hidden md:flex items-center space-x-6">
             <div className="flex items-center space-x-1">
               {[
-                { href: '/knihovna', label: 'Knihovna' },
-                { href: '/aplikace', label: 'Aplikace Pokrok' },
-                { href: '/coaching', label: 'Koučing' },
-                { href: '/o-projektu', label: 'O smyslužití' },
+                { href: '/coaching', label: 'Koučink' },
+                { href: '/o-projektu', label: 'O mně' },
+                { href: '/kontakt', label: 'Kontakt' },
               ].map((item) => (
                 <Link
                   key={item.href}
@@ -61,10 +60,10 @@ export default function Navigation() {
               ))}
             </div>
             <Link
-              href="#newsletter"
-              className="px-5 py-2.5 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-full transition-colors"
+              href="#konzultace"
+              className="px-6 py-3 text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 rounded-full transition-all shadow-lg hover:shadow-xl"
             >
-              Připojit se ke komunitě
+              Konzultace zdarma
             </Link>
           </div>
 
@@ -87,10 +86,9 @@ export default function Navigation() {
       }`}>
         <div className="px-4 pt-2 pb-4 space-y-1 bg-white/95 backdrop-blur-md border-t border-primary-100">
           {[
-            { href: '/knihovna', label: 'Knihovna' },
-            { href: '/aplikace', label: 'Aplikace Pokrok' },
-            { href: '/coaching', label: 'Koučing' },
-            { href: '/o-projektu', label: 'O smyslužití' },
+            { href: '/coaching', label: 'Koučink' },
+            { href: '/o-projektu', label: 'O mně' },
+            { href: '/kontakt', label: 'Kontakt' },
           ].map((item) => (
             <Link
               key={item.href}
@@ -101,6 +99,13 @@ export default function Navigation() {
               {item.label}
             </Link>
           ))}
+          <Link
+            href="#konzultace"
+            className="block mt-4 px-6 py-3 text-base font-bold text-center text-white bg-primary-600 hover:bg-primary-700 rounded-full transition-all"
+            onClick={() => setIsOpen(false)}
+          >
+            Konzultace zdarma
+          </Link>
         </div>
       </div>
     </nav>

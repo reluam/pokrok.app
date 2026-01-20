@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createDailyStep, getDailyStepsByUserId, updateDailyStepFields, updateGoalProgressCombined, getGoalById } from '@/lib/cesta-db'
+import { createDailyStep, getDailyStepsByUserId, updateDailyStepFields, updateGoalProgressFromSteps, getGoalById } from '@/lib/cesta-db'
 import { requireAuth, verifyEntityOwnership, verifyOwnership } from '@/lib/auth-helpers'
 import { neon } from '@neondatabase/serverless'
 import { isStepScheduledForDay } from '@/app/[locale]/planner/components/utils/stepHelpers'
@@ -1058,7 +1058,7 @@ export async function PUT(request: NextRequest) {
               if (goal.progress_calculation_type === 'metrics') {
                 // Only update from metrics, not steps
               } else {
-                await updateGoalProgressCombined(updatedStep.goal_id)
+                await updateGoalProgressFromSteps(updatedStep.goal_id)
                 updatedGoal = await getGoalById(updatedStep.goal_id)
               }
             }

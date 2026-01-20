@@ -208,7 +208,7 @@ export function StepModal({
                         {(() => {
                           const selectedGoal = goals.find((g: any) => g.id === stepModalData.goalId)
                           const goalArea = selectedGoal?.area_id ? areas.find((a: any) => a.id === selectedGoal.area_id) : null
-                          return goalArea ? goalArea.name : (t('details.goal.noArea') || 'Bez výzvy')
+                          return goalArea ? goalArea.name : (t('details.goal.noArea') || 'Bez oblasti')
                         })()}
                       </div>
                     ) : (
@@ -224,7 +224,7 @@ export function StepModal({
                         }}
                       className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
                       >
-                        <option value="">{t('details.goal.noArea') || 'Bez výzvy'}</option>
+                        <option value="">{t('details.goal.noArea') || 'Bez oblasti'}</option>
                         {areas.map((area) => (
                           <option key={area.id} value={area.id}>{area.name}</option>
                         ))}
@@ -535,13 +535,13 @@ export function StepModal({
                     )}
                   </label>
                   <span className="text-xs text-gray-600 font-semibold">
-                    {stepModalData.checklist.filter((item: any) => item.completed).length}/{stepModalData.checklist.length} {t('steps.checklistCompleted') || 'completed'}
+                    {(stepModalData.checklist?.filter((item: any) => item.completed).length || 0)}/{(stepModalData.checklist?.length || 0)} {t('steps.checklistCompleted') || 'completed'}
                   </span>
                 </div>
                 
                 {/* Checklist Items */}
                 <div className="space-y-2 max-h-[280px] overflow-y-auto mb-3 pr-2 pb-2">
-                  {stepModalData.checklist.length === 0 ? (
+                  {(stepModalData.checklist?.length || 0) === 0 ? (
                     <div className="text-center py-8 text-gray-500">
                       <svg className="w-10 h-10 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -550,7 +550,7 @@ export function StepModal({
                       <p className="text-xs mt-1">{t('steps.checklistNoItemsDescription') || 'Add sub-tasks for this step'}</p>
                     </div>
                   ) : (
-                    stepModalData.checklist.map((item: any, index: number) => (
+                    (stepModalData.checklist || []).map((item: any, index: number) => (
                       <div 
                         key={item.id} 
                         className={`box-playful-highlight flex items-start gap-3 p-3 ${
@@ -561,7 +561,7 @@ export function StepModal({
                         <button
                           type="button"
                           onClick={async () => {
-                            const updatedChecklist = [...stepModalData.checklist]
+                            const updatedChecklist = [...(stepModalData.checklist || [])]
                             updatedChecklist[index] = { ...item, completed: !item.completed }
                             const updatedStepModalData = {...stepModalData, checklist: updatedChecklist}
                             setStepModalData(updatedStepModalData)
@@ -657,7 +657,7 @@ export function StepModal({
                           }}
                           value={item.title}
                           onChange={(e) => {
-                            const updatedChecklist = [...stepModalData.checklist]
+                            const updatedChecklist = [...(stepModalData.checklist || [])]
                             updatedChecklist[index] = { ...item, title: e.target.value }
                             const updatedStepModalData = {...stepModalData, checklist: updatedChecklist}
                             setStepModalData(updatedStepModalData)
@@ -753,7 +753,7 @@ export function StepModal({
                         <button
                           type="button"
                           onClick={async () => {
-                            const updatedChecklist = stepModalData.checklist.filter((_: any, i: number) => i !== index)
+                            const updatedChecklist = (stepModalData.checklist || []).filter((_: any, i: number) => i !== index)
                             setStepModalData({...stepModalData, checklist: updatedChecklist})
                             
                             // Auto-save deletion if step already exists
@@ -804,7 +804,7 @@ export function StepModal({
                     setLastAddedChecklistItemId(newItem.id)
                     setStepModalData({
                       ...stepModalData, 
-                      checklist: [...stepModalData.checklist, newItem]
+                      checklist: [...(stepModalData.checklist || []), newItem]
                     })
                   }}
                   className="btn-playful-base w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-600 bg-white hover:bg-primary-50"
@@ -816,7 +816,7 @@ export function StepModal({
                 </button>
                 
                 {/* Require checklist complete option */}
-                {stepModalData.checklist.length > 0 && (
+                {(stepModalData.checklist?.length || 0) > 0 && (
                   <label className="flex items-center gap-2 mt-3 pt-3 border-t-2 border-primary-200 cursor-pointer">
                     <input
                       type="checkbox"

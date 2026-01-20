@@ -15,6 +15,7 @@ interface GoalDetailWrapperProps {
   onSelectedGoalChange: () => void
   areas: any[]
   onDailyStepsUpdate?: (steps: any[]) => void
+  onOpenStepModal?: (date?: string, step?: any) => void
   player?: any
   userId?: string | null
 }
@@ -28,6 +29,7 @@ export function GoalDetailWrapper({
   onSelectedGoalChange,
   areas: initialAreas,
   onDailyStepsUpdate,
+  onOpenStepModal,
   player,
   userId
 }: GoalDetailWrapperProps) {
@@ -76,17 +78,6 @@ export function GoalDetailWrapper({
   }, [goal, goalId])
   
   // All the states needed for GoalDetailPage
-  const [metrics, setMetrics] = useState<Record<string, any[]>>({})
-  const [loadingMetrics, setLoadingMetrics] = useState<Set<string>>(new Set())
-  const [showMetricModal, setShowMetricModal] = useState(false)
-  const [metricModalData, setMetricModalData] = useState<any>({ id: null, name: '', targetValue: 0, incrementalValue: 1, unit: '' })
-  const [editingMetricName, setEditingMetricName] = useState('')
-  const [editingMetricType, setEditingMetricType] = useState<'number' | 'currency' | 'percentage' | 'distance' | 'time' | 'weight' | 'custom'>('number')
-  const [editingMetricCurrentValue, setEditingMetricCurrentValue] = useState(0)
-  const [editingMetricTargetValue, setEditingMetricTargetValue] = useState(0)
-  const [editingMetricInitialValue, setEditingMetricInitialValue] = useState(0)
-  const [editingMetricIncrementalValue, setEditingMetricIncrementalValue] = useState(1)
-  const [editingMetricUnit, setEditingMetricUnit] = useState('')
   
   // Goal detail editing states
   const [goalDetailTitleValue, setGoalDetailTitleValue] = useState(goal.title || '')
@@ -184,21 +175,6 @@ export function GoalDetailWrapper({
   const [selectedDayDate, setSelectedDayDate] = useState(new Date())
   
   
-  // Load metrics for the goal
-  useEffect(() => {
-    const loadMetrics = async () => {
-      try {
-        const response = await fetch(`/api/goal-metrics?goalId=${goalId}`)
-        if (response.ok) {
-          const data = await response.json()
-          setMetrics({ [goalId]: data.metrics || [] })
-        }
-      } catch (error) {
-        console.error('Error loading metrics:', error)
-      }
-    }
-    loadMetrics()
-  }, [goalId])
   
   // Metric functions
   const handleMetricIncrement = useCallback(async (metricId: string, goalId: string) => {
@@ -647,7 +623,7 @@ export function GoalDetailWrapper({
   return (
     <div className="flex-1 overflow-y-auto px-6 py-6">
       <GoalDetailPage
-        goal={localGoal}
+        goals={[localGoal]}
         goalId={goalId}
         areas={areasState}
         dailySteps={dailySteps}
@@ -674,30 +650,6 @@ export function GoalDetailWrapper({
           setStepModalData(newData)
         }}
         setShowStepModal={setShowStepModal}
-        metrics={metrics[goalId] || []}
-        loadingMetrics={loadingMetrics}
-        handleMetricIncrement={handleMetricIncrement}
-        handleMetricCreate={handleMetricCreate}
-        handleMetricUpdate={handleMetricUpdate}
-        handleMetricDelete={handleMetricDelete}
-        showMetricModal={showMetricModal}
-        setShowMetricModal={setShowMetricModal}
-        metricModalData={metricModalData}
-        setMetricModalData={setMetricModalData}
-        editingMetricName={editingMetricName}
-        setEditingMetricName={setEditingMetricName}
-        editingMetricType={editingMetricType}
-        setEditingMetricType={setEditingMetricType}
-        editingMetricCurrentValue={editingMetricCurrentValue}
-        setEditingMetricCurrentValue={setEditingMetricCurrentValue}
-        editingMetricTargetValue={editingMetricTargetValue}
-        setEditingMetricTargetValue={setEditingMetricTargetValue}
-        editingMetricInitialValue={editingMetricInitialValue}
-        setEditingMetricInitialValue={setEditingMetricInitialValue}
-        editingMetricIncrementalValue={editingMetricIncrementalValue}
-        setEditingMetricIncrementalValue={setEditingMetricIncrementalValue}
-        editingMetricUnit={editingMetricUnit}
-        setEditingMetricUnit={setEditingMetricUnit}
         goalDetailTitleValue={goalDetailTitleValue}
         setGoalDetailTitleValue={setGoalDetailTitleValue}
         editingGoalDetailTitle={editingGoalDetailTitle}
@@ -749,6 +701,7 @@ export function GoalDetailWrapper({
         goalStartDateRef={goalStartDateRef}
         goalStatusRef={goalStatusRef}
         goalAreaRef={goalAreaRef}
+        onOpenStepModal={onOpenStepModal}
       />
       
       {/* Step Modal */}

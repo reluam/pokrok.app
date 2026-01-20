@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { getUserByClerkId, toggleDailyStep, getUpdatedGoalAfterStepCompletion, updateGoalProgressCombined } from '@/lib/cesta-db'
+import { getUserByClerkId, toggleDailyStep, getUpdatedGoalAfterStepCompletion, updateGoalProgressFromSteps } from '@/lib/cesta-db'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -53,7 +53,7 @@ export async function PATCH(
     // Update goal progress using combined formula if step was completed
     let updatedGoal = null
     if (willBeCompleted && updatedStep.goal_id) {
-      await updateGoalProgressCombined(updatedStep.goal_id)
+      await updateGoalProgressFromSteps(updatedStep.goal_id)
       updatedGoal = await getUpdatedGoalAfterStepCompletion(updatedStep.goal_id)
     }
     

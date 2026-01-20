@@ -92,8 +92,9 @@ export function JourneyGameView({
   const locale = useLocale()
   const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
   
-  // Top menu items (Habits, Steps) - defined at top level for use in header
+  // Top menu items (Goals, Habits, Steps) - defined at top level for use in header
   const topMenuItems = [
+    { id: 'goals' as const, label: t('navigation.goals'), icon: Target },
     { id: 'habits' as const, label: t('navigation.habits'), icon: CheckSquare },
     { id: 'steps' as const, label: t('navigation.steps'), icon: Footprints },
   ]
@@ -1881,13 +1882,13 @@ export function JourneyGameView({
 
   const handleSaveArea = async () => {
     if (!areaModalName.trim()) {
-      alert(t('areas.nameRequired') || 'Název výzvy je povinný')
+      alert(t('areas.nameRequired') || 'Název oblasti je povinný')
       return
     }
 
     // Validate name length
     if (areaModalName.trim().length > 255) {
-      const nameTooLongMsg = t('areas.nameTooLong') || 'Název výzvy je příliš dlouhý. Maximální délka je 255 znaků. Aktuální délka: {length} znaků.'
+      const nameTooLongMsg = t('areas.nameTooLong') || 'Název oblasti je příliš dlouhý. Maximální délka je 255 znaků. Aktuální délka: {length} znaků.'
       alert(nameTooLongMsg.replace('{length}', String(areaModalName.trim().length)))
       return
     }
@@ -1942,12 +1943,12 @@ export function JourneyGameView({
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
         const errorMessage = errorData.details 
           ? `${errorData.error || 'Chyba'}: ${errorData.details}`
-          : (errorData.error || 'Nepodařilo se uložit výzvu')
-        alert(`Chyba při ${isNewArea ? 'vytváření' : 'aktualizaci'} výzvy: ${errorMessage}`)
+          : (errorData.error || 'Nepodařilo se uložit oblast')
+        alert(`Chyba při ${isNewArea ? 'vytváření' : 'aktualizaci'} oblasti: ${errorMessage}`)
       }
     } catch (error) {
       console.error('Error saving area:', error)
-        alert(`Chyba při ${editingArea ? 'aktualizaci' : 'vytváření'} výzvy`)
+      alert(`Chyba při ${editingArea ? 'aktualizaci' : 'vytváření'} oblasti`)
     } finally {
       setIsSavingArea(false)
     }
@@ -2019,13 +2020,13 @@ export function JourneyGameView({
         }
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
-        alert(t('areas.deleteError') || `Nepodařilo se smazat výzvu: ${errorData.error || 'Neznámá chyba'}`)
+        alert(t('areas.deleteError') || `Nepodařilo se smazat oblast: ${errorData.error || 'Neznámá chyba'}`)
       }
     } catch (error) {
       // Safely log error without circular references
       const errorMessage = error instanceof Error ? error.message : String(error)
       console.error('Error deleting area:', errorMessage)
-      alert(t('areas.deleteError') || 'Chyba při mazání výzvy')
+      alert(t('areas.deleteError') || 'Chyba při mazání oblasti')
     } finally {
       setIsDeletingArea(false)
     }
@@ -2516,8 +2517,8 @@ export function JourneyGameView({
         // Close modal
         setShowDeleteGoalModal(false)
         setDeleteGoalWithSteps(false)
-        // Redirect to main focus panel
-        setMainPanelSection('focus-upcoming')
+        // Redirect to goals page
+        setMainPanelSection('goals')
       } else {
         console.error('Failed to delete goal')
         alert(t('details.goal.deleteError') || 'Nepodařilo se smazat cíl')
@@ -2590,11 +2591,11 @@ export function JourneyGameView({
     // Validate name if it's being updated
     if (updates.name !== undefined) {
       if (!updates.name || !updates.name.trim()) {
-        alert(t('areas.nameRequired') || 'Název výzvy je povinný')
+        alert(t('areas.nameRequired') || 'Název oblasti je povinný')
         return
       }
       if (updates.name.trim().length > 255) {
-        const nameTooLongMsg = t('areas.nameTooLong') || 'Název výzvy je příliš dlouhý. Maximální délka je 255 znaků. Aktuální délka: {length} znaků.'
+        const nameTooLongMsg = t('areas.nameTooLong') || 'Název oblasti je příliš dlouhý. Maximální délka je 255 znaků. Aktuální délka: {length} znaků.'
         alert(nameTooLongMsg.replace('{length}', String(updates.name.trim().length)))
         return
       }
@@ -2631,12 +2632,12 @@ export function JourneyGameView({
         const errorData = await response.json().catch(() => ({ error: 'Neznámá chyba' }))
         const errorMessage = errorData.details 
           ? `${errorData.error || 'Chyba'}: ${errorData.details}`
-          : (errorData.error || 'Nepodařilo se uložit výzvu')
+          : (errorData.error || 'Nepodařilo se uložit oblast')
         alert(errorMessage)
             }
           } catch (error) {
       console.error('Error updating area:', error)
-      alert('Chyba při aktualizaci výzvy')
+      alert('Chyba při aktualizaci oblasti')
     }
   }
 
@@ -3912,11 +3913,16 @@ export function JourneyGameView({
             setOnboardingStep('create-area')
           }}
           onOnboardingGoalClick={() => {
-            // Set onboarding step to create-goal and create goal directly
+            // Navigate to goals page and set onboarding step to create-goal
+            setCurrentPage('goals')
             setOnboardingStep('create-goal')
-            // Wait a bit, then create goal
+            // Wait a bit for page to render, then create goal
             setTimeout(() => {
               handleCreateGoal()
+              // After creating goal, navigate back to main page to see sidebar
+              setTimeout(() => {
+                setCurrentPage('main')
+              }, 500)
             }, 100)
           }}
           areaButtonRefs={areaButtonRefs.current}

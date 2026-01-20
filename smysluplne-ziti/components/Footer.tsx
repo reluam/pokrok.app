@@ -19,10 +19,10 @@ export default function Footer() {
             <h4 className="text-xl font-bold mb-6">Rychlé odkazy</h4>
             <ul className="space-y-3">
               {[
-                { href: '/coaching', label: 'Koučing' },
-                { href: '/#aplikace', label: 'Aplikace' },
-                { href: '/knihovna', label: 'Knihovna' },
-                { href: '/o-projektu', label: 'O projektu' },
+                { href: '/coaching', label: 'Koučink' },
+                { href: '#komunita', label: 'Komunita' },
+                { href: '/o-projektu', label: 'O mně' },
+                { href: '/kontakt', label: 'Kontakt' },
               ].map((link) => (
                 <li key={link.href}>
                   <Link 

@@ -266,7 +266,7 @@ export default function PricingPage() {
                 <ul className="space-y-3 mb-6 text-base text-gray-700">
                   {[
                     locale === 'cs' ? 'Historie aktuálního měsíce' : 'Current month history',
-                    locale === 'cs' ? '3 výzvy s neomezenými milníky, kroky a návyky' : '3 Challenges with unlimited milestones, steps and habits',
+                    locale === 'cs' ? '3 oblasti s neomezenými cíli, kroky a návyky' : '3 Areas with unlimited goals, steps and habits',
                     locale === 'cs' ? 'Základní zobrazení a filtrování' : 'Basic views and filtering'
                   ].map((item, index) => (
                     <li key={index} className="flex items-start gap-2">
@@ -298,8 +298,8 @@ export default function PricingPage() {
                   {[
                     locale === 'cs' ? 'Historie za celou dobu' : 'All time history',
                     locale === 'cs' ? 'Statistiky' : 'Statistics',
-                    locale === 'cs' ? 'Neomezené výzvy' : 'Unlimited Challenges',
-                    locale === 'cs' ? 'Neomezené milníky, kroky a návyky' : 'Unlimited milestones, steps and habits',
+                    locale === 'cs' ? 'Neomezené oblasti' : 'Unlimited Areas',
+                    locale === 'cs' ? 'Neomezené cíle, kroky a návyky' : 'Unlimited goals, steps and habits',
                     locale === 'cs' ? 'Asistent' : 'Assistant'
                   ].map((item, index) => (
                     <li key={index} className="flex items-start gap-2">

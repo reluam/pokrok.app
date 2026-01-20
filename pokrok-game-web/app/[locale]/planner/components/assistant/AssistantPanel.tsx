@@ -179,10 +179,10 @@ export function AssistantPanel({
             setShowAddMenu(false)
           }}
           className="flex items-center gap-3 px-4 py-3 bg-white hover:bg-gray-50 active:bg-gray-100 text-primary-600 rounded-lg transition-all duration-200 border border-primary-200 min-w-[160px]"
-          aria-label={t('areas.add') || 'Přidat výzvu'}
+          aria-label={t('areas.add') || 'Přidat oblast'}
         >
           <Layers className="w-5 h-5 flex-shrink-0" />
-          <span className="text-sm font-medium">{t('areas.add') || 'Přidat výzvu'}</span>
+          <span className="text-sm font-medium">{t('areas.add') || 'Přidat oblast'}</span>
         </button>
       )
     }

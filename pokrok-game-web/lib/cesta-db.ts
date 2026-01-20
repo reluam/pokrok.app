@@ -136,6 +136,9 @@ export interface Goal {
   goal_type: 'process' | 'outcome'
   progress_percentage: number
   progress_type: 'percentage' | 'count' | 'amount' | 'steps'
+  progress_target?: number
+  progress_current?: number
+  progress_unit?: string
   progress_calculation_type?: 'metrics' | 'metrics_and_steps'
   icon?: string
   area_id?: string
@@ -547,6 +550,9 @@ export async function initializeCestaDatabase() {
         goal_type VARCHAR(20) DEFAULT 'outcome' CHECK (goal_type IN ('process', 'outcome')),
         progress_percentage INTEGER DEFAULT 0 CHECK (progress_percentage >= 0 AND progress_percentage <= 100),
         progress_type VARCHAR(20) DEFAULT 'percentage' CHECK (progress_type IN ('percentage', 'count', 'amount', 'steps')),
+        progress_target INTEGER,
+        progress_current INTEGER DEFAULT 0,
+        progress_unit VARCHAR(50),
         icon VARCHAR(50),
         area_id VARCHAR(255) REFERENCES areas(id) ON DELETE SET NULL,
         aspiration_id VARCHAR(255) REFERENCES aspirations(id) ON DELETE SET NULL,
@@ -1427,13 +1433,14 @@ export async function createGoal(goalData: Partial<Goal>): Promise<Goal> {
     INSERT INTO goals (
       id, user_id, title, description, target_date, start_date, status, priority, 
       category, goal_type, progress_percentage, progress_type, 
-      area_id, aspiration_id
+      progress_target, progress_current, progress_unit, area_id, aspiration_id
     ) VALUES (
       ${id}, ${goalData.user_id}, ${encryptedTitle}, ${encryptedDescription}, 
       ${goalData.target_date || null}, ${startDate}, ${status}, 
       ${goalData.priority || 'meaningful'}, ${goalData.category || 'medium-term'}, 
       ${goalData.goal_type || 'outcome'}, ${goalData.progress_percentage || 0}, 
-      ${goalData.progress_type || 'percentage'},
+      ${goalData.progress_type || 'percentage'}, ${goalData.progress_target || null}, 
+      ${goalData.progress_current || 0}, ${goalData.progress_unit || null},
       ${goalData.area_id || null}, ${goalData.aspiration_id || null}
     ) RETURNING *
   `
@@ -1568,7 +1575,7 @@ export async function toggleDailyStep(stepId: string): Promise<DailyStep> {
 
     // Update goal progress if step was completed
     if (newCompleted && step.goal_id) {
-      await updateGoalProgressCombined(step.goal_id)
+      await updateGoalProgressFromSteps(step.goal_id)
     }
 
     // Decrypt before returning
@@ -1601,7 +1608,7 @@ export async function completeDailyStep(stepId: string): Promise<DailyStep> {
     
     // Update goal progress if step was completed
     if (step.goal_id) {
-      await updateGoalProgressCombined(step.goal_id)
+      await updateGoalProgressFromSteps(step.goal_id)
     }
     
     // Decrypt before returning
@@ -2082,6 +2089,18 @@ export async function updateGoal(goalId: string, userId: string, goalData: Parti
     if (goalData.progress_type !== undefined) {
       setParts.push(`progress_type = $${setParts.length + 1}`)
       values.push(goalData.progress_type)
+    }
+    if (goalData.progress_target !== undefined) {
+      setParts.push(`progress_target = $${setParts.length + 1}`)
+      values.push(goalData.progress_target)
+    }
+    if (goalData.progress_current !== undefined) {
+      setParts.push(`progress_current = $${setParts.length + 1}`)
+      values.push(goalData.progress_current)
+    }
+    if (goalData.progress_unit !== undefined) {
+      setParts.push(`progress_unit = $${setParts.length + 1}`)
+      values.push(goalData.progress_unit)
     }
     if (goalData.area_id !== undefined && goalData.area_id !== null) {
       setParts.push(`area_id = $${setParts.length + 1}`)
@@ -2778,112 +2797,25 @@ export async function deleteGoalMetric(metricId: string): Promise<void> {
 }
 
 
-export async function updateGoalProgressFromGoalMetrics(goalId: string) {
-  try {
-    // Calculate progress based on goal metrics, grouping by compatible units
-    // Metrics with the same units are grouped together, progress is calculated per group, then averaged
-    const result = await sql`
-      WITH metric_progress AS (
-        SELECT 
-          unit,
-          CASE 
-            -- If target == initial, check if current >= target (100%) or < target (0%)
-            WHEN COALESCE(target_value, 0) = COALESCE(initial_value, 0) THEN
-              CASE WHEN current_value >= target_value THEN 100 ELSE 0 END
-            -- If range > 0 (going up), progress = (current - initial) / (target - initial) * 100
-            WHEN COALESCE(target_value, 0) > COALESCE(initial_value, 0) THEN
-              LEAST(GREATEST(((current_value - COALESCE(initial_value, 0)) / (target_value - COALESCE(initial_value, 0))) * 100, 0), 100)
-            -- If range < 0 (going down, e.g., 100 to 0), progress = (initial - current) / (initial - target) * 100
-            WHEN COALESCE(target_value, 0) < COALESCE(initial_value, 0) THEN
-              LEAST(GREATEST(((COALESCE(initial_value, 0) - current_value) / (COALESCE(initial_value, 0) - target_value)) * 100, 0), 100)
-            ELSE 0
-          END as progress
-        FROM goal_metrics
-        WHERE goal_id = ${goalId}
-      ),
-      unit_group_progress AS (
-        -- Calculate average progress for each unit group
-        SELECT unit, AVG(progress) as group_progress
-        FROM metric_progress
-        GROUP BY unit
-      )
-      UPDATE goals 
-      SET 
-        progress_percentage = COALESCE(
-          (SELECT ROUND(AVG(group_progress)) FROM unit_group_progress), 
-          0
-        ),
-        updated_at = NOW()
-      WHERE id = ${goalId}
-    `
 
-    console.log(`Updated goal ${goalId} progress using goal metrics`)
-    return result
-  } catch (error) {
-    console.error('Error updating goal progress from goal metrics:', error)
-    throw error
-  }
-}
-
-export async function updateGoalProgressCombined(goalId: string) {
+export async function updateGoalProgressFromSteps(goalId: string) {
   try {
-    // Calculate progress as average of all metrics and steps combined
-    // Each metric contributes its progress percentage, and steps contribute overall completion percentage
+    // Calculate progress based only on completed steps
     const result = await sql`
-      WITH metric_progress AS (
-        SELECT 
-          unit,
-          CASE 
-            -- If target == initial, check if current >= target (100%) or < target (0%)
-            WHEN COALESCE(target_value, 0) = COALESCE(initial_value, 0) THEN
-              CASE WHEN current_value >= target_value THEN 100 ELSE 0 END
-            -- If range > 0 (going up), progress = (current - initial) / (target - initial) * 100
-            WHEN COALESCE(target_value, 0) > COALESCE(initial_value, 0) THEN
-              LEAST(GREATEST(((current_value - COALESCE(initial_value, 0)) / (target_value - COALESCE(initial_value, 0))) * 100, 0), 100)
-            -- If range < 0 (going down, e.g., 100 to 0), progress = (initial - current) / (initial - target) * 100
-            WHEN COALESCE(target_value, 0) < COALESCE(initial_value, 0) THEN
-              LEAST(GREATEST(((COALESCE(initial_value, 0) - current_value) / (COALESCE(initial_value, 0) - target_value)) * 100, 0), 100)
-            ELSE 0
-          END as progress
-        FROM goal_metrics
-        WHERE goal_id = ${goalId}
-      ),
-      unit_group_progress AS (
-        -- Calculate average progress for each unit group (metrics with same units are grouped)
-        SELECT unit, AVG(progress) as group_progress
-        FROM metric_progress
-        GROUP BY unit
-      ),
-      step_progress AS (
-        SELECT 
-          CASE 
+      WITH step_progress AS (
+        SELECT
+          CASE
             WHEN COUNT(*) > 0 THEN
               LEAST((COUNT(CASE WHEN completed = true THEN 1 END)::float / COUNT(*)) * 100, 100)
             ELSE 0
           END as progress
-        FROM daily_steps 
+        FROM daily_steps
         WHERE goal_id = ${goalId}
-      ),
-      all_progress_values AS (
-        -- Collect progress from each unit group (metrics grouped by units)
-        SELECT group_progress as progress FROM unit_group_progress
-        UNION ALL
-        -- Add step progress as a single value (if steps exist) - steps have same weight as one unit group
-        SELECT progress FROM step_progress WHERE (SELECT COUNT(*) FROM daily_steps WHERE goal_id = ${goalId}) > 0
-      ),
-      combined_progress AS (
-        SELECT 
-          CASE 
-            WHEN (SELECT COUNT(*) FROM all_progress_values) > 0 THEN
-              -- Average of all progress values (each unit group + steps as one value)
-              (SELECT AVG(progress) FROM all_progress_values)
-            ELSE 0
-          END as final_progress
       )
-      UPDATE goals 
-      SET 
+      UPDATE goals
+      SET
         progress_percentage = COALESCE(
-          (SELECT ROUND(final_progress) FROM combined_progress), 
+          (SELECT ROUND(progress) FROM step_progress),
           0
         ),
         updated_at = NOW()
@@ -2892,10 +2824,10 @@ export async function updateGoalProgressCombined(goalId: string) {
     `
 
     const updatedProgress = result[0]?.progress_percentage
-    console.log(`Updated goal ${goalId} progress using combined formula (average of all metrics and steps): ${updatedProgress}%`)
+    console.log(`Updated goal ${goalId} progress based on steps completion: ${updatedProgress}%`)
     return result
   } catch (error) {
-    console.error('Error updating goal progress with combined formula:', error)
+    console.error('Error updating goal progress from steps:', error)
     throw error
   }
 }

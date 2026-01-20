@@ -636,7 +636,7 @@ export function AssistantSearch({
                     )}
                     {item.type === 'area' && (
                       <div className="text-sm text-primary-700">
-                        Vytvořím výzvu: "{item.data?.name || '(chybí název)'}"
+                        Vytvořím oblast: "{item.data?.name || '(chybí název)'}"
                       </div>
                     )}
                     {item.type === 'metric' && (
@@ -691,7 +691,7 @@ export function AssistantSearch({
                                 })}
                                 className="w-full px-3 py-2 text-sm border border-primary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                               >
-                                <option value="">Bez výzvy</option>
+                                <option value="">Bez oblasti</option>
                                 {areas?.map((area: any) => (
                                   <option key={area.id} value={area.id}>{area.name}</option>
                                 ))}
@@ -725,10 +725,10 @@ export function AssistantSearch({
                             {item.newData.areaId !== item.currentData.area_id && (
                               <div className="flex items-center gap-2">
                                 <span className="text-primary-600">Oblast:</span>
-                                <span className="text-primary-900 line-through">{item.currentData.area_id ? 'Má výzvu' : 'Bez výzvy'}</span>
+                                <span className="text-primary-900 line-through">{item.currentData.area_id ? 'Má oblast' : 'Bez oblasti'}</span>
                                 <span className="text-primary-500">→</span>
                                 <span className="text-primary-900 font-medium">
-                                  {item.newData.areaId ? (areas?.find((a: any) => a.id === item.newData.areaId)?.name || item.newData.areaId) : 'Bez výzvy'}
+                                  {item.newData.areaId ? (areas?.find((a: any) => a.id === item.newData.areaId)?.name || item.newData.areaId) : 'Bez oblasti'}
                                 </span>
                               </div>
                             )}
