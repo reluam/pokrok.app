@@ -6,11 +6,11 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { name, email, date, message } = body
+    const { name, email, phone, message } = body
 
-    if (!name || !email || !date) {
+    if (!name || !email) {
       return NextResponse.json(
-        { error: 'Jméno, email a datum jsou povinné' },
+        { error: 'Jméno a email jsou povinné' },
         { status: 400 }
       )
     }
@@ -28,14 +28,13 @@ export async function POST(request: NextRequest) {
       from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
       to: email,
       reply_to: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
-      subject: 'Rezervace úvodní konzultace zdarma - Smyslužití',
+      subject: 'Děkuji za tvou zprávu - Smyslužití',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h2 style="color: #E8871E;">Děkujeme za vaši rezervaci!</h2>
+          <h2 style="color: #E8871E;">Děkujeme za vaši zprávu!</h2>
           <p>Ahoj ${name},</p>
-          <p>Děkujeme za rezervaci úvodní konzultace zdarma. Vaše preferované datum je <strong>${new Date(date).toLocaleDateString('cs-CZ')}</strong>.</p>
-          <p>Ozvu se vám co nejdříve s konkrétním časem, který vám bude vyhovovat.</p>
-          ${message ? `<p><strong>Vaše zpráva:</strong><br>${message}</p>` : ''}
+          <p>Děkuji za tvůj zájem o individuální koučink. Ozvu se ti co nejdříve s konkrétním časem, který ti bude vyhovovat.</p>
+          ${message ? `<p><strong>Tvoje zpráva:</strong><br>${message}</p>` : ''}
           <p>S pozdravem,<br>Matěj<br>Smyslužití</p>
         </div>
       `,
@@ -46,20 +45,20 @@ export async function POST(request: NextRequest) {
       from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
       to: process.env.RESEND_TO_EMAIL || process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
       reply_to: email,
-      subject: `Nová rezervace úvodní konzultace zdarma - ${name}`,
+      subject: `Nová zpráva z kontaktního formuláře - ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h2 style="color: #E8871E;">Nová rezervace úvodní konzultace zdarma</h2>
+          <h2 style="color: #E8871E;">Nová zpráva z kontaktního formuláře</h2>
           <p><strong>Jméno:</strong> ${name}</p>
           <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Preferované datum:</strong> ${new Date(date).toLocaleDateString('cs-CZ')}</p>
+          ${phone ? `<p><strong>Telefon:</strong> ${phone}</p>` : ''}
           ${message ? `<p><strong>Zpráva:</strong><br>${message}</p>` : ''}
         </div>
       `,
     })
 
     return NextResponse.json({
-      message: 'Rezervace byla úspěšně odeslána. Ozvu se vám s konkrétním časem.',
+      message: 'Děkuji za tvou zprávu! Ozvu se ti co nejdříve.',
     })
   } catch (error) {
     console.error('Error sending email:', error)

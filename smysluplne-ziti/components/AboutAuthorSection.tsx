@@ -43,7 +43,7 @@ export default function AboutAuthorSection() {
               </p>
             </div>
             <Link
-              href="/o-projektu"
+              href="/o-mne"
               className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-semibold transition-colors"
             >
               <span>Přečíst si můj celý příběh</span>

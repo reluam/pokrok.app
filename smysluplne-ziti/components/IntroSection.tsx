@@ -13,7 +13,7 @@ export default function IntroSection() {
           {/* Velký nadpis */}
           <div className="text-center mb-8 md:mb-12 lg:mb-16 animate-fade-in-up">
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-text-primary mb-4 md:mb-6 leading-tight">
-              Vítej na <Link href="/o-projektu" className="gradient-text hover:opacity-80 transition-opacity">Smyslužití</Link>
+              Vítej na <Link href="/o-mne" className="gradient-text hover:opacity-80 transition-opacity">Smyslužití</Link>
             </h1>
           </div>
 
@@ -41,7 +41,7 @@ export default function IntroSection() {
                     Ahoj, já jsem <span className="text-primary-600 font-bold">Matěj</span>
                   </p>
                   <p className="text-base md:text-lg lg:text-xl">
-                    <Link href="/o-projektu" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">Smyslužití</Link> jsem založil proto, abych lidem pomohl vytvořit a žít více smysluplný život a abych co nejvíce smysluplný život mohl žít sám.
+                    <Link href="/o-mne" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">Smyslužití</Link> jsem založil proto, abych lidem pomohl vytvořit a žít více smysluplný život a abych co nejvíce smysluplný život mohl žít sám.
                   </p>
                   <p className="text-base md:text-lg lg:text-xl">
                     Na Smyslužití najdeš <Link href="/knihovna" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">knihovnu</Link>, kde sdílím své poznatky, experimenty a zkušenosti o smysluplném žití. Najdeš tam také <Link href="/knihovna" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">inspiraci</Link> ve formě knih, videí a doporučení a <Link href="#aplikace" className="text-primary-600 hover:text-primary-700 underline font-semibold decoration-2 underline-offset-2 transition-colors">aplikaci Pokrok</Link>, kde můžeš snadno plánovat a dosahovat (nejen) smysluplných cílů.

@@ -21,8 +21,7 @@ export default function Footer() {
               {[
                 { href: '/coaching', label: 'Koučink' },
                 { href: '#komunita', label: 'Komunita' },
-                { href: '/o-projektu', label: 'O mně' },
-                { href: '/kontakt', label: 'Kontakt' },
+                { href: '/o-mne', label: 'O mně' },
               ].map((link) => (
                 <li key={link.href}>
                   <Link 

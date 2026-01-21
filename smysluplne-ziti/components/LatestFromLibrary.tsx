@@ -96,6 +96,7 @@ export default function LatestFromLibrary() {
             slug: article.slug,
             createdAt: article.createdAt,
             image: article.image,
+            author: 'Matěj Mauler',
           })
         })
       }

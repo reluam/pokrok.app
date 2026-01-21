@@ -27,7 +27,7 @@ export default function AboutMeSection() {
               </p>
             </div>
             <Link
-              href="/o-projektu"
+              href="/o-mne"
               className="group inline-flex items-center gap-2 px-6 py-3 border-2 border-primary-600 text-primary-600 font-semibold rounded-full hover:bg-primary-600 hover:text-white transition-all duration-300"
             >
               <span>Přečíst si celý příběh</span>
