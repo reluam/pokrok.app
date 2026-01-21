@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { ChevronLeft, Target, CheckCircle, Trash2, Search, Check, Plus, Edit, Pencil, AlertCircle } from 'lucide-react'
+import { ChevronLeft, Target, CheckCircle, Trash2, Search, Check, Plus, Edit, Pencil, AlertCircle, Calendar, AlertTriangle } from 'lucide-react'
 import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
 import { StepsManagementView } from './StepsManagementView'
 
@@ -308,7 +308,7 @@ export function GoalDetailPage({
           {/* Goal header */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2 flex-wrap gap-3">
-              <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-3 flex-wrap flex-1 min-w-0">
                 {(() => {
                   const IconComponent = getIconComponent(goal.icon)
                   const isPastDeadline = isGoalPastDeadline(goal)
@@ -368,14 +368,37 @@ export function GoalDetailPage({
                       {goal.title}
                     </h1>
                         )}
-                  </div>
+                      </div>
+
+                      {/* Goal metadata in header */}
+                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                        {goal.target_date && (
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            <span className={isPastDeadline ? 'text-red-600 font-medium' : ''}>
+                              {new Date(goal.target_date).toLocaleDateString(localeCode)}
+                            </span>
+                            {isPastDeadline && (
+                              <AlertTriangle className="w-4 h-4 text-red-600" />
+                            )}
+                          </div>
+                        )}
+                        {goal.area_id && (() => {
+                          const area = areas.find(a => a.id === goal.area_id)
+                          return area ? (
+                            <div className="flex items-center gap-1">
+                              <span>{area.name}</span>
+                            </div>
+                          ) : null
+                        })()}
+                      </div>
                     </>
                   )
                 })()}
-                  </div>
+              </div>
 
               {/* Status indicator */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 {goal.status === 'completed' && (
                   <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-playful-sm text-xs font-medium">
                     <CheckCircle className="w-3 h-3" />
@@ -404,8 +427,13 @@ export function GoalDetailPage({
                     }
                     setEditingGoalDetailDescription(false)
                   }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Escape') {
+                onKeyDown={async (e) => {
+                  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                    if (goalDetailDescriptionValue.trim() !== (goal.description || '')) {
+                      await handleUpdateGoalForDetail(goalId, { description: goalDetailDescriptionValue.trim() })
+                    }
+                    setEditingGoalDetailDescription(false)
+                  } else if (e.key === 'Escape') {
                     setGoalDetailDescriptionValue(goal.description || '')
                     setEditingGoalDetailDescription(false)
                   }
@@ -428,34 +456,6 @@ export function GoalDetailPage({
                 </p>
               )}
               </div>
-              
-            {/* Goal metadata */}
-            <div className="flex flex-wrap gap-4 text-xs text-gray-500">
-              {goal.target_date && (
-                <div className="flex items-center gap-1">
-                  <span>{t('goals.targetDate') || 'Termín'}:</span>
-                  <span className={isGoalPastDeadline(goal) ? 'text-red-600 font-medium' : ''}>
-                    {new Date(goal.target_date).toLocaleDateString(localeCode)}
-                        </span>
-                </div>
-              )}
-              {goal.start_date && (
-                <div className="flex items-center gap-1">
-                  <span>{t('goals.startDate') || 'Začátek'}:</span>
-                  <span>{new Date(goal.start_date).toLocaleDateString(localeCode)}</span>
-                      </div>
-              )}
-              {goal.area_id && (() => {
-                const area = areas.find(a => a.id === goal.area_id)
-                return area ? (
-                  <div className="flex items-center gap-1">
-                    <span>{t('common.area') || 'Oblast'}:</span>
-                    <span>{area.name}</span>
-                    </div>
-                ) : null
-              })()}
-                </div>
-                          </div>
 
           {/* Trend indicator */}
           <div className="mb-6">
@@ -515,7 +515,7 @@ export function GoalDetailPage({
                     setCreateNewStepTrigger(current => current + 1)
                   } else if (onOpenStepModal) {
                     onOpenStepModal(selectedDayDate.toISOString().split('T')[0])
-                      } else {
+                  } else {
                     setStepModalData({
                       id: null,
                       title: '',
@@ -527,8 +527,8 @@ export function GoalDetailPage({
                       checklist: []
                     })
                     setShowStepModal(true)
-                      }
-                    }}
+                  }
+                }}
                     className="flex items-center justify-center w-8 h-8 text-primary-600 hover:bg-primary-50 rounded-playful-sm transition-colors"
                     title={t('steps.add') || 'Přidat krok'}
                   >
@@ -693,14 +693,14 @@ export function GoalDetailPage({
                           await handleUpdateGoalForDetail(goalId, { icon: icon.name })
                           setShowGoalDetailIconPicker(false)
                         }}
-                    className={`flex items-center justify-center w-10 h-10 rounded-playful-sm border-2 transition-colors ${
-                          isSelected 
+                        className={`flex items-center justify-center w-10 h-10 rounded-playful-sm border-2 transition-colors ${
+                          isSelected
                         ? 'border-primary-500 bg-primary-50'
                         : 'border-gray-200 hover:border-primary-300'
                         }`}
                         title={icon.label}
                       >
-                    <IconComponent className={`w-5 h-5 ${isSelected ? 'text-primary-600' : 'text-gray-600'}`} />
+                        <IconComponent className={`w-5 h-5 ${isSelected ? 'text-primary-600' : 'text-gray-600'}`} />
                       </button>
                     )
               })}
@@ -710,8 +710,8 @@ export function GoalDetailPage({
                 <span className="text-xs text-gray-500">
                   {t('common.showingFirst', { count: 30 }) || `Zobrazeno prvních 30 z ${AVAILABLE_ICONS.length}`}
                 </span>
-                </div>
-              )}
+              </div>
+            )}
           </div>
         </>
       )}

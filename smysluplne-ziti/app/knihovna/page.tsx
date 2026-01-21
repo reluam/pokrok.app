@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { FileText, Video, Book, Filter, BookOpen, HelpCircle, Sparkles, ExternalLink, X } from 'lucide-react'
+import { FileText, Video, Book, Filter, BookOpen, HelpCircle, Sparkles, ExternalLink, X, PlayCircle } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import ReactMarkdown from 'react-markdown'
@@ -10,8 +10,44 @@ import type { InspirationItem } from '@/lib/inspiration'
 import type { Article } from '@/lib/articles'
 import type { SmallThing } from '@/lib/small-things'
 import type { Question } from '@/lib/questions'
+import { getVideoInfo, getUrlImage } from '@/lib/video-utils'
 
 type FilterType = 'all' | 'blog' | 'questions' | 'small-things' | 'books' | 'inspiration-articles' | 'videos'
+
+function ItemImage({ src, alt, type, videoInfo }: { src: string; alt: string; type: FilterType; videoInfo: any }) {
+  const [imageError, setImageError] = useState(false)
+
+  if (imageError && type === 'books') {
+    return (
+      <div className="w-full h-48 mb-4 rounded-lg bg-primary-100 flex items-center justify-center">
+        <Book className="text-primary-600" size={64} />
+      </div>
+    )
+  }
+
+  if (imageError) {
+    return null
+  }
+
+  return (
+    <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden">
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        className="object-cover"
+        onError={() => setImageError(true)}
+      />
+      {type === 'videos' && videoInfo && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+          <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center">
+            <PlayCircle className="text-primary-600 ml-1" size={32} fill="currentColor" />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 interface LibraryItem {
   id: string
@@ -280,17 +316,27 @@ export default function KnihovnaPage() {
                 const isBlog = item.type === 'blog'
                 const href = isBlog ? `/clanky/${item.slug}` : '#'
 
+                // Get video thumbnail or URL image
+                const videoInfo = item.type === 'videos' && item.link ? getVideoInfo(item.link) : null
+                const displayImage = item.image || 
+                  (videoInfo?.thumbnailUrl) || 
+                  (item.type === 'books' || item.type === 'inspiration-articles' ? (item.link ? getUrlImage(item.link) : null) : null)
+
                 const content = (
                   <div className="bg-white rounded-lg border-2 border-primary-100 p-6 hover:border-primary-300 transition-all duration-300 h-full flex flex-col cursor-pointer">
-                    {item.image && (
-                      <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden">
-                        <Image
-                          src={item.image}
-                          alt={item.title}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
+                    {displayImage ? (
+                      <ItemImage 
+                        src={displayImage}
+                        alt={item.title}
+                        type={item.type}
+                        videoInfo={videoInfo}
+                      />
+                    ) : (
+                      item.type === 'books' && (
+                        <div className="w-full h-48 mb-4 rounded-lg bg-primary-100 flex items-center justify-center">
+                          <Book className="text-primary-600" size={64} />
+                        </div>
+                      )
                     )}
                     <div className="flex items-start gap-4 mb-4">
                       <div className="flex-shrink-0">
@@ -436,8 +482,47 @@ export default function KnihovnaPage() {
                 </div>
               )}
 
-              {/* Inspiration items (books, articles, videos) */}
-              {(modalItem.type === 'books' || modalItem.type === 'inspiration-articles' || modalItem.type === 'videos') && (
+              {/* Videos */}
+              {modalItem.type === 'videos' && modalItem.link && (
+                <div>
+                  {modalItem.description && (
+                    <div className="prose prose-sm max-w-none text-text-secondary leading-relaxed mb-6">
+                      <p>{modalItem.description}</p>
+                    </div>
+                  )}
+                  {(() => {
+                    const videoInfo = getVideoInfo(modalItem.link)
+                    if (videoInfo) {
+                      return (
+                        <div className="mb-6">
+                          <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
+                            <iframe
+                              src={videoInfo.embedUrl}
+                              className="absolute inset-0 w-full h-full"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            ></iframe>
+                          </div>
+                        </div>
+                      )
+                    }
+                    return (
+                      <a
+                        href={modalItem.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white font-semibold rounded-full hover:bg-primary-700 transition-all duration-300"
+                      >
+                        <span>Otevřít odkaz</span>
+                        <ExternalLink size={18} />
+                      </a>
+                    )
+                  })()}
+                </div>
+              )}
+
+              {/* Books and articles */}
+              {(modalItem.type === 'books' || modalItem.type === 'inspiration-articles') && (
                 <div>
                   {modalItem.description && (
                     <div className="prose prose-sm max-w-none text-text-secondary leading-relaxed mb-6">

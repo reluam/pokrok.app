@@ -1,15 +1,53 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { BookOpen, HelpCircle, Sparkles, Book, FileText, Video, ArrowRight } from 'lucide-react'
+import { BookOpen, HelpCircle, Sparkles, Book, FileText, Video, ArrowRight, PlayCircle, X, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import type { Article } from '@/lib/articles'
 import type { Question } from '@/lib/questions'
 import type { SmallThing } from '@/lib/small-things'
 import type { InspirationItem } from '@/lib/inspiration'
+import { getVideoInfo, getUrlImage } from '@/lib/video-utils'
 
 type FilterType = 'blog' | 'questions' | 'small-things' | 'books' | 'inspiration-articles' | 'videos'
+
+function ItemImage({ src, alt, type, videoInfo }: { src: string; alt: string; type: FilterType; videoInfo: any }) {
+  const [imageError, setImageError] = useState(false)
+
+  if (imageError && type === 'books') {
+    return (
+      <div className="w-full h-48 rounded-lg bg-primary-100 flex items-center justify-center">
+        <Book className="text-primary-600" size={64} />
+      </div>
+    )
+  }
+
+  if (imageError) {
+    return null
+  }
+
+  return (
+    <div className="relative w-full h-48 overflow-hidden">
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        className="object-cover group-hover:scale-105 transition-transform duration-300"
+        onError={() => setImageError(true)}
+      />
+      {type === 'videos' && videoInfo && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+          <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center">
+            <PlayCircle className="text-primary-600 ml-1" size={32} fill="currentColor" />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 interface LibraryItem {
   id: string
@@ -21,11 +59,14 @@ interface LibraryItem {
   type: FilterType
   slug?: string
   createdAt: string
+  // Full data for modal
+  inspirationItem?: InspirationItem
 }
 
 export default function LatestFromLibrary() {
   const [items, setItems] = useState<LibraryItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [modalItem, setModalItem] = useState<LibraryItem | null>(null)
 
   useEffect(() => {
     loadData()
@@ -75,6 +116,7 @@ export default function LatestFromLibrary() {
               link: item.link,
               type: 'books',
               createdAt: item.createdAt || item.created_at || new Date().toISOString(),
+              inspirationItem: item,
             })
           })
         }
@@ -90,6 +132,7 @@ export default function LatestFromLibrary() {
               link: item.link,
               type: 'inspiration-articles',
               createdAt: item.createdAt || item.created_at || new Date().toISOString(),
+              inspirationItem: item,
             })
           })
         }
@@ -105,6 +148,7 @@ export default function LatestFromLibrary() {
               link: item.link,
               type: 'videos',
               createdAt: item.createdAt || item.created_at || new Date().toISOString(),
+              inspirationItem: item,
             })
           })
         }
@@ -157,6 +201,17 @@ export default function LatestFromLibrary() {
     }
   }
 
+  const handleItemClick = (item: LibraryItem, e: React.MouseEvent) => {
+    // Blog articles still navigate to full page
+    if (item.type === 'blog') {
+      return // Let Link handle it
+    }
+    
+    // Other items open modal
+    e.preventDefault()
+    setModalItem(item)
+  }
+
   if (loading) {
     return null
   }
@@ -189,71 +244,131 @@ export default function LatestFromLibrary() {
             const href = getItemHref(item)
             const isBlog = item.type === 'blog'
 
+            // Get video thumbnail or URL image
+            const videoInfo = item.type === 'videos' && item.link ? getVideoInfo(item.link) : null
+            const displayImage = item.image || 
+              (videoInfo?.thumbnailUrl) || 
+              (item.type === 'books' || item.type === 'inspiration-articles' ? (item.link ? getUrlImage(item.link) : null) : null)
+
             return (
               <div
                 key={item.id}
-                className="group bg-white rounded-lg border-2 border-primary-100 hover:border-primary-300 hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+                className={isBlog ? '' : 'cursor-pointer'}
               >
-                {item.image && (
-                  <div className="relative w-full h-48 overflow-hidden">
-                    <Image
-                      src={item.image}
-                      alt={item.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                )}
-                <div className="p-6 flex-1 flex flex-col">
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="flex-shrink-0">
-                      <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
-                        <Icon className="text-primary-600" size={20} />
+                {isBlog ? (
+                  <Link href={href}>
+                    <div className="group bg-white rounded-lg border-2 border-primary-100 hover:border-primary-300 hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col">
+                      {displayImage ? (
+                        <ItemImage 
+                          src={displayImage}
+                          alt={item.title}
+                          type={item.type}
+                          videoInfo={videoInfo}
+                        />
+                      ) : (
+                        item.type === 'books' && (
+                          <div className="w-full h-48 bg-primary-100 flex items-center justify-center">
+                            <Book className="text-primary-600" size={64} />
+                          </div>
+                        )
+                      )}
+                      <div className="p-6 flex-1 flex flex-col">
+                        <div className="flex items-start gap-3 mb-3">
+                          <div className="flex-shrink-0">
+                            <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+                              <Icon className="text-primary-600" size={20} />
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <span className="text-xs font-semibold text-primary-600 bg-primary-50 px-2 py-1 rounded">
+                              {getTypeLabel(item.type)}
+                            </span>
+                          </div>
+                        </div>
+
+                        <h3 className="text-xl font-bold text-text-primary mb-2 line-clamp-2 group-hover:text-primary-600 transition-colors">
+                          {item.title}
+                        </h3>
+
+                        {item.author && (
+                          <p className="text-sm text-text-secondary mb-2">
+                            {item.author}
+                          </p>
+                        )}
+
+                        {item.description && (
+                          <p className="text-sm text-text-secondary mb-4 line-clamp-3 flex-1">
+                            {item.description}
+                          </p>
+                        )}
+
+                        <div className="mt-auto">
+                          <span className="inline-flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 transition-colors font-semibold">
+                            <span>Přečíst</span>
+                            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-xs font-semibold text-primary-600 bg-primary-50 px-2 py-1 rounded">
-                        {getTypeLabel(item.type)}
-                      </span>
+                  </Link>
+                ) : (
+                  <div
+                    className="group bg-white rounded-lg border-2 border-primary-100 hover:border-primary-300 hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+                    onClick={(e) => handleItemClick(item, e)}
+                  >
+                    {displayImage ? (
+                      <ItemImage 
+                        src={displayImage}
+                        alt={item.title}
+                        type={item.type}
+                        videoInfo={videoInfo}
+                      />
+                    ) : (
+                      item.type === 'books' && (
+                        <div className="w-full h-48 bg-primary-100 flex items-center justify-center">
+                          <Book className="text-primary-600" size={64} />
+                        </div>
+                      )
+                    )}
+                    <div className="p-6 flex-1 flex flex-col">
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+                            <Icon className="text-primary-600" size={20} />
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-xs font-semibold text-primary-600 bg-primary-50 px-2 py-1 rounded">
+                            {getTypeLabel(item.type)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <h3 className="text-xl font-bold text-text-primary mb-2 line-clamp-2 group-hover:text-primary-600 transition-colors">
+                        {item.title}
+                      </h3>
+
+                      {item.author && (
+                        <p className="text-sm text-text-secondary mb-2">
+                          {item.author}
+                        </p>
+                      )}
+
+                      {item.description && (
+                        <p className="text-sm text-text-secondary mb-4 line-clamp-3 flex-1">
+                          {item.description}
+                        </p>
+                      )}
+
+                      <div className="mt-auto">
+                        <span className="inline-flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 transition-colors font-semibold">
+                          <span>Zobrazit</span>
+                          <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                        </span>
+                      </div>
                     </div>
                   </div>
-
-                  <h3 className="text-xl font-bold text-text-primary mb-2 line-clamp-2 group-hover:text-primary-600 transition-colors">
-                    {item.title}
-                  </h3>
-
-                  {item.author && (
-                    <p className="text-sm text-text-secondary mb-2">
-                      {item.author}
-                    </p>
-                  )}
-
-                  {item.description && (
-                    <p className="text-sm text-text-secondary mb-4 line-clamp-3 flex-1">
-                      {item.description}
-                    </p>
-                  )}
-
-                  <div className="mt-auto">
-                    {isBlog ? (
-                      <Link
-                        href={href}
-                        className="inline-flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 transition-colors font-semibold"
-                      >
-                        <span>Přečíst</span>
-                        <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                    ) : (
-                      <Link
-                        href="/knihovna"
-                        className="inline-flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 transition-colors font-semibold"
-                      >
-                        <span>Zobrazit</span>
-                        <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                    )}
-                  </div>
-                </div>
+                )}
               </div>
             )
           })}
@@ -269,6 +384,114 @@ export default function LatestFromLibrary() {
           </Link>
         </div>
       </div>
+
+      {/* Modal */}
+      {modalItem && (
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+          onClick={() => setModalItem(null)}
+        >
+          <div 
+            className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 bg-white border-b border-primary-100 p-6 flex items-center justify-between z-10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+                  {(() => {
+                    const Icon = getTypeIcon(modalItem.type)
+                    return <Icon className="text-primary-600" size={20} />
+                  })()}
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-primary-600 bg-primary-50 px-2 py-1 rounded">
+                    {getTypeLabel(modalItem.type)}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setModalItem(null)}
+                className="text-text-secondary hover:text-text-primary transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <h2 className="text-2xl md:text-3xl font-bold text-text-primary mb-4">
+                {modalItem.title}
+              </h2>
+
+              {modalItem.author && (
+                <p className="text-sm text-primary-600 mb-4 font-semibold">
+                  {modalItem.author}
+                </p>
+              )}
+
+              {/* Videos */}
+              {modalItem.type === 'videos' && modalItem.link && (
+                <div>
+                  {modalItem.description && (
+                    <div className="prose prose-sm max-w-none text-text-secondary leading-relaxed mb-6">
+                      <p>{modalItem.description}</p>
+                    </div>
+                  )}
+                  {(() => {
+                    const videoInfo = getVideoInfo(modalItem.link)
+                    if (videoInfo) {
+                      return (
+                        <div className="mb-6">
+                          <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
+                            <iframe
+                              src={videoInfo.embedUrl}
+                              className="absolute inset-0 w-full h-full"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            ></iframe>
+                          </div>
+                        </div>
+                      )
+                    }
+                    return (
+                      <a
+                        href={modalItem.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white font-semibold rounded-full hover:bg-primary-700 transition-all duration-300"
+                      >
+                        <span>Otevřít odkaz</span>
+                        <ExternalLink size={18} />
+                      </a>
+                    )
+                  })()}
+                </div>
+              )}
+
+              {/* Books and articles */}
+              {(modalItem.type === 'books' || modalItem.type === 'inspiration-articles') && (
+                <div>
+                  {modalItem.description && (
+                    <div className="prose prose-sm max-w-none text-text-secondary leading-relaxed mb-6">
+                      <p>{modalItem.description}</p>
+                    </div>
+                  )}
+                  {modalItem.link && (
+                    <a
+                      href={modalItem.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white font-semibold rounded-full hover:bg-primary-700 transition-all duration-300"
+                    >
+                      <span>Otevřít odkaz</span>
+                      <ExternalLink size={18} />
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

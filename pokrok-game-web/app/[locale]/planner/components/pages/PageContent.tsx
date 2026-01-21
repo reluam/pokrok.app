@@ -273,7 +273,6 @@ export function PageContent(props: PageContentProps) {
 
   // Define topMenuItems locally since it's not passed as prop
   const topMenuItems = [
-    { id: 'goals' as const, label: t('navigation.goals'), icon: Target },
     { id: 'habits' as const, label: t('navigation.habits'), icon: CheckSquare },
     { id: 'steps' as const, label: t('navigation.steps'), icon: Footprints },
   ];

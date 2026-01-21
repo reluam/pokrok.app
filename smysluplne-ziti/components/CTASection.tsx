@@ -101,9 +101,9 @@ export default function CTASection() {
     <section id="konzultace" className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 bg-primary-100/50">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary mb-6">
-            Změna začíná jedním <span className="gradient-text">upřímným rozhovorem</span>
-          </h2>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary mb-6">
+                Změna může začít i jedním <span className="gradient-text">upřímným rozhovorem</span>
+              </h2>
           <p className="text-lg md:text-xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
             Můžeš si buď vybrat termín přímo v kalendáři, kdy si zavoláme přes Google Meet, nebo vyplnit formulář a já ti zavolám zpět na telefon, až budu moct.
           </p>
