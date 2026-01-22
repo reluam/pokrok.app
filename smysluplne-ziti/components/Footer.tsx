@@ -20,7 +20,7 @@ export default function Footer() {
             <ul className="space-y-3">
               {[
                 { href: '/coaching', label: 'Koučink' },
-                { href: '#komunita', label: 'Komunita' },
+                { href: '/komunita', label: 'Komunita' },
                 { href: '/o-mne', label: 'O mně' },
               ].map((link) => (
                 <li key={link.href}>

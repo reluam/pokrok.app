@@ -47,6 +47,7 @@ export default function Navigation() {
               {[
                 { href: '/coaching', label: 'Koučink' },
                 { href: '/knihovna', label: 'Inspirace' },
+                { href: '/komunita', label: 'Komunita' },
                 { href: '/o-mne', label: 'O mně' },
               ].map((item) => (
                 <Link
@@ -88,6 +89,7 @@ export default function Navigation() {
           {[
             { href: '/coaching', label: 'Koučink' },
             { href: '/knihovna', label: 'Inspirace' },
+            { href: '/komunita', label: 'Komunita' },
             { href: '/o-mne', label: 'O mně' },
           ].map((item) => (
             <Link
