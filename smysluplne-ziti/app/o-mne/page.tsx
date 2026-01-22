@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Search, TrendingUp, Heart, Eye, Smile, ArrowRight } from 'lucide-react'
+import { Search, Sparkles, Heart, Eye, Smile, ArrowRight } from 'lucide-react'
 
 export default function AboutPage() {
   return (
@@ -78,16 +78,6 @@ export default function AboutPage() {
 
               <div className="bg-white rounded-lg border-2 border-primary-100 p-6 md:p-8">
                 <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
-                  <TrendingUp className="text-primary-600" size={24} />
-                </div>
-                <h3 className="text-xl md:text-2xl font-bold text-text-primary mb-2">Růst</h3>
-                <p className="text-text-secondary leading-relaxed">
-                  Odvaha nezůstat stát na místě.
-                </p>
-              </div>
-
-              <div className="bg-white rounded-lg border-2 border-primary-100 p-6 md:p-8">
-                <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
                   <Heart className="text-primary-600" size={24} />
                 </div>
                 <h3 className="text-xl md:text-2xl font-bold text-text-primary mb-2">Otevřenost</h3>
@@ -103,6 +93,16 @@ export default function AboutPage() {
                 <h3 className="text-xl md:text-2xl font-bold text-text-primary mb-2">Upřímnost</h3>
                 <p className="text-text-secondary leading-relaxed">
                   Konec lhaní si do vlastní kapsy.
+                </p>
+              </div>
+
+              <div className="bg-white rounded-lg border-2 border-primary-100 p-6 md:p-8">
+                <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
+                  <Sparkles className="text-primary-600" size={24} />
+                </div>
+                <h3 className="text-xl md:text-2xl font-bold text-text-primary mb-2">Hravost</h3>
+                <p className="text-text-secondary leading-relaxed">
+                  Odvaha zkoušet, experimentovat a nebrat se v každém kroku příliš vážně.
                 </p>
               </div>
 

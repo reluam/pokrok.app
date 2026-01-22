@@ -1,11 +1,11 @@
-import { Search, Heart, Eye, Smile, TrendingUp } from 'lucide-react'
+import { Search, Heart, Eye, Smile, Sparkles } from 'lucide-react'
 
 export default function HowIWorkSection() {
   const pillars = [
     { name: 'Zvídavost', icon: Search },
-    { name: 'Růst', icon: TrendingUp },
     { name: 'Otevřenost', icon: Heart },
     { name: 'Upřímnost', icon: Eye },
+    { name: 'Hravost', icon: Sparkles },
     { name: 'Radost', icon: Smile },
   ]
 
@@ -21,7 +21,7 @@ export default function HowIWorkSection() {
               Věřím, že odpovědi na tvé nejdůležitější otázky už v tobě jsou – jen bývají umlčeny šumem okolí a každodenním shonem. Má práce spočívá v hlubokém individuálním dialogu, který ti pomůže tento vnitřní hlas znovu slyšet.
             </p>
             <p className="text-lg md:text-xl text-text-secondary leading-relaxed">
-              Při spolupráci se opírám o pět pilířů: <strong>Zvídavost</strong>, <strong>Růst</strong>, <strong>Otevřenost</strong>, <strong>Upřímnost</strong> a <strong>Radost</strong>. Nejsou to pro mě jen slova, ale kompas, který nám pomůže navigovat k životu, který ti dává smysl. Společně vytvoříme prostor, kde odložíš to, co ti už neslouží, a začneš budovat realitu, která s tebou skutečně ladí.
+              Při spolupráci se opírám o pět pilířů: <strong>Zvídavost</strong>, <strong>Otevřenost</strong>, <strong>Upřímnost</strong>, <strong>Hravost</strong> a <strong>Radost</strong>. Nejsou to pro mě jen slova, ale kompas, který nám pomůže navigovat k životu, který ti dává smysl. Společně vytvoříme prostor, kde odložíš to, co ti už neslouží, a začneš budovat realitu, která s tebou skutečně ladí.
             </p>
           </div>
           

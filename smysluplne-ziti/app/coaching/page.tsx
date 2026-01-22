@@ -1,4 +1,4 @@
-import { ArrowRight, Search, TrendingUp, Heart, Eye, Smile, Video, DollarSign, BookOpen } from 'lucide-react'
+import { ArrowRight, Search, Sparkles, Heart, Eye, Smile, Video, DollarSign, BookOpen } from 'lucide-react'
 import CTASection from '@/components/CTASection'
 
 export default function CoachingPage() {
@@ -117,18 +117,6 @@ export default function CoachingPage() {
 
             <div className="bg-white rounded-lg border-2 border-primary-100 p-6 md:p-8 hover:border-primary-300 transition-all duration-300">
               <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
-                <TrendingUp className="text-primary-600" size={24} />
-              </div>
-              <h3 className="text-xl md:text-2xl font-bold text-text-primary mb-3">
-                Růst
-              </h3>
-              <p className="text-text-secondary leading-relaxed">
-                Každé sezení tě posouvá blíž k tvé autentické verzi.
-              </p>
-            </div>
-
-            <div className="bg-white rounded-lg border-2 border-primary-100 p-6 md:p-8 hover:border-primary-300 transition-all duration-300">
-              <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
                 <Heart className="text-primary-600" size={24} />
               </div>
               <h3 className="text-xl md:text-2xl font-bold text-text-primary mb-3">
@@ -148,6 +136,18 @@ export default function CoachingPage() {
               </h3>
               <p className="text-text-secondary leading-relaxed">
                 Jsem tvým zrcadlem, i když pravda nemusí být vždy pohodlná.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg border-2 border-primary-100 p-6 md:p-8 hover:border-primary-300 transition-all duration-300">
+              <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
+                <Sparkles className="text-primary-600" size={24} />
+              </div>
+              <h3 className="text-xl md:text-2xl font-bold text-text-primary mb-3">
+                Hravost
+              </h3>
+              <p className="text-text-secondary leading-relaxed">
+                Odvaha zkoušet, experimentovat a nebrat se v každém kroku příliš vážně.
               </p>
             </div>
 
