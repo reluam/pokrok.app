@@ -27,7 +27,7 @@ export default function Hero() {
         </h1>
         
         <p className="text-lg md:text-xl lg:text-2xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
-          Protože jsem žádný manuál k životu nedostal, tak se ho snažím dát nějakým způsobem dokupy. Občas se jen tak plácám a občas přijdu na něco užitečného. Pokud se k tomu plácání chceš přidat taky, rád tě uvidím v naší komunitě.
+          Protože jsem žádný manuál k životu nedostal, tak se životem hlavně plácám. Občas ale přijdu na něco užitečného. Pokud se k tomu plácání chceš přidat taky, rád tě uvidím v naší komunitě.
         </p>
         
         <div className="flex justify-center items-center pt-4">

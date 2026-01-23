@@ -34,15 +34,15 @@ export default function Medailonek() {
             
             <div className="space-y-4 text-lg md:text-xl text-foreground/80 leading-relaxed">
               <p>
-                Většinu života jsem strávil snahou pochopit, jak se tenhle 'život' vlastně hraje. Jako nejisté dítě jsem neuměl číst v lidech ani v systémech, tak jsem si začal psát vlastní manuál. Studoval jsem lidi, svět a dešifroval každé sociální gesto.
+                Většinu života jsem strávil snahou pochopit, jak se tenhle 'život' vlastně hraje. Jako nejisté dítě jsem neuměl číst v lidech ani v systémech, ale pomalu a trapně jsem to postupně začal zjišťovat.
               </p>
               
               <p>
-                Dnes jsem profesionální začátečník. Na ziju.life zkouším všechno – od diet a biohackingu po nové mindsety. Většinou si nabiju pusu, ale občas najdu poklad. A přesně o tyhle poklady a faily se s tebou dělím. Bez filtru a s hravostí.
+                Dnes jsem již ostřílený začátečník a zkouším nové a další věci – od neúspěšné hudební kariéry, přes hromadu nedokončených aplikací a tutových byznysů až po Žiju.life, což je mé poslední dílo (snad ne i poslední naděje) a zároveň vyvrcholení první třetiny mé životní cesty.
               </p>
               
               <p>
-                Dlouho jsem tuhle cestu šlapal sám, ale došlo mi, že v týmu je to větší fun. Proto jsem vytvořil komunitu lidí, kteří to mají podobně. Místo, kde můžeme naše experimenty a cesty sdílet, vzájemně se inspirovat a nebrat ten život (ani sebe) tak vážně.
+                Protože už mám dost chabých pokusů o úspěch a taky protože to začalo být lonely, tak jsem založil komunitu pro lidi, kteří to mají podobně. Místo, kde můžeme naše experimenty a cesty sdílet nebo se jen inspirovat, ale hlavně - nebrat ten život (ani sebe) tak vážně.
               </p>
             </div>
           </div>

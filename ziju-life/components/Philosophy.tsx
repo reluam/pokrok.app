@@ -6,9 +6,9 @@ export default function Philosophy() {
           <span className="hand-drawn-underline">Nejsi na to sám</span> (a je to větší sranda).
         </h2>
         
-                <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-2xl mx-auto">
-                  Žiju life je playground pro všechny, kteří chtějí růst a zároveň se nebrat tak vážně. V naší free komunitě na Skoolu najdeš lidi na stejné vlně, společné výzvy, praktické materiály a prostor, kde je upřímnost víc než dokonalost.
-                </p>
+        <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-2xl mx-auto">
+          Žiju life je playground pro všechny, kteří chtějí růst a zároveň se u toho bavit. V naší free komunitě na Skoolu najdeš lidi na stejné vlně, společné výzvy, praktické materiály a prostor, kde je upřímnost víc než dokonalost a hravost předčí vážnost.
+        </p>
         
         <a
           href="https://www.skool.com/ziju-life-9405"
