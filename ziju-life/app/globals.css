@@ -1,25 +1,152 @@
 @import "tailwindcss";
 
 :root {
-  --background: #FFFAF5;
+  --background: #FDFDF7;
   --foreground: #171717;
-  --accent: #FF6B35;
-  --accent-hover: #FF8C5A;
+  --accent-primary: #FF8C42;
+  --accent-primary-hover: #FF6B1A;
+  --accent-secondary: #4ECDC4;
+  --accent-secondary-hover: #3AB5AD;
+  --accent-tertiary: #B0A7F5;
+  --accent-yellow: #FFD966;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-hover);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-accent: var(--accent-primary);
+  --color-accent-hover: var(--accent-primary-hover);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+@layer base {
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: 'Cocoiny', 'Nunito', 'Inter', system-ui, sans-serif;
+    font-weight: 400;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cocoiny', 'Nunito', 'Inter', system-ui, sans-serif;
+    font-weight: 400;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Hand-drawn underline effect */
+.hand-drawn-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.hand-drawn-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: #FF8C42;
+  opacity: 0.3;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  transform: rotate(-1deg);
+  z-index: -1;
+}
+
+/* Playful button animations */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-2deg); }
+  75% { transform: rotate(2deg); }
+}
+
+@keyframes bounce-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.btn-playful {
+  transition: all 0.3s ease;
+}
+
+.btn-playful:hover {
+  animation: wiggle 0.5s ease;
+  transform: scale(1.05);
+}
+
+/* Decorative shapes */
+.decorative-shape {
+  position: absolute;
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Paper texture overlay */
+.paper-texture {
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.01),
+      rgba(0, 0, 0, 0.01) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+}
+
+/* Hand-drawn frame for images */
+.hand-drawn-frame {
+  position: relative;
+  padding: 8px;
+  background: white;
+  box-shadow: 
+    0 0 0 2px #FF8C42,
+    0 0 0 4px white,
+    0 0 0 6px #4ECDC4,
+    0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: rotate(-0.5deg);
+  transition: transform 0.3s ease;
+  border-radius: 1rem;
+  overflow: visible;
+}
+
+.hand-drawn-frame > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hand-drawn-frame:hover {
+  transform: rotate(0.5deg) scale(1.02);
+}
+
+/* Color utilities for accent colors */
+.text-accent-secondary {
+  color: #4ECDC4;
+}
+
+.text-accent-tertiary {
+  color: #B0A7F5;
+}
+
+.text-accent-yellow {
+  color: #FFD966;
+}
+
+.bg-accent-secondary {
+  background-color: #4ECDC4;
+}
+
+.bg-accent-tertiary {
+  background-color: #B0A7F5;
+}
+
+.bg-accent-yellow {
+  background-color: #FFD966;
 }
 
 /* Blog content styles */

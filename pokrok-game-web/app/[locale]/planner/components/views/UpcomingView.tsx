@@ -555,6 +555,9 @@ export function UpcomingView({
         if (!step.date) return false
         // Exclude old instances (they have parent_recurring_step_id)
         if (step.parent_recurring_step_id) return false
+        // Exclude steps from paused or completed goals (only show steps from active goals)
+        const goal = step.goal_id ? goalMap.get(step.goal_id) : null
+        if (goal?.status === 'paused' || goal?.status === 'completed') return false
         return true
       })
       .forEach(step => {
@@ -652,9 +655,9 @@ export function UpcomingView({
         if (!step.date) return false
         // Exclude old instances (they have parent_recurring_step_id)
         if (step.parent_recurring_step_id) return false
-        // Exclude steps from paused goals
+        // Exclude steps from paused or completed goals (only show steps from active goals)
         const goal = step.goal_id ? goalMap.get(step.goal_id) : null
-        if (goal?.status === 'paused') return false
+        if (goal?.status === 'paused' || goal?.status === 'completed') return false
         
         // Check date range - include if overdue or within one month
       const stepDate = new Date(normalizeDate(step.date))

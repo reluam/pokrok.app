@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-black/5 bg-white/50 py-12 px-4 sm:px-6 lg:px-8">
+    <footer className="border-t-2 border-black/10 bg-white/50 py-12 px-4 sm:px-6 lg:px-8 paper-texture">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-center md:text-left">
@@ -13,23 +13,20 @@ export default function Footer() {
           </div>
           
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <Link href="/inspirace" className="text-sm text-foreground/70 hover:text-foreground transition-colors">
+            <Link href="/inspirace" className="text-sm text-foreground/70 hover:text-accent transition-colors">
               Inspirace
-            </Link>
-            <Link href="/kafe" className="text-sm text-foreground/70 hover:text-foreground transition-colors">
-              Kafe
-            </Link>
-            <Link href="/o-mne" className="text-sm text-foreground/70 hover:text-foreground transition-colors">
-              O mně
             </Link>
             <a
               href="https://www.skool.com/ziju-life-9405"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-foreground/70 hover:text-foreground transition-colors"
+              className="text-sm text-foreground/70 hover:text-accent transition-colors"
             >
               Komunita
             </a>
+            <Link href="/o-mne" className="text-sm text-foreground/70 hover:text-accent transition-colors">
+              O mně
+            </Link>
           </div>
         </div>
         

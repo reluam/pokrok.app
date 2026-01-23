@@ -1,35 +1,35 @@
 import Image from "next/image";
+import HandDrawnFrame from "./HandDrawnFrame";
+import DecorativeShapes from "./DecorativeShapes";
 
 export default function Medailonek() {
   return (
-    <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white/50">
-      <div className="max-w-6xl mx-auto">
+    <section className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white/50 paper-texture overflow-hidden">
+      <DecorativeShapes position="left" />
+      <div className="max-w-6xl mx-auto relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Foto vlevo */}
-          <div className="order-2 md:order-1">
-            <div className="relative w-full aspect-square max-w-md mx-auto md:mx-0">
-              <div className="relative w-full h-full rounded-2xl overflow-hidden bg-gray-200">
-                {/* Placeholder - nahraďte skutečnou fotkou */}
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-accent/20 to-accent/10">
-                  <span className="text-foreground/40 text-sm">Fotka Matěje</span>
+          <div className="order-2 md:order-1 flex justify-center md:justify-start">
+            <div className="max-w-md w-full">
+              <HandDrawnFrame>
+                <div className="relative w-full aspect-square overflow-hidden rounded-2xl bg-gray-100">
+                  <Image
+                    src="/matej-photo.jpg"
+                    alt="Matěj"
+                    fill
+                    className="object-cover rounded-2xl"
+                    priority
+                    sizes="(max-width: 768px) 100vw, 400px"
+                  />
                 </div>
-                {/* Odkomentujte, až budete mít fotku:
-                <Image
-                  src="/matej-photo.jpg"
-                  alt="Matěj"
-                  fill
-                  className="object-cover"
-                  priority
-                />
-                */}
-              </div>
+              </HandDrawnFrame>
             </div>
           </div>
 
           {/* Text vpravo */}
           <div className="order-1 md:order-2 space-y-6">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
-              Ahoj, jsem Matěj.
+            <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground" style={{ fontWeight: 400 }}>
+              <span className="hand-drawn-underline">Ahoj, jsem Matěj.</span>
             </h2>
             
             <div className="space-y-4 text-lg md:text-xl text-foreground/80 leading-relaxed">

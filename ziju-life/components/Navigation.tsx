@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
@@ -15,11 +16,18 @@ export default function Navigation() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#FFFAF5]/95 backdrop-blur-sm border-b border-black/5">
+    <nav className="sticky top-0 z-50 bg-[#FDFDF7]/95 backdrop-blur-sm border-b-2 border-black/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
-          <Link href="/" className="text-xl md:text-2xl font-semibold text-foreground hover:text-accent transition-colors">
-            Žiju life
+          <Link href="/" className="flex items-center h-12 md:h-16">
+            <Image
+              src="/ziju-life-logo.png"
+              alt="Žiju life"
+              width={160}
+              height={64}
+              className="h-12 md:h-14 w-auto"
+              priority
+            />
           </Link>
           
           {/* Desktop Navigation */}
@@ -65,7 +73,7 @@ export default function Navigation() {
               href="https://www.skool.com/ziju-life-9405"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-4 py-2 bg-accent text-white rounded-full text-base font-medium hover:bg-accent-hover transition-colors whitespace-nowrap"
+              className="btn-playful px-4 py-2 bg-accent text-white rounded-full text-base font-medium hover:bg-accent-hover transition-colors whitespace-nowrap shadow-md hover:shadow-lg"
             >
               Vstoupit do komunity
             </a>
