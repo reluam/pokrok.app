@@ -243,7 +243,7 @@ export function SidebarNavigation({
     const total = completed + overdue
     return total > 0 ? ((completed - overdue) / total) * 100 : 0
   }
-
+  
   // Helper function to check if goal is past deadline
   const isGoalPastDeadline = (goal: any): boolean => {
     if (!goal.target_date) return false

@@ -119,9 +119,9 @@ export function GoalDetailWrapper({
   const goalIconRef = useRef<HTMLSpanElement>(null)
   const goalTitleRef = useRef<HTMLInputElement | HTMLHeadingElement>(null)
   const goalDescriptionRef = useRef<HTMLTextAreaElement | HTMLParagraphElement>(null)
-  const goalDateRef = useRef<HTMLSpanElement>(null)
-  const goalStartDateRef = useRef<HTMLSpanElement>(null)
-  const goalStatusRef = useRef<HTMLButtonElement>(null)
+  const goalDateRef = useRef<HTMLButtonElement>(null)
+  const goalStartDateRef = useRef<HTMLDivElement>(null)
+  const goalStatusRef = useRef<HTMLDivElement>(null)
   const goalAreaRef = useRef<HTMLButtonElement>(null)
   
   // Steps cache
@@ -178,114 +178,19 @@ export function GoalDetailWrapper({
   
   // Metric functions
   const handleMetricIncrement = useCallback(async (metricId: string, goalId: string) => {
-    setLoadingMetrics(prev => new Set(prev).add(metricId))
-    try {
-      const response = await fetch('/api/goal-metrics', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ metricId, goalId })
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setMetrics(prev => ({
-          ...prev,
-          [goalId]: (prev[goalId] || []).map(m => m.id === metricId ? data.metric : m)
-        }))
-        if (data.goal && onGoalsUpdate) {
-          const updatedGoals = goals.map((g: any) => g.id === goalId ? data.goal : g)
-          onGoalsUpdate(updatedGoals)
-        }
-      }
-    } catch (error) {
-      console.error('Error incrementing metric:', error)
-    } finally {
-      setLoadingMetrics(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(metricId)
-        return newSet
-      })
-    }
+    return
   }, [goals, onGoalsUpdate])
   
   const handleMetricCreate = useCallback(async (goalId: string, metricData: any) => {
-    try {
-      const response = await fetch('/api/goal-metrics', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          goalId,
-          name: metricData.name,
-          type: metricData.type || 'number',
-          unit: metricData.unit,
-          targetValue: metricData.targetValue,
-          currentValue: metricData.currentValue || 0,
-          initialValue: metricData.initialValue ?? 0,
-          incrementalValue: metricData.incrementalValue
-        })
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setMetrics(prev => ({
-          ...prev,
-          [goalId]: [...(prev[goalId] || []), data.metric]
-        }))
-        if (data.goal && onGoalsUpdate) {
-          const updatedGoals = goals.map((g: any) => g.id === goalId ? data.goal : g)
-          onGoalsUpdate(updatedGoals)
-        }
-      }
-    } catch (error) {
-      console.error('Error creating metric:', error)
-    }
+    return
   }, [goals, onGoalsUpdate])
   
   const handleMetricUpdate = useCallback(async (metricId: string, goalId: string, metricData: any) => {
-    try {
-      const response = await fetch('/api/goal-metrics', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          metricId,
-          goalId,
-          name: metricData.name,
-          type: metricData.type || 'number',
-          unit: metricData.unit,
-          currentValue: metricData.currentValue,
-          targetValue: metricData.targetValue,
-          initialValue: metricData.initialValue ?? 0,
-          incrementalValue: metricData.incrementalValue
-        })
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setMetrics(prev => ({
-          ...prev,
-          [goalId]: (prev[goalId] || []).map(m => m.id === metricId ? data.metric : m)
-        }))
-        if (data.goal && onGoalsUpdate) {
-          const updatedGoals = goals.map((g: any) => g.id === goalId ? data.goal : g)
-          onGoalsUpdate(updatedGoals)
-        }
-      }
-    } catch (error) {
-      console.error('Error updating metric:', error)
-    }
+    return
   }, [goals, onGoalsUpdate])
   
   const handleMetricDelete = useCallback(async (metricId: string, goalId: string) => {
-    try {
-      const response = await fetch(`/api/goal-metrics?metricId=${metricId}&goalId=${goalId}`, {
-        method: 'DELETE'
-      })
-      if (response.ok) {
-        setMetrics(prev => ({
-          ...prev,
-          [goalId]: (prev[goalId] || []).filter(m => m.id !== metricId)
-        }))
-      }
-    } catch (error) {
-      console.error('Error deleting metric:', error)
-    }
+    return
   }, [])
   
   // Goal update and delete functions

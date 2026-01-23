@@ -304,9 +304,24 @@ export function StepModal({
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation()
-                            const rect = (e.target as HTMLElement).getBoundingClientRect()
+                            const button = e.target as HTMLElement
+                            const rect = button.getBoundingClientRect()
+                            const dropdownWidth = 230
+                            const buttonCenter = rect.left + rect.width / 2
+                            let left = buttonCenter
+                            const padding = 10
+                            
+                            // Adjust if dropdown would go off the left edge
+                            if (left - dropdownWidth / 2 < padding) {
+                              left = padding + dropdownWidth / 2
+                            }
+                            
+                            // Adjust if dropdown would go off the right edge
+                            if (left + dropdownWidth / 2 > window.innerWidth - padding) {
+                              left = window.innerWidth - padding - dropdownWidth / 2
+                            }
+                            
                             const top = Math.min(rect.bottom + 5, window.innerHeight - 380)
-                            const left = Math.min(rect.left, window.innerWidth - 250)
                             setDatePickerPosition({ top, left })
                             setDatePickerOpen(true)
                             const currentDate = stepModalData.date 
@@ -440,9 +455,24 @@ export function StepModal({
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation()
-                              const rect = (e.target as HTMLElement).getBoundingClientRect()
+                              const button = e.target as HTMLElement
+                              const rect = button.getBoundingClientRect()
+                              const dropdownWidth = 230
+                              const buttonCenter = rect.left + rect.width / 2
+                              let left = buttonCenter
+                              const padding = 10
+                              
+                              // Adjust if dropdown would go off the left edge
+                              if (left - dropdownWidth / 2 < padding) {
+                                left = padding + dropdownWidth / 2
+                              }
+                              
+                              // Adjust if dropdown would go off the right edge
+                              if (left + dropdownWidth / 2 > window.innerWidth - padding) {
+                                left = window.innerWidth - padding - dropdownWidth / 2
+                              }
+                              
                               const top = Math.min(rect.bottom + 5, window.innerHeight - 380)
-                              const left = Math.min(rect.left, window.innerWidth - 250)
                               setStartDatePickerPosition({ top, left })
                               setStartDatePickerOpen(true)
                               const currentDate = stepModalData.recurring_start_date 
@@ -469,9 +499,24 @@ export function StepModal({
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation()
-                              const rect = (e.target as HTMLElement).getBoundingClientRect()
+                              const button = e.target as HTMLElement
+                              const rect = button.getBoundingClientRect()
+                              const dropdownWidth = 230
+                              const buttonCenter = rect.left + rect.width / 2
+                              let left = buttonCenter
+                              const padding = 10
+                              
+                              // Adjust if dropdown would go off the left edge
+                              if (left - dropdownWidth / 2 < padding) {
+                                left = padding + dropdownWidth / 2
+                              }
+                              
+                              // Adjust if dropdown would go off the right edge
+                              if (left + dropdownWidth / 2 > window.innerWidth - padding) {
+                                left = window.innerWidth - padding - dropdownWidth / 2
+                              }
+                              
                               const top = Math.min(rect.bottom + 5, window.innerHeight - 380)
-                              const left = Math.min(rect.left, window.innerWidth - 250)
                               setEndDatePickerPosition({ top, left })
                               setEndDatePickerOpen(true)
                               const currentDate = stepModalData.recurring_end_date 
@@ -914,8 +959,9 @@ export function StepModal({
             className="fixed z-50 box-playful-highlight p-4 bg-white"
             style={{
               top: `${Math.min(datePickerPosition.top, window.innerHeight - 380)}px`,
-              left: `${Math.min(Math.max(datePickerPosition.left - 100, 10), window.innerWidth - 250)}px`,
-              width: '230px'
+              left: `${datePickerPosition.left}px`,
+              width: '230px',
+              transform: 'translateX(-50%)'
             }}
           >
             <div className="text-sm font-bold text-black mb-3 font-playful">{t('steps.date') || 'Datum'}</div>
@@ -1039,8 +1085,9 @@ export function StepModal({
             className="fixed z-50 box-playful-highlight p-4 bg-white"
             style={{
               top: `${Math.min(startDatePickerPosition.top, window.innerHeight - 380)}px`,
-              left: `${Math.min(Math.max(startDatePickerPosition.left - 100, 10), window.innerWidth - 250)}px`,
-              width: '230px'
+              left: `${startDatePickerPosition.left}px`,
+              width: '230px',
+              transform: 'translateX(-50%)'
             }}
           >
             <div className="text-sm font-bold text-black mb-3 font-playful">{t('steps.recurring.startDate') || 'Začátek opakování'}</div>
@@ -1164,8 +1211,9 @@ export function StepModal({
             className="fixed z-50 box-playful-highlight p-4 bg-white"
             style={{
               top: `${Math.min(endDatePickerPosition.top, window.innerHeight - 380)}px`,
-              left: `${Math.min(Math.max(endDatePickerPosition.left - 100, 10), window.innerWidth - 250)}px`,
-              width: '230px'
+              left: `${endDatePickerPosition.left}px`,
+              width: '230px',
+              transform: 'translateX(-50%)'
             }}
           >
             <div className="text-sm font-bold text-black mb-3 font-playful">{t('steps.recurring.endDate') || 'Konec opakování'}</div>

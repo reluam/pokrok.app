@@ -1838,7 +1838,7 @@ export async function updateDailyStepFields(stepId: string, updates: Partial<Dai
       
       // Update goal progress if step was completed
       if (updates.completed && rows[0].goal_id) {
-        await updateGoalProgressCombined(rows[0].goal_id)
+        await updateGoalProgressFromSteps(rows[0].goal_id)
       }
       
       // Decrypt before returning
@@ -2803,17 +2803,17 @@ export async function updateGoalProgressFromSteps(goalId: string) {
     // Calculate progress based only on completed steps
     const result = await sql`
       WITH step_progress AS (
-        SELECT
-          CASE
+        SELECT 
+          CASE 
             WHEN COUNT(*) > 0 THEN
               LEAST((COUNT(CASE WHEN completed = true THEN 1 END)::float / COUNT(*)) * 100, 100)
             ELSE 0
           END as progress
-        FROM daily_steps
+        FROM daily_steps 
         WHERE goal_id = ${goalId}
       )
-      UPDATE goals
-      SET
+      UPDATE goals 
+      SET 
         progress_percentage = COALESCE(
           (SELECT ROUND(progress) FROM step_progress),
           0

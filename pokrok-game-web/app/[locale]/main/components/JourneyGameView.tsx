@@ -2501,6 +2501,8 @@ export function JourneyGameView({
 
   // Handle goal delete for detail page
   const handleDeleteGoalForDetail = async (goalId: string, deleteSteps: boolean) => {
+    const goalToDelete = goals.find(goal => goal.id === goalId)
+    const fallbackSection = goalToDelete?.area_id ? `area-${goalToDelete.area_id}` : 'focus-upcoming'
     setIsDeletingGoal(true)
     try {
       const response = await fetch('/api/goals', {
@@ -2517,8 +2519,8 @@ export function JourneyGameView({
         // Close modal
         setShowDeleteGoalModal(false)
         setDeleteGoalWithSteps(false)
-        // Redirect to goals page
-        setMainPanelSection('goals')
+        // Redirect to area or upcoming
+        setMainPanelSection(fallbackSection)
       } else {
         console.error('Failed to delete goal')
         alert(t('details.goal.deleteError') || 'Nepodařilo se smazat cíl')

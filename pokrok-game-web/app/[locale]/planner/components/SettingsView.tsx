@@ -18,6 +18,17 @@ interface SettingsViewProps {
 
 type SettingsTab = 'user' | 'goals' | 'steps' | 'statistics' | 'display' | 'views' | 'assistant' | 'subscription' | 'danger'
 
+// Helper function to get default currency by locale
+const getDefaultCurrencyByLocale = (localeCode: string): string => {
+  switch (localeCode) {
+    case 'cs-CZ':
+      return 'CZK'
+    case 'en-US':
+    default:
+      return 'USD'
+  }
+}
+
 export function SettingsView({ player, onPlayerUpdate, onBack, onNavigateToMain }: SettingsViewProps) {
   const { user } = useUser()
   const { signOut } = useClerk()

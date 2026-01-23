@@ -6,6 +6,29 @@ import { ChevronLeft, ChevronRight, ChevronDown, Target, CheckCircle, Moon, Tras
 import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 
+const groupMetricsByUnits = (metrics: any[]) => {
+  if (!Array.isArray(metrics)) return []
+  const groups = new Map<string, any>()
+  metrics.forEach((metric) => {
+    const unit = metric?.unit || 'unit'
+    if (!groups.has(unit)) {
+      groups.set(unit, {
+        unit,
+        metrics: [],
+        totalInitial: 0,
+        totalTarget: 0,
+        totalCurrent: 0
+      })
+    }
+    const group = groups.get(unit)
+    group.metrics.push(metric)
+    group.totalInitial += parseFloat(metric?.initial_value ?? 0)
+    group.totalTarget += parseFloat(metric?.target_value ?? 0)
+    group.totalCurrent += parseFloat(metric?.current_value ?? 0)
+  })
+  return Array.from(groups.values())
+}
+
 interface GoalDetailPageProps {
   goals: any[]
   goalId: string
@@ -13,6 +36,11 @@ interface GoalDetailPageProps {
   player?: any
   areas: any[]
   dailySteps: any[]
+  metrics?: any[]
+  loadingMetrics?: Set<string>
+  handleMetricUpdate?: (metricId: string, goalId: string, metricData: any) => Promise<any> | void
+  handleMetricIncrement?: (metricId: string, goalId: string) => Promise<void> | void
+  handleMetricDelete?: (metricId: string, goalId: string) => Promise<void> | void
   stepsCacheRef: React.MutableRefObject<Record<string, { data: any[], loaded: boolean }>>
   stepsCacheVersion: Record<string, number>
   animatingSteps: Set<string>
@@ -93,6 +121,11 @@ export function GoalDetailPage({
   goalId,
   areas,
   dailySteps,
+  metrics = [],
+  loadingMetrics = new Set<string>(),
+  handleMetricUpdate,
+  handleMetricIncrement,
+  handleMetricDelete,
   stepsCacheRef,
   stepsCacheVersion,
   animatingSteps,
@@ -168,6 +201,24 @@ export function GoalDetailPage({
   const [metricsExpanded, setMetricsExpanded] = React.useState(false)
   const [stepsExpanded, setStepsExpanded] = React.useState(false)
   const [isProgressExpanded, setIsProgressExpanded] = React.useState(false)
+  const [showMetricModal, setShowMetricModal] = React.useState(false)
+  const [metricModalData, setMetricModalData] = React.useState<any>({
+    id: null,
+    name: '',
+    currentValue: 0,
+    targetValue: 0,
+    initialValue: 0,
+    incrementalValue: 1,
+    unit: '',
+    type: 'number'
+  })
+  const [editingMetricName, setEditingMetricName] = React.useState('')
+  const [editingMetricType, setEditingMetricType] = React.useState<'number' | 'currency' | 'percentage' | 'distance' | 'time' | 'weight' | 'custom'>('number')
+  const [editingMetricCurrentValue, setEditingMetricCurrentValue] = React.useState(0)
+  const [editingMetricTargetValue, setEditingMetricTargetValue] = React.useState(0)
+  const [editingMetricInitialValue, setEditingMetricInitialValue] = React.useState(0)
+  const [editingMetricIncrementalValue, setEditingMetricIncrementalValue] = React.useState(1)
+  const [editingMetricUnit, setEditingMetricUnit] = React.useState('')
   const [userSettings, setUserSettings] = useState<{ default_currency?: string; weight_unit_preference?: 'kg' | 'lbs' } | null>(null)
   const t = useTranslations()
   
@@ -814,7 +865,7 @@ export function GoalDetailPage({
                       }
                       
                       const metricNames = group.metrics.length > 1 
-                        ? group.metrics.map(m => m.name).join(' + ')
+                        ? group.metrics.map((m: any) => m.name).join(' + ')
                         : group.metrics[0].name
                       
                       progressBars.push(
@@ -861,7 +912,7 @@ export function GoalDetailPage({
                       }
                       
                       const metricNames = group.metrics.length > 1 
-                        ? group.metrics.map(m => m.name).join(' + ')
+                        ? group.metrics.map((m: any) => m.name).join(' + ')
                         : group.metrics[0].name
                       
                       // Format: initial → current → target for decreasing metrics
@@ -954,7 +1005,7 @@ export function GoalDetailPage({
               
               const handleCurrentValueSave = async () => {
                 const newValue = parseFloat(editingValue.toString()) || 0
-                await handleMetricUpdate(metric.id, goalId, {
+                await handleMetricUpdate?.(metric.id, goalId, {
                   name: metric.name,
                   currentValue: newValue,
                   targetValue: metric.target_value,

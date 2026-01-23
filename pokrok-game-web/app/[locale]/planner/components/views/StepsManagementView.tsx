@@ -2308,7 +2308,7 @@ export function StepsManagementView({
                             areaId: step.area_id || '',
                             isRepeating: step.frequency && step.frequency !== null
                           })
-                          const rect = (e.target as HTMLElement).getBoundingClientRect()
+                          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
                           setInlineModalPosition({ top: rect.bottom + 5, left: rect.left, width: rect.width })
                           setInlineModalType('date')
                           const currentDate = step.date ? new Date(step.date) : new Date()
@@ -2354,7 +2354,7 @@ export function StepsManagementView({
                           areaId: step.area_id || '',
                           isRepeating: step.frequency && step.frequency !== null
                         })
-                        const rect = (e.target as HTMLElement).getBoundingClientRect()
+                        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
                         setInlineModalPosition({ top: rect.bottom + 5, left: rect.left, width: rect.width })
                         setInlineModalType('time')
                       }}
@@ -2927,7 +2927,7 @@ export function StepsManagementView({
                         <button
                             onClick={(e) => {
                               e.stopPropagation()
-                              const rect = (e.target as HTMLElement).getBoundingClientRect()
+                              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
                               setInlineModalPosition({ top: rect.bottom + 5, left: rect.left, width: rect.width })
                               setInlineModalType('date')
                               const currentDate = editingStepData.date ? new Date(editingStepData.date) : new Date()
@@ -2950,7 +2950,7 @@ export function StepsManagementView({
                         <button
                             onClick={(e) => {
                               e.stopPropagation()
-                              const rect = (e.target as HTMLElement).getBoundingClientRect()
+                              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
                               setInlineModalPosition({ top: rect.bottom + 5, left: rect.left, width: rect.width })
                               setInlineModalType('time')
                             }}
@@ -3460,13 +3460,8 @@ export function StepsManagementView({
                       }
                       return false
                     })
-                    // If not found, use conservative estimate
-                    if (assistantWidth === 0) {
-                      assistantWidth = 300 // Conservative estimate for expanded assistant (288px) + margin
-                    }
                   } catch (e) {
-                    // If we can't determine, use conservative estimate
-                    assistantWidth = 300
+                    assistantWidth = 0
                   }
                 }
                 

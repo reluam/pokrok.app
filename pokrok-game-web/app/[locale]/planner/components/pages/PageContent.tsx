@@ -270,7 +270,7 @@ export function PageContent(props: PageContentProps) {
     createMenuButtonRef,
     areaColorRef
   } = props;
-
+  
   // Define topMenuItems locally since it's not passed as prop
   const topMenuItems = [
     { id: 'habits' as const, label: t('navigation.habits'), icon: CheckSquare },
@@ -391,7 +391,7 @@ export function PageContent(props: PageContentProps) {
     }
   }, [currentPage])
   
-
+  
   // Filters state for Steps page
   const [stepsShowCompleted, setStepsShowCompleted] = React.useState(false)
   const [stepsGoalFilter, setStepsGoalFilter] = React.useState<string | null>(null)
@@ -462,226 +462,41 @@ export function PageContent(props: PageContentProps) {
 
   // Load metrics for a goal
   React.useEffect(() => {
-    if (selectedGoalForDetail) {
-      const loadMetrics = async () => {
-        try {
-          const response = await fetch(`/api/goal-metrics?goalId=${selectedGoalForDetail}`)
-          if (response.ok) {
-            const data = await response.json()
-            setMetrics(prev => ({ ...prev, [selectedGoalForDetail]: data.metrics || [] }))
-          }
-        } catch (error) {
-          console.error('Error loading metrics:', error)
-        }
-      }
-      loadMetrics()
-    } else {
-      // Clear metrics when no goal is selected
-      setMetrics({})
-    }
+    // Metrics API endpoint removed - metrics are no longer used in GoalDetailPage
+    // if (selectedGoalForDetail) {
+    //   const loadMetrics = async () => {
+    //     try {
+    //       const response = await fetch(`/api/goal-metrics?goalId=${selectedGoalForDetail}`)
+    //       if (response.ok) {
+    //         const data = await response.json()
+    //         setMetrics(prev => ({ ...prev, [selectedGoalForDetail]: data.metrics || [] }))
+    //       }
+    //     } catch (error) {
+    //       console.error('Error loading metrics:', error)
+    //     }
+    //   }
+    //   loadMetrics()
+    // } else {
+    //   // Clear metrics when no goal is selected
+    //   setMetrics({})
+    // }
   }, [selectedGoalForDetail])
   
   // Metric functions
   const handleMetricIncrement = React.useCallback(async (metricId: string, goalId: string) => {
-    console.log('handleMetricIncrement called with:', { metricId, goalId })
-    setLoadingMetrics(prev => new Set(prev).add(metricId))
-    try {
-      console.log('Sending PATCH request to /api/goal-metrics')
-      const response = await fetch('/api/goal-metrics', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ metricId, goalId })
-      })
-      console.log('PATCH response status:', response.status)
-      if (response.ok) {
-        const data = await response.json()
-        console.log('PATCH response data:', data)
-        setMetrics(prev => ({
-          ...prev,
-          [goalId]: (prev[goalId] || []).map(m => m.id === metricId ? data.metric : m)
-        }))
-        // Update goal if it was returned in response
-        if (data.goal && onGoalsUpdate) {
-          const updatedGoals = goals.map((g: any) => g.id === goalId ? data.goal : g)
-          onGoalsUpdate(updatedGoals)
-        } else if (onGoalsUpdate) {
-          // Fallback: reload all goals from API
-          const goalsResponse = await fetch(`/api/goals?t=${Date.now()}`, {
-            cache: 'no-store',
-            headers: {
-              'Cache-Control': 'no-cache'
-            }
-          })
-          if (goalsResponse.ok) {
-            const goalsData = await goalsResponse.json()
-            onGoalsUpdate(goalsData.goals || goalsData || [])
-          }
-        }
-      } else {
-        const errorData = await response.json().catch(() => ({}))
-        console.error('PATCH response not OK:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData
-        })
-        alert(`Chyba při přidání hodnoty: ${errorData.details || errorData.error || 'Neznámá chyba'}`)
-      }
-    } catch (error) {
-      console.error('Error incrementing metric:', error)
-      alert(`Chyba při přidání hodnoty: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
-    } finally {
-      setLoadingMetrics(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(metricId)
-        return newSet
-      })
-    }
+    return
   }, [onGoalsUpdate])
   
   const handleMetricCreate = React.useCallback(async (goalId: string, metricData: any) => {
-    try {
-      const response = await fetch('/api/goal-metrics', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          goalId,
-          name: metricData.name,
-          type: metricData.type || 'number',
-          unit: metricData.unit,
-          targetValue: metricData.targetValue,
-          currentValue: metricData.currentValue || 0,
-          initialValue: metricData.initialValue ?? 0,
-          incrementalValue: metricData.incrementalValue
-        })
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setMetrics(prev => ({
-          ...prev,
-          [goalId]: [...(prev[goalId] || []), data.metric]
-        }))
-        // Reload metrics to ensure consistency
-        const reloadResponse = await fetch(`/api/goal-metrics?goalId=${goalId}`)
-        if (reloadResponse.ok) {
-          const reloadData = await reloadResponse.json()
-          setMetrics(prev => ({ ...prev, [goalId]: reloadData.metrics || [] }))
-        }
-        // Update goal if it was returned in response
-        if (data.goal && onGoalsUpdate) {
-          const updatedGoals = goals.map((g: any) => g.id === goalId ? data.goal : g)
-          onGoalsUpdate(updatedGoals)
-        } else if (onGoalsUpdate) {
-          // Fallback: reload all goals from API
-          const goalsResponse = await fetch(`/api/goals?t=${Date.now()}`, {
-            cache: 'no-store',
-            headers: {
-              'Cache-Control': 'no-cache'
-            }
-          })
-          if (goalsResponse.ok) {
-            const goalsData = await goalsResponse.json()
-            onGoalsUpdate(goalsData.goals || goalsData || [])
-          }
-        }
-      } else {
-        const errorData = await response.json().catch(() => ({}))
-        console.error('Error creating metric - response not OK:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData
-        })
-        alert(`Chyba při vytváření metriky: ${errorData.details || errorData.error || 'Neznámá chyba'}`)
-      }
-    } catch (error: any) {
-      console.error('Error creating metric:', error)
-      alert(`Chyba při vytváření metriky: ${error?.message || 'Neznámá chyba'}`)
-    }
+    return
   }, [onGoalsUpdate])
   
   const handleMetricUpdate = React.useCallback(async (metricId: string, goalId: string, metricData: any) => {
-    try {
-      const response = await fetch('/api/goal-metrics', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          metricId,
-          goalId,
-          name: metricData.name,
-          type: metricData.type || 'number',
-          unit: metricData.unit,
-          currentValue: metricData.currentValue,
-          targetValue: metricData.targetValue,
-          initialValue: metricData.initialValue ?? 0,
-          incrementalValue: metricData.incrementalValue
-        })
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setMetrics(prev => ({
-          ...prev,
-          [goalId]: (prev[goalId] || []).map(m => m.id === metricId ? data.metric : m)
-        }))
-        // Update goal if it was returned in response
-        if (data.goal && onGoalsUpdate) {
-          const updatedGoals = goals.map((g: any) => g.id === goalId ? data.goal : g)
-          onGoalsUpdate(updatedGoals)
-          // Return updated goal for immediate use
-          return data.goal
-        } else if (onGoalsUpdate) {
-          // Fallback: reload all goals from API
-          const goalsResponse = await fetch(`/api/goals?t=${Date.now()}`, {
-            cache: 'no-store',
-            headers: {
-              'Cache-Control': 'no-cache'
-            }
-          })
-          if (goalsResponse.ok) {
-            const goalsData = await goalsResponse.json()
-            onGoalsUpdate(goalsData.goals || goalsData || [])
-            const updatedGoal = (goalsData.goals || goalsData || []).find((g: any) => g.id === goalId)
-            return updatedGoal
-          }
-        }
-      }
-      return null
-    } catch (error) {
-      console.error('Error updating metric:', error)
-      return null
-    }
+    return null
   }, [goals, onGoalsUpdate])
   
   const handleMetricDelete = React.useCallback(async (metricId: string, goalId: string) => {
-    try {
-      const response = await fetch(`/api/goal-metrics?metricId=${metricId}&goalId=${goalId}`, {
-        method: 'DELETE'
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setMetrics(prev => ({
-          ...prev,
-          [goalId]: (prev[goalId] || []).filter(m => m.id !== metricId)
-        }))
-        // Update goal if it was returned in response
-        if (data.goal && onGoalsUpdate) {
-          const updatedGoals = goals.map((g: any) => g.id === goalId ? data.goal : g)
-          onGoalsUpdate(updatedGoals)
-        } else if (onGoalsUpdate) {
-          // Fallback: reload all goals from API
-          const goalsResponse = await fetch(`/api/goals?t=${Date.now()}`, {
-            cache: 'no-store',
-            headers: {
-              'Cache-Control': 'no-cache'
-            }
-          })
-          if (goalsResponse.ok) {
-            const goalsData = await goalsResponse.json()
-            onGoalsUpdate(goalsData.goals || goalsData || [])
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error deleting metric:', error)
-    }
+    return
   }, [onGoalsUpdate])
   
   return (
@@ -1324,35 +1139,9 @@ export function PageContent(props: PageContentProps) {
                 selectedDayDate={selectedDayDate}
                 setStepModalData={setStepModalData}
                 setShowStepModal={setShowStepModal}
-                metrics={metrics[goalId] || []}
-                loadingMetrics={loadingMetrics}
-                handleMetricIncrement={handleMetricIncrement}
-                handleMetricCreate={handleMetricCreate}
-                handleMetricUpdate={handleMetricUpdate}
-                handleMetricDelete={handleMetricDelete}
-                showMetricModal={showMetricModal}
-                setShowMetricModal={setShowMetricModal}
-                metricModalData={metricModalData}
-                setMetricModalData={setMetricModalData}
-                editingMetricName={editingMetricName}
-                setEditingMetricName={setEditingMetricName}
-                editingMetricType={editingMetricType}
-                setEditingMetricType={setEditingMetricType}
-                editingMetricCurrentValue={editingMetricCurrentValue}
-                setEditingMetricCurrentValue={setEditingMetricCurrentValue}
-                editingMetricTargetValue={editingMetricTargetValue}
-                setEditingMetricTargetValue={setEditingMetricTargetValue}
-                editingMetricInitialValue={editingMetricInitialValue}
-                setEditingMetricInitialValue={setEditingMetricInitialValue}
-                editingMetricIncrementalValue={editingMetricIncrementalValue}
-                setEditingMetricIncrementalValue={setEditingMetricIncrementalValue}
-                editingMetricUnit={editingMetricUnit}
-                setEditingMetricUnit={setEditingMetricUnit}
-                goals={goals}
                 userId={userId}
                 player={player}
                 onDailyStepsUpdate={onDailyStepsUpdate}
-                onStepImportantChange={onStepImportantChange}
                 createNewStepTrigger={createNewStepTriggerForSection[`goal-${goalId}`] || 0}
                 setCreateNewStepTrigger={(fn: (prev: number) => number) => {
                   setCreateNewStepTriggerForSection(prev => ({
@@ -1466,7 +1255,6 @@ export function PageContent(props: PageContentProps) {
                   onStepTimeChange={onStepTimeChange}
                   onStepImportantChange={props.onStepImportantChange}
                   loadingHabits={loadingHabits}
-                  loadingSteps={loadingSteps}
                   animatingSteps={animatingSteps}
                   player={player}
                   onNavigateToHabits={onNavigateToHabits}
@@ -1508,7 +1296,7 @@ export function PageContent(props: PageContentProps) {
                       } else {
                         // New step with goal pre-selected
                         const defaultDate = getLocalDateString(selectedDayDate)
-                        setStepModalData({
+                        setStepModalData?.({
                           id: null,
                           title: '',
                           description: '',
@@ -1523,7 +1311,7 @@ export function PageContent(props: PageContentProps) {
                           checklist: [],
                           require_checklist_complete: false
                         })
-                        setShowStepModal(true)
+                        setShowStepModal?.(true)
                       }
                     }}
                     onGoalClick={(goalId) => {
@@ -2259,7 +2047,7 @@ export function PageContent(props: PageContentProps) {
               {selectedGoalForDetail && selectedGoal ? (
                 <GoalDetailPage
                   key={`goal-${selectedGoalForDetail}-${selectedGoal.progress_percentage || 0}`}
-                  goal={selectedGoal}
+                  goals={[selectedGoal]}
                       goalId={selectedGoalForDetail}
                       areas={areas}
                       dailySteps={dailySteps}
@@ -2276,35 +2064,9 @@ export function PageContent(props: PageContentProps) {
                       selectedDayDate={selectedDayDate}
                       setStepModalData={setStepModalData}
                       setShowStepModal={setShowStepModal}
-                      metrics={metrics[selectedGoalForDetail] || []}
-                      loadingMetrics={loadingMetrics}
-                      handleMetricIncrement={handleMetricIncrement}
-                      handleMetricCreate={handleMetricCreate}
-                      handleMetricUpdate={handleMetricUpdate}
-                      handleMetricDelete={handleMetricDelete}
-                      showMetricModal={showMetricModal}
-                      setShowMetricModal={setShowMetricModal}
-                      metricModalData={metricModalData}
-                      setMetricModalData={setMetricModalData}
-                      editingMetricName={editingMetricName}
-                      setEditingMetricName={setEditingMetricName}
-                      editingMetricType={editingMetricType}
-                      setEditingMetricType={setEditingMetricType}
-                      editingMetricCurrentValue={editingMetricCurrentValue}
-                      setEditingMetricCurrentValue={setEditingMetricCurrentValue}
-                      editingMetricTargetValue={editingMetricTargetValue}
-                      setEditingMetricTargetValue={setEditingMetricTargetValue}
-                      editingMetricInitialValue={editingMetricInitialValue}
-                      setEditingMetricInitialValue={setEditingMetricInitialValue}
-                      editingMetricIncrementalValue={editingMetricIncrementalValue}
-                      setEditingMetricIncrementalValue={setEditingMetricIncrementalValue}
-                      editingMetricUnit={editingMetricUnit}
-                      setEditingMetricUnit={setEditingMetricUnit}
-                      goals={goals}
                       userId={userId}
                       player={player}
                       onDailyStepsUpdate={onDailyStepsUpdate}
-                      onStepImportantChange={onStepImportantChange}
                       createNewStepTrigger={createNewStepTrigger}
                       goalDetailTitleValue={goalDetailTitleValue}
                       setGoalDetailTitleValue={setGoalDetailTitleValue}
@@ -3135,39 +2897,6 @@ export function PageContent(props: PageContentProps) {
         </>
       )}
 
-      {/* Step Modal */}
-      <StepModal
-        show={showStepModal}
-        stepModalData={stepModalData}
-        onClose={() => {
-          setShowStepModal(false)
-          setStepModalData({
-            id: null,
-            title: '',
-            description: '',
-            date: '',
-            goalId: '',
-            estimated_time: 30,
-            is_important: false,
-            checklist: []
-          })
-        }}
-        onSave={async () => {
-          if (handleSaveStep) {
-            await handleSaveStep(stepModalData)
-          }
-          setShowStepModal(false)
-        }}
-        onDelete={stepModalData.id ? async () => {
-          // This will be handled by the parent component
-          setShowStepModal(false)
-        } : undefined}
-        isSaving={false}
-        goals={goals}
-        areas={areas}
-        userSettings={null}
-        setStepModalData={setStepModalData}
-      />
           </>
         )
 }

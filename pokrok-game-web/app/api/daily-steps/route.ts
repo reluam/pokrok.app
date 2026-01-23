@@ -1268,7 +1268,7 @@ export async function PUT(request: NextRequest) {
             if (goal.progress_calculation_type === 'metrics') {
               // Only update from metrics, not steps
             } else {
-              await updateGoalProgressCombined(updatedStep.goal_id)
+              await updateGoalProgressFromSteps(updatedStep.goal_id)
               updatedGoal = await getGoalById(updatedStep.goal_id)
             }
           }
