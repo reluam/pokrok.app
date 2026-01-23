@@ -18,9 +18,9 @@ export default function Coffee() {
           </span>
         </div>
         
-        <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-2xl mx-auto">
-          Jsem ten typ člověka, který má vždy čas na kávu. Pokud se v tom životě taky trochu motáš, chceš probrat svoje experimenty, nebo jen slyšet jiný úhel pohledu, můžeme dát kávu v Ostravě nebo se spojit online a trochu pokecat o životě.
-        </p>
+                <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-2xl mx-auto">
+                  Jsem ten typ člověka, který má vždy čas na kávu. Pokud se v tom životě taky trochu motáš, chceš probrat svoje experimenty, nebo jen slyšet jiný úhel pohledu, můžeme dát online kávu (nebo klidně v Ostravě) a trochu pokecat o životě.
+                </p>
         
         <a
           href="https://www.skool.com/@matej-mauler-3777?g=ziju-life-9405"
