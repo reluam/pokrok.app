@@ -1,6 +1,9 @@
 import { sql } from './database'
 import type { InspirationItem, InspirationType, InspirationData } from './inspiration'
 
+// Re-export types for use in API routes
+export type { InspirationItem, InspirationType, InspirationData }
+
 export async function getInspirationData(): Promise<InspirationData> {
   try {
     const items = await sql`

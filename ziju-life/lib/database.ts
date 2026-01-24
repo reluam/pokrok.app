@@ -1,6 +1,8 @@
 import { neon } from '@neondatabase/serverless'
 
-const sql = neon(process.env.DATABASE_URL || '')
+// Use a placeholder connection string during build if DATABASE_URL is not set
+const connectionString = process.env.DATABASE_URL || 'postgresql://placeholder@localhost/dummy'
+const sql = neon(connectionString)
 
 export async function initializeDatabase() {
   try {
