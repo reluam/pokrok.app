@@ -10,7 +10,7 @@ interface Pillar {
 const pillars: Pillar[] = [
   {
     title: "Hravost",
-    description: "Moje záchranná brzda. Když jde do tuhého (třeba v práci), připomene mi, že skoro nic není tak vážné, aby to byl konec světa. Je to jen život.",
+    description: "Moje záchranná brzda. Když jde do tuhého, připomene mi, že skoro nic není tak vážné, aby to byl konec světa. Je to jen život.",
   },
   {
     title: "Zvídavost",
@@ -18,15 +18,15 @@ const pillars: Pillar[] = [
   },
   {
     title: "Upřímnost",
-    description: "I v té trapnosti. Protože lhát si do kapsy, že všechno vím, je moc velká dřina.",
+    description: "I v té trapnosti. Protože lhát si do kapsy je dlouhodbě moc velká dřina.",
   },
   {
     title: "Otevřenost",
-    description: "Brána k interakci. Sdílím cestu, ne cíl.",
+    description: "(Pouze do doby, než budu nejlepší...)",
   },
   {
     title: "Radost",
-    description: "Cíl všeho toho snažení. Abychom se na konci dne mohli společně zasmát tomu, jak se v tom plácáme.",
+    description: "Když se někomu něco podaří uplácat, tak chci mít upřímnou radost. Je skvělé, co jsme jako lidi dokázali.",
   },
 ];
 
