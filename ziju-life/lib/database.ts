@@ -32,6 +32,25 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_inspirations_created_at ON inspirations(created_at DESC)
     `
 
+    // Create newsletter_subscribers table
+    await sql`
+      CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+        id VARCHAR(255) PRIMARY KEY,
+        email TEXT NOT NULL UNIQUE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+
+    // Create index on email for faster lookups
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_newsletter_email ON newsletter_subscribers(email)
+    `
+
+    // Create index on created_at for sorting
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_newsletter_created_at ON newsletter_subscribers(created_at DESC)
+    `
+
     console.log('Database initialized successfully')
   } catch (error) {
     console.error('Error initializing database:', error)

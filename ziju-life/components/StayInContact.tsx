@@ -10,18 +10,37 @@ export default function StayInContact({ showTitle = true }: StayInContactProps) 
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     setIsSubmitting(true);
     
-    // TODO: Implement newsletter signup API
-    // For now, just simulate submission
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const res = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Něco se pokazilo. Zkus to prosím znovu.");
+        setIsSubmitting(false);
+        return;
+      }
+
       setIsSubmitted(true);
       setEmail("");
-    }, 1000);
+      setIsSubmitting(false);
+    } catch (err) {
+      setError("Něco se pokazilo. Zkus to prosím znovu.");
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -78,11 +97,19 @@ export default function StayInContact({ showTitle = true }: StayInContactProps) 
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError("");
+                  }}
                   placeholder="Tvůj email"
                   required
                   className="w-full px-6 py-4 rounded-full border-2 border-black/10 focus:border-accent focus:outline-none text-lg"
                 />
+                {error && (
+                  <div className="px-4 py-2 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+                    {error}
+                  </div>
+                )}
                 <button
                   type="submit"
                   disabled={isSubmitting}
