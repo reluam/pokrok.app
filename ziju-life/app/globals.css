@@ -120,6 +120,65 @@
   z-index: 1;
 }
 
+/* Washi tape photo effect */
+.washi-tape-photo {
+  position: relative;
+  transform: rotate(-1deg);
+  transition: transform 0.3s ease;
+}
+
+.washi-tape-photo:hover {
+  transform: rotate(0deg) scale(1.02);
+}
+
+.washi-tape-photo::before,
+.washi-tape-photo::after {
+  content: '';
+  position: absolute;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.washi-tape-photo::before {
+  top: -8px;
+  left: 20%;
+  width: 60px;
+  height: 20px;
+  transform: rotate(-5deg);
+  border-radius: 2px;
+}
+
+.washi-tape-photo::after {
+  bottom: -8px;
+  right: 20%;
+  width: 60px;
+  height: 20px;
+  transform: rotate(5deg);
+  border-radius: 2px;
+}
+
+/* Washi tape on sides (left top, right bottom) */
+.washi-tape-sides::before {
+  top: 10%;
+  left: -8px;
+  width: 20px;
+  height: 60px;
+  transform: rotate(-5deg);
+  border-radius: 2px;
+  bottom: auto;
+}
+
+.washi-tape-sides::after {
+  bottom: 10%;
+  right: -8px;
+  width: 20px;
+  height: 60px;
+  transform: rotate(5deg);
+  border-radius: 2px;
+  top: auto;
+}
+
 .hand-drawn-frame:hover {
   transform: rotate(0.5deg) scale(1.02);
 }
