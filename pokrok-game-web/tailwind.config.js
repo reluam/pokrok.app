@@ -78,8 +78,9 @@ module.exports = {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        playful: ["'Comic Neue'", "'Nunito'", 'Inter', 'sans-serif'],
+        sans: ['var(--font-baloo-2)', 'sans-serif'],
+        playful: ['var(--font-baloo-2)', 'sans-serif'],
+        mono: ['var(--font-baloo-2)', 'monospace'],
       },
       borderRadius: {
         'playful-sm': '8px',

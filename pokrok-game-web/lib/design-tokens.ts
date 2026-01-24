@@ -97,8 +97,8 @@ export const shadows = {
 
 export const typography = {
   fontFamily: {
-    playful: "'Comic Neue', 'Nunito', 'Inter', sans-serif",
-    sans: "'Inter', system-ui, sans-serif",
+    playful: "var(--font-baloo-2), sans-serif",
+    sans: "var(--font-baloo-2), sans-serif",
   },
   fontSize: {
     xs: '12px',
