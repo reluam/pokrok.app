@@ -42,7 +42,7 @@ export default function KafePage() {
           <div className="pt-8 border-t border-black/10">
             <a
               href="mailto:ahoj@ziju.life"
-              className="inline-block px-8 py-4 bg-accent text-white rounded-full text-lg font-medium hover:bg-accent-hover transition-colors w-full sm:w-auto text-center"
+              className="inline-block px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors w-full sm:w-auto text-center"
             >
               Napiš mi a dáme termín
             </a>

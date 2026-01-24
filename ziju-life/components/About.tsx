@@ -5,7 +5,7 @@ export default function About() {
     <section className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
       <DecorativeShapes position="left" />
       <div className="max-w-4xl mx-auto space-y-8 relative z-10">
-        <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground text-center" style={{ fontWeight: 400 }}>
+        <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground text-center" style={{ fontWeight: 600 }}>
           <span className="hand-drawn-underline">Příběh Reverse-Engineera</span>
         </h2>
         
@@ -47,7 +47,7 @@ export default function About() {
             href="https://www.skool.com/ziju-life-9405"
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-playful px-8 py-4 bg-accent text-white rounded-full text-lg font-medium hover:bg-accent-hover transition-colors text-center shadow-lg hover:shadow-xl"
+            className="btn-playful px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors text-center shadow-lg hover:shadow-xl"
           >
             Připoj se do komunity
           </a>

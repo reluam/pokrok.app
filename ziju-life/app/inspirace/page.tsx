@@ -83,12 +83,12 @@ export default function InspiracePage() {
             Všechno, co jsem se naučil, testoval a prožil. Články, experimenty, tipy na knihy a systémy, které měnily můj život.
           </p>
         </div>
-
+        
         {/* Filter */}
         <div className="flex flex-wrap gap-2 justify-center">
           <button
             onClick={() => setSelectedType("all")}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
               selectedType === "all"
                 ? "bg-accent text-white"
                 : "bg-white border border-black/10 text-foreground/70 hover:border-accent/30"
@@ -102,7 +102,7 @@ export default function InspiracePage() {
               <button
                 key={type}
                 onClick={() => setSelectedType(type)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-2 ${
+                className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors flex items-center gap-2 ${
                   selectedType === type
                     ? "bg-accent text-white"
                     : "bg-white border border-black/10 text-foreground/70 hover:border-accent/30"
@@ -125,32 +125,32 @@ export default function InspiracePage() {
             filteredItems.map((item) => {
               const Icon = getTypeIcon(item.type);
               return (
-                <article
+            <article
                   key={item.id}
-                  className="bg-white rounded-2xl p-6 md:p-8 border border-black/5 hover:border-accent/30 transition-all hover:shadow-lg space-y-4"
-                >
+              className="bg-white rounded-2xl p-6 md:p-8 border border-black/5 hover:border-accent/30 transition-all hover:shadow-lg space-y-4"
+            >
                   <div className="flex items-center gap-2">
                     <Icon className="text-accent" size={20} />
-                    <span className="inline-block px-3 py-1 bg-accent/10 text-accent text-sm font-medium rounded-full">
+              <span className="inline-block px-3 py-1 bg-accent/10 text-accent text-sm font-semibold rounded-full">
                       {getTypeLabel(item.type)}
-                    </span>
+              </span>
                   </div>
-                  <h2 className="text-xl md:text-2xl font-bold text-foreground">
-                    {item.title}
-                  </h2>
+              <h2 className="text-xl md:text-2xl font-bold text-foreground">
+                {item.title}
+              </h2>
                   {item.author && (
                     <p className="text-sm text-foreground/60">Autor: {item.author}</p>
                   )}
-                  <p className="text-foreground/70 leading-relaxed">
-                    {item.description}
-                  </p>
+              <p className="text-foreground/70 leading-relaxed">
+                {item.description}
+              </p>
                   <a
                     href={`/inspirace/${item.id}`}
-                    className="inline-block text-accent hover:text-accent-hover transition-colors text-sm font-medium"
+                    className="inline-block text-accent hover:text-accent-hover transition-colors text-sm font-semibold"
                   >
                     Zobrazit →
                   </a>
-                </article>
+            </article>
               );
             })
           )}

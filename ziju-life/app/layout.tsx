@@ -1,7 +1,22 @@
 import type { Metadata } from "next";
+import { Baloo_2, Nunito } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+
+const baloo2 = Baloo_2({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '500', '600', '700', '800'],
+  display: 'swap',
+  variable: '--font-baloo',
+});
+
+const nunito = Nunito({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '500', '600', '700', '800'],
+  display: 'swap',
+  variable: '--font-nunito',
+});
 
 export const metadata: Metadata = {
   title: "Žiju life - Dešifrujeme život za pochodu",
@@ -14,13 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="cs">
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cocoiny&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="cs" className={`${baloo2.variable} ${nunito.variable}`}>
       <body className="antialiased">
         <Navigation />
         {children}

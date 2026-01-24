@@ -11,12 +11,12 @@ export default function Navigation() {
 
   const navItems: Array<{ href: string; label: string; external?: boolean }> = [
     { href: "/inspirace", label: "Inspirace" },
-    { href: "https://www.skool.com/ziju-life-9405", label: "Komunita", external: true },
+    { href: "/komunita", label: "Komunita" },
     { href: "/o-mne", label: "O mně" },
   ];
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#FDFDF7]/95 backdrop-blur-sm border-b-2 border-black/10">
+    <nav className="sticky top-0 z-50 bg-white/50 backdrop-blur-sm border-b-2 border-black/10 paper-texture">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           <Link href="/" className="flex items-center h-12 md:h-16">
@@ -45,7 +45,7 @@ export default function Navigation() {
                     rel="noopener noreferrer"
                     className={`text-base transition-colors ${
                       isActive
-                        ? "text-accent font-medium"
+                        ? "text-accent font-semibold"
                         : "text-foreground/70 hover:text-foreground"
                     }`}
                   >
@@ -73,7 +73,7 @@ export default function Navigation() {
               href="https://www.skool.com/ziju-life-9405"
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-playful px-4 py-2 bg-accent text-white rounded-full text-base font-medium hover:bg-accent-hover transition-colors whitespace-nowrap shadow-md hover:shadow-lg"
+              className="btn-playful px-4 py-2 bg-accent text-white rounded-full text-base font-semibold hover:bg-accent-hover transition-colors whitespace-nowrap shadow-md hover:shadow-lg"
             >
               Vstoupit do komunity
             </a>
@@ -120,7 +120,7 @@ export default function Navigation() {
                     onClick={() => setIsMenuOpen(false)}
                     className={`block py-2 text-base transition-colors ${
                       isActive
-                        ? "text-accent font-medium"
+                        ? "text-accent font-semibold"
                         : "text-foreground/70 hover:text-foreground"
                     }`}
                   >
@@ -149,7 +149,7 @@ export default function Navigation() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setIsMenuOpen(false)}
-              className="block px-4 py-2 bg-accent text-white rounded-full text-base font-medium hover:bg-accent-hover transition-colors text-center"
+              className="block px-4 py-2 bg-accent text-white rounded-full text-base font-semibold hover:bg-accent-hover transition-colors text-center"
             >
               Vstoupit do komunity
             </a>

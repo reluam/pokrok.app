@@ -28,7 +28,7 @@ export default function Medailonek() {
 
           {/* Text vpravo */}
           <div className="order-1 md:order-2 space-y-6">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground" style={{ fontWeight: 400 }}>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground" style={{ fontWeight: 600 }}>
               <span className="hand-drawn-underline">Ahoj, jsem Matěj.</span>
             </h2>
             

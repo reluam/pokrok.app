@@ -39,12 +39,12 @@ export default function OMnePage() {
         <div className="max-w-4xl mx-auto relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-center mb-8">
             <div className="md:col-span-2">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl text-foreground mb-8" style={{ fontWeight: 400 }}>
+              <h1 className="text-3xl md:text-4xl lg:text-5xl text-foreground mb-8">
                 <span className="hand-drawn-underline">Ten moment, kdy mi došlo, že už mi „není dvacet"</span>
               </h1>
               <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed">
                 <p className="text-lg md:text-xl">
-                  Kolem třicítky mě to trefilo. Došlo mi, že pokud budu mít fakt štěstí, mám před sebou už jen dvě třetiny života. Tu první jsem strávil jako pozorovatel – učil jsem se o lidech, o světě i o sobě, ale pořád jsem stál tak trochu bokem. Štvalo mě, že ostatní mají tu agency – tu sílu se světem hýbat a tvořit si ho podle sebe. Došlo mi, že už nechci jen doufat, že to 'nějak vytočím'. Chci s tím světem konečně začít interagovat.
+                  Kolem třicítky mě to trefilo. Došlo mi, že pokud budu mít fakt štěstí, mám před sebou už jen dvě třetiny života. Tu první jsem strávil jako pozorovatel – učil jsem se o lidech, o světě i o sobě, ale pořád jsem stál tak trochu bokem. Štvalo mě, že ostatní mají tu sílu se světem hýbat a tvořit si ho podle sebe. Došlo mi, že už nechci jen doufat, že to 'nějak vytočím'. Chci s tím světem konečně začít interagovat.
                 </p>
               </div>
             </div>
@@ -76,12 +76,12 @@ export default function OMnePage() {
               />
             </div>
             <div className="order-1 md:order-2 md:col-span-2">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground mb-8" style={{ fontWeight: 400 }}>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground mb-8" style={{ fontWeight: 600 }}>
                 <span className="hand-drawn-underline">Od hloubání k Žiju life</span>
               </h2>
               <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed">
                 <p className="text-lg md:text-xl">
-                  Půl roku jsem to v sobě převaloval. Hledal jsem způsob, jak ty vědomosti z první třetiny života nevyhodit z okna, ale začít je předávat dál a přitom se nepřestat učit. Blog by byl fajn, ale blog je monolog. Já chtěl dialog. Chtěl jsem interakci se světem a lidmi, kteří jsou na tom podobně. Proto vzniklo Žiju life. Není to jen projekt, je to můj způsob, jak tuhle životní těžkost trochu zlehčit a postavit něco, co dává smysl nejen mně, ale i ostatním.
+                  Půl roku jsem to v sobě převaloval. Hledal jsem způsob, jak ty vědomosti z první třetiny života nevyhodit z okna, ale začít je předávat dál a přitom se nepřestat učit. Blog by byl fajn, ale blog je monolog. Já chtěl dialog. Chtěl jsem interakci se světem a lidmi, kteří jsou na tom podobně. Proto vzniklo Žiju life. Není to jen projekt, je to můj způsob, jak tenhle život prožít a postavit něco, co dává smysl nejen mně, ale i ostatním.
                 </p>
               </div>
             </div>
@@ -92,7 +92,7 @@ export default function OMnePage() {
       {/* Sekce 3: 5 věcí, o které se opírám */}
       <section className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
         <div className="max-w-6xl mx-auto relative z-10">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground mb-12 text-center" style={{ fontWeight: 400 }}>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground mb-12 text-center" style={{ fontWeight: 600 }}>
             <span className="hand-drawn-underline">5 věcí, o které se opírám</span>
           </h2>
           
@@ -103,7 +103,7 @@ export default function OMnePage() {
                 className="bg-white/50 rounded-2xl p-6 md:p-8 border-2 border-black/5 hover:border-accent/30 transition-all hover:shadow-xl hover:-translate-y-1 transform"
                 style={{ transform: `rotate(${index % 2 === 0 ? '-0.5deg' : '0.5deg'})` }}
               >
-                <h3 className="text-xl md:text-2xl text-foreground mb-4" style={{ fontWeight: 400 }}>
+                <h3 className="text-xl md:text-2xl text-foreground mb-4" style={{ fontWeight: 600 }}>
                   <span className="text-accent font-bold">{pillar.title}:</span>
                 </h3>
                 <p className="text-foreground/80 leading-relaxed">
@@ -115,11 +115,15 @@ export default function OMnePage() {
         </div>
       </section>
 
-      {/* Divider */}
-      <div className="border-t-2 border-black/10 my-16"></div>
+      {/* Transition text */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+        <p className="text-lg md:text-xl text-foreground/80 leading-relaxed">
+          A to je vlastně vše. Pokud se chceš přidat, nakoukni do komunity, nebo odebírej newsletter.
+        </p>
+      </div>
 
       {/* Stay in Contact */}
-      <StayInContact />
+      <StayInContact showTitle={false} />
     </main>
   );
 }

@@ -5,7 +5,7 @@ import {
   updateInspirationItem,
   deleteInspirationItem,
   type InspirationType,
-} from '@/lib/inspiration'
+} from '@/lib/inspiration-db'
 
 export async function GET() {
   try {

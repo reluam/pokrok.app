@@ -6,7 +6,7 @@ export default function Coffee() {
       <DecorativeShapes position="right" />
       <div className="max-w-4xl mx-auto text-center space-y-8 relative z-10">
         <div className="relative inline-block">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground" style={{ fontWeight: 400 }}>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground" style={{ fontWeight: 600 }}>
             <span className="hand-drawn-underline">Dáme kafe?</span>
           </h2>
           {/* Coffee icon decoration */}
@@ -26,7 +26,7 @@ export default function Coffee() {
           href="https://www.skool.com/@matej-mauler-3777?g=ziju-life-9405"
           target="_blank"
           rel="noopener noreferrer"
-          className="btn-playful inline-block px-8 py-4 bg-accent text-white rounded-full text-lg font-medium hover:bg-accent-hover transition-colors mt-4 shadow-lg hover:shadow-xl"
+          className="btn-playful inline-block px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors mt-4 shadow-lg hover:shadow-xl"
         >
           Můžeš mi napsat na skoolu →
         </a>

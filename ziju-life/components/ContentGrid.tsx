@@ -31,7 +31,7 @@ export default function ContentGrid() {
     <section className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white/50 paper-texture overflow-hidden">
       <div className="max-w-6xl mx-auto space-y-12 relative z-10">
         <div className="text-center space-y-4">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground" style={{ fontWeight: 400 }}>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground" style={{ fontWeight: 600 }}>
             <span className="hand-drawn-underline">Posbíraná inspirace</span>
           </h2>
           <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto">
@@ -46,10 +46,10 @@ export default function ContentGrid() {
               className="bg-white rounded-2xl p-6 md:p-8 border-2 border-black/5 hover:border-accent/50 transition-all hover:shadow-xl hover:-translate-y-1 space-y-4 transform"
               style={{ transform: `rotate(${index % 2 === 0 ? '-0.5deg' : '0.5deg'})` }}
             >
-              <span className="inline-block px-3 py-1 bg-accent/10 text-accent text-sm font-medium rounded-full border border-accent/20">
+              <span className="inline-block px-3 py-1 bg-accent/10 text-accent text-sm font-semibold rounded-full border border-accent/20">
                 {item.type}
               </span>
-              <h3 className="text-xl md:text-2xl text-foreground" style={{ fontWeight: 400 }}>
+              <h3 className="text-xl md:text-2xl text-foreground" style={{ fontWeight: 600 }}>
                 {item.title}
               </h3>
               <p className="text-foreground/70 leading-relaxed">
@@ -65,7 +65,7 @@ export default function ContentGrid() {
         <div className="text-center">
           <a
             href="/inspirace"
-            className="btn-playful inline-block px-8 py-4 border-2 border-foreground/20 rounded-full text-lg font-medium hover:border-accent hover:text-accent transition-colors shadow-md hover:shadow-lg"
+            className="btn-playful inline-block px-8 py-4 border-2 border-foreground/20 rounded-full text-lg font-semibold hover:border-accent hover:text-accent transition-colors shadow-md hover:shadow-lg"
           >
             Zobrazit všechny inspirace
           </a>

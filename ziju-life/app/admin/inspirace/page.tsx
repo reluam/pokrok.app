@@ -173,7 +173,7 @@ export default function AdminInspiracePage() {
           </div>
           <button
             onClick={openTypeSelector}
-            className="flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-full font-medium hover:bg-accent-hover transition-colors"
+            className="flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-full font-semibold hover:bg-accent-hover transition-colors"
           >
             <Plus size={20} />
             Přidat inspiraci
@@ -196,7 +196,7 @@ export default function AdminInspiracePage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <Icon className="text-accent" size={20} />
-                          <span className="text-sm font-medium text-accent">{getTypeLabel(item.category)}</span>
+                          <span className="text-sm font-semibold text-accent">{getTypeLabel(item.category)}</span>
                         </div>
                         <h3 className="text-xl font-bold text-foreground mb-1">{item.title}</h3>
                         {item.author && (
@@ -268,7 +268,7 @@ export default function AdminInspiracePage() {
                   className="w-full flex items-center gap-4 p-4 border-2 border-black/10 rounded-xl hover:border-accent transition-colors text-left"
                 >
                   <Icon className="text-accent" size={24} />
-                  <span className="text-lg font-medium text-foreground">{label}</span>
+                  <span className="text-lg font-semibold text-foreground">{label}</span>
                 </button>
               ))}
             </div>
@@ -298,7 +298,7 @@ export default function AdminInspiracePage() {
             <div className="space-y-4">
               {/* Title */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label className="block text-sm font-semibold text-foreground mb-2">
                   Název *
                 </label>
                 <input
@@ -314,7 +314,7 @@ export default function AdminInspiracePage() {
               {/* Author */}
               {(selectedType === "book" || selectedType === "video" || selectedType === "article") && (
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label className="block text-sm font-semibold text-foreground mb-2">
                     Autor
                   </label>
                   <input
@@ -329,7 +329,7 @@ export default function AdminInspiracePage() {
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label className="block text-sm font-semibold text-foreground mb-2">
                   Popis *
                 </label>
                 <textarea
@@ -344,7 +344,7 @@ export default function AdminInspiracePage() {
 
               {/* URL */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label className="block text-sm font-semibold text-foreground mb-2">
                   URL *
                 </label>
                 <input
@@ -360,7 +360,7 @@ export default function AdminInspiracePage() {
               {/* Video Thumbnail */}
               {selectedType === "video" && (
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label className="block text-sm font-semibold text-foreground mb-2">
                     Thumbnail URL (obrázek z videa)
                   </label>
                   <input
@@ -383,7 +383,7 @@ export default function AdminInspiracePage() {
               {/* Blog Content */}
               {selectedType === "blog" && (
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label className="block text-sm font-semibold text-foreground mb-2">
                     Obsah blogu *
                   </label>
                   <textarea

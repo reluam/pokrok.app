@@ -22,7 +22,7 @@ export default function Hero() {
       <DecorativeShapes variant="hero" />
       
       <div className="max-w-4xl mx-auto text-center relative z-10 space-y-8 md:space-y-12">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl leading-tight text-foreground" style={{ fontWeight: 400 }}>
+        <h1 className="text-4xl md:text-5xl lg:text-6xl leading-tight text-foreground">
           <span className="hand-drawn-underline">Žiju life.</span> A učím se to za pochodu.
         </h1>
         

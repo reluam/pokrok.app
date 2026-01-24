@@ -135,7 +135,7 @@ export default function InspiraceDetailPage() {
 
         <div className="flex items-center gap-3 mb-4">
           <Icon className="text-accent" size={24} />
-          <span className="px-3 py-1 bg-accent/10 text-accent text-sm font-medium rounded-full">
+          <span className="px-3 py-1 bg-accent/10 text-accent text-sm font-semibold rounded-full">
             {item.type === "blog" ? "Blog" : 
              item.type === "video" ? "Video" : 
              item.type === "book" ? "Kniha" : 
@@ -192,7 +192,7 @@ export default function InspiraceDetailPage() {
             href={item.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block px-8 py-4 bg-accent text-white rounded-full font-medium hover:bg-accent-hover transition-colors"
+            className="inline-block px-8 py-4 bg-accent text-white rounded-full font-semibold hover:bg-accent-hover transition-colors"
           >
             Otevřít video →
           </a>
@@ -214,7 +214,7 @@ export default function InspiraceDetailPage() {
             href={item.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block px-8 py-4 bg-accent text-white rounded-full font-medium hover:bg-accent-hover transition-colors"
+            className="inline-block px-8 py-4 bg-accent text-white rounded-full font-semibold hover:bg-accent-hover transition-colors"
           >
             Otevřít →
           </a>

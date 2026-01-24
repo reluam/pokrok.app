@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 
-export default function StayInContact() {
+interface StayInContactProps {
+  showTitle?: boolean;
+}
+
+export default function StayInContact({ showTitle = true }: StayInContactProps) {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -23,11 +27,13 @@ export default function StayInContact() {
   return (
     <section className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
       <div className="max-w-6xl mx-auto relative z-10">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground" style={{ fontWeight: 400 }}>
-            <span className="hand-drawn-underline">Stay in kontakt</span>
-          </h2>
-        </div>
+        {showTitle && (
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground" style={{ fontWeight: 600 }}>
+              <span className="hand-drawn-underline">Stay in kontakt</span>
+            </h2>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           {/* Vlevo - Komunita */}
@@ -35,7 +41,7 @@ export default function StayInContact() {
             className="bg-white/50 rounded-2xl p-8 md:p-10 border-2 border-black/5 hover:border-accent/30 transition-all transform hover:-translate-y-1"
             style={{ transform: 'rotate(-0.5deg)' }}
           >
-            <h3 className="text-2xl md:text-3xl text-foreground mb-4" style={{ fontWeight: 400 }}>
+            <h3 className="text-2xl md:text-3xl text-foreground mb-4" style={{ fontWeight: 600 }}>
               Připoj se do komunity
             </h3>
             <p className="text-lg text-foreground/80 leading-relaxed mb-6">
@@ -45,7 +51,7 @@ export default function StayInContact() {
               href="https://www.skool.com/ziju-life-9405"
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-playful inline-block px-8 py-4 bg-accent text-white rounded-full text-lg font-medium hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
+              className="btn-playful inline-block px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
             >
               Vstoupit do komunity →
             </a>
@@ -56,7 +62,7 @@ export default function StayInContact() {
             className="bg-white/50 rounded-2xl p-8 md:p-10 border-2 border-black/5 hover:border-accent/30 transition-all transform hover:-translate-y-1"
             style={{ transform: 'rotate(0.5deg)' }}
           >
-            <h3 className="text-2xl md:text-3xl text-foreground mb-4" style={{ fontWeight: 400 }}>
+            <h3 className="text-2xl md:text-3xl text-foreground mb-4" style={{ fontWeight: 600 }}>
               Newsletter
             </h3>
             <p className="text-lg text-foreground/80 leading-relaxed mb-6">

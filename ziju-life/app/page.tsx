@@ -14,6 +14,6 @@ export default function Home() {
       <Coffee />
       <ContentGrid />
       <StayInContact />
-    </main>
+      </main>
   );
 }

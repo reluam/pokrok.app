@@ -1,0 +1,40 @@
+import { neon } from '@neondatabase/serverless'
+
+const sql = neon(process.env.DATABASE_URL || '')
+
+export async function initializeDatabase() {
+  try {
+    // Create inspirations table
+    await sql`
+      CREATE TABLE IF NOT EXISTS inspirations (
+        id VARCHAR(255) PRIMARY KEY,
+        type VARCHAR(50) NOT NULL CHECK (type IN ('blog', 'video', 'book', 'article', 'other')),
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        url TEXT NOT NULL,
+        author TEXT,
+        content TEXT,
+        thumbnail TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+
+    // Create index on type for faster queries
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_inspirations_type ON inspirations(type)
+    `
+
+    // Create index on created_at for sorting
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_inspirations_created_at ON inspirations(created_at DESC)
+    `
+
+    console.log('Database initialized successfully')
+  } catch (error) {
+    console.error('Error initializing database:', error)
+    throw error
+  }
+}
+
+export { sql }
