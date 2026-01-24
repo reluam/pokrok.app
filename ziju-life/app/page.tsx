@@ -3,7 +3,7 @@ import Medailonek from "@/components/Medailonek";
 import Philosophy from "@/components/Philosophy";
 import Coffee from "@/components/Coffee";
 import ContentGrid from "@/components/ContentGrid";
-import About from "@/components/About";
+import StayInContact from "@/components/StayInContact";
 
 export default function Home() {
   return (
@@ -13,7 +13,7 @@ export default function Home() {
       <Philosophy />
       <Coffee />
       <ContentGrid />
-      <About />
+      <StayInContact />
     </main>
   );
 }

@@ -32,10 +32,10 @@ export default function ContentGrid() {
       <div className="max-w-6xl mx-auto space-y-12 relative z-10">
         <div className="text-center space-y-4">
           <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground" style={{ fontWeight: 400 }}>
-            <span className="hand-drawn-underline">Inspirace z laboratoře</span>
+            <span className="hand-drawn-underline">Posbíraná inspirace</span>
           </h2>
           <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto">
-            Moje nejnovější články, tipy na knihy, diety nebo systémy, které zrovna testuju na vlastní kůži.
+            Články, tipy a experimenty, které mi pomáhají pochopit život. Občas něco napíšu i já.
           </p>
         </div>
         
