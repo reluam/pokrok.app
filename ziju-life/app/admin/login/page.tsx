@@ -31,8 +31,8 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // Redirect to admin page
-      router.push("/admin/inspirace");
+      // Redirect to admin dashboard
+      router.push("/admin");
       router.refresh();
     } catch (err) {
       setError("Login failed. Please try again.");
