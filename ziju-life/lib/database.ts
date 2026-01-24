@@ -13,7 +13,7 @@ export async function initializeDatabase() {
         type VARCHAR(50) NOT NULL CHECK (type IN ('blog', 'video', 'book', 'article', 'other')),
         title TEXT NOT NULL,
         description TEXT NOT NULL,
-        url TEXT NOT NULL,
+        url TEXT,
         author TEXT,
         content TEXT,
         thumbnail TEXT,

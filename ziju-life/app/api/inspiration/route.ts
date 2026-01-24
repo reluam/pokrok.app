@@ -32,12 +32,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // For blog type, url is optional (can use content instead)
+    // For other types, url is required
+    if (type !== 'blog' && !item.url) {
+      return NextResponse.json(
+        { error: 'URL is required for this type' },
+        { status: 400 }
+      )
+    }
+
     const newItem = await addInspirationItem(type as InspirationType, item)
     return NextResponse.json(newItem, { status: 201 })
   } catch (error) {
     console.error('Error creating inspiration item:', error)
     return NextResponse.json(
-      { error: 'Failed to create inspiration item' },
+      { error: error instanceof Error ? error.message : 'Failed to create inspiration item' },
       { status: 500 }
     )
   }

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, X, Book, Video, FileText, PenTool, HelpCircle, Edit2, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Plus, X, Book, Video, FileText, PenTool, HelpCircle, Edit2, Trash2, LogOut } from "lucide-react";
 import type { InspirationData, InspirationItem, InspirationType } from "@/lib/inspiration";
 
 const getTypeLabel = (type: InspirationType): string => {
@@ -27,6 +28,7 @@ const getTypeIcon = (type: InspirationType) => {
 };
 
 export default function AdminInspiracePage() {
+  const router = useRouter();
   const [data, setData] = useState<InspirationData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showTypeSelector, setShowTypeSelector] = useState(false);
@@ -34,6 +36,16 @@ export default function AdminInspiracePage() {
   const [selectedType, setSelectedType] = useState<InspirationType | null>(null);
   const [editingItem, setEditingItem] = useState<{ item: InspirationItem; type: InspirationType } | null>(null);
   const [formData, setFormData] = useState<Partial<InspirationItem>>({});
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/admin/logout", { method: "POST" });
+      router.push("/admin/login");
+      router.refresh();
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -171,13 +183,22 @@ export default function AdminInspiracePage() {
             <h1 className="text-4xl font-bold text-foreground mb-2">Správa inspirací</h1>
             <p className="text-foreground/70">Přehled a správa všech inspirací</p>
           </div>
-          <button
-            onClick={openTypeSelector}
-            className="flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-full font-semibold hover:bg-accent-hover transition-colors"
-          >
-            <Plus size={20} />
-            Přidat inspiraci
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={openTypeSelector}
+              className="flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-full font-semibold hover:bg-accent-hover transition-colors"
+            >
+              <Plus size={20} />
+              Přidat inspiraci
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 border-2 border-black/10 rounded-full font-semibold hover:border-accent hover:text-accent transition-colors"
+            >
+              <LogOut size={18} />
+              Odhlásit se
+            </button>
+          </div>
         </div>
 
         {/* Items List */}
