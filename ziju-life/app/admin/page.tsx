@@ -1,89 +1,38 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { PenTool, Mail, LogOut, ArrowRight } from "lucide-react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, Suspense } from "react";
+import InspiraceContent from "@/components/admin/InspiraceContent";
+import NewsletterContent from "@/components/admin/NewsletterContent";
 
-export default function AdminPage() {
+function AdminContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const section = searchParams.get("section") || "inspirace";
 
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/admin/logout", { method: "POST" });
-      router.push("/admin/login");
-      router.refresh();
-    } catch (error) {
-      console.error("Logout error:", error);
+  // Ensure section is always set in URL
+  useEffect(() => {
+    if (!searchParams.get("section")) {
+      router.replace("/admin?section=inspirace");
     }
-  };
-
-  const adminSections = [
-    {
-      title: "Inspirace",
-      description: "Správa článků, videí, knih a dalších inspirací",
-      href: "/admin/inspirace",
-      icon: PenTool,
-      color: "bg-accent",
-    },
-    {
-      title: "Newsletter",
-      description: "Přehled emailů z newsletteru a jejich export",
-      href: "/admin/newsletter",
-      icon: Mail,
-      color: "bg-accent-secondary",
-    },
-  ];
+  }, [searchParams, router]);
 
   return (
-    <div className="min-h-screen bg-white/50 py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-12">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-2">
-              Admin Dashboard
-            </h1>
-            <p className="text-foreground/70">
-              Správa obsahu a newsletteru
-            </p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 border-2 border-black/10 rounded-full font-semibold hover:border-accent hover:text-accent transition-colors"
-          >
-            <LogOut size={18} />
-            Odhlásit se
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          {adminSections.map((section) => {
-            const Icon = section.icon;
-            return (
-              <a
-                key={section.href}
-                href={section.href}
-                className="group bg-white rounded-2xl p-8 border-2 border-black/5 hover:border-accent/30 transition-all hover:shadow-xl hover:-translate-y-1 transform"
-                style={{ transform: 'rotate(-0.5deg)' }}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`${section.color} p-4 rounded-2xl text-white`}>
-                    <Icon size={32} />
-                  </div>
-                  <ArrowRight 
-                    size={24} 
-                    className="text-foreground/30 group-hover:text-accent group-hover:translate-x-1 transition-all" 
-                  />
-                </div>
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-                  {section.title}
-                </h2>
-                <p className="text-foreground/70 leading-relaxed">
-                  {section.description}
-                </p>
-              </a>
-            );
-          })}
-        </div>
-      </div>
+    <div className="max-w-7xl mx-auto">
+      {section === "inspirace" && <InspiraceContent />}
+      {section === "newsletter" && <NewsletterContent />}
     </div>
+  );
+}
+
+export default function AdminPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-full">
+        <p className="text-foreground/60">Načítání...</p>
+      </div>
+    }>
+      <AdminContent />
+    </Suspense>
   );
 }

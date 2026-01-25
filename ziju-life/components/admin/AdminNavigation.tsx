@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { PenTool, Mail, LogOut } from "lucide-react";
 
 type AdminSection = "inspirace" | "newsletter";
@@ -9,25 +9,23 @@ interface NavItem {
   id: AdminSection;
   label: string;
   icon: typeof PenTool;
-  href: string;
 }
 
 export default function AdminNavigation() {
   const router = useRouter();
-  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentSection = (searchParams.get("section") || "inspirace") as AdminSection;
 
   const navItems: NavItem[] = [
     {
       id: "inspirace",
       label: "Inspirace",
       icon: PenTool,
-      href: "/admin?section=inspirace",
     },
     {
       id: "newsletter",
       label: "Newsletter",
       icon: Mail,
-      href: "/admin?section=newsletter",
     },
   ];
 
@@ -41,13 +39,9 @@ export default function AdminNavigation() {
     }
   };
 
-  const getCurrentSection = (): AdminSection | null => {
-    const params = new URLSearchParams(window.location.search);
-    const section = params.get("section") as AdminSection | null;
-    return section || "inspirace"; // Default to inspirace
+  const navigateToSection = (section: AdminSection) => {
+    router.push(`/admin?section=${section}`);
   };
-
-  const currentSection = getCurrentSection();
 
   return (
     <div className="w-64 bg-white border-r border-black/10 flex flex-col h-screen fixed left-0 top-0">
@@ -66,7 +60,7 @@ export default function AdminNavigation() {
             return (
               <li key={item.id}>
                 <button
-                  onClick={() => router.push(item.href)}
+                  onClick={() => navigateToSection(item.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors ${
                     isActive
                       ? "bg-accent text-white"
