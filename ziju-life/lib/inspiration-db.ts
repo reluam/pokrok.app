@@ -4,12 +4,18 @@ import type { InspirationItem, InspirationType, InspirationData } from './inspir
 // Re-export types for use in API routes
 export type { InspirationItem, InspirationType, InspirationData }
 
-export async function getInspirationData(): Promise<InspirationData> {
+export async function getInspirationData(includeInactive: boolean = true): Promise<InspirationData> {
   try {
-    const items = await sql`
-      SELECT * FROM inspirations
-      ORDER BY created_at DESC
-    `
+    const items = includeInactive
+      ? await sql`
+          SELECT * FROM inspirations
+          ORDER BY created_at DESC
+        `
+      : await sql`
+          SELECT * FROM inspirations
+          WHERE is_active = true
+          ORDER BY created_at DESC
+        `
 
     const result: InspirationData = {
       blogs: [],
@@ -29,6 +35,7 @@ export async function getInspirationData(): Promise<InspirationData> {
         author: item.author || undefined,
         content: item.content || undefined,
         thumbnail: item.thumbnail || undefined,
+        isActive: item.is_active ?? true,
         createdAt: item.created_at.toISOString(),
         updatedAt: item.updated_at.toISOString(),
       }
@@ -74,16 +81,17 @@ export async function addInspirationItem(
 
   await sql`
     INSERT INTO inspirations (
-      id, type, title, description, url, author, content, thumbnail, created_at, updated_at
+      id, type, title, description, url, author, content, thumbnail, is_active, created_at, updated_at
     ) VALUES (
       ${id},
       ${type},
       ${item.title},
       ${item.description},
-      ${item.url},
+      ${item.url || null},
       ${item.author || null},
       ${item.content || null},
       ${item.thumbnail || null},
+      ${item.isActive ?? true},
       ${now},
       ${now}
     )
@@ -93,6 +101,7 @@ export async function addInspirationItem(
     ...item,
     id,
     type,
+    isActive: item.isActive ?? true,
     createdAt: now.toISOString(),
     updatedAt: now.toISOString(),
   }
@@ -127,6 +136,7 @@ export async function updateInspirationItem(
       author = ${updates.author ?? currentItem.author},
       content = ${updates.content ?? currentItem.content},
       thumbnail = ${updates.thumbnail ?? currentItem.thumbnail},
+      is_active = ${updates.isActive !== undefined ? updates.isActive : (currentItem.is_active ?? true)},
       updated_at = ${now}
     WHERE id = ${id} AND type = ${type}
     RETURNING *
@@ -146,6 +156,7 @@ export async function updateInspirationItem(
     author: item.author || undefined,
     content: item.content || undefined,
     thumbnail: item.thumbnail || undefined,
+    isActive: item.is_active ?? true,
     createdAt: item.created_at.toISOString(),
     updatedAt: item.updated_at.toISOString(),
   }

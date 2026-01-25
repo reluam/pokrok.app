@@ -15,6 +15,8 @@ interface Feedback {
   user_agent: string | null
   url: string | null
   viewport: any | null
+  resolved: boolean
+  resolved_at: string | null
   created_at: string
   user_email: string | null
   user_name: string | null
@@ -28,12 +30,36 @@ export default function FeedbackDetailPage() {
   const [feedback, setFeedback] = useState<Feedback | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [updating, setUpdating] = useState(false)
 
   useEffect(() => {
     if (params.id) {
       loadFeedback(params.id as string)
     }
   }, [params.id])
+
+  const handleResolve = async (resolved: boolean) => {
+    if (!feedback) return
+    
+    setUpdating(true)
+    try {
+      const response = await fetch(`/api/feedback/${feedback.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resolved })
+      })
+      if (!response.ok) {
+        throw new Error('Failed to update feedback')
+      }
+      const updated = await response.json()
+      setFeedback(updated)
+    } catch (error) {
+      console.error('Error updating feedback:', error)
+      alert('Chyba při aktualizaci feedbacku')
+    } finally {
+      setUpdating(false)
+    }
+  }
 
   const loadFeedback = async (id: string) => {
     setLoading(true)
@@ -100,15 +126,39 @@ export default function FeedbackDetailPage() {
             <ArrowLeft className="w-4 h-4" />
             <span>Zpět</span>
           </button>
-          <div className="flex items-center gap-3">
-            {feedback.type === 'bug' ? (
-              <Bug className="w-8 h-8 text-red-600" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {feedback.type === 'bug' ? (
+                <Bug className="w-8 h-8 text-red-600" />
+              ) : (
+                <Lightbulb className="w-8 h-8 text-primary-600" />
+              )}
+              <h1 className={`text-3xl font-bold ${feedback.resolved ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                {feedback.type === 'bug' ? 'Nahlášená chyba' : 'Feedback'}
+              </h1>
+              {feedback.resolved && (
+                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                  Resolved
+                </span>
+              )}
+            </div>
+            {!feedback.resolved ? (
+              <button
+                onClick={() => handleResolve(true)}
+                disabled={updating}
+                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              >
+                {updating ? 'Ukládám...' : 'Označit jako resolved'}
+              </button>
             ) : (
-              <Lightbulb className="w-8 h-8 text-primary-600" />
+              <button
+                onClick={() => handleResolve(false)}
+                disabled={updating}
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              >
+                {updating ? 'Ukládám...' : 'Označit jako neresolved'}
+              </button>
             )}
-            <h1 className="text-3xl font-bold text-gray-900">
-              {feedback.type === 'bug' ? 'Nahlášená chyba' : 'Feedback'}
-            </h1>
           </div>
         </div>
 
@@ -170,6 +220,16 @@ export default function FeedbackDetailPage() {
                   <div className="text-gray-900">
                     {feedback.viewport.width} × {feedback.viewport.height}px
                   </div>
+                </div>
+              </div>
+            )}
+
+            {feedback.resolved && feedback.resolved_at && (
+              <div className="flex items-start gap-3">
+                <Calendar className="w-5 h-5 text-green-500 mt-0.5" />
+                <div>
+                  <div className="text-sm font-medium text-gray-500">Resolved</div>
+                  <div className="text-gray-900">{formatDate(feedback.resolved_at)}</div>
                 </div>
               </div>
             )}

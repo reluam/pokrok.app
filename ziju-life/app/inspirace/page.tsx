@@ -55,7 +55,9 @@ export default function InspiracePage() {
       ...data.books,
       ...data.articles,
       ...data.other,
-    ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    ]
+      .filter(item => item.isActive !== false) // Only show active items
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   };
 
   const filteredItems = selectedType === "all" 

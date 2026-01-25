@@ -15,6 +15,8 @@ interface Feedback {
   user_agent: string | null
   url: string | null
   viewport: any | null
+  resolved: boolean
+  resolved_at: string | null
   created_at: string
   user_email: string | null
   user_name: string | null
@@ -28,17 +30,26 @@ export function AdminFeedbackView() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filterType, setFilterType] = useState<'all' | 'feedback' | 'bug'>('all')
+  const [showResolved, setShowResolved] = useState(false)
 
   useEffect(() => {
     loadFeedbacks()
-  }, [filterType])
+  }, [filterType, showResolved])
 
   const loadFeedbacks = async () => {
     setLoading(true)
     setError(null)
     try {
-      const typeParam = filterType === 'all' ? '' : `?type=${filterType}`
-      const response = await fetch(`/api/feedback${typeParam}`)
+      const params = new URLSearchParams()
+      if (filterType !== 'all') {
+        params.append('type', filterType)
+      }
+      if (showResolved) {
+        params.append('includeResolved', 'true')
+      }
+      const queryString = params.toString()
+      const url = `/api/feedback${queryString ? `?${queryString}` : ''}`
+      const response = await fetch(url)
       if (!response.ok) {
         throw new Error('Failed to load feedbacks')
       }
@@ -49,6 +60,24 @@ export function AdminFeedbackView() {
       setError('Failed to load feedbacks')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleResolve = async (id: string, resolved: boolean) => {
+    try {
+      const response = await fetch(`/api/feedback/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resolved })
+      })
+      if (!response.ok) {
+        throw new Error('Failed to update feedback')
+      }
+      // Reload feedbacks
+      loadFeedbacks()
+    } catch (error) {
+      console.error('Error updating feedback:', error)
+      alert('Chyba při aktualizaci feedbacku')
     }
   }
 
@@ -99,6 +128,15 @@ export function AdminFeedbackView() {
             <option value="feedback">Feedback</option>
             <option value="bug">Chyby</option>
           </select>
+          <label className="flex items-center gap-2 px-3 py-2 border-2 border-primary-500 rounded-lg cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showResolved}
+              onChange={(e) => setShowResolved(e.target.checked)}
+              className="w-4 h-4"
+            />
+            <span className="text-sm">Zobrazit resolved</span>
+          </label>
         </div>
       </div>
 
@@ -125,7 +163,11 @@ export function AdminFeedbackView() {
               </tr>
             ) : (
               feedbacks.map((feedback) => (
-                <tr key={feedback.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={feedback.id} className={`transition-colors ${
+                  feedback.resolved 
+                    ? 'bg-green-50 hover:bg-green-100' 
+                    : 'hover:bg-gray-50'
+                }`}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       {feedback.type === 'bug' ? (
@@ -133,9 +175,14 @@ export function AdminFeedbackView() {
                       ) : (
                         <Lightbulb className="w-5 h-5 text-primary-600" />
                       )}
-                      <span className="text-sm font-medium">
+                      <span className={`text-sm font-medium ${feedback.resolved ? 'line-through text-gray-400' : ''}`}>
                         {feedback.type === 'bug' ? 'Chyba' : 'Feedback'}
                       </span>
+                      {feedback.resolved && (
+                        <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                          Resolved
+                        </span>
+                      )}
                     </div>
                   </td>
                   <td className="px-4 py-3">
@@ -184,12 +231,32 @@ export function AdminFeedbackView() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => router.push(`/${locale}/planner/admin/feedback/${feedback.id}`)}
-                      className="px-3 py-1.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors text-sm font-medium"
-                    >
-                      Zobrazit
-                    </button>
+                    <div className="flex items-center gap-2">
+                      {!feedback.resolved && (
+                        <button
+                          onClick={() => handleResolve(feedback.id, true)}
+                          className="px-3 py-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-medium"
+                          title="Označit jako resolved"
+                        >
+                          ✓
+                        </button>
+                      )}
+                      {feedback.resolved && (
+                        <button
+                          onClick={() => handleResolve(feedback.id, false)}
+                          className="px-3 py-1.5 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm font-medium"
+                          title="Označit jako neresolved"
+                        >
+                          ↺
+                        </button>
+                      )}
+                      <button
+                        onClick={() => router.push(`/${locale}/planner/admin/feedback/${feedback.id}`)}
+                        className="px-3 py-1.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors text-sm font-medium"
+                      >
+                        Zobrazit
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

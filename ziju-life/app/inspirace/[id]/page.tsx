@@ -81,7 +81,7 @@ export default function InspiraceDetailPage() {
         ...data.books,
         ...data.articles,
         ...data.other,
-      ];
+      ].filter((i: InspirationItem) => i.isActive !== false); // Only show active items
       
       const foundItem = allItems.find((i: InspirationItem) => i.id === params.id);
       setItem(foundItem || null);

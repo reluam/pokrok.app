@@ -151,13 +151,13 @@ export function JourneyGameView({
     loadUserId()
   }, [user?.id, userId])
 
-  const [currentPage, setCurrentPage] = useState<'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas'>(() => {
+  const [currentPage, setCurrentPage] = useState<'main' | 'habits' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas'>(() => {
     // Default to 'main' (Main Panel) when user first logs in
     if (typeof window !== 'undefined') {
       try {
         const savedPage = localStorage.getItem('journeyGame_currentPage')
-        if (savedPage && ['main', 'goals', 'habits', 'steps', 'statistics', 'achievements', 'settings', 'workflows', 'help', 'areas'].includes(savedPage)) {
-          return savedPage as 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help'
+        if (savedPage && ['main', 'habits', 'statistics', 'achievements', 'settings', 'workflows', 'help', 'areas'].includes(savedPage)) {
+          return savedPage as 'main' | 'habits' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas'
         }
       } catch (error) {
         console.error('Error loading currentPage:', error)
@@ -296,18 +296,18 @@ export function JourneyGameView({
   // Mobile menu state
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mobileTopMenuOpen, setMobileTopMenuOpen] = useState(false)
-  const [currentManagementProgram, setCurrentManagementProgram] = useState<'goals' | 'habits' | 'steps'>(() => {
+  const [currentManagementProgram, setCurrentManagementProgram] = useState<'habits'>(() => {
     if (typeof window !== 'undefined') {
       try {
         const savedManagementProgram = localStorage.getItem('journeyGame_currentManagementProgram')
-        if (savedManagementProgram && ['goals', 'habits', 'steps'].includes(savedManagementProgram)) {
-          return savedManagementProgram as 'goals' | 'habits' | 'steps'
+        if (savedManagementProgram && ['habits'].includes(savedManagementProgram)) {
+          return savedManagementProgram as 'habits'
         }
       } catch (error) {
         console.error('Error loading currentManagementProgram:', error)
       }
     }
-    return 'goals'
+    return 'habits'
   })
 
   const [currentMonth, setCurrentMonth] = useState(new Date())

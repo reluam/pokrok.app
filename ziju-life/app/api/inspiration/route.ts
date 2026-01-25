@@ -7,9 +7,13 @@ import {
   type InspirationType,
 } from '@/lib/inspiration-db'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const data = await getInspirationData()
+    const { searchParams } = new URL(request.url)
+    // Only include inactive items if explicitly requested (for admin)
+    const includeInactive = searchParams.get('includeInactive') === 'true'
+    
+    const data = await getInspirationData(includeInactive)
     return NextResponse.json(data)
   } catch (error) {
     console.error('Error fetching inspiration data:', error)

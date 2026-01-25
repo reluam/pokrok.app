@@ -29,8 +29,20 @@ async function ensureTableExists() {
         user_agent TEXT,
         url TEXT,
         viewport JSONB,
+        resolved BOOLEAN DEFAULT FALSE,
+        resolved_at TIMESTAMP WITH TIME ZONE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
+    `
+    
+    // Add resolved columns if they don't exist (for existing databases)
+    await sql`
+      ALTER TABLE feedback 
+      ADD COLUMN IF NOT EXISTS resolved BOOLEAN DEFAULT FALSE
+    `
+    await sql`
+      ALTER TABLE feedback 
+      ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMP WITH TIME ZONE
     `
     
     // Create index for faster queries
@@ -57,13 +69,46 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const type = searchParams.get('type') // 'feedback' | 'bug' | null (all)
+    const includeResolved = searchParams.get('includeResolved') === 'true' // default false
     const limit = parseInt(searchParams.get('limit') || '100')
     const offset = parseInt(searchParams.get('offset') || '0')
 
     let feedbacks
     let totalResult
 
-    if (type && (type === 'feedback' || type === 'bug')) {
+    // Build queries based on filters
+    if (!includeResolved && type && (type === 'feedback' || type === 'bug')) {
+      // Filter by type and exclude resolved
+      feedbacks = await sql`
+        SELECT 
+          f.*,
+          u.email as user_email,
+          u.name as user_name
+        FROM feedback f
+        LEFT JOIN users u ON f.user_id = u.id
+        WHERE f.resolved = false AND f.type = ${type}
+        ORDER BY f.created_at DESC
+        LIMIT ${limit}
+        OFFSET ${offset}
+      `
+      totalResult = await sql`SELECT COUNT(*) as count FROM feedback WHERE resolved = false AND type = ${type}`
+    } else if (!includeResolved) {
+      // Exclude resolved only
+      feedbacks = await sql`
+        SELECT 
+          f.*,
+          u.email as user_email,
+          u.name as user_name
+        FROM feedback f
+        LEFT JOIN users u ON f.user_id = u.id
+        WHERE f.resolved = false
+        ORDER BY f.created_at DESC
+        LIMIT ${limit}
+        OFFSET ${offset}
+      `
+      totalResult = await sql`SELECT COUNT(*) as count FROM feedback WHERE resolved = false`
+    } else if (type && (type === 'feedback' || type === 'bug')) {
+      // Filter by type only
       feedbacks = await sql`
         SELECT 
           f.*,
@@ -78,6 +123,7 @@ export async function GET(request: NextRequest) {
       `
       totalResult = await sql`SELECT COUNT(*) as count FROM feedback WHERE type = ${type}`
     } else {
+      // All feedbacks
       feedbacks = await sql`
         SELECT 
           f.*,

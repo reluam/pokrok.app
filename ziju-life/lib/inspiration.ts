@@ -12,6 +12,7 @@ export interface InspirationItem {
   author?: string
   content?: string // For blog posts
   thumbnail?: string // For videos
+  isActive?: boolean // Whether the inspiration is visible on the website
   createdAt: string
   updatedAt: string
 }
