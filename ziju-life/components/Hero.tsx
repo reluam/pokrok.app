@@ -27,7 +27,7 @@ export default function Hero() {
         </h1>
         
         <p className="text-lg md:text-xl lg:text-2xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
-          Protože jsem žádný manuál k životu nedostal, tak se životem hlavně plácám. Občas ale přijdu na něco užitečného. Pokud se k tomu plácání chceš přidat taky, rád tě uvidím v naší komunitě.
+          Život nemá manuál a většina z nás se v něm prostě jen snaží neztratit. Já věřím, že v tom nemusíme být sami. Tvořím komunitu pro všechny, kteří chtějí život opravdu prožít, zkoušet nové věci, získat nadhled a zjistit, o čem je štěstí.
         </p>
         
         <div className="flex justify-center items-center pt-4">
