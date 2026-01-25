@@ -3696,7 +3696,7 @@ export function JourneyGameView({
 
   return (
     <div className="bg-primary-50 h-screen w-full flex flex-col overflow-hidden" style={{
-      fontFamily: 'var(--font-baloo-2), sans-serif',
+      fontFamily: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       fontSize: '14px',
       boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.04)'
     }}>

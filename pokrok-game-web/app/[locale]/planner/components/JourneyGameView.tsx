@@ -94,11 +94,9 @@ export function JourneyGameView({
   const locale = useLocale()
   const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
   
-  // Top menu items (Goals, Habits, Steps) - defined at top level for use in header
+  // Top menu items (Habits) - defined at top level for use in header
   const topMenuItems = [
-    { id: 'goals' as const, label: t('navigation.goals'), icon: Target },
     { id: 'habits' as const, label: t('navigation.habits'), icon: CheckSquare },
-    { id: 'steps' as const, label: t('navigation.steps'), icon: Footprints },
   ]
   
   const { user } = useUser()
@@ -4099,7 +4097,7 @@ export function JourneyGameView({
 
   return (
     <div className="bg-primary-50 h-screen w-full flex flex-col overflow-hidden" style={{
-      fontFamily: 'var(--font-baloo-2), sans-serif',
+      fontFamily: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       fontSize: '14px',
       boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.04)'
     }}>

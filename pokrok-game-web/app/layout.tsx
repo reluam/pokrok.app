@@ -1,13 +1,19 @@
-import { Baloo_2 } from 'next/font/google'
+import { Inter, Press_Start_2P } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { getThemeInitScript } from '@/lib/color-utils'
 import './globals.css'
 
-const baloo2 = Baloo_2({ 
-  weight: ['400', '500', '600', '700', '800'],
+const inter = Inter({ 
   subsets: ['latin'],
-  variable: '--font-baloo-2',
+  variable: '--font-inter',
+  display: 'swap',
+})
+
+const pressStart2P = Press_Start_2P({ 
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-press-start-2p',
   display: 'swap',
 })
 
@@ -87,7 +93,7 @@ export default function RootLayout({
             }}
           />
         </head>
-        <body className={`${baloo2.variable} antialiased`}>
+        <body className={`${inter.variable} ${pressStart2P.variable} antialiased`}>
           {children}
           <SpeedInsights />
         </body>

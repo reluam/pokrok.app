@@ -519,14 +519,14 @@ export function GoalDetailPage({
                   const isPastDeadline = isGoalPastDeadline(goal)
                   return (
                     <>
-                      <span
+                <span 
                   ref={goalIconRef}
                   onClick={(e) => {
                     e.stopPropagation()
                     const rect = e.currentTarget.getBoundingClientRect()
                     const position = calculateDropdownPosition(rect, 300)
                     setGoalDetailIconPickerPosition(position)
-                    setShowGoalDetailIconPicker(true)
+                      setShowGoalDetailIconPicker(true)
                   }}
                         className={`flex items-center justify-center w-10 h-10 rounded-playful-md cursor-pointer hover:opacity-70 transition-opacity ${
                           isPastDeadline ? 'bg-red-100' : 'bg-primary-100'
@@ -535,11 +535,11 @@ export function GoalDetailPage({
                         <IconComponent className={`w-5 h-5 ${
                           isPastDeadline ? 'text-red-600' : 'text-primary-600'
                         }`} />
-                      </span>
+                </span>
                       <div className="flex-1 min-w-0">
                 {editingGoalDetailTitle ? (
                   <input
-                            ref={goalTitleRef as React.RefObject<HTMLInputElement>}
+                    ref={goalTitleRef as React.RefObject<HTMLInputElement>}
                     type="text"
                     value={goalDetailTitleValue}
                     onChange={(e) => setGoalDetailTitleValue(e.target.value)}
@@ -578,7 +578,7 @@ export function GoalDetailPage({
                       <div className="flex items-center gap-4 text-sm text-gray-600">
                         {/* Date button - always visible */}
                         <button
-                          ref={goalDateRef}
+                  ref={goalDateRef}
                           onClick={(e) => {
                             e.stopPropagation()
                             const rect = e.currentTarget.getBoundingClientRect()
@@ -602,7 +602,7 @@ export function GoalDetailPage({
                                 {isPastDeadline
                                   ? (t('goals.deadlineMissed') || 'Nesplněný termín')
                                   : new Date(goal.target_date).toLocaleDateString(localeCode)}
-                              </span>
+                </span>
                     </>
                   ) : (
                             <span className="text-gray-400 italic">
@@ -618,32 +618,32 @@ export function GoalDetailPage({
                           const AreaIconComponent = area ? getIconComponent(area.icon || 'LayoutDashboard') : getIconComponent('LayoutDashboard')
                           const areaColor = area ? (area.color || '#ea580c') : '#9ca3af'
                           return (
-                            <button
-                              ref={goalAreaRef}
-                              onClick={(e) => {
-                                e.stopPropagation()
+                <button
+                  ref={goalAreaRef}
+                  onClick={(e) => {
+                    e.stopPropagation()
                                 const rect = e.currentTarget.getBoundingClientRect()
                                 const position = calculateDropdownPosition(rect, 200)
                                 setGoalDetailAreaPickerPosition(position)
-                                setShowGoalDetailAreaPicker(true)
+                      setShowGoalDetailAreaPicker(true)
                               }}
                               className="inline-flex h-10 items-center gap-2.5 px-4 py-2 rounded-full text-sm font-semibold font-playful border-2 transition-all bg-white cursor-pointer"
                               style={{
-                                borderColor: areaColor,
-                                color: areaColor,
-                                boxShadow: `3px 3px 0 0 ${areaColor}`
+                      borderColor: areaColor,
+                      color: areaColor,
+                      boxShadow: `3px 3px 0 0 ${areaColor}`
                               }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = `${areaColor}20`
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor = 'white'
-                              }}
-                            >
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = `${areaColor}20`
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'white'
+                  }}
+                >
                               <AreaIconComponent className="w-4 h-4" style={{ color: areaColor }} />
                               <span className={!area ? 'text-gray-400 italic' : ''}>
                                 {area ? area.name : (t('common.area') || 'Oblast')}
-                  </span>
+                      </span>
                               <ChevronDown className="w-4 h-4 opacity-70" />
                 </button>
                           )
@@ -670,7 +670,7 @@ export function GoalDetailPage({
                     const rect = e.currentTarget.getBoundingClientRect()
                     const position = calculateDropdownPosition(rect, 180)
                     setGoalDetailStatusPickerPosition(position)
-                    setShowGoalDetailStatusPicker(true)
+                      setShowGoalDetailStatusPicker(true)
                   }}
                   onMouseEnter={(e) => {
                     const statusColor = goal.status === 'completed'
@@ -688,9 +688,9 @@ export function GoalDetailPage({
                       : '#7c3aed'
                     e.currentTarget.style.backgroundColor = `${statusColor}14`
                   }}
-                        >
-                          {goal.status === 'active' ? (
-                            <Target className="w-4 h-4" />
+                >
+                  {goal.status === 'active' ? (
+                    <Target className="w-4 h-4" />
                           ) : (
                             <span className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-current bg-white">
                               {goal.status === 'completed' && <CheckCircle className="w-3.5 h-3.5" />}
@@ -704,11 +704,11 @@ export function GoalDetailPage({
                   </span>
                           <ChevronDown className="w-4 h-4 opacity-70" />
               </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setShowDeleteGoalModal(true)
-                          }}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setShowDeleteGoalModal(true)
+                  }}
                           className="inline-flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all bg-white"
                           style={{
                             borderColor: '#ef4444',
@@ -724,12 +724,12 @@ export function GoalDetailPage({
                           title={t('common.delete') || 'Smazat'}
                         >
                           <Trash2 className="w-5 h-5" />
-                        </button>
-            </div>
+                </button>
+              </div>
                     </>
                   )
                 })()}
-              </div>
+            </div>
               </div>
             </div>
 
@@ -880,8 +880,8 @@ export function GoalDetailPage({
                 
             {/* Steps using StepsManagementView - same as feed */}
                   <StepsManagementView
-              dailySteps={dailySteps}
-              goals={goals}
+                  dailySteps={dailySteps}
+                  goals={goals}
               goalFilter={goalId}
                   areas={areas}
                   userId={userId}
@@ -1034,7 +1034,7 @@ export function GoalDetailPage({
                 })
               })()}
             </div>
-          </div>
+              </div>
         </>,
         document.body
       )}
@@ -1057,7 +1057,7 @@ export function GoalDetailPage({
             <div className="text-center py-4">
               <span className="text-sm text-gray-600">Start date picker placeholder</span>
             </div>
-          </div>
+                    </div>
         </>,
         document.body
       )}
@@ -1104,7 +1104,7 @@ export function GoalDetailPage({
               </button>
                 )
               })}
-            </div>
+          </div>
           </div>
         </>,
         document.body
@@ -1127,7 +1127,7 @@ export function GoalDetailPage({
             }}
           >
             <div className="space-y-1 max-h-56 overflow-y-auto font-playful text-sm font-semibold">
-              <button
+            <button
                 onClick={async (e) => {
                   e.stopPropagation()
                   await handleUpdateGoalForDetail(goalId, { areaId: null })
@@ -1144,7 +1144,7 @@ export function GoalDetailPage({
                   })()}
                   <span className="truncate">Bez oblasti</span>
                 </div>
-              </button>
+            </button>
               {areas.map((area: any) => {
                 const isSelected = area.id === goal.area_id
                 const AreaIconComponent = getIconComponent(area.icon || 'LayoutDashboard')
@@ -1218,10 +1218,10 @@ export function GoalDetailPage({
                         title={icon.label}
                       >
                         <IconComponent className={`w-5 h-5 ${isSelected ? 'text-primary-600' : 'text-gray-600'}`} />
-                      </button>
-                    )
-              })}
-              </div>
+                </button>
+              )
+            })}
+          </div>
             {AVAILABLE_ICONS.length > 30 && (
               <div className="text-center py-2 border-t border-gray-200 mt-2">
                 <span className="text-xs text-gray-500">
@@ -1233,7 +1233,7 @@ export function GoalDetailPage({
         </>,
         document.body
       )}
-
+      
       {/* Delete goal confirmation modal */}
       {showDeleteGoalModal && typeof document !== 'undefined' && createPortal(
         <>
@@ -1288,7 +1288,7 @@ export function GoalDetailPage({
                 onClick={async () => {
                   try {
                     setIsDeletingGoal(true)
-                    await handleDeleteGoalForDetail(goalId, deleteGoalWithSteps)
+                  await handleDeleteGoalForDetail(goalId, deleteGoalWithSteps)
                     setShowDeleteGoalModal(false)
                     setDeleteGoalWithSteps(false)
                   } finally {
@@ -1315,6 +1315,6 @@ export function GoalDetailPage({
         </>,
         document.body
       )}
-    </div>
+              </div>
   )
 }

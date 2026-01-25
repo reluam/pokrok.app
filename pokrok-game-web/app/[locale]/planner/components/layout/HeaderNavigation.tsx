@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { HelpCircle, Settings, Menu, Check } from 'lucide-react'
+import { HelpCircle, Settings, Menu, Check, MessageSquare } from 'lucide-react'
 import { DevVersionTooltip } from '../common/DevVersionTooltip'
+import { FeedbackButton } from '../ui/FeedbackButton'
 
 interface HeaderNavigationProps {
-  currentPage: 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas'
-  setCurrentPage: (page: 'main' | 'goals' | 'habits' | 'steps' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas') => void
+  currentPage: 'main' | 'habits' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas'
+  setCurrentPage: (page: 'main' | 'habits' | 'statistics' | 'achievements' | 'settings' | 'workflows' | 'help' | 'areas') => void
   mainPanelSection: string | null
   setMainPanelSection: (section: string | null) => void
   topMenuItems: Array<{ id: string; label: string; icon: any }>
@@ -97,14 +98,6 @@ export function HeaderNavigation({
                     {t('game.menu.mainPanel')}
                   </span>
                 )}
-                {currentPage === 'goals' && (
-                  <button
-                    onClick={() => setCurrentPage('goals')}
-                    className="text-sm font-semibold text-black font-playful hover:text-primary-600 transition-colors"
-                  >
-                    {t('navigation.goals')}
-                  </button>
-                )}
                 {currentPage === 'habits' && (
                   <button
                     onClick={() => {
@@ -117,14 +110,6 @@ export function HeaderNavigation({
                     className="text-sm font-semibold text-black font-playful hover:text-primary-600 transition-colors"
                   >
                     {t('navigation.habits')}
-                  </button>
-                )}
-                {currentPage === 'steps' && (
-                  <button
-                    onClick={() => setCurrentPage('steps')}
-                    className="text-sm font-semibold text-black font-playful hover:text-primary-600 transition-colors"
-                  >
-                    {t('navigation.steps')}
                   </button>
                 )}
                 {currentPage === 'help' && (
@@ -187,6 +172,9 @@ export function HeaderNavigation({
 
               {/* Menu Icons - Desktop: Full buttons, Mobile: Hamburger menu */}
               <div className="hidden md:flex items-center gap-2 lg:border-l-2 lg:border-primary-500 lg:pl-4">
+                {/* Feedback Button - Styled differently, before habits */}
+                <FeedbackButton compact={true} />
+              
                 {/* Goals, Habits, Steps buttons */}
                 {topMenuItems.map((item) => {
                   const Icon = item.icon
@@ -195,7 +183,7 @@ export function HeaderNavigation({
                     <button
                       key={item.id}
                       onClick={() => {
-                        setCurrentPage(item.id as 'goals' | 'habits' | 'steps')
+                        setCurrentPage(item.id as 'habits')
                         // If clicking on Habits and already on habits page, reset habit selection
                         if (item.id === 'habits' && currentPage === 'habits') {
                           if (typeof window !== 'undefined') {
@@ -293,7 +281,7 @@ export function HeaderNavigation({
                             <button
                               key={item.id}
                               onClick={() => {
-                                setCurrentPage(item.id as 'goals' | 'habits' | 'steps')
+                                setCurrentPage(item.id as 'habits')
                                 setMobileTopMenuOpen(false)
                                 // If clicking on Habits and already on habits page, reset habit selection
                                 if (item.id === 'habits' && currentPage === 'habits') {

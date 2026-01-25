@@ -13,7 +13,7 @@
 
 /* Pixel Art Styling (Legacy - keep for backward compatibility) */
 .pixel-art {
-  font-family: var(--font-baloo-2), monospace;
+  font-family: 'Press Start 2P', monospace;
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
@@ -40,18 +40,14 @@
 
 /* Playful Design System Base Styles */
 @layer base {
-  * {
-    font-family: var(--font-baloo-2), sans-serif;
-  }
-  
   body {
     @apply bg-background text-text-primary;
-    font-family: var(--font-baloo-2), sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
   }
   
-  /* Baloo 2 font for all headings */
+  /* Playful font for headings */
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-baloo-2), sans-serif;
+    font-family: 'Comic Neue', 'Nunito', 'Inter', sans-serif;
     color: #5D4037;
   }
 }
