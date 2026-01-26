@@ -3922,7 +3922,6 @@ export function JourneyGameView({
           onStepDateChange={handleStepDateChange}
           onStepTimeChange={handleStepTimeChange}
           onStepImportantChange={handleStepImportantChange}
-          handleCreateGoal={handleCreateGoal}
           handleOpenStepModal={handleOpenStepModal}
           handleOpenHabitModal={handleOpenHabitModal}
           expandedAreas={expandedAreas}

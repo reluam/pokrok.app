@@ -384,7 +384,6 @@ export function OverviewCalendarView({
                               ) : null}
                             </button>
                             <div className="flex items-center gap-2 flex-shrink-0 flex-1 min-w-0">
-                              <Footprints className="w-4 h-4 text-primary-600 flex-shrink-0" />
                               <span className={`text-xs font-medium text-black truncate ${
                                 isCompleted ? 'line-through' : ''
                               }`}>
@@ -554,7 +553,6 @@ export function OverviewCalendarView({
                                 <Check className="w-2 h-2 text-white" />
                               ) : null}
                             </button>
-                            <Footprints className="w-2.5 h-2.5 text-primary-600 flex-shrink-0" />
                             <span className={`text-[10px] font-medium text-black truncate flex-1 ${
                               isCompleted ? 'line-through' : ''
                             }`}>

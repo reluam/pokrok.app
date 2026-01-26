@@ -130,7 +130,6 @@ export function PageContent(props: PageContentProps) {
     onStepDateChange,
     onStepTimeChange,
     onStepImportantChange,
-    handleCreateGoal,
     handleOpenStepModal,
     handleOpenHabitModal,
     expandedAreas,
@@ -1071,7 +1070,6 @@ export function PageContent(props: PageContentProps) {
               expandedGoalSections={expandedGoalSections}
               setExpandedGoalSections={setExpandedGoalSections}
               handleOpenAreasManagementModal={handleOpenAreasManagementModal}
-              handleCreateGoal={handleCreateGoal}
               handleOpenStepModal={mainPanelSection === 'focus-upcoming' || mainPanelSection.startsWith('area-') || mainPanelSection.startsWith('goal-') ? () => {
                 // For UpcomingView, Area views, and Goal views, trigger new step creation instead of opening modal
                 // Use section-specific trigger
@@ -1377,8 +1375,7 @@ export function PageContent(props: PageContentProps) {
             <HelpView
             onAddGoal={async () => {
               setCurrentPage('main')
-              // Create goal and redirect to its detail page
-              await handleCreateGoal()
+              // Goals removed - no action needed
             }}
             onAddStep={() => {
               setCurrentPage('main')

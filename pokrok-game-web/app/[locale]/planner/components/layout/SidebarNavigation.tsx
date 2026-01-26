@@ -125,7 +125,6 @@ interface SidebarNavigationProps {
   expandedGoalSections: Set<string>
   setExpandedGoalSections: (sections: Set<string>) => void
   handleOpenAreasManagementModal: () => void
-  handleCreateGoal: () => void
   handleOpenStepModal: () => void
   handleOpenHabitModal: (habit: any) => void
   handleOpenAreaEditModal: (area?: any) => void
@@ -160,7 +159,6 @@ export function SidebarNavigation({
   expandedGoalSections,
   setExpandedGoalSections,
   handleOpenAreasManagementModal,
-  handleCreateGoal,
   handleOpenStepModal,
   handleOpenHabitModal,
   handleOpenAreaEditModal,
@@ -549,37 +547,6 @@ export function SidebarNavigation({
               className={`absolute ${sidebarCollapsed ? 'left-14 bottom-12' : 'left-4 bottom-20'} z-50 bg-white border-2 border-primary-500 rounded-playful-md min-w-[160px]`}
               onClick={(e) => e.stopPropagation()}
             >
-                {/* Goals button - disabled in add-menu-open step */}
-                {isOnboardingAddMenuStep && !isOnboardingAddMenuGoalStep ? (
-                  // Disabled version in onboarding area step
-                  <div className="w-full text-left px-4 py-2.5 text-sm opacity-30 cursor-not-allowed text-gray-400 flex items-center gap-2 border-b border-primary-200">
-                    <Target className="w-4 h-4" />
-                    <span>{t('navigation.goals')}</span>
-                  </div>
-                ) : (
-              <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      // In onboarding goal step, this click should trigger the next onboarding step, not open the external modal
-                      if (isOnboardingAddMenuGoalStep && onOnboardingGoalClick) {
-                        onOnboardingGoalClick() // Call the onboarding-specific handler
-                        setShowCreateMenu(false)
-                      } else {
-                  handleCreateGoal()
-                  setShowCreateMenu(false)
-                      }
-                }}
-                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors font-medium flex items-center gap-2 border-b border-primary-200 first:rounded-t-playful-md last:rounded-b-playful-md last:border-b-0 ${
-                      isOnboardingAddMenuGoalStep
-                        ? 'bg-primary-100 border-2 border-primary-500 font-bold text-primary-700 hover:bg-primary-200'
-                        : 'hover:bg-primary-50 text-black'
-                    }`}
-              >
-                <Target className="w-4 h-4" />
-                <span>{t('navigation.goals')}</span>
-              </button>
-                )}
-                
                 {/* Steps button */}
                 {(isOnboardingAddMenuStep || isOnboardingAddMenuGoalStep) ? (
                   // Disabled version in onboarding
