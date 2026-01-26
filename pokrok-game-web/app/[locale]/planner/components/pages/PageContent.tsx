@@ -699,20 +699,20 @@ export function PageContent(props: PageContentProps) {
                     </div>
                   </div>
                     
-                    {/* Milestones Timeline - above steps */}
-                    <div className="px-4 py-3 mb-4">
-                      <MilestonesTimelineView 
-                        areaId={areaId}
-                        userId={userId}
-                        onMilestoneUpdate={() => {
-                          // Optionally reload data
-                        }}
-                      />
-                    </div>
-                    
                     {/* Area Steps View - using StepsManagementView */}
                     {/* Pass all dailySteps and let StepsManagementView filter by areaFilter */}
                     <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
+                      {/* Milestones Timeline - above steps */}
+                      <div className="px-4 py-3 mb-4">
+                        <MilestonesTimelineView 
+                          areaId={areaId}
+                          userId={userId}
+                          onMilestoneUpdate={() => {
+                            // Optionally reload data
+                          }}
+                        />
+                      </div>
+                      
                       {/* Steps Header - similar to metrics header */}
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 px-4 py-3 mb-2">
                         <div className="flex items-center gap-3">
