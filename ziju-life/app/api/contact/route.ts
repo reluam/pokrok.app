@@ -3,84 +3,50 @@ import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-// Funkce pro skloňování jména ve vokativu (5. pád)
-function getVocative(name: string): string {
+// Funkce pro skloňování jména ve vokativu (5. pád) pomocí API
+async function getVocative(name: string): Promise<string> {
   if (!name || name.length === 0) return name
 
   const trimmedName = name.trim()
-  const lowerName = trimmedName.toLowerCase()
-
-  // Speciální případy
-  const specialCases: Record<string, string> = {
-    'matěj': 'Matěji',
-    'petr': 'Petře',
-    'pavel': 'Pavle',
-    'tomáš': 'Tomáši',
-    'jakub': 'Jakube',
-    'lukáš': 'Lukáši',
-    'ondřej': 'Ondřeji',
-    'david': 'Davide',
-    'daniel': 'Danieli',
-    'martin': 'Martine',
-    'jan': 'Jane',
-    'josef': 'Josefe',
-    'karel': 'Karle',
-    'vít': 'Víte',
-    'filip': 'Filipe',
-    'adam': 'Adame',
-    'marek': 'Marku',
-    'michal': 'Michale',
-    'ondra': 'Ondro',
-    'jirka': 'Jirko',
-    'honza': 'Honzo',
-    'pepa': 'Pepo',
-    'kuba': 'Kubo',
-  }
-
-  if (specialCases[lowerName]) {
-    // Vždy vrátíme s velkým prvním písmenem
-    return specialCases[lowerName]
-  }
-
-  // Obecná pravidla
-  const lastChar = lowerName[lowerName.length - 1]
-  const secondLastChar = lowerName.length > 1 ? lowerName[lowerName.length - 2] : ''
-
-  // Jména končící na -a (většinou ženská nebo zdrobněliny)
-  if (lastChar === 'a' && secondLastChar !== 'i' && secondLastChar !== 'y') {
-    const base = trimmedName.slice(0, -1).toLowerCase()
-    return base.charAt(0).toUpperCase() + base.slice(1) + 'o'
-  }
-
-  // Jména končící na -e
-  if (lastChar === 'e') {
-    const base = trimmedName.slice(0, -1).toLowerCase()
-    return base.charAt(0).toUpperCase() + base.slice(1) + 'i'
-  }
-
-  // Jména končící na souhlásku (většina mužských jmen)
-  const consonants = 'bcčdďfghjklmnňpqrřsštťvwxzž'
-  if (consonants.includes(lastChar)) {
-    // Pokud končí na -ek, -ík, -ák -> změníme na -ku, -íku, -áku
-    if (lowerName.endsWith('ek')) {
-      const base = trimmedName.slice(0, -2).toLowerCase()
-      return base.charAt(0).toUpperCase() + base.slice(1) + 'ku'
+  
+  // Pokud není nastaven API klíč, použijeme fallback na původní jméno s velkým prvním písmenem
+  const apiKey = process.env.SKLONOVANI_JMEN_API_KEY || 'klic' // 'klic' je testovací klíč
+  
+  try {
+    // Volání API pro skloňování jmen
+    // pad=5 = vokativ (5. pád)
+    // pouzit-krestni=1 = použít křestní jméno
+    // pouzit-osloveni=0 = nepoužít "pane/paní", jen jméno
+    // format=json = JSON odpověď
+    const apiUrl = `https://www.sklonovani-jmen.cz/api?klic=${encodeURIComponent(apiKey)}&pad=5&jmeno=${encodeURIComponent(trimmedName)}&pouzit-krestni=1&pouzit-osloveni=0&format=json`
+    
+    const response = await fetch(apiUrl)
+    
+    if (!response.ok) {
+      throw new Error(`API returned status ${response.status}`)
     }
-    if (lowerName.endsWith('ík')) {
-      const base = trimmedName.slice(0, -2).toLowerCase()
-      return base.charAt(0).toUpperCase() + base.slice(1) + 'íku'
+    
+    const data = await response.json()
+    
+    // API vrací pole objektů s dotaz a odpoved
+    if (Array.isArray(data) && data.length > 0 && data[0].odpoved) {
+      // Odstraníme případné "pane/paní" z odpovědi (mělo by být odstraněno díky pouzit-osloveni=0, ale pro jistotu)
+      let result = data[0].odpoved.trim()
+      
+      // Pokud obsahuje "pane " nebo "paní ", odstraníme to
+      result = result.replace(/^(pane|paní)\s+/i, '')
+      
+      // Zajistíme velké první písmeno
+      return result.charAt(0).toUpperCase() + result.slice(1).toLowerCase()
     }
-    if (lowerName.endsWith('ák')) {
-      const base = trimmedName.slice(0, -2).toLowerCase()
-      return base.charAt(0).toUpperCase() + base.slice(1) + 'áku'
-    }
-    // Jinak přidáme -e
-    const base = trimmedName.toLowerCase()
-    return base.charAt(0).toUpperCase() + base.slice(1) + 'e'
+    
+    // Pokud API nevrátilo správnou odpověď, použijeme fallback
+    return trimmedName.charAt(0).toUpperCase() + trimmedName.slice(1).toLowerCase()
+  } catch (error) {
+    console.error('Error calling sklonovani-jmen API:', error)
+    // Fallback: vrátíme původní jméno s velkým prvním písmenem
+    return trimmedName.charAt(0).toUpperCase() + trimmedName.slice(1).toLowerCase()
   }
-
-  // Pokud nic neplatí, vrátíme původní jméno s velkým prvním písmenem
-  return trimmedName.charAt(0).toUpperCase() + trimmedName.slice(1).toLowerCase()
 }
 
 export async function POST(request: NextRequest) {
@@ -142,8 +108,8 @@ export async function POST(request: NextRequest) {
       </div>
     `
 
-    // Skloňování jména ve vokativu
-    const vocativeName = getVocative(firstName)
+    // Skloňování jména ve vokativu pomocí API
+    const vocativeName = await getVocative(firstName)
 
     // Odeslání emailu uživateli (potvrzovací email)
     const confirmationEmailHtml = `
