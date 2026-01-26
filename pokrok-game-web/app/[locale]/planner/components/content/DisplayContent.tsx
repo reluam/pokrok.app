@@ -54,7 +54,6 @@ interface DisplayContentProps {
   handleHabitCalendarToggle: (habitId: string, date: string) => void
   handleUpdateGoalForDetail: (goalId: string, updates: any) => void
   handleDeleteGoalForDetail: (goalId: string) => void
-  goals: any[]
   habits: any[]
   player: any
   userId: string | null
@@ -194,7 +193,6 @@ export function DisplayContent(props: DisplayContentProps) {
         handleHabitCalendarToggle={handleHabitCalendarToggleWrapper}
         handleUpdateGoalForDetail={handleUpdateGoalForDetailWrapper}
         handleDeleteGoalForDetail={handleDeleteGoalForDetailWrapper}
-        goals={props.goals}
         habits={props.habits}
         player={props.player}
         userId={props.userId}
@@ -215,7 +213,6 @@ export function DisplayContent(props: DisplayContentProps) {
   return (
     <UnifiedDayView
       player={props.player}
-      goals={props.goals}
       habits={props.habits}
       dailySteps={props.dailySteps}
       handleItemClick={props.handleItemClick}

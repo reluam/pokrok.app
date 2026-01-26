@@ -19,7 +19,6 @@ import { ManagementPage } from './pages/ManagementPage'
 import { UnifiedDayView } from './views/UnifiedDayView'
 import { FocusManagementView } from './views/FocusManagementView'
 import { HelpView } from './views/HelpView'
-import { GoalsManagementView } from './views/GoalsManagementView'
 import { HabitsManagementView } from './views/HabitsManagementView'
 import { StepsManagementView } from './views/StepsManagementView'
 import { TodayFocusSection } from './views/TodayFocusSection'
@@ -52,7 +51,6 @@ import { LoadingSpinner } from './ui/LoadingSpinner'
 interface JourneyGameViewProps {
   player?: any
   userId?: string | null
-  goals?: any[]
   habits?: any[]
   dailySteps?: any[]
   isLoadingSteps?: boolean
@@ -64,7 +62,6 @@ interface JourneyGameViewProps {
   onNavigateToAchievements?: () => void
   onNavigateToSettings?: () => void
   onHabitsUpdate?: (habits: any[]) => void
-  onGoalsUpdate?: (goals: any[]) => void
   onDailyStepsUpdate?: (steps: any[]) => void
   hasCompletedOnboarding?: boolean | null
   onOnboardingComplete?: () => void
@@ -73,7 +70,6 @@ interface JourneyGameViewProps {
 export function JourneyGameView({ 
   player, 
   userId: userIdProp,
-  goals = [], 
   habits = [], 
   dailySteps = [],
   isLoadingSteps = false,
@@ -85,7 +81,6 @@ export function JourneyGameView({
   onNavigateToAchievements,
   onNavigateToSettings,
   onHabitsUpdate,
-  onGoalsUpdate,
   onDailyStepsUpdate,
   hasCompletedOnboarding,
   onOnboardingComplete
@@ -174,13 +169,13 @@ export function JourneyGameView({
       try {
         const savedSection = localStorage.getItem('journeyGame_mainPanelSection')
         if (savedSection) {
-          // Migrate old 'overview' to 'focus-upcoming' (Main Panel default)
-          if (savedSection === 'overview') {
+          // Migrate old time-based views (focus-day, focus-week) to focus-upcoming
+          if (['focus-day', 'focus-week'].includes(savedSection)) {
             return 'focus-upcoming'
           }
-          // Migrate old time-based views (focus-day, focus-week, focus-month, focus-year) to focus-upcoming
-          if (['focus-day', 'focus-week', 'focus-month', 'focus-year', 'focus-calendar'].includes(savedSection)) {
-            return 'focus-upcoming'
+          // Migrate old calendar views (focus-month, focus-year, focus-calendar) to overview
+          if (['focus-month', 'focus-year', 'focus-calendar'].includes(savedSection)) {
+            return 'overview'
           }
           return savedSection
         }
@@ -188,12 +183,11 @@ export function JourneyGameView({
         console.error('Error loading mainPanelSection:', error)
       }
     }
-    // Default to 'focus-upcoming' (Main Panel) when user first logs in
+    // Default to 'focus-upcoming' (UpcomingView) when user first logs in
     return 'focus-upcoming'
   })
   
-  // Selected goal ID (extracted from mainPanelSection if it's a goal)
-  const selectedGoalId = mainPanelSection?.startsWith('goal-') ? mainPanelSection.replace('goal-', '') : null
+  // Goals removed - no selectedGoalId
   
   // Local state for dailySteps to allow updates from child components
   const [localDailySteps, setLocalDailySteps] = useState<any[]>(dailySteps)
@@ -430,7 +424,6 @@ export function JourneyGameView({
     title: '',
     description: '',
     date: '',
-    goalId: '',
     areaId: '',
     completed: false,
     is_important: false,
@@ -460,9 +453,9 @@ export function JourneyGameView({
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date()) // Currently displayed month in month view
   const [selectedWeek, setSelectedWeek] = useState<Date>(new Date()) // Currently displayed week in week view
   const [showDatePickerModal, setShowDatePickerModal] = useState<boolean>(false) // Show date picker modal for navigation
-  const [expandedLeftSection, setExpandedLeftSection] = useState<'goals' | null>(null)
+  const [expandedLeftSection, setExpandedLeftSection] = useState<null>(null) // Goals removed
   const [expandedRightSection, setExpandedRightSection] = useState<'habits' | 'steps' | null>(null)
-  const [leftSectionHeights, setLeftSectionHeights] = useState({ goals: 0 })
+  const [leftSectionHeights, setLeftSectionHeights] = useState({}) // Goals removed
   const [rightSectionHeights, setRightSectionHeights] = useState({ habits: 0, steps: 0 })
   const [leftSidebarWidth, setLeftSidebarWidth] = useState<'288px' | '48px' | '0px'>('288px')
   const [rightSidebarWidth, setRightSidebarWidth] = useState<'288px' | '48px' | '0px'>('288px')
@@ -481,10 +474,10 @@ export function JourneyGameView({
     } else if (mainPanelSection?.startsWith('goal-')) {
       // If we're on a goal page, check if the goal belongs to an area
       const goalId = mainPanelSection.replace('goal-', '')
-      const goal = goals.find(g => g.id === goalId)
-      if (goal && goal.area_id) {
+      // Goals removed - no goal expansion logic
+      if (false) {
         // Goal belongs to an area - expand that area and collapse all others
-        setExpandedAreas(new Set([goal.area_id]))
+        setExpandedAreas(new Set([]))
       } else {
         // Goal doesn't belong to any area - collapse all areas
         setExpandedAreas(new Set())
@@ -493,7 +486,7 @@ export function JourneyGameView({
       // If we're on any other page, collapse all areas
       setExpandedAreas(new Set())
     }
-  }, [mainPanelSection, goals])
+  }, [mainPanelSection])
   
   // Responsive logic
   useEffect(() => {
@@ -631,13 +624,7 @@ export function JourneyGameView({
   }, [areas])
 
   // Create refs for goals
-  useEffect(() => {
-    goals.forEach(goal => {
-      if (!goalButtonRefs.current.has(goal.id)) {
-        goalButtonRefs.current.set(goal.id, { current: null } as React.RefObject<HTMLButtonElement>)
-      }
-    })
-  }, [goals])
+  // Goals removed - no goal button refs needed
   const [showGoalDetailAreaPicker, setShowGoalDetailAreaPicker] = useState(false)
   const [showAreasManagementModal, setShowAreasManagementModal] = useState(false)
   const [editingArea, setEditingArea] = useState<any | null>(null)
@@ -721,13 +708,13 @@ export function JourneyGameView({
   // Initialize date value when date modal opens
   useEffect(() => {
     if (quickEditGoalField === 'date' && quickEditGoalId) {
-      const goal = goals.find((g: any) => g.id === quickEditGoalId)
-      if (goal) {
-        const initialDate = goal.target_date ? new Date(goal.target_date) : new Date()
+      // Goals removed - no goal quick edit
+      if (false) {
+        const initialDate = new Date()
         setSelectedDateForGoal(initialDate)
       }
     }
-  }, [quickEditGoalField, quickEditGoalId, goals])
+  }, [quickEditGoalField, quickEditGoalId])
   
   // Track which step's tag modals are open
   const [openTimeModalForStep, setOpenTimeModalForStep] = useState<string | null>(null)
@@ -953,7 +940,7 @@ export function JourneyGameView({
 
   const handleStepToggle = async (stepId: string, completed: boolean, completionDate?: string) => {
     // Check if we're on goal detail page or in Focus section
-    const isGoalDetailPage = selectedGoalId !== null
+    const isGoalDetailPage = false // Goals removed
     const isFocusSection = mainPanelSection === 'overview'
     const step = dailySteps.find(s => s.id === stepId)
     const wasCompleted = step?.completed || false
@@ -1027,15 +1014,11 @@ export function JourneyGameView({
         if (selectedItem && selectedItem.id === stepId) {
           setSelectedItem(updatedStep)
         }
-        // Update goal if it was returned in response
-        if (responseData.goal && onGoalsUpdate) {
-          const updatedGoals = goals.map(g => g.id === responseData.goal.id ? responseData.goal : g)
-          onGoalsUpdate(updatedGoals)
-        }
-            // Update cache for the goal to force re-render
-            if (updatedStep.goal_id) {
+        // Goals removed - no goal updates
+            // Cache update removed - steps are now linked to areas, not goals
+            if (false) { // Disabled - goals removed
               // Update cache directly
-              if (stepsCacheRef.current[updatedStep.goal_id]) {
+              if (false) {
                 stepsCacheRef.current[updatedStep.goal_id].data = stepsCacheRef.current[updatedStep.goal_id].data.map(
                   (s: any) => s.id === updatedStep.id ? updatedStep : s
                 )
@@ -1223,15 +1206,12 @@ export function JourneyGameView({
     }, 100)
     
     return () => clearTimeout(timer)
-  }, [habits, goals, dailySteps])
+  }, [habits, dailySteps])
 
 
   // Also measure when sections expand
   useEffect(() => {
-    if (goalsRef.current && expandedLeftSection === 'goals') {
-      const height = goalsRef.current.scrollHeight
-      setLeftSectionHeights(prev => ({ ...prev, goals: height }))
-    }
+    // Goals removed - no goals section height calculation
     if (habitsRef.current && expandedRightSection === 'habits') {
       const height = habitsRef.current.scrollHeight
       setRightSectionHeights(prev => ({ ...prev, habits: height }))
@@ -1472,9 +1452,9 @@ export function JourneyGameView({
       // If step has goal but no area, get area from goal
       let stepAreaId = step.area_id || ''
       if (step.goal_id && !stepAreaId) {
-        const stepGoal = goals.find((g: any) => g.id === step.goal_id)
-        if (stepGoal?.area_id) {
-          stepAreaId = stepGoal.area_id
+        // Goals removed - no goal lookup needed
+        if (false) {
+          stepAreaId = ''
         }
       }
       
@@ -1483,7 +1463,6 @@ export function JourneyGameView({
         title: step.title || '',
         description: step.description || '',
         date: stepDate,
-        goalId: step.goal_id || '',
         areaId: stepAreaId,
         completed: step.completed || false,
         is_important: step.is_important || false,
@@ -1504,18 +1483,9 @@ export function JourneyGameView({
       // Create new step - always use today's date as default
       const defaultDate = date || getLocalDateString(new Date())
       
-      // Check if we're creating step from a goal (selectedGoalId is set)
-      let defaultGoalId = ''
+      // Check if we're creating step from an area
       let defaultAreaId = ''
-      
-      if (selectedGoalId) {
-        // If creating step from goal, automatically set goalId and areaId from goal
-        const selectedGoal = goals.find((g: any) => g.id === selectedGoalId)
-        if (selectedGoal) {
-          defaultGoalId = selectedGoalId
-          defaultAreaId = selectedGoal.area_id || ''
-        }
-      } else if (mainPanelSection?.startsWith('area-')) {
+      if (mainPanelSection?.startsWith('area-')) {
         // Check if we're on an area page and should assign the step to that area
         defaultAreaId = mainPanelSection.replace('area-', '')
       }
@@ -1525,7 +1495,6 @@ export function JourneyGameView({
           title: '',
           description: '',
           date: defaultDate,
-          goalId: defaultGoalId,
           areaId: defaultAreaId,
           completed: false,
           is_important: false,
@@ -1562,18 +1531,15 @@ export function JourneyGameView({
     try {
       const isNewStep = !stepModalData.id
       
-      // Determine goalId and areaId
-      let finalGoalId = (stepModalData.goalId && stepModalData.goalId.trim() !== '') ? stepModalData.goalId : null
+      // Determine areaId - required
       let finalAreaId = (stepModalData.areaId && stepModalData.areaId.trim() !== '') ? stepModalData.areaId : null
       
-      // If goal is selected, get area from goal
-      if (finalGoalId) {
-        const selectedGoal = goals.find((g: any) => g.id === finalGoalId)
-        if (selectedGoal?.area_id) {
-          finalAreaId = selectedGoal.area_id
-        }
+      // Validate areaId is provided
+      if (!finalAreaId) {
+        alert('Oblast je povinná')
+        setStepModalSaving(false)
+        return
       }
-      // If only area is selected (no goal), keep area as is
       
       // Ensure date is always a string (YYYY-MM-DD) or null
       let dateValue: string | null = null
@@ -1592,7 +1558,6 @@ export function JourneyGameView({
       const requestBody = {
         ...(isNewStep ? {} : { stepId: stepModalData.id }),
         userId: currentUserId,
-        goalId: finalGoalId,
         areaId: finalAreaId,
         title: stepModalData.title,
         description: stepModalData.description || '',
@@ -1613,12 +1578,10 @@ export function JourneyGameView({
         isNewStep,
         stepId: stepModalData.id,
         stepModalData: {
-          goalId: stepModalData.goalId,
           areaId: stepModalData.areaId,
           title: stepModalData.title
         },
         requestBody: {
-          goalId: requestBody.goalId,
           areaId: requestBody.areaId,
           stepId: requestBody.stepId
         }
@@ -1680,22 +1643,7 @@ export function JourneyGameView({
           }
         }
         
-        // Update cache for the goal to force re-render (if on goal detail page)
-        if (updatedStep.goal_id && selectedGoalId === updatedStep.goal_id) {
-          if (stepsCacheRef.current[updatedStep.goal_id]) {
-            if (isNewStep) {
-              stepsCacheRef.current[updatedStep.goal_id].data = [...stepsCacheRef.current[updatedStep.goal_id].data, updatedStep]
-            } else {
-              stepsCacheRef.current[updatedStep.goal_id].data = stepsCacheRef.current[updatedStep.goal_id].data.map(
-                (s: any) => s.id === updatedStep.id ? updatedStep : s
-              )
-            }
-          }
-          setStepsCacheVersion(prev => ({
-            ...prev,
-            [updatedStep.goal_id]: (prev[updatedStep.goal_id] || 0) + 1
-          }))
-        }
+        // Cache update removed - steps are now linked to areas, not goals
         
         // Dispatch custom event when step is created (for important steps planning)
         if (isNewStep && updatedStep) {
@@ -1709,7 +1657,6 @@ export function JourneyGameView({
           title: '',
           description: '',
           date: '',
-          goalId: '',
           areaId: '',
           completed: false,
           is_important: false,
@@ -2104,21 +2051,7 @@ export function JourneyGameView({
         const wasRelatedDeleted = shouldDeleteRelated
         setDeleteAreaWithRelated(false)
         
-        // Reload goals, steps, and habits (either deleted or unlinked)
-        try {
-        const goalsResponse = await fetch('/api/goals')
-        if (goalsResponse.ok && onGoalsUpdate) {
-            try {
-          const goalsData = await goalsResponse.json()
-          // API returns array directly, not wrapped in { goals: [...] }
-          onGoalsUpdate(Array.isArray(goalsData) ? goalsData : (goalsData.goals || []))
-            } catch (parseError) {
-              console.error('Delete area: Failed to parse goals response')
-            }
-          }
-        } catch (e) {
-          console.error('Delete area: Error fetching goals')
-        }
+        // Goals removed - no need to reload goals
         
         try {
         const stepsResponse = await fetch('/api/daily-steps')
@@ -2600,33 +2533,8 @@ export function JourneyGameView({
   }
 
   const handleSaveGoal = async () => {
-    if (!selectedItem || selectedItemType !== 'goal') return
-
-    try {
-      const response = await fetch('/api/goals', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          goalId: selectedItem.id,
-          title: goalTitle,
-          description: goalDescription,
-          target_date: goalDate,
-          status: goalStatus
-        })
-      })
-
-      if (response.ok) {
-        const updatedGoal = await response.json()
-        // Update selected item
-        setSelectedItem(updatedGoal)
-        // Update goals in parent component without refetching
-        if (onGoalsUpdate) {
-          onGoalsUpdate(goals.map(g => g.id === updatedGoal.id ? updatedGoal : g))
-        }
-      }
-    } catch (error) {
-      console.error('Error updating goal:', error)
-    }
+    // Goals removed - no goal editing
+    return
   }
 
   // renderItemDetail has been extracted to ./details/ItemDetailRenderer.tsx
@@ -2798,38 +2706,10 @@ export function JourneyGameView({
     }
   }
 
-  // Handle goal delete for detail page
+  // Goals removed - no goal delete handler needed
   const handleDeleteGoalForDetail = async (goalId: string, deleteSteps: boolean) => {
-    const goalToDelete = goals.find(goal => goal.id === goalId)
-    const fallbackSection = goalToDelete?.area_id ? `area-${goalToDelete.area_id}` : 'focus-upcoming'
-    setIsDeletingGoal(true)
-    try {
-      const response = await fetch('/api/goals', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ goalId, deleteSteps }),
-      })
-
-      if (response.ok) {
-        // Update goals in parent component
-        if (onGoalsUpdate) {
-          onGoalsUpdate(goals.filter(goal => goal.id !== goalId))
-        }
-        // Close modal
-        setShowDeleteGoalModal(false)
-        setDeleteGoalWithSteps(false)
-        // Redirect to area or upcoming
-        setMainPanelSection(fallbackSection)
-      } else {
-        console.error('Failed to delete goal')
-        alert(t('details.goal.deleteError') || 'Nepodařilo se smazat cíl')
-      }
-    } catch (error) {
-      console.error('Error deleting goal:', error)
-      alert('Chyba při mazání cíle')
-    } finally {
-      setIsDeletingGoal(false)
-    }
+    // Goals removed
+    return
   }
 
   // Handle goal update for detail page (inline editing)
@@ -2856,24 +2736,7 @@ export function JourneyGameView({
 
       if (response.ok) {
         const updatedGoal = await response.json()
-        // Reload all goals from API to get fresh data (including updated progress)
-        // Use cache busting to ensure fresh data
-        if (onGoalsUpdate) {
-          const goalsResponse = await fetch(`/api/goals?t=${Date.now()}`, {
-            cache: 'no-store',
-            headers: {
-              'Cache-Control': 'no-cache'
-            }
-          })
-          if (goalsResponse.ok) {
-            const goalsData = await goalsResponse.json()
-            onGoalsUpdate(goalsData.goals || goalsData || [])
-          } else {
-            // Fallback: update local state if API reload fails
-            const updatedGoals = goals.map(g => g.id === goalId ? updatedGoal : g)
-            onGoalsUpdate(updatedGoals)
-          }
-        }
+        // Goals removed - no goals to update
         // Update selectedItem to reflect changes if it's the same goal
         if (selectedItem && selectedItem.id === goalId) {
           setSelectedItem(updatedGoal)
@@ -2981,12 +2844,7 @@ export function JourneyGameView({
       if (response.ok) {
         const updatedGoal = await response.json()
         
-        // Update goals in parent component
-        if (onGoalsUpdate) {
-          onGoalsUpdate(goals.map(goal => 
-            goal.id === updatedGoal.id ? updatedGoal : goal
-          ))
-        }
+        // Goals removed - no goals to update
         
         setEditingGoal(null)
       } else {
@@ -3033,10 +2891,7 @@ export function JourneyGameView({
       if (response.ok) {
         const data = await response.json()
         
-        // Update goals in parent component
-        if (onGoalsUpdate && data.goal) {
-          onGoalsUpdate([...goals, data.goal])
-        }
+        // Goals removed - no goals to update
         
         // Redirect to goal detail page immediately
         if (data.goal && data.goal.id) {
@@ -3263,7 +3118,6 @@ export function JourneyGameView({
           title: '',
           description: '',
           date: '',
-          goalId: '',
           areaId: '',
           completed: false,
           is_important: false,
@@ -3320,7 +3174,6 @@ export function JourneyGameView({
           title: '',
           description: '',
           date: '',
-          goalId: '',
           areaId: '',
           completed: false,
           is_important: false,
@@ -3571,18 +3424,12 @@ export function JourneyGameView({
       if (response.ok) {
         console.log('Goal deleted successfully, updating states...')
         
-        // Update goals in parent component
-        if (onGoalsUpdate) {
-          onGoalsUpdate(goals.filter(goal => goal.id !== goalId))
-        }
+        // Goals removed - no goals to update
         
-        // Update sortedGoals locally
-        const newSortedGoals = sortedGoals.filter(goal => goal.id !== goalId)
-        setSortedGoals(newSortedGoals)
-        
+        // Goals removed - no sortedGoals to update
         // Update localStorage
         try {
-          const goalOrder = newSortedGoals.map(goal => goal.id)
+          const goalOrder: string[] = []
           localStorage.setItem('goals-order', JSON.stringify(goalOrder))
         } catch (error) {
           console.error('Error updating localStorage after delete:', error)
@@ -3654,111 +3501,16 @@ export function JourneyGameView({
     return 0
   })
 
-  // Initialize sorted goals
-  // Initialize sorted goals when goals change
-  useEffect(() => {
-    if (goals.length > 0) {
-      // Try to load order from localStorage
-      try {
-        const savedOrder = localStorage.getItem('goals-order')
-        if (savedOrder) {
-          const goalIds = JSON.parse(savedOrder)
-          // Create ordered goals based on saved order
-          const orderedGoals = goalIds
-            .map((id: string) => goals.find(goal => goal.id === id))
-            .filter(Boolean)
-          
-          // Add any new goals that weren't in the saved order
-          const newGoals = goals.filter(goal => !goalIds.includes(goal.id))
-          const finalOrder = [...orderedGoals, ...newGoals]
-          
-          setSortedGoals(finalOrder)
-        } else {
-          setSortedGoals(goals)
-        }
-      } catch (error) {
-        console.error('Error loading goals order from localStorage:', error)
-        setSortedGoals(goals)
-      }
-    } else {
-      setSortedGoals(goals)
-    }
-  }, [goals])
+  // Goals removed - no goal sorting needed
 
-  // Preload steps for all goals when goals are loaded
-  // Only preload steps for goals that are actually being viewed (active goals or goal detail pages)
-  useEffect(() => {
-    const preloadSteps = async () => {
-      if (goals.length === 0) return
-      
-      // Only preload steps for active goals (not paused/completed) to reduce initial load time
-      const activeGoalIds = goals
-        .filter(goal => goal.status === 'active')
-        .map(goal => goal.id)
-        .filter(Boolean)
-      
-      if (activeGoalIds.length === 0) return
-      
-      // Check which goals need loading
-      const goalsNeedingSteps = activeGoalIds.filter(id => !stepsCacheRef.current[id]?.loaded)
-      
-      // ✅ PERFORMANCE: Batch load steps for all goals in one request
-      if (goalsNeedingSteps.length > 0) {
-        try {
-          const batchResponse = await fetch('/api/daily-steps/batch', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ goalIds: goalsNeedingSteps })
-          })
-          
-          if (batchResponse.ok) {
-            const { stepsByGoal } = await batchResponse.json()
-            
-            // Update cache for all goals
-            Object.keys(stepsByGoal).forEach((goalId) => {
-              const stepsArray = Array.isArray(stepsByGoal[goalId]) ? stepsByGoal[goalId] : []
-              stepsCacheRef.current[goalId] = { data: stepsArray, loaded: true }
-              // Trigger reactivity
-              setStepsCacheVersion((prev: Record<string, number>) => ({ 
-                ...prev, 
-                [goalId]: (prev[goalId] || 0) + 1 
-              }))
-            })
-          } else {
-            console.error('Failed to load batch steps:', batchResponse.status, batchResponse.statusText)
-            // Fallback to individual requests if batch fails
-            const stepPromises = goalsNeedingSteps.map(async (goalId) => {
-              try {
-                const stepsResponse = await fetch(`/api/daily-steps?goalId=${goalId}`)
-                if (stepsResponse.ok) {
-                  const stepsData = await stepsResponse.json()
-                  const stepsArray = Array.isArray(stepsData) ? stepsData : []
-                  stepsCacheRef.current[goalId] = { data: stepsArray, loaded: true }
-                  setStepsCacheVersion((prev: Record<string, number>) => ({ 
-                    ...prev, 
-                    [goalId]: (prev[goalId] || 0) + 1 
-                  }))
-                }
-              } catch (error) {
-                console.error(`Error preloading steps for goal ${goalId}:`, error)
-              }
-            })
-            await Promise.all(stepPromises)
-          }
-        } catch (error) {
-          console.error('Error preloading steps:', error)
-        }
-      }
-    }
-    
-    preloadSteps()
-  }, [goals])
+  // Goals removed - no goal step preloading needed
 
   // Load steps for goal detail page when it's opened
   useEffect(() => {
     if (mainPanelSection?.startsWith('goal-')) {
       const goalId = mainPanelSection.replace('goal-', '')
-      const goal = goals.find(g => g.id === goalId)
+      // Goals removed - no goal lookup
+      const goal = null
       
       if (goal && goalId && !stepsCacheRef.current[goalId]?.loaded) {
         // Load steps for this goal
@@ -3780,23 +3532,14 @@ export function JourneyGameView({
         loadSteps()
       }
             }
-  }, [mainPanelSection, goals])
+  }, [mainPanelSection])
 
   // Update goal detail page state when goal changes
   useEffect(() => {
     if (mainPanelSection?.startsWith('goal-')) {
-      const goalId = mainPanelSection.replace('goal-', '')
-      const goal = goals.find(g => g.id === goalId)
-      
-      if (goal) {
-        setGoalDetailTitleValue(goal.title)
-        setGoalDetailDescriptionValue(goal.description || '')
-        setEditingGoalDetailTitle(false)
-        setEditingGoalDetailDescription(false)
-        setShowGoalDetailDatePicker(false)
-          }
+      // Goals removed - no goal detail to load
     }
-  }, [mainPanelSection, goals])
+  }, [mainPanelSection])
 
   // Update area detail page state when area changes
   useEffect(() => {
@@ -3834,25 +3577,9 @@ export function JourneyGameView({
     })
   )
 
+  // Goals removed - no goal drag handling needed
   const handleDragEnd = (event: any) => {
-    const { active, over } = event
-
-    if (active.id !== over.id) {
-      const newSortedGoals = arrayMove(sortedGoals, 
-        sortedGoals.findIndex((item) => item.id === active.id),
-        sortedGoals.findIndex((item) => item.id === over.id)
-      )
-      
-      setSortedGoals(newSortedGoals)
-      
-      // Save order to localStorage
-      try {
-        const goalOrder = newSortedGoals.map(goal => goal.id)
-        localStorage.setItem('goals-order', JSON.stringify(goalOrder))
-      } catch (error) {
-        console.error('Error saving goals order to localStorage:', error)
-      }
-    }
+    // Goals removed - no drag handling
   }
 
   // GoalEditingForm has been extracted to ./journey/GoalEditingForm.tsx
@@ -3883,7 +3610,7 @@ export function JourneyGameView({
   const completedTasks = completedHabits + completedSteps
   const progressPercentage = totalTasks > 0 ? Math.min(Math.round((completedTasks / totalTasks) * 100), 100) : 0
   
-  const completedGoals = goals.filter(goal => goal.steps && goal.steps.every((step: any) => step.completed)).length
+  const completedGoals = 0 // Goals removed
   const activeHabits = completedHabits
 
   // Get current day and time
@@ -3955,7 +3682,7 @@ export function JourneyGameView({
   const totalCompletedSteps = dailySteps.filter(step => step.completed).length
 
   // Total completed goals
-  const totalCompletedGoals = goals.filter(goal => goal.status === 'completed').length
+  const totalCompletedGoals = 0 // Goals removed
 
   // Check for pending workflows
   useEffect(() => {
@@ -4045,13 +3772,7 @@ export function JourneyGameView({
       })
       if (response.ok) {
         const updatedGoal = await response.json()
-        // Update goals list
-        if (onGoalsUpdate) {
-          const updatedGoals = goals.map(g => 
-            g.id === goalId ? updatedGoal : g
-          )
-          onGoalsUpdate(updatedGoals)
-        }
+        // Goals removed - no goals to update
       }
     } catch (error) {
       console.error('Error updating goal progress:', error)
@@ -4127,7 +3848,6 @@ export function JourneyGameView({
           setMainPanelSection={setMainPanelSection}
           selectedItem={selectedItem}
           selectedItemType={selectedItemType}
-          goals={goals}
           habits={habits}
           dailySteps={localDailySteps}
           isLoadingSteps={isLoadingSteps}
@@ -4396,7 +4116,6 @@ export function JourneyGameView({
             title: '',
             description: '',
             date: '',
-            goalId: '',
             areaId: '',
             completed: false,
             is_important: false,
@@ -4421,7 +4140,6 @@ export function JourneyGameView({
         }}
         onFinishRecurring={handleFinishRecurringStep}
         isSaving={stepModalSaving}
-        goals={goals}
         areas={areas}
         userId={userId}
         player={player}
@@ -4429,7 +4147,6 @@ export function JourneyGameView({
         onDailyStepsUpdate={onDailyStepsUpdate}
         selectedItem={selectedItem}
         setSelectedItem={setSelectedItem}
-        selectedGoalId={selectedGoalId}
         stepsCacheRef={stepsCacheRef}
         setStepsCacheVersion={setStepsCacheVersion}
         checklistSaving={checklistSaving}
@@ -4493,7 +4210,6 @@ export function JourneyGameView({
         show={showAreasManagementModal}
         onClose={() => setShowAreasManagementModal(false)}
         areas={areas}
-        goals={goals}
         dailySteps={localDailySteps}
         habits={habits}
         onEditArea={handleOpenAreaEditModal}

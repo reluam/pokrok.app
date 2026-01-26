@@ -119,7 +119,6 @@ interface SidebarNavigationProps {
   setMainPanelSection: (section: string) => void
   sidebarItems: Array<{ id: string; label: string; icon: any }>
   areas: any[]
-  sortedGoalsForSidebar: any[]
   dailySteps: any[]
   expandedAreas: Set<string>
   setExpandedAreas: (areas: Set<string>) => void
@@ -155,7 +154,6 @@ export function SidebarNavigation({
   setMainPanelSection,
   sidebarItems,
   areas,
-  sortedGoalsForSidebar,
   dailySteps,
   expandedAreas,
   setExpandedAreas,
@@ -383,31 +381,20 @@ export function SidebarNavigation({
                   </button>
                 )}
                 
-                {/* Month view */}
-                {viewTypeVisibility['month'] !== false && (
-                  <button
-                    onClick={() => setMainPanelSection('focus-month')}
-                    className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                      mainPanelSection === 'focus-month' ? 'active' : ''
-                    }`}
-                  >
-                    <CalendarDays className="w-4 h-4 flex-shrink-0" />
-                    <span className="font-medium text-sm">{t('calendar.month') || 'Přehled'}</span>
-                  </button>
-                )}
-                
-                {/* Year view */}
-                {viewTypeVisibility['year'] !== false && (
-                  <button
-                    onClick={() => setMainPanelSection('focus-year')}
-                    className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
-                      mainPanelSection === 'focus-year' ? 'active' : ''
-                    }`}
-                  >
-                    <BarChart3 className="w-4 h-4 flex-shrink-0" />
-                    <span className="font-medium text-sm">{t('calendar.year') || 'Statistiky'}</span>
-                  </button>
-                )}
+                {/* Overview calendar view */}
+                <button
+                  onClick={() => setMainPanelSection('overview')}
+                  className={`btn-playful-nav w-full flex items-center gap-3 px-3 py-2 text-left ${
+                    mainPanelSection === 'overview' || 
+                    mainPanelSection === 'focus-month' || 
+                    mainPanelSection === 'focus-year' || 
+                    mainPanelSection === 'focus-calendar' 
+                      ? 'active' : ''
+                  }`}
+                >
+                  <CalendarDays className="w-4 h-4 flex-shrink-0" />
+                  <span className="font-medium text-sm">{t('calendar.overview') || 'Přehled'}</span>
+                </button>
               </div>
             </>
           ) : (
@@ -424,507 +411,109 @@ export function SidebarNavigation({
                   <ListTodo className="w-5 h-5 flex-shrink-0" />
                 </button>
               )}
-              {viewTypeVisibility['month'] !== false && (
-                <button
-                  onClick={() => setMainPanelSection('focus-month')}
-                  className={`btn-playful-nav flex items-center justify-center w-10 h-10 ${
-                    mainPanelSection === 'focus-month' ? 'active' : ''
-                  }`}
-                  title={t('calendar.month') || 'Přehled'}
-                >
-                  <CalendarDays className="w-5 h-5 flex-shrink-0" />
-                </button>
-              )}
-              {viewTypeVisibility['year'] !== false && (
-                <button
-                  onClick={() => setMainPanelSection('focus-year')}
-                  className={`btn-playful-nav flex items-center justify-center w-10 h-10 ${
-                    mainPanelSection === 'focus-year' ? 'active' : ''
-                  }`}
-                  title={t('calendar.year') || 'Statistiky'}
-                >
-                  <BarChart3 className="w-5 h-5 flex-shrink-0" />
-                </button>
-              )}
+              <button
+                onClick={() => setMainPanelSection('overview')}
+                className={`btn-playful-nav flex items-center justify-center w-10 h-10 ${
+                  mainPanelSection === 'overview' || 
+                  mainPanelSection === 'focus-month' || 
+                  mainPanelSection === 'focus-year' || 
+                  mainPanelSection === 'focus-calendar' 
+                    ? 'active' : ''
+                }`}
+                title={t('calendar.overview') || 'Přehled'}
+              >
+                <CalendarDays className="w-5 h-5 flex-shrink-0" />
+              </button>
             </>
           )}
           
           {/* Areas list - directly under Calendar views */}
-          {!sidebarCollapsed && viewTypeVisibility['areas'] !== false && (() => {
-            // Group goals by area - include all goals (active, paused, completed)
-            const goalsByArea = areas.reduce((acc, area) => {
-              const areaGoals = sortedGoalsForSidebar.filter(g => g.area_id === area.id)
-              // Always include area, even if it has no goals
-              acc[area.id] = { area, goals: areaGoals }
-              return acc
-            }, {} as Record<string, { area: any; goals: any[] }>)
-            
-            // Goals without area
-            const goalsWithoutArea = sortedGoalsForSidebar.filter(g => !g.area_id && g.status === 'active')
-            
-            return (
-              <div className="space-y-2">
-                {/* Areas header */}
-                <div className="flex items-center justify-between px-2 py-1">
-                  <h3 className="text-xs font-bold text-black uppercase tracking-wider font-playful">
-                    {t('areas.title') || 'Oblasti'}
-                  </h3>
-                </div>
-                
-                {/* Areas with goals */}
-                {Object.keys(goalsByArea).length > 0 && (
-                  <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleAreasDragEnd}
+          {!sidebarCollapsed && viewTypeVisibility['areas'] !== false && (
+            <div className="space-y-2">
+              {/* Areas header */}
+              <div className="flex items-center justify-between px-2 py-1">
+                <h3 className="text-xs font-bold text-black uppercase tracking-wider font-playful">
+                  {t('areas.title') || 'Oblasti'}
+                </h3>
+              </div>
+              
+              {/* Areas */}
+              {areas.length > 0 && (
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleAreasDragEnd}
+                >
+                  <SortableContext
+                    items={areas.map(area => area.id)}
+                    strategy={verticalListSortingStrategy}
                   >
-                    <SortableContext
-                      items={areas.map(area => area.id)}
-                      strategy={verticalListSortingStrategy}
-                    >
-                      {(Object.values(goalsByArea) as Array<{ area: any; goals: any[] }>).map((item: { area: any; goals: any[] }) => {
-                  const { area, goals: areaGoals } = item
-                  const isExpanded = expandedAreas.has(area.id)
-                  const areaColor = area.color || '#ea580c'
-                  const hasPastDeadlineGoals = hasAreaPastDeadlineGoals(areaGoals)
-                  
-                  return (
-                    <SortableArea
-                      key={area.id} 
-                      area={area}
-                      isExpanded={isExpanded}
-                      onToggleExpand={() => {
+                    {areas.map((area) => {
+                      const isExpanded = expandedAreas.has(area.id)
+                      const areaColor = area.color || '#ea580c'
+                      
+                      return (
+                        <SortableArea
+                          key={area.id} 
+                          area={area}
+                          isExpanded={isExpanded}
+                          onToggleExpand={() => {
                             if (isExpanded) {
                               setExpandedAreas(new Set())
                             } else {
                               setExpandedAreas(new Set([area.id]))
                             }
                           }}
-                      mainPanelSection={mainPanelSection}
-                      setMainPanelSection={setMainPanelSection}
-                      hoveredAreaId={hoveredAreaId}
-                      setHoveredAreaId={setHoveredAreaId}
-                      areaButtonRefs={areaButtonRefs}
-                      hasPastDeadlineGoals={hasPastDeadlineGoals}
-                      hexToRgba={hexToRgba}
-                      t={t}
-                    >
-                      
-                      {/* Goals under area */}
-                      {isExpanded && (() => {
-                        // Split goals by status
-                        const activeGoals = areaGoals.filter(g => g.status === 'active')
-                        const pausedGoals = areaGoals.filter(g => g.status === 'paused')
-                        const completedGoals = areaGoals.filter(g => g.status === 'completed')
-                        
-                        
-                        const pausedSectionKey = `${area.id}-paused`
-                        const completedSectionKey = `${area.id}-completed`
-                        const isPausedExpanded = expandedGoalSections.has(pausedSectionKey)
-                        const isCompletedExpanded = expandedGoalSections.has(completedSectionKey)
-                        
-                        const isAreaSelected = mainPanelSection === `area-${area.id}`
-                        return (
-                          <div 
-                            ref={isOnboardingClickGoalStep && isAreaSelected ? goalsSectionRef : undefined}
-                            className={`pl-4 space-y-1 border-l-2 ${isOnboardingClickGoalStep && isAreaSelected ? 'bg-primary-100 border-2 border-primary-500 rounded-playful-sm p-2' : ''}`}
-                            style={isOnboardingClickGoalStep && isAreaSelected ? undefined : { borderColor: areaColor }}
-                          >
-                            {/* Active goals - always visible */}
-                            {activeGoals.map((goal) => {
-                              const goalSectionId = `goal-${goal.id}`
-                              const isSelected = mainPanelSection === goalSectionId
-                              const trendValue = calculateGoalTrend(goal.id)
-                              const isPastDeadline = isGoalPastDeadline(goal)
-                              return (
-                                <button
-                                  key={goal.id}
-                                  ref={goalButtonRefs?.get(goal.id)}
-                                  onClick={() => {
-                                    if (onGoalClick) {
-                                      onGoalClick(goal.id)
-                                    } else {
-                                      setMainPanelSection(goalSectionId)
-                                    }
-                                  }}
-                                  onMouseEnter={() => setHoveredGoalId(goal.id)}
-                                  onMouseLeave={() => setHoveredGoalId(null)}
-                                  className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left border-2 ${
-                                    isSelected ? 'active' : ''
-                                  }`}
-                                  style={{
-                                    borderColor: areaColor,
-                                    ...(hoveredGoalId === goal.id ? { backgroundColor: hexToRgba(areaColor, 0.2) } : {})
-                                  }}
-                                  title={goal.title}
-                                >
-                                  <div className="flex-shrink-0 min-w-[2.5rem] flex justify-center items-center">
-                                    {trendValue > 5 ? (
-                                      <ChevronUp
-                                        className="text-green-600"
-                                        style={{
-                                          height: `${Math.max(8, Math.min(20, 12 + Math.abs(trendValue) * 0.2))}px`,
-                                          width: '12px'
-                                        }}
-                                      />
-                                    ) : trendValue < -5 ? (
-                                      <ChevronDown
-                                        className="text-red-600"
-                                        style={{
-                                          height: `${Math.max(8, Math.min(20, 12 + Math.abs(trendValue) * 0.2))}px`,
-                                          width: '12px'
-                                        }}
-                                      />
-                                    ) : (
-                                      <div
-                                        className="w-2 h-2 rounded-full bg-yellow-500"
-                                        style={{ backgroundColor: areaColor }}
-                                      />
-                                    )}
-                                  </div>
-                                  {isPastDeadline && (
-                                    <AlertCircle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
-                                  )}
-                                  <span className={`font-medium text-xs truncate flex-1 ${isPastDeadline ? 'text-red-600' : ''}`}>
-                                    {goal.title}
-                                  </span>
-                                </button>
-                              )
-                            })}
-                            
-                            {/* Paused goals section */}
-                            {pausedGoals.length > 0 && (
-                              <div>
-                                <button
-                                  onClick={() => {
-                                    const newSet = new Set(expandedGoalSections)
-                                    if (isPausedExpanded) {
-                                      newSet.delete(pausedSectionKey)
-                                    } else {
-                                      newSet.add(pausedSectionKey)
-                                    }
-                                    setExpandedGoalSections(newSet)
-                                  }}
-                                  onMouseEnter={() => setHoveredPausedSectionId(pausedSectionKey)}
-                                  onMouseLeave={() => setHoveredPausedSectionId(null)}
-                                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-black transition-all rounded-playful-sm bg-transparent"
-                                  style={hoveredPausedSectionId === pausedSectionKey ? { backgroundColor: hexToRgba(areaColor, 0.2) } : {}}
-                                >
-                                  <ChevronDown className={`w-3 h-3 transition-transform ${isPausedExpanded ? 'rotate-180' : ''}`} />
-                                  <span>{t('goals.filters.status.paused') || 'Odložené'} ({pausedGoals.length})</span>
-                                </button>
-                                {isPausedExpanded && pausedGoals.length > 0 && (
-                                  <div className="pl-4 space-y-1">
-                                    {pausedGoals.map((goal) => {
-                                      const goalSectionId = `goal-${goal.id}`
-                                      const isSelected = mainPanelSection === goalSectionId
-                                      const trendValue = calculateGoalTrend(goal.id)
-                                      const isPastDeadline = isGoalPastDeadline(goal)
-                                      return (
-                                        <button
-                                          key={goal.id}
-                                          ref={goalButtonRefs?.get(goal.id)}
-                                          onClick={() => {
-                                            if (onGoalClick) {
-                                              onGoalClick(goal.id)
-                                            } else {
-                                              setMainPanelSection(goalSectionId)
-                                            }
-                                          }}
-                                          onMouseEnter={() => setHoveredGoalId(goal.id)}
-                                          onMouseLeave={() => setHoveredGoalId(null)}
-                                          className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left border-2 ${
-                                            isSelected ? 'active' : ''
-                                          }`}
-                                          style={{
-                                            borderColor: areaColor,
-                                            ...(hoveredGoalId === goal.id ? { backgroundColor: hexToRgba(areaColor, 0.2) } : {})
-                                          }}
-                                          title={goal.title}
-                                        >
-                                  <div className="flex-shrink-0 min-w-[2.5rem] flex justify-center items-center">
-                                    {trendValue > 5 ? (
-                                      <ChevronUp
-                                        className="text-green-600"
-                                        style={{
-                                          height: `${Math.max(8, Math.min(20, 12 + Math.abs(trendValue) * 0.2))}px`,
-                                          width: '12px'
-                                        }}
-                                      />
-                                    ) : trendValue < -5 ? (
-                                      <ChevronDown
-                                        className="text-red-600"
-                                        style={{
-                                          height: `${Math.max(8, Math.min(20, 12 + Math.abs(trendValue) * 0.2))}px`,
-                                          width: '12px'
-                                        }}
-                                      />
-                                    ) : (
-                                      <div
-                                        className="w-2 h-2 rounded-full bg-yellow-500"
-                                        style={{ backgroundColor: areaColor }}
-                                      />
-                                    )}
-                                  </div>
-                                          {isPastDeadline && (
-                                            <AlertCircle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
-                                          )}
-                                          <span className={`font-medium text-xs truncate flex-1 ${isPastDeadline ? 'text-red-600' : ''}`}>
-                                            {goal.title}
-                                          </span>
-                                        </button>
-                                      )
-                                    })}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                            
-                            {/* Completed goals section */}
-                            {completedGoals.length > 0 && (
-                              <div>
-                                <button
-                                  onClick={() => {
-                                    const newSet = new Set(expandedGoalSections)
-                                    if (isCompletedExpanded) {
-                                      newSet.delete(completedSectionKey)
-                                    } else {
-                                      newSet.add(completedSectionKey)
-                                    }
-                                    setExpandedGoalSections(newSet)
-                                  }}
-                                  onMouseEnter={() => setHoveredCompletedSectionId(completedSectionKey)}
-                                  onMouseLeave={() => setHoveredCompletedSectionId(null)}
-                                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-black transition-all rounded-playful-sm bg-transparent"
-                                  style={hoveredCompletedSectionId === completedSectionKey ? { backgroundColor: hexToRgba(areaColor, 0.2) } : {}}
-                                >
-                                  <ChevronDown className={`w-3 h-3 transition-transform ${isCompletedExpanded ? 'rotate-180' : ''}`} />
-                                  <span>{t('goals.filters.status.completed') || 'Hotové'} ({completedGoals.length})</span>
-                                </button>
-                                {isCompletedExpanded && completedGoals.length > 0 && (
-                                  <div className="pl-4 space-y-1">
-                                    {completedGoals.map((goal) => {
-                                      const goalSectionId = `goal-${goal.id}`
-                                      const isSelected = mainPanelSection === goalSectionId
-                                      const trendValue = calculateGoalTrend(goal.id)
-                                      const isPastDeadline = isGoalPastDeadline(goal)
-                                      return (
-                                        <button
-                                          key={goal.id}
-                                          ref={goalButtonRefs?.get(goal.id)}
-                                          onClick={() => {
-                                            if (onGoalClick) {
-                                              onGoalClick(goal.id)
-                                            } else {
-                                              setMainPanelSection(goalSectionId)
-                                            }
-                                          }}
-                                          onMouseEnter={() => setHoveredGoalId(goal.id)}
-                                          onMouseLeave={() => setHoveredGoalId(null)}
-                                          className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left border-2 ${
-                                            isSelected ? 'active' : ''
-                                          }`}
-                                          style={{
-                                            borderColor: areaColor,
-                                            ...(hoveredGoalId === goal.id ? { backgroundColor: hexToRgba(areaColor, 0.2) } : {})
-                                          }}
-                                          title={goal.title}
-                                        >
-                                  <div className="flex-shrink-0 min-w-[2.5rem] flex justify-center items-center">
-                                    {trendValue > 5 ? (
-                                      <ChevronUp
-                                        className="text-green-600"
-                                        style={{
-                                          height: `${Math.max(8, Math.min(20, 12 + Math.abs(trendValue) * 0.2))}px`,
-                                          width: '12px'
-                                        }}
-                                      />
-                                    ) : trendValue < -5 ? (
-                                      <ChevronDown
-                                        className="text-red-600"
-                                        style={{
-                                          height: `${Math.max(8, Math.min(20, 12 + Math.abs(trendValue) * 0.2))}px`,
-                                          width: '12px'
-                                        }}
-                                      />
-                                    ) : (
-                                      <div
-                                        className="w-2 h-2 rounded-full bg-yellow-500"
-                                        style={{ backgroundColor: areaColor }}
-                                      />
-                                    )}
-                                  </div>
-                                          {isPastDeadline && (
-                                            <AlertCircle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
-                                          )}
-                                          <span className={`font-medium text-xs truncate flex-1 ${isPastDeadline ? 'text-red-600' : ''}`}>
-                                            {goal.title}
-                                          </span>
-                                        </button>
-                                      )
-                                    })}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        )
-                      })()}
-                    </SortableArea>
-                  )
-                })}
-                    </SortableContext>
-                  </DndContext>
-                )}
-                
-                {/* Goals without area */}
-                {goalsWithoutArea.length > 0 && (
-                  <div 
-                    ref={isOnboardingClickGoalStep && !mainPanelSection.startsWith('area-') ? goalsSectionRef : undefined}
-                    className={`space-y-1.5 ${isOnboardingClickGoalStep && !mainPanelSection.startsWith('area-') ? 'bg-primary-100 border-2 border-primary-500 rounded-playful-sm p-2' : ''}`}
-                  >
-                    {goalsWithoutArea.map((goal) => {
-                      const goalSectionId = `goal-${goal.id}`
-                      const isSelected = mainPanelSection === goalSectionId
-                      const progressPercentage = Math.round(goal.progress_percentage || 0)
-                      const isPastDeadline = isGoalPastDeadline(goal)
-                      return (
-                        <button
-                          key={goal.id}
-                          ref={goalButtonRefs?.get(goal.id)}
-                          onClick={() => {
-                            if (onGoalClick) {
-                              onGoalClick(goal.id)
-                            } else {
-                              setMainPanelSection(goalSectionId)
-                            }
-                          }}
-                          className={`btn-playful-nav w-full flex items-center gap-2 px-3 py-1.5 text-left ${
-                            isSelected ? 'active' : ''
-                          }`}
-                          title={goal.title}
+                          mainPanelSection={mainPanelSection}
+                          setMainPanelSection={setMainPanelSection}
+                          hoveredAreaId={hoveredAreaId}
+                          setHoveredAreaId={setHoveredAreaId}
+                          areaButtonRefs={areaButtonRefs}
+                          hasPastDeadlineGoals={false}
+                          hexToRgba={hexToRgba}
+                          t={t}
                         >
-                          <span className={`text-xs font-bold flex-shrink-0 min-w-[2.5rem] text-right ${isSelected ? 'text-primary-600' : 'text-gray-600'}`}>
-                            {progressPercentage}%
-                          </span>
-                          {isPastDeadline && (
-                            <AlertCircle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
-                          )}
-                          <span className={`font-medium text-xs truncate flex-1 ${isPastDeadline ? 'text-red-600' : ''}`}>
-                            {goal.title}
-                          </span>
-                        </button>
+                          {/* Goals removed - no goals to display */}
+                        </SortableArea>
                       )
                     })}
-                  </div>
-                )}
-              </div>
-            )
-          })()}
+                  </SortableContext>
+                </DndContext>
+              )}
+            </div>
+          )}
           
-          {/* Collapsed areas - show as icons with goals */}
-          {sidebarCollapsed && (() => {
-            // Group goals by area
-            const goalsByArea = areas.reduce((acc, area) => {
-              // Include all goals for this area (active, paused, completed)
-              const areaGoals = sortedGoalsForSidebar.filter(g => g.area_id === area.id)
-              // Always include area, even if it has no goals
-              acc[area.id] = { area, goals: areaGoals }
-              return acc
-            }, {} as Record<string, { area: any; goals: any[] }>)
-            
-            // Goals without area
-            const goalsWithoutArea = sortedGoalsForSidebar.filter(g => !g.area_id && g.status === 'active')
-            
-            if (Object.keys(goalsByArea).length === 0 && goalsWithoutArea.length === 0) return null
-            
-            return (
-              <div className="space-y-2 mt-2">
-                {/* Areas */}
-                 {(Object.values(goalsByArea) as Array<{ area: any; goals: any[] }>).slice(0, 5).map((item: { area: any; goals: any[] }) => {
-                   const { area, goals: areaGoals } = item
-                  const isExpanded = expandedAreas.has(area.id)
-                  const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
-                  const areaColor = area.color || '#ea580c'
-                  const isAreaSelected = mainPanelSection.startsWith('area-') && mainPanelSection === `area-${area.id}`
-                  
-                  return (
-                    <div key={area.id} className="space-y-1">
-                      <button
-                        onClick={() => {
-                          // Open area page - useEffect will automatically expand this area and collapse others
-                          setMainPanelSection(`area-${area.id}`)
-                        }}
-                        className={`btn-playful-nav w-10 h-10 flex items-center justify-center ${
-                          isAreaSelected ? 'active' : ''
-                        }`}
-                        style={isAreaSelected ? { textDecorationColor: areaColor } : undefined}
-                        title={area.name}
-                      >
-                        <IconComponent className={`w-5 h-5`} style={!isAreaSelected ? { color: areaColor } : undefined} />
-                      </button>
-                      
-                      {/* Goals under area - always shown in collapsed menu */}
-                      {isExpanded && (
-                        <div className="pl-2 space-y-1 border-l-2" style={{ borderColor: areaColor }}>
-                          {areaGoals.map((goal) => {
-                            const goalSectionId = `goal-${goal.id}`
-                            const isSelected = mainPanelSection === goalSectionId
-                            const GoalIconComponent = getIconComponent(goal.icon)
-                            return (
-                              <button
-                                key={goal.id}
-                          ref={goalButtonRefs?.get(goal.id)}
-                          onClick={() => {
-                            if (onGoalClick) {
-                              onGoalClick(goal.id)
-                            } else {
-                              setMainPanelSection(goalSectionId)
-                            }
-                          }}
-                                className={`btn-playful-nav w-10 h-10 flex items-center justify-center ${
-                                  isSelected ? 'active' : ''
-                                }`}
-                                title={goal.title}
-                              >
-                                <GoalIconComponent className={`w-4 h-4`} style={!isSelected ? { color: areaColor } : undefined} />
-                              </button>
-                            )
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
+          {/* Collapsed areas - show as icons */}
+          {sidebarCollapsed && areas.length > 0 && (
+            <div className="space-y-2 mt-2">
+              {/* Areas */}
+              {areas.slice(0, 5).map((area) => {
+                const isExpanded = expandedAreas.has(area.id)
+                const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
+                const areaColor = area.color || '#ea580c'
+                const isAreaSelected = mainPanelSection.startsWith('area-') && mainPanelSection === `area-${area.id}`
                 
-                {/* Goals without area */}
-                {goalsWithoutArea.slice(0, 5).map((goal) => {
-                  const goalSectionId = `goal-${goal.id}`
-                  const isSelected = mainPanelSection === goalSectionId
-                  const IconComponent = getIconComponent(goal.icon)
-                  return (
+                return (
+                  <div key={area.id} className="space-y-1">
                     <button
-                      key={goal.id}
-                          ref={goalButtonRefs?.get(goal.id)}
-                          onClick={() => {
-                            if (onGoalClick) {
-                              onGoalClick(goal.id)
-                            } else {
-                              setMainPanelSection(goalSectionId)
-                            }
-                          }}
+                      onClick={() => {
+                        setMainPanelSection(`area-${area.id}`)
+                      }}
                       className={`btn-playful-nav w-10 h-10 flex items-center justify-center ${
-                        isSelected ? 'active' : ''
+                        isAreaSelected ? 'active' : ''
                       }`}
-                      title={goal.title}
+                      style={isAreaSelected ? { textDecorationColor: areaColor } : undefined}
+                      title={area.name}
                     >
-                      <IconComponent className="w-4 h-4" />
+                      <IconComponent className={`w-5 h-5`} style={!isAreaSelected ? { color: areaColor } : undefined} />
                     </button>
-                  )
-                })}
-              </div>
-            )
-          })()}
+                    
+                    {/* Goals removed - no goals to display */}
+                  </div>
+                )
+              })}
+            </div>
+          )}
           
         </nav>
       </div>

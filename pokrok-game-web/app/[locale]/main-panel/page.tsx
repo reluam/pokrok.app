@@ -16,7 +16,6 @@ export default function MainPanelPage() {
   const locale = useLocale()
   const [player, setPlayer] = useState<any>(null)
   const [userId, setUserId] = useState<string | null>(null)
-  const [goals, setGoals] = useState<any[]>([])
   const [habits, setHabits] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null)
@@ -78,7 +77,6 @@ export default function MainPanelPage() {
             const newUser = await createUserResponse.json()
             console.log('[MainPanel] User created, setting onboarding state to false')
             setUserId(newUser.id)
-            setGoals([])
             setHabits([])
             setPlayer(null)
             // New users haven't completed onboarding yet - set explicitly to false
@@ -108,7 +106,6 @@ export default function MainPanelPage() {
           if (!userCreated) {
             setUserId(gameData.user.id)
             setPlayer(gameData.player || null)
-            setGoals(gameData.goals || [])
             setHabits(gameData.habits || [])
             const completed = gameData.user.has_completed_onboarding ?? false
             setHasCompletedOnboarding(completed)
@@ -122,7 +119,6 @@ export default function MainPanelPage() {
           } else {
             console.log('[MainPanel] User was just created, preserving onboarding state (false)')
             // Even if userCreated, we should still load goals and habits to show onboarding steps
-            setGoals(gameData.goals || [])
             setHabits(gameData.habits || [])
             setPlayer(gameData.player || null)
             // But keep hasCompletedOnboarding as false
@@ -136,7 +132,6 @@ export default function MainPanelPage() {
           console.error('Error stack:', error.stack)
         }
         if (!userCreated) {
-          setGoals([])
           setHabits([])
           setPlayer(null)
         }
@@ -154,7 +149,7 @@ export default function MainPanelPage() {
     }
   }, [isLoaded, isSignedIn, router, locale])
 
-  const isDataLoaded = goals !== undefined && habits !== undefined && !isLoading
+  const isDataLoaded = habits !== undefined && !isLoading
   
   if (!isLoaded || !isDataLoaded) {
     return (
@@ -180,9 +175,7 @@ export default function MainPanelPage() {
       <GameWorldView 
         player={player} 
         userId={userId}
-        goals={goals} 
         habits={habits}
-        onGoalsUpdate={setGoals}
         onHabitsUpdate={setHabits}
         onPlayerUpdate={setPlayer}
         hasCompletedOnboarding={hasCompletedOnboarding}

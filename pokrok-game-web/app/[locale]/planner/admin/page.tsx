@@ -5,8 +5,9 @@ import { AdminTipsView } from '../components/admin/AdminTipsView'
 import { AdminHelpView } from '../components/admin/AdminHelpView'
 import { AdminAPIView } from '../components/admin/AdminAPIView'
 import { AdminFeedbackView } from '../components/admin/AdminFeedbackView'
+import { AdminMigrationView } from '../components/admin/AdminMigrationView'
 
-type TabKey = 'tips' | 'help' | 'api' | 'feedback'
+type TabKey = 'tips' | 'help' | 'api' | 'feedback' | 'migration'
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('tips')
@@ -40,6 +41,12 @@ export default function AdminDashboardPage() {
           >
             Feedback
           </button>
+          <button
+            className={`px-4 py-2 font-semibold ${activeTab === 'migration' ? 'text-primary-700 border-b-4 border-primary-500' : 'text-gray-600'}`}
+            onClick={() => setActiveTab('migration')}
+          >
+            Migrace
+          </button>
         </div>
 
         <div className="flex-1 min-h-0">
@@ -47,6 +54,7 @@ export default function AdminDashboardPage() {
           {activeTab === 'help' && <AdminHelpView />}
           {activeTab === 'api' && <AdminAPIView />}
           {activeTab === 'feedback' && <AdminFeedbackView />}
+          {activeTab === 'migration' && <AdminMigrationView />}
         </div>
       </div>
     </div>

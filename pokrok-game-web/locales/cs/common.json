@@ -1041,6 +1041,8 @@
   },
   "calendar": {
     "upcoming": "Nadcházející",
+    "overview": "Přehled",
+    "noItems": "Žádné položky",
     "days": {
       "sunday": "Neděle",
       "monday": "Pondělí",
@@ -1078,6 +1080,20 @@
     "totalProgress": "Celkový pokrok",
     "completed": "Dokončeno",
     "successRate": "Úspěšnost"
+  },
+  "months": {
+    "january": "Leden",
+    "february": "Únor",
+    "march": "Březen",
+    "april": "Duben",
+    "may": "Květen",
+    "june": "Červen",
+    "july": "Červenec",
+    "august": "Srpen",
+    "september": "Září",
+    "october": "Říjen",
+    "november": "Listopad",
+    "december": "Prosinec"
   },
   "sections": {
     "habits": "NÁVYKY",

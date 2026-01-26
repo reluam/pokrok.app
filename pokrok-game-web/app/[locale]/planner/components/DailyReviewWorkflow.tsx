@@ -6,38 +6,27 @@ import { useTranslations } from 'next-intl'
 
 interface DailyReviewWorkflowProps {
   workflow: any
-  goals: any[]
   player: any
   onComplete: (workflowId: string, xp: number) => void
   onSkip: (workflowId: string) => void
-  onGoalProgressUpdate: (goalId: string, progress: number) => Promise<void>
 }
 
 export function DailyReviewWorkflow({
   workflow,
-  goals,
   player,
   onComplete,
   onSkip,
-  onGoalProgressUpdate
 }: DailyReviewWorkflowProps) {
   const t = useTranslations()
   const [whatWentWell, setWhatWentWell] = useState('')
   const [whatWentWrong, setWhatWentWrong] = useState('')
-  const [selectedGoal, setSelectedGoal] = useState<string | null>(null)
-  const [goalProgress, setGoalProgress] = useState<Record<string, number>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showGoalSelector, setShowGoalSelector] = useState(false)
-
-  const activeGoals = goals.filter(g => g.status === 'active')
+  // Goals removed - no goal progress tracking
 
   const handleComplete = async () => {
     setIsSubmitting(true)
     try {
-      // Update goal progress if any was changed
-      for (const [goalId, progress] of Object.entries(goalProgress)) {
-        await onGoalProgressUpdate(goalId, progress as number)
-      }
+      // Goals removed - no goal progress to update
 
       // Save workflow responses
       const today = new Date().toISOString().split('T')[0]
@@ -52,10 +41,7 @@ export function DailyReviewWorkflow({
           responses: {
             whatWentWell,
             whatWentWrong,
-            goalUpdates: Object.entries(goalProgress).map(([goalId, progress]) => ({
-              goalId,
-              progress
-            }))
+            goalUpdates: [] // Goals removed
           }
         })
       })
@@ -79,26 +65,7 @@ export function DailyReviewWorkflow({
     await onSkip(workflow.id)
   }
 
-  const handleGoalSelect = (goalId: string) => {
-    setSelectedGoal(goalId)
-    if (!goalProgress[goalId]) {
-      const goal = goals.find(g => g.id === goalId)
-      setGoalProgress(prev => ({
-        ...prev,
-        [goalId]: goal?.progress || 0
-      }))
-    }
-    setShowGoalSelector(false)
-  }
-
-  const handleProgressChange = (goalId: string, value: number) => {
-    setGoalProgress(prev => ({
-      ...prev,
-      [goalId]: Math.max(0, Math.min(100, value))
-    }))
-  }
-
-  const selectedGoalData = selectedGoal ? goals.find(g => g.id === selectedGoal) : null
+  // Goals removed - no goal selection or progress tracking
 
   return (
     <div className="bg-white bg-opacity-95 rounded-2xl p-8 border border-orange-200 shadow-xl backdrop-blur-sm w-full max-w-4xl mx-auto">
@@ -147,114 +114,7 @@ export function DailyReviewWorkflow({
           />
         </div>
 
-        {/* Úprava progressu cílů */}
-        <div>
-          <label className="block text-lg font-bold text-gray-900 mb-2">
-            3. {t('dailyReview.updateGoalProgress.label')}
-          </label>
-          
-          {selectedGoal ? (
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <Target className="w-5 h-5 text-orange-500" />
-                  <span className="font-semibold text-gray-900">{selectedGoalData?.name}</span>
-                </div>
-                <button
-                  onClick={() => {
-                    setSelectedGoal(null)
-                    setShowGoalSelector(true)
-                  }}
-                  className="text-sm text-gray-600 hover:text-gray-900"
-                >
-                  {t('dailyReview.updateGoalProgress.change')}
-                </button>
-              </div>
-              
-              <div className="space-y-3">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-700">{t('dailyReview.updateGoalProgress.progress')}</span>
-                    <span className="text-sm font-semibold text-orange-600">
-                      {goalProgress[selectedGoal]}%
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={goalProgress[selectedGoal] || 0}
-                    onChange={(e) => handleProgressChange(selectedGoal, parseInt(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
-                  />
-                  <div className="flex items-center justify-between text-xs text-gray-500 mt-1">
-                    <span>0%</span>
-                    <span>50%</span>
-                    <span>100%</span>
-                  </div>
-                </div>
-                
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleProgressChange(selectedGoal, Math.max(0, (goalProgress[selectedGoal] || 0) - 10))}
-                    className="flex-1 px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm"
-                  >
-                    -10%
-                  </button>
-                  <button
-                    onClick={() => handleProgressChange(selectedGoal, Math.min(100, (goalProgress[selectedGoal] || 0) + 10))}
-                    className="flex-1 px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm"
-                  >
-                    +10%
-                  </button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div>
-              {activeGoals.length === 0 ? (
-                <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
-                  {t('dailyReview.updateGoalProgress.noGoals')}
-                </div>
-              ) : (
-                <>
-                  {showGoalSelector ? (
-                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 max-h-60 overflow-y-auto">
-                      <div className="space-y-2">
-                        {activeGoals.map(goal => (
-                          <button
-                            key={goal.id}
-                            onClick={() => handleGoalSelect(goal.id)}
-                            className="w-full text-left px-4 py-3 bg-white rounded-lg border border-gray-200 hover:border-orange-500 hover:bg-orange-50 transition-colors"
-                          >
-                            <div className="font-semibold text-gray-900">{goal.name}</div>
-                            <div className="text-sm text-gray-500 mt-1">
-                              {t('dailyReview.updateGoalProgress.progress')}: {goal.progress || 0}%
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                      <button
-                        onClick={() => setShowGoalSelector(false)}
-                        className="mt-3 w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm"
-                      >
-                        {t('common.cancel')}
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setShowGoalSelector(true)}
-                      className="w-full px-4 py-3 bg-orange-100 text-orange-700 rounded-lg border border-orange-300 hover:bg-orange-200 transition-colors flex items-center justify-center gap-2"
-                    >
-                      <Target className="w-5 h-5" />
-                      {t('dailyReview.updateGoalProgress.selectGoal')}
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
-          )}
-        </div>
+        {/* Goals removed - no goal progress section */}
 
         {/* Actions */}
         <div className="flex gap-3 pt-4 border-t border-gray-200">

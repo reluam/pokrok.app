@@ -59,7 +59,6 @@ interface ItemDetailRendererProps {
   handleUpdateGoalForDetail: (goalId: string, updates: any) => Promise<void>
   handleDeleteGoalForDetail: (goalId: string, showConfirm: boolean) => Promise<void>
   // Data
-  goals: any[]
   habits: any[]
   player: any
   userId: string | null
@@ -125,7 +124,6 @@ export function ItemDetailRenderer({
   handleHabitCalendarToggle,
   handleUpdateGoalForDetail,
   handleDeleteGoalForDetail,
-  goals,
   habits,
   player,
   userId,
@@ -282,37 +280,9 @@ export function ItemDetailRenderer({
                       : 'bg-gray-200 bg-opacity-80 text-gray-600 hover:bg-gray-300'
                   }`}
                 >
-                  🎯 {stepGoalId ? goals.find(g => g.id === stepGoalId)?.title || t('details.step.goal') : t('details.step.goal')}
+                  🎯 {t('details.step.goal')}
                 </button>
-                {showStepGoalPicker && (
-                  <div className="absolute top-full left-0 mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-2xl z-50 min-w-[200px] max-h-64 overflow-y-auto">
-                    <button
-                      onClick={() => {
-                        setStepGoalId(null)
-                        setShowStepGoalPicker(false)
-                        handleSaveStep()
-                      }}
-                      className="w-full text-left px-4 py-3 text-sm hover:bg-purple-50 border-b border-gray-100 font-medium transition-colors"
-                    >
-                      {t('details.step.noGoal')}
-                    </button>
-                    {goals.map((goal) => (
-                      <button
-                        key={goal.id}
-                        onClick={() => {
-                          setStepGoalId(goal.id)
-                          setShowStepGoalPicker(false)
-                          handleSaveStep()
-                        }}
-                        className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors ${
-                          stepGoalId === goal.id ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-700'
-                        }`}
-                      >
-                        {goal.title}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                {/* Goals removed - no goal picker */}
               </div>
               
             </div>

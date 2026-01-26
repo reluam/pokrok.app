@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { JourneyGameView } from './JourneyGameView'
 import { DailyPlanningView } from './DailyPlanningView'
-import { GoalsManagementView } from './GoalsManagementView'
 import { StatisticsView } from './StatisticsView'
 import { AchievementsView } from './AchievementsView'
 import { SettingsView } from './SettingsView'
@@ -13,18 +12,16 @@ import { useTranslations } from 'next-intl'
 interface GameWorldViewProps {
   player?: any
   userId?: string | null
-  goals: any[]
   habits: any[]
-  onGoalsUpdate: (goals: any[]) => void
   onHabitsUpdate: (habits: any[]) => void
   onPlayerUpdate?: (player: any) => void
   hasCompletedOnboarding?: boolean | null
   onOnboardingComplete?: () => void
 }
 
-type GameView = 'character' | 'daily-plan' | 'goals' | 'notes' | 'map' | 'habits' | 'statistics' | 'achievements' | 'settings'
+type GameView = 'character' | 'daily-plan' | 'notes' | 'map' | 'habits' | 'statistics' | 'achievements' | 'settings'
 
-export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, onHabitsUpdate, onPlayerUpdate, hasCompletedOnboarding, onOnboardingComplete }: GameWorldViewProps) {
+export function GameWorldView({ player, userId, habits, onHabitsUpdate, onPlayerUpdate, hasCompletedOnboarding, onOnboardingComplete }: GameWorldViewProps) {
   const [currentView, setCurrentView] = useState<GameView>('character')
   const [dailySteps, setDailySteps] = useState<any[]>([])
   const [isLoadingSteps, setIsLoadingSteps] = useState(true)
@@ -77,9 +74,6 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
     setCurrentView('daily-plan')
   }
 
-  const handleNavigateToGoals = () => {
-    setCurrentView('goals')
-  }
 
   const handleNavigateToSteps = () => {
     // Navigate to main panel with steps section
@@ -142,10 +136,8 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
           <JourneyGameView
             player={player}
             userId={userId}
-            goals={goals}
             habits={habits}
             dailySteps={dailySteps}
-            onNavigateToGoals={handleNavigateToGoals}
             onNavigateToHabits={handleNavigateToHabits}
             onNavigateToSteps={handleNavigateToSteps}
             onNavigateToDailyPlan={handleNavigateToDailyPlan}
@@ -153,7 +145,6 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
             onNavigateToAchievements={handleNavigateToAchievements}
             onNavigateToSettings={handleNavigateToSettings}
             onHabitsUpdate={onHabitsUpdate}
-            onGoalsUpdate={onGoalsUpdate}
             onDailyStepsUpdate={handleDailyStepsUpdate}
             hasCompletedOnboarding={hasCompletedOnboarding}
             onOnboardingComplete={onOnboardingComplete}
@@ -163,29 +154,17 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
         return (
           <DailyPlanningView
             player={player}
-            goals={goals}
             habits={habits}
-            onGoalsUpdate={onGoalsUpdate}
             onHabitsUpdate={onHabitsUpdate}
             onPlayerUpdate={handlePlayerUpdate}
             onBack={handleBackToCharacter}
             onDailyStepsUpdate={handleDailyStepsUpdate}
           />
         )
-      case 'goals':
-        return (
-          <GoalsManagementView
-            player={player}
-            goals={goals}
-            onGoalsUpdate={onGoalsUpdate}
-            onBack={handleBackToCharacter}
-          />
-        )
       case 'statistics':
   return (
           <StatisticsView
             player={player}
-            goals={goals}
             habits={habits}
             dailySteps={dailySteps}
             onBack={handleBackToCharacter}
@@ -195,7 +174,6 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
         return (
           <AchievementsView
             player={player}
-            goals={goals}
             habits={habits}
             level={player?.level || 1}
             experience={player?.experience || 0}
@@ -238,10 +216,8 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
           <JourneyGameView
             player={player}
             userId={userId}
-            goals={goals}
             habits={habits}
             dailySteps={dailySteps}
-            onNavigateToGoals={handleNavigateToGoals}
             onNavigateToHabits={handleNavigateToHabits}
             onNavigateToSteps={handleNavigateToSteps}
             onNavigateToDailyPlan={handleNavigateToDailyPlan}
@@ -249,7 +225,6 @@ export function GameWorldView({ player, userId, goals, habits, onGoalsUpdate, on
             onNavigateToAchievements={handleNavigateToAchievements}
             onNavigateToSettings={handleNavigateToSettings}
             onHabitsUpdate={onHabitsUpdate}
-            onGoalsUpdate={onGoalsUpdate}
             onDailyStepsUpdate={handleDailyStepsUpdate}
             hasCompletedOnboarding={hasCompletedOnboarding}
             onOnboardingComplete={onOnboardingComplete}

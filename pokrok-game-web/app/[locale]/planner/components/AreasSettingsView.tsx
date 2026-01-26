@@ -8,7 +8,6 @@ import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
 interface AreasSettingsViewProps {
   player?: any
   areas: any[]
-  goals: any[]
   dailySteps: any[]
   habits: any[]
   onNavigateToMain?: () => void
@@ -23,7 +22,6 @@ interface AreasSettingsViewProps {
 export function AreasSettingsView({
   player,
   areas,
-  goals,
   dailySteps,
   habits,
   onNavigateToMain,
@@ -248,7 +246,8 @@ export function AreasSettingsView({
     }
   }
 
-  const selectedAreaGoals = selectedAreaData ? goals.filter(g => g.area_id === selectedAreaData.id) : []
+  // Goals removed - no goals to filter
+  const selectedAreaGoals: any[] = []
   const selectedAreaSteps = selectedAreaData ? dailySteps.filter(s => s.area_id === selectedAreaData.id) : []
   const selectedAreaHabits = selectedAreaData ? habits.filter(h => h.area_id === selectedAreaData.id) : []
 
@@ -499,11 +498,7 @@ export function AreasSettingsView({
               
               <div className="bg-white border-2 border-primary-500 rounded-playful-md p-6 space-y-4">
                 {/* Statistics - smaller */}
-                <div className="grid grid-cols-3 gap-3 pb-4 border-b-2 border-primary-200">
-                  <div className="text-center">
-                    <div className="text-lg font-bold text-primary-600">{selectedAreaGoals.length}</div>
-                    <div className="text-xs text-gray-600">{t('goals.title') || 'Cíle'}</div>
-                  </div>
+                <div className="grid grid-cols-2 gap-3 pb-4 border-b-2 border-primary-200">
                   <div className="text-center">
                     <div className="text-lg font-bold text-primary-600">{selectedAreaSteps.length}</div>
                     <div className="text-xs text-gray-600">{t('navigation.steps') || 'Kroky'}</div>
@@ -514,39 +509,7 @@ export function AreasSettingsView({
                   </div>
                 </div>
 
-                {/* Goals list */}
-                {selectedAreaGoals.length > 0 && (
-                  <div className="space-y-3">
-                    <h4 className="text-sm font-bold text-black uppercase tracking-wider font-playful">
-                      {t('goals.title') || 'Cíle'}
-                    </h4>
-                    {selectedAreaGoals.map((goal: any) => {
-                      // Count steps for this goal
-                      const goalSteps = dailySteps.filter((s: any) => (s.goal_id || s.goalId) === goal.id)
-                      const completedSteps = goalSteps.filter((s: any) => s.completed).length
-                      const totalSteps = goalSteps.length
-                      const progressPercentage = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0
-                      
-                      return (
-                        <div key={goal.id} className="border-2 border-primary-200 rounded-playful-sm p-3 bg-primary-50">
-                          <div className="flex items-center justify-between mb-2">
-                            <h5 className="font-bold text-black font-playful text-sm">{goal.title}</h5>
-                            <span className="text-xs text-gray-600">
-                              {completedSteps} / {totalSteps} {t('navigation.steps') || 'kroků'}
-                            </span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-primary-500 h-2 rounded-full transition-all"
-                              style={{ width: `${progressPercentage}%` }}
-                            />
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1">{progressPercentage}%</div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
+                {/* Goals removed - milestones will be shown in area detail pages */}
 
                 {/* Habits list */}
                 {selectedAreaHabits.length > 0 && (

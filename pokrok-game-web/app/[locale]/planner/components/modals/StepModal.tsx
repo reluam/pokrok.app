@@ -15,7 +15,6 @@ interface StepModalProps {
   onDelete?: () => Promise<void>
   onFinishRecurring?: () => Promise<void>
   isSaving: boolean
-  goals: any[]
   areas: any[]
   userId: string | null
   player: any
@@ -23,7 +22,6 @@ interface StepModalProps {
   onDailyStepsUpdate?: (steps: any[]) => void
   selectedItem: any
   setSelectedItem: (item: any) => void
-  selectedGoalId: string | null
   stepsCacheRef: React.MutableRefObject<Record<string, { data: any[], loaded: boolean }>>
   setStepsCacheVersion: (version: Record<string, number> | ((prev: Record<string, number>) => Record<string, number>)) => void
   checklistSaving: boolean
@@ -42,7 +40,6 @@ export function StepModal({
   onDelete,
   onFinishRecurring,
   isSaving,
-  goals,
   areas,
   userId,
   player,
@@ -50,7 +47,6 @@ export function StepModal({
   onDailyStepsUpdate,
   selectedItem,
   setSelectedItem,
-  selectedGoalId,
   stepsCacheRef,
   setStepsCacheVersion,
   checklistSaving,
@@ -88,7 +84,6 @@ export function StepModal({
     title: '',
     description: '',
     date: '',
-    goalId: '',
     areaId: '',
     completed: false,
     is_important: false,
@@ -195,73 +190,28 @@ export function StepModal({
                   />
                 </div>
 
-                {/* Goal and Area - side by side, always visible */}
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Area selection - left side */}
-                  <div>
-                    <label className="block text-sm font-semibold text-black mb-2 font-playful">
-                      {t('details.goal.area') || 'Oblast'}
-                    </label>
-                    {stepModalData.goalId ? (
-                      // If goal is selected, show area as read-only (locked)
-                      <div className="w-full px-4 py-2.5 text-sm border-2 border-primary-300 rounded-playful-md bg-gray-100 text-gray-600">
-                        {(() => {
-                          const selectedGoal = goals.find((g: any) => g.id === stepModalData.goalId)
-                          const goalArea = selectedGoal?.area_id ? areas.find((a: any) => a.id === selectedGoal.area_id) : null
-                          return goalArea ? goalArea.name : (t('details.goal.noArea') || 'Bez oblasti')
-                        })()}
-                      </div>
-                    ) : (
-                      // If no goal is selected, allow area selection
-                      <select
-                        value={stepModalData.areaId || ''}
-                        onChange={(e) => {
-                          const newAreaId = e.target.value
-                          setStepModalData({
-                            ...stepModalData, 
-                            areaId: newAreaId
-                          })
-                        }}
-                      className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
-                      >
-                        <option value="">{t('details.goal.noArea') || 'Bez oblasti'}</option>
-                        {areas.map((area) => (
-                          <option key={area.id} value={area.id}>{area.name}</option>
-                        ))}
-                      </select>
-                    )}
-                  </div>
-
-                  {/* Goal selection - right side */}
-                    <div>
-                      <label className="block text-sm font-semibold text-black mb-2 font-playful">
-                        {t('steps.goal')}
-                      </label>
-                      <select
-                      value={stepModalData.goalId || ''}
-                        onChange={(e) => {
-                          const newGoalId = e.target.value
-                        const selectedGoal = goals.find((g: any) => g.id === newGoalId)
-                          setStepModalData({
-                            ...stepModalData, 
-                            goalId: newGoalId,
-                          // Automatically set area from goal if goal is selected
-                          // If goal is cleared, keep area only if it was manually selected (not from previous goal)
-                          areaId: selectedGoal?.area_id || (newGoalId === '' ? stepModalData.areaId : '')
-                          })
-                        }}
-                        className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
-                      >
-                        <option value="">{t('steps.noGoal')}</option>
-                      {/* Show all goals (not filtered by area) when goal is selected, filter when no goal */}
-                      {(stepModalData.goalId || !stepModalData.areaId
-                        ? goals
-                        : goals.filter((goal: any) => goal.area_id === stepModalData.areaId)
-                      ).map((goal: any) => (
-                          <option key={goal.id} value={goal.id}>{goal.title}</option>
-                        ))}
-                      </select>
-                    </div>
+                {/* Area selection - required */}
+                <div>
+                  <label className="block text-sm font-semibold text-black mb-2 font-playful">
+                    {t('details.goal.area') || 'Oblast'} <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={stepModalData.areaId || ''}
+                    onChange={(e) => {
+                      const newAreaId = e.target.value
+                      setStepModalData({
+                        ...stepModalData, 
+                        areaId: newAreaId
+                      })
+                    }}
+                    required
+                    className="w-full px-4 py-2.5 text-sm border-2 border-primary-500 rounded-playful-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white text-black"
+                  >
+                    <option value="">{t('details.goal.selectArea') || 'Vyberte oblast'}</option>
+                    {areas.map((area) => (
+                      <option key={area.id} value={area.id}>{area.name}</option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Date and Repeating - with background box */}
@@ -654,20 +604,7 @@ export function StepModal({
                                     }
                                   }
                                   
-                                  // Update cache for the goal to force re-render (if on goal detail page)
-                                  if (updatedStep.goal_id && selectedGoalId === updatedStep.goal_id) {
-                                    // Update cache directly
-                                    if (stepsCacheRef.current[updatedStep.goal_id]) {
-                                      stepsCacheRef.current[updatedStep.goal_id].data = stepsCacheRef.current[updatedStep.goal_id].data.map(
-                                        (s: any) => s.id === stepModalData.id ? updatedStep : s
-                                      )
-                                    }
-                                    // Invalidate cache version to trigger re-render
-                                    setStepsCacheVersion((prev: Record<string, number>) => ({
-                                      ...prev,
-                                      [updatedStep.goal_id]: (prev[updatedStep.goal_id] || 0) + 1
-                                    }))
-                                  }
+                                  // Cache update removed - steps are now linked to areas, not goals
                                 }
                               } catch (error) {
                                 console.error('Error auto-saving checklist:', error)
@@ -760,19 +697,7 @@ export function StepModal({
                                     }
                                     
                                     // Update cache for the goal to force re-render (if on goal detail page)
-                                    if (updatedStep.goal_id && selectedGoalId === updatedStep.goal_id) {
-                                      // Update cache directly
-                                      if (stepsCacheRef.current[updatedStep.goal_id]) {
-                                        stepsCacheRef.current[updatedStep.goal_id].data = stepsCacheRef.current[updatedStep.goal_id].data.map(
-                                          (s: any) => s.id === stepModalData.id ? updatedStep : s
-                                        )
-                                      }
-                                      // Invalidate cache version to trigger re-render
-                                      setStepsCacheVersion((prev: Record<string, number>) => ({
-                                        ...prev,
-                                        [updatedStep.goal_id]: (prev[updatedStep.goal_id] || 0) + 1
-                                      }))
-                                    }
+                                    // Cache update removed - steps are now linked to areas, not goals
                                   }
                                 } catch (error) {
                                   console.error('Error auto-saving checklist:', error)

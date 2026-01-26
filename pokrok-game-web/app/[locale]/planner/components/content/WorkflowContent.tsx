@@ -74,11 +74,9 @@ export function WorkflowContent(props: WorkflowContentProps) {
   return (
     <DailyReviewWorkflow
       workflow={props.pendingWorkflow}
-      goals={props.goals}
       player={props.player}
       onComplete={props.handleWorkflowComplete}
       onSkip={props.handleWorkflowSkip}
-      onGoalProgressUpdate={handleGoalProgressUpdateWrapper}
     />
   )
 }

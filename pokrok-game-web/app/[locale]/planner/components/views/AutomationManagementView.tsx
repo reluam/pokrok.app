@@ -6,13 +6,11 @@ import { useTranslations } from 'next-intl'
 import { Plus, X, Edit, Trash2, Target, Calendar } from 'lucide-react'
 
 interface AutomationManagementViewProps {
-  goals: any[]
   userId?: string | null
   player?: any
 }
 
 export function AutomationManagementView({
-  goals = [],
   userId,
   player
 }: AutomationManagementViewProps) {

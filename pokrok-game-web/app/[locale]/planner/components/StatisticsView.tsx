@@ -8,7 +8,6 @@ import { PeriodStatistics } from './statistics/PeriodStatistics'
 
 interface StatisticsViewProps {
   player: any
-  goals: any[]
   habits: any[]
   dailySteps?: any[]
   onBack?: () => void
@@ -18,7 +17,6 @@ type StatisticsSection = 'overview' | 'week' | 'month' | 'year'
 
 export function StatisticsView({ 
   player, 
-  goals, 
   habits,
   dailySteps = [],
   onBack

@@ -8,23 +8,20 @@ import { CSS } from '@dnd-kit/utilities'
 import { useTranslations, useLocale } from 'next-intl'
 import { GameLayout } from './GameLayout'
 import { SettingsView } from './SettingsView'
-import { GoalsManagementView } from './GoalsManagementView'
 import { HabitsManagementView } from './HabitsManagementView'
 import { StatisticsView } from './StatisticsView'
 import { AchievementsView } from './AchievementsView'
 
 interface DailyPlanningViewProps {
   player: any
-  goals: any[]
   habits: any[]
-  onGoalsUpdate: (goals: any[]) => void
   onHabitsUpdate: (habits: any[]) => void
   onPlayerUpdate: (player: any) => void
   onBack?: () => void
   onDailyStepsUpdate?: (steps: any[]) => void
 }
 
-type ViewMode = 'daily-planning' | 'current-step' | 'goals' | 'habits' | 'statistics' | 'achievements' | 'settings'
+type ViewMode = 'daily-planning' | 'current-step' | 'habits' | 'statistics' | 'achievements' | 'settings'
 
 interface DailyStep {
   id: string
@@ -104,9 +101,7 @@ function SortableStep({ step, index, onRemove, isCurrent, t }: {
 
 export function DailyPlanningView({ 
   player, 
-  goals, 
   habits, 
-  onGoalsUpdate, 
   onHabitsUpdate, 
   onPlayerUpdate,
   onBack,
@@ -121,7 +116,6 @@ export function DailyPlanningView({
   const [isPlanningMode, setIsPlanningMode] = useState(false)
   const [newStepTitle, setNewStepTitle] = useState('')
   const [newStepDescription, setNewStepDescription] = useState('')
-  const [selectedGoalId, setSelectedGoalId] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [currentDate] = useState(new Date().toISOString().split('T')[0]) // Today's date
 
@@ -148,22 +142,7 @@ export function DailyPlanningView({
     loadDailySteps()
   }, [player?.user_id, currentDate, onDailyStepsUpdate])
 
-  // Load steps from goals for sidebar
-  useEffect(() => {
-    const stepsFromGoals: DailyStep[] = goals.flatMap(goal => 
-      goal.steps?.map((step: any) => ({
-        id: `${goal.id}-${step.id}`,
-        title: step.title || step.name || 'Krok',
-        description: step.description,
-        goalId: goal.id,
-        completed: false,
-        isImportant: step.isImportant || false,
-        isUrgent: step.isUrgent || false,
-        estimatedTime: step.estimatedTime || 30
-      })) || []
-    )
-    setAllSteps(stepsFromGoals)
-  }, [goals])
+  // Goals removed - no steps from goals to load
 
   const handleAddStepToDaily = async (step: DailyStep) => {
     if (!player?.user_id || dailySteps.find(s => s.id === step.id)) return
@@ -265,7 +244,6 @@ export function DailyPlanningView({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: player.user_id,
-          goalId: selectedGoalId || null,
           title: newStepTitle.trim(),
           description: newStepDescription.trim(),
           date: currentDate,
@@ -282,7 +260,6 @@ export function DailyPlanningView({
         setAllSteps(prev => [...prev, createdStep])
         setNewStepTitle('')
         setNewStepDescription('')
-        setSelectedGoalId('')
       }
     } catch (error) {
       console.error('Error creating new step:', error)
@@ -394,19 +371,6 @@ export function DailyPlanningView({
                             placeholder="Např. Cvičit 30 minut"
                           />
                         </div>
-                        <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-1">Cíl</label>
-                          <select
-                            value={selectedGoalId}
-                            onChange={(e) => setSelectedGoalId(e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
-                          >
-                            <option value="">Vyberte cíl</option>
-                            {goals.map(goal => (
-                              <option key={goal.id} value={goal.id}>{goal.title}</option>
-                            ))}
-                          </select>
-                        </div>
                       </div>
                       <div className="mt-3">
                         <label className="block text-sm font-bold text-gray-700 mb-1">Popis (volitelné)</label>
@@ -420,7 +384,7 @@ export function DailyPlanningView({
                       </div>
                       <button
                         onClick={handleCreateNewStep}
-                        disabled={!newStepTitle.trim() || !selectedGoalId}
+                        disabled={!newStepTitle.trim()}
                         className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Přidat krok
@@ -548,15 +512,12 @@ export function DailyPlanningView({
           </div>
         )
 
-      case 'goals':
-        return <GoalsManagementView player={player} goals={goals} onGoalsUpdate={onGoalsUpdate} />
       case 'habits':
         return <HabitsManagementView player={player} habits={habits} onHabitsUpdate={onHabitsUpdate} />
       case 'statistics':
         return (
           <StatisticsView
             player={player}
-            goals={goals}
             habits={habits}
             dailySteps={dailySteps}
           />
@@ -565,7 +526,6 @@ export function DailyPlanningView({
         return (
           <AchievementsView
             player={player}
-            goals={goals}
             habits={habits}
             level={player?.level || 1}
             experience={player?.experience || 0}
@@ -591,7 +551,6 @@ export function DailyPlanningView({
       level={player?.level || 1}
       experience={player?.experience || 0}
       onBackToGame={() => setViewMode('daily-planning')}
-      onNavigateToGoals={() => setViewMode('goals')}
       onNavigateToHabits={() => setViewMode('habits')}
       onNavigateToStatistics={() => setViewMode('statistics')}
       onNavigateToAchievements={() => setViewMode('achievements')}

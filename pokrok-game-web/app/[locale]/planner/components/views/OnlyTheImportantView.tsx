@@ -31,7 +31,6 @@ interface PlanningData {
 
 interface OnlyTheImportantViewProps {
   userId: string
-  goals: any[]
   habits: any[]
   dailySteps: any[]
   handleStepToggle: (stepId: string) => Promise<void>
@@ -47,7 +46,6 @@ interface OnlyTheImportantViewProps {
 
 export function OnlyTheImportantView({
   userId,
-  goals,
   habits,
   dailySteps,
   handleStepToggle,

@@ -7,7 +7,6 @@ import { YearView } from './YearView'
 type CalendarViewType = 'upcoming' | 'month' | 'year'
 
 interface CalendarViewProps {
-  goals?: any[]
   habits?: any[]
   dailySteps?: any[]
   isLoadingSteps?: boolean
@@ -44,7 +43,6 @@ interface CalendarViewProps {
 }
 
 export function CalendarView({
-  goals = [],
   habits = [],
   dailySteps = [],
   isLoadingSteps = false,
@@ -85,7 +83,6 @@ export function CalendarView({
       <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
         {viewType === 'upcoming' && (
           <UpcomingView
-            goals={goals}
             habits={habits}
             dailySteps={dailySteps}
             isLoadingSteps={isLoadingSteps}
@@ -114,7 +111,6 @@ export function CalendarView({
 
         {viewType === 'month' && (
               <MonthView
-            goals={goals}
             habits={habits}
             dailySteps={dailySteps}
             selectedDayDate={selectedDayDate}
@@ -132,7 +128,6 @@ export function CalendarView({
 
         {viewType === 'year' && (
               <YearView
-            goals={goals}
             habits={habits}
             dailySteps={dailySteps}
             selectedYear={selectedYear || new Date().getFullYear()}

@@ -5,10 +5,10 @@ import { useTranslations, useLocale } from 'next-intl'
 import { ItemDetailRenderer } from '../details/ItemDetailRenderer'
 import { HabitsPage } from '../views/HabitsPage'
 import { HabitDetailPage } from '../views/HabitDetailPage'
-import { GoalDetailPage } from '../views/GoalDetailPage'
 import { UnifiedDayView } from '../views/UnifiedDayView'
 // import { AreaStepsView } from '../views/AreaStepsView' // Replaced with StepsManagementView
 import { CalendarView } from '../views/CalendarView'
+import { UpcomingView } from '../views/UpcomingView'
 import { DayView } from '../views/DayView'
 import { WeekView } from '../views/WeekView'
 import { MonthView } from '../views/MonthView'
@@ -25,13 +25,14 @@ import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { LayoutDashboard, ChevronLeft, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Menu, CheckSquare, Footprints, Plus, AlertCircle } from 'lucide-react'
 import { SidebarNavigation } from '../layout/SidebarNavigation'
 import { LoadingSpinner } from '../ui/LoadingSpinner'
-import { GoalsManagementView } from '../views/GoalsManagementView'
 import { HabitsManagementView } from '../views/HabitsManagementView'
 import { StepsManagementView } from '../views/StepsManagementView'
 import { HabitDetailInlineView } from '../views/HabitDetailInlineView'
 import { ImportantStepsPlanningView } from '../workflows/ImportantStepsPlanningView'
 import { DailyReviewWorkflow } from '../DailyReviewWorkflow'
 import { OnlyTheImportantView } from '../views/OnlyTheImportantView'
+import { MilestonesTimelineView } from '../views/MilestonesTimelineView'
+import { OverviewCalendarView } from '../views/OverviewCalendarView'
 
 // NOTE: This component is very large (~2862 lines) and will be further refactored
 // For now, it contains the entire renderPageContent logic
@@ -57,7 +58,6 @@ export function PageContent(props: PageContentProps) {
     setMainPanelSection,
     selectedItem,
     selectedItemType,
-    goals,
     habits,
     dailySteps,
     player,
@@ -277,36 +277,8 @@ export function PageContent(props: PageContentProps) {
   ];
   
   // Filters state for Goals page
-  // Helper function to check if goal is past deadline
-  const isGoalPastDeadline = (goal: any): boolean => {
-    if (!goal || !goal.target_date) return false
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const deadline = new Date(goal.target_date)
-    deadline.setHours(0, 0, 0, 0)
-    return deadline < today && goal.status === 'active'
-  }
-  
-  const [goalsStatusFilters, setGoalsStatusFilters] = React.useState<Set<string>>(new Set(['active']))
-  const [selectedGoalForDetail, setSelectedGoalForDetail] = React.useState<string | null>(null)
-  const [goalsMobileMenuOpen, setGoalsMobileMenuOpen] = React.useState(false)
-  
-  // Keep selectedGoal in state and update it whenever goals or selectedGoalForDetail changes
-  const [selectedGoal, setSelectedGoal] = React.useState<any | null>(null)
-  
-  React.useEffect(() => {
-    if (!selectedGoalForDetail) {
-      setSelectedGoal(null)
-      return
-    }
-    const foundGoal = goals.find((g: any) => g.id === selectedGoalForDetail)
-    // Always update to ensure we get the latest version, even if reference is the same
-    if (foundGoal) {
-      setSelectedGoal({ ...foundGoal }) // Create new object to ensure React detects the change
-    } else {
-      setSelectedGoal(null)
-    }
-  }, [goals, selectedGoalForDetail])
+  // Goals removed - no longer needed
+  // Goals removed - no longer needed
   
   // Filters state for Habits page
   const [habitsFrequencyFilter, setHabitsFrequencyFilter] = React.useState<'all' | 'daily' | 'weekly' | 'monthly'>('all')
@@ -389,13 +361,8 @@ export function PageContent(props: PageContentProps) {
           ...prev,
           [`area-${areaId}`]: (prev[`area-${areaId}`] || 0) + 1
         }))
-      } else if (section.startsWith('goal-')) {
-        const goalId = section.replace('goal-', '')
-        setCreateNewStepTriggerForSection(prev => ({
-          ...prev,
-          [`goal-${goalId}`]: (prev[`goal-${goalId}`] || 0) + 1
-        }))
       }
+      // Goals removed - no goal sections
     }
     
     if (typeof window !== 'undefined') {
@@ -406,68 +373,7 @@ export function PageContent(props: PageContentProps) {
     }
   }, [])
   
-  // Metrics state
-  const [metrics, setMetrics] = React.useState<Record<string, any[]>>({})
-  const [loadingMetrics, setLoadingMetrics] = React.useState<Set<string>>(new Set())
-  const [showMetricModal, setShowMetricModal] = React.useState(false)
-  const [metricModalData, setMetricModalData] = React.useState<any>({ id: null, name: '', targetValue: 0, incrementalValue: 1, unit: '' })
-  const [editingMetricName, setEditingMetricName] = React.useState('')
-  const [editingMetricType, setEditingMetricType] = React.useState<'number' | 'currency' | 'percentage' | 'distance' | 'time' | 'weight' | 'custom'>('number')
-  const [editingMetricCurrentValue, setEditingMetricCurrentValue] = React.useState(0)
-  const [editingMetricTargetValue, setEditingMetricTargetValue] = React.useState(0)
-  const [editingMetricInitialValue, setEditingMetricInitialValue] = React.useState(0)
-  const [editingMetricIncrementalValue, setEditingMetricIncrementalValue] = React.useState(1)
-  const [editingMetricUnit, setEditingMetricUnit] = React.useState('')
-  
-  // Sync selectedGoalForDetail with mainPanelSection when it's a goal detail (only on main page, not on goals page)
-  React.useEffect(() => {
-    // Only sync when on main page, not on goals page - goals page should work independently
-    if (currentPage === 'main' && mainPanelSection && mainPanelSection.startsWith('goal-')) {
-      const goalId = mainPanelSection.replace('goal-', '')
-      if (goalId && goalId !== selectedGoalForDetail) {
-        setSelectedGoalForDetail(goalId)
-      }
-    }
-  }, [mainPanelSection, selectedGoalForDetail, currentPage])
-
-  // Load metrics for a goal
-  React.useEffect(() => {
-    // Metrics API endpoint removed - metrics are no longer used in GoalDetailPage
-    // if (selectedGoalForDetail) {
-    //   const loadMetrics = async () => {
-    //     try {
-    //       const response = await fetch(`/api/goal-metrics?goalId=${selectedGoalForDetail}`)
-    //       if (response.ok) {
-    //         const data = await response.json()
-    //         setMetrics(prev => ({ ...prev, [selectedGoalForDetail]: data.metrics || [] }))
-    //       }
-    //     } catch (error) {
-    //       console.error('Error loading metrics:', error)
-    //     }
-    //   }
-    //   loadMetrics()
-    // } else {
-    //   // Clear metrics when no goal is selected
-    //   setMetrics({})
-    // }
-  }, [selectedGoalForDetail])
-  
-  // Metric functions
-  const handleMetricIncrement = React.useCallback(async (metricId: string, goalId: string) => {
-    return
-  }, [onGoalsUpdate])
-  
-  const handleMetricCreate = React.useCallback(async (goalId: string, metricData: any) => {
-    return
-  }, [onGoalsUpdate])
-  
-  const handleMetricUpdate = React.useCallback(async (metricId: string, goalId: string, metricData: any) => {
-    return null
-  }, [goals, onGoalsUpdate])
-  
-  const handleMetricDelete = React.useCallback(async (metricId: string, goalId: string) => {
-    return
-  }, [onGoalsUpdate])
+  // Metrics removed - were tied to goals which no longer exist
   
   return (
     <>
@@ -527,7 +433,6 @@ export function PageContent(props: PageContentProps) {
               handleHabitCalendarToggle={handleHabitCalendarToggle}
               handleUpdateGoalForDetail={handleUpdateGoalForDetail}
               handleDeleteGoalForDetail={handleDeleteGoalForDetail}
-              goals={goals}
               habits={habits}
               player={player}
               userId={userId}
@@ -548,15 +453,7 @@ export function PageContent(props: PageContentProps) {
         const sidebarItems: Array<{ id: string; label: string; icon: any }> = []
         
         // Goals for sidebar (sorted by priority/date)
-        const sortedGoalsForSidebar = [...goals].sort((a, b) => {
-          // Sort by status: active first, then paused, then completed
-          const statusOrder = { 'active': 0, 'paused': 1, 'completed': 2 }
-          const aStatus = statusOrder[a.status as keyof typeof statusOrder] ?? 1
-          const bStatus = statusOrder[b.status as keyof typeof statusOrder] ?? 1
-          if (aStatus !== bStatus) return aStatus - bStatus
-          // Then by created_at
-          return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
-        })
+        // Goals removed - no goals to sort
         
         const renderMainContent = () => {
           // Legacy workflow views removed - using individual calendar views instead
@@ -568,7 +465,6 @@ export function PageContent(props: PageContentProps) {
                 {userId ? (
                   <OnlyTheImportantView
                     userId={userId}
-                    goals={goals}
                     habits={habits}
                     dailySteps={dailySteps}
                     handleStepToggle={handleToggleStepCompleted}
@@ -597,7 +493,6 @@ export function PageContent(props: PageContentProps) {
                   <div className="max-w-4xl mx-auto">
                     <DailyReviewWorkflow
                       workflow={null}
-                      goals={goals}
                       player={player}
                       onComplete={async (workflowId: string, xp: number) => {
                         if (onDailyStepsUpdate) {
@@ -610,11 +505,6 @@ export function PageContent(props: PageContentProps) {
                       }}
                       onSkip={async (workflowId: string) => {
                         // Handle workflow skip
-                      }}
-                      onGoalProgressUpdate={async (goalId: string, progress: number) => {
-                        if (onGoalsUpdate) {
-                          await onGoalsUpdate()
-                        }
                       }}
                     />
                   </div>
@@ -644,15 +534,12 @@ export function PageContent(props: PageContentProps) {
               )
             }
             
-            // Get goals for this area (needed for StepsManagementView)
-            const areaGoals = goals.filter((goal: any) => goal.area_id === areaId && goal.status === 'active')
-            const areaGoalIds = areaGoals.map((goal: any) => goal.id).filter(Boolean)
+            // Goals removed - no goals to filter
             const areaHabits = habits.filter((habit: any) => habit.area_id === areaId)
             
             // Calculate area steps statistics
             const areaSteps = dailySteps.filter((step: any) =>
-              step.area_id === areaId ||
-              (step.goal_id && areaGoalIds.includes(step.goal_id))
+              step.area_id === areaId
             )
             const totalAreaSteps = areaSteps.length
             const completedAreaSteps = areaSteps.filter((step: any) => step.completed).length
@@ -812,6 +699,17 @@ export function PageContent(props: PageContentProps) {
                     </div>
                   </div>
                     
+                    {/* Milestones Timeline - above steps */}
+                    <div className="px-4 py-3 mb-4">
+                      <MilestonesTimelineView 
+                        areaId={areaId}
+                        userId={userId}
+                        onMilestoneUpdate={() => {
+                          // Optionally reload data
+                        }}
+                      />
+                    </div>
+                    
                     {/* Area Steps View - using StepsManagementView */}
                     {/* Pass all dailySteps and let StepsManagementView filter by areaFilter */}
                     <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
@@ -845,7 +743,6 @@ export function PageContent(props: PageContentProps) {
                       <div className="p-4 sm:p-6 lg:p-8 pt-2">
                         <StepsManagementView
                         dailySteps={dailySteps}
-                        goals={goals}
                         areas={areas}
                         userId={userId}
                         player={player}
@@ -1069,186 +966,59 @@ export function PageContent(props: PageContentProps) {
             )
           }
           
-          // Check if it's a goal detail page
-          if (mainPanelSection.startsWith('goal-')) {
-            const goalId = mainPanelSection.replace('goal-', '')
-            const goal = goals.find((g: any) => g.id === goalId)
-            
-            if (!goal) {
-              return (
-                <div className="w-full min-h-full flex items-center justify-center bg-primary-50">
-                  <div className="text-center">
-                    <p className="text-gray-500">{t('navigation.goalNotFound')}</p>
-                    <button
-                      onClick={() => setMainPanelSection('overview')}
-                      className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
-                    >
-                      {t('navigation.backToOverview')}
-                    </button>
-                  </div>
-                </div>
-              )
-            }
-            
-              return (
-              <GoalDetailPage
-                goals={[goal]}
-                goalId={goalId}
-                areas={areas}
-                dailySteps={dailySteps}
-                stepsCacheRef={stepsCacheRef}
-                stepsCacheVersion={stepsCacheVersion}
-                animatingSteps={animatingSteps}
-                loadingSteps={loadingSteps}
-                handleItemClick={handleItemClick}
-                handleStepToggle={handleStepToggle}
-                handleUpdateGoalForDetail={handleUpdateGoalForDetail}
-                handleDeleteGoalForDetail={handleDeleteGoalForDetail}
-                setMainPanelSection={setMainPanelSection}
-                localeCode={localeCode}
-                selectedDayDate={selectedDayDate}
-                setStepModalData={setStepModalData}
-                setShowStepModal={setShowStepModal}
-                userId={userId}
-                player={player}
-                onDailyStepsUpdate={onDailyStepsUpdate}
-                createNewStepTrigger={createNewStepTriggerForSection[`goal-${goalId}`] || 0}
-                setCreateNewStepTrigger={(fn: (prev: number) => number) => {
-                  setCreateNewStepTriggerForSection(prev => ({
-                    ...prev,
-                    [`goal-${goalId}`]: fn(prev[`goal-${goalId}`] || 0)
-                  }))
-                }}
-                onNewStepCreated={() => {
-                  // Reset trigger for this goal section after step is created
-                  setCreateNewStepTriggerForSection(prev => ({
-                    ...prev,
-                    [`goal-${goalId}`]: 0
-                  }))
-                }}
-                goalDetailTitleValue={goalDetailTitleValue}
-                setGoalDetailTitleValue={setGoalDetailTitleValue}
-                editingGoalDetailTitle={editingGoalDetailTitle}
-                setEditingGoalDetailTitle={setEditingGoalDetailTitle}
-                goalDetailDescriptionValue={goalDetailDescriptionValue}
-                setGoalDetailDescriptionValue={setGoalDetailDescriptionValue}
-                editingGoalDetailDescription={editingGoalDetailDescription}
-                setEditingGoalDetailDescription={setEditingGoalDetailDescription}
-                showGoalDetailDatePicker={showGoalDetailDatePicker}
-                setShowGoalDetailDatePicker={setShowGoalDetailDatePicker}
-                goalDetailDatePickerPosition={goalDetailDatePickerPosition}
-                setGoalDetailDatePickerPosition={setGoalDetailDatePickerPosition}
-                goalDetailDatePickerMonth={goalDetailDatePickerMonth}
-                setGoalDetailDatePickerMonth={setGoalDetailDatePickerMonth}
-                selectedGoalDate={selectedGoalDate}
-                setSelectedGoalDate={setSelectedGoalDate}
-                showGoalDetailStartDatePicker={showGoalDetailStartDatePicker}
-                setShowGoalDetailStartDatePicker={setShowGoalDetailStartDatePicker}
-                goalDetailStartDatePickerPosition={goalDetailStartDatePickerPosition}
-                setGoalDetailStartDatePickerPosition={setGoalDetailStartDatePickerPosition}
-                goalDetailStartDatePickerMonth={goalDetailStartDatePickerMonth}
-                setGoalDetailStartDatePickerMonth={setGoalDetailStartDatePickerMonth}
-                selectedGoalStartDate={selectedGoalStartDate}
-                setSelectedGoalStartDate={setSelectedGoalStartDate}
-                showGoalDetailStatusPicker={showGoalDetailStatusPicker}
-                setShowGoalDetailStatusPicker={setShowGoalDetailStatusPicker}
-                goalDetailStatusPickerPosition={goalDetailStatusPickerPosition}
-                setGoalDetailStatusPickerPosition={setGoalDetailStatusPickerPosition}
-                showGoalDetailAreaPicker={showGoalDetailAreaPicker}
-                setShowGoalDetailAreaPicker={setShowGoalDetailAreaPicker}
-                goalDetailAreaPickerPosition={goalDetailAreaPickerPosition}
-                setGoalDetailAreaPickerPosition={setGoalDetailAreaPickerPosition}
-                showGoalDetailIconPicker={showGoalDetailIconPicker}
-                setShowGoalDetailIconPicker={setShowGoalDetailIconPicker}
-                goalDetailIconPickerPosition={goalDetailIconPickerPosition}
-                setGoalDetailIconPickerPosition={setGoalDetailIconPickerPosition}
-                iconSearchQuery={iconSearchQuery}
-                setIconSearchQuery={setIconSearchQuery}
-                showDeleteGoalModal={showDeleteGoalModal}
-                setShowDeleteGoalModal={setShowDeleteGoalModal}
-                deleteGoalWithSteps={deleteGoalWithSteps}
-                setDeleteGoalWithSteps={setDeleteGoalWithSteps}
-                isDeletingGoal={isDeletingGoal}
-                setIsDeletingGoal={setIsDeletingGoal}
-                goalIconRef={goalIconRef}
-                goalTitleRef={goalTitleRef}
-                goalDescriptionRef={goalDescriptionRef}
-                goalDateRef={goalDateRef}
-                goalStartDateRef={goalStartDateRef}
-                goalStatusRef={goalStatusRef}
-                goalAreaRef={goalAreaRef}
-                onOpenStepModal={onOpenStepModal}
-              />
-            )
-          }
+          // Goals removed - goal detail pages no longer exist
           
           switch (mainPanelSection) {
             case 'focus-upcoming':
-            case 'focus-month':
-            case 'focus-year':
-            case 'focus-calendar':
-              // Map mainPanelSection to viewType
-              const getViewType = (section: string): 'upcoming' | 'month' | 'year' => {
-                if (section === 'focus-upcoming') return 'upcoming'
-                if (section === 'focus-month') return 'month'
-                if (section === 'focus-year') return 'year'
-                return 'upcoming' // Default fallback
-              }
-              
+              // UpcomingView - list of upcoming steps
               return (
-                <CalendarView
-                  goals={goals}
+                <UpcomingView
                   habits={habits}
                   dailySteps={dailySteps}
-                  loadingSteps={loadingSteps}
+                  isLoadingSteps={loadingSteps.size > 0}
+                  areas={areas}
                   selectedDayDate={selectedDayDate}
                   setSelectedDayDate={setSelectedDayDate}
-                  setShowDatePickerModal={setShowDatePickerModal}
                   handleItemClick={handleItemClick}
                   handleHabitToggle={handleHabitToggle}
                   handleStepToggle={handleStepToggle}
                   setSelectedItem={setSelectedItem}
                   setSelectedItemType={setSelectedItemType}
-                  onOpenStepModal={mainPanelSection === 'focus-upcoming' ? (step?: any) => {
-                    // For UpcomingView, create new step directly on page instead of opening modal
-                    if (step) {
-                      handleOpenStepModal(undefined, step)
-                    } else {
-                      // Trigger new step creation using section-specific trigger
-                      setCreateNewStepTriggerForSection(prev => ({
-                        ...prev,
-                        'focus-upcoming': (prev['focus-upcoming'] || 0) + 1
-                      }))
-                    }
-                  } : handleOpenStepModal}
+                  onOpenStepModal={handleOpenStepModal}
                   onStepDateChange={onStepDateChange}
                   onStepTimeChange={onStepTimeChange}
                   onStepImportantChange={props.onStepImportantChange}
                   loadingHabits={loadingHabits}
-                  animatingSteps={animatingSteps}
+                  loadingSteps={animatingSteps}
                   player={player}
-                  onNavigateToHabits={onNavigateToHabits}
-                  onNavigateToSteps={onNavigateToSteps}
-                  onHabitsUpdate={onHabitsUpdate}
-                  onDailyStepsUpdate={onDailyStepsUpdate}
-                  setMainPanelSection={setMainPanelSection}
-                  selectedYear={selectedYear}
-                  setSelectedYear={setSelectedYear}
-                  areas={areas}
                   userId={userId}
-                  visibleSections={visibleSections}
-                  viewType={getViewType(mainPanelSection)}
                   maxUpcomingSteps={maxUpcomingSteps}
-                  createNewStepTrigger={mainPanelSection === 'focus-upcoming' ? (createNewStepTriggerForSection['focus-upcoming'] || 0) : undefined}
+                  createNewStepTrigger={createNewStepTriggerForSection['focus-upcoming'] || 0}
                   onNewStepCreatedForUpcoming={() => {
-                    // Reset trigger for upcoming section after step is created
-                    if (mainPanelSection === 'focus-upcoming') {
-                      setCreateNewStepTriggerForSection(prev => ({
-                        ...prev,
-                        'focus-upcoming': 0
-                      }))
-                    }
+                    setCreateNewStepTriggerForSection(prev => ({
+                      ...prev,
+                      'focus-upcoming': 0
+                    }))
                   }}
+                  onDailyStepsUpdate={onDailyStepsUpdate}
+                />
+              )
+            case 'focus-month':
+            case 'focus-year':
+            case 'focus-calendar':
+              // Old calendar views replaced with OverviewCalendarView
+              return (
+                <OverviewCalendarView
+                  habits={habits}
+                  dailySteps={dailySteps}
+                  handleItemClick={handleItemClick}
+                  handleHabitToggle={handleHabitToggle}
+                  handleStepToggle={handleStepToggle}
+                  loadingHabits={loadingHabits}
+                  loadingSteps={loadingSteps}
+                  animatingSteps={animatingSteps}
+                  onOpenStepModal={handleOpenStepModal}
+                  onOpenHabitModal={handleOpenHabitModal}
                 />
               )
             case 'habits':
@@ -1263,6 +1033,21 @@ export function PageContent(props: PageContentProps) {
                   handleHabitCalendarToggle={handleHabitCalendarToggle}
                   handleOpenHabitModal={handleOpenHabitModal}
                   loadingHabits={loadingHabits}
+                />
+              )
+            case 'overview':
+              return (
+                <OverviewCalendarView
+                  habits={habits}
+                  dailySteps={dailySteps}
+                  handleItemClick={handleItemClick}
+                  handleHabitToggle={handleHabitToggle}
+                  handleStepToggle={handleStepToggle}
+                  loadingHabits={loadingHabits}
+                  loadingSteps={loadingSteps}
+                  animatingSteps={animatingSteps}
+                  onOpenStepModal={handleOpenStepModal}
+                  onOpenHabitModal={handleOpenHabitModal}
                 />
               )
             default:
@@ -1280,7 +1065,6 @@ export function PageContent(props: PageContentProps) {
               setMainPanelSection={setMainPanelSection}
               sidebarItems={sidebarItems}
               areas={areas}
-              sortedGoalsForSidebar={sortedGoalsForSidebar}
               dailySteps={dailySteps}
               expandedAreas={expandedAreas}
               setExpandedAreas={setExpandedAreas}
@@ -1356,8 +1140,10 @@ export function PageContent(props: PageContentProps) {
                 <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-bold text-gray-900">
-                      {['focus-upcoming', 'focus-month', 'focus-year', 'focus-calendar'].includes(mainPanelSection)
-                        ? t('navigation.calendar') || 'Kalendář'
+                      {mainPanelSection === 'focus-upcoming'
+                        ? t('calendar.upcoming') || 'Nadcházející'
+                        : mainPanelSection === 'overview' || ['focus-month', 'focus-year', 'focus-calendar'].includes(mainPanelSection)
+                        ? t('calendar.overview') || 'Přehled'
                         : mainPanelSection.startsWith('area-')
                         ? areas.find((a: any) => `area-${a.id}` === mainPanelSection)?.name || t('navigation.areas')
                         : t('navigation.title')}
@@ -1455,22 +1241,7 @@ export function PageContent(props: PageContentProps) {
                 <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                      {(() => {
-                        const goalId = mainPanelSection.replace('goal-', '')
-                        const goal = goals.find((g: any) => g.id === goalId)
-                        if (!goal) return null
-                        const IconComponent = getIconComponent(goal.icon)
-                        const isPastDeadline = isGoalPastDeadline(goal)
-                        return (
-                          <>
-                            <IconComponent className="w-5 h-5 flex-shrink-0 text-gray-700" />
-                            {isPastDeadline && (
-                              <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-600" />
-                            )}
-                            <h2 className={`text-lg font-bold truncate ${isPastDeadline ? 'text-red-600' : 'text-gray-900'}`}>{goal.title}</h2>
-                          </>
-                        )
-                      })()}
+                      {/* Goals removed */}
                     </div>
                     <button
                       onClick={() => setMainPanelSection('overview')}
@@ -1501,7 +1272,7 @@ export function PageContent(props: PageContentProps) {
               </div>
               <div className="p-4 rounded-xl bg-gray-50 border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Cíle</h3>
-                <p className="text-3xl font-bold text-primary-600">{completedGoals}/{goals.length}</p>
+                <p className="text-3xl font-bold text-primary-600">-</p>
               </div>
               <div className="p-4 rounded-xl bg-gray-50 border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Návyky</h3>
@@ -1559,7 +1330,6 @@ export function PageContent(props: PageContentProps) {
           <AreasSettingsView
             player={player}
             areas={props.areas || []}
-            goals={props.goals || []}
             dailySteps={props.dailySteps || []}
             habits={props.habits || []}
             onNavigateToMain={() => {
@@ -1649,7 +1419,6 @@ export function PageContent(props: PageContentProps) {
               setCurrentPage('main')
               handleOpenAreasManagementModal()
             }}
-            realGoals={goals}
             realHabits={habits}
             realSteps={dailySteps}
           />
@@ -2013,7 +1782,6 @@ export function PageContent(props: PageContentProps) {
                         handleHabitCalendarToggle={handleHabitCalendarToggle}
                         handleUpdateGoalForDetail={handleUpdateGoalForDetail}
                         handleDeleteGoalForDetail={handleDeleteGoalForDetail}
-                        goals={goals}
                         habits={habits}
                         player={player}
                         userId={userId}

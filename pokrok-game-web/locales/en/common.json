@@ -1008,6 +1008,8 @@
   },
   "calendar": {
     "upcoming": "Upcoming",
+    "overview": "Overview",
+    "noItems": "No items",
     "days": {
       "sunday": "Sunday",
       "monday": "Monday",
@@ -1045,6 +1047,20 @@
     "totalProgress": "Total Progress",
     "completed": "Completed",
     "successRate": "Success Rate"
+  },
+  "months": {
+    "january": "January",
+    "february": "February",
+    "march": "March",
+    "april": "April",
+    "may": "May",
+    "june": "June",
+    "july": "July",
+    "august": "August",
+    "september": "September",
+    "october": "October",
+    "november": "November",
+    "december": "December"
   },
   "sections": {
     "habits": "HABITS",

@@ -1171,7 +1171,6 @@ export function UpcomingView({
           /* Feed View - using StepsManagementView */
           <StepsManagementView
             dailySteps={localDailySteps}
-            goals={goals}
             areas={areas}
             userId={userId}
             player={player}
@@ -1219,7 +1218,6 @@ export function UpcomingView({
               <div className="mb-4">
                 <StepsManagementView
                   dailySteps={localDailySteps}
-                  goals={goals}
                   areas={areas}
                   userId={userId}
                   player={player}
@@ -1298,7 +1296,6 @@ export function UpcomingView({
                       </div>
                       <StepsManagementView
                         dailySteps={areaSteps}
-                        goals={goals}
                         areas={areas}
                         userId={userId}
                         player={player}
@@ -1333,7 +1330,6 @@ export function UpcomingView({
                     </div>
                     <StepsManagementView
                       dailySteps={stepsByArea.noAreaSteps.map(({ step }) => step)}
-                      goals={goals}
                       areas={areas}
                       userId={userId}
                       player={player}

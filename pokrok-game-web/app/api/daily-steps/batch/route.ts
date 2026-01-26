@@ -31,9 +31,9 @@ function normalizeDateFromDB(date: any): string | null {
 }
 
 /**
- * Batch endpoint to load steps for multiple goals at once
+ * Batch endpoint to load steps for multiple areas at once
  * POST /api/daily-steps/batch
- * Body: { goalIds: string[] }
+ * Body: { areaIds: string[] }
  */
 export async function POST(request: NextRequest) {
   try {
@@ -43,35 +43,35 @@ export async function POST(request: NextRequest) {
     const { dbUser } = authResult
 
     const body = await request.json()
-    const { goalIds } = body
+    const { areaIds } = body
     
-    if (!Array.isArray(goalIds) || goalIds.length === 0) {
-      return NextResponse.json({ error: 'goalIds array is required' }, { status: 400 })
+    if (!Array.isArray(areaIds) || areaIds.length === 0) {
+      return NextResponse.json({ error: 'areaIds array is required' }, { status: 400 })
     }
 
-    // ✅ SECURITY: Ověření, že všechny goals patří uživateli
-    const goalsCheck = await sql`
-      SELECT id FROM goals 
-      WHERE id = ANY(${goalIds}) AND user_id = ${dbUser.id}
+    // ✅ SECURITY: Ověření, že všechny areas patří uživateli
+    const areasCheck = await sql`
+      SELECT id FROM areas 
+      WHERE id = ANY(${areaIds}) AND user_id = ${dbUser.id}
     `
     
-    const validGoalIds = goalsCheck.map((g: any) => g.id)
-    if (validGoalIds.length !== goalIds.length) {
-      return NextResponse.json({ error: 'Some goals not found or access denied' }, { status: 403 })
+    const validAreaIds = areasCheck.map((a: any) => a.id)
+    if (validAreaIds.length !== areaIds.length) {
+      return NextResponse.json({ error: 'Some areas not found or access denied' }, { status: 403 })
     }
 
-    // ✅ PERFORMANCE: Načíst všechny steps pro všechny goals v jednom dotazu
+    // ✅ PERFORMANCE: Načíst všechny steps pro všechny areas v jednom dotazu
     const steps = await sql`
       SELECT 
-        id, user_id, goal_id, title, description, completed, 
+        id, user_id, title, description, completed, 
         TO_CHAR(date, 'YYYY-MM-DD') as date,
         is_important, is_urgent, aspiration_id, area_id,
         estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
         COALESCE(checklist, '[]'::jsonb) as checklist,
         COALESCE(require_checklist_complete, false) as require_checklist_complete
       FROM daily_steps
-      WHERE goal_id = ANY(${goalIds}) AND user_id = ${dbUser.id}
-      ORDER BY goal_id, created_at DESC
+      WHERE area_id = ANY(${areaIds}) AND user_id = ${dbUser.id}
+      ORDER BY area_id, created_at DESC
     `
     
     // Normalize dates
@@ -80,23 +80,24 @@ export async function POST(request: NextRequest) {
       date: normalizeDateFromDB(step.date)
     }))
     
-    // Group steps by goal_id for easier consumption
-    const stepsByGoal: Record<string, typeof normalizedSteps> = {}
+    // Group steps by area_id for easier consumption
+    const stepsByArea: Record<string, typeof normalizedSteps> = {}
     normalizedSteps.forEach((step: any) => {
-      if (!stepsByGoal[step.goal_id]) {
-        stepsByGoal[step.goal_id] = []
+      if (!step.area_id) return // Skip steps without area_id
+      if (!stepsByArea[step.area_id]) {
+        stepsByArea[step.area_id] = []
       }
-      stepsByGoal[step.goal_id].push(step)
+      stepsByArea[step.area_id].push(step)
     })
     
-    // Ensure all goalIds have an entry (even if empty)
-    goalIds.forEach((goalId: string) => {
-      if (!stepsByGoal[goalId]) {
-        stepsByGoal[goalId] = []
+    // Ensure all areaIds have an entry (even if empty)
+    areaIds.forEach((areaId: string) => {
+      if (!stepsByArea[areaId]) {
+        stepsByArea[areaId] = []
       }
     })
     
-    return NextResponse.json({ stepsByGoal })
+    return NextResponse.json({ stepsByArea })
   } catch (error) {
     console.error('Error fetching batch steps:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

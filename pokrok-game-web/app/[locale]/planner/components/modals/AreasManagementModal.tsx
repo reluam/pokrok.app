@@ -9,7 +9,6 @@ interface AreasManagementModalProps {
   show: boolean
   onClose: () => void
   areas: any[]
-  goals: any[]
   dailySteps: any[]
   habits: any[]
   onEditArea: (area?: any) => void
@@ -20,7 +19,6 @@ export function AreasManagementModal({
   show,
   onClose,
   areas,
-  goals,
   dailySteps,
   habits,
   onEditArea,
@@ -67,7 +65,6 @@ export function AreasManagementModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 {areas.map((area) => {
                   const IconComponent = getIconComponent(area.icon || 'LayoutDashboard')
-                  const areaGoals = goals.filter(g => g.area_id === area.id)
                   const areaSteps = dailySteps.filter(s => s.area_id === area.id)
                   const areaHabits = habits.filter(h => h.area_id === area.id)
                   
@@ -102,7 +99,6 @@ export function AreasManagementModal({
                         <p className="text-sm text-gray-600 mb-3">{area.description}</p>
                       )}
                       <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <span>{areaGoals.length} {t('goals.title') || 'GOALS'}</span>
                         <span>{areaSteps.length} {locale === 'cs' ? 'KROKY' : 'STEPS'}</span>
                         <span>{areaHabits.length} {t('habits.title') || 'HABITS'}</span>
                       </div>

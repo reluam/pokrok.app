@@ -3,16 +3,13 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { HabitsManagementView } from '../views/HabitsManagementView'
-import { GoalsManagementView } from '../views/GoalsManagementView'
 import { StepsManagementView } from '../views/StepsManagementView'
 import { AutomationManagementView } from '../views/AutomationManagementView'
 
 interface ManagementPageProps {
-  goals?: any[]
   habits?: any[]
   dailySteps?: any[]
   setOverviewBalances?: (setter: (prev: Record<string, any>) => Record<string, any>) => void
-  onGoalsUpdate?: (goals: any[]) => void
   onHabitsUpdate?: (habits: any[]) => void
   onDailyStepsUpdate?: (steps: any[]) => void
   handleHabitToggle?: (habitId: string, date?: string) => Promise<void>
@@ -22,11 +19,9 @@ interface ManagementPageProps {
 }
 
 export function ManagementPage({
-  goals = [],
   habits = [],
   dailySteps = [],
   setOverviewBalances,
-  onGoalsUpdate,
   onHabitsUpdate,
   onDailyStepsUpdate,
   handleHabitToggle,
@@ -35,18 +30,7 @@ export function ManagementPage({
   player = null
 }: ManagementPageProps) {
   const t = useTranslations()
-  const [currentManagementProgram, setCurrentManagementProgram] = useState<'goals' | 'habits' | 'steps' | 'automations'>('goals')
-
-  const renderGoalsContent = () => {
-    return (
-      <GoalsManagementView
-        goals={goals}
-        onGoalsUpdate={onGoalsUpdate}
-        userId={userId}
-        player={player}
-      />
-    )
-  }
+  const [currentManagementProgram, setCurrentManagementProgram] = useState<'habits' | 'steps' | 'automations'>('habits')
 
   const renderHabitsContent = () => {
     return (
@@ -63,7 +47,6 @@ export function ManagementPage({
     return (
       <StepsManagementView
         dailySteps={dailySteps}
-        goals={goals}
         onDailyStepsUpdate={onDailyStepsUpdate}
         userId={userId}
         player={player}
@@ -74,7 +57,6 @@ export function ManagementPage({
   const renderAutomationsContent = () => {
     return (
       <AutomationManagementView
-        goals={goals}
         userId={userId}
         player={player}
       />
@@ -86,16 +68,6 @@ export function ManagementPage({
       {/* Program Selector - Link Navigation */}
       <div className="px-4 py-2 border-b border-gray-200 bg-white">
         <div className="flex items-center justify-between">
-          <button
-            onClick={() => setCurrentManagementProgram('goals')}
-            className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
-              currentManagementProgram === 'goals'
-                ? 'text-orange-600 border-orange-600'
-                : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'
-            }`}
-          >
-            {t('game.menu.goals')}
-          </button>
           <button
             onClick={() => setCurrentManagementProgram('habits')}
             className={`flex-1 text-center px-2 py-1 text-sm font-medium transition-all border-b-2 ${
@@ -131,7 +103,6 @@ export function ManagementPage({
       
       {/* Program Content */}
       <div className="flex-1 overflow-y-auto">
-        {currentManagementProgram === 'goals' && renderGoalsContent()}
         {currentManagementProgram === 'habits' && renderHabitsContent()}
         {currentManagementProgram === 'steps' && renderStepsContent()}
         {currentManagementProgram === 'automations' && renderAutomationsContent()}

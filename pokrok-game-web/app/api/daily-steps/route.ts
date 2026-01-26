@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createDailyStep, getDailyStepsByUserId, updateDailyStepFields, updateGoalProgressFromSteps, getGoalById } from '@/lib/cesta-db'
+import { createDailyStep, getDailyStepsByUserId, updateDailyStepFields } from '@/lib/cesta-db'
 import { requireAuth, verifyEntityOwnership, verifyOwnership } from '@/lib/auth-helpers'
 import { neon } from '@neondatabase/serverless'
 import { isStepScheduledForDay } from '@/app/[locale]/planner/components/utils/stepHelpers'
@@ -89,12 +89,12 @@ async function createRecurringStepInstance(recurringStep: any, targetDate: Date,
   
   await sql`
     INSERT INTO daily_steps (
-      id, user_id, goal_id, title, description, completed, date, 
+      id, user_id, title, description, completed, date, 
       is_important, is_urgent, aspiration_id, area_id,
       estimated_time, xp_reward, deadline, checklist, require_checklist_complete,
       frequency, selected_days, parent_recurring_step_id
     ) VALUES (
-      ${instanceId}, ${userId}, ${recurringStep.goal_id || null}, ${instanceTitle}, 
+      ${instanceId}, ${userId}, ${instanceTitle}, 
       ${recurringStep.description || null}, false, 
       CAST(${dateStr}::text AS DATE), 
       ${recurringStep.is_important || false}, 
@@ -251,7 +251,7 @@ async function createRecurringStepInstancesBatch(
   // Execute batch insert using UNNEST
   await sql`
     INSERT INTO daily_steps (
-      id, user_id, goal_id, title, description, completed, date, 
+      id, user_id, title, description, completed, date, 
       is_important, is_urgent, aspiration_id, area_id,
       estimated_time, xp_reward, deadline, checklist, require_checklist_complete,
       frequency, selected_days, parent_recurring_step_id
@@ -259,7 +259,6 @@ async function createRecurringStepInstancesBatch(
     SELECT 
       unnest(${ids}::text[]) as id,
       ${userId} as user_id,
-      ${recurringStep.goal_id || null} as goal_id,
       unnest(${instanceTitles}::text[]) as title,
       ${recurringStep.description || null} as description,
       false as completed,
@@ -331,56 +330,8 @@ export async function GET(request: NextRequest) {
     const date = searchParams.get('date')
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
-    const goalId = searchParams.get('goalId')
+    const areaId = searchParams.get('areaId')
     const filterImportantOnly = searchParams.get('filterImportantOnly') === 'true'
-    
-    // Support both userId and goalId queries
-    if (goalId) {
-      try {
-        // ✅ SECURITY: Ověření vlastnictví goalu
-        const goalOwned = await verifyEntityOwnership(goalId, 'goals', dbUser)
-        if (!goalOwned) {
-          return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-        }
-        
-        // Query steps for a specific goal
-        // Note: goal_id is VARCHAR(255) in the database
-        const steps = await sql`
-          SELECT 
-            id, user_id, goal_id, title, description, completed, 
-            TO_CHAR(date, 'YYYY-MM-DD') as date,
-            is_important, is_urgent, aspiration_id, area_id,
-            estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
-            COALESCE(checklist, CAST('[]' AS jsonb)) as checklist,
-            COALESCE(require_checklist_complete, false) as require_checklist_complete,
-            frequency, COALESCE(selected_days, CAST('[]' AS jsonb)) as selected_days,
-            TO_CHAR(last_instance_date, 'YYYY-MM-DD') as last_instance_date,
-            TO_CHAR(last_completed_instance_date, 'YYYY-MM-DD') as last_completed_instance_date,
-            TO_CHAR(recurring_start_date, 'YYYY-MM-DD') as recurring_start_date,
-            TO_CHAR(recurring_end_date, 'YYYY-MM-DD') as recurring_end_date,
-            recurring_display_mode, COALESCE(is_hidden, false) as is_hidden,
-            parent_recurring_step_id
-          FROM daily_steps
-          WHERE goal_id = ${goalId} AND user_id = ${dbUser.id}
-          ORDER BY created_at DESC
-        `
-        
-        const normalizedSteps = steps.map((step: any) => ({
-          ...step,
-          date: normalizeDateFromDB(step.date)
-        }))
-        
-        return NextResponse.json(normalizedSteps)
-      } catch (error: any) {
-        console.error('Error fetching steps for goal:', goalId, error)
-        console.error('Error stack:', error?.stack)
-        return NextResponse.json({ 
-          error: 'Internal server error', 
-          details: error?.message || 'Unknown error',
-          goalId 
-        }, { status: 500 })
-      }
-    }
     
     // ✅ SECURITY: Ověření vlastnictví userId, pokud je poskytnut
     const targetUserId = userId || dbUser.id
@@ -478,7 +429,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { 
       userId, 
-      goalId, 
       areaId,
       title, 
       description, 
@@ -498,58 +448,35 @@ export async function POST(request: NextRequest) {
     } = body
     
     // Debug logging
-    console.log('Creating step with:', { userId, goalId, areaId, title })
+    console.log('Creating step with:', { userId, areaId, title })
     
     // ✅ SECURITY: Ověření vlastnictví userId, pokud je poskytnut
     if (userId && !verifyOwnership(userId, dbUser)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     
-    // ✅ SECURITY: Ověření vlastnictví goalId, pokud je poskytnut
-    if (goalId) {
-      const goalOwned = await verifyEntityOwnership(goalId, 'goals', dbUser)
-      if (!goalOwned) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-      }
-    }
-    
-    // ✅ SECURITY: Ověření vlastnictví areaId, pokud je poskytnut
-    if (areaId) {
-      const areaOwned = await verifyEntityOwnership(areaId, 'areas', dbUser)
-      if (!areaOwned) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-      }
-    }
-    
-    // If goal is selected, area should come from goal (allow both to be set)
-    // Only validate if area is set but goal is not (which is fine)
-    // If both are set, verify that area matches goal's area
-    if (areaId && goalId) {
-      // Get goal to verify area matches
-      const goalResult = await sql`
-        SELECT area_id FROM goals WHERE id = ${goalId} AND user_id = ${dbUser.id}
-      `
-      if (goalResult.length > 0) {
-        const goalAreaId = goalResult[0].area_id
-        // If goal has an area, it should match the provided areaId
-        if (goalAreaId && goalAreaId !== areaId) {
+    // ✅ SECURITY: Ověření vlastnictví areaId - areaId je nyní povinné
+    if (!areaId) {
       return NextResponse.json({ 
-            error: 'Area does not match goal\'s area',
-            details: 'The provided area does not match the area assigned to the selected goal'
+        error: 'areaId is required',
+        details: 'Steps must be assigned to an area'
       }, { status: 400 })
-        }
-        // If goal has no area but areaId is provided, use the provided areaId
-        // This allows setting area on step even if goal doesn't have one
-        // (The area will be automatically set from goal if goal has one, but if not, user can set it manually)
-      } else {
-        // Goal not found - this should not happen if ownership check passed, but handle gracefully
-        console.error(`Goal ${goalId} not found for user ${dbUser.id}`)
-      }
+    }
+    
+    const areaOwned = await verifyEntityOwnership(areaId, 'areas', dbUser)
+    if (!areaOwned) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     
     // Normalize areaId - empty string should be treated as null
     const normalizedAreaId = areaId && areaId.trim() !== '' ? areaId : null
-    const normalizedGoalId = goalId && goalId.trim() !== '' ? goalId : null
+    
+    if (!normalizedAreaId) {
+      return NextResponse.json({ 
+        error: 'areaId is required',
+        details: 'Steps must be assigned to an area'
+      }, { status: 400 })
+    }
     
     if (!title) {
       return NextResponse.json({ 
@@ -696,7 +623,6 @@ export async function POST(request: NextRequest) {
 
     const stepData = {
       user_id: targetUserId,
-      goal_id: normalizedGoalId,
       area_id: normalizedAreaId,
       title,
       description: description || undefined,
@@ -769,12 +695,12 @@ export async function PUT(request: NextRequest) {
     const { dbUser } = authResult
 
     const body = await request.json()
-    const { stepId, completed, completedAt, completionDate, title, description, goalId, goal_id, areaId, aspirationId, aspiration_id, isImportant, is_important, isUrgent, estimatedTime, xpReward, date, checklist, requireChecklistComplete, frequency, selectedDays, recurringStartDate, recurringEndDate, lastInstanceDate, finishRecurring } = body
+    const { stepId, completed, completedAt, completionDate, title, description, areaId, aspirationId, aspiration_id, isImportant, is_important, isUrgent, estimatedTime, xpReward, date, checklist, requireChecklistComplete, frequency, selectedDays, recurringStartDate, recurringEndDate, lastInstanceDate, finishRecurring } = body
     // Normalize is_important - support both camelCase and snake_case
     const normalizedIsImportant = isImportant !== undefined ? isImportant : (is_important !== undefined ? is_important : undefined)
     
     // Debug logging
-    console.log('Updating step:', { stepId, goalId, goal_id, areaId, hasGoalId: goalId !== undefined, hasGoal_id: goal_id !== undefined, hasAreaId: areaId !== undefined })
+    console.log('Updating step:', { stepId, areaId, hasAreaId: areaId !== undefined })
     
     if (!stepId) {
       return NextResponse.json({ error: 'Step ID is required' }, { status: 400 })
@@ -786,15 +712,6 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     
-    // ✅ SECURITY: Ověření vlastnictví goalId, pokud je poskytnut
-    if (goalId || goal_id) {
-      const targetGoalId = goalId || goal_id
-      const goalOwned = await verifyEntityOwnership(targetGoalId, 'goals', dbUser)
-      if (!goalOwned) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-      }
-    }
-    
     // ✅ SECURITY: Ověření vlastnictví areaId, pokud je poskytnut
     if (areaId) {
       const areaOwned = await verifyEntityOwnership(areaId, 'areas', dbUser)
@@ -803,33 +720,7 @@ export async function PUT(request: NextRequest) {
       }
     }
     
-    // If goal is selected, area should come from goal (allow both to be set)
-    // Only validate if area is set but goal is not (which is fine)
-    // If both are set, verify that area matches goal's area
-    const finalGoalId = goalId || goal_id
-    if (areaId && finalGoalId) {
-      // Get goal to verify area matches
-      const goalResult = await sql`
-        SELECT area_id FROM goals WHERE id = ${finalGoalId} AND user_id = ${dbUser.id}
-      `
-      if (goalResult.length > 0) {
-        const goalAreaId = goalResult[0].area_id
-        // If goal has an area, it should match the provided areaId
-        if (goalAreaId && goalAreaId !== areaId) {
-      return NextResponse.json({ 
-            error: 'Area does not match goal\'s area',
-            details: 'The provided area does not match the area assigned to the selected goal'
-      }, { status: 400 })
-        }
-        // If goal has no area but areaId is provided, that's also invalid
-        if (!goalAreaId && areaId) {
-          return NextResponse.json({ 
-            error: 'Goal has no area assigned',
-            details: 'The selected goal does not have an area, so area cannot be set'
-          }, { status: 400 })
-        }
-      }
-    }
+    // Goals removed - no goal validation needed
     
     // Check what type of update this is
     const isCompletionOnly = completed !== undefined && title === undefined && date === undefined && finishRecurring === undefined && normalizedIsImportant === undefined
@@ -1049,33 +940,13 @@ export async function PUT(request: NextRequest) {
         const updatedStep = updatedStepResult[0]
         console.log(`[Recurring step completion] Step ${stepId}: After UPDATE, date=${updatedStep.date}, current_instance_date=${updatedStep.current_instance_date}`)
         
-        // Update goal progress if step has a goal_id
-        let updatedGoal = null
-        if (updatedStep.goal_id) {
-          try {
-            const goal = await getGoalById(updatedStep.goal_id)
-            if (goal) {
-              if (goal.progress_calculation_type === 'metrics') {
-                // Only update from metrics, not steps
-              } else {
-                await updateGoalProgressFromSteps(updatedStep.goal_id)
-                updatedGoal = await getGoalById(updatedStep.goal_id)
-              }
-            }
-          } catch (progressError: any) {
-            console.error('Error updating goal progress after step completion:', progressError)
-            // Don't fail the request if progress update fails
-          }
-        }
-        
         const normalizedResult = {
           ...updatedStep,
           date: normalizeDateFromDB(updatedStep.date)
         }
         
         return NextResponse.json({
-          ...normalizedResult,
-          goal: updatedGoal
+          ...normalizedResult
         })
       }
       
@@ -1259,33 +1130,13 @@ export async function PUT(request: NextRequest) {
       
       const updatedStep = result[0]
       
-      // Update goal progress if step has a goal_id
-      let updatedGoal = null
-      if (updatedStep.goal_id) {
-        try {
-          const goal = await getGoalById(updatedStep.goal_id)
-          if (goal) {
-            if (goal.progress_calculation_type === 'metrics') {
-              // Only update from metrics, not steps
-            } else {
-              await updateGoalProgressFromSteps(updatedStep.goal_id)
-              updatedGoal = await getGoalById(updatedStep.goal_id)
-            }
-          }
-        } catch (progressError: any) {
-          console.error('Error updating goal progress after step completion:', progressError)
-          // Don't fail the request if progress update fails
-        }
-      }
-      
       const normalizedResult = {
         ...updatedStep,
         date: normalizeDateFromDB(updatedStep.date)
       }
       
       return NextResponse.json({
-        ...normalizedResult,
-        goal: updatedGoal
+        ...normalizedResult
       })
     }
     
@@ -1488,78 +1339,26 @@ export async function PUT(request: NextRequest) {
       if (title !== undefined) updates.title = title
       if (description !== undefined) updates.description = description
       
-      // Handle goal_id and area_id with proper mutual exclusivity
-      // Normalize empty strings to null
-      const normalizedGoalId = (goalId !== undefined && goalId !== null && String(goalId).trim() !== '') 
-        ? (goalId || goal_id) 
-        : ((goal_id !== undefined && goal_id !== null && String(goal_id).trim() !== '') ? goal_id : null)
-      const normalizedAreaId = (areaId !== undefined && areaId !== null && String(areaId).trim() !== '') 
-        ? areaId 
-        : null
-      
-      // Only update if explicitly provided in the request
-      // Check if values are actually provided (not just undefined or empty)
-      const hasGoalIdValue = (goalId !== undefined && goalId !== null && String(goalId).trim() !== '') || 
-                            (goal_id !== undefined && goal_id !== null && String(goal_id).trim() !== '')
-      const hasAreaIdValue = areaId !== undefined && areaId !== null && String(areaId).trim() !== ''
-      
-      // Determine which one to use - prioritize non-null values
-      // If both are provided, check which one has a value
-      const bothProvided = (goalId !== undefined || goal_id !== undefined) && areaId !== undefined
-      
-      console.log('🔍 PUT request logic:', {
-        goalId,
-        goal_id,
-        areaId,
-        hasGoalIdValue,
-        hasAreaIdValue,
-        bothProvided,
-        normalizedGoalId,
-        normalizedAreaId
-      })
-      
-      if (bothProvided) {
-        // Both were provided - use the one with a value
-        if (hasGoalIdValue) {
-          // goalId has a value - use it and clear area_id
-          console.log('✅ Using goalId, clearing area_id')
-          updates.goal_id = normalizedGoalId
-          updates.area_id = null
-        } else if (hasAreaIdValue) {
-          // areaId has a value - use it and clear goal_id
-          console.log('✅ Using areaId, clearing goal_id')
+      // Handle area_id - areaId is now required for steps
+      if (areaId !== undefined) {
+        const normalizedAreaId = (areaId !== undefined && areaId !== null && String(areaId).trim() !== '') 
+          ? areaId 
+          : null
+        
+        if (normalizedAreaId) {
+          // Verify area ownership
+          const areaOwned = await verifyEntityOwnership(normalizedAreaId, 'areas', dbUser)
+          if (!areaOwned) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+          }
           updates.area_id = normalizedAreaId
-          updates.goal_id = null
         } else {
-          // Both are null/empty - clear both
-          console.log('⚠️ Both are null/empty, clearing both')
-          updates.goal_id = null
-          updates.area_id = null
+          // Empty areaId - reject (steps must have an area)
+          return NextResponse.json({ 
+            error: 'areaId is required',
+            details: 'Steps must be assigned to an area'
+          }, { status: 400 })
         }
-      } else if (goalId !== undefined || goal_id !== undefined) {
-        // Only goalId was provided
-        if (hasGoalIdValue) {
-          console.log('✅ Only goalId provided with value, clearing area_id')
-          updates.goal_id = normalizedGoalId
-          updates.area_id = null // Clear area_id if goalId has a value
-        } else {
-          // goalId is null/empty - clear it, but don't touch area_id
-          console.log('⚠️ Only goalId provided but null/empty, clearing goal_id only')
-          updates.goal_id = null
-        }
-      } else if (areaId !== undefined) {
-        // Only areaId was provided
-        if (hasAreaIdValue) {
-          console.log('✅ Only areaId provided with value, clearing goal_id')
-          updates.area_id = normalizedAreaId
-          updates.goal_id = null // Clear goal_id if areaId has a value
-        } else {
-          // areaId is null/empty - clear it
-          console.log('⚠️ Only areaId provided but null/empty, clearing area_id only')
-          updates.area_id = null
-        }
-      } else {
-        console.log('⚠️ Neither goalId nor areaId provided in request')
       }
       
       console.log('📝 Final updates object:', updates)
@@ -1712,7 +1511,6 @@ export async function PUT(request: NextRequest) {
       const updatedStep = await updateDailyStepFields(stepId, updates)
       console.log('📦 Updated step returned:', updatedStep ? {
         id: updatedStep.id,
-        goal_id: updatedStep.goal_id,
         area_id: updatedStep.area_id,
         title: updatedStep.title
       } : null)

@@ -4,7 +4,6 @@ import { useTranslations } from 'next-intl'
 
 interface AchievementsViewProps {
   player: any
-  goals?: any[]
   habits?: any[]
   level?: number
   experience?: number
@@ -14,7 +13,6 @@ interface AchievementsViewProps {
 
 export function AchievementsView({ 
   player, 
-  goals = [], 
   habits = [], 
   level = 1, 
   experience = 0,
@@ -22,7 +20,7 @@ export function AchievementsView({
   onBack 
 }: AchievementsViewProps) {
   const t = useTranslations()
-  const completedGoals = goals.filter(goal => goal.status === 'completed' || goal.completed).length
+  const completedGoals = 0 // Goals removed
   const totalHabitStreak = habits.reduce((sum, habit) => sum + (habit.streak || 0), 0)
   const maxHabitStreak = Math.max(...habits.map(habit => habit.max_streak || habit.maxStreak || 0), 0)
 
@@ -32,8 +30,8 @@ export function AchievementsView({
       title: t('achievements.firstGoal.title'),
       description: t('achievements.firstGoal.description'),
       icon: null,
-      unlocked: goals.length >= 1,
-      progress: Math.min(goals.length, 1),
+      unlocked: false, // Goals removed
+      progress: 0,
       maxProgress: 1
     },
     {
@@ -86,8 +84,8 @@ export function AchievementsView({
       title: t('achievements.goalSetter.title'),
       description: t('achievements.goalSetter.description'),
       icon: null,
-      unlocked: goals.length >= 5,
-      progress: Math.min(goals.length, 5),
+      unlocked: false, // Goals removed
+      progress: 0,
       maxProgress: 5
     },
     {

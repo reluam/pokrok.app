@@ -16,7 +16,6 @@ export default function HabitsPage() {
   const locale = useLocale()
   const [player, setPlayer] = useState<any>(null)
   const [userId, setUserId] = useState<string | null>(null)
-  const [goals, setGoals] = useState<any[]>([])
   const [habits, setHabits] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null)
@@ -72,7 +71,6 @@ export default function HabitsPage() {
 
             const newUser = await createUserResponse.json()
             setUserId(newUser.id)
-            setGoals([])
             setHabits([])
             setPlayer(null)
             setIsLoading(false)
@@ -85,7 +83,6 @@ export default function HabitsPage() {
           const gameData = await gameDataResponse.json()
           setUserId(gameData.user.id)
           setPlayer(gameData.player || null)
-          setGoals(gameData.goals || [])
           setHabits(gameData.habits || [])
           setHasCompletedOnboarding(gameData.user.has_completed_onboarding ?? false)
         }
@@ -95,7 +92,6 @@ export default function HabitsPage() {
           console.error('Error message:', error.message)
           console.error('Error stack:', error.stack)
         }
-        setGoals([])
         setHabits([])
         setPlayer(null)
       } finally {
@@ -112,7 +108,7 @@ export default function HabitsPage() {
     }
   }, [isLoaded, isSignedIn, router, locale])
 
-  const isDataLoaded = goals !== undefined && habits !== undefined && !isLoading
+  const isDataLoaded = habits !== undefined && !isLoading
   
   if (!isLoaded || !isDataLoaded) {
     return (
@@ -138,9 +134,7 @@ export default function HabitsPage() {
       <GameWorldView 
         player={player} 
         userId={userId}
-        goals={goals} 
         habits={habits}
-        onGoalsUpdate={setGoals}
         onHabitsUpdate={setHabits}
         onPlayerUpdate={setPlayer}
         hasCompletedOnboarding={hasCompletedOnboarding}

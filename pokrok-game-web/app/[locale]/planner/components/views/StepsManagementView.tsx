@@ -30,7 +30,6 @@ if (typeof document !== 'undefined') {
 
 interface StepsManagementViewProps {
   dailySteps: any[]
-  goals: any[]
   areas?: any[]
   onDailyStepsUpdate?: (steps: any[]) => void
   userId?: string | null
@@ -51,7 +50,6 @@ interface StepsManagementViewProps {
 
 export function StepsManagementView({
   dailySteps = [],
-  goals = [],
   areas = [],
   onDailyStepsUpdate,
   userId,
@@ -662,13 +660,7 @@ export function StepsManagementView({
   }
 
   // Create maps for quick lookup (same as UpcomingView)
-  const goalMap = useMemo(() => {
-    const map = new Map<string, any>()
-    goals.forEach(goal => {
-      map.set(goal.id, goal)
-    })
-    return map
-  }, [goals])
+  // Goals removed - no goalMap needed
 
   const areaMap = useMemo(() => {
     const map = new Map<string, any>()
@@ -724,7 +716,7 @@ export function StepsManagementView({
 
   // Filter and sort steps - BASED ON UpcomingView's allFeedSteps logic
   const allSteps = useMemo(() => {
-    const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isUrgent: boolean; isOverdue: boolean; goal: any; area: any }> = []
+    const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isUrgent: boolean; isOverdue: boolean; area: any }> = []
     
     // Ensure localDailySteps is an array
     if (!Array.isArray(localDailySteps)) {
@@ -771,17 +763,14 @@ export function StepsManagementView({
           if (effectiveAreaFilter === 'none') {
             // Show steps without area
             if (stepAreaId) return
-            if (stepGoalId) {
-              const stepGoal = goalMap.get(stepGoalId)
-              if (stepGoal && (stepGoal.area_id || stepGoal.areaId)) return
-            }
+            // Goals removed - no goal filtering
       } else {
             // Show steps with specific area
             if (stepAreaId === effectiveAreaFilter) {
               // Step is directly assigned to the area
             } else if (stepGoalId) {
-              const stepGoal = goalMap.get(stepGoalId)
-              if (stepGoal && (stepGoal.area_id || stepGoal.areaId) === effectiveAreaFilter) {
+              // Goals removed - no goal filtering
+              if (false) {
                 // Goal belongs to the area
               } else {
         return
@@ -804,11 +793,8 @@ export function StepsManagementView({
           if (stepDateStr !== effectiveDateFilter) return
         }
         
-        const goal = step.goal_id ? goalMap.get(step.goal_id) : null
-        // Get area from goal if exists, otherwise from step directly
-        const area = goal?.area_id 
-          ? areaMap.get(goal.area_id) 
-          : (step.area_id ? areaMap.get(step.area_id) : null)
+        // Goals removed - get area directly from step
+        const area = step.area_id ? areaMap.get(step.area_id) : null
         
         stepsWithDates.push({
           step,
@@ -816,7 +802,6 @@ export function StepsManagementView({
           isImportant: step.is_important || false,
           isUrgent: step.is_urgent || false,
           isOverdue,
-          goal,
           area
         })
       })
@@ -863,17 +848,14 @@ export function StepsManagementView({
           if (effectiveAreaFilter === 'none') {
             // Show steps without area
             if (stepAreaId) return
-            if (stepGoalId) {
-              const stepGoal = goalMap.get(stepGoalId)
-              if (stepGoal && (stepGoal.area_id || stepGoal.areaId)) return
-            }
+            // Goals removed - no goal filtering
         } else {
             // Show steps with specific area
             if (stepAreaId === effectiveAreaFilter) {
               // Step is directly assigned to the area
             } else if (stepGoalId) {
-              const stepGoal = goalMap.get(stepGoalId)
-              if (stepGoal && (stepGoal.area_id || stepGoal.areaId) === effectiveAreaFilter) {
+              // Goals removed - no goal filtering
+              if (false) {
                 // Goal belongs to the area
               } else {
       return
@@ -890,11 +872,8 @@ export function StepsManagementView({
           if (stepDateStr !== effectiveDateFilter) return
         }
         
-        const goal = step.goal_id ? goalMap.get(step.goal_id) : null
-        // Get area from goal if exists, otherwise from step directly
-        const area = goal?.area_id 
-          ? areaMap.get(goal.area_id) 
-          : (step.area_id ? areaMap.get(step.area_id) : null)
+        // Goals removed - get area directly from step
+        const area = step.area_id ? areaMap.get(step.area_id) : null
         
         stepsWithDates.push({
           step,
@@ -902,7 +881,6 @@ export function StepsManagementView({
           isImportant: step.is_important || false,
           isUrgent: step.is_urgent || false,
           isOverdue,
-          goal,
           area
         })
       })
@@ -972,7 +950,6 @@ export function StepsManagementView({
           stepMap.set(item.step.id, {
             ...item.step,
             _isOverdue: item.isOverdue,
-            _goal: item.goal,
             _area: item.area,
             _date: item.date
           })
@@ -981,7 +958,6 @@ export function StepsManagementView({
           stepMap.set(item.step.id, {
             ...item.step,
             _isOverdue: item.isOverdue,
-            _goal: item.goal,
             _area: item.area,
             _date: item.date
           })
@@ -990,7 +966,6 @@ export function StepsManagementView({
           stepMap.set(item.step.id, {
             ...item.step,
             _isOverdue: item.isOverdue,
-            _goal: item.goal,
             _area: item.area,
             _date: item.date
           })
@@ -1002,7 +977,6 @@ export function StepsManagementView({
           stepMap.set(item.step.id, {
             ...item.step,
             _isOverdue: item.isOverdue,
-            _goal: item.goal,
             _area: item.area,
             _date: item.date
           })
@@ -1012,7 +986,7 @@ export function StepsManagementView({
     
     // Return all steps with additional metadata (same format as UpcomingView)
     return Array.from(stepMap.values())
-  }, [localDailySteps, effectiveShowCompleted, effectiveGoalFilter, effectiveAreaFilter, effectiveDateFilter, goalMap, areaMap, today])
+  }, [localDailySteps, effectiveShowCompleted, effectiveGoalFilter, effectiveAreaFilter, effectiveDateFilter, areaMap, today])
 
   // Paginated steps
   const paginatedSteps = useMemo(() => {
@@ -1098,13 +1072,7 @@ export function StepsManagementView({
       let finalGoalId = (stepData.goalId && stepData.goalId.trim() !== '') ? stepData.goalId : null
       let finalAreaId = (stepData.areaId && stepData.areaId.trim() !== '') ? stepData.areaId : null
       
-      // If goal is selected, get area from goal
-      if (finalGoalId) {
-        const selectedGoal = goals.find((g: any) => g.id === finalGoalId)
-        if (selectedGoal?.area_id) {
-          finalAreaId = selectedGoal.area_id
-        }
-      }
+      // Goals removed - no goal selection
       
       // Ensure date is always a string (YYYY-MM-DD)
       let dateValue: string | null = null
@@ -1349,13 +1317,7 @@ export function StepsManagementView({
       let finalGoalId = (stepData.goalId && stepData.goalId.trim() !== '') ? stepData.goalId : null
       let finalAreaId = (stepData.areaId && stepData.areaId.trim() !== '') ? stepData.areaId : null
       
-      // If goal is selected, get area from goal
-      if (finalGoalId) {
-        const selectedGoal = goals.find((g: any) => g.id === finalGoalId)
-        if (selectedGoal?.area_id) {
-          finalAreaId = selectedGoal.area_id
-        }
-      }
+      // Goals removed - no goal selection
       
       // Ensure date is always a string (YYYY-MM-DD) or null
       let dateValue: string | null = null
@@ -1814,11 +1776,7 @@ export function StepsManagementView({
                 onChange={(e) => setStepsGoalFilter(e.target.value || null)}
                     className="w-full px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white"
               >
-                <option value="">{t('steps.filters.goal.all')}</option>
-                <option value="none">{t('steps.filters.goal.withoutGoal') || 'Bez cíle'}</option>
-                {goals.map((goal: any) => (
-                  <option key={goal.id} value={goal.id}>{goal.title}</option>
-                ))}
+                {/* Goals removed - no goal filter */}
               </select>
               
                       {areas && areas.length > 0 && (
@@ -1872,11 +1830,7 @@ export function StepsManagementView({
                 onChange={(e) => setStepsGoalFilter(e.target.value || null)}
                 className="px-3 py-1.5 text-sm border-2 border-primary-500 rounded-playful-md font-playful focus:ring-2 focus:ring-primary-500 bg-white min-w-[150px]"
               >
-                <option value="">{t('steps.filters.goal.all')}</option>
-                <option value="none">{t('steps.filters.goal.withoutGoal') || 'Bez cíle'}</option>
-                {goals.map((goal: any) => (
-                  <option key={goal.id} value={goal.id}>{goal.title}</option>
-                ))}
+                {/* Goals removed - no goal filter */}
               </select>
               
                   {areas && areas.length > 0 && (
@@ -2960,32 +2914,27 @@ export function StepsManagementView({
                         </button>
                           
                           {/* Area - icon + text + dropdown */}
-                          {(!editingStepData.goalId || area) && (
-                            <div className="relative">
-                              <button
-                                data-dropdown-trigger={`area-${editingStepData.id}`}
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  if (!editingStepData.goalId) {
-                                    const dropdownId = `area-${editingStepData.id}`
-                                    setOpenDropdownId(openDropdownId === dropdownId ? null : dropdownId)
-                                  }
-                                }}
-                                className={`flex items-center gap-1.5 px-2 py-1 rounded-playful-sm transition-colors ${
-                                  !area ? 'opacity-50' : editingStepData.goalId ? 'cursor-default' : 'hover:bg-gray-100'
-                                }`}
-                              >
-                                <MapPin className={`w-4 h-4 flex-shrink-0 ${area ? '' : 'text-gray-400'}`} style={area ? { color: area.color || '#E8871E' } : {}} />
-                                <span className="text-xs whitespace-nowrap max-w-[120px] truncate">
-                                  {area ? area.name : (editingStepData.goalId ? (t('steps.areaLockedByGoal') || 'Oblast je určena cílem') : (t('details.goal.area') || 'Oblast'))}
-                                </span>
-                                {!editingStepData.goalId && (
-                                  <ChevronDown className={`w-3 h-3 transition-transform ${openDropdownId === `area-${editingStepData.id}` ? (dropdownPosition === 'top' ? 'rotate-180' : 'rotate-0') : ''}`} />
-                                )}
-                              </button>
-                              
-                              {/* Area Dropdown - only if no goal */}
-                              {!editingStepData.goalId && openDropdownId === `area-${editingStepData.id}` && (
+                          <div className="relative">
+                            <button
+                              data-dropdown-trigger={`area-${editingStepData.id}`}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                const dropdownId = `area-${editingStepData.id}`
+                                setOpenDropdownId(openDropdownId === dropdownId ? null : dropdownId)
+                              }}
+                              className={`flex items-center gap-1.5 px-2 py-1 rounded-playful-sm transition-colors ${
+                                !area ? 'opacity-50' : 'hover:bg-gray-100'
+                              }`}
+                            >
+                              <MapPin className={`w-4 h-4 flex-shrink-0 ${area ? '' : 'text-gray-400'}`} style={area ? { color: area.color || '#E8871E' } : {}} />
+                              <span className="text-xs whitespace-nowrap max-w-[120px] truncate">
+                                {area ? area.name : (t('details.goal.area') || 'Oblast')}
+                              </span>
+                              <ChevronDown className={`w-3 h-3 transition-transform ${openDropdownId === `area-${editingStepData.id}` ? (dropdownPosition === 'top' ? 'rotate-180' : 'rotate-0') : ''}`} />
+                            </button>
+                            
+                            {/* Area Dropdown */}
+                            {openDropdownId === `area-${editingStepData.id}` && (
                                 <>
                                   <div 
                                     className="fixed inset-0 z-40 bg-transparent cursor-pointer" 
@@ -3032,88 +2981,6 @@ export function StepsManagementView({
                                 </>
                               )}
                             </div>
-                          )}
-                          
-                          {/* Goal - icon + text + dropdown */}
-                          <div className="relative">
-                            <button
-                              data-dropdown-trigger={`goal-${editingStepData.id}`}
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                const dropdownId = `goal-${editingStepData.id}`
-                                setOpenDropdownId(openDropdownId === dropdownId ? null : dropdownId)
-                              }}
-                              className={`flex items-center gap-1.5 px-2 py-1 rounded-playful-sm hover:bg-gray-100 transition-colors ${
-                                !goal ? 'opacity-50' : ''
-                              }`}
-                            >
-                              <Target className={`w-4 h-4 flex-shrink-0 ${goal && area ? '' : 'text-gray-400'}`} style={goal && area ? { color: area.color || '#E8871E' } : {}} />
-                              <span className="text-xs whitespace-nowrap max-w-[120px] truncate">
-                                {goal ? goal.title : (t('steps.noGoal') || 'Bez cíle')}
-                              </span>
-                              <ChevronDown className={`w-3 h-3 transition-transform ${openDropdownId === `goal-${editingStepData.id}` ? (dropdownPosition === 'top' ? 'rotate-180' : 'rotate-0') : ''}`} />
-                            </button>
-                            
-                            {/* Goal Dropdown */}
-                            {openDropdownId === `goal-${editingStepData.id}` && (
-                              <>
-                                <div 
-                                  className="fixed inset-0 z-40 bg-transparent cursor-pointer" 
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    setOpenDropdownId(null)
-                                  }}
-                                />
-                                <div 
-                                  data-dropdown={`goal-${editingStepData.id}`}
-                                  className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-1' : 'top-full mt-1'} left-0 z-50 bg-white border-2 border-primary-500 rounded-playful-md shadow-lg min-w-[180px] max-h-[200px] overflow-y-auto opacity-100`}
-                                  style={{ backgroundColor: 'white' }}
-                                >
-                                  <button
-                                    onClick={async (e) => {
-                                      e.stopPropagation()
-                                      const selectedGoal = null
-                                      const updatedData = {
-                                        ...editingStepData,
-                        goalId: '',
-                                        areaId: editingStepData.areaId || ''
-                                      }
-                                      setEditingStepData(updatedData)
-                                      await handleSaveStep(updatedData, true)
-                                      setOpenDropdownId(null)
-                                    }}
-                                    className="w-full px-3 py-2 text-xs text-left hover:bg-primary-50 border-b border-primary-200 last:border-b-0"
-                                  >
-                                    {t('steps.noGoal') || 'Bez cíle'}
-                  </button>
-                                  {goals.map((g: any) => {
-                                    const goalArea = areas.find(a => a.id === g.area_id)
-                                    return (
-                  <button
-                                        key={g.id}
-                                        onClick={async (e) => {
-                                          e.stopPropagation()
-                                          const updatedData = {
-                                            ...editingStepData,
-                                            goalId: g.id,
-                                            areaId: g.area_id || editingStepData.areaId || ''
-                                          }
-                                          setEditingStepData(updatedData)
-                                          await handleSaveStep(updatedData, true)
-                                          setOpenDropdownId(null)
-                                        }}
-                                        className="w-full px-3 py-2 text-xs text-left hover:bg-primary-50 border-b border-primary-200 last:border-b-0 flex items-center gap-2"
-                                        style={goalArea ? { color: goalArea.color || '#E8871E' } : {}}
-                                      >
-                                        <Target className="w-3 h-3 flex-shrink-0" style={goalArea ? { color: goalArea.color || '#E8871E' } : {}} />
-                                        {g.title}
-                  </button>
-                                    )
-                                  })}
-                </div>
-                              </>
-                            )}
-              </div>
                           
                           {/* Repeating icon - toggle expanded row */}
                           <button

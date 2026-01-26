@@ -99,6 +99,17 @@ export interface Area {
   updated_at: Date
 }
 
+export interface Milestone {
+  id: string
+  user_id: string
+  area_id: string
+  title: string
+  description?: string
+  completed_date?: Date | string
+  created_at: Date | string
+  updated_at: Date | string
+}
+
 export interface Aspiration {
   id: string
   user_id: string
@@ -561,6 +572,28 @@ export async function initializeCestaDatabase() {
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
+    `
+
+    // Create milestones table
+    await sql`
+      CREATE TABLE IF NOT EXISTS milestones (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        area_id VARCHAR(255) NOT NULL REFERENCES areas(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        completed_date DATE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+    
+    // Create index for faster queries
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_milestones_area_id ON milestones(area_id)
+    `
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_milestones_user_id ON milestones(user_id)
     `
 
     // Create daily_steps table
