@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { Calendar, Plus, Edit2, Trash2, Check } from 'lucide-react'
+import { Calendar, Plus, Edit2, Trash2, Check, ChevronDown, ChevronUp } from 'lucide-react'
 
 interface Milestone {
   id: string
@@ -32,6 +32,7 @@ export function MilestonesTimelineView({ areaId, userId, onMilestoneUpdate }: Mi
   const [newTitle, setNewTitle] = useState('')
   const [newDescription, setNewDescription] = useState('')
   const [newCompletedDate, setNewCompletedDate] = useState('')
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   useEffect(() => {
     loadMilestones()
@@ -152,8 +153,21 @@ export function MilestonesTimelineView({ areaId, userId, onMilestoneUpdate }: Mi
     <div className="w-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 px-4">
-        <h2 className="text-xl font-bold text-black font-playful">Milníky</h2>
-        {!showAddForm && (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="flex items-center gap-1.5 px-2 py-1 hover:bg-gray-100 rounded-lg transition-colors"
+            title={isCollapsed ? 'Rozbalit milníky' : 'Zabalit milníky'}
+          >
+            {isCollapsed ? (
+              <ChevronDown className="w-4 h-4 text-gray-600" />
+            ) : (
+              <ChevronUp className="w-4 h-4 text-gray-600" />
+            )}
+            <h2 className="text-xl font-bold text-black font-playful">Milníky</h2>
+          </button>
+        </div>
+        {!showAddForm && !isCollapsed && (
           <button
             onClick={() => setShowAddForm(true)}
             className="flex items-center gap-2 px-3 py-1.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors text-sm font-medium"
@@ -165,7 +179,7 @@ export function MilestonesTimelineView({ areaId, userId, onMilestoneUpdate }: Mi
       </div>
 
       {/* Add Form */}
-      {showAddForm && (
+      {showAddForm && !isCollapsed && (
         <div className="mb-4 p-4 bg-white rounded-lg border-2 border-primary-500">
           <div className="space-y-3">
             <input
@@ -215,12 +229,14 @@ export function MilestonesTimelineView({ areaId, userId, onMilestoneUpdate }: Mi
       )}
 
       {/* Timeline */}
-      {sortedMilestones.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
-          <p>Žádné milníky</p>
-        </div>
-      ) : (
+      {!isCollapsed && (
+        <>
+          {sortedMilestones.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p>Žádné milníky</p>
+            </div>
+          ) : (
         <div className="relative pl-8">
           {/* Timeline line */}
           <div className="absolute left-3 top-0 bottom-0 w-0.5 bg-primary-200"></div>
@@ -308,6 +324,8 @@ export function MilestonesTimelineView({ areaId, userId, onMilestoneUpdate }: Mi
             </div>
           ))}
         </div>
+          )}
+        </>
       )}
     </div>
   )
