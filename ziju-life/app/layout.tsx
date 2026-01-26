@@ -21,6 +21,9 @@ const nunito = Nunito({
 export const metadata: Metadata = {
   title: "Žiju life - Dešifrujeme život za pochodu",
   description: "Nejsem guru. Jsem člověk, co si píše manuál na život sám. Sdílím svoje experimenty, faily a knowledge, aby tvůj life byl o něco víc v chillu.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({

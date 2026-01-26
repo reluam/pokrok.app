@@ -12,6 +12,7 @@ export default function Navigation() {
   const navItems: Array<{ href: string; label: string; external?: boolean }> = [
     { href: "/inspirace", label: "Inspirace" },
     { href: "/komunita", label: "Komunita" },
+    { href: "/koucing", label: "Koučing" },
     { href: "/o-mne", label: "O mně" },
   ];
 
