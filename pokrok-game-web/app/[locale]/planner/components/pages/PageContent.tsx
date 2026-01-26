@@ -707,6 +707,7 @@ export function PageContent(props: PageContentProps) {
                         <MilestonesTimelineView 
                           areaId={areaId}
                           userId={userId}
+                          area={area}
                           onMilestoneUpdate={() => {
                             // Optionally reload data
                           }}
@@ -1025,6 +1026,8 @@ export function PageContent(props: PageContentProps) {
                     }))
                   }}
                   onDailyStepsUpdate={onDailyStepsUpdate}
+                  onOpenHabitModal={handleOpenHabitModal}
+                  onOpenAreaEditModal={handleOpenAreaEditModal}
                 />
               )
             case 'focus-month':
@@ -1078,6 +1081,17 @@ export function PageContent(props: PageContentProps) {
             default:
               return null
           }
+        }
+        
+        // Mobile: Show only UpcomingView without sidebar and menu
+        if (mainPanelSection === 'focus-upcoming') {
+          return (
+            <div className="flex-1 flex bg-primary-50 overflow-hidden h-full">
+              <div className="flex-1 overflow-y-auto bg-primary-50 flex flex-col w-full" style={{ minHeight: 0 }}>
+                {renderMainContent()}
+              </div>
+            </div>
+          )
         }
         
         return (

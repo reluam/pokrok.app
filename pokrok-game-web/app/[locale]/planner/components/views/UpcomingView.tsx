@@ -5,7 +5,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { isHabitScheduledForDay } from '../utils/habitHelpers'
 import { isStepScheduledForDay } from '../utils/stepHelpers'
-import { Check, Plus, Footprints, Trash2, ChevronDown, Repeat, Star } from 'lucide-react'
+import { Check, Plus, Footprints, Trash2, ChevronDown, Repeat, Star, CheckSquare, LayoutDashboard } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
 import { StepsManagementView } from './StepsManagementView'
 import { UpcomingMilestonesView } from './UpcomingMilestonesView'
@@ -35,6 +35,8 @@ interface UpcomingViewProps {
   createNewStepTrigger?: number // Optional external trigger for creating new steps
   onNewStepCreatedForUpcoming?: () => void // Callback when a new step is created
   onDailyStepsUpdate?: (steps: any[]) => void // Callback to update parent's dailySteps
+  onOpenHabitModal?: (habit: any) => void // Callback to open habit modal
+  onOpenAreaEditModal?: (area?: any) => void // Callback to open area edit modal
 }
 
 export function UpcomingView({
@@ -61,7 +63,9 @@ export function UpcomingView({
   maxUpcomingSteps = 5, // Default max upcoming steps
   createNewStepTrigger: externalCreateNewStepTrigger, // Optional external trigger
   onNewStepCreatedForUpcoming, // Callback when a new step is created
-  onDailyStepsUpdate: onDailyStepsUpdateProp // Callback to update parent's dailySteps
+  onDailyStepsUpdate: onDailyStepsUpdateProp, // Callback to update parent's dailySteps
+  onOpenHabitModal, // Callback to open habit modal
+  onOpenAreaEditModal // Callback to open area edit modal
 }: UpcomingViewProps) {
   const t = useTranslations()
   const locale = useLocale()
@@ -73,6 +77,10 @@ export function UpcomingView({
   // State for StepsManagementView integration
   const [createNewStepTrigger, setCreateNewStepTrigger] = useState(0)
   const [localDailySteps, setLocalDailySteps] = useState<any[]>(dailySteps)
+  
+  // State for mobile plus button menu
+  const [showMobileCreateMenu, setShowMobileCreateMenu] = useState(false)
+  const mobileCreateMenuRef = useRef<HTMLDivElement>(null)
   
   // Sync localDailySteps with prop, removing duplicates and deleted steps
   // Also track deleted step IDs to prevent them from reappearing
@@ -860,9 +868,10 @@ export function UpcomingView({
           <h1 className="text-2xl font-bold text-black font-playful">
             {t('views.upcoming.title') || 'Nadcházející'}
           </h1>
+          {/* Desktop: Simple add step button */}
           <button
             onClick={() => setCreateNewStepTrigger(prev => prev + 1)}
-            className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
+            className="hidden md:flex btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 items-center gap-2"
             title={t('steps.addStep') || 'Přidat krok'}
           >
             <Plus className="w-4 h-4" />
@@ -885,9 +894,11 @@ export function UpcomingView({
           </div>
         )}
         
-        {/* Milestones Timeline - before habits */}
+        {/* Milestones Timeline - before habits - Hidden on mobile */}
         {!isLoadingSteps && userId && (
-          <UpcomingMilestonesView userId={userId} areas={areas} />
+          <div className="hidden md:block">
+            <UpcomingMilestonesView userId={userId} areas={areas} />
+          </div>
         )}
         
         {/* Today's Habits - only show if there are habits and not loading */}
@@ -1186,6 +1197,74 @@ export function UpcomingView({
           </div>
         </>
       )}
+      
+      {/* Mobile: Floating plus button - bottom right */}
+      <div className="md:hidden fixed bottom-6 right-6 z-50" ref={mobileCreateMenuRef}>
+        <button
+          onClick={() => setShowMobileCreateMenu(!showMobileCreateMenu)}
+          className="w-14 h-14 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ease-in-out active:scale-95"
+          title={t('common.add') || 'Vytvořit'}
+        >
+          <Plus className="w-6 h-6" strokeWidth={3} />
+        </button>
+        
+        {/* Mobile create menu dropdown */}
+        {showMobileCreateMenu && (
+          <>
+            <div 
+              className="fixed inset-0 z-40" 
+              onClick={() => setShowMobileCreateMenu(false)}
+            />
+            <div 
+              className="absolute bottom-full right-0 mb-2 z-50 bg-white border-2 border-primary-500 rounded-playful-md min-w-[180px] shadow-lg"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Steps button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setCreateNewStepTrigger(prev => prev + 1)
+                  setShowMobileCreateMenu(false)
+                }}
+                className="w-full text-left px-4 py-2.5 text-sm transition-colors font-medium flex items-center gap-2 border-b border-primary-200 first:rounded-t-playful-md hover:bg-primary-50 text-black"
+              >
+                <Footprints className="w-4 h-4" />
+                <span>{t('navigation.steps') || 'Krok'}</span>
+              </button>
+              
+              {/* Habits button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (onOpenHabitModal) {
+                    onOpenHabitModal(null)
+                  }
+                  setShowMobileCreateMenu(false)
+                }}
+                className="w-full text-left px-4 py-2.5 text-sm transition-colors font-medium flex items-center gap-2 border-b border-primary-200 hover:bg-primary-50 text-black"
+              >
+                <CheckSquare className="w-4 h-4" />
+                <span>{t('navigation.habits') || 'Návyk'}</span>
+              </button>
+              
+              {/* Area button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (onOpenAreaEditModal) {
+                    onOpenAreaEditModal()
+                  }
+                  setShowMobileCreateMenu(false)
+                }}
+                className="w-full text-left px-4 py-2.5 text-sm transition-colors font-medium flex items-center gap-2 last:rounded-b-playful-md last:border-b-0 hover:bg-primary-50 text-black"
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                <span>{t('areas.title') || 'Oblast'}</span>
+              </button>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   )
 }

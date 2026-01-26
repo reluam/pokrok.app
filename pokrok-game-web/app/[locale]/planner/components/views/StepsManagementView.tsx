@@ -1008,11 +1008,12 @@ export function StepsManagementView({
     const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     const today = getLocalDateString(new Date())
     
-    // Pre-fill area_id if areaFilter is set and not "none"
+    // Pre-fill area_id if areaFilter is set and not "none" (areaId is optional)
     let prefillAreaId: string | null = null
     if (effectiveAreaFilter && effectiveAreaFilter !== 'none' && effectiveAreaFilter !== null) {
       prefillAreaId = effectiveAreaFilter
     }
+    // Note: areaId is optional - if no areaFilter is set, prefillAreaId will be null
     
     // Pre-fill goal_id if goalFilter is set and not "none"
     let prefillGoalId: string | null = null
@@ -1073,6 +1074,7 @@ export function StepsManagementView({
       let finalAreaId = (stepData.areaId && stepData.areaId.trim() !== '') ? stepData.areaId : null
       
       // Goals removed - no goal selection
+      // AreaId is optional - can be null
       
       // Ensure date is always a string (YYYY-MM-DD)
       let dateValue: string | null = null
@@ -3111,11 +3113,13 @@ export function StepsManagementView({
               // Check if this is a new temporary step
               const isNewStep = editingStepData && editingStepData._isTemporary && newStepId === editingStepData.id
               
+              // Wait for onBlur to complete if title input was focused (for both new and existing steps)
+              // This ensures that if user clicked outside the input, onBlur runs first and saves the step
+              if (editingTitleId === editingStepData?.id) {
+                await new Promise(resolve => setTimeout(resolve, 300))
+              }
+              
               if (isNewStep) {
-                // Wait a bit for onBlur to complete if title input was focused
-                // This ensures that if user clicked outside the input, onBlur runs first and saves the step
-                await new Promise(resolve => setTimeout(resolve, 200))
-                
                 // Check again if step is being saved
                 if (isSavingNewStep) {
                   return

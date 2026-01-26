@@ -19,12 +19,13 @@ interface Milestone {
 interface MilestonesTimelineViewProps {
   areaId: string
   userId: string
+  area?: any // Area object with color and icon
   onMilestoneUpdate?: () => void
   onCreateMilestoneTrigger?: number
   onMilestoneCreated?: () => void
 }
 
-export function MilestonesTimelineView({ areaId, userId, onMilestoneUpdate, onCreateMilestoneTrigger, onMilestoneCreated }: MilestonesTimelineViewProps) {
+export function MilestonesTimelineView({ areaId, userId, area, onMilestoneUpdate, onCreateMilestoneTrigger, onMilestoneCreated }: MilestonesTimelineViewProps) {
   const t = useTranslations()
   const locale = useLocale()
   const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
@@ -401,7 +402,7 @@ export function MilestonesTimelineView({ areaId, userId, onMilestoneUpdate, onCr
                   <div className="absolute top-11 left-0 right-0 h-0.5 bg-primary-200 z-0"></div>
 
                   {sortedMilestones.map((milestone, index) => (
-                    <div key={milestone.id} className="relative flex flex-col items-center min-w-[200px]">
+                    <div key={milestone.id} className="relative flex flex-col items-center min-w-[200px] max-w-[200px]">
                       {/* Timeline dot with date */}
                       <div className="relative z-10">
                         {/* Date above dot - clickable */}
@@ -427,7 +428,23 @@ export function MilestonesTimelineView({ areaId, userId, onMilestoneUpdate, onCr
                       </div>
 
                       {/* Milestone card - positioned 20px below dot */}
-                      <div className="bg-white rounded-lg border-2 border-gray-200 p-4 hover:border-primary-300 transition-colors w-full shadow-sm mt-5">
+                      <div 
+                        className="rounded-lg border-2 p-4 transition-colors w-full shadow-sm mt-5 max-w-full"
+                        style={{ 
+                          backgroundColor: area?.color ? `${area.color}10` : '#E8871E10',
+                          borderColor: area?.color ? `${area.color}40` : '#E8871E40'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (area?.color) {
+                            e.currentTarget.style.borderColor = `${area.color}60`
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (area?.color) {
+                            e.currentTarget.style.borderColor = `${area.color}40`
+                          }
+                        }}
+                      >
                         <>
                             <div className="mb-2">
                               {/* Title - inline editable */}
@@ -455,7 +472,7 @@ export function MilestonesTimelineView({ areaId, userId, onMilestoneUpdate, onCr
                                       setEditingTitleId(null)
                                     }
                                   }}
-                                  className="w-full px-2 py-1 border-2 border-primary-500 rounded-lg focus:ring-2 focus:ring-primary-500 font-semibold text-sm"
+                                  className="w-full px-2 py-1 border-2 border-primary-500 rounded-lg focus:ring-2 focus:ring-primary-500 font-semibold text-sm break-words bg-white"
                                   autoFocus
                                 />
                               ) : (
@@ -464,7 +481,7 @@ export function MilestonesTimelineView({ areaId, userId, onMilestoneUpdate, onCr
                                     setEditingTitleId(milestone.id)
                                     setEditTitle(milestone.title)
                                   }}
-                                  className="font-semibold text-gray-900 text-sm mb-1 cursor-pointer hover:text-primary-600 transition-colors"
+                                  className="font-semibold text-gray-900 text-sm mb-1 cursor-pointer hover:opacity-80 transition-opacity break-words word-wrap"
                                 >
                                   {milestone.title}
                                 </h3>
@@ -488,7 +505,7 @@ export function MilestonesTimelineView({ areaId, userId, onMilestoneUpdate, onCr
                                       setEditingDescriptionId(null)
                                     }
                                   }}
-                                  className="w-full px-2 py-1 border-2 border-primary-500 rounded-lg focus:ring-2 focus:ring-primary-500 resize-none text-xs mt-1"
+                                  className="w-full px-2 py-1 border-2 border-primary-500 rounded-lg focus:ring-2 focus:ring-primary-500 resize-none text-xs mt-1 break-words bg-white"
                                   rows={2}
                                   autoFocus
                                 />
@@ -498,8 +515,8 @@ export function MilestonesTimelineView({ areaId, userId, onMilestoneUpdate, onCr
                                     setEditingDescriptionId(milestone.id)
                                     setEditDescription(milestone.description || '')
                                   }}
-                                  className={`text-xs text-gray-600 mb-2 cursor-pointer hover:text-primary-600 transition-colors ${
-                                    !milestone.description ? 'italic text-gray-400' : ''
+                                  className={`text-xs text-gray-700 mb-2 cursor-pointer hover:opacity-80 transition-opacity break-words word-wrap ${
+                                    !milestone.description ? 'italic text-gray-500' : ''
                                   }`}
                                 >
                                   {milestone.description || (t('common.clickToAddDescription') || 'Klikni pro přidání popisu')}
@@ -508,8 +525,8 @@ export function MilestonesTimelineView({ areaId, userId, onMilestoneUpdate, onCr
                             </div>
 
                             {/* Progress section */}
-                            <div className="mt-3 pt-3 border-t border-gray-200">
-                              <div className="text-xs text-gray-600 mb-3 font-medium">Jak daleko jsi?</div>
+                            <div className="mt-3 pt-3" style={{ borderTopColor: area?.color ? `${area.color}40` : '#E8871E40', borderTopWidth: '1px', borderTopStyle: 'solid' }}>
+                              <div className="text-xs text-gray-700 mb-3 font-medium">Jak daleko jsi?</div>
                               {/* 10 step icons for progress */}
                               <div className="flex items-center gap-1 mb-2">
                                 {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90].map((progressValue, index) => {

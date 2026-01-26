@@ -219,7 +219,7 @@ export function UpcomingMilestonesView({ userId, areas = [] }: UpcomingMilestone
                 const area = getArea(milestone.area_id)
                 
                 return (
-                  <div key={milestone.id} className="flex flex-col items-center relative z-20" style={{ minWidth: '200px' }}>
+                  <div key={milestone.id} className="flex flex-col items-center relative z-20" style={{ minWidth: '200px', maxWidth: '200px' }}>
                     {/* Date above dot - clickable */}
                     <button
                       onClick={(e) => {
@@ -243,13 +243,28 @@ export function UpcomingMilestonesView({ userId, areas = [] }: UpcomingMilestone
                     </div>
                     
                     {/* Milestone card - simplified (only title and description) */}
-                    <div className="bg-white rounded-lg border-2 border-gray-200 p-3 hover:border-primary-300 transition-colors w-full shadow-sm mt-5">
+                    <div 
+                      className="rounded-lg border-2 p-3 transition-colors w-full shadow-sm mt-5 max-w-full"
+                      style={{ 
+                        backgroundColor: area?.color ? `${area.color}10` : '#E8871E10',
+                        borderColor: area?.color ? `${area.color}40` : '#E8871E40'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (area?.color) {
+                          e.currentTarget.style.borderColor = `${area.color}60`
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (area?.color) {
+                          e.currentTarget.style.borderColor = `${area.color}40`
+                        }
+                      }}
+                    >
                       {/* Area with color and icon */}
                       {area && (
                         <div 
                           className="text-xs mb-1 font-medium flex items-center gap-1.5 px-2 py-0.5 rounded-playful-sm inline-block"
                           style={{ 
-                            backgroundColor: area.color ? `${area.color}20` : '#E8871E20',
                             color: area.color || '#E8871E'
                           }}
                         >
@@ -257,7 +272,7 @@ export function UpcomingMilestonesView({ userId, areas = [] }: UpcomingMilestone
                             const IconComponent = getIconComponent(area.icon)
                             return <IconComponent className="w-3 h-3" />
                           })()}
-                          <span>{area.name}</span>
+                          <span className="break-words">{area.name}</span>
                         </div>
                       )}
                       
@@ -286,7 +301,7 @@ export function UpcomingMilestonesView({ userId, areas = [] }: UpcomingMilestone
                               setEditingTitleId(null)
                             }
                           }}
-                          className="w-full px-2 py-1 border-2 border-primary-500 rounded-lg focus:ring-2 focus:ring-primary-500 font-semibold text-sm mb-1"
+                          className="w-full px-2 py-1 border-2 border-primary-500 rounded-lg focus:ring-2 focus:ring-primary-500 font-semibold text-sm mb-1 break-words bg-white"
                           autoFocus
                         />
                       ) : (
@@ -295,7 +310,7 @@ export function UpcomingMilestonesView({ userId, areas = [] }: UpcomingMilestone
                             setEditingTitleId(milestone.id)
                             setEditTitle(milestone.title)
                           }}
-                          className="font-semibold text-gray-900 text-sm mb-1 cursor-pointer hover:text-primary-600 transition-colors"
+                          className="font-semibold text-gray-900 text-sm mb-1 cursor-pointer hover:opacity-80 transition-opacity break-words word-wrap"
                         >
                           {milestone.title}
                         </h4>
@@ -319,7 +334,7 @@ export function UpcomingMilestonesView({ userId, areas = [] }: UpcomingMilestone
                               setEditingDescriptionId(null)
                             }
                           }}
-                          className="w-full px-2 py-1 border-2 border-primary-500 rounded-lg focus:ring-2 focus:ring-primary-500 resize-none text-xs"
+                          className="w-full px-2 py-1 border-2 border-primary-500 rounded-lg focus:ring-2 focus:ring-primary-500 resize-none text-xs break-words bg-white"
                           rows={2}
                           autoFocus
                         />
@@ -329,8 +344,8 @@ export function UpcomingMilestonesView({ userId, areas = [] }: UpcomingMilestone
                             setEditingDescriptionId(milestone.id)
                             setEditDescription(milestone.description || '')
                           }}
-                          className={`text-xs text-gray-600 cursor-pointer hover:text-primary-600 transition-colors ${
-                            !milestone.description ? 'italic text-gray-400' : ''
+                          className={`text-xs text-gray-700 cursor-pointer hover:opacity-80 transition-opacity break-words word-wrap ${
+                            !milestone.description ? 'italic text-gray-500' : ''
                           }`}
                         >
                           {milestone.description || (t('common.clickToAddDescription') || 'Klikni pro přidání popisu')}

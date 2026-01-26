@@ -56,61 +56,37 @@ export async function initializeOnboardingSteps(userId: string, locale: string =
     `
     console.log('✅ Area created successfully')
 
-    // Create goal "Naučit se s aplikací" in this area
-    const goalId = randomUUID()
-    const goalName = isEnglish ? 'Learn to use the app' : 'Naučit se s aplikací'
-    
-    console.log('🎯 Creating goal:', goalName, 'with ID:', goalId)
-    await sql`
-      INSERT INTO goals (
-        id, user_id, title, description, status, priority, category, goal_type, progress_percentage, icon, area_id
-      ) VALUES (
-        ${goalId},
-        ${userId},
-        ${goalName},
-        ${goalName},
-        'active',
-        'meaningful',
-        'medium-term',
-        'outcome',
-        0,
-        'HelpCircle',
-        ${areaId}
-      )
-    `
-    console.log('✅ Goal created successfully')
-
     // Get today's date
     const today = new Date().toISOString().split('T')[0]
 
-    // Create 7 onboarding steps with today's date
+    // Create 7 onboarding steps with today's date (no goal_id - steps are linked only to areas or have no area)
     const steps = [
       {
         title: isEnglish ? '1/7 Create area' : '1/7 Vytvořit oblast',
         description: isEnglish 
-          ? 'Click the "+ Add" button in the left navigation menu to create a new area. Areas help you organize your goals and steps into different life domains (e.g., Work, Health, Family).' 
-          : 'Klikněte na tlačítko "+ Přidat" v levém navigačním menu pro vytvoření nové oblasti. Oblasti vám pomáhají organizovat cíle a kroky do různých životních domén (např. Práce, Zdraví, Rodina).',
+          ? 'Click the "+ Add" button in the left navigation menu to create a new area. Areas help you organize your steps and habits into different life domains (e.g., Work, Health, Family).' 
+          : 'Klikněte na tlačítko "+ Přidat" v levém navigačním menu pro vytvoření nové oblasti. Oblasti vám pomáhají organizovat kroky a návyky do různých životních domén (např. Práce, Zdraví, Rodina).',
         date: today,
         estimated_time: 3,
-        goal_id: goalId
+        area_id: areaId
       },
       {
-        title: isEnglish ? '2/7 Create goal' : '2/7 Vytvořit cíl',
+        title: isEnglish ? '2/7 Create step' : '2/7 Vytvořit krok',
         description: isEnglish 
-          ? 'Click the "+ Add" button in the left navigation menu to create a new goal. Goals are larger objectives that you want to achieve, which you break down into smaller steps.' 
-          : 'Klikněte na tlačítko "+ Přidat" v levém navigačním menu pro vytvoření nového cíle. Cíle jsou větší cíle, které chcete dosáhnout, a které rozdělujete na menší kroky.',
+          ? 'Click the "+ Add" button in the left navigation menu to create a new step. Steps are concrete actions that help you move forward. You can assign them to an area or leave them without an area. You can schedule them for specific dates and track their completion.' 
+          : 'Klikněte na tlačítko "+ Přidat" v levém navigačním menu pro vytvoření nového kroku. Kroky jsou konkrétní akce, které vám pomáhají posouvat se vpřed. Můžete je přiřadit k oblasti nebo je ponechat bez oblasti. Můžete je naplánovat na konkrétní data a sledovat jejich dokončení.',
         date: today,
         estimated_time: 3,
-        goal_id: goalId
+        area_id: areaId
       },
       {
-        title: isEnglish ? '3/7 Create step' : '3/7 Vytvořit krok',
+        title: isEnglish ? '3/7 Create milestone' : '3/7 Vytvořit milník',
         description: isEnglish 
-          ? 'Click the "+ Add" button in the left navigation menu to create a new step. Steps are concrete actions that help you achieve your goals. You can schedule them for specific dates and track their completion.' 
-          : 'Klikněte na tlačítko "+ Přidat" v levém navigačním menu pro vytvoření nového kroku. Kroky jsou konkrétní akce, které vám pomáhají dosáhnout vašich cílů. Můžete je naplánovat na konkrétní data a sledovat jejich dokončení.',
+          ? 'In an area detail page, click "Add Milestone" to create a milestone. Milestones mark important points in your journey. They can have a title, description, date, and progress. You can complete milestones when you reach them.' 
+          : 'Na stránce s detailem oblasti klikněte na "Přidat milník" pro vytvoření milníku. Milníky označují důležité body na vaší cestě. Mohou mít název, popis, datum a pokrok. Milníky můžete dokončit, když je dosáhnete.',
         date: today,
         estimated_time: 3,
-        goal_id: goalId
+        area_id: areaId
       },
       {
         title: isEnglish ? '4/7 Create habit' : '4/7 Vytvořit návyk',
@@ -119,7 +95,7 @@ export async function initializeOnboardingSteps(userId: string, locale: string =
           : 'Klikněte na tlačítko "+ Přidat" v levém navigačním menu pro vytvoření nového návyku. Návyky jsou opakující se aktivity, které chcete dělat pravidelně (denně, týdně nebo v určité dny). Pomáhají vám budovat konzistenci v čase.',
         date: today,
         estimated_time: 3,
-        goal_id: goalId
+        area_id: areaId
       },
       {
         title: isEnglish 
@@ -130,29 +106,29 @@ export async function initializeOnboardingSteps(userId: string, locale: string =
           : 'Nadcházející zobrazuje vaše úkoly na dnes a do budoucna. Přehled poskytuje souhrn vašeho pokroku. Statistiky zobrazují detailní analýzu vašich aktivit.',
         date: today,
         estimated_time: 5,
-        goal_id: goalId
+        area_id: areaId
       },
       {
         title: isEnglish 
           ? '6/7 Explore the Areas view' 
           : '6/7 Prozkoumejte zobrazení Oblastí',
         description: isEnglish 
-          ? 'The Areas view groups your goals and steps by areas, helping you organize your work by different life domains.' 
-          : 'Zobrazení Oblastí seskupuje vaše cíle a kroky podle oblastí, což vám pomáhá organizovat práci podle různých životních domén.',
+          ? 'The Areas view groups your steps and milestones by areas, helping you organize your work by different life domains.' 
+          : 'Zobrazení Oblastí seskupuje vaše kroky a milníky podle oblastí, což vám pomáhá organizovat práci podle různých životních domén.',
         date: today,
         estimated_time: 5,
-        goal_id: goalId
+        area_id: areaId
       },
       {
         title: isEnglish 
           ? '7/7 Explore the Help section' 
           : '7/7 Prozkoumejte sekci Nápověda',
         description: isEnglish 
-          ? 'The Help section is in the left navigation menu. There you will find detailed information on how the application works.' 
-          : 'Sekce Nápověda je v levém navigačním menu. Tam najdete podrobné informace o tom, jak aplikace funguje.',
+          ? 'The Help section is in the left navigation menu. There you will find detailed information on how the application works, including information about milestones.' 
+          : 'Sekce Nápověda je v levém navigačním menu. Tam najdete podrobné informace o tom, jak aplikace funguje, včetně informací o milnících.',
         date: today,
         estimated_time: 5,
-        goal_id: goalId
+        area_id: areaId
       }
     ]
 
@@ -164,7 +140,7 @@ export async function initializeOnboardingSteps(userId: string, locale: string =
       console.log(`  Creating step ${i + 1}/${steps.length}:`, step.title)
       await sql`
         INSERT INTO daily_steps (
-          id, user_id, title, description, date, completed, area_id, goal_id, estimated_time, created_at, updated_at
+          id, user_id, title, description, date, completed, area_id, estimated_time, created_at, updated_at
         ) VALUES (
           ${stepId},
           ${userId},
@@ -172,8 +148,7 @@ export async function initializeOnboardingSteps(userId: string, locale: string =
           ${step.description},
           ${step.date}::date,
           false,
-          ${areaId},
-          ${step.goal_id},
+          ${step.area_id},
           ${step.estimated_time},
           NOW(),
           NOW()

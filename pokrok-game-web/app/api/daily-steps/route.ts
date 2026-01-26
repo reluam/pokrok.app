@@ -455,27 +455,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     
-    // ✅ SECURITY: Ověření vlastnictví areaId - areaId je nyní povinné
-    if (!areaId) {
-      return NextResponse.json({ 
-        error: 'areaId is required',
-        details: 'Steps must be assigned to an area'
-      }, { status: 400 })
-    }
-    
-    const areaOwned = await verifyEntityOwnership(areaId, 'areas', dbUser)
-    if (!areaOwned) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
-    
-    // Normalize areaId - empty string should be treated as null
+    // Normalize areaId - empty string should be treated as null (areaId is optional)
     const normalizedAreaId = areaId && areaId.trim() !== '' ? areaId : null
     
-    if (!normalizedAreaId) {
-      return NextResponse.json({ 
-        error: 'areaId is required',
-        details: 'Steps must be assigned to an area'
-      }, { status: 400 })
+    // ✅ SECURITY: Ověření vlastnictví areaId, pokud je poskytnut
+    if (normalizedAreaId) {
+      const areaOwned = await verifyEntityOwnership(normalizedAreaId, 'areas', dbUser)
+      if (!areaOwned) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
     }
     
     if (!title) {
@@ -1339,25 +1327,22 @@ export async function PUT(request: NextRequest) {
       if (title !== undefined) updates.title = title
       if (description !== undefined) updates.description = description
       
-      // Handle area_id - areaId is now required for steps
+      // Handle area_id - areaId is optional for steps
       if (areaId !== undefined) {
         const normalizedAreaId = (areaId !== undefined && areaId !== null && String(areaId).trim() !== '') 
           ? areaId 
           : null
         
         if (normalizedAreaId) {
-          // Verify area ownership
+          // Verify area ownership if areaId is provided
           const areaOwned = await verifyEntityOwnership(normalizedAreaId, 'areas', dbUser)
           if (!areaOwned) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
           }
           updates.area_id = normalizedAreaId
         } else {
-          // Empty areaId - reject (steps must have an area)
-          return NextResponse.json({ 
-            error: 'areaId is required',
-            details: 'Steps must be assigned to an area'
-          }, { status: 400 })
+          // Empty areaId - set to null (areaId is optional)
+          updates.area_id = null
         }
       }
       

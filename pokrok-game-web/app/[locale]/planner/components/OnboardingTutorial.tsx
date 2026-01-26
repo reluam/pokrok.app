@@ -29,35 +29,20 @@ const getMockAreas = (locale: string) => {
   ]
 }
 
-const getMockGoals = (locale: string) => {
-  if (locale === 'en') {
-    return [
-      { id: '1', title: 'Learn React', description: 'Master the basics of React framework', area_id: '2', status: 'active', progress_percentage: 45, icon: 'Code' },
-      { id: '2', title: 'Exercise regularly', description: 'Exercise 3x a week for 3 months', area_id: '1', status: 'active', progress_percentage: 67, icon: 'Dumbbell' },
-      { id: '3', title: 'Save $2,000', description: 'Gradually save for a new computer', area_id: '3', status: 'active', progress_percentage: 30, icon: 'PiggyBank' }
-    ]
-  }
-  return [
-    { id: '1', title: 'Naučit se React', description: 'Zvládnout základy React frameworku', area_id: '2', status: 'active', progress_percentage: 45, icon: 'Code' },
-    { id: '2', title: 'Pravidelně cvičit', description: 'Cvičit 3x týdně po dobu 3 měsíců', area_id: '1', status: 'active', progress_percentage: 67, icon: 'Dumbbell' },
-    { id: '3', title: 'Ušetřit 50 000 Kč', description: 'Postupně ušetřit na nový počítač', area_id: '3', status: 'active', progress_percentage: 30, icon: 'PiggyBank' }
-  ]
-}
-
 const getMockSteps = (locale: string) => {
   if (locale === 'en') {
     return [
-      { id: '1', title: 'Complete React tutorial', date: '2025-01-15', completed: true, estimated_time: 60, goal_id: '1' },
-      { id: '2', title: 'Create first component', date: '2025-01-16', completed: false, estimated_time: 45, goal_id: '1' },
-      { id: '3', title: 'Go to the gym', date: '2025-01-15', completed: true, estimated_time: 90, goal_id: '2' },
-      { id: '4', title: 'Set up automatic transfer', date: '2025-01-20', completed: false, estimated_time: 15, goal_id: '3' }
+      { id: '1', title: 'Complete React tutorial', date: '2025-01-15', completed: true, estimated_time: 60, area_id: '2' },
+      { id: '2', title: 'Create first component', date: '2025-01-16', completed: false, estimated_time: 45, area_id: '2' },
+      { id: '3', title: 'Go to the gym', date: '2025-01-15', completed: true, estimated_time: 90, area_id: '1' },
+      { id: '4', title: 'Set up automatic transfer', date: '2025-01-20', completed: false, estimated_time: 15, area_id: '3' }
     ]
   }
   return [
-    { id: '1', title: 'Projít React tutorial', date: '2025-01-15', completed: true, estimated_time: 60, goal_id: '1' },
-    { id: '2', title: 'Vytvořit první komponentu', date: '2025-01-16', completed: false, estimated_time: 45, goal_id: '1' },
-    { id: '3', title: 'Jít do posilovny', date: '2025-01-15', completed: true, estimated_time: 90, goal_id: '2' },
-    { id: '4', title: 'Nastavit automatický převod', date: '2025-01-20', completed: false, estimated_time: 15, goal_id: '3' }
+    { id: '1', title: 'Projít React tutorial', date: '2025-01-15', completed: true, estimated_time: 60, area_id: '2' },
+    { id: '2', title: 'Vytvořit první komponentu', date: '2025-01-16', completed: false, estimated_time: 45, area_id: '2' },
+    { id: '3', title: 'Jít do posilovny', date: '2025-01-15', completed: true, estimated_time: 90, area_id: '1' },
+    { id: '4', title: 'Nastavit automatický převod', date: '2025-01-20', completed: false, estimated_time: 15, area_id: '3' }
   ]
 }
 
@@ -89,7 +74,6 @@ export function OnboardingTutorial({
   
   // Get localized mock data
   const mockAreas = getMockAreas(locale)
-  const mockGoals = getMockGoals(locale)
   const mockSteps = getMockSteps(locale)
   const mockHabits = getMockHabits(locale)
 
@@ -139,8 +123,8 @@ export function OnboardingTutorial({
         <div className="space-y-4">
           <p className="text-gray-700 text-base leading-relaxed mb-4">
             {locale === 'cs'
-              ? 'Zaměřujeme se na smysluplnost, ne jen na produktivitu. Každý cíl, krok a návyk by měl mít svůj důvod a přispívat k životu, jaký chcete mít.'
-              : 'We focus on meaningfulness, not just productivity. Every goal, step, and habit should have its reason and contribute to the life you want to have.'}
+              ? 'Zaměřujeme se na smysluplnost, ne jen na produktivitu. Každý krok, milník a návyk by měl mít svůj důvod a přispívat k životu, jaký chcete mít.'
+              : 'We focus on meaningfulness, not just productivity. Every step, milestone, and habit should have its reason and contribute to the life you want to have.'}
           </p>
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-white rounded-lg border-2 border-orange-500 shadow-sm">
@@ -148,21 +132,21 @@ export function OnboardingTutorial({
                 <LayoutDashboard className="w-6 h-6 text-orange-600" />
               </div>
               <h4 className="font-bold text-sm mb-1 text-center">{locale === 'cs' ? 'Oblasti' : 'Areas'}</h4>
-              <p className="text-xs text-gray-600 text-center">{locale === 'cs' ? 'Organizujte své cíle, kroky a návyky do oblastí' : 'Organize your goals, steps, and habits into areas'}</p>
-            </div>
-            <div className="p-4 bg-white rounded-lg border-2 border-orange-500 shadow-sm">
-              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-3 mx-auto">
-                <Target className="w-6 h-6 text-orange-600" />
-              </div>
-              <h4 className="font-bold text-sm mb-1 text-center">{locale === 'cs' ? 'Cíle' : 'Goals'}</h4>
-              <p className="text-xs text-gray-600 text-center">{locale === 'cs' ? 'Dlouhodobé cíle, kterých chcete dosáhnout' : 'Long-term goals you want to achieve'}</p>
+              <p className="text-xs text-gray-600 text-center">{locale === 'cs' ? 'Organizujte své kroky, milníky a návyky do oblastí' : 'Organize your steps, milestones, and habits into areas'}</p>
             </div>
             <div className="p-4 bg-white rounded-lg border-2 border-orange-500 shadow-sm">
               <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-3 mx-auto">
                 <Footprints className="w-6 h-6 text-orange-600" />
               </div>
               <h4 className="font-bold text-sm mb-1 text-center">{locale === 'cs' ? 'Kroky' : 'Steps'}</h4>
-              <p className="text-xs text-gray-600 text-center">{locale === 'cs' ? 'Konkrétní akce vedoucí k vašim cílům' : 'Specific actions leading to your goals'}</p>
+              <p className="text-xs text-gray-600 text-center">{locale === 'cs' ? 'Konkrétní akce, které můžete přiřadit k oblasti nebo ponechat bez oblasti' : 'Concrete actions that you can assign to an area or leave without an area'}</p>
+            </div>
+            <div className="p-4 bg-white rounded-lg border-2 border-orange-500 shadow-sm">
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-3 mx-auto">
+                <Target className="w-6 h-6 text-orange-600" />
+              </div>
+              <h4 className="font-bold text-sm mb-1 text-center">{locale === 'cs' ? 'Milníky' : 'Milestones'}</h4>
+              <p className="text-xs text-gray-600 text-center">{locale === 'cs' ? 'Důležité body na vaší cestě v rámci oblasti' : 'Important points on your journey within an area'}</p>
             </div>
             <div className="p-4 bg-white rounded-lg border-2 border-orange-500 shadow-sm">
               <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-3 mx-auto">

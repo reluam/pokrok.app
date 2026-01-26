@@ -27,7 +27,7 @@ interface HelpViewProps {
   realSteps?: any[]
 }
 
-type HelpCategory = 'getting-started' | 'overview' | 'navigation' | 'areas' | 'goals' | 'steps' | 'habits'
+type HelpCategory = 'getting-started' | 'overview' | 'navigation' | 'areas' | 'milestones' | 'steps' | 'habits'
 
 // Compact Step Component
 function Step({ number, text }: { number: number; text: string }) {
@@ -198,7 +198,7 @@ export function HelpView({
     { id: 'overview' as HelpCategory, label: t('categories.views'), icon: Eye },
     { id: 'navigation' as HelpCategory, label: t('categories.navigation'), icon: Navigation },
     { id: 'areas' as HelpCategory, label: t('categories.areas'), icon: LayoutDashboard },
-    { id: 'goals' as HelpCategory, label: t('categories.goals'), icon: Target },
+    { id: 'milestones' as HelpCategory, label: t('categories.milestones'), icon: Target },
     { id: 'steps' as HelpCategory, label: t('categories.steps'), icon: Footprints },
     { id: 'habits' as HelpCategory, label: t('categories.habits'), icon: CheckSquare },
   ]
@@ -269,7 +269,7 @@ export function HelpView({
                 </h2>
               </div>
               <p className="text-gray-600 font-playful text-base leading-relaxed font-playful">
-                {tHomepage('hero.description') || 'Pokrok vám pomůže získat jasnost a smysluplnost v tom, jak dosáhnout toho, co v životě chcete. Rozdělte velké cíle na malé kroky, budujte návyky a sledujte svůj pokrok.'}
+                {tHomepage('hero.description') || 'Pokrok vám pomůže získat jasnost a smysluplnost v tom, jak dosáhnout toho, co v životě chcete. Organizujte své kroky a návyky do oblastí, vytvářejte milníky a sledujte svůj pokrok.'}
               </p>
             </div>
 
@@ -282,7 +282,7 @@ export function HelpView({
                 </h3>
               </div>
               <p className="text-gray-600 font-playful mb-6 text-sm font-playful">
-                {tHomepage('features.clarity.description') || 'Začněte s praktickými kroky. Vytvořte si oblasti, přidejte cíle, rozdělte je na kroky a budujte návyky. Pokrok vám ukáže, na co se soustředit dnes.'}
+                {tHomepage('features.clarity.description') || 'Začněte s praktickými kroky. Vytvořte si oblasti, přidejte kroky a návyky, vytvářejte milníky. Pokrok vám ukáže, na co se soustředit dnes.'}
               </p>
             </div>
 
@@ -324,9 +324,9 @@ export function HelpView({
                         </button>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600 font-playful mb-3 font-playful">{locale === 'cs' ? 'Zdravotní cíle a návyky' : 'Health goals and habits'}</p>
+                    <p className="text-sm text-gray-600 font-playful mb-3 font-playful">{locale === 'cs' ? 'Zdravotní milníky a návyky' : 'Health milestones and habits'}</p>
                     <div className="flex items-center gap-4 text-sm text-gray-600 font-playful font-playful">
-                      <span>2 {tCommon('goals.title') || 'GOALS'}</span>
+                      <span>2 {locale === 'cs' ? 'MILNÍKY' : 'MILESTONES'}</span>
                       <span>5 {locale === 'cs' ? 'KROKY' : 'STEPS'}</span>
                       <span>3 {tCommon('habits.title') || 'HABITS'}</span>
                     </div>
@@ -354,7 +354,7 @@ export function HelpView({
                       </div>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span>3 {tCommon('goals.title') || 'GOALS'}</span>
+                      <span>3 {locale === 'cs' ? 'MILNÍKY' : 'MILESTONES'}</span>
                       <span>8 {locale === 'cs' ? 'KROKY' : 'STEPS'}</span>
                       <span>1 {tCommon('habits.title') || 'HABITS'}</span>
                     </div>
@@ -383,7 +383,7 @@ export function HelpView({
                     </div>
                     <p className="text-sm text-gray-600 font-playful mb-3">{locale === 'cs' ? 'Vztahy s rodinou a přáteli' : 'Family and friends'}</p>
                     <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span>1 {tCommon('goals.title') || 'GOALS'}</span>
+                      <span>1 {locale === 'cs' ? 'MILNÍKY' : 'MILESTONES'}</span>
                       <span>2 {locale === 'cs' ? 'KROKY' : 'STEPS'}</span>
                       <span>2 {tCommon('habits.title') || 'HABITS'}</span>
                     </div>
@@ -411,7 +411,7 @@ export function HelpView({
                       </div>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span>2 {tCommon('goals.title') || 'GOALS'}</span>
+                      <span>2 {locale === 'cs' ? 'MILNÍKY' : 'MILESTONES'}</span>
                       <span>4 {locale === 'cs' ? 'KROKY' : 'STEPS'}</span>
                       <span>0 {tCommon('habits.title') || 'HABITS'}</span>
                     </div>
@@ -432,68 +432,6 @@ export function HelpView({
                 </div>
               </div>
 
-              {/* Step 1 - Goals */}
-              <div className="box-playful-highlight p-6">
-                <div className="mb-4">
-                  <h4 className="font-semibold text-black font-playful flex items-center gap-2 mb-4">
-                    <Target className="w-5 h-5 text-primary-600" /> {t('gettingStarted.step1.title')}
-                  </h4>
-                  <div className="text-sm text-gray-600 font-playful leading-relaxed space-y-2 font-playful">
-                    {t.rich('gettingStarted.step1.subtitle', {
-                      strong: (chunks) => <strong className="text-black font-semibold">{chunks}</strong>
-                    })}
-                  </div>
-              </div>
-
-                {/* Example Goal Card */}
-                <div className="box-playful-highlight mb-4 overflow-hidden">
-                  <div className="p-5 border-b-2 border-primary-500">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="flex-shrink-0">
-                          <Target className="w-6 h-6 text-primary-600" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-black font-playful">
-                          {t('gettingStarted.step1.example')}
-                        </h3>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-600 font-playful mb-3 font-playful">
-                      {t('gettingStarted.step1.exampleDesc')}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-playful-sm text-xs font-medium font-playful bg-primary-100 text-primary-600 border-2 border-primary-500">
-                        <Target className="w-3.5 h-3.5" />
-                        {tCommon('goals.status.active')}
-                      </span>
-                      <span className="text-xs text-gray-600 font-playful font-playful">{t('gettingStarted.step1.exampleDeadline')}</span>
-                    </div>
-                  </div>
-                  <div className="px-5 py-3 bg-white">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-gray-600 font-playful font-playful">{t('gettingStarted.step1.exampleProgress')}</span>
-                      <span className="text-xs font-medium text-primary-600 font-playful">{t('gettingStarted.step1.exampleStepsCount')}</span>
-                    </div>
-                    <div className="w-full h-2 bg-white border-2 border-primary-500 rounded-playful-sm overflow-hidden">
-                      <div className="h-full bg-primary-500 rounded-playful-sm" style={{ width: '40%' }} />
-                    </div>
-                  </div>
-              </div>
-
-                <div className="flex gap-2">
-                  {onAddGoal && (
-                    <button onClick={onAddGoal} className="btn-playful-base flex-1 flex items-center justify-center gap-1 px-3 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium">
-                      <Plus className="w-4 h-4" /> {t('gettingStarted.step1.button')}
-                    </button>
-                  )}
-                  {onNavigateToGoals && (
-                    <button onClick={onNavigateToGoals} className="btn-playful-base px-3 py-2 text-primary-600 bg-white hover:bg-primary-50 text-sm">
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  )}
-              </div>
-            </div>
-
               {/* Step 2 - Steps */}
               <div className="box-playful-highlight p-6">
                 <div className="mb-4">
@@ -504,8 +442,8 @@ export function HelpView({
                     {t.rich('gettingStarted.step2.subtitle', {
                       strong: (chunks) => <strong className="text-black font-semibold">{chunks}</strong>
                     })}
-              </div>
-            </div>
+                  </div>
+                </div>
 
                 {/* Example Step Cards */}
                 <div className="space-y-2 mb-4">
@@ -697,8 +635,8 @@ export function HelpView({
                 </div>
                 <p className="text-xs text-gray-600">
                   {locale === 'cs' 
-                    ? 'Feed: kroky seřazené podle data. Oblasti: kroky skupované podle oblastí a cílů.'
-                    : 'Feed: steps sorted by date. Areas: steps grouped by areas and goals.'}
+                    ? 'Feed: kroky seřazené podle data. Oblasti: kroky skupované podle oblastí.'
+                    : 'Feed: steps sorted by date. Areas: steps grouped by areas.'}
                 </p>
               </div>
 
@@ -793,8 +731,8 @@ export function HelpView({
               </h3>
               <p className="text-sm text-gray-600 mb-4">
                 {locale === 'cs' 
-                  ? 'Roční přehled pokroku v jednotlivých cílech. Zobrazuje časovou osu s progress bary pro všechny cíle.'
-                  : 'Yearly overview of progress in individual goals. Displays a timeline with progress bars for all goals.'}
+                  ? 'Roční přehled pokroku. Zobrazuje časovou osu s aktivitami.'
+                  : 'Yearly overview of progress. Displays a timeline with activities.'}
               </p>
               
               {/* Statistics Example */}
@@ -827,8 +765,8 @@ export function HelpView({
                 </div>
                 <p className="text-xs text-gray-600 mt-3">
                   {locale === 'cs' 
-                    ? 'Zobrazuje pokrok v jednotlivých cílech s vizualizací dokončených kroků.'
-                    : 'Shows progress in individual goals with visualization of completed steps.'}
+                  ? 'Zobrazuje pokrok s vizualizací dokončených kroků.'
+                  : 'Shows progress with visualization of completed steps.'}
                 </p>
                     </div>
               </div>
@@ -841,8 +779,8 @@ export function HelpView({
               </h3>
               <p className="text-sm text-gray-600 mb-4">
                 {locale === 'cs' 
-                  ? 'Zobrazuje všechny kroky a cíle, které jsou přiřazené k dané oblasti.'
-                  : 'Displays all steps and goals that are assigned to a given area.'}
+                  ? 'Zobrazuje všechny kroky, milníky a návyky, které jsou přiřazené k dané oblasti.'
+                  : 'Displays all steps, milestones, and habits that are assigned to a given area.'}
               </p>
               
               {/* Areas Example */}
@@ -867,8 +805,8 @@ export function HelpView({
               </div>
                 <p className="text-xs text-gray-600 mt-3">
                   {locale === 'cs' 
-                    ? 'Každá oblast má vlastní sekci s cíli a jejich kroky. Kliknutím na oblast v levém menu zobrazíte její obsah.'
-                    : 'Each area has its own section with goals and their steps. Click on an area in the left menu to view its content.'}
+                    ? 'Každá oblast má vlastní sekci s milníky a kroky. Kliknutím na oblast v levém menu zobrazíte její obsah.'
+                    : 'Each area has its own section with milestones and steps. Click on an area in the left menu to view its content.'}
                 </p>
               </div>
             </div>
@@ -916,8 +854,8 @@ export function HelpView({
                   <div className="flex items-center gap-3 mb-2">
                     <Target className="w-5 h-5 text-primary-600" />
                     <div>
-                      <h4 className="font-semibold text-black">{locale === 'cs' ? 'Cíle' : 'Goals'}</h4>
-                      <p className="text-xs text-gray-600">{locale === 'cs' ? 'Správa a přehled všech vašich cílů' : 'Manage and overview all your goals'}</p>
+                      <h4 className="font-semibold text-black">{locale === 'cs' ? 'Milníky' : 'Milestones'}</h4>
+                      <p className="text-xs text-gray-600">{locale === 'cs' ? 'Důležité body na vaší cestě v rámci oblastí' : 'Important points on your journey within areas'}</p>
                     </div>
                         </div>
                       </div>
@@ -1000,7 +938,7 @@ export function HelpView({
                     <BarChart3 className="w-5 h-5 text-primary-600" />
                     <div>
                       <h5 className="font-semibold text-black text-sm">{locale === 'cs' ? 'Statistics (Statistiky)' : 'Statistics'}</h5>
-                      <p className="text-xs text-gray-600">{locale === 'cs' ? 'Roční přehled pokroku v cílech' : 'Yearly overview of goal progress'}</p>
+                      <p className="text-xs text-gray-600">{locale === 'cs' ? 'Roční přehled pokroku' : 'Yearly overview of progress'}</p>
                     </div>
                   </div>
                   
@@ -1016,11 +954,11 @@ export function HelpView({
               
               {/* Areas and Goals in Navigation */}
               <div className="mb-4">
-                <h4 className="font-semibold text-black mb-3">{locale === 'cs' ? 'Oblasti a cíle:' : 'Areas and Goals:'}</h4>
+                <h4 className="font-semibold text-black mb-3">{locale === 'cs' ? 'Oblasti:' : 'Areas:'}</h4>
                 <p className="text-sm text-gray-600 mb-3">
                   {locale === 'cs' 
-                    ? 'Pod hlavními zobrazeními najdete seznam oblastí. Kliknutím na oblast se rozbalí a uvidíte cíle v této oblasti. Kliknutím na cíl se otevře detail cíle.'
-                    : 'Below the main views, you\'ll find a list of areas. Click on an area to expand it and see goals in that area. Click on a goal to open the goal detail.'}
+                    ? 'Pod hlavními zobrazeními najdete seznam oblastí. Kliknutím na oblast se otevře detail oblasti s milníky a kroky.'
+                    : 'Below the main views, you\'ll find a list of areas. Click on an area to open the area detail with milestones and steps.'}
                 </p>
                 <div className="p-4 bg-white border-2 border-primary-300 rounded-playful-md">
                   <div className="space-y-2">
@@ -1047,8 +985,8 @@ export function HelpView({
                 <h4 className="font-semibold text-black mb-3">{locale === 'cs' ? 'Tlačítko Přidat:' : 'Add Button:'}</h4>
                 <p className="text-sm text-gray-600 mb-3">
                   {locale === 'cs' 
-                    ? 'V dolní části levého menu je tlačítko s ikonou plus. Kliknutím na něj můžete přidat novou oblast, cíl, krok nebo návyk.'
-                    : 'At the bottom of the left menu is a button with a plus icon. Clicking it allows you to add a new area, goal, step, or habit.'}
+                    ? 'V dolní části levého menu je tlačítko s ikonou plus. Kliknutím na něj můžete přidat novou oblast, krok nebo návyk.'
+                    : 'At the bottom of the left menu is a button with a plus icon. Clicking it allows you to add a new area, step, or habit.'}
                 </p>
                 <div className="p-4 bg-white border-2 border-primary-300 rounded-playful-md flex items-center justify-center">
                   <button className="w-10 h-10 bg-primary-500 rounded-playful-md flex items-center justify-center">
@@ -1062,8 +1000,8 @@ export function HelpView({
                 <p className="text-xs text-gray-700">
                   <span className="font-semibold">{locale === 'cs' ? 'Tip: ' : 'Tip: '}</span>
                   {locale === 'cs' 
-                    ? 'Na jiných stránkách (Cíle, Návyky, Kroky) slouží levé menu jako kategorie a filtry pro zobrazení obsahu.'
-                    : 'On other pages (Goals, Habits, Steps), the left menu serves as categories and filters for displaying content.'}
+                    ? 'Na jiných stránkách (Návyky, Kroky) slouží levé menu jako kategorie a filtry pro zobrazení obsahu.'
+                    : 'On other pages (Habits, Steps), the left menu serves as categories and filters for displaying content.'}
                 </p>
               </div>
             </div>
@@ -1075,7 +1013,7 @@ export function HelpView({
           <div className="space-y-6">
             <div className="box-playful-highlight-primary p-6">
               <h2 className="text-2xl font-bold text-black font-playful mb-2">{t('areasHelp.title') || (locale === 'cs' ? 'Oblasti' : 'Areas')}</h2>
-              <p className="text-gray-600 font-playful">{t('areasHelp.subtitle') || (locale === 'cs' ? 'Organizujte své cíle, kroky a návyky do logických skupin' : 'Organize your goals, steps, and habits into logical groups')}</p>
+              <p className="text-gray-600 font-playful">{t('areasHelp.subtitle') || (locale === 'cs' ? 'Organizujte své kroky, milníky a návyky do logických skupin' : 'Organize your steps, milestones, and habits into logical groups')}</p>
             </div>
 
             {/* What are areas */}
@@ -1086,8 +1024,8 @@ export function HelpView({
               </h3>
               <p className="text-sm text-gray-600 mb-4">
                 {locale === 'cs' 
-                  ? 'Oblasti jsou způsob, jak organizovat své cíle, kroky a návyky do logických skupin. Ideálně by měly představovat větší životní oblasti nebo projekty.'
-                  : 'Areas are a way to organize your goals, steps, and habits into logical groups. Ideally, they should represent larger life areas or projects.'}
+                  ? 'Oblasti jsou způsob, jak organizovat své kroky, milníky a návyky do logických skupin. Ideálně by měly představovat větší životní oblasti nebo projekty.'
+                  : 'Areas are a way to organize your steps, milestones, and habits into logical groups. Ideally, they should represent larger life areas or projects.'}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 bg-white rounded-playful-md border-2 border-primary-300">
@@ -1100,9 +1038,9 @@ export function HelpView({
                     </span>
                     <h4 className="font-semibold text-black">{locale === 'cs' ? 'Zdraví' : 'Health'}</h4>
                   </div>
-                  <p className="text-xs text-gray-600 mb-2">{locale === 'cs' ? 'Zdravotní cíle a návyky' : 'Health goals and habits'}</p>
+                  <p className="text-xs text-gray-600 mb-2">{locale === 'cs' ? 'Zdravotní milníky a návyky' : 'Health milestones and habits'}</p>
                   <div className="flex items-center gap-4 text-xs text-gray-500">
-                    <span>2 {locale === 'cs' ? 'Cíle' : 'Goals'}</span>
+                    <span>2 {locale === 'cs' ? 'Milníky' : 'Milestones'}</span>
                     <span>5 {locale === 'cs' ? 'Kroky' : 'Steps'}</span>
                     <span>3 {locale === 'cs' ? 'Návyky' : 'Habits'}</span>
                   </div>
@@ -1117,9 +1055,9 @@ export function HelpView({
                     </span>
                     <h4 className="font-semibold text-black">{locale === 'cs' ? 'Kariéra' : 'Career'}</h4>
                   </div>
-                  <p className="text-xs text-gray-600 mb-2">{locale === 'cs' ? 'Profesní cíle a kroky' : 'Professional goals and steps'}</p>
+                  <p className="text-xs text-gray-600 mb-2">{locale === 'cs' ? 'Profesní milníky a kroky' : 'Professional milestones and steps'}</p>
                   <div className="flex items-center gap-4 text-xs text-gray-500">
-                    <span>3 {locale === 'cs' ? 'Cíle' : 'Goals'}</span>
+                    <span>3 {locale === 'cs' ? 'Milníky' : 'Milestones'}</span>
                     <span>8 {locale === 'cs' ? 'Kroky' : 'Steps'}</span>
                     <span>1 {locale === 'cs' ? 'Návyk' : 'Habit'}</span>
                   </div>
@@ -1156,8 +1094,8 @@ export function HelpView({
                   <h4 className="font-semibold text-black mb-2">{locale === 'cs' ? 'Přiřazení k oblasti' : 'Assigning to an area'}</h4>
                   <p className="text-sm text-gray-600 mb-3">
                     {locale === 'cs' 
-                      ? 'Při vytváření nebo úpravě cíle, kroku nebo návyku můžete vybrat oblast, ke které patří. Tím se automaticky přiřadí k této oblasti.'
-                      : 'When creating or editing a goal, step, or habit, you can select the area it belongs to. This automatically assigns it to that area.'}
+                      ? 'Při vytváření nebo úpravě kroku nebo návyku můžete vybrat oblast, ke které patří. Kroky a návyky mohou být také bez oblasti. Milníky jsou vždy vázané na oblast.'
+                      : 'When creating or editing a step or habit, you can select the area it belongs to. Steps and habits can also be without an area. Milestones are always linked to an area.'}
                   </p>
                     </div>
                 
@@ -1165,8 +1103,8 @@ export function HelpView({
                   <h4 className="font-semibold text-black mb-2">{locale === 'cs' ? 'Zobrazení podle oblastí' : 'Viewing by areas'}</h4>
                   <p className="text-sm text-gray-600 mb-3">
                     {locale === 'cs' 
-                      ? 'V levém navigačním menu můžete kliknout na oblast a zobrazit všechny cíle, kroky a návyky v této oblasti. V Upcoming view můžete přepnout na zobrazení "Oblasti" místo "Feed".'
-                      : 'In the left navigation menu, you can click on an area to view all goals, steps, and habits in that area. In Upcoming view, you can switch to "Areas" view instead of "Feed".'}
+                      ? 'V levém navigačním menu můžete kliknout na oblast a zobrazit všechny milníky, kroky a návyky v této oblasti.'
+                      : 'In the left navigation menu, you can click on an area to view all milestones, steps, and habits in that area.'}
                   </p>
                   </div>
                 
@@ -1174,8 +1112,8 @@ export function HelpView({
                   <h4 className="font-semibold text-black mb-2">{locale === 'cs' ? 'Úprava a mazání oblastí' : 'Editing and deleting areas'}</h4>
                   <p className="text-sm text-gray-600 mb-3">
                     {locale === 'cs' 
-                      ? 'Oblasti můžete upravit nebo smazat v Nastavení → Životní oblasti. Při mazání oblasti se cíle, kroky a návyky v této oblasti nezmazou, pouze se odebere přiřazení k oblasti.'
-                      : 'You can edit or delete areas in Settings → Life Areas. When deleting an area, goals, steps, and habits in that area are not deleted, only the area assignment is removed.'}
+                      ? 'Oblasti můžete upravit nebo smazat v Nastavení → Životní oblasti. Při mazání oblasti se kroky a návyky v této oblasti nezmazou, pouze se odebere přiřazení k oblasti. Milníky se také nezmazou, ale zůstanou vázané na smazanou oblast.'
+                      : 'You can edit or delete areas in Settings → Life Areas. When deleting an area, steps and habits in that area are not deleted, only the area assignment is removed. Milestones are also not deleted but remain linked to the deleted area.'}
                   </p>
                 </div>
               </div>
@@ -1188,216 +1126,95 @@ export function HelpView({
               </h3>
               <ul className="space-y-2">
                 <Tip text={locale === 'cs' ? 'Vytvářejte oblasti pro větší životní oblasti (Zdraví, Kariéra, Vztahy) nebo pro větší projekty' : 'Create areas for larger life areas (Health, Career, Relationships) or for larger projects'} />
-                <Tip text={locale === 'cs' ? 'Není nutné přiřazovat vše k oblasti - cíle, kroky a návyky mohou existovat i bez oblasti' : 'You don\'t have to assign everything to an area - goals, steps, and habits can exist without an area'} />
+                <Tip text={locale === 'cs' ? 'Není nutné přiřazovat vše k oblasti - kroky a návyky mohou existovat i bez oblasti. Milníky jsou vždy vázané na oblast.' : 'You don\'t have to assign everything to an area - steps and habits can exist without an area. Milestones are always linked to an area.'} />
                 <Tip text={locale === 'cs' ? 'Používejte barvy a ikony pro lepší vizuální rozlišení oblastí' : 'Use colors and icons for better visual distinction of areas'} />
-                <Tip text={locale === 'cs' ? 'Oblasti pomáhají s filtrováním a organizací, zejména když máte mnoho cílů a kroků' : 'Areas help with filtering and organization, especially when you have many goals and steps'} />
+                <Tip text={locale === 'cs' ? 'Oblasti pomáhají s filtrováním a organizací, zejména když máte mnoho kroků a milníků' : 'Areas help with filtering and organization, especially when you have many steps and milestones'} />
               </ul>
             </div>
           </div>
         )
 
-      case 'goals':
+      case 'milestones':
         return (
           <div className="space-y-6">
             <div className="box-playful-highlight-primary p-6 flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-black font-playful flex items-center gap-2">
-                  <Target className="w-7 h-7" /> {t('goalsHelp.title')}
+                  <Target className="w-7 h-7" /> {locale === 'cs' ? 'Milníky' : 'Milestones'}
                 </h2>
-                <p className="text-gray-600 font-playful font-playful text-sm mt-1">{t('goalsHelp.subtitle')}</p>
-              </div>
-                {onAddGoal && (
-                <button onClick={onAddGoal} className="flex items-center gap-1 px-4 py-2 bg-white text-primary-600 font-playful font-medium rounded-lg hover:bg-primary-50">
-                  <Plus className="w-4 h-4" /> {t('goalsHelp.add')}
-                  </button>
-                )}
-              </div>
-
-            {/* What are goals */}
-            <div className="box-playful-highlight p-4">
-              <h4 className="font-semibold text-black font-playful mb-2">{t('goalsHelp.whatAreGoals')}</h4>
-              <p className="text-sm text-gray-600 font-playful mb-3">{t('goalsHelp.whatAreGoalsDesc')}</p>
-              <div className="flex flex-wrap gap-2">
-                <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
-                  <Target className="w-3 h-3" /> {t('goalsHelp.measurable')}
-                </span>
-                <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
-                  <Calendar className="w-3 h-3" /> {t('goalsHelp.withDeadline')}
-                </span>
-                <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
-                  <Star className="w-3 h-3" /> {t('goalsHelp.inFocus')}
-                </span>
-              </div>
-              </div>
-
-            {/* Example Goal Card */}
-            <div className="box-playful-highlight p-4">
-              <h4 className="font-semibold text-black font-playful mb-3 flex items-center gap-2">
-                <Eye className="w-4 h-4 text-primary-600" /> {t('goalsHelp.exampleTitle')}
-              </h4>
-              <div className="box-playful-highlight p-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Target className="w-5 h-5 text-primary-600 font-playful" />
-              </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h5 className="font-semibold text-black font-playful">{t('goalsHelp.exampleName')}</h5>
-                      <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{t('goalsHelp.active')}</span>
-              </div>
-                    <p className="text-sm text-gray-500 mt-1">{t('goalsHelp.exampleDesc')}</p>
-                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" /> {t('goalsHelp.exampleDeadline')}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Footprints className="w-3 h-3" /> {t('goalsHelp.exampleSteps')}
-                      </span>
-                </div>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-3 text-xs text-gray-500 space-y-1">
-                <p><strong className="text-green-600">{t('goalsHelp.active')}</strong> = {t('goalsHelp.activeExplanation').split(' = ')[1]}</p>
-                <p><strong className="text-gray-600 font-playful">{t('goalsHelp.tableDeadline')}</strong> = {t('goalsHelp.deadlineExplanation').split(' = ')[1]}</p>
+                <p className="text-gray-600 font-playful font-playful text-sm mt-1">
+                  {locale === 'cs' 
+                    ? 'Důležité body na vaší cestě v rámci oblasti'
+                    : 'Important points on your journey within an area'}
+                </p>
               </div>
             </div>
 
-            {/* Goals Cards Example */}
+            {/* What are milestones */}
             <div className="box-playful-highlight p-4">
-              <h4 className="font-semibold text-black font-playful mb-3 flex items-center gap-2">
-                <Eye className="w-4 h-4 text-primary-600" /> {t('goalsHelp.cardsTitle')}
+              <h4 className="font-semibold text-black font-playful mb-2">
+                {locale === 'cs' ? 'Co jsou milníky?' : 'What are milestones?'}
               </h4>
-              <div className="space-y-3">
-                {/* Filter checkboxes example */}
-                <div className="flex gap-3 pb-2 border-b border-gray-100">
-                  <label className="flex items-center gap-1.5 text-sm cursor-pointer">
-                    <input type="checkbox" checked className="w-4 h-4 text-primary-600 font-playful border-gray-300 rounded" readOnly />
-                    <span className="text-gray-600 font-playful font-playful">{t('goalsHelp.active')}</span>
-                  </label>
-                  <label className="flex items-center gap-1.5 text-sm cursor-pointer">
-                    <input type="checkbox" className="w-4 h-4 text-primary-600 font-playful border-gray-300 rounded" readOnly />
-                    <span className="text-gray-500">{t('goalsHelp.postponed')}</span>
-                  </label>
-                  <label className="flex items-center gap-1.5 text-sm cursor-pointer">
-                    <input type="checkbox" className="w-4 h-4 text-primary-600 font-playful border-gray-300 rounded" readOnly />
-                    <span className="text-gray-500">{t('goalsHelp.completed')}</span>
-                  </label>
-                </div>
-                
-                {/* Goal cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {/* Active goal card */}
-                  <div className="bg-white border border-primary-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Target className="w-5 h-5 text-primary-600 font-playful" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <h5 className="font-semibold text-black font-playful">{t('goalsHelp.tableExample1')}</h5>
-                          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{t('goalsHelp.active')}</span>
-                        </div>
-                        <p className="text-xs text-gray-500 mb-2">Chci vytvořit vlastní webovou aplikaci</p>
-                        <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
-                          <span>15.3.2025</span>
-                          <span>3 kroky</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-1.5">
-                          <div className="bg-primary-600 h-1.5 rounded-full" style={{ width: '33%' }}></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Active goal card 2 */}
-                  <div className="bg-white border border-primary-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Target className="w-5 h-5 text-primary-600 font-playful" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <h5 className="font-semibold text-black font-playful">{t('goalsHelp.tableExample2')}</h5>
-                          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{t('goalsHelp.active')}</span>
-                        </div>
-                        <p className="text-xs text-gray-500 mb-2">Pravidelné cvičení pro zdraví</p>
-                        <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
-                          <span>—</span>
-                          <span>5 kroků</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-1.5">
-                          <div className="bg-primary-600 h-1.5 rounded-full" style={{ width: '60%' }}></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Paused goal card */}
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 opacity-60 cursor-pointer">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Target className="w-5 h-5 text-gray-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <h5 className="font-semibold text-gray-500">{t('goalsHelp.tableExample3')}</h5>
-                          <span className="text-xs bg-gray-100 text-gray-600 font-playful px-2 py-0.5 rounded-full">{t('goalsHelp.postponed')}</span>
-                        </div>
-                        <p className="text-xs text-gray-400 mb-2">Přečíst 12 knih tento rok</p>
-                        <div className="flex items-center justify-between text-xs text-gray-300 mb-2">
-                          <span>31.12.2025</span>
-                          <span>0 kroků</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-1.5">
-                          <div className="bg-gray-400 h-1.5 rounded-full" style={{ width: '0%' }}></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-3 text-xs text-gray-500 space-y-1">
-                <p>{t('goalsHelp.cardsClickHint')}</p>
-                <p>{t('goalsHelp.cardsFiltersHint')}</p>
-                <p>{t('goalsHelp.cardsStatusHint')}</p>
+              <p className="text-sm text-gray-600 font-playful mb-3">
+                {locale === 'cs'
+                  ? 'Milníky jsou důležité body na vaší cestě v rámci oblasti. Označují významné úspěchy nebo události, které chcete dosáhnout. Milníky mají název, popis, datum a můžete sledovat jejich pokrok. Když dosáhnete milníku, můžete ho dokončit.'
+                  : 'Milestones are important points on your journey within an area. They mark significant achievements or events you want to reach. Milestones have a title, description, date, and you can track their progress. When you reach a milestone, you can complete it.'}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
+                  <Target className="w-3 h-3" /> {locale === 'cs' ? 'S pokrokem' : 'With progress'}
+                </span>
+                <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
+                  <Calendar className="w-3 h-3" /> {locale === 'cs' ? 'S datem' : 'With date'}
+                </span>
+                <span className="text-xs bg-primary-100 text-primary-600 px-2 py-1 rounded-full flex items-center gap-1">
+                  <Check className="w-3 h-3" /> {locale === 'cs' ? 'Dokončitelné' : 'Completable'}
+                </span>
               </div>
             </div>
 
             {/* How to create */}
             <div className="box-playful-highlight p-4">
-              <h4 className="font-semibold text-black font-playful mb-3">{t('goalsHelp.howToCreate')}</h4>
+              <h4 className="font-semibold text-black font-playful mb-3">
+                {locale === 'cs' ? 'Jak vytvořit milník?' : 'How to create a milestone?'}
+              </h4>
               <div className="space-y-2">
-                <Step number={1} text={t('goalsHelp.howToStep1')} />
-                <Step number={2} text={t('goalsHelp.howToStep2')} />
-                <Step number={3} text={t('goalsHelp.howToStep3')} />
-                <Step number={4} text={t('goalsHelp.howToStep4')} />
-                <Step number={5} text={t('goalsHelp.howToStep5')} />
+                <Step number={1} text={locale === 'cs' 
+                  ? 'Přejděte do detailu oblasti (klikněte na oblast v levém menu)'
+                  : 'Go to area detail (click on an area in the left menu)'} />
+                <Step number={2} text={locale === 'cs'
+                  ? 'Klikněte na tlačítko "Přidat milník"'
+                  : 'Click the "Add Milestone" button'} />
+                <Step number={3} text={locale === 'cs'
+                  ? 'Vyplňte název, popis a datum milníku'
+                  : 'Fill in the milestone title, description, and date'} />
+                <Step number={4} text={locale === 'cs'
+                  ? 'Klikněte na ikony pokroku pro nastavení pokroku (0-100%)'
+                  : 'Click on progress icons to set progress (0-100%)'} />
+                <Step number={5} text={locale === 'cs'
+                  ? 'Když dosáhnete milníku, klikněte na ikonu dokončení pro jeho dokončení'
+                  : 'When you reach the milestone, click the completion icon to complete it'} />
               </div>
-              <div className="mt-4 flex gap-2">
-                {onAddGoal && (
-                  <button onClick={onAddGoal} className="flex items-center gap-1 px-4 py-2 btn-playful-base text-primary-600 bg-white hover:bg-primary-50 text-sm font-medium">
-                    <Plus className="w-4 h-4" /> {t('goalsHelp.createGoal')}
-                  </button>
-                )}
-                {onNavigateToGoals && (
-                  <button onClick={onNavigateToGoals} className="flex items-center gap-1 px-4 py-2 border border-primary-200 text-primary-600 font-playful text-sm rounded-lg hover:bg-primary-50">
-                    <ArrowRight className="w-4 h-4" /> {t('goalsHelp.goToGoals')}
-                  </button>
-                )}
-              </div>
-              </div>
+            </div>
 
             {/* Tips */}
             <div className="box-playful-highlight p-4">
               <h4 className="font-semibold text-black font-playful mb-2 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary-600" /> {t('goalsHelp.tips')}
+                <Sparkles className="w-4 h-4 text-primary-600" /> {locale === 'cs' ? 'Tipy' : 'Tips'}
               </h4>
               <ul className="space-y-1.5">
-                <Tip text={t('goalsHelp.tip1')} />
-                <Tip text={t('goalsHelp.tip2')} />
-                <Tip text={t('goalsHelp.tip3')} />
-                <Tip text={t('goalsHelp.tip4')} />
+                <Tip text={locale === 'cs'
+                  ? 'Milníky jsou vázané na oblasti - každý milník patří k jedné oblasti'
+                  : 'Milestones are linked to areas - each milestone belongs to one area'} />
+                <Tip text={locale === 'cs'
+                  ? 'Používejte milníky pro označení významných úspěchů nebo událostí'
+                  : 'Use milestones to mark significant achievements or events'} />
+                <Tip text={locale === 'cs'
+                  ? 'Pokrok můžete upravit kliknutím na ikony pokroku v časové ose'
+                  : 'You can adjust progress by clicking on progress icons in the timeline'} />
+                <Tip text={locale === 'cs'
+                  ? 'Dokončené milníky se odstraní z časové osy'
+                  : 'Completed milestones are removed from the timeline'} />
               </ul>
             </div>
           </div>
