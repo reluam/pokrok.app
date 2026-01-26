@@ -76,26 +76,57 @@ export async function PUT(
     const finalCompletedDate = completedDate !== undefined ? completedDate : current.completed_date
     const finalProgress = progress !== undefined ? progress : (current.progress || 0)
 
-    const milestone = await sql`
-      UPDATE milestones
-      SET 
-        title = ${encryptedTitle},
-        description = ${encryptedDescription},
-        completed_date = ${finalCompletedDate},
-        progress = ${finalProgress},
-        updated_at = NOW()
-      WHERE id = ${id} AND user_id = ${dbUser.id}
-      RETURNING *
-    `
+    // Try to update with progress column first, fallback to without progress if column doesn't exist
+    let milestone
+    try {
+      milestone = await sql`
+        UPDATE milestones
+        SET 
+          title = ${encryptedTitle},
+          description = ${encryptedDescription},
+          completed_date = ${finalCompletedDate},
+          progress = ${finalProgress},
+          updated_at = NOW()
+        WHERE id = ${id} AND user_id = ${dbUser.id}
+        RETURNING *
+      `
+    } catch (updateError: any) {
+      // If progress column doesn't exist, try without it
+      if (updateError?.code === '42703' || updateError?.message?.includes('column "progress" does not exist')) {
+        console.log('Progress column not found, updating without progress column')
+        milestone = await sql`
+          UPDATE milestones
+          SET 
+            title = ${encryptedTitle},
+            description = ${encryptedDescription},
+            completed_date = ${finalCompletedDate},
+            updated_at = NOW()
+          WHERE id = ${id} AND user_id = ${dbUser.id}
+          RETURNING *
+        `
+      } else {
+        throw updateError
+      }
+    }
 
     // Decrypt before returning
     const decrypted = decryptFields(milestone[0], dbUser.id, ['title', 'description'])
 
     return NextResponse.json(decrypted)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error updating milestone:', error)
+    console.error('Error details:', {
+      message: error?.message,
+      code: error?.code,
+      detail: error?.detail,
+      hint: error?.hint
+    })
     return NextResponse.json(
-      { error: 'Failed to update milestone' },
+      { 
+        error: 'Failed to update milestone',
+        details: error?.message || 'Unknown error',
+        code: error?.code
+      },
       { status: 500 }
     )
   }

@@ -77,22 +77,50 @@ export async function POST(request: NextRequest) {
     const encryptedTitle = encrypt(title, dbUser.id)
     const encryptedDescription = description ? encrypt(description, dbUser.id) : null
 
-    const milestone = await sql`
-      INSERT INTO milestones (
-        id, user_id, area_id, title, description, completed_date, progress
-      ) VALUES (
-        ${id}, ${dbUser.id}, ${areaId}, ${encryptedTitle}, ${encryptedDescription}, ${completedDate || null}, ${progress || 0}
-      ) RETURNING *
-    `
+    // Try to insert with progress column first, fallback to without progress if column doesn't exist
+    let milestone
+    try {
+      milestone = await sql`
+        INSERT INTO milestones (
+          id, user_id, area_id, title, description, completed_date, progress
+        ) VALUES (
+          ${id}, ${dbUser.id}, ${areaId}, ${encryptedTitle}, ${encryptedDescription}, ${completedDate || null}, ${progress || 0}
+        ) RETURNING *
+      `
+    } catch (insertError: any) {
+      // If progress column doesn't exist, try without it
+      if (insertError?.code === '42703' || insertError?.message?.includes('column "progress" does not exist')) {
+        console.log('Progress column not found, inserting without progress column')
+        milestone = await sql`
+          INSERT INTO milestones (
+            id, user_id, area_id, title, description, completed_date
+          ) VALUES (
+            ${id}, ${dbUser.id}, ${areaId}, ${encryptedTitle}, ${encryptedDescription}, ${completedDate || null}
+          ) RETURNING *
+        `
+      } else {
+        throw insertError
+      }
+    }
 
     // Decrypt before returning
     const decrypted = decryptFields(milestone[0], dbUser.id, ['title', 'description'])
 
     return NextResponse.json(decrypted, { status: 201 })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating milestone:', error)
+    console.error('Error details:', {
+      message: error?.message,
+      code: error?.code,
+      detail: error?.detail,
+      hint: error?.hint
+    })
     return NextResponse.json(
-      { error: 'Failed to create milestone' },
+      { 
+        error: 'Failed to create milestone',
+        details: error?.message || 'Unknown error',
+        code: error?.code
+      },
       { status: 500 }
     )
   }
