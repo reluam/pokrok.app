@@ -20,9 +20,14 @@ const nunito = Nunito({
 
 export const metadata: Metadata = {
   title: "Žiju life - Dešifrujeme život za pochodu",
-  description: "Nejsem guru. Jsem člověk, co si píše manuál na život sám. Sdílím svoje experimenty, faily a knowledge, aby tvůj life byl o něco víc v chillu.",
+  description: "Život nemá manuál a většina z nás se v něm prostě jen snaží neztratit. Já věřím, že v tom nemusíme být sami. Tvořím komunitu pro všechny, kteří chtějí život opravdu prožít, zkoušet nové věci, získat nadhled a zjistit, o čem je štěstí.",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.ico", type: "image/x-icon" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
   },
 };
 
