@@ -19,6 +19,7 @@ interface OverviewCalendarViewProps {
   animatingSteps?: Set<string>
   onOpenStepModal?: (step?: any) => void
   onOpenHabitModal?: (habit?: any) => void
+  player?: any
 }
 
 type ViewType = 'week' | 'month'
@@ -33,7 +34,8 @@ export function OverviewCalendarView({
   loadingSteps = new Set(),
   animatingSteps = new Set(),
   onOpenStepModal,
-  onOpenHabitModal
+  onOpenHabitModal,
+  player
 }: OverviewCalendarViewProps) {
   const t = useTranslations()
   const locale = useLocale()
@@ -154,6 +156,26 @@ export function OverviewCalendarView({
     t('months.july'), t('months.august'), t('months.september'),
     t('months.october'), t('months.november'), t('months.december')
   ]
+
+  // Format date according to user preference
+  const formatDate = useCallback((date: Date): string => {
+    const dateFormat = player?.user_settings?.date_format || 'DD.MM.YYYY'
+    const day = date.getDate()
+    const month = date.getMonth() + 1
+    const year = date.getFullYear()
+    
+    switch (dateFormat) {
+      case 'MM/DD/YYYY':
+        return `${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}/${year}`
+      case 'YYYY-MM-DD':
+        return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+      case 'DD MMM YYYY':
+        return `${String(day).padStart(2, '0')} ${monthNames[month - 1]} ${year}`
+      case 'DD.MM.YYYY':
+      default:
+        return `${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}`
+    }
+  }, [player?.user_settings?.date_format, monthNames])
   
   return (
     <div className="w-full h-full flex flex-col bg-primary-50">
@@ -186,30 +208,38 @@ export function OverviewCalendarView({
           
           {/* Checkboxes for steps and habits */}
           <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={showSteps}
-                onChange={(e) => setShowSteps(e.target.checked)}
-                className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
-              />
+            <button
+              onClick={() => setShowSteps(!showSteps)}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <div className={`flex-shrink-0 w-5 h-5 rounded-playful-sm border-2 flex items-center justify-center transition-colors ${
+                showSteps
+                  ? 'bg-primary-500 border-primary-500'
+                  : 'border-primary-500 hover:bg-primary-50'
+              }`}>
+                {showSteps && <Check className="w-3 h-3 text-white" />}
+              </div>
               <Footprints className="w-4 h-4 text-gray-600" />
               <span className="text-sm font-playful text-gray-700">
                 {t('navigation.steps') || 'Kroky'}
               </span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={showHabits}
-                onChange={(e) => setShowHabits(e.target.checked)}
-                className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
-              />
+            </button>
+            <button
+              onClick={() => setShowHabits(!showHabits)}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <div className={`flex-shrink-0 w-5 h-5 rounded-playful-sm border-2 flex items-center justify-center transition-colors ${
+                showHabits
+                  ? 'bg-primary-500 border-primary-500'
+                  : 'border-primary-500 hover:bg-primary-50'
+              }`}>
+                {showHabits && <Check className="w-3 h-3 text-white" />}
+              </div>
               <CheckSquare className="w-4 h-4 text-gray-600" />
               <span className="text-sm font-playful text-gray-700">
                 {t('habits.title') || 'Návyky'}
               </span>
-            </label>
+            </button>
           </div>
           
           {/* Navigation */}
@@ -223,7 +253,7 @@ export function OverviewCalendarView({
             <div className="text-lg font-bold font-playful min-w-[200px] text-center">
               {viewType === 'week' ? (
                 <>
-                  {getLocalDateString(currentWeekStart)} - {getLocalDateString(new Date(currentWeekStart.getTime() + 6 * 24 * 60 * 60 * 1000))}
+                  {formatDate(currentWeekStart)} - {formatDate(new Date(currentWeekStart.getTime() + 6 * 24 * 60 * 60 * 1000))}
                 </>
               ) : (
                 `${monthNames[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`
@@ -242,7 +272,7 @@ export function OverviewCalendarView({
       {/* Calendar content */}
       <div className="flex-1 overflow-hidden p-4">
         {viewType === 'week' ? (
-          <div className="grid grid-cols-7 gap-4 h-full">
+          <div className="grid grid-cols-7 gap-2 h-full">
             {getWeekDays().map((day, index) => {
               const dayStr = getLocalDateString(day)
               const isToday = dayStr === getLocalDateString(today)
@@ -251,12 +281,12 @@ export function OverviewCalendarView({
               return (
                 <div
                   key={index}
-                  className={`flex flex-col border-2 rounded-lg p-3 min-h-0 ${
+                  className={`flex flex-col border-2 rounded-lg p-2 min-h-0 ${
                     isToday ? 'border-primary-500 bg-primary-50' : 'border-gray-200 bg-white'
                   }`}
                 >
                   {/* Day header */}
-                  <div className="mb-2 pb-2 border-b border-gray-200 flex-shrink-0">
+                  <div className="mb-1.5 pb-1.5 border-b border-gray-200 flex-shrink-0">
                     <div className="text-xs font-playful text-gray-500 uppercase">
                       {dayNamesShort[index]}
                     </div>
@@ -267,7 +297,7 @@ export function OverviewCalendarView({
                   
                   {/* Items list */}
                   <div 
-                    className="flex-1 overflow-y-auto space-y-2 min-h-0 calendar-day-scroll"
+                    className="flex-1 overflow-y-auto space-y-1.5 min-h-0 calendar-day-scroll"
                     style={{
                       scrollbarWidth: 'thin',
                       scrollbarColor: 'var(--color-primary-500, #E8871E) transparent'
@@ -290,7 +320,7 @@ export function OverviewCalendarView({
                                 handleItemClick(habit, 'habit')
                               }
                             }}
-                            className={`flex items-center gap-2 p-2 rounded-playful-md cursor-pointer transition-all ${
+                            className={`flex items-center gap-2 p-1.5 rounded-playful-md cursor-pointer transition-all ${
                               isCompleted
                                 ? 'bg-primary-100 opacity-75 hover:outline-2 hover:outline hover:outline-primary-300 hover:outline-offset-[-2px]'
                                 : 'bg-white hover:bg-primary-50 hover:outline-2 hover:outline hover:outline-primary-500 hover:outline-offset-[-2px]'
@@ -355,7 +385,7 @@ export function OverviewCalendarView({
                                 handleItemClick(step, 'step')
                               }
                             }}
-                            className={`flex items-center gap-2 p-2 rounded-playful-md cursor-pointer transition-all border-2 ${
+                            className={`flex items-center gap-2 p-1.5 rounded-playful-md cursor-pointer transition-all border-2 ${
                               isCompleted
                                 ? 'bg-primary-100 opacity-75 border-primary-300 hover:border-primary-400'
                                 : 'bg-white border-primary-500 hover:bg-primary-50 hover:border-primary-600'

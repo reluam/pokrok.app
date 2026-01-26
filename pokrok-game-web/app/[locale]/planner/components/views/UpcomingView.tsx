@@ -8,6 +8,7 @@ import { isStepScheduledForDay } from '../utils/stepHelpers'
 import { Check, Plus, Footprints, Trash2, ChevronDown, Repeat, Star } from 'lucide-react'
 import { getIconComponent } from '@/lib/icon-utils'
 import { StepsManagementView } from './StepsManagementView'
+import { UpcomingMilestonesView } from './UpcomingMilestonesView'
 
 interface UpcomingViewProps {
   goals?: any[]
@@ -66,10 +67,7 @@ export function UpcomingView({
   const locale = useLocale()
   const localeCode = locale === 'cs' ? 'cs-CZ' : 'en-US'
   
-  // View mode: 'feed' or 'areas'
-  const [viewMode, setViewMode] = useState<'feed' | 'areas'>('feed')
   const [feedDisplayCount, setFeedDisplayCount] = useState(20) // Number of steps to display in feed
-  const [isLoadingViewMode, setIsLoadingViewMode] = useState(true)
   const loadMoreRef = useRef<HTMLDivElement>(null)
   
   // State for StepsManagementView integration
@@ -354,69 +352,6 @@ export function UpcomingView({
   const [selectedTimeInPicker, setSelectedTimeInPicker] = useState<number | null>(null)
 
   // Load saved view mode preference
-  useEffect(() => {
-    const loadViewMode = async () => {
-      if (!userId) {
-        setIsLoadingViewMode(false)
-        return
-      }
-      
-      try {
-        const response = await fetch(`/api/view-settings?view_type=upcoming`)
-        if (response.ok) {
-          const data = await response.json()
-          if (data?.settings?.upcomingViewMode && (data.settings.upcomingViewMode === 'feed' || data.settings.upcomingViewMode === 'areas')) {
-            setViewMode(data.settings.upcomingViewMode)
-          }
-        }
-      } catch (error) {
-        console.error('Error loading view mode preference:', error)
-      } finally {
-        setIsLoadingViewMode(false)
-      }
-    }
-    
-    loadViewMode()
-  }, [userId])
-
-  // Save view mode preference when it changes
-  useEffect(() => {
-    if (isLoadingViewMode || !userId) return
-    
-    const saveViewMode = async () => {
-      try {
-        const response = await fetch(`/api/view-settings?view_type=upcoming`)
-        let currentSettings = {}
-        
-        if (response.ok) {
-          const data = await response.json()
-          currentSettings = data?.settings || {}
-        }
-        
-        // Update settings with new view mode
-        const updatedSettings = {
-          ...currentSettings,
-          upcomingViewMode: viewMode
-        }
-        
-        await fetch('/api/view-settings', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            view_type: 'upcoming',
-            settings: updatedSettings
-          })
-        })
-      } catch (error) {
-        console.error('Error saving view mode preference:', error)
-      }
-    }
-    
-    saveViewMode()
-  }, [viewMode, userId, isLoadingViewMode])
-  
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const todayStr = getLocalDateString(today)
@@ -737,82 +672,6 @@ export function UpcomingView({
     return result
   }, [dailySteps, today, oneMonthFromToday, goalMap, areaMap])
   
-  // Group steps by area, then by goal
-  const stepsByArea = useMemo(() => {
-    const grouped: Record<string, Record<string, Array<{ step: any; goal: any }>>> = {}
-    const noAreaSteps: Array<{ step: any; goal: any }> = []
-    
-    upcomingSteps.forEach(step => {
-      const area = (step as any)._area
-      const goal = (step as any)._goal
-      
-      if (area) {
-        if (!grouped[area.id]) {
-          grouped[area.id] = {}
-        }
-        const goalId = goal?.id || 'no-goal'
-        if (!grouped[area.id][goalId]) {
-          grouped[area.id][goalId] = []
-        }
-        grouped[area.id][goalId].push({ step, goal })
-      } else {
-        noAreaSteps.push({ step, goal })
-      }
-    })
-    
-    return { grouped, noAreaSteps }
-  }, [upcomingSteps])
-
-  // Group habits by area for Areas view
-  // Note: habits are already sorted by reminder_time in todaysHabits
-  const habitsByArea = useMemo(() => {
-    const grouped: Record<string, any[]> = {}
-    const noAreaHabits: any[] = []
-    
-    todaysHabits.forEach(habit => {
-      if (habit.area_id) {
-        if (!grouped[habit.area_id]) {
-          grouped[habit.area_id] = []
-        }
-        grouped[habit.area_id].push(habit)
-      } else {
-        noAreaHabits.push(habit)
-      }
-    })
-    
-    // Sort habits within each area group by reminder_time (already sorted in todaysHabits, but ensure consistency)
-    Object.keys(grouped).forEach(areaId => {
-      grouped[areaId].sort((a: any, b: any) => {
-        const aTime = a.reminder_time || ''
-        const bTime = b.reminder_time || ''
-        if (aTime && bTime) {
-          return aTime.localeCompare(bTime)
-        } else if (aTime && !bTime) {
-          return -1
-        } else if (!aTime && bTime) {
-          return 1
-        }
-        return a.id.localeCompare(b.id)
-      })
-    })
-    
-    // Sort noAreaHabits by reminder_time
-    noAreaHabits.sort((a: any, b: any) => {
-      const aTime = a.reminder_time || ''
-      const bTime = b.reminder_time || ''
-      if (aTime && bTime) {
-        return aTime.localeCompare(bTime)
-      } else if (aTime && !bTime) {
-        return -1
-      } else if (!aTime && bTime) {
-        return 1
-      }
-      return a.id.localeCompare(b.id)
-    })
-    
-    return { grouped, noAreaHabits }
-  }, [todaysHabits])
-  
   // Helper function to check if a date is in the current or next week (Monday to Sunday)
   const isDateInCurrentOrNextWeek = (date: Date): boolean => {
     const today = new Date()
@@ -966,8 +825,6 @@ export function UpcomingView({
 
   // Lazy loading for Feed view
   useEffect(() => {
-    if (viewMode !== 'feed') return
-
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
@@ -987,14 +844,7 @@ export function UpcomingView({
         observer.unobserve(loadMoreRef.current)
       }
     }
-  }, [viewMode, allFeedSteps.length])
-
-  // Reset display count when switching to feed view
-  useEffect(() => {
-    if (viewMode === 'feed') {
-      setFeedDisplayCount(20)
-    }
-  }, [viewMode])
+  }, [allFeedSteps.length])
 
   // Get displayed feed steps (limited by feedDisplayCount)
   const displayedFeedSteps = useMemo(() => {
@@ -1005,89 +855,19 @@ export function UpcomingView({
     <div className="w-full h-full flex flex-col bg-primary-50">
       {/* Header */}
       <div className="flex-shrink-0 bg-primary-50 pb-2 pt-4 px-6">
-        {/* Desktop: Single row with title, switcher, and add button */}
-        <div className="hidden md:grid grid-cols-3 items-center">
-        <h1 className="text-2xl font-bold text-black font-playful">
+        {/* Header with title and add button */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-black font-playful">
             {t('views.upcoming.title') || 'Nadcházející'}
-        </h1>
-          {/* View mode switcher - centered */}
-          <div className="flex justify-center">
-            <div className="flex items-center gap-2 bg-white border-2 border-primary-300 rounded-playful-md p-1">
-              <button
-                onClick={() => setViewMode('feed')}
-                className={`px-3 py-1 text-sm font-semibold rounded-playful-sm transition-colors ${
-                  viewMode === 'feed'
-                    ? 'bg-primary-500 text-white'
-                    : 'text-gray-600 hover:bg-primary-50'
-                }`}
-              >
-                {t('views.feed') || 'Feed'}
-              </button>
-              <button
-                onClick={() => setViewMode('areas')}
-                className={`px-3 py-1 text-sm font-semibold rounded-playful-sm transition-colors ${
-                  viewMode === 'areas'
-                    ? 'bg-primary-500 text-white'
-                    : 'text-gray-600 hover:bg-primary-50'
-                }`}
-              >
-                {t('views.areas') || 'Oblasti'}
-              </button>
-            </div>
-          </div>
-          <div className="flex justify-end">
-              <button
-              onClick={() => setCreateNewStepTrigger(prev => prev + 1)}
-                className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
-                title={t('steps.addStep') || 'Přidat krok'}
-              >
-                <Plus className="w-4 h-4" />
-                <span>{t('steps.addStep') || 'Přidat krok'}</span>
-              </button>
-          </div>
-        </div>
-
-        {/* Mobile: Two rows - first row with title and add button, second row with switcher */}
-        <div className="flex flex-col gap-3 md:hidden">
-          {/* First row: Title left, Add button right */}
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-black font-playful">
-              {t('views.upcoming.title') || 'Nadcházející'}
-            </h1>
-              <button
-              onClick={() => setCreateNewStepTrigger(prev => prev + 1)}
-                className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
-                title={t('steps.addStep') || 'Přidat krok'}
-              >
-                <Plus className="w-4 h-4" />
-                <span>{t('steps.addStep') || 'Přidat krok'}</span>
-              </button>
-          </div>
-          {/* Second row: View mode switcher - centered */}
-          <div className="flex justify-center">
-            <div className="flex items-center gap-2 bg-white border-2 border-primary-300 rounded-playful-md p-1">
-              <button
-                onClick={() => setViewMode('feed')}
-                className={`px-3 py-1 text-sm font-semibold rounded-playful-sm transition-colors ${
-                  viewMode === 'feed'
-                    ? 'bg-primary-500 text-white'
-                    : 'text-gray-600 hover:bg-primary-50'
-                }`}
-              >
-                {t('views.feed') || 'Feed'}
-              </button>
-              <button
-                onClick={() => setViewMode('areas')}
-                className={`px-3 py-1 text-sm font-semibold rounded-playful-sm transition-colors ${
-                  viewMode === 'areas'
-                    ? 'bg-primary-500 text-white'
-                    : 'text-gray-600 hover:bg-primary-50'
-                }`}
-              >
-                {t('views.areas') || 'Oblasti'}
-              </button>
-            </div>
-          </div>
+          </h1>
+          <button
+            onClick={() => setCreateNewStepTrigger(prev => prev + 1)}
+            className="btn-playful-base px-3 py-1.5 text-sm font-semibold text-black bg-white hover:bg-primary-50 flex items-center gap-2"
+            title={t('steps.addStep') || 'Přidat krok'}
+          >
+            <Plus className="w-4 h-4" />
+            <span>{t('steps.addStep') || 'Přidat krok'}</span>
+          </button>
         </div>
       </div>
       
@@ -1105,9 +885,14 @@ export function UpcomingView({
           </div>
         )}
         
+        {/* Milestones Timeline - before habits */}
+        {!isLoadingSteps && userId && (
+          <UpcomingMilestonesView userId={userId} areas={areas} />
+        )}
+        
         {/* Today's Habits - only show if there are habits and not loading */}
         {!isLoadingSteps && todaysHabits.length > 0 && (
-          <div className="p-4 sm:p-6 lg:p-8 pt-2 pb-4">
+          <div className="p-4 sm:p-6 lg:p-8 pt-0 pb-4">
             <div className="flex flex-wrap gap-3">
               {todaysHabits.map((habit) => {
                 const isCompleted = habit.habit_completions && habit.habit_completions[todayStr] === true
@@ -1166,9 +951,8 @@ export function UpcomingView({
           </div>
         )}
         
-        {/* Feed View or Areas View - only show if not loading */}
-        {!isLoadingSteps && viewMode === 'feed' ? (
-          /* Feed View - using StepsManagementView */
+        {/* Feed View - only show if not loading */}
+        {!isLoadingSteps && (
           <StepsManagementView
             dailySteps={localDailySteps}
             areas={areas}
@@ -1210,152 +994,8 @@ export function UpcomingView({
             hideHeader={true}
             showCompleted={false}
           />
-        ) : !isLoadingSteps ? (
-          /* Areas View - using StepsManagementView with new step at top */
-          <>
-            {/* New step will appear here if created - above all areas */}
-            {createNewStepTrigger > 0 && (
-              <div className="mb-4">
-                <StepsManagementView
-                  dailySteps={localDailySteps}
-                  areas={areas}
-                  userId={userId}
-                  player={player}
-                  onDailyStepsUpdate={(steps) => {
-                    // Track deleted steps
-                    const currentStepIds = new Set(localDailySteps.map((s: any) => s?.id).filter(Boolean))
-                    const newStepIds = new Set(steps.map((s: any) => s?.id).filter(Boolean))
-                    const deletedIds = Array.from(currentStepIds).filter(id => !newStepIds.has(id))
-                    deletedIds.forEach(id => {
-                      deletedStepIdsRef.current.add(id)
-                    })
-                    setLocalDailySteps(steps)
-                    if (onDailyStepsUpdateProp) {
-                      onDailyStepsUpdateProp(steps)
-                    }
-                  }}
-                  onOpenStepModal={(step) => {
-                    if (onOpenStepModal) {
-                      onOpenStepModal(undefined, step)
-                    }
-                  }}
-                  onStepImportantChange={onStepImportantChange}
-                  handleStepToggle={handleStepToggle}
-                  loadingSteps={loadingSteps}
-                  createNewStepTrigger={createNewStepTrigger}
-                  hideHeader={true}
-                  showCompleted={false}
-                />
-                </div>
-              )}
-            
-            {/* Existing areas view - keep for now, will be replaced with StepsManagementView per area */}
-            {upcomingSteps.length === 0 ? (
-          <div className="card-playful-base">
-          <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Footprints className="w-5 h-5 text-primary-600" />
-                <h2 className="text-lg font-bold text-black font-playful">
-                  {t('views.upcomingSteps') || 'Nadcházející kroky'}
-            </h2>
-              </div>
-          </div>
-            <p className="text-sm text-gray-600">{t('views.noSteps') || 'Žádné nadcházející kroky'}</p>
-            </div>
-          ) : (
-          <>
-                {/* Render steps grouped by area, then by goal - using StepsManagementView for each area */}
-            {Object.entries(stepsByArea.grouped).map(([areaId, goalsMap]) => {
-              const area = areaMap.get(areaId)
-              if (!area) return null
-              
-                  // Get all steps for this area
-                  const areaSteps: any[] = []
-              Object.values(goalsMap).forEach(steps => {
-                steps.forEach(({ step }) => {
-                      areaSteps.push(step)
-                    })
-                  })
-                  
-                  // Also include steps without goal in this area
-                  if (stepsByArea.noAreaSteps) {
-                    stepsByArea.noAreaSteps.forEach(({ step }) => {
-                      if (step.area_id === areaId) {
-                        areaSteps.push(step)
-                      }
-                    })
-                  }
-              
-              return (
-                    <div key={areaId} className="mb-6">
-                      {/* Area header */}
-                      <div className="mb-3 px-4 sm:px-6 lg:px-8">
-                        <h2 className="text-xl font-bold text-black font-playful">
-                          {area.name}
-                        </h2>
-                      </div>
-                      <StepsManagementView
-                        dailySteps={areaSteps}
-                        areas={areas}
-                        userId={userId}
-                        player={player}
-                        onDailyStepsUpdate={(steps) => {
-                          setLocalDailySteps(steps)
-                        }}
-                        onOpenStepModal={(step) => {
-                          if (onOpenStepModal) {
-                            onOpenStepModal(undefined, step)
-                          }
-                        }}
-                        onStepImportantChange={onStepImportantChange}
-                        handleStepToggle={handleStepToggle}
-                        loadingSteps={loadingSteps}
-                        createNewStepTrigger={0} // Don't create new steps in area view
-                        hideHeader={true}
-                        showCompleted={false}
-                        areaFilter={areaId} // Filter by this area
-                      />
-        </div>
-              )
-            })}
-            
-                {/* Steps without area */}
-                {stepsByArea.noAreaSteps && stepsByArea.noAreaSteps.length > 0 && (
-                  <div className="mb-6">
-                    {/* Area header for steps without area */}
-                    <div className="mb-3 px-4 sm:px-6 lg:px-8">
-                      <h2 className="text-xl font-bold text-black font-playful">
-                        {t('areas.noArea') || 'Bez oblasti'}
-                      </h2>
-                    </div>
-                    <StepsManagementView
-                      dailySteps={stepsByArea.noAreaSteps.map(({ step }) => step)}
-                      areas={areas}
-                      userId={userId}
-                      player={player}
-                      onDailyStepsUpdate={(steps) => {
-                        setLocalDailySteps(steps)
-                      }}
-                      onOpenStepModal={(step) => {
-                        if (onOpenStepModal) {
-                          onOpenStepModal(undefined, step)
-                        }
-                      }}
-                      onStepImportantChange={onStepImportantChange}
-                      handleStepToggle={handleStepToggle}
-                      loadingSteps={loadingSteps}
-                      createNewStepTrigger={0}
-                      hideHeader={true}
-                      showCompleted={false}
-                      areaFilter="none" // Filter for steps without area
-                    />
-                          </div>
-                        )}
-                          </>
         )}
-          </>
-                    ) : null}
-                  </div>
+      </div>
       
       {/* Date Picker Modal */}
       {datePickerStep && datePickerPosition && (

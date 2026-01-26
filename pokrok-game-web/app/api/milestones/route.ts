@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     const { dbUser } = authResult
 
     const body = await request.json()
-    const { areaId, title, description, completedDate } = body
+    const { areaId, title, description, completedDate, progress } = body
 
     if (!areaId || !title) {
       return NextResponse.json(
@@ -79,9 +79,9 @@ export async function POST(request: NextRequest) {
 
     const milestone = await sql`
       INSERT INTO milestones (
-        id, user_id, area_id, title, description, completed_date
+        id, user_id, area_id, title, description, completed_date, progress
       ) VALUES (
-        ${id}, ${dbUser.id}, ${areaId}, ${encryptedTitle}, ${encryptedDescription}, ${completedDate || null}
+        ${id}, ${dbUser.id}, ${areaId}, ${encryptedTitle}, ${encryptedDescription}, ${completedDate || null}, ${progress || 0}
       ) RETURNING *
     `
 

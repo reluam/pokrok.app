@@ -52,7 +52,7 @@ export async function PUT(
 
     const { id } = await params
     const body = await request.json()
-    const { title, description, completedDate } = body
+    const { title, description, completedDate, progress } = body
 
     // Verify milestone belongs to user
     const existing = await sql`
@@ -74,6 +74,7 @@ export async function PUT(
       ? (description ? encrypt(description, dbUser.id) : null)
       : current.description
     const finalCompletedDate = completedDate !== undefined ? completedDate : current.completed_date
+    const finalProgress = progress !== undefined ? progress : (current.progress || 0)
 
     const milestone = await sql`
       UPDATE milestones
@@ -81,6 +82,7 @@ export async function PUT(
         title = ${encryptedTitle},
         description = ${encryptedDescription},
         completed_date = ${finalCompletedDate},
+        progress = ${finalProgress},
         updated_at = NOW()
       WHERE id = ${id} AND user_id = ${dbUser.id}
       RETURNING *

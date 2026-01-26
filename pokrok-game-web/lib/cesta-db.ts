@@ -106,6 +106,7 @@ export interface Milestone {
   title: string
   description?: string
   completed_date?: Date | string
+  progress?: number // 0-100
   created_at: Date | string
   updated_at: Date | string
 }

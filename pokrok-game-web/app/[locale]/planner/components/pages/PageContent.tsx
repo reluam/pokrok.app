@@ -22,7 +22,7 @@ import { StepModal } from '../modals/StepModal'
 import { DisplayContent } from '../content/DisplayContent'
 import { getIconComponent, AVAILABLE_ICONS } from '@/lib/icon-utils'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
-import { LayoutDashboard, ChevronLeft, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Menu, CheckSquare, Footprints, Plus, AlertCircle } from 'lucide-react'
+import { LayoutDashboard, ChevronLeft, ChevronDown, Target, CheckCircle, Moon, Trash2, Search, Menu, CheckSquare, Footprints, Plus, AlertCircle, Calendar } from 'lucide-react'
 import { SidebarNavigation } from '../layout/SidebarNavigation'
 import { LoadingSpinner } from '../ui/LoadingSpinner'
 import { HabitsManagementView } from '../views/HabitsManagementView'
@@ -340,6 +340,7 @@ export function PageContent(props: PageContentProps) {
   const [stepsDateFilter, setStepsDateFilter] = React.useState<string | null>(null)
   const [createNewStepTrigger, setCreateNewStepTrigger] = React.useState(0)
   const [createNewStepTriggerForSection, setCreateNewStepTriggerForSection] = React.useState<Record<string, number>>({})
+  const [createNewMilestoneTriggerForSection, setCreateNewMilestoneTriggerForSection] = React.useState<Record<string, number>>({})
   const [stepsMobileMenuOpen, setStepsMobileMenuOpen] = React.useState(false)
   
   // Listen for inline step creation trigger from AssistantPanel
@@ -709,6 +710,15 @@ export function PageContent(props: PageContentProps) {
                           onMilestoneUpdate={() => {
                             // Optionally reload data
                           }}
+                          onCreateMilestoneTrigger={createNewMilestoneTriggerForSection[`area-${areaId}`] || 0}
+                          onMilestoneCreated={() => {
+                            // Reset trigger after milestone is created
+                            const sectionKey = `area-${areaId}`
+                            setCreateNewMilestoneTriggerForSection(prev => ({
+                              ...prev,
+                              [sectionKey]: 0
+                            }))
+                          }}
                         />
                       </div>
                       
@@ -724,19 +734,34 @@ export function PageContent(props: PageContentProps) {
                             </span>
                           )}
                         </div>
-                        <button
-                          onClick={() => {
-                            const sectionKey = `area-${areaId}`
-                            setCreateNewStepTriggerForSection(prev => ({
-                              ...prev,
-                              [sectionKey]: (prev[sectionKey] || 0) + 1
-                            }))
-                          }}
-                          className="flex items-center justify-center w-8 h-8 text-primary-600 hover:bg-primary-50 rounded-playful-sm transition-colors"
-                          title={t('steps.add') || 'Přidat krok'}
-                        >
-                          <Plus className="w-5 h-5" strokeWidth={2.5} />
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => {
+                              const sectionKey = `area-${areaId}`
+                              setCreateNewMilestoneTriggerForSection(prev => ({
+                                ...prev,
+                                [sectionKey]: (prev[sectionKey] || 0) + 1
+                              }))
+                            }}
+                            className="flex items-center justify-center w-8 h-8 text-primary-600 hover:bg-primary-50 rounded-playful-sm transition-colors"
+                            title={t('common.addMilestone') || 'Přidat milník'}
+                          >
+                            <Calendar className="w-5 h-5" strokeWidth={2.5} />
+                          </button>
+                          <button
+                            onClick={() => {
+                              const sectionKey = `area-${areaId}`
+                              setCreateNewStepTriggerForSection(prev => ({
+                                ...prev,
+                                [sectionKey]: (prev[sectionKey] || 0) + 1
+                              }))
+                            }}
+                            className="flex items-center justify-center w-8 h-8 text-primary-600 hover:bg-primary-50 rounded-playful-sm transition-colors"
+                            title={t('steps.add') || 'Přidat krok'}
+                          >
+                            <Plus className="w-5 h-5" strokeWidth={2.5} />
+                          </button>
+                        </div>
                       </div>
                       
                       <div className="p-4 sm:p-6 lg:p-8 pt-2">
@@ -1047,6 +1072,7 @@ export function PageContent(props: PageContentProps) {
                   animatingSteps={animatingSteps}
                   onOpenStepModal={handleOpenStepModal}
                   onOpenHabitModal={handleOpenHabitModal}
+                  player={player}
                 />
               )
             default:
