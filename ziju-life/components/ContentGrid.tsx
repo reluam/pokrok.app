@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Book, Video, FileText, PenTool, HelpCircle } from "lucide-react";
 import type { InspirationData, InspirationItem } from "@/lib/inspiration";
+import InspirationModal from "./InspirationModal";
 
 const getTypeLabel = (type: string): string => {
   switch (type) {
@@ -27,18 +28,38 @@ const getTypeIcon = (type: string) => {
   }
 };
 
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  const months = [
-    "Leden", "Únor", "Březen", "Duben", "Květen", "Červen",
-    "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"
-  ];
-  return `${months[date.getMonth()]} ${date.getFullYear()}`;
+const getVideoId = (url: string): string | null => {
+  // YouTube
+  const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+  if (youtubeMatch) return youtubeMatch[1];
+  
+  // Vimeo
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) return vimeoMatch[1];
+  
+  return null;
+};
+
+const getVideoThumbnail = (url: string): string | null => {
+  const videoId = getVideoId(url);
+  if (!videoId) return null;
+  
+  if (url.includes("youtube.com") || url.includes("youtu.be")) {
+    return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+  }
+  
+  if (url.includes("vimeo.com")) {
+    return null; // Vimeo requires API call for thumbnail
+  }
+  
+  return null;
 };
 
 export default function ContentGrid() {
   const [data, setData] = useState<InspirationData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState<InspirationItem | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -95,16 +116,37 @@ export default function ContentGrid() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {items.map((item, index) => {
               const Icon = getTypeIcon(item.type);
+              const videoThumbnail = item.type === "video" ? (item.thumbnail || getVideoThumbnail(item.url)) : null;
+              
               return (
-                <Link
+                <button
                   key={item.id}
-                  href={`/inspirace/${item.id}`}
-                  className="block"
+                  onClick={() => {
+                    setSelectedItem(item);
+                    setIsModalOpen(true);
+                  }}
+                  className="block text-left w-full cursor-pointer"
                 >
                   <article
-                    className="bg-white rounded-2xl p-6 md:p-8 border-2 border-black/5 hover:border-accent/50 transition-all hover:shadow-xl hover:-translate-y-1 space-y-4 transform h-full"
+                    className="bg-white rounded-2xl p-6 md:p-8 border-2 border-black/5 hover:border-accent/50 transition-all hover:shadow-xl hover:-translate-y-1 space-y-4 h-full"
                     style={{ transform: `rotate(${index % 2 === 0 ? '-0.5deg' : '0.5deg'})` }}
                   >
+                    {/* Video Thumbnail */}
+                    {item.type === "video" && videoThumbnail && (
+                      <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black mb-4">
+                        <img
+                          src={videoThumbnail}
+                          alt={item.title}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                          <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
+                            <Video className="w-6 h-6 text-accent ml-1" />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
                     <div className="flex items-center gap-2">
                       <Icon className="text-accent" size={18} />
                       <span className="inline-block px-3 py-1 bg-accent/10 text-accent text-sm font-semibold rounded-full border border-accent/20">
@@ -117,11 +159,8 @@ export default function ContentGrid() {
                     <p className="text-foreground/70 leading-relaxed">
                       {item.description}
                     </p>
-                    <p className="text-sm text-foreground/50">
-                      {formatDate(item.createdAt)}
-                    </p>
                   </article>
-                </Link>
+                </button>
               );
             })}
           </div>
@@ -137,6 +176,16 @@ export default function ContentGrid() {
             </Link>
           </div>
         )}
+        
+        {/* Modal */}
+        <InspirationModal
+          item={selectedItem}
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedItem(null);
+          }}
+        />
       </div>
     </section>
   );
