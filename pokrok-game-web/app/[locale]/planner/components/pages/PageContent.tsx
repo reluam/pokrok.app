@@ -289,6 +289,18 @@ export function PageContent(props: PageContentProps) {
   // Max upcoming steps setting
   const [maxUpcomingSteps, setMaxUpcomingSteps] = React.useState(5)
   
+  // Mobile detection
+  const [isMobile, setIsMobile] = React.useState(false)
+  
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768) // md breakpoint
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+  
   // Load maxUpcomingSteps from settings
   React.useEffect(() => {
     const loadUpcomingSettings = async () => {
@@ -1084,7 +1096,7 @@ export function PageContent(props: PageContentProps) {
         }
         
         // Mobile: Show only UpcomingView without sidebar and menu
-        if (mainPanelSection === 'focus-upcoming') {
+        if (isMobile && mainPanelSection === 'focus-upcoming') {
           return (
             <div className="flex-1 flex bg-primary-50 overflow-hidden h-full">
               <div className="flex-1 overflow-y-auto bg-primary-50 flex flex-col w-full" style={{ minHeight: 0 }}>
