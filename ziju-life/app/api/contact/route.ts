@@ -4,6 +4,7 @@ import { Resend } from 'resend'
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 // Funkce pro skloňování jména ve vokativu (5. pád) pomocí API
+// Podle dokumentace: https://www.sklonovani-jmen.cz/dokumentace
 async function getVocative(name: string): Promise<string> {
   if (!name || name.length === 0) return name
 
@@ -13,35 +14,61 @@ async function getVocative(name: string): Promise<string> {
   const apiKey = process.env.SKLONOVANI_JMEN_API_KEY || 'klic' // 'klic' je testovací klíč
   
   try {
-    // Volání API pro skloňování jmen
-    // pad=5 = vokativ (5. pád)
-    // pouzit-krestni=1 = použít křestní jméno
-    // pouzit-osloveni=0 = nepoužít "pane/paní", jen jméno
-    // format=json = JSON odpověď
-    const apiUrl = `https://www.sklonovani-jmen.cz/api?klic=${encodeURIComponent(apiKey)}&pad=5&jmeno=${encodeURIComponent(trimmedName)}&pouzit-krestni=1&pouzit-osloveni=0&format=json`
+    // pad=5 = vokativ (5. pád) - pro oslovování
+    const pad = "5"
     
+    // Escapování jména pro URL (ekvivalent PHP urlencode())
+    const jmenoUrl = encodeURIComponent(trimmedName)
+    
+    // Sestavení URL podle PHP příkladu
+    const apiUrl = `https://www.sklonovani-jmen.cz/api?klic=${apiKey}&pad=${pad}&jmeno=${jmenoUrl}`
+    
+    // Volání API (ekvivalent PHP file_get_contents())
     const response = await fetch(apiUrl)
     
     if (!response.ok) {
       throw new Error(`API returned status ${response.status}`)
     }
     
-    const data = await response.json()
+    // API vrací prostý text (např. "paní Adelaido" nebo "pane Matěji")
+    const vracenaHodnota = await response.text().then(t => t.trim())
     
-    // API vrací pole objektů s dotaz a odpoved
-    if (Array.isArray(data) && data.length > 0 && data[0].odpoved) {
-      // Odstraníme případné "pane/paní" z odpovědi (mělo by být odstraněno díky pouzit-osloveni=0, ale pro jistotu)
-      let result = data[0].odpoved.trim()
-      
-      // Pokud obsahuje "pane " nebo "paní ", odstraníme to
-      result = result.replace(/^(pane|paní)\s+/i, '')
-      
-      // Zajistíme velké první písmeno
-      return result.charAt(0).toUpperCase() + result.slice(1).toLowerCase()
+    // Zkontrolujeme, jestli není chybový kód (API vrací čísla jako chyby)
+    // Chyby: 1=chybný klíč, 3=vyčerpán kredit, 4=chybný pad, 5=chybné jméno, 6=chybí parametry, 7=není jméno, 8=právnická osoba
+    const errorCode = parseInt(vracenaHodnota)
+    if (!isNaN(errorCode) && errorCode > 0) {
+      console.error('API returned error code:', errorCode)
+      throw new Error(`API error code: ${errorCode}`)
     }
     
-    // Pokud API nevrátilo správnou odpověď, použijeme fallback
-    return trimmedName.charAt(0).toUpperCase() + trimmedName.slice(1).toLowerCase()
+    // Zkontrolujeme, jestli odpověď obsahuje chybovou zprávu (např. "tímto testovacím klíčem")
+    const errorMessages = [
+      'tímto testovacím klíčem',
+      'prosím, zaregistrujte se',
+      'lze ohýbat pouze',
+      'chybný',
+      'neuvedený',
+      'vyčerpán',
+    ]
+    
+    const lowerResponse = vracenaHodnota.toLowerCase()
+    const isError = errorMessages.some(msg => lowerResponse.includes(msg))
+    
+    if (isError) {
+      console.error('API returned error message:', vracenaHodnota.substring(0, 100))
+      throw new Error('API returned error message')
+    }
+    
+    // Odstraníme "pane " nebo "paní " z odpovědi, chceme jen jméno
+    let result = vracenaHodnota.replace(/^(pane|paní)\s+/i, '').trim()
+    
+    // Pokud je výsledek prázdný nebo obsahuje více než jedno slovo (možná chybová zpráva), použijeme původní jméno
+    if (!result || result.split(/\s+/).length > 2) {
+      result = trimmedName
+    }
+    
+    // Zajistíme velké první písmeno
+    return result.charAt(0).toUpperCase() + result.slice(1).toLowerCase()
   } catch (error) {
     console.error('Error calling sklonovani-jmen API:', error)
     // Fallback: vrátíme původní jméno s velkým prvním písmenem
@@ -109,9 +136,24 @@ export async function POST(request: NextRequest) {
     `
 
     // Skloňování jména ve vokativu pomocí API
-    const vocativeName = await getVocative(firstName)
+    // Pokud selže, použijeme původní jméno nebo prázdný string
+    let vocativeName = firstName
+    try {
+      const skloneneJmeno = await getVocative(firstName)
+      if (skloneneJmeno && skloneneJmeno.length > 0) {
+        vocativeName = skloneneJmeno
+      }
+    } catch (error) {
+      // Chybu jen logujeme, ale nepřerušujeme odeslání emailu
+      console.error('Error getting vocative name (continuing with original):', error)
+      // Použijeme původní jméno
+      vocativeName = firstName
+    }
 
     // Odeslání emailu uživateli (potvrzovací email)
+    // Použijeme oslovení pouze pokud máme jméno
+    const greeting = vocativeName ? `Ahoj ${vocativeName},` : 'Ahoj,'
+    
     const confirmationEmailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #333; border-bottom: 2px solid #E8871E; padding-bottom: 10px;">
@@ -119,7 +161,7 @@ export async function POST(request: NextRequest) {
         </h2>
         
         <div style="margin-top: 20px;">
-          <p>Ahoj ${vocativeName},</p>
+          <p>${greeting}</p>
           <p>Děkuji ti za vyplnění formuláře a tvůj zájem o koučing. Ozvu se ti hned, jak to bude možné.</p>
         </div>
         
