@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { ChevronLeft, ChevronRight, CheckSquare, Footprints, Check } from 'lucide-react'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
@@ -156,6 +156,58 @@ export function OverviewCalendarView({
     t('months.july'), t('months.august'), t('months.september'),
     t('months.october'), t('months.november'), t('months.december')
   ]
+
+  // Component to show habit name with icon, hiding icon if text doesn't fit
+  function HabitNameWithIcon({ habit, isCompleted, isSmall = false }: { habit: any, isCompleted: boolean, isSmall?: boolean }) {
+    const textRef = useRef<HTMLSpanElement>(null)
+    const containerRef = useRef<HTMLDivElement>(null)
+    const [showIcon, setShowIcon] = useState(true)
+
+    useEffect(() => {
+      const checkTextFit = () => {
+        if (textRef.current && containerRef.current) {
+          const textElement = textRef.current
+          
+          // Check if text is truncated
+          const isTextTruncated = textElement.scrollWidth > textElement.clientWidth
+          
+          // If text is truncated, hide icon
+          setShowIcon(!isTextTruncated)
+        }
+      }
+
+      // Use setTimeout to ensure DOM is fully rendered
+      const timeoutId = setTimeout(checkTextFit, 0)
+      
+      // Recheck on resize
+      window.addEventListener('resize', checkTextFit)
+      return () => {
+        clearTimeout(timeoutId)
+        window.removeEventListener('resize', checkTextFit)
+      }
+    }, [habit.name])
+
+    return (
+      <div ref={containerRef} className="flex items-center gap-2 flex-shrink-0 flex-1 min-w-0">
+        {habit.icon && showIcon && (
+          <div className="flex-shrink-0" data-habit-icon>
+            {(() => {
+              const IconComponent = getIconComponent(habit.icon)
+              return <IconComponent className={isSmall ? "w-2.5 h-2.5 text-primary-600" : "w-4 h-4 text-primary-600"} />
+            })()}
+          </div>
+        )}
+        <span 
+          ref={textRef}
+          className={`${isSmall ? 'text-[10px]' : 'text-xs'} font-medium text-black truncate ${
+            isCompleted ? 'line-through' : ''
+          }`}
+        >
+          {habit.name || t('habits.habit')}
+        </span>
+      </div>
+    )
+  }
 
   // Format date according to user preference
   const formatDate = useCallback((date: Date): string => {
@@ -328,6 +380,7 @@ export function OverviewCalendarView({
                             style={{
                               border: 'none'
                             }}
+                            title={habit.name || t('habits.habit')}
                           >
                             <button
                               onClick={(e) => {
@@ -351,21 +404,7 @@ export function OverviewCalendarView({
                                 <Check className="w-3 h-3 text-white" />
                               ) : null}
                             </button>
-                            <div className="flex items-center gap-2 flex-shrink-0 flex-1 min-w-0">
-                              {habit.icon && (
-                                <div className="flex-shrink-0">
-                                  {(() => {
-                                    const IconComponent = getIconComponent(habit.icon)
-                                    return <IconComponent className="w-4 h-4 text-primary-600" />
-                                  })()}
-                                </div>
-                              )}
-                              <span className={`text-xs font-medium text-black truncate ${
-                                isCompleted ? 'line-through' : ''
-                              }`}>
-                                {habit.name || t('habits.habit')}
-                              </span>
-                            </div>
+                            <HabitNameWithIcon habit={habit} isCompleted={isCompleted} />
                           </div>
                         )
                       } else {
@@ -390,6 +429,7 @@ export function OverviewCalendarView({
                                 ? 'bg-primary-100 opacity-75 border-primary-300 hover:border-primary-400'
                                 : 'bg-white border-primary-500 hover:bg-primary-50 hover:border-primary-600'
                             } ${isLoading ? 'opacity-50' : ''} ${isAnimating ? 'animate-pulse' : ''}`}
+                            title={step.title || t('steps.step')}
                           >
                             <button
                               onClick={(e) => {
@@ -522,19 +562,7 @@ export function OverviewCalendarView({
                                 <Check className="w-2 h-2 text-white" />
                               ) : null}
                             </button>
-                            {habit.icon && (
-                              <div className="flex-shrink-0">
-                                {(() => {
-                                  const IconComponent = getIconComponent(habit.icon)
-                                  return <IconComponent className="w-2.5 h-2.5 text-primary-600" />
-                                })()}
-                              </div>
-                            )}
-                            <span className={`text-[10px] font-medium text-black truncate flex-1 ${
-                              isCompleted ? 'line-through' : ''
-                            }`}>
-                              {habit.name || t('habits.habit')}
-                            </span>
+                            <HabitNameWithIcon habit={habit} isCompleted={isCompleted} isSmall={true} />
                           </div>
                         )
                       } else {

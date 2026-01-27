@@ -71,6 +71,21 @@ export function AreaStepsView({
   const isStepCompletedForDate = (step: any, date: Date): boolean => {
     if (!step.completed) return false
     
+    // For recurring steps, check if current_instance_date matches the date
+    if (step.frequency && step.frequency !== null && step.current_instance_date) {
+      const instanceDate = new Date(normalizeDate(step.current_instance_date))
+      instanceDate.setHours(0, 0, 0, 0)
+      const checkDate = new Date(date)
+      checkDate.setHours(0, 0, 0, 0)
+      // If current_instance_date matches and step is completed, it's completed for this date
+      if (instanceDate.getTime() === checkDate.getTime()) {
+        return step.completed === true
+      }
+      // If current_instance_date is different, this date is not completed
+      return false
+    }
+    
+    // For non-recurring or old recurring steps, check completed_at
     if (step.completed_at) {
       const completedDate = new Date(step.completed_at)
       completedDate.setHours(0, 0, 0, 0)
@@ -91,6 +106,29 @@ export function AreaStepsView({
         return stepDate >= fromDate ? stepDate : null
       }
       return null
+    }
+    
+    // For recurring steps with current_instance_date, use that if it's in the future
+    if (step.current_instance_date) {
+      const instanceDate = new Date(normalizeDate(step.current_instance_date))
+      instanceDate.setHours(0, 0, 0, 0)
+      const fromDateNormalized = new Date(fromDate)
+      fromDateNormalized.setHours(0, 0, 0, 0)
+      
+      // If current_instance_date is today or in the future and not completed, return it
+      if (instanceDate >= fromDateNormalized && !step.completed) {
+        return instanceDate
+      }
+      
+      // If current_instance_date is completed, find the next occurrence
+      if (step.completed && instanceDate.getTime() === fromDateNormalized.getTime()) {
+        // Start searching from the day after current_instance_date
+        fromDate = new Date(instanceDate)
+        fromDate.setDate(fromDate.getDate() + 1)
+      } else if (instanceDate < fromDateNormalized) {
+        // If current_instance_date is in the past, start searching from fromDate
+        fromDate = fromDateNormalized
+      }
     }
     
     let checkDate = new Date(fromDate)

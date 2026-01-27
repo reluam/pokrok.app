@@ -429,7 +429,7 @@ export function MilestonesTimelineView({ areaId, userId, area, onMilestoneUpdate
 
                       {/* Milestone card - positioned 20px below dot */}
                       <div 
-                        className="rounded-lg border-2 p-4 transition-colors w-full shadow-sm mt-5 max-w-full"
+                        className="rounded-lg border-2 p-4 transition-colors w-full shadow-sm mt-5 max-w-full overflow-hidden"
                         style={{ 
                           backgroundColor: area?.color ? `${area.color}10` : '#E8871E10',
                           borderColor: area?.color ? `${area.color}40` : '#E8871E40'
@@ -528,7 +528,7 @@ export function MilestonesTimelineView({ areaId, userId, area, onMilestoneUpdate
                             <div className="mt-3 pt-3" style={{ borderTopColor: area?.color ? `${area.color}40` : '#E8871E40', borderTopWidth: '1px', borderTopStyle: 'solid' }}>
                               <div className="text-xs text-gray-700 mb-3 font-medium">Jak daleko jsi?</div>
                               {/* 10 step icons for progress */}
-                              <div className="flex items-center gap-1 mb-2">
+                              <div className="flex items-center gap-0.5 mb-2 overflow-hidden w-full">
                                 {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90].map((progressValue, index) => {
                                   const currentProgress = milestone.progress || 0
                                   const stepProgress = progressValue + 10
@@ -539,22 +539,27 @@ export function MilestonesTimelineView({ areaId, userId, area, onMilestoneUpdate
                                   return (
                                     <button
                                       key={progressValue}
-                                      onClick={() => handleProgressUpdate(milestone.id, stepProgress)}
-                                      className={`flex-shrink-0 transition-all hover:scale-110 ${
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleProgressUpdate(milestone.id, stepProgress)
+                                      }}
+                                      className={`flex-shrink-0 transition-all hover:scale-110 cursor-pointer touch-manipulation ${
                                         isActive
                                           ? 'text-primary-600'
                                           : isPartial
                                             ? 'text-primary-400 opacity-75'
                                             : 'text-gray-300 hover:text-gray-400'
-                                      } ${isEven ? 'translate-y-1' : '-translate-y-1'}`}
+                                      } ${isEven ? 'translate-y-0.5' : '-translate-y-0.5'}`}
+                                      style={{ flex: '0 0 auto' }}
                                       title={`${stepProgress}%`}
                                     >
                                       {/* Full Footprints icon */}
                                       <Footprints 
-                                        className={`w-4 h-4 rotate-90 transition-all ${
+                                        className={`w-3.5 h-3.5 rotate-90 transition-all ${
                                           isActive ? 'text-primary-600' : ''
                                         }`}
                                         fill={isActive ? 'currentColor' : 'none'}
+                                        strokeWidth={isActive ? 2 : 1.5}
                                       />
                                     </button>
                                   )

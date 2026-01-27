@@ -83,7 +83,14 @@
       "noMetrics": "Zatím žádné metriky",
       "noUnit": "Bez jednotky",
       "clickToEdit": "Klikněte pro úpravu metriky"
-    }
+    },
+    "milestones": "Milníky",
+    "addMilestone": "Přidat milník",
+    "noMilestones": "Žádné milníky",
+    "clickToAddDescription": "Klikni pro přidání popisu",
+    "milestoneTitle": "Název milníku",
+    "milestoneNumber": "Milník",
+    "stepNumber": "Krok"
   },
   "homepage": {
     "tagline": "Aplikace pro plánování života",
@@ -335,16 +342,7 @@
     "steps": "Kroky",
     "step": "krok",
     "addStep": "Přidat krok",
-    "remaining": "zbývá",
-    "milestones": "Milníky",
-    "addMilestone": "Přidat milník",
-    "noMilestones": "Žádné milníky",
-    "clickToAddDescription": "Klikni pro přidání popisu",
-    "milestoneTitle": "Název milníku",
-    "milestoneNumber": "Milník",
-    "stepNumber": "Krok",
-    "saveChanges": "Uložit změny",
-    "delete": "Smazat"
+    "remaining": "zbývá"
   },
   "habits": {
     "title": "NÁVYKY",

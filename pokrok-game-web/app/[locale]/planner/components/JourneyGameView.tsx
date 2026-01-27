@@ -359,6 +359,26 @@ export function JourneyGameView({
     }
   }, [userId])
 
+  // Auto-collapse sidebar if it takes more than 25% of screen width
+  useEffect(() => {
+    const checkSidebarWidth = () => {
+      if (typeof window === 'undefined') return
+      
+      const sidebarWidth = sidebarCollapsed ? 56 : 256 // w-14 = 56px, w-64 = 256px
+      const screenWidth = window.innerWidth
+      const sidebarPercentage = (sidebarWidth / screenWidth) * 100
+      
+      // If sidebar takes more than 25% of screen width and is not collapsed, collapse it
+      if (sidebarPercentage > 25 && !sidebarCollapsed) {
+        setSidebarCollapsed(true)
+      }
+    }
+    
+    checkSidebarWidth()
+    window.addEventListener('resize', checkSidebarWidth)
+    return () => window.removeEventListener('resize', checkSidebarWidth)
+  }, [sidebarCollapsed])
+
   // Save navigation state to localStorage
   useEffect(() => {
     try {

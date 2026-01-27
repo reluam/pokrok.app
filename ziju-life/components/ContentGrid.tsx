@@ -79,13 +79,7 @@ export default function ContentGrid() {
 
   const getAllItems = (): InspirationItem[] => {
     if (!data) return [];
-    return [
-      ...data.blogs,
-      ...data.videos,
-      ...data.books,
-      ...data.articles,
-      ...data.other,
-    ]
+    return data.blogs
       .filter(item => item.isActive !== false) // Only show active items
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 6); // Show only first 6 items
@@ -97,10 +91,10 @@ export default function ContentGrid() {
       <div className="max-w-6xl mx-auto space-y-12 relative z-10">
         <div className="text-center space-y-4">
           <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground" style={{ fontWeight: 600 }}>
-            <span className="hand-drawn-underline">Posbíraná inspirace</span>
+            <span className="hand-drawn-underline">Posbírané myšlenky</span>
           </h2>
           <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto">
-            Články, tipy a experimenty, které mi pomáhají pochopit život. Občas něco napíšu i já.
+            Moje laboratoř v textu. Píšu o experimentech, failech a zjištěních, které mi pomáhají pochopit, o čem život je.
           </p>
         </div>
         
@@ -169,10 +163,10 @@ export default function ContentGrid() {
         {items.length > 0 && (
           <div className="text-center">
             <Link
-              href="/inspirace"
+              href="/blog"
               className="btn-playful inline-block px-8 py-4 border-2 border-foreground/20 rounded-full text-lg font-semibold hover:border-accent hover:text-accent transition-colors shadow-md hover:shadow-lg"
             >
-              Zobrazit všechny inspirace
+              Zobrazit všechny články
             </Link>
           </div>
         )}

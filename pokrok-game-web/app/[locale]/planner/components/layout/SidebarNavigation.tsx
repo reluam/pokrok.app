@@ -618,10 +618,10 @@ export function SidebarNavigation({
         )}
       </div>
       
-      {/* Toggle button - centered at top when collapsed */}
+      {/* Toggle button - half out on the right side */}
       <button
         onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-        className={`absolute ${sidebarCollapsed ? 'top-3 left-1/2 -translate-x-1/2' : 'top-4 -right-3'} w-7 h-7 bg-white text-black rounded-full flex items-center justify-center hover:bg-primary-50 transition-colors border-2 border-primary-500 z-10 btn-playful-base`}
+        className={`absolute top-4 -right-3 w-7 h-7 bg-white text-black rounded-full flex items-center justify-center hover:bg-primary-50 transition-colors border-2 border-primary-500 z-10 btn-playful-base`}
         title={sidebarCollapsed ? 'Rozbalit navigaci' : 'Sbalit navigaci'}
       >
         {sidebarCollapsed ? (
