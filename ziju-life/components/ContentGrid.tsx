@@ -86,6 +86,12 @@ export default function ContentGrid() {
   };
 
   const items = getAllItems();
+  
+  // Don't render section if there are no active blog posts
+  if (!loading && items.length === 0) {
+    return null;
+  }
+  
   return (
     <section className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white/50 paper-texture overflow-hidden">
       <div className="max-w-6xl mx-auto space-y-12 relative z-10">

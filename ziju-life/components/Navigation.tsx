@@ -3,14 +3,28 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Navigation() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [hasActiveBlogs, setHasActiveBlogs] = useState(false);
+
+  useEffect(() => {
+    // Check if there are any active blog posts
+    fetch("/api/inspiration")
+      .then(res => res.json())
+      .then(data => {
+        const activeBlogs = data.blogs?.filter((item: any) => item.isActive !== false) || [];
+        setHasActiveBlogs(activeBlogs.length > 0);
+      })
+      .catch(() => {
+        setHasActiveBlogs(false);
+      });
+  }, []);
 
   const navItems: Array<{ href: string; label: string; external?: boolean }> = [
-    { href: "/inspirace", label: "Inspirace" },
+    ...(hasActiveBlogs ? [{ href: "/blog", label: "Blog" }] : []),
     { href: "/komunita", label: "Komunita" },
     { href: "/koucing", label: "Koučing" },
     { href: "/o-mne", label: "O mně" },
