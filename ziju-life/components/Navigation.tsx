@@ -8,23 +8,59 @@ import { useState, useEffect } from "react";
 export default function Navigation() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [hasActiveBlogs, setHasActiveBlogs] = useState(false);
 
   useEffect(() => {
-    // Check if there are any active blog posts
-    fetch("/api/inspiration")
-      .then(res => res.json())
-      .then(data => {
-        const activeBlogs = data.blogs?.filter((item: any) => item.isActive !== false) || [];
-        setHasActiveBlogs(activeBlogs.length > 0);
-      })
-      .catch(() => {
-        setHasActiveBlogs(false);
-      });
+    // Smooth scroll s easing funkcí pro anchor odkazy
+    const handleSmoothScroll = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const link = target.closest('a');
+      
+      if (link && link.getAttribute('href')?.startsWith('#')) {
+        e.preventDefault();
+        e.stopPropagation(); // Zastaví další event handlery
+        
+        const targetId = link.getAttribute('href')?.substring(1);
+        const targetElement = document.getElementById(targetId || '');
+        
+        if (targetElement) {
+          // Začni scroll okamžitě, bez čekání
+          const startPosition = window.pageYOffset;
+          const targetPosition = targetElement.getBoundingClientRect().top + startPosition - 80; // Offset pro sticky header
+          const distance = targetPosition - startPosition;
+          const duration = Math.min(Math.abs(distance) * 0.5, 600); // Jednodušší timing
+          let start: number | null = null;
+
+          // Jednoduchá ease-out funkce pro plynulost
+          const easeOut = (t: number): number => {
+            return 1 - Math.pow(1 - t, 2); // Jednoduchá kvadratická ease-out
+          };
+
+          const animateScroll = (currentTime: number) => {
+            if (start === null) start = currentTime;
+            const timeElapsed = currentTime - start;
+            const progress = Math.min(timeElapsed / duration, 1);
+            const easedProgress = easeOut(progress);
+            
+            window.scrollTo(0, startPosition + distance * easedProgress);
+            
+            if (progress < 1) {
+              requestAnimationFrame(animateScroll);
+            }
+          };
+
+          // Spusť animaci okamžitě
+          requestAnimationFrame(animateScroll);
+        }
+      }
+    };
+
+    // Použij capture phase pro okamžité zachycení
+    document.addEventListener('click', handleSmoothScroll, true);
+    return () => document.removeEventListener('click', handleSmoothScroll, true);
   }, []);
 
   const navItems: Array<{ href: string; label: string; external?: boolean }> = [
-    ...(hasActiveBlogs ? [{ href: "/blog", label: "Blog" }] : []),
+    { href: "/blog", label: "Blog" },
     { href: "/komunita", label: "Komunita" },
     { href: "/koucing", label: "Koučing" },
     { href: "/o-mne", label: "O mně" },

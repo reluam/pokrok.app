@@ -1124,30 +1124,16 @@ export function JourneyGameView({
           if (response.ok) {
             const updatedStep = await response.json()
             
-            // If this was a recurring step or instance, reload all steps to get the newly created instance
+            // For recurring steps, update the step in the array with the new current_instance_date
+            // This avoids reloading all steps which can cause unwanted side effects
             if (completed && (isRecurring || isInstance)) {
-              // Reload all steps to get the newly created instance
-              const currentUserId = userId || player?.user_id
-              if (currentUserId && onDailyStepsUpdate) {
-                const reloadResponse = await fetch(`/api/daily-steps?userId=${currentUserId}`)
-                if (reloadResponse.ok) {
-                  const allSteps = await reloadResponse.json()
-                  onDailyStepsUpdate(Array.isArray(allSteps) ? allSteps : [])
-                } else {
-                  // Fallback: update only the completed step
-                  const updatedSteps = dailySteps.map(step => 
-                    step.id === updatedStep.id ? updatedStep : step
-                  )
-                  onDailyStepsUpdate(updatedSteps)
-                }
-              } else {
-                // Fallback: update only the completed step
-                const updatedSteps = dailySteps.map(step => 
-                  step.id === updatedStep.id ? updatedStep : step
-                )
-                if (onDailyStepsUpdate) {
-                  onDailyStepsUpdate(updatedSteps)
-                }
+              // Update the step in the array with the new data from API
+              // The API already updated current_instance_date to the next occurrence
+              const updatedSteps = dailySteps.map(step => 
+                step.id === updatedStep.id ? updatedStep : step
+              )
+              if (onDailyStepsUpdate) {
+                onDailyStepsUpdate(updatedSteps)
               }
             } else {
               // For non-recurring steps, just update the step in the array

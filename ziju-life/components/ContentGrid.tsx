@@ -86,14 +86,8 @@ export default function ContentGrid() {
   };
 
   const items = getAllItems();
-  
-  // Don't render section if there are no active blog posts
-  if (!loading && items.length === 0) {
-    return null;
-  }
-  
   return (
-    <section className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white/50 paper-texture overflow-hidden">
+    <section id="posbirane-myslenky" className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white/50 paper-texture overflow-hidden">
       <div className="max-w-6xl mx-auto space-y-12 relative z-10">
         <div className="text-center space-y-4">
           <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground" style={{ fontWeight: 600 }}>

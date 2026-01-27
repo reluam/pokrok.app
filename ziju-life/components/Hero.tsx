@@ -27,17 +27,21 @@ export default function Hero() {
         </h1>
         
         <p className="text-lg md:text-xl lg:text-2xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
-          Život nemá manuál a většina z nás se v něm prostě jen snaží neztratit. Já věřím, že v tom nemusíme být sami. Tvořím komunitu pro všechny, kteří chtějí život opravdu prožít, zkoušet nové věci, získat nadhled a zjistit, o čem je štěstí.
+          Život nemá manuál a většina z nás se v něm prostě jen snaží neztratit. Já věřím, že v tom nemusíme být sami. Tohle místo internetu tvořím pro všechny, kteří chtějí život opravdu prožít, zkoušet nové věci, získat nadhled a zjistit, o čem je štěstí.
         </p>
         
-        <div className="flex justify-center items-center pt-4">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4">
           <a
-            href="https://www.skool.com/ziju-life-9405"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="#posbirane-myslenky"
+            className="btn-playful px-8 py-4 bg-white border-2 border-foreground/20 text-foreground rounded-full text-xl font-bold hover:border-accent hover:text-accent transition-colors w-full sm:w-auto shadow-lg hover:shadow-xl"
+          >
+            Chci si přečíst více
+          </a>
+          <a
+            href="#komunita"
             className="btn-playful px-8 py-4 bg-accent text-white rounded-full text-xl font-bold hover:bg-accent-hover transition-colors w-full sm:w-auto shadow-lg hover:shadow-xl"
           >
-            Pojď žít taky!
+            Chci se přidat
           </a>
         </div>
       </div>

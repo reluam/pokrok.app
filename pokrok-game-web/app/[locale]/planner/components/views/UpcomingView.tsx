@@ -255,14 +255,14 @@ export function UpcomingView({
   }, [onDailyStepsUpdateProp])
   
   useEffect(() => {
-    // Create a hash of step IDs and their key properties (including completed status) to detect changes
-    // This ensures we detect when a step's completed status changes, not just when IDs are added/removed
+    // Create a hash of step IDs and their key properties (excluding completed status for smooth updates)
+    // This ensures we detect when steps are added/removed or other properties change, but NOT when only completed changes
     // Also include title and length to catch new steps
     const currentStepsHash = JSON.stringify({
       length: (dailySteps || []).length,
       steps: (dailySteps || []).map((s: any) => ({
         id: s?.id,
-        completed: s?.completed,
+        // Exclude completed from hash to prevent reload on toggle
         date: s?.date,
         goal_id: s?.goal_id,
         area_id: s?.area_id,
@@ -270,9 +270,20 @@ export function UpcomingView({
       })).sort((a, b) => (a?.id || '').localeCompare(b?.id || ''))
     })
     
-    // Check if dailySteps prop actually changed (by IDs and key properties)
+    // Check if dailySteps prop actually changed (by IDs and key properties, excluding completed)
     if (currentStepsHash === prevDailyStepsHashRef.current) {
-      return // No change, skip update
+      // Only hash changed (likely just completed status) - update completed status optimistically without full reload
+      setLocalDailySteps(prev => {
+        return prev.map(localStep => {
+          const propStep = dailySteps.find((s: any) => s.id === localStep.id)
+          if (propStep && propStep.completed !== localStep.completed) {
+            // Step completion changed - update it
+            return propStep
+          }
+          return localStep
+        })
+      })
+      return // Skip full update
     }
     
     prevDailyStepsHashRef.current = currentStepsHash
@@ -993,7 +1004,30 @@ export function UpcomingView({
               }
             }}
             onStepImportantChange={onStepImportantChange}
-            handleStepToggle={handleStepToggle}
+            handleStepToggle={async (stepId: string, completed: boolean, completionDate?: string) => {
+              // Optimistic update - update locally first
+              setLocalDailySteps(prevSteps => 
+                prevSteps.map(s => 
+                  s.id === stepId 
+                    ? { ...s, completed }
+                    : s
+                )
+              )
+              // Then call API
+              try {
+                await handleStepToggle(stepId, completed, completionDate)
+              } catch (error) {
+                // Revert on error
+                setLocalDailySteps(prevSteps => 
+                  prevSteps.map(s => 
+                    s.id === stepId 
+                      ? { ...s, completed: !completed }
+                      : s
+                  )
+                )
+                throw error
+              }
+            }}
             loadingSteps={loadingSteps}
             createNewStepTrigger={createNewStepTrigger}
             onNewStepCreated={() => {

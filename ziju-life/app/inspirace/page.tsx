@@ -57,7 +57,6 @@ const getVideoThumbnail = (url: string): string | null => {
 export default function InspiracePage() {
   const [data, setData] = useState<InspirationData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedType, setSelectedType] = useState<string>("all");
   const [selectedItem, setSelectedItem] = useState<InspirationItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -79,20 +78,12 @@ export default function InspiracePage() {
 
   const getAllItems = (): InspirationItem[] => {
     if (!data) return [];
-    return [
-      ...data.blogs,
-      ...data.videos,
-      ...data.books,
-      ...data.articles,
-      ...data.other,
-    ]
+    return data.blogs
       .filter(item => item.isActive !== false) // Only show active items
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   };
 
-  const filteredItems = selectedType === "all" 
-    ? getAllItems()
-    : getAllItems().filter(item => item.type === selectedType);
+  const filteredItems = getAllItems();
 
   if (loading) {
     return (
@@ -109,42 +100,11 @@ export default function InspiracePage() {
       <div className="max-w-6xl mx-auto space-y-12">
         <div className="text-center space-y-4">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
-            Inspirace
+            Blog
           </h1>
           <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto">
-            Všechno, co jsem se naučil, testoval a prožil. Články, experimenty, tipy na knihy a systémy, které měnily můj život.
+            Všechno, co jsem se naučil, testoval a prožil. Články, experimenty a myšlenky, které měnily můj život.
           </p>
-        </div>
-        
-        {/* Filter */}
-        <div className="flex flex-wrap gap-2 justify-center">
-          <button
-            onClick={() => setSelectedType("all")}
-            className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
-              selectedType === "all"
-                ? "bg-accent text-white"
-                : "bg-white border border-black/10 text-foreground/70 hover:border-accent/30"
-            }`}
-          >
-            Vše
-          </button>
-          {["blog", "video", "book", "article", "other"].map((type) => {
-            const Icon = getTypeIcon(type);
-            return (
-              <button
-                key={type}
-                onClick={() => setSelectedType(type)}
-                className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors flex items-center gap-2 ${
-                  selectedType === type
-                    ? "bg-accent text-white"
-                    : "bg-white border border-black/10 text-foreground/70 hover:border-accent/30"
-                }`}
-              >
-                <Icon size={16} />
-                {getTypeLabel(type)}
-              </button>
-            );
-          })}
         </div>
 
         {/* Grid */}

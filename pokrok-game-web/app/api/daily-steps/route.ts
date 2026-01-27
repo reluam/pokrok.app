@@ -3,6 +3,7 @@ import { createDailyStep, getDailyStepsByUserId, updateDailyStepFields } from '@
 import { requireAuth, verifyEntityOwnership, verifyOwnership } from '@/lib/auth-helpers'
 import { neon } from '@neondatabase/serverless'
 import { isStepScheduledForDay } from '@/app/[locale]/planner/components/utils/stepHelpers'
+import { decryptFields, decryptChecklist } from '@/lib/encryption'
 
 const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy/dummy')
 
@@ -928,8 +929,14 @@ export async function PUT(request: NextRequest) {
         const updatedStep = updatedStepResult[0]
         console.log(`[Recurring step completion] Step ${stepId}: After UPDATE, date=${updatedStep.date}, current_instance_date=${updatedStep.current_instance_date}`)
         
+        // Decrypt fields before returning
+        const decrypted = decryptFields(updatedStep, dbUser.id, ['title', 'description'])
+        if (updatedStep.checklist) {
+          decrypted.checklist = decryptChecklist(updatedStep.checklist, dbUser.id)
+        }
+        
         const normalizedResult = {
-          ...updatedStep,
+          ...decrypted,
           date: normalizeDateFromDB(updatedStep.date)
         }
         
@@ -1118,8 +1125,14 @@ export async function PUT(request: NextRequest) {
       
       const updatedStep = result[0]
       
+      // Decrypt fields before returning
+      const decrypted = decryptFields(updatedStep, dbUser.id, ['title', 'description'])
+      if (updatedStep.checklist) {
+        decrypted.checklist = decryptChecklist(updatedStep.checklist, dbUser.id)
+      }
+      
       const normalizedResult = {
-        ...updatedStep,
+        ...decrypted,
         date: normalizeDateFromDB(updatedStep.date)
       }
       
@@ -1197,8 +1210,14 @@ export async function PUT(request: NextRequest) {
         
         const finishedStep = finishedStepResult[0]
         
+        // Decrypt fields before returning
+        const decrypted = decryptFields(finishedStep, dbUser.id, ['title', 'description'])
+        if (finishedStep.checklist) {
+          decrypted.checklist = decryptChecklist(finishedStep.checklist, dbUser.id)
+        }
+        
         const normalizedResult = {
-          ...finishedStep,
+          ...decrypted,
           date: normalizeDateFromDB(finishedStep.date)
         }
         
@@ -1235,8 +1254,14 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ error: 'Step not found' }, { status: 404 })
       }
       
+      // Decrypt fields before returning
+      const decrypted = decryptFields(result[0], dbUser.id, ['title', 'description'])
+      if (result[0].checklist) {
+        decrypted.checklist = decryptChecklist(result[0].checklist, dbUser.id)
+      }
+      
       const normalizedResult = {
-        ...result[0],
+        ...decrypted,
         date: normalizeDateFromDB(result[0].date)
       }
       return NextResponse.json(normalizedResult)
@@ -1260,15 +1285,22 @@ export async function PUT(request: NextRequest) {
             id, user_id, goal_id, title, description, completed, 
             TO_CHAR(date, 'YYYY-MM-DD') as date,
             is_important, is_urgent, aspiration_id, area_id,
-            estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
+            estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+            COALESCE(checklist, CAST('[]' AS jsonb)) as checklist
         `
         
         if (result.length === 0) {
           return NextResponse.json({ error: 'Step not found' }, { status: 404 })
         }
         
+        // Decrypt fields before returning
+        const decrypted = decryptFields(result[0], dbUser.id, ['title', 'description'])
+        if (result[0].checklist) {
+          decrypted.checklist = decryptChecklist(result[0].checklist, dbUser.id)
+        }
+        
         const normalizedResult = {
-          ...result[0],
+          ...decrypted,
           date: normalizeDateFromDB(result[0].date)
         }
         return NextResponse.json(normalizedResult)
@@ -1286,15 +1318,22 @@ export async function PUT(request: NextRequest) {
             id, user_id, goal_id, title, description, completed, 
             TO_CHAR(date, 'YYYY-MM-DD') as date,
             is_important, is_urgent, aspiration_id, area_id,
-            estimated_time, xp_reward, deadline, completed_at, created_at, updated_at
+            estimated_time, xp_reward, deadline, completed_at, created_at, updated_at,
+            COALESCE(checklist, CAST('[]' AS jsonb)) as checklist
         `
         
         if (result.length === 0) {
           return NextResponse.json({ error: 'Step not found' }, { status: 404 })
         }
         
+        // Decrypt fields before returning
+        const decrypted = decryptFields(result[0], dbUser.id, ['title', 'description'])
+        if (result[0].checklist) {
+          decrypted.checklist = decryptChecklist(result[0].checklist, dbUser.id)
+        }
+        
         const normalizedResult = {
-          ...result[0],
+          ...decrypted,
           date: normalizeDateFromDB(result[0].date)
         }
         return NextResponse.json(normalizedResult)

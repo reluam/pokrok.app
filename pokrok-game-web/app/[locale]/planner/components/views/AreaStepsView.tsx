@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { getLocalDateString, normalizeDate } from '../utils/dateHelpers'
 import { isStepScheduledForDay } from '../utils/stepHelpers'
@@ -35,6 +35,36 @@ export function AreaStepsView({
 }: AreaStepsViewProps) {
   const t = useTranslations()
   const locale = useLocale()
+  
+  // Local state for optimistic updates - prevents full reload
+  const [localSteps, setLocalSteps] = useState<any[]>(dailySteps)
+  
+  // Sync localSteps with dailySteps prop when it changes externally (but not on every update)
+  useEffect(() => {
+    // Only sync if the arrays are significantly different (e.g., new step added, not just toggle)
+    const localIds = new Set(localSteps.map(s => s.id))
+    const propIds = new Set(dailySteps.map(s => s.id))
+    const idsMatch = localIds.size === propIds.size && 
+                     Array.from(localIds).every(id => propIds.has(id))
+    
+    if (!idsMatch) {
+      // External change (new step, deleted step, etc.) - sync
+      setLocalSteps(dailySteps)
+    } else {
+      // Same steps, just update individual step states optimistically
+      setLocalSteps(prevSteps => {
+        const updated = prevSteps.map(localStep => {
+          const propStep = dailySteps.find(s => s.id === localStep.id)
+          if (propStep && propStep.completed !== localStep.completed) {
+            // Step completion changed - update it
+            return propStep
+          }
+          return localStep
+        })
+        return updated
+      })
+    }
+  }, [dailySteps])
   
   const today = useMemo(() => {
     const date = new Date()
@@ -191,14 +221,16 @@ export function AreaStepsView({
 
   // Get all steps - sorted by date, with overdue first, then important first within each day
   // Limited to one month ahead
+  // Note: Completed steps are kept in the list but sorted to the end
+  // Use localSteps for optimistic updates
   const allSteps = useMemo(() => {
-    const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isOverdue: boolean; goal: any }> = []
+    const stepsWithDates: Array<{ step: any; date: Date; isImportant: boolean; isOverdue: boolean; goal: any; isCompleted: boolean }> = []
     
     // Process non-repeating steps
-    dailySteps
+    localSteps
       .filter(step => !step.frequency || step.frequency === null)
       .forEach(step => {
-        if (!step.date || step.completed) return
+        if (!step.date) return
         
         const stepDate = new Date(normalizeDate(step.date))
         stepDate.setHours(0, 0, 0, 0)
@@ -214,12 +246,13 @@ export function AreaStepsView({
           date: stepDate,
           isImportant: step.is_important || false,
           isOverdue,
-          goal
+          goal,
+          isCompleted: step.completed || false
         })
       })
     
     // Process repeating steps
-    dailySteps
+    localSteps
       .filter(step => step.frequency && step.frequency !== null)
       .forEach(step => {
         const nextDate = getNextOccurrenceDate(step, today)
@@ -235,13 +268,18 @@ export function AreaStepsView({
             date: nextDate,
             isImportant: step.is_important || false,
             isOverdue: false,
-            goal
+            goal,
+            isCompleted: false
           })
         }
       })
     
-    // Sort: overdue first, then by date, then by importance within same date
+    // Sort: completed steps last, then overdue first, then by date, then by importance within same date
     stepsWithDates.sort((a, b) => {
+      // Completed steps go to the end
+      if (a.isCompleted && !b.isCompleted) return 1
+      if (!a.isCompleted && b.isCompleted) return -1
+      
       if (a.isOverdue && !b.isOverdue) return -1
       if (!a.isOverdue && b.isOverdue) return 1
       
@@ -258,7 +296,7 @@ export function AreaStepsView({
       _isOverdue: item.isOverdue,
       _goal: item.goal
     }))
-  }, [dailySteps, today, oneMonthFromToday, goalMap])
+  }, [localSteps, today, oneMonthFromToday, goalMap])
 
   // Split into upcoming (first 15) and future (rest)
   const upcomingSteps = useMemo(() => {
@@ -297,7 +335,25 @@ export function AreaStepsView({
         <button
           onClick={(e) => {
             e.stopPropagation()
-            handleStepToggle(step.id, !step.completed)
+            // Optimistic update - update locally first
+            setLocalSteps(prevSteps => 
+              prevSteps.map(s => 
+                s.id === step.id 
+                  ? { ...s, completed: !s.completed }
+                  : s
+              )
+            )
+            // Then call API
+            handleStepToggle(step.id, !step.completed).catch(() => {
+              // Revert on error
+              setLocalSteps(prevSteps => 
+                prevSteps.map(s => 
+                  s.id === step.id 
+                    ? { ...s, completed: step.completed }
+                    : s
+                )
+              )
+            })
           }}
           disabled={isLoading}
           className={`w-6 h-6 rounded-playful-sm border-2 flex items-center justify-center transition-colors flex-shrink-0 ${

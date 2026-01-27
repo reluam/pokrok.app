@@ -19,6 +19,10 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     background: var(--background);
     color: var(--foreground);
@@ -51,7 +55,7 @@
 
   nav, nav a, nav button {
     font-family: var(--font-nunito), system-ui, sans-serif;
-  }
+}
 
   footer, footer a {
     font-family: var(--font-nunito), system-ui, sans-serif;
@@ -133,7 +137,7 @@
   transition: transform 0.3s ease;
   border-radius: 1rem;
   overflow: visible;
-}
+  }
 
 .hand-drawn-frame > * {
   position: relative;

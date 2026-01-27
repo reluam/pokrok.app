@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth, verifyEntityOwnership } from '@/lib/auth-helpers'
 import { toggleHabitCompletion, getHabitsByUserId } from '@/lib/cesta-db'
+import { decryptFields } from '@/lib/encryption'
 
 export async function POST(request: NextRequest) {
   try {
@@ -57,8 +58,11 @@ export async function POST(request: NextRequest) {
     const today = date || new Date().toISOString().split('T')[0]
     const completedToday = habitCompletions[today] === true
     
+    // Decrypt fields before returning
+    const decrypted = decryptFields(habitResult[0], dbUser.id, ['name', 'description'])
+    
     const updatedHabit = {
-      ...habitResult[0],
+      ...decrypted,
       habit_completions: habitCompletions,
       completed_today: completedToday
     }
