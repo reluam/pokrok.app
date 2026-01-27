@@ -94,7 +94,7 @@ export default function ContentGrid() {
             <span className="hand-drawn-underline">Posbírané myšlenky</span>
           </h2>
           <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto">
-            Moje laboratoř v textu. Píšu o experimentech, failech a zjištěních, které mi pomáhají pochopit, o čem život je.
+            Snažím se zjistit, jak náš svět vlastně funguje. Své postřehy a experimenty tu sdílím několikrát do měsíce – je to moje hledání způsobů, jak v tomhle chaosu neztratit sebe.
           </p>
         </div>
         
