@@ -112,6 +112,12 @@ export default function OMnePage() {
               </div>
             ))}
           </div>
+          
+          <div className="mt-12 text-center">
+            <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
+              Takhle žiju life já. Pokud tě tenhle přístup baví, nech mi dole svůj mail a já ti dám vědět, na co jsem zrovna přišel. Nebo pojď rovnou do komunity a poděl se o to, jak se v tom chaosu snažíš žít ty.
+            </p>
+          </div>
         </div>
       </section>
 
