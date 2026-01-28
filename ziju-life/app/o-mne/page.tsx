@@ -10,19 +10,19 @@ interface Pillar {
 const pillars: Pillar[] = [
   {
     title: "Hravost",
-    description: "Moje záchranná brzda. Když jde do tuhého, připomene mi, že skoro nic není tak vážné, aby to byl konec světa. Je to jen život.",
+    description: "Skoro nic není tak vážné, aby se to nedalo brát s nadhledem. A je třeba si to občas připomenout.",
   },
   {
     title: "Zvídavost",
-    description: "Palivo pro moji agency. Pořád mě baví zjišťovat, co se stane, když otočím tímhle knoflíkem nebo zkusím tuhle random věc.",
+    description: "Moje obrana proti autopilotovi. Je to neustálá potřeba koukat pod kapotu věcem, které \"prostě tak jsou\", a zjišťovat, jak doopravdy fungují.",
   },
   {
     title: "Upřímnost",
-    description: "I v té trapnosti. Protože lhát si do kapsy je dlouhodbě moc velká dřina.",
+    description: "Lhaní si do kapsy je hrozná dřina, která nikam nevede. I malé lži mívají velké náklady.",
   },
   {
     title: "Otevřenost",
-    description: "(Pouze do doby, než budu nejlepší...)",
+    description: "Ochota přiznat, že věci mohou být jinak, než si zrovna myslím. Protože bez otevřené hlavy se ta hra na život nedá moc dobře hrát.",
   },
   {
     title: "Radost",
@@ -40,7 +40,7 @@ export default function OMnePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-center mb-8">
             <div className="md:col-span-2">
               <h1 className="text-3xl md:text-4xl lg:text-5xl text-foreground mb-8">
-                <span className="hand-drawn-underline">Ten moment, kdy mi došlo, že už mi „není dvacet"</span>
+                <span className="hand-drawn-underline">Ten moment, kdy mi došlo, že už mi není dvacet</span>
               </h1>
               <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed">
                 <p className="text-lg md:text-xl">
@@ -81,7 +81,7 @@ export default function OMnePage() {
               </h2>
               <div className="prose prose-lg max-w-none text-foreground/80 leading-relaxed">
                 <p className="text-lg md:text-xl">
-                  Půl roku jsem to v sobě převaloval. Hledal jsem způsob, jak ty vědomosti z první třetiny života nevyhodit z okna, ale začít je předávat dál a přitom se nepřestat učit. Blog by byl fajn, ale blog je monolog. Já chtěl dialog. Chtěl jsem interakci se světem a lidmi, kteří jsou na tom podobně. Proto vzniklo Žiju life. Není to jen projekt, je to můj způsob, jak tenhle život prožít a postavit něco, co dává smysl nejen mně, ale i ostatním.
+                  Půl roku jsem to v sobě převaloval. Hledal jsem způsob, jak zkušenosti z první třetiny života nevyhodit z okna, ale předávat je dál a přitom se nepřestat učit. Proto vzniklo Žiju life. Místo, kde společně můžeme přicházet na to, jak ten život vlastně hrát.
                 </p>
               </div>
             </div>
@@ -104,7 +104,7 @@ export default function OMnePage() {
                 style={{ transform: `rotate(${index % 2 === 0 ? '-0.5deg' : '0.5deg'})` }}
               >
                 <h3 className="text-xl md:text-2xl text-foreground mb-4" style={{ fontWeight: 600 }}>
-                  <span className="text-accent font-bold">{pillar.title}:</span>
+                  <span className="text-accent font-bold">{pillar.title}</span>
                 </h3>
                 <p className="text-foreground/80 leading-relaxed">
                   {pillar.description}
@@ -115,15 +115,8 @@ export default function OMnePage() {
         </div>
       </section>
 
-      {/* Transition text */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-        <p className="text-lg md:text-xl text-foreground/80 leading-relaxed">
-          A to je vlastně vše. Pokud se chceš přidat, nakoukni do komunity, nebo odebírej newsletter.
-        </p>
-      </div>
-
       {/* Stay in Contact */}
-      <StayInContact showTitle={false} />
+      <StayInContact showTitle={true} />
     </main>
   );
 }
