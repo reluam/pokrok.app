@@ -254,10 +254,10 @@ export default function KoucingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="bg-white rounded-2xl p-8 md:p-12 border-2 border-black/5">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8 text-center">
-              Cena
+              Jaká je cena?
             </h2>
             <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-2xl mx-auto mb-12 text-center">
-              První setkání je vždycky o tom, jestli si sedneme. Pokud jo, domluvíme se na dalším postupu, který bude dávat smysl oběma stranám.
+              Aktuálně za společný čas nic neplatíš. Nedělám to proto, že by ta hodina neměla hodnotu, ale proto, že se teď chci co nejvíc učit. Chci mluvit s lidmi, slyšet jejich příběhy a zjišťovat, jestli jim můj pohled na věc reálně pomáhá.
             </p>
             
             <div className="grid md:grid-cols-2 gap-8 md:gap-12">

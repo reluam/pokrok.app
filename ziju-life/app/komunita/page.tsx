@@ -131,7 +131,7 @@ export default function KomunitaPage() {
             rel="noopener noreferrer"
             className="btn-playful inline-block px-8 py-4 bg-accent text-white rounded-full text-xl font-bold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
           >
-            Vstoupit do laboratoře (Skool)
+            Vstoupit do komunity (Skool)
           </a>
         </div>
       </section>
