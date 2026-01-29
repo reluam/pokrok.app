@@ -37,7 +37,7 @@ export default function Coffee() {
               Pojďme do hloubky (Koučink)
             </h3>
             <p className="text-lg text-foreground/80 leading-relaxed mb-6">
-              Pokud cítíš, že ses v něčem zasekl/a a potřebuješ pomoct najít vlastní cestu ven, můžeme se do toho opřít společně. Tady už nejde o nezávazné povídání – budeme se soustředit na to, kde to v tvém životě zrovna drhne a kudy se chceš vydat dál. Aktuálně to dělám zdarma výměnou za tvůj upřímný feedback.
+              Pokud cítíš, že ses v něčem zasekl/a a potřebuješ pomoct najít vlastní cestu ven, můžeme se do toho opřít společně. Tady už nejde o nezávazné povídání – budeme se soustředit na to, kde to v tvém životě zrovna drhne a kudy se chceš vydat dál. Aktuálně koučuju zdarma výměnou za tvůj upřímný feedback.
             </p>
             <Link
               href="/koucing"

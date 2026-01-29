@@ -261,20 +261,28 @@ export default function KoucingPage() {
             </p>
             
             <div className="grid md:grid-cols-2 gap-8 md:gap-12">
-              {/* Levý sloupec - Skool tlačítko */}
-              <div className="flex flex-col justify-start items-center">
-                <a
-                  href="https://www.skool.com/@matej-mauler-3777?g=ziju-life-9405"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-playful inline-block px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
-                >
-                  Napiš mi na Skoolu →
-                </a>
+              {/* Levý sloupec - Google Calendar */}
+              <div className="border border-black/10 rounded-2xl p-6 md:p-8 bg-white/50">
+                <h3 className="text-xl md:text-2xl font-bold text-foreground mb-4 text-center">
+                  Rezervuj si sezení
+                </h3>
+                <div className="rounded-lg overflow-hidden">
+                  <iframe 
+                    src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ09WuK7w9SPU0bBC_TuRCmstTwkzazkPtq65gVaPDejfHspyAXwj1RKisdDRFE_Q2PF6a6iZviE?gv=true" 
+                    style={{ border: 0 }} 
+                    width="100%" 
+                    height="600" 
+                    frameBorder="0"
+                    className="w-full"
+                  />
+                </div>
               </div>
 
               {/* Pravý sloupec - Formulář */}
               <div className="border border-black/10 rounded-2xl p-6 md:p-8">
+                <h3 className="text-xl md:text-2xl font-bold text-foreground mb-6 text-center">
+                  Nebo mi zanech zprávu
+                </h3>
                 <ContactForm />
               </div>
             </div>
