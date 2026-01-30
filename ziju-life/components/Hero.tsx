@@ -29,6 +29,15 @@ export default function Hero() {
         <p className="text-lg md:text-xl lg:text-2xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
           Většinu dne neřídíš ty, ale tvůj autopilot. Ukážu ti, jak převzít řízení a nastavit ho tak, aby tě vezl tam, kam chceš ty.
         </p>
+        
+        <div className="flex justify-center items-center pt-4">
+          <a
+            href="#choose-your-path"
+            className="btn-playful px-8 py-4 bg-accent text-white rounded-full text-xl font-bold hover:bg-accent-hover transition-colors w-full sm:w-auto shadow-lg hover:shadow-xl"
+          >
+            Chci převzít řízení
+          </a>
+        </div>
       </div>
     </section>
   );

@@ -3,8 +3,14 @@ import { BookOpen, Users, Sparkles } from "lucide-react";
 
 export default function ChooseYourPath() {
   return (
-    <section className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white/50 paper-texture overflow-hidden">
-      <div className="max-w-6xl mx-auto relative z-10">
+    <section id="choose-your-path" className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white/50 paper-texture overflow-hidden">
+      <div className="max-w-6xl mx-auto relative z-10 space-y-12">
+        <div className="text-center">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+            Jak převzít řízení?
+          </h2>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Card 1: Blog */}
           <div className="bg-white rounded-2xl p-8 border-2 border-black/5 hover:border-accent/50 transition-all hover:shadow-xl hover:-translate-y-1 transform">
@@ -61,7 +67,7 @@ export default function ChooseYourPath() {
               Transformace
             </h2>
             <p className="text-foreground/70 leading-relaxed mb-6 text-center">
-              Individuální koučink. Podíváme se do tvého kódu, najdeme chyby a naladíme tvého autopilota tak, aby pracoval pro tebe, ne proti tobě.
+              Individuální koučink. Podíváme se do tvého kódu a naladíme autopilota tak, aby pracoval pro tebe.
             </p>
             <Link
               href="/koucing"
