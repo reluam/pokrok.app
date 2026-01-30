@@ -27,7 +27,7 @@ export default function Hero() {
         </h1>
         
         <p className="text-lg md:text-xl lg:text-2xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
-          Laboratoř, kde měníme teorii na praxi. Pomůžu ti najít tvou ztracenou 'agency' a přepsat staré vzorce chování.
+          Většinu dne neřídíš ty, ale tvůj autopilot. Ukážu ti, jak převzít řízení a nastavit ho tak, aby tě vezl tam, kam chceš ty.
         </p>
       </div>
     </section>

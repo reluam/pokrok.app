@@ -17,7 +17,7 @@ export default function ChooseYourPath() {
               Inspirace
             </h2>
             <p className="text-foreground/70 leading-relaxed mb-6 text-center">
-              Články, experimenty a myšlenky, které mi pomáhají pochopit, jak ten život vlastně hrát.
+              Reporty z mé cesty. Jak přemýšlím a co testuju.
             </p>
             <Link
               href="/blog"
@@ -35,10 +35,10 @@ export default function ChooseYourPath() {
               </div>
             </div>
             <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 text-center">
-              Spolupráce
+              Komunita
             </h2>
             <p className="text-foreground/70 leading-relaxed mb-6 text-center">
-              Komunita lidí, kteří chtějí růst společně a podporovat se v životních výzvách.
+              Free prostor na Skoolu, kde sdílíme co funguje a co ne.
             </p>
             <a
               href="https://www.skool.com/ziju-life-9405"
@@ -46,7 +46,7 @@ export default function ChooseYourPath() {
               rel="noopener noreferrer"
               className="btn-playful w-full px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl text-center block"
             >
-              Vstoupit do laboratoře
+              Vstoupit do komunity
             </a>
           </div>
 
@@ -61,7 +61,7 @@ export default function ChooseYourPath() {
               Transformace
             </h2>
             <p className="text-foreground/70 leading-relaxed mb-6 text-center">
-              Individuální koučink, kde společně najdeme tvou ztracenou agency a přepíšeme staré vzorce.
+              Individuální koučink. Podíváme se do tvého kódu, najdeme chyby a naladíme tvého autopilota tak, aby pracoval pro tebe, ne proti tobě.
             </p>
             <Link
               href="/koucing"
