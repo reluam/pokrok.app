@@ -233,6 +233,7 @@ export function StepsManagementView({
   
   // Track when localDailySteps changes to update parent state (including new step saves)
   // This effect handles ALL updates to ensure they're propagated immediately
+  // BUT: Skip updates when only completed status changes (to prevent reload on toggle)
   const prevLocalDailyStepsRef = useRef<any[]>(localDailySteps)
   useLayoutEffect(() => {
     if (!onDailyStepsUpdate) {
@@ -253,10 +254,24 @@ export function StepsManagementView({
     const currentStepIds = new Set(currentSavedSteps.map((s: any) => s?.id).filter(Boolean))
     const hasNewSteps = Array.from(currentStepIds).some(id => !prevStepIds.has(id))
     const hasRemovedSteps = Array.from(prevStepIds).some(id => !currentStepIds.has(id))
+    
+    // Check if steps changed (excluding completed status for smooth toggle)
     const hasChangedSteps = prevSavedSteps.some((prevStep) => {
       const currentStep = currentSavedSteps.find((s: any) => s?.id === prevStep?.id)
-      return !currentStep || JSON.stringify(prevStep) !== JSON.stringify(currentStep)
+      if (!currentStep) return true // Step was removed
+      
+      // Create copies without completed status for comparison
+      const { completed: prevCompleted, ...prevWithoutCompleted } = prevStep
+      const { completed: currentCompleted, ...currentWithoutCompleted } = currentStep
+      
+      // If only completed changed, don't count it as a change
+      if (JSON.stringify(prevWithoutCompleted) === JSON.stringify(currentWithoutCompleted)) {
+        return false // Only completed changed, skip
+      }
+      
+      return true // Other properties changed
     })
+    
     const stepsChanged = hasNewSteps || hasRemovedSteps || hasChangedSteps || prevSavedSteps.length !== currentSavedSteps.length
     
     // Update parent if steps changed (including new step saves)
@@ -1659,7 +1674,29 @@ export function StepsManagementView({
   const handleInternalStepToggle = async (stepId: string, completed: boolean, completionDate?: string) => {
     // Use handleStepToggle from props if available
     if (handleStepToggle) {
-      return handleStepToggle(stepId, completed, completionDate)
+      // Optimistic update - update locally first to prevent reload
+      setLocalDailySteps(prevSteps => 
+        prevSteps.map(s => 
+          s.id === stepId 
+            ? { ...s, completed }
+            : s
+        )
+      )
+      // Then call API
+      try {
+        await handleStepToggle(stepId, completed, completionDate)
+      } catch (error) {
+        // Revert on error
+        setLocalDailySteps(prevSteps => 
+          prevSteps.map(s => 
+            s.id === stepId 
+              ? { ...s, completed: !completed }
+              : s
+          )
+        )
+        throw error
+      }
+      return
     }
     
     // Otherwise use internal handler

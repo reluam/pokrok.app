@@ -893,8 +893,8 @@ export function UpcomingView({
       
       {/* Content */}
       <div className="flex-1 overflow-y-auto flex flex-col">
-        {/* Loading indicator for steps */}
-        {isLoadingSteps && (
+        {/* Loading indicator for initial load only - not for individual step toggles */}
+        {isLoadingSteps && localDailySteps.length === 0 && (
           <div className="flex-1 flex items-center justify-center py-12">
             <div className="text-center">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent mb-4"></div>
@@ -906,14 +906,14 @@ export function UpcomingView({
         )}
         
         {/* Milestones Timeline - before habits - Hidden on mobile */}
-        {!isLoadingSteps && userId && (
+        {userId && (
           <div className="hidden md:block">
             <UpcomingMilestonesView userId={userId} areas={areas} />
           </div>
         )}
         
-        {/* Today's Habits - only show if there are habits and not loading */}
-        {!isLoadingSteps && todaysHabits.length > 0 && (
+        {/* Today's Habits - always show if there are habits */}
+        {todaysHabits.length > 0 && (
           <div className="p-4 sm:p-6 lg:p-8 pt-0 pb-4">
             <div className="flex flex-wrap gap-3">
               {todaysHabits.map((habit) => {
@@ -973,9 +973,8 @@ export function UpcomingView({
           </div>
         )}
         
-        {/* Feed View - only show if not loading */}
-        {!isLoadingSteps && (
-          <StepsManagementView
+        {/* Feed View - always show, loading is handled per-step */}
+        <StepsManagementView
             dailySteps={localDailySteps}
             areas={areas}
             userId={userId}
@@ -1039,7 +1038,6 @@ export function UpcomingView({
             hideHeader={true}
             showCompleted={false}
           />
-        )}
       </div>
       
       {/* Date Picker Modal */}
