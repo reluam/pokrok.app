@@ -159,12 +159,73 @@ export default function KoucingPage() {
         <DecorativeShapes variant="hero" />
         <div className="max-w-4xl mx-auto text-center space-y-8 relative z-10">
           <h1 className="text-4xl md:text-5xl lg:text-6xl leading-tight text-foreground">
-            <span className="hand-drawn-underline">Když kafe nestačí.</span>
+            Přepni na manuál a vezmi si <span className="hand-drawn-underline">svůj život</span> zpět.
           </h1>
           
           <p className="text-lg md:text-xl lg:text-2xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
-            Někdy se v tom plácáme tak dlouho, že už přestáváme vidět břeh. Jako kouč tě nebudu učit, jak máš žít – to ostatně pořád zjišťuju i já sám. Ale pomůžu ti získat ten nadhled, o kterém píšu na webu, a najít tvou vlastní cestu, jak s tímhle světem začít interagovat s větší lehkostí.
+            Nebudu tě učit jak máš žít. Pomůžu ti rozklíčovat tvé automatické reakce a najít cestu, jak vědomě přepsat programy, které tě doposud řídily. Získej kontrolu tam, kde jsi doteď jen reagoval.
           </p>
+        </div>
+      </section>
+
+      {/* Pro koho to je? - Prominentní sekce */}
+      <section className="relative py-20 md:py-28 px-4 sm:px-6 lg:px-8 bg-white/50">
+        <DecorativeShapes position="left" />
+        <div className="max-w-6xl mx-auto space-y-12 relative z-10">
+          <div className="text-center">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-8">
+              Poznáváš se v tom?
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+            {/* Box 1 */}
+            <div className="bg-white rounded-2xl p-8 md:p-10 border-2 border-accent/20 hover:border-accent/40 transition-all shadow-lg hover:shadow-xl">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
+                  <span className="text-accent font-bold text-xl">✓</span>
+                </div>
+              </div>
+              <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium">
+                Tvůj den neřídíš ty, ale požadavky ostatních a skryté strachy.
+              </p>
+            </div>
+
+            {/* Box 2 */}
+            <div className="bg-white rounded-2xl p-8 md:p-10 border-2 border-accent/20 hover:border-accent/40 transition-all shadow-lg hover:shadow-xl">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
+                  <span className="text-accent font-bold text-xl">✓</span>
+                </div>
+              </div>
+              <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium">
+                Máš všechno, co bys „měl" mít, ale cítíš, že ti život protéká mezi prsty.
+              </p>
+            </div>
+
+            {/* Box 3 */}
+            <div className="bg-white rounded-2xl p-8 md:p-10 border-2 border-accent/20 hover:border-accent/40 transition-all shadow-lg hover:shadow-xl">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
+                  <span className="text-accent font-bold text-xl">✓</span>
+                </div>
+              </div>
+              <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium">
+                Tvá vlastní mysl je tvůj největší kritik, ne spojenec.
+              </p>
+            </div>
+
+            {/* Box 4 */}
+            <div className="bg-white rounded-2xl p-8 md:p-10 border-2 border-accent/20 hover:border-accent/40 transition-all shadow-lg hover:shadow-xl">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
+                  <span className="text-accent font-bold text-xl">✓</span>
+                </div>
+              </div>
+              <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium">
+                Vidíš, jak reaguješ postaru, ale neumíš to zastavit.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -189,60 +250,19 @@ export default function KoucingPage() {
 
             <div className="bg-white rounded-2xl p-8 border-2 border-black/5 hover:border-accent/30 transition-all">
               <h3 className="text-2xl font-bold text-foreground mb-4">
-                Hravost i v těžkých věcech
+                Fokus na akci
               </h3>
               <p className="text-lg text-foreground/80 leading-relaxed">
-                I vážná témata se dají probrat bez toho, abychom ztratili radost ze života.
+                Najdeme konkrétní kroky, jak vzít život zpátky do svých rukou.
               </p>
             </div>
 
             <div className="bg-white rounded-2xl p-8 border-2 border-black/5 hover:border-accent/30 transition-all">
               <h3 className="text-2xl font-bold text-foreground mb-4">
-                Fokus na akci
+                Hravost i v těžkých věcech
               </h3>
               <p className="text-lg text-foreground/80 leading-relaxed">
-                Neřešíme jen teorii, ale hledáme konkrétní kroky, jak vzít život zpátky do svých rukou.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pro koho to je? */}
-      <section className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white/50">
-        <DecorativeShapes position="left" />
-        <div className="max-w-4xl mx-auto space-y-12 relative z-10">
-          <div className="text-center">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-8">
-              Pro koho to je?
-            </h2>
-          </div>
-
-          <div className="space-y-6">
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center mt-1">
-                <span className="text-accent font-bold">✓</span>
-              </div>
-              <p className="text-lg text-foreground/80 leading-relaxed pt-1">
-                Pro ty, co cítí, že jim v životě chybí agency.
-              </p>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center mt-1">
-                <span className="text-accent font-bold">✓</span>
-              </div>
-              <p className="text-lg text-foreground/80 leading-relaxed pt-1">
-                Pro lidi, co se točí v kruhu a potřebují nezaujatého parťáka.
-              </p>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center mt-1">
-                <span className="text-accent font-bold">✓</span>
-              </div>
-              <p className="text-lg text-foreground/80 leading-relaxed pt-1">
-                Pro každého, kdo chce žít život "opravdu" a ne jen na autopilota.
+                I vážná témata se dají probrat bez toho, abychom ztratili radost ze života.
               </p>
             </div>
           </div>
@@ -251,40 +271,45 @@ export default function KoucingPage() {
 
       {/* Cena */}
       <section className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-white rounded-2xl p-8 md:p-12 border-2 border-black/5">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8 text-center">
+        <div className="max-w-6xl mx-auto space-y-12">
+          <div className="text-center">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-8">
               Jaká je cena?
             </h2>
-            <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-2xl mx-auto mb-12 text-center">
-              Aktuálně za společný čas nic neplatíš. Nedělám to proto, že by ta hodina neměla hodnotu, ale proto, že se teď chci co nejvíc učit. Chci mluvit s lidmi, slyšet jejich příběhy a zjišťovat, jestli jim můj pohled na věc reálně pomáhá.
-            </p>
-            
-            <div className="grid md:grid-cols-2 gap-8 md:gap-12">
-              {/* Levý sloupec - Google Calendar */}
-              <div className="border border-black/10 rounded-2xl p-6 md:p-8 bg-white/50">
-                <h3 className="text-xl md:text-2xl font-bold text-foreground mb-4 text-center">
-                  Rezervuj si sezení
-                </h3>
-                <div className="rounded-lg overflow-hidden">
-                  <iframe 
-                    src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ09WuK7w9SPU0bBC_TuRCmstTwkzazkPtq65gVaPDejfHspyAXwj1RKisdDRFE_Q2PF6a6iZviE?gv=true" 
-                    style={{ border: 0 }} 
-                    width="100%" 
-                    height="600" 
-                    frameBorder="0"
-                    className="w-full"
-                  />
-                </div>
+            <div className="space-y-4 max-w-2xl mx-auto">
+              <p className="text-lg text-foreground/80 leading-relaxed text-center font-semibold">
+                Aktuálně hledám lidi, kteří chtějí jít do hloubky a prozkoumat svůj autopilot společně se mnou.
+              </p>
+              <p className="text-lg text-foreground/80 leading-relaxed text-center">
+                Pomůžeš mi tak ověřit, jak můj přístup funguje v praxi, a ty získáš prostor pro svou změnu. Pokud máš chuť se do toho pustit, rezervuj si sezení zdarma.
+              </p>
+            </div>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12">
+            {/* Levý sloupec - Google Calendar */}
+            <div className="bg-white rounded-2xl p-6 md:p-8 border-2 border-black/10">
+              <h3 className="text-2xl font-bold text-foreground mb-4 text-center">
+                Rezervuj si sezení
+              </h3>
+              <div className="rounded-lg overflow-hidden">
+                <iframe 
+                  src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ09WuK7w9SPU0bBC_TuRCmstTwkzazkPtq65gVaPDejfHspyAXwj1RKisdDRFE_Q2PF6a6iZviE?gv=true" 
+                  style={{ border: 0 }} 
+                  width="100%" 
+                  height="600" 
+                  frameBorder="0"
+                  className="w-full"
+                />
               </div>
+            </div>
 
-              {/* Pravý sloupec - Formulář */}
-              <div className="border border-black/10 rounded-2xl p-6 md:p-8">
-                <h3 className="text-xl md:text-2xl font-bold text-foreground mb-6 text-center">
-                  Nebo mi zanech zprávu
-                </h3>
-                <ContactForm />
-              </div>
+            {/* Pravý sloupec - Formulář */}
+            <div className="bg-white rounded-2xl p-6 md:p-8 border-2 border-black/10">
+              <h3 className="text-2xl font-bold text-foreground mb-6 text-center">
+                Nebo mi zanech zprávu
+              </h3>
+              <ContactForm />
             </div>
           </div>
         </div>

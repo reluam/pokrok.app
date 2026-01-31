@@ -5,10 +5,13 @@ export default function ChooseYourPath() {
   return (
     <section id="choose-your-path" className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white/50 paper-texture overflow-hidden">
       <div className="max-w-6xl mx-auto relative z-10 space-y-12">
-        <div className="text-center">
+        <div className="text-center space-y-4">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
             Jak převzít řízení?
           </h2>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
+            Každý potřebujeme v danou chvíli něco jiného. Někdo hledá inspiraci, jiný parťáky a někdo hlubokou změnu. Zvol si tempo a intenzitu, která ti teď dává smysl.
+          </p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
