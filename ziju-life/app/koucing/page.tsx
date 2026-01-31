@@ -165,6 +165,18 @@ export default function KoucingPage() {
           <p className="text-lg md:text-xl lg:text-2xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
             Nebudu tě učit jak máš žít. Pomůžu ti rozklíčovat tvé automatické reakce a najít cestu, jak vědomě přepsat programy, které tě doposud řídily. Získej kontrolu tam, kde jsi doteď jen reagoval.
           </p>
+          
+          <button
+            onClick={() => {
+              const element = document.getElementById('rezervace');
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }}
+            className="px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
+          >
+            Chci změnu
+          </button>
         </div>
       </section>
 
@@ -177,51 +189,51 @@ export default function KoucingPage() {
               Poznáváš se v tom?
             </h2>
           </div>
-          <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+          <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-stretch">
             {/* Box 1 */}
-            <div className="bg-white rounded-2xl p-8 md:p-10 border-2 border-accent/20 hover:border-accent/40 transition-all shadow-lg hover:shadow-xl">
+            <div className="bg-white rounded-2xl p-8 md:p-10 border-2 border-accent/20 hover:border-accent/40 transition-all shadow-lg hover:shadow-xl flex flex-col h-full">
               <div className="flex items-start gap-4 mb-4">
                 <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
                   <span className="text-accent font-bold text-xl">✓</span>
                 </div>
               </div>
-              <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium">
+              <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium flex-1">
                 Tvůj den neřídíš ty, ale požadavky ostatních a skryté strachy.
               </p>
             </div>
 
             {/* Box 2 */}
-            <div className="bg-white rounded-2xl p-8 md:p-10 border-2 border-accent/20 hover:border-accent/40 transition-all shadow-lg hover:shadow-xl">
+            <div className="bg-white rounded-2xl p-8 md:p-10 border-2 border-accent/20 hover:border-accent/40 transition-all shadow-lg hover:shadow-xl flex flex-col h-full">
               <div className="flex items-start gap-4 mb-4">
                 <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
                   <span className="text-accent font-bold text-xl">✓</span>
                 </div>
               </div>
-              <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium">
+              <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium flex-1">
                 Máš všechno, co bys „měl" mít, ale cítíš, že ti život protéká mezi prsty.
               </p>
             </div>
 
             {/* Box 3 */}
-            <div className="bg-white rounded-2xl p-8 md:p-10 border-2 border-accent/20 hover:border-accent/40 transition-all shadow-lg hover:shadow-xl">
+            <div className="bg-white rounded-2xl p-8 md:p-10 border-2 border-accent/20 hover:border-accent/40 transition-all shadow-lg hover:shadow-xl flex flex-col h-full">
               <div className="flex items-start gap-4 mb-4">
                 <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
                   <span className="text-accent font-bold text-xl">✓</span>
                 </div>
               </div>
-              <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium">
+              <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium flex-1">
                 Tvá vlastní mysl je tvůj největší kritik, ne spojenec.
               </p>
             </div>
 
             {/* Box 4 */}
-            <div className="bg-white rounded-2xl p-8 md:p-10 border-2 border-accent/20 hover:border-accent/40 transition-all shadow-lg hover:shadow-xl">
+            <div className="bg-white rounded-2xl p-8 md:p-10 border-2 border-accent/20 hover:border-accent/40 transition-all shadow-lg hover:shadow-xl flex flex-col h-full">
               <div className="flex items-start gap-4 mb-4">
                 <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
                   <span className="text-accent font-bold text-xl">✓</span>
                 </div>
               </div>
-              <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium">
+              <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium flex-1">
                 Vidíš, jak reaguješ postaru, ale neumíš to zastavit.
               </p>
             </div>
@@ -270,7 +282,7 @@ export default function KoucingPage() {
       </section>
 
       {/* Cena */}
-      <section className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8">
+      <section id="rezervace" className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto space-y-12">
           <div className="text-center">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-8">
