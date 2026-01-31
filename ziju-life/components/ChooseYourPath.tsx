@@ -70,7 +70,7 @@ export default function ChooseYourPath() {
               Transformace
             </h2>
             <p className="text-foreground/70 leading-relaxed mb-6 text-center">
-              Individuální koučink. Podíváme se do tvého kódu a naladíme autopilota tak, aby pracoval pro tebe.
+              Individuální koučink. Podíváme se pod kapotu tvého autopilota a nastavíme ho tak, aby pracoval pro tebe.
             </p>
             <Link
               href="/koucing"

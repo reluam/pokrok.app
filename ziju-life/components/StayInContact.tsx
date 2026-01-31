@@ -4,9 +4,10 @@ import { useState } from "react";
 
 interface StayInContactProps {
   showTitle?: boolean;
+  showCommunity?: boolean;
 }
 
-export default function StayInContact({ showTitle = true }: StayInContactProps) {
+export default function StayInContact({ showTitle = true, showCommunity = true }: StayInContactProps) {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -54,32 +55,34 @@ export default function StayInContact({ showTitle = true }: StayInContactProps) 
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+        <div className={`grid grid-cols-1 ${showCommunity ? 'md:grid-cols-2' : 'md:grid-cols-1 max-w-2xl mx-auto'} gap-8 md:gap-12`}>
           {/* Vlevo - Komunita */}
-          <div 
-            className="bg-white/50 rounded-2xl p-8 md:p-10 border-2 border-black/5 hover:border-accent/30 transition-all transform hover:-translate-y-1"
-            style={{ transform: 'rotate(-0.5deg)' }}
-          >
-            <h3 className="text-2xl md:text-3xl text-foreground mb-4" style={{ fontWeight: 600 }}>
-              Připoj se do komunity
-            </h3>
-            <p className="text-lg text-foreground/80 leading-relaxed mb-6">
-              V naší free komunitě na Skoolu najdeš lidi na stejné vlně, společné výzvy a prostor, kde je upřímnost víc než dokonalost.
-            </p>
-            <a
-              href="https://www.skool.com/ziju-life-9405"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-playful inline-block px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
+          {showCommunity && (
+            <div 
+              className="bg-white/50 rounded-2xl p-8 md:p-10 border-2 border-black/5 hover:border-accent/30 transition-all transform hover:-translate-y-1"
+              style={{ transform: 'rotate(-0.5deg)' }}
             >
-              Vstoupit do komunity →
-            </a>
-          </div>
+              <h3 className="text-2xl md:text-3xl text-foreground mb-4" style={{ fontWeight: 600 }}>
+                Připoj se do komunity
+              </h3>
+              <p className="text-lg text-foreground/80 leading-relaxed mb-6">
+                V naší free komunitě na Skoolu najdeš lidi na stejné vlně, společné výzvy a prostor, kde je upřímnost víc než dokonalost.
+              </p>
+              <a
+                href="https://www.skool.com/ziju-life-9405"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-playful inline-block px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
+              >
+                Vstoupit do komunity →
+              </a>
+            </div>
+          )}
 
           {/* Vpravo - Newsletter */}
           <div 
             className="bg-white/50 rounded-2xl p-8 md:p-10 border-2 border-black/5 hover:border-accent/30 transition-all transform hover:-translate-y-1"
-            style={{ transform: 'rotate(0.5deg)' }}
+            style={{ transform: showCommunity ? 'rotate(0.5deg)' : 'none' }}
           >
             <h3 className="text-2xl md:text-3xl text-foreground mb-4" style={{ fontWeight: 600 }}>
               Newsletter
