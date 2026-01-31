@@ -48,10 +48,13 @@ export default function StayInContact({ showTitle = true, showCommunity = true }
     <section className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
       <div className="max-w-6xl mx-auto relative z-10">
         {showTitle && (
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 space-y-4">
             <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground" style={{ fontWeight: 600 }}>
               <span className="hand-drawn-underline">Stay in kontakt</span>
             </h2>
+            <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
+              Zatím jen sonduješ? Nech mi mail a budeme v kontaktu. Každý týden ti pošlu, co je u mě nového, a až budeš připraven převzít řízení naplno, víš, kde mě najdeš.
+            </p>
           </div>
         )}
 
