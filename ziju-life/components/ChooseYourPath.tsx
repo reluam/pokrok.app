@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, Users, Sparkles } from "lucide-react";
+import { BookOpen, Users, Compass } from "lucide-react";
 
 export default function ChooseYourPath() {
   return (
@@ -63,7 +63,7 @@ export default function ChooseYourPath() {
           <div className="bg-white rounded-2xl p-8 border-2 border-black/5 hover:border-accent/50 transition-all hover:shadow-xl hover:-translate-y-1 transform">
             <div className="flex items-center justify-center mb-6">
               <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center">
-                <Sparkles className="text-accent" size={32} />
+                <Compass className="text-accent" size={32} />
               </div>
             </div>
             <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 text-center">
