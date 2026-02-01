@@ -38,15 +38,11 @@ export default function Medailonek() {
               </p>
               
               <p>
-                Dnes jsem již ostřílený začátečník a zkouším nové a další věci – od neúspěšné hudební kariéry, přes hromadu nedokončených aplikací a tutových byznysů až po Žiju.life, což je mé poslední dílo (snad ne i poslední naděje) a zároveň vyvrcholení první třetiny mé životní cesty.
+                Dnes jako ostřílený začátečník neustále hledám, co reálně funguje. Moje experimenty sahají od vědy a technologií přes biorytmy a stravu až k meditaci a hledání vnitřního klidu.
               </p>
               
               <p>
-                Protože jsem za ty roky zjistil, co reálně (ne)funguje a prosekal se řadou slepých uliček, vytvořil jsem tenhle koutek internetu, abys nemusel/a začínat od nuly. Najdeš tu inspiraci v mých textech, podporu v začínající komunitě parťáků a individuální spolupráci, pokud se rozhodneš vzít si svůj život zpět skrze koučink.
-              </p>
-              
-              <p>
-                Pokud ti to dává smysl, rád půjdu kus cesty s tebou.
+                A tenhle kousek internetu jsem vytvořil, abys nemusel/a začít od nuly. Najdeš tady inspiraci v mých textech, podporu v začínající komunitě parťáků a individuální koučink, pokud se rozhodneš to vzít od podlahy.
               </p>
             </div>
           </div>

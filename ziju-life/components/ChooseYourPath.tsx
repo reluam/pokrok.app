@@ -67,10 +67,10 @@ export default function ChooseYourPath() {
               </div>
             </div>
             <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 text-center">
-              Transformace
+              Koučink
             </h2>
             <p className="text-foreground/70 leading-relaxed mb-6 text-center">
-              Individuální koučink. Podíváme se pod kapotu tvého autopilota a nastavíme ho tak, aby pracoval pro tebe.
+              Podíváme se pod kapotu tvého autopilota a nastavíme ho tak, aby pracoval pro tebe.
             </p>
             <Link
               href="/koucing"
