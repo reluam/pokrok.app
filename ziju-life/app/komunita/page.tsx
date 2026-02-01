@@ -15,8 +15,8 @@ const whatAwaits: Feature[] = [
     description: "Přístup k praktickým radám a nástrojům, které jsme osobně vyzkoušeli. Šetříme si navzájem čas tím, že sdílíme, co reálně funguje.",
   },
   {
-    title: "Kurzy a společná setkání",
-    description: "Pravidelné meetingy a vzdělávací materiály, které tě posunou dál. Učíme se od sebe navzájem v reálném čase.",
+    title: "Společné výzvy",
+    description: "Pravidelné výzvy, které nám pomáhají nezůstat jen u slov. Zkoušíme nové věci, sdílíme jejich dopad na náš život a vzájemně se držíme na cestě k lepšímu životu.",
   },
 ];
 
