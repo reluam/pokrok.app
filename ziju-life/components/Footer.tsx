@@ -38,6 +38,9 @@ export default function Footer() {
               <Link href="/o-mne" className="text-sm text-foreground/70 hover:text-accent transition-colors">
                 O mně
               </Link>
+              <Link href="/kontakt" className="text-sm text-foreground/70 hover:text-accent transition-colors">
+                Kontakt
+              </Link>
             </div>
           </div>
           
