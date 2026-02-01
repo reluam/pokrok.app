@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { verifySession } from '@/lib/auth'
 import AdminNavigation from '@/components/admin/AdminNavigation'
 
@@ -7,10 +8,23 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  const isAuthenticated = await verifySession()
+  const headersList = await headers()
+  const pathname = headersList.get('x-pathname') || ''
+  
+  // Don't redirect if we're already on the login page
+  const isLoginPage = pathname === '/admin/login'
+  
+  if (!isLoginPage) {
+    const isAuthenticated = await verifySession()
+    
+    if (!isAuthenticated) {
+      redirect('/admin/login')
+    }
+  }
 
-  if (!isAuthenticated) {
-    redirect('/admin/login')
+  // If on login page, render without navigation (login has its own layout)
+  if (isLoginPage) {
+    return <>{children}</>
   }
 
   return (
