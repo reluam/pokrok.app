@@ -47,7 +47,7 @@ export default function ChooseYourPath() {
               Komunita
             </h2>
             <p className="text-foreground/70 leading-relaxed mb-6 text-center">
-              Free prostor na Skoolu, kde sdílíme co funguje a co ne.
+              Společný prostor na Skoolu, kde plníme společné výzvy a sdílíme co funguje a co ne.
             </p>
             <a
               href="https://www.skool.com/ziju-life-9405"
