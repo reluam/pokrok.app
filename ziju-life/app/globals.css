@@ -319,6 +319,176 @@ body {
   @apply rounded-lg max-w-full my-4;
 }
 
+/* Blog detail page - spacious typography with serif font for headings and lists only */
+.blog-detail-content {
+  font-family: var(--font-baloo), system-ui, sans-serif;
+  font-size: 1.25rem;
+  line-height: 1.8;
+  color: var(--foreground);
+  font-weight: 400;
+}
+
+.blog-detail-content p {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-family: var(--font-baloo), system-ui, sans-serif;
+  font-weight: 400;
+}
+
+.blog-detail-content h1 {
+  font-size: 2.5rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 400;
+  line-height: 1.2;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.blog-detail-content h2 {
+  font-size: 2rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1.25rem;
+  font-weight: 400;
+  line-height: 1.3;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.blog-detail-content h3 {
+  font-size: 1.75rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 400;
+  line-height: 1.4;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.blog-detail-content h4 {
+  font-size: 1.5rem;
+  margin-top: 1.75rem;
+  margin-bottom: 0.875rem;
+  font-weight: 400;
+  line-height: 1.4;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.blog-detail-content h5 {
+  font-size: 1.25rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 400;
+  line-height: 1.5;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.blog-detail-content h6 {
+  font-size: 1.125rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 400;
+  line-height: 1.5;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.blog-detail-content ul,
+.blog-detail-content ol {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-left: 1.75rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+}
+
+.blog-detail-content li {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+}
+
+.blog-detail-content blockquote {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  padding-left: 1.5rem;
+  border-left: 4px solid var(--accent-primary);
+  font-style: italic;
+  font-family: var(--font-baloo), system-ui, sans-serif;
+  font-weight: 400;
+}
+
+.blog-detail-content hr {
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+}
+
+.blog-detail-content a {
+  color: var(--accent-primary);
+  text-decoration: underline;
+  font-family: var(--font-baloo), system-ui, sans-serif;
+  font-weight: 400;
+}
+
+.blog-detail-content a:hover {
+  color: var(--accent-primary-hover);
+}
+
+.blog-detail-content strong {
+  font-weight: 400;
+  font-family: var(--font-baloo), system-ui, sans-serif;
+}
+
+.blog-detail-content code {
+  font-size: 0.9em;
+  padding: 0.2em 0.4em;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 0.25rem;
+  font-family: 'Courier New', monospace;
+  font-weight: 400;
+}
+
+.blog-detail-content pre {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-weight: 400;
+}
+
+.blog-detail-content pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.blog-detail-content img {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  border-radius: 0.5rem;
+  max-width: 100%;
+  height: auto;
+}
+
+.blog-detail-content table {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-baloo), system-ui, sans-serif;
+  font-weight: 400;
+}
+
+.blog-detail-content th,
+.blog-detail-content td {
+  padding: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  font-weight: 400;
+}
+
+.blog-detail-content th {
+  font-weight: 400;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
 /* Czech typography: prevent conjunction "a" from being at end of line */
 .czech-conjunction-a {
   white-space: nowrap;

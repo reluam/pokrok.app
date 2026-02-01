@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { InspirationData, InspirationItem } from "@/lib/inspiration";
 import { Book, Video, FileText, PenTool, HelpCircle } from "lucide-react";
-import InspirationModal from "@/components/InspirationModal";
 
 const getTypeLabel = (type: string): string => {
   switch (type) {
@@ -55,10 +55,9 @@ const getVideoThumbnail = (url: string): string | null => {
 };
 
 export default function InspiracePage() {
+  const router = useRouter();
   const [data, setData] = useState<InspirationData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedItem, setSelectedItem] = useState<InspirationItem | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -122,8 +121,7 @@ export default function InspiracePage() {
                 <button
                   key={item.id}
                   onClick={() => {
-                    setSelectedItem(item);
-                    setIsModalOpen(true);
+                    router.push(`/blog/${item.id}`);
                   }}
                   className="block text-left w-full cursor-pointer"
                 >
@@ -168,16 +166,6 @@ export default function InspiracePage() {
             })
           )}
         </div>
-        
-        {/* Modal */}
-        <InspirationModal
-          item={selectedItem}
-          isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setSelectedItem(null);
-          }}
-        />
       </div>
     </main>
   );

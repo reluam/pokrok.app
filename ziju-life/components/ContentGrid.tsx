@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Book, Video, FileText, PenTool, HelpCircle } from "lucide-react";
 import type { InspirationData, InspirationItem } from "@/lib/inspiration";
-import InspirationModal from "./InspirationModal";
 
 const getTypeLabel = (type: string): string => {
   switch (type) {
@@ -56,10 +56,9 @@ const getVideoThumbnail = (url: string): string | null => {
 };
 
 export default function ContentGrid() {
+  const router = useRouter();
   const [data, setData] = useState<InspirationData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedItem, setSelectedItem] = useState<InspirationItem | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -116,8 +115,7 @@ export default function ContentGrid() {
                 <button
                   key={item.id}
                   onClick={() => {
-                    setSelectedItem(item);
-                    setIsModalOpen(true);
+                    router.push(`/blog/${item.id}`);
                   }}
                   className="block text-left w-full cursor-pointer"
                 >
@@ -170,16 +168,6 @@ export default function ContentGrid() {
             </Link>
           </div>
         )}
-        
-        {/* Modal */}
-        <InspirationModal
-          item={selectedItem}
-          isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setSelectedItem(null);
-          }}
-        />
       </div>
     </section>
   );
