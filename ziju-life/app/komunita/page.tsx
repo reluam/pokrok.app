@@ -12,7 +12,7 @@ const whatAwaits: Feature[] = [
   },
   {
     title: "Knihovna ověřených tipů",
-    description: "Přístup k praktickým radám a nástrojům, které jsme si my i já osobně vyzkoušeli. Šetříme si navzájem čas tím, že sdílíme to, co reálně funguje.",
+    description: "Přístup k praktickým radám a nástrojům, které jsme osobně vyzkoušeli. Šetříme si navzájem čas tím, že sdílíme, co reálně funguje.",
   },
   {
     title: "Kurzy a společná setkání",

@@ -26,7 +26,7 @@ const pillars: Pillar[] = [
   },
   {
     title: "Radost",
-    description: "Když se někomu něco podaří uplácat, tak chci mít upřímnou radost. Je skvělé, co jsme jako lidi dokázali.",
+    description: "Když se někomu něco podaří, tak chci mít upřímnou radost. Je skvělé, co jsme jako lidi dokázali.",
   },
 ];
 

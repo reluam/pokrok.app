@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 import { X, Book, Video, FileText, PenTool, HelpCircle } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { InspirationItem } from "@/lib/inspiration";
 
 const getTypeIcon = (type: string) => {
@@ -140,9 +142,21 @@ export default function InspirationModal({ item, isOpen, onClose }: InspirationM
             <p className="text-lg text-foreground/60">Autor: {item.author}</p>
           )}
 
-          <p className="text-lg text-foreground/80 leading-relaxed">
-            {item.description}
-          </p>
+          {/* Popisek - odděleně pro blog */}
+          {item.type === "blog" && item.description && (
+            <>
+              <p className="text-lg text-foreground/80 leading-relaxed pb-6 border-b border-black/10">
+                {item.description}
+              </p>
+            </>
+          )}
+
+          {/* Popisek - pro ostatní typy */}
+          {item.type !== "blog" && item.description && (
+            <p className="text-lg text-foreground/80 leading-relaxed">
+              {item.description}
+            </p>
+          )}
 
           {/* Video Embed */}
           {item.type === "video" && videoEmbedUrl && (
@@ -181,11 +195,12 @@ export default function InspirationModal({ item, isOpen, onClose }: InspirationM
 
           {/* Blog Content */}
           {item.type === "blog" && item.content && (
-            <div className="prose prose-lg max-w-none bg-white rounded-2xl p-8 border border-black/5">
-              <div
-                dangerouslySetInnerHTML={{ __html: item.content }}
-                className="blog-content"
-              />
+            <div className="prose prose-lg max-w-none pt-6">
+              <div className="blog-content">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {item.content}
+                </ReactMarkdown>
+              </div>
             </div>
           )}
 
