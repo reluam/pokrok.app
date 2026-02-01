@@ -9,7 +9,7 @@ export default function Home() {
       <Hero />
       <Medailonek />
       <ChooseYourPath />
-      <StayInContact showCommunity={false} />
+      <StayInContact showCommunity={false} showDescription={true} />
     </main>
   );
 }

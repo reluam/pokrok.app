@@ -5,9 +5,10 @@ import { useState } from "react";
 interface StayInContactProps {
   showTitle?: boolean;
   showCommunity?: boolean;
+  showDescription?: boolean;
 }
 
-export default function StayInContact({ showTitle = true, showCommunity = true }: StayInContactProps) {
+export default function StayInContact({ showTitle = true, showCommunity = true, showDescription = false }: StayInContactProps) {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -52,9 +53,11 @@ export default function StayInContact({ showTitle = true, showCommunity = true }
             <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground" style={{ fontWeight: 600 }}>
               <span className="hand-drawn-underline">Stay in kontakt</span>
             </h2>
-            <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
-              Zatím jen sonduješ? Nech mi mail a budeme v kontaktu. Každý týden ti pošlu, co je u mě nového, a až budeš připraven převzít řízení naplno, víš, kde mě najdeš.
-            </p>
+            {showDescription && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
+                Zatím jen sonduješ? Nech mi mail a budeme v kontaktu. Každý týden ti pošlu, co je u mě nového, a až budeš připraven převzít řízení naplno, víš, kde mě najdeš.
+              </p>
+            )}
           </div>
         )}
 

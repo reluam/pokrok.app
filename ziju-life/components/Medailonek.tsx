@@ -34,7 +34,7 @@ export default function Medailonek() {
             
             <div className="space-y-4 text-lg md:text-xl text-foreground/80 leading-relaxed">
               <p>
-                Většinu života jsem strávil snahou pochopit, jak se tenhle 'život' vlastně hraje. Jako nejisté dítě jsem neuměl číst v lidech ani v systémech, ale pomalu a trapně jsem se to postupně začal učit.
+                Většinu života jsem strávil snahou pochopit, jak se tenhle 'život' vlastně hraje. Jako nejisté dítě jsem neuměl číst v lidech ani v systémech, ale pomalu (a často trapně) jsem se to začal učit.
               </p>
               
               <p>
@@ -42,7 +42,11 @@ export default function Medailonek() {
               </p>
               
               <p>
-                Protože už mám dost chabých pokusů o úspěch a taky protože to začalo být lonely, tak jsem založil komunitu pro lidi, kteří to mají podobně. Místo, kde můžeme naše experimenty a cesty sdílet nebo se jen inspirovat, ale hlavně - nebrat ten život (ani sebe) tak vážně.
+                Protože jsem za ty roky zjistil, co reálně (ne)funguje a prosekal se řadou slepých uliček, vytvořil jsem tenhle koutek internetu, abys nemusel/a začínat od nuly. Najdeš tu inspiraci v mých textech, podporu v začínající komunitě parťáků a individuální spolupráci, pokud se rozhodneš vzít si svůj život zpět skrze koučink.
+              </p>
+              
+              <p>
+                Pokud ti to dává smysl, rád půjdu kus cesty s tebou.
               </p>
             </div>
           </div>
