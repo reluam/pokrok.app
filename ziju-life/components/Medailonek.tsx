@@ -34,11 +34,11 @@ export default function Medailonek() {
             
             <div className="space-y-4 text-lg md:text-xl text-foreground/80 leading-relaxed">
               <p>
-                Většinu života jsem strávil snahou pochopit, jak se tenhle 'život' vlastně hraje. Jako nejisté dítě jsem neuměl číst v lidech ani v systémech, ale pomalu (a často trapně) jsem se to začal učit.
+                Většinu života jsem strávil snahou pochopit, jak se tenhle život vlastně hraje. Jako nejisté dítě jsem neuměl číst v lidech ani v systémech, ale pomalu (a často s rozpaky) jsem se to začal učit.
               </p>
               
               <p>
-                Dnes jako ostřílený začátečník neustále hledám, co reálně funguje. Moje experimenty sahají od vědy a technologií přes biorytmy a stravu až k meditaci a hledání vnitřního klidu.
+                Dnes jako ostřílený začátečník neustále hledám, co reálně funguje. Experimentuji s vědou a technologiemi, biorytmy a stravou i meditací a hledáním vnitřního klidu.
               </p>
               
               <p>

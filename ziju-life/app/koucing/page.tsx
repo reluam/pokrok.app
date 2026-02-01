@@ -163,7 +163,7 @@ export default function KoucingPage() {
           </h1>
           
           <p className="text-lg md:text-xl lg:text-2xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
-            Nebudu tě učit jak máš žít. Pomůžu ti rozklíčovat tvé automatické reakce a najít cestu, jak vědomě přepsat programy, které tě doposud řídily. Získej kontrolu tam, kde jsi doteď jen reagoval.
+            Nebudu tě učit, jak máš žít. Pomůžu ti rozklíčovat tvé automatické reakce a najít cestu, jak vědomě přepsat programy, které tě doposud řídily.
           </p>
           
           <button
@@ -234,7 +234,7 @@ export default function KoucingPage() {
                 </div>
               </div>
               <p className="text-xl md:text-2xl text-foreground leading-relaxed font-medium flex-1">
-                Vidíš, jak reaguješ postaru, ale neumíš to zastavit.
+                Vidíš, jak reaguješ, ale neumíš to změnit.
               </p>
             </div>
           </div>
@@ -265,7 +265,7 @@ export default function KoucingPage() {
                 Fokus na akci
               </h3>
               <p className="text-lg text-foreground/80 leading-relaxed">
-                Najdeme konkrétní kroky, jak vzít život zpátky do svých rukou.
+                Najdeme konkrétní kroky, jak vzít život zpátky do tvých rukou.
               </p>
             </div>
 

@@ -55,7 +55,7 @@ export default function StayInContact({ showTitle = true, showCommunity = true, 
             </h2>
             {showDescription && (
               <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
-                Zatím jen sonduješ? Nech mi mail a budeme v kontaktu. Každý týden ti pošlu, co je u mě nového, a až budeš připraven převzít řízení naplno, víš, kde mě najdeš.
+                Zatím jen sonduješ? Nech mi mail a budeme v kontaktu. Každý týden ti pošlu, co je u mě nového, a až budeš připraven převzít řízení naplno, víš, kde mě najít.
               </p>
             )}
           </div>

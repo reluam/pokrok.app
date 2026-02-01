@@ -318,3 +318,8 @@ body {
 .blog-content img {
   @apply rounded-lg max-w-full my-4;
 }
+
+/* Czech typography: prevent conjunction "a" from being at end of line */
+.czech-conjunction-a {
+  white-space: nowrap;
+}

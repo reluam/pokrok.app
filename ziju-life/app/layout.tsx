@@ -3,6 +3,7 @@ import { Baloo_2, Nunito } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import FixCzechTypography from "@/components/FixCzechTypography";
 
 const baloo2 = Baloo_2({
   subsets: ['latin', 'latin-ext'],
@@ -36,6 +37,7 @@ export default function RootLayout({
   return (
     <html lang="cs" className={`${baloo2.variable} ${nunito.variable}`}>
       <body className="antialiased">
+        <FixCzechTypography />
         <Navigation />
         {children}
         <Footer />
