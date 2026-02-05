@@ -15,8 +15,8 @@ const whatAwaits: Feature[] = [
     description: "Přístup k praktickým radám a nástrojům, které jsme osobně vyzkoušeli. Šetříme si navzájem čas tím, že sdílíme, co reálně funguje.",
   },
   {
-    title: "Společné výzvy",
-    description: "Pravidelné výzvy, které nám pomáhají nezůstat jen u slov. Zkoušíme nové věci, sdílíme jejich dopad na náš život a vzájemně se držíme na cestě k lepšímu životu.",
+    title: "Společné experimenty",
+    description: "Nepravidelné experimenty, které nám pomáhají nezůstat jen u slov. Zkoušíme nové věci, sdílíme jejich dopad na náš život a vzájemně se držíme na cestě ke smysluplnějšímu životu.",
   },
 ];
 
@@ -89,7 +89,7 @@ export default function KomunitaPage() {
             rel="noopener noreferrer"
             className="btn-playful inline-block px-8 py-4 bg-accent text-white rounded-full text-xl font-bold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
           >
-            Vstoupit do komunity na Skoolu
+            Nakouknout dovnitř
           </a>
         </div>
       </section>

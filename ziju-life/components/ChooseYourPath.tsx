@@ -47,7 +47,7 @@ export default function ChooseYourPath() {
               Komunita
             </h2>
             <p className="text-foreground/70 leading-relaxed mb-6 text-center">
-              Společný prostor na Skoolu, kde sdílíme co funguje, plníme společné výzvy a žijem life spolu.
+              Společný prostor na Skoolu, kde se inspirujeme, experimentujeme, sdílíme co funguje, a žijem life.
             </p>
             <a
               href="https://www.skool.com/zijem-life-3913"
@@ -55,7 +55,7 @@ export default function ChooseYourPath() {
               rel="noopener noreferrer"
               className="btn-playful w-full px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl text-center block"
             >
-              Vstoupit do komunity
+              Nakouknout dovnitř
             </a>
           </div>
 

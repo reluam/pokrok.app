@@ -80,7 +80,7 @@ export default function StayInContact({ showTitle = true, showCommunity = true, 
                 rel="noopener noreferrer"
                 className="btn-playful inline-block px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
               >
-                Vstoupit do komunity →
+                Nakouknout dovnitř →
               </a>
             </div>
           )}
