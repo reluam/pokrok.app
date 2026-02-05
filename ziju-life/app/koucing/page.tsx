@@ -149,21 +149,19 @@ export default function KoucingPage() {
             </div>
           </div>
           
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-2xl p-6 md:p-8 border-2 border-black/10">
-              <h3 className="text-2xl font-bold text-foreground mb-4 text-center">
-                Rezervuj si sezení
-              </h3>
-              <div className="rounded-lg overflow-hidden">
-                <iframe 
-                  src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ09WuK7w9SPU0bBC_TuRCmstTwkzazkPtq65gVaPDejfHspyAXwj1RKisdDRFE_Q2PF6a6iZviE?gv=true" 
-                  style={{ border: 0 }} 
-                  width="100%" 
-                  height="600" 
-                  frameBorder="0"
-                  className="w-full"
-                />
-              </div>
+          <div className="bg-white rounded-2xl p-6 md:p-8 border-2 border-black/10">
+            <h3 className="text-2xl font-bold text-foreground mb-4 text-center">
+              Rezervuj si sezení
+            </h3>
+            <div className="rounded-lg overflow-hidden">
+              <iframe 
+                src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ09WuK7w9SPU0bBC_TuRCmstTwkzazkPtq65gVaPDejfHspyAXwj1RKisdDRFE_Q2PF6a6iZviE?gv=true" 
+                style={{ border: 0 }} 
+                width="100%" 
+                height="600" 
+                frameBorder="0"
+                className="w-full"
+              />
             </div>
           </div>
         </div>
