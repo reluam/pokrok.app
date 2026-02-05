@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
 
     if (!email || typeof email !== 'string') {
       return NextResponse.json(
-        { error: 'Email is required' },
+        { error: 'Email je povinný' },
         { status: 400 }
       )
     }
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
       return NextResponse.json(
-        { error: 'Invalid email format' },
+        { error: 'Neplatný formát emailu' },
         { status: 400 }
       )
     }
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
     }
     
     return NextResponse.json(
-      { success: true, message: 'Successfully subscribed to newsletter' },
+      { success: true, message: 'Úspěšně přihlášeno k newsletteru' },
       { status: 201 }
     )
   } catch (error: any) {
@@ -108,13 +108,13 @@ export async function POST(request: NextRequest) {
     
     if (error.message === 'Email already subscribed') {
       return NextResponse.json(
-        { error: 'This email is already subscribed' },
+        { error: 'Tento email je již přihlášený k newsletteru' },
         { status: 409 }
       )
     }
 
     return NextResponse.json(
-      { error: 'Failed to subscribe to newsletter' },
+      { error: 'Nepodařilo se přihlásit k newsletteru' },
       { status: 500 }
     )
   }
