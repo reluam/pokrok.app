@@ -22,7 +22,7 @@ export default function Coffee() {
               Pokud si chceš jen popovídat o tom, co píšu na blogu, sdílet svůj příběh nebo tě zajímá, jak nad věcmi přemýšlím, ozvi se. Rád poznávám lidi, co nechtějí jen přežívat na autopilota. Prostě káva, žádná agenda.
             </p>
             <a
-              href="https://www.skool.com/@matej-mauler-3777?g=ziju-life-9405"
+              href="https://www.skool.com/zijem-life-3529"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-playful inline-block px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"

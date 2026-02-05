@@ -55,3 +55,13 @@ export async function deleteNewsletterSubscriber(id: string): Promise<boolean> {
 
   return result.length > 0
 }
+
+export async function deleteNewsletterSubscriberByEmail(email: string): Promise<boolean> {
+  const result = await sql`
+    DELETE FROM newsletter_subscribers
+    WHERE email = ${email.toLowerCase().trim()}
+    RETURNING id
+  `
+
+  return result.length > 0
+}

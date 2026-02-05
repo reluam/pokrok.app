@@ -10,7 +10,7 @@ export default function ChooseYourPath() {
             Jak převzít řízení?
           </h2>
           <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
-            Každý potřebujeme v danou chvíli něco jiného. Někdo hledá inspiraci, jiný parťáky a někdo hlubokou změnu. Zvol si tempo a intenzitu, která ti teď dává smysl.
+            Každý potřebujeme v danou chvíli něco jiného. Zvol si tempo a intenzitu, která ti teď dává smysl.
           </p>
         </div>
         
@@ -47,10 +47,10 @@ export default function ChooseYourPath() {
               Komunita
             </h2>
             <p className="text-foreground/70 leading-relaxed mb-6 text-center">
-              Společný prostor na Skoolu, kde plníme společné výzvy a sdílíme co funguje a co ne.
+              Společný prostor na Skoolu, kde sdílíme co funguje, plníme společné výzvy a žijem life spolu.
             </p>
             <a
-              href="https://www.skool.com/ziju-life-9405"
+              href="https://www.skool.com/zijem-life-3529"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-playful w-full px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl text-center block"

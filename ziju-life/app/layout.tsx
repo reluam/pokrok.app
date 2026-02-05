@@ -6,6 +6,7 @@ import "./globals.css";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import FixCzechTypography from "@/components/FixCzechTypography";
+import CookieConsent from "@/components/CookieConsent";
 
 const baloo2 = Baloo_2({
   subsets: ['latin', 'latin-ext'],
@@ -43,6 +44,7 @@ export default function RootLayout({
         <Navigation />
         {children}
         <Footer />
+        <CookieConsent />
         <SpeedInsights />
         <Analytics />
       </body>

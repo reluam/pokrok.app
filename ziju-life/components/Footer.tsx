@@ -44,7 +44,16 @@ export default function Footer() {
             </div>
           </div>
           
-          <div className="mt-8 pt-8 border-t border-black/5 text-center">
+          <div className="mt-8 pt-8 border-t border-black/5 text-center space-y-2">
+            <div className="flex flex-wrap justify-center items-center gap-4 text-sm">
+              <Link href="/gdpr" className="text-foreground/60 hover:text-accent transition-colors">
+                Cookies & GDPR
+              </Link>
+              <span className="text-foreground/30">•</span>
+              <Link href="/unsubscribe" className="text-foreground/60 hover:text-accent transition-colors">
+                Odhlásit se z newsletteru
+              </Link>
+            </div>
             <p className="text-sm text-foreground/60">
               © {new Date().getFullYear()} Žiju life. Všechna práva vyhrazena.
             </p>

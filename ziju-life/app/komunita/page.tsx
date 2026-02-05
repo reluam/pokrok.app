@@ -36,7 +36,7 @@ export default function KomunitaPage() {
           </p>
           
           <a
-            href="https://www.skool.com/ziju-life-9405"
+            href="https://www.skool.com/zijem-life-3529"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
@@ -84,7 +84,7 @@ export default function KomunitaPage() {
           </p>
           
           <a
-            href="https://www.skool.com/ziju-life-9405"
+            href="https://www.skool.com/zijem-life-3529"
             target="_blank"
             rel="noopener noreferrer"
             className="btn-playful inline-block px-8 py-4 bg-accent text-white rounded-full text-xl font-bold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"
