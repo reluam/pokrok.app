@@ -42,7 +42,7 @@ export default function Medailonek() {
               </p>
               
               <p>
-                A tenhle kousek internetu jsem vytvořil, abys nemusel/a začít od nuly. Najdeš tady inspiraci v mých textech, podporu v začínající komunitě parťáků a individuální koučink, pokud se rozhodneš to vzít od podlahy.
+                A tenhle kousek internetu jsem vytvořil, abys nemusel/a začínat od nuly. Najdeš tady inspiraci v mých textech, podporu v začínající komunitě parťáků a individuální koučink, pokud se rozhodneš to vzít od podlahy.
               </p>
             </div>
           </div>
