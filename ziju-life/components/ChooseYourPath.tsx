@@ -50,7 +50,7 @@ export default function ChooseYourPath() {
               Společný prostor na Skoolu, kde sdílíme co funguje, plníme společné výzvy a žijem life spolu.
             </p>
             <a
-              href="https://www.skool.com/zijem-life-3529"
+              href="https://www.skool.com/zijem-life-3913"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-playful w-full px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl text-center block"

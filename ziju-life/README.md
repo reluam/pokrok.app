@@ -83,4 +83,4 @@ ziju-life/
 
 - Navigace obsahuje odkaz na Skool komunitu
 - Email pro kontakt: ahoj@ziju.life (lze změnit v `/app/kafe/page.tsx`)
-- Všechny odkazy na Skool jsou nastavené na `https://www.skool.com/zijem-life-3529`
+- Všechny odkazy na Skool jsou nastavené na `https://www.skool.com/zijem-life-3913`

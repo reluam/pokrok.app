@@ -75,7 +75,7 @@ export default function StayInContact({ showTitle = true, showCommunity = true, 
                 V naší free komunitě na Skoolu najdeš lidi na stejné vlně, společné výzvy a prostor, kde je upřímnost víc než dokonalost.
               </p>
               <a
-                href="https://www.skool.com/zijem-life-3529"
+                href="https://www.skool.com/zijem-life-3913"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-playful inline-block px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors shadow-lg hover:shadow-xl"

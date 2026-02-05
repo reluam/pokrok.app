@@ -44,7 +44,7 @@ export default function About() {
         
         <div className="flex justify-center pt-8">
           <a
-            href="https://www.skool.com/zijem-life-3529"
+            href="https://www.skool.com/zijem-life-3913"
             target="_blank"
             rel="noopener noreferrer"
             className="btn-playful px-8 py-4 bg-accent text-white rounded-full text-lg font-semibold hover:bg-accent-hover transition-colors text-center shadow-lg hover:shadow-xl"
