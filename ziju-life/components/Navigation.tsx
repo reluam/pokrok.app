@@ -120,14 +120,12 @@ export default function Navigation() {
               );
             })}
             
-            <a
-              href="https://www.skool.com/ziju-life-9405"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/koucing"
               className="btn-playful px-4 py-2 bg-accent text-white rounded-full text-base font-semibold hover:bg-accent-hover transition-colors whitespace-nowrap shadow-md hover:shadow-lg"
             >
-              Vstoupit do komunity
-            </a>
+              Chci změnu
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -195,15 +193,13 @@ export default function Navigation() {
                 </Link>
               );
             })}
-            <a
-              href="https://www.skool.com/ziju-life-9405"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/koucing"
               onClick={() => setIsMenuOpen(false)}
               className="block px-4 py-2 bg-accent text-white rounded-full text-base font-semibold hover:bg-accent-hover transition-colors text-center"
             >
-              Vstoupit do komunity
-            </a>
+              Chci změnu
+            </Link>
           </div>
         )}
       </div>

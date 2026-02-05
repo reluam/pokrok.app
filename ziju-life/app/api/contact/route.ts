@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
         
         <div style="margin-top: 20px;">
           <p>${greeting}</p>
-          <p>Děkuji ti za vyplnění formuláře a tvůj zájem o koučing. Ozvu se ti hned, jak to bude možné.</p>
+          <p>Děkuji ti za vyplnění kontaktního formuláře. Ozvu se ti co nejdříve budu moct.</p>
         </div>
         
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px;">
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
     const confirmationResult = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
       to: email,
-      subject: 'Děkuji za tvůj zájem o koučing',
+      subject: 'Děkuji za tvou zprávu',
       html: confirmationEmailHtml,
     })
 
