@@ -38,7 +38,7 @@ export default function Medailonek() {
               </p>
               
               <p>
-                Dnes jako ostřílený začátečník neustále hledám, co reálně funguje. Experimentuji s vědou a technologiemi, biorytmy a stravou i meditací a hledáním vnitřního klidu.
+                To učení mi zůstalo a i dnes neustále hledám, co reálně funguje. Experimentuji s vědou a technologiemi, biorytmy a stravou i meditací a hledáním vnitřního klidu.
               </p>
               
               <p>
