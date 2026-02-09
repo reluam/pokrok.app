@@ -1,11 +1,11 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
-import { CheckCircle, XCircle, Clock, AlertCircle } from "lucide-react";
+import { CheckCircle, XCircle, Clock } from "lucide-react";
 
-export default function NewsletterConfirmPage() {
+function NewsletterConfirmContent() {
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [errorType, setErrorType] = useState<string | null>(null);
@@ -128,5 +128,24 @@ export default function NewsletterConfirmPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function NewsletterConfirmPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white/50 paper-texture">
+        <div className="max-w-2xl mx-auto text-center space-y-8 py-16">
+          <div className="flex justify-center">
+            <Clock className="w-16 h-16 text-accent animate-spin" />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+            Načítám...
+          </h1>
+        </div>
+      </main>
+    }>
+      <NewsletterConfirmContent />
+    </Suspense>
   );
 }
