@@ -50,7 +50,7 @@ export async function PUT(
 
     const { id } = await params
     const body = await request.json()
-    const { subject, description, sections, scheduledAt, showOnBlog } = body
+    const { subject, sender, body: bodyContent, scheduledAt, showOnBlog } = body
 
     // For sent campaigns, allow updating only showOnBlog
     const existingCampaign = await getNewsletterCampaign(id)
@@ -66,17 +66,17 @@ export async function PUT(
       const campaign = await updateNewsletterCampaign(
         id,
         existingCampaign.subject,
-        existingCampaign.description,
-        existingCampaign.sections,
+        existingCampaign.sender,
+        existingCampaign.body,
         existingCampaign.scheduledAt || undefined,
         showOnBlog
       )
       return NextResponse.json(campaign)
     }
 
-    if (!subject || !sections || !Array.isArray(sections) || sections.length === 0) {
+    if (!subject || !sender || !bodyContent) {
       return NextResponse.json(
-        { error: 'Subject and at least one section are required' },
+        { error: 'Subject, sender, and body are required' },
         { status: 400 }
       )
     }
@@ -85,8 +85,8 @@ export async function PUT(
     const campaign = await updateNewsletterCampaign(
       id,
       subject,
-      description || '',
-      sections,
+      sender,
+      bodyContent,
       scheduledDate,
       showOnBlog
     )

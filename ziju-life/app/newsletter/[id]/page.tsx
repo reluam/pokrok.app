@@ -32,51 +32,6 @@ export default function NewsletterDetailPage() {
     }
   };
 
-  const convertTextToHtml = (text: string): string => {
-    // Extract and preserve HTML links
-    const linkRegex = /<a\s+href=["']([^"']+)["']>([^<]+)<\/a>/gi;
-    const links: Array<{ url: string; text: string; placeholder: string }> = [];
-    let linkIndex = 0;
-    
-    let processedText = text.replace(linkRegex, (match, url, linkText) => {
-      const placeholder = `__LINK_PLACEHOLDER_${linkIndex}__`;
-      links.push({ url, text: linkText, placeholder });
-      linkIndex++;
-      return placeholder;
-    });
-    
-    // Escape HTML entities
-    processedText = processedText
-      .replace(/&(?!amp;|lt;|gt;|quot;|#\d+;|#x[\da-f]+;|__LINK_PLACEHOLDER_)/gi, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-    
-    // Restore links
-    links.forEach(({ url, text, placeholder }) => {
-      const linkHtml = `<a href="${url.replace(/&amp;/g, '&')}" style="color: #FF8C42; text-decoration: underline;">${text}</a>`;
-      processedText = processedText.replace(placeholder, linkHtml);
-    });
-    
-    // Convert standalone URLs to links
-    const urlRegex = /(https?:\/\/[^\s<>"']+)/g;
-    processedText = processedText.replace(urlRegex, (url) => {
-      if (processedText.includes(`href="${url}"`) || processedText.includes(`href='${url}'`)) {
-        return url;
-      }
-      return `<a href="${url}" style="color: #FF8C42; text-decoration: underline;">${url}</a>`;
-    });
-    
-    // Convert line breaks
-    processedText = processedText.replace(/\n\n/g, '</p><p style="margin: 16px 0;">');
-    processedText = processedText.replace(/\n/g, '<br>');
-    
-    if (!processedText.startsWith('<')) {
-      processedText = `<p style="margin: 0 0 16px;">${processedText}</p>`;
-    }
-    
-    return processedText;
-  };
-
   if (loading) {
     return (
       <main className="min-h-screen py-16 md:py-24 px-4 sm:px-6 lg:px-8">
@@ -134,30 +89,12 @@ export default function NewsletterDetailPage() {
             {newsletterTitle}
           </h1>
 
-          {newsletter.description && (
+          {newsletter.body && (
             <div
               className="text-foreground/80 text-lg leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: convertTextToHtml(newsletter.description) }}
+              dangerouslySetInnerHTML={{ __html: newsletter.body }}
             />
           )}
-
-          <div className="space-y-6">
-            {newsletter.sections.map((section, index) => (
-              <div key={index} className="space-y-4">
-                {section.title && (
-                  <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-                    {section.title}
-                  </h2>
-                )}
-                {section.description && (
-                  <div
-                    className="text-foreground/80 text-base leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: convertTextToHtml(section.description) }}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
 
           {newsletter.sentAt && (
             <div className="pt-6 border-t border-black/10 text-sm text-foreground/60">

@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Plus, Edit2, Trash2, Eye, Send, Save, X, Link as LinkIcon, Copy, Loader2 } from "lucide-react";
-import type { NewsletterCampaign, NewsletterSection, NewsletterTemplate } from "@/lib/newsletter-campaigns-db";
+import { Plus, Edit2, Trash2, Eye, Send, Save, X, Link as LinkIcon, Copy, Loader2, Bold, Italic, Heading2, Quote, FileText } from "lucide-react";
+import type { NewsletterCampaign, NewsletterTemplate } from "@/lib/newsletter-campaigns-db";
+import type { InspirationItem, InspirationData } from "@/lib/inspiration";
 
 type ViewMode = "list" | "edit" | "preview" | "view";
 
@@ -15,25 +16,48 @@ export default function NewsletterCampaigns() {
   const [editingCampaign, setEditingCampaign] = useState<NewsletterCampaign | null>(null);
   const [formData, setFormData] = useState({
     subject: "",
-    description: "",
-    sections: [{ title: "", description: "" }] as NewsletterSection[],
+    sender: "Matěj Mauler <matej@mail.ziju.life>",
+    body: "",
     scheduledAt: "",
   });
-  const [selectedText, setSelectedText] = useState<{ sectionIndex: number; start: number; end: number } | null>(null);
   const [linkUrl, setLinkUrl] = useState("");
   const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const [showArticleDialog, setShowArticleDialog] = useState(false);
+  const [articles, setArticles] = useState<InspirationItem[]>([]);
+  const [loadingArticles, setLoadingArticles] = useState(false);
   const [showSendModal, setShowSendModal] = useState(false);
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [sendingCampaignId, setSendingCampaignId] = useState<string | null>(null);
   const [duplicatingCampaignId, setDuplicatingCampaignId] = useState<string | null>(null);
   const [sendError, setSendError] = useState<string | null>(null);
   const [duplicateError, setDuplicateError] = useState<string | null>(null);
-  const descriptionRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
+  const bodyEditorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchCampaigns();
     loadTemplate();
   }, []);
+
+  // Sync editor content with formData when switching to edit mode
+  useEffect(() => {
+    if (viewMode === "edit" && bodyEditorRef.current) {
+      // Set editor content from formData when entering edit mode
+      // Use a small delay to ensure DOM is ready
+      const timeoutId = setTimeout(() => {
+        if (bodyEditorRef.current) {
+          const currentEditorContent = bodyEditorRef.current.innerHTML;
+          const formDataContent = formData.body || "";
+          
+          // Only update if formData has content and editor content is different
+          if (formDataContent && currentEditorContent !== formDataContent) {
+            bodyEditorRef.current.innerHTML = formDataContent;
+          }
+        }
+      }, 10);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [viewMode]);
 
   const loadTemplate = () => {
     try {
@@ -43,8 +67,16 @@ export default function NewsletterCampaigns() {
         setFormData((prev) => ({
           ...prev,
           subject: template.subject || "",
-          description: template.description || "",
+          sender: template.sender || "Matěj Mauler <matej@mail.ziju.life>",
+          body: template.body || "",
         }));
+        
+        // Set body editor content after render
+        setTimeout(() => {
+          if (bodyEditorRef.current && template.body) {
+            bodyEditorRef.current.innerHTML = template.body;
+          }
+        }, 10);
       }
     } catch (err) {
       console.error("Error loading template:", err);
@@ -53,12 +85,16 @@ export default function NewsletterCampaigns() {
 
   const saveTemplate = () => {
     try {
+      // Get current body content from editor
+      const bodyContent = bodyEditorRef.current?.innerHTML || formData.body || "";
+      
       const template: NewsletterTemplate = {
         subject: formData.subject,
-        description: formData.description,
+        sender: formData.sender,
+        body: bodyContent,
       };
       localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(template));
-      alert("Šablona uložena!");
+      alert("Šablona newsletteru uložena!");
     } catch (err) {
       console.error("Error saving template:", err);
       alert("Chyba při ukládání šablony");
@@ -80,38 +116,44 @@ export default function NewsletterCampaigns() {
 
   const handleNewCampaign = () => {
     setEditingCampaign(null);
-    loadTemplate(); // Load template when creating new campaign
-    setFormData((prev) => ({
-      ...prev,
-      sections: [{ title: "", description: "" }],
+    setFormData({
+      subject: "",
+      sender: "Matěj Mauler <matej@mail.ziju.life>",
+      body: "",
       scheduledAt: "",
-    }));
+    });
     setViewMode("edit");
+    // Load template after setting view mode (will populate formData and editor)
+    setTimeout(() => {
+      loadTemplate();
+    }, 10);
   };
 
   const handleEditCampaign = (campaign: NewsletterCampaign) => {
     setEditingCampaign(campaign);
     setFormData({
       subject: campaign.subject,
-      description: campaign.description || "",
-      sections: campaign.sections.length > 0 
-        ? campaign.sections 
-        : [{ title: "", description: "" }],
+      sender: campaign.sender || "Matěj Mauler <matej@mail.ziju.life>",
+      body: campaign.body || "",
       scheduledAt: campaign.scheduledAt
         ? new Date(campaign.scheduledAt).toISOString().slice(0, 16)
         : "",
     });
     setViewMode("edit");
+    // Set body editor content after render
+    setTimeout(() => {
+      if (bodyEditorRef.current) {
+        bodyEditorRef.current.innerHTML = campaign.body || "";
+      }
+    }, 0);
   };
 
   const handleViewCampaign = (campaign: NewsletterCampaign) => {
     setEditingCampaign(campaign);
     setFormData({
       subject: campaign.subject,
-      description: campaign.description || "",
-      sections: campaign.sections.length > 0 
-        ? campaign.sections 
-        : [{ title: "", description: "" }],
+      sender: campaign.sender || "Matěj Mauler <matej@mail.ziju.life>",
+      body: campaign.body || "",
       scheduledAt: campaign.scheduledAt
         ? new Date(campaign.scheduledAt).toISOString().slice(0, 16)
         : "",
@@ -130,8 +172,8 @@ export default function NewsletterCampaigns() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           subject: campaign.subject,
-          description: campaign.description || "",
-          sections: campaign.sections,
+          sender: campaign.sender || "Matěj Mauler <matej@mail.ziju.life>",
+          body: campaign.body || "",
           scheduledAt: null, // No scheduled date for duplicated campaign
         }),
       });
@@ -155,108 +197,229 @@ export default function NewsletterCampaigns() {
     }
   };
 
-  const handleAddSection = () => {
-    setFormData({
-      ...formData,
-      sections: [...formData.sections, { title: "", description: "" }],
-    });
-  };
-
-  const handleRemoveSection = (index: number) => {
-    if (formData.sections.length <= 1) {
-      alert("Musíš mít alespoň jednu sekci");
-      return;
-    }
-    setFormData({
-      ...formData,
-      sections: formData.sections.filter((_, i) => i !== index),
-    });
-  };
-
-  const handleSectionChange = (index: number, field: "title" | "description", value: string) => {
-    const newSections = [...formData.sections];
-    newSections[index] = { ...newSections[index], [field]: value };
-    setFormData({ ...formData, sections: newSections });
-  };
-
-  const handleTextSelection = (sectionIndex: number) => {
-    const textarea = descriptionRefs.current[sectionIndex];
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-
-    // Only save selection, don't open dialog
-    if (start !== end) {
-      setSelectedText({ sectionIndex, start, end });
-    } else {
-      setSelectedText(null);
+  // Rich text editor functions
+  const execCommand = (command: string, value?: string) => {
+    document.execCommand(command, false, value);
+    if (bodyEditorRef.current) {
+      setFormData({ ...formData, body: bodyEditorRef.current.innerHTML });
     }
   };
 
-  const handleAddLinkClick = (sectionIndex: number) => {
-    const textarea = descriptionRefs.current[sectionIndex];
-    if (!textarea) return;
+  const handleFormatHeading = () => {
+    execCommand('formatBlock', '<h2>');
+  };
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
+  const handleFormatBold = () => {
+    execCommand('bold');
+  };
 
-    // Check if text is selected
-    if (start === end) {
+  const handleFormatItalic = () => {
+    execCommand('italic');
+  };
+
+  const handleFormatQuote = () => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const selectedText = selection.toString();
+      
+      if (selectedText) {
+        // Wrap selected text in blockquote
+        const blockquote = document.createElement('blockquote');
+        blockquote.style.cssText = 'border-left: 4px solid #FF8C42; padding: 6px 16px; margin: 16px 0; color: #666; font-style: italic; background-color: #FFF5ED;';
+        blockquote.textContent = selectedText;
+        range.deleteContents();
+        range.insertNode(blockquote);
+        
+        // Update form data
+        if (bodyEditorRef.current) {
+          setFormData({ ...formData, body: bodyEditorRef.current.innerHTML });
+        }
+      } else {
+        // If no selection, insert empty blockquote at cursor
+        const blockquote = document.createElement('blockquote');
+        blockquote.style.cssText = 'border-left: 4px solid #FF8C42; padding: 6px 16px; margin: 16px 0; color: #666; font-style: italic; background-color: #FFF5ED;';
+        blockquote.innerHTML = '<br>';
+        range.insertNode(blockquote);
+        
+        // Move cursor inside blockquote
+        const newRange = document.createRange();
+        newRange.setStart(blockquote, 0);
+        newRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+        
+        // Update form data
+        if (bodyEditorRef.current) {
+          setFormData({ ...formData, body: bodyEditorRef.current.innerHTML });
+        }
+      }
+    }
+    
+    // Restore focus
+    if (bodyEditorRef.current) {
+      bodyEditorRef.current.focus();
+    }
+  };
+
+  const handleAddLink = () => {
+    const selection = window.getSelection();
+    if (!selection || selection.toString().trim() === '') {
       alert("Nejprve označ text, který chceš převést na odkaz");
       return;
     }
-
-    // Save selection and open dialog
-    setSelectedText({ sectionIndex, start, end });
     setShowLinkDialog(true);
   };
 
+  const handleAddArticle = async () => {
+    setShowArticleDialog(true);
+    setLoadingArticles(true);
+    
+    try {
+      const res = await fetch("/api/inspiration");
+      if (!res.ok) throw new Error("Failed to fetch articles");
+      const data: InspirationData = await res.json();
+      
+      // Combine all article types
+      const allArticles: InspirationItem[] = [
+        ...(data.blogs || []),
+        ...(data.articles || []),
+        ...(data.videos || []),
+        ...(data.books || []),
+        ...(data.other || []),
+      ].filter(item => item.isActive !== false); // Only active items
+      
+      // Sort by creation date (newest first)
+      allArticles.sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      
+      setArticles(allArticles);
+    } catch (err) {
+      console.error("Error fetching articles:", err);
+      alert("Chyba při načítání článků");
+    } finally {
+      setLoadingArticles(false);
+    }
+  };
+
+  const insertArticle = (article: InspirationItem) => {
+    const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://ziju.life';
+    
+    // For blog type articles, generate URL from ID if no URL exists
+    let articleUrl: string;
+    if (article.type === 'blog' && !article.url) {
+      articleUrl = `${siteUrl}/blog/${article.id}`;
+    } else if (!article.url) {
+      alert("Článek nemá URL");
+      return;
+    } else {
+      articleUrl = article.url.startsWith('http') ? article.url : `${siteUrl}${article.url}`;
+    }
+    
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      
+      // Create a link element with article title
+      const link = document.createElement('a');
+      link.href = articleUrl;
+      link.textContent = article.title || 'Článek';
+      link.style.cssText = 'color: #FF8C42; text-decoration: underline;';
+      
+      // Insert link at cursor position
+      range.insertNode(link);
+      
+      // Move cursor after the link
+      const newRange = document.createRange();
+      newRange.setStartAfter(link);
+      newRange.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+      
+      // Update form data
+      if (bodyEditorRef.current) {
+        setFormData({ ...formData, body: bodyEditorRef.current.innerHTML });
+      }
+    } else {
+      // If no selection, insert at end of editor
+      if (bodyEditorRef.current) {
+        const link = document.createElement('a');
+        link.href = articleUrl;
+        link.textContent = article.title || 'Článek';
+        link.style.cssText = 'color: #FF8C42; text-decoration: underline;';
+        
+        bodyEditorRef.current.appendChild(link);
+        bodyEditorRef.current.appendChild(document.createTextNode(' '));
+        
+        setFormData({ ...formData, body: bodyEditorRef.current.innerHTML });
+      }
+    }
+    
+    setShowArticleDialog(false);
+    
+    // Restore focus
+    if (bodyEditorRef.current) {
+      bodyEditorRef.current.focus();
+    }
+  };
+
   const insertLink = () => {
-    if (!selectedText || !linkUrl.trim()) {
-      alert("Vyber text a zadej URL");
+    if (!linkUrl.trim()) {
+      alert("Zadej URL");
       return;
     }
 
-    const { sectionIndex, start, end } = selectedText;
-    const section = formData.sections[sectionIndex];
-    const before = section.description.substring(0, start);
-    const selected = section.description.substring(start, end);
-    const after = section.description.substring(end);
-
-    // Create HTML link: <a href="url">text</a>
-    const linkHtml = `<a href="${linkUrl}">${selected}</a>`;
-    const newDescription = before + linkHtml + after;
-
-    handleSectionChange(sectionIndex, "description", newDescription);
-    setShowLinkDialog(false);
-    setSelectedText(null);
-    setLinkUrl("");
-
-    // Restore focus to textarea
-    setTimeout(() => {
-      const textarea = descriptionRefs.current[sectionIndex];
-      if (textarea) {
-        const newCursorPos = start + linkHtml.length;
-        textarea.focus();
-        textarea.setSelectionRange(newCursorPos, newCursorPos);
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const selectedText = selection.toString();
+      
+      if (selectedText) {
+        const link = document.createElement('a');
+        link.href = linkUrl;
+        link.textContent = selectedText;
+        range.deleteContents();
+        range.insertNode(link);
+        
+        // Update form data
+        if (bodyEditorRef.current) {
+          setFormData({ ...formData, body: bodyEditorRef.current.innerHTML });
+        }
       }
-    }, 0);
+    }
+    
+    setShowLinkDialog(false);
+    setLinkUrl("");
+    
+    // Restore focus
+    if (bodyEditorRef.current) {
+      bodyEditorRef.current.focus();
+    }
+  };
+
+  const handleBodyChange = () => {
+    if (bodyEditorRef.current) {
+      setFormData({ ...formData, body: bodyEditorRef.current.innerHTML });
+    }
   };
 
   const handleSave = async () => {
-    // Validate that all sections have at least a title or description
-    const hasEmptySections = formData.sections.some(
-      (section) => !section.title.trim() && !section.description.trim()
-    );
-    
-    if (hasEmptySections) {
-      alert("Všechny sekce musí mít alespoň nadpis nebo popisek");
+    if (!formData.subject.trim()) {
+      alert("Předmět emailu je povinný");
       return;
     }
 
-    if (!formData.subject.trim()) {
-      alert("Předmět emailu je povinný");
+    if (!formData.sender.trim()) {
+      alert("Odesílatel je povinný");
+      return;
+    }
+
+    // Get body content from editor
+    const bodyContent = bodyEditorRef.current?.innerHTML || formData.body || "";
+
+    if (!bodyContent.trim()) {
+      alert("Tělo emailu je povinné");
       return;
     }
 
@@ -269,10 +432,8 @@ export default function NewsletterCampaigns() {
       
       const body = {
         subject: formData.subject.trim(),
-        description: formData.description || "",
-        sections: formData.sections.filter(
-          (section) => section.title.trim() || section.description.trim()
-        ),
+        sender: formData.sender.trim(),
+        body: bodyContent,
         scheduledAt: formData.scheduledAt || null,
       };
 
@@ -301,11 +462,14 @@ export default function NewsletterCampaigns() {
       setViewMode("list");
       setEditingCampaign(null);
       setFormData({ 
-        subject: formData.subject, 
-        description: formData.description, 
-        sections: [{ title: "", description: "" }], 
+        subject: "", 
+        sender: "Matěj Mauler <matej@mail.ziju.life>",
+        body: "", 
         scheduledAt: "" 
       });
+      if (bodyEditorRef.current) {
+        bodyEditorRef.current.innerHTML = "";
+      }
     } catch (err: any) {
       console.error("Error saving campaign:", err);
       alert(err.message || "Chyba při ukládání newsletteru");
@@ -361,94 +525,38 @@ export default function NewsletterCampaigns() {
     }
   };
 
-  // Convert text with HTML links to properly formatted HTML
-  const convertTextToHtml = (text: string): string => {
-    // Extract and preserve HTML links BEFORE escaping
-    const linkRegex = /<a\s+href=["']([^"']+)["']>([^<]+)<\/a>/gi;
-    const links: Array<{ url: string; text: string; placeholder: string; fullMatch: string }> = [];
-    let linkIndex = 0;
-    
-    // First pass: extract all links and replace with placeholders
-    let processedText = text.replace(linkRegex, (match, url, linkText) => {
-      const placeholder = `__LINK_PLACEHOLDER_${linkIndex}__`;
-      links.push({ 
-        url: url.trim(), 
-        text: linkText.trim(), 
-        placeholder,
-        fullMatch: match
-      });
-      linkIndex++;
-      return placeholder;
-    });
-    
-    // Escape HTML entities in the remaining text (but not in placeholders)
-    // We need to escape & first, then < and >
-    processedText = processedText
-      .replace(/&(?!amp;|lt;|gt;|quot;|#\d+;|#x[\da-f]+;)/gi, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-    
-    // Restore links with proper styling (replace placeholders)
-    links.forEach(({ url, text, placeholder }) => {
-      // Escape URL if needed (but keep it as URL)
-      const escapedUrl = url.replace(/&amp;/g, '&').replace(/&/g, '&amp;');
-      const escapedText = text
-        .replace(/&amp;/g, '&')
-        .replace(/&/g, '&amp;')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>');
-      
-      const linkHtml = `<a href="${escapedUrl}" style="color: #FF8C42; text-decoration: underline;">${escapedText}</a>`;
-      processedText = processedText.replace(placeholder, linkHtml);
-    });
-    
-    // Convert standalone URLs to links (only if not already in a link)
-    const urlRegex = /(https?:\/\/[^\s<>"']+)/g;
-    processedText = processedText.replace(urlRegex, (url) => {
-      // Check if URL is already inside a link tag
-      if (processedText.includes(`href="${url}"`) || processedText.includes(`href='${url}'`)) {
-        return url;
-      }
-      // Don't convert if it's part of an escaped HTML tag
-      if (processedText.includes(`&lt;a`) || processedText.includes(`&gt;`)) {
-        return url;
-      }
-      return `<a href="${url}" style="color: #FF8C42; text-decoration: underline;">${url}</a>`;
-    });
-    
-    // Convert line breaks
-    processedText = processedText.replace(/\n\n/g, '</p><p style="margin: 16px 0;">');
-    processedText = processedText.replace(/\n/g, '<br>');
-    
-    // Wrap in paragraph if not already wrapped
-    if (!processedText.startsWith('<')) {
-      processedText = `<p style="margin: 0 0 16px;">${processedText}</p>`;
-    }
-    
-    return processedText;
-  };
 
   const renderEmailPreview = () => {
     const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://ziju.life';
     const unsubscribeUrl = `${siteUrl}/unsubscribe`;
     
-    const sectionsHtml = formData.sections
-      .filter((section) => section.title.trim() || section.description.trim())
-      .map((section) => {
-        const titleHtml = section.title.trim() 
-          ? `<h2 style="color: #171717; font-size: 22px; font-weight: bold; margin: 0 0 12px; line-height: 1.3;">${section.title}</h2>`
-          : '';
-        const descriptionHtml = section.description.trim()
-          ? `<div style="color: #171717; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">${convertTextToHtml(section.description)}</div>`
-          : '';
-        
-        return titleHtml + descriptionHtml;
-      })
-      .join('');
+    // Get body content from editor
+    const bodyContent = bodyEditorRef.current?.innerHTML || formData.body || '';
     
-    const descriptionHtml = formData.description.trim()
-      ? `<div style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 24px; font-style: italic;">${convertTextToHtml(formData.description)}</div>`
-      : '';
+    // Ensure links have proper styling - always use orange color
+    let bodyHtml = bodyContent.replace(
+      /<a\s+href=["']([^"']+)["']([^>]*)>([^<]+)<\/a>/gi,
+      (match, url, attrs, text) => {
+        // Remove existing color styles and add orange
+        const cleanAttrs = attrs ? attrs.replace(/style=["'][^"']*color[^"']*["']/gi, '').replace(/style=["']([^"']*)["']/gi, (_m: string, styles: string) => {
+          return styles ? `style="${styles}"` : '';
+        }) : '';
+        return `<a href="${url}" style="color: #FF8C42 !important; text-decoration: underline;"${cleanAttrs}>${text}</a>`;
+      }
+    );
+    
+    // Ensure blockquotes have proper styling - always match editor
+    bodyHtml = bodyHtml.replace(
+      /<blockquote([^>]*)>/gi,
+      (match, attrs) => {
+        // Always apply consistent styling
+        return `<blockquote style="border-left: 4px solid #FF8C42 !important; padding: 6px 16px !important; margin: 16px 0 !important; color: #666 !important; font-style: italic !important; background-color: #FFF5ED !important;"${attrs || ''}>`;
+      }
+    );
+    
+    const bodyContentHtml = bodyHtml.trim()
+      ? `<div style="color: #171717; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">${bodyHtml}</div>`
+      : '<p style="color: #171717; font-size: 16px; line-height: 1.6;">Žádný obsah</p>';
     
     return `
       <!DOCTYPE html>
@@ -456,6 +564,25 @@ export default function NewsletterCampaigns() {
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          /* Ensure links are orange */
+          a {
+            color: #FF8C42 !important;
+            text-decoration: underline;
+          }
+          a:hover {
+            color: #e67a2e !important;
+          }
+          /* Ensure blockquotes match editor styling */
+          blockquote {
+            border-left: 4px solid #FF8C42 !important;
+            padding: 6px 16px !important;
+            margin: 16px 0 !important;
+            color: #666 !important;
+            font-style: italic !important;
+            background-color: #FFF5ED !important;
+          }
+        </style>
       </head>
       <body style="margin: 0; padding: 0; background-color: #FDFDF7; font-family: Arial, sans-serif;">
         <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #FDFDF7;">
@@ -474,8 +601,7 @@ export default function NewsletterCampaigns() {
                 <!-- Main Content -->
                 <tr>
                   <td style="padding: 0 40px 40px;">
-                    ${descriptionHtml}
-                    ${sectionsHtml || '<p style="color: #171717; font-size: 16px; line-height: 1.6;">Žádný obsah</p>'}
+                    ${bodyContentHtml}
                     
                     <!-- Divider -->
                     <div style="height: 1px; background-color: #e5e5e5; margin: 30px 0;"></div>
@@ -491,7 +617,7 @@ export default function NewsletterCampaigns() {
                 <tr>
                   <td style="padding: 30px 40px; background-color: #FDFDF7; border-top: 1px solid #e5e5e5;">
                     <p style="color: #999; font-size: 12px; line-height: 1.5; margin: 0; text-align: center;">
-                      <a href="${unsubscribeUrl}" style="color: #999; text-decoration: underline;">Odhlásit se z odběru</a>
+                      <a href="${unsubscribeUrl}" style="color: #FF8C42 !important; text-decoration: underline;">Odhlásit se z odběru</a>
                     </p>
                   </td>
                 </tr>
@@ -523,7 +649,7 @@ export default function NewsletterCampaigns() {
             <button
               onClick={saveTemplate}
               className="px-4 py-2 border-2 border-black/10 rounded-full font-semibold hover:border-accent hover:text-accent transition-colors"
-              title="Uložit šablonu předmětu a popisku"
+              title="Uložit šablonu newsletteru (předmět, odesílatel, tělo)"
             >
               Uložit šablonu
             </button>
@@ -564,7 +690,7 @@ export default function NewsletterCampaigns() {
         <div className="bg-white rounded-2xl p-6 border-2 border-black/5 space-y-6">
           <div>
             <label className="block text-sm font-semibold text-foreground mb-2">
-              Předmět emailu (šablona)
+              Předmět emailu
             </label>
             <input
               type="text"
@@ -579,119 +705,110 @@ export default function NewsletterCampaigns() {
 
           <div>
             <label className="block text-sm font-semibold text-foreground mb-2">
-              Popisek newsletteru (šablona)
+              Odesílatel
             </label>
-            <textarea
-              value={formData.description}
+            <input
+              type="text"
+              value={formData.sender}
               onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
+                setFormData({ ...formData, sender: e.target.value })
               }
-              rows={3}
               className="w-full px-4 py-2 border border-black/10 rounded-lg focus:border-accent focus:ring-accent focus:outline-none"
-              placeholder="Krátký popisek, který se zobrazí pod předmětem..."
+              placeholder="Matěj Mauler <matej@mail.ziju.life>"
             />
             <p className="text-xs text-foreground/60 mt-1">
-              Tento popisek se použije pro všechny nové newsletter campaigns. Ulož šablonu pro příště.
+              Formát: Jméno &lt;email@example.com&gt;
             </p>
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <label className="block text-sm font-semibold text-foreground">
-                Sekce newsletteru
-              </label>
+            <label className="block text-sm font-semibold text-foreground mb-2">
+              Tělo emailu
+            </label>
+            
+            {/* Toolbar */}
+            <div className="flex items-center gap-2 mb-2 p-2 border border-black/10 rounded-lg bg-gray-50">
               <button
-                onClick={handleAddSection}
-                className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-full text-sm font-semibold hover:bg-accent-hover transition-colors"
+                type="button"
+                onClick={handleFormatHeading}
+                className="p-2 hover:bg-white rounded transition-colors"
+                title="Nadpis"
               >
-                <Plus size={16} />
-                Přidat sekci
+                <Heading2 size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={handleFormatBold}
+                className="p-2 hover:bg-white rounded transition-colors"
+                title="Tučné"
+              >
+                <Bold size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={handleFormatItalic}
+                className="p-2 hover:bg-white rounded transition-colors"
+                title="Kurzíva"
+              >
+                <Italic size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={handleFormatQuote}
+                className="p-2 hover:bg-white rounded transition-colors"
+                title="Citát"
+              >
+                <Quote size={18} />
+              </button>
+              <div className="w-px h-6 bg-black/10 mx-1" />
+              <button
+                type="button"
+                onClick={handleAddLink}
+                className="p-2 hover:bg-white rounded transition-colors"
+                title="Přidat odkaz"
+              >
+                <LinkIcon size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={handleAddArticle}
+                className="p-2 hover:bg-white rounded transition-colors"
+                title="Vložit článek"
+              >
+                <FileText size={18} />
               </button>
             </div>
 
-            <div className="space-y-4">
-              {formData.sections.map((section, index) => (
-                <div
-                  key={index}
-                  className="p-4 border-2 border-black/10 rounded-lg bg-white/50"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-semibold text-foreground">
-                      Sekce {index + 1}
-                    </span>
-                    {formData.sections.length > 1 && (
-                      <button
-                        onClick={() => handleRemoveSection(index)}
-                        className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
-                        title="Odebrat sekci"
-                      >
-                        <X size={18} />
-                      </button>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-xs font-semibold text-foreground/70 mb-1">
-                        Nadpis sekce
-                      </label>
-                      <input
-                        type="text"
-                        value={section.title}
-                        onChange={(e) =>
-                          handleSectionChange(index, "title", e.target.value)
-                        }
-                        className="w-full px-3 py-2 border border-black/10 rounded-lg focus:border-accent focus:ring-accent focus:outline-none text-sm"
-                        placeholder="Např. 📚 Inspirace"
-                      />
-                    </div>
-                    
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="block text-xs font-semibold text-foreground/70">
-                          Popisek (označ text a klikni na odkaz pro přidání)
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => handleAddLinkClick(index)}
-                          className="flex items-center gap-1 px-2 py-1 text-xs border border-black/10 rounded hover:bg-black/5 transition-colors"
-                          title="Označ text a klikni pro přidání odkazu"
-                        >
-                          <LinkIcon size={14} />
-                          Přidat odkaz
-                        </button>
-                      </div>
-                      <textarea
-                        ref={(el) => {
-                          descriptionRefs.current[index] = el;
-                        }}
-                        value={section.description}
-                        onChange={(e) =>
-                          handleSectionChange(index, "description", e.target.value)
-                        }
-                        onSelect={() => {
-                          // Just track selection, don't open dialog
-                          const textarea = descriptionRefs.current[index];
-                          if (textarea) {
-                            const start = textarea.selectionStart;
-                            const end = textarea.selectionEnd;
-                            if (start !== end) {
-                              setSelectedText({ sectionIndex: index, start, end });
-                            }
-                          }
-                        }}
-                        rows={6}
-                        className="w-full px-3 py-2 border border-black/10 rounded-lg focus:border-accent focus:ring-accent focus:outline-none text-sm"
-                        placeholder="Popisek sekce... Označ text a klikni na 'Přidat odkaz' pro vložení odkazu."
-                      />
-                      <p className="text-xs text-foreground/60 mt-1">
-                        Tip: Označ text, klikni na "Přidat odkaz" a vlož URL. Označený text zůstane zobrazený a bude klikatelný odkaz.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {/* Rich text editor */}
+            <div
+              ref={bodyEditorRef}
+              contentEditable
+              onInput={handleBodyChange}
+              onBlur={handleBodyChange}
+              className="w-full min-h-[400px] px-4 py-3 border border-black/10 rounded-lg focus:border-accent focus:ring-accent focus:outline-none text-sm bg-white"
+              style={{
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+              }}
+              suppressContentEditableWarning
+            />
+            <style jsx global>{`
+              [contenteditable] blockquote {
+                border-left: 4px solid #FF8C42;
+                padding: 6px 16px;
+                margin: 16px 0;
+                color: #666;
+                font-style: italic;
+                background-color: #FFF5ED;
+              }
+              [contenteditable] a {
+                color: #FF8C42;
+                text-decoration: underline;
+              }
+            `}</style>
+            <p className="text-xs text-foreground/60 mt-1">
+              Tip: Označ text a použij tlačítka pro formátování. Pro odkaz označ text a klikni na ikonu odkazu.
+            </p>
           </div>
 
           <div>
@@ -736,7 +853,6 @@ export default function NewsletterCampaigns() {
                       }
                       if (e.key === "Escape") {
                         setShowLinkDialog(false);
-                        setSelectedText(null);
                         setLinkUrl("");
                       }
                     }}
@@ -752,7 +868,6 @@ export default function NewsletterCampaigns() {
                   <button
                     onClick={() => {
                       setShowLinkDialog(false);
-                      setSelectedText(null);
                       setLinkUrl("");
                     }}
                     className="px-4 py-2 border-2 border-black/10 rounded-full font-semibold hover:border-accent hover:text-accent transition-colors"
@@ -761,6 +876,56 @@ export default function NewsletterCampaigns() {
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Article Dialog */}
+        {showArticleDialog && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-6 border-2 border-black/10 max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-foreground">Vložit článek</h3>
+                <button
+                  onClick={() => {
+                    setShowArticleDialog(false);
+                    setArticles([]);
+                  }}
+                  className="p-1 hover:bg-black/5 rounded transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              {loadingArticles ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="animate-spin text-accent" size={24} />
+                  <span className="ml-3 text-foreground/60">Načítání článků...</span>
+                </div>
+              ) : articles.length === 0 ? (
+                <div className="text-center py-8 text-foreground/60">
+                  Žádné články k dispozici
+                </div>
+              ) : (
+                <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+                  {articles.map((article) => (
+                    <button
+                      key={article.id}
+                      onClick={() => insertArticle(article)}
+                      className="w-full text-left p-4 border border-black/10 rounded-lg hover:border-accent hover:bg-accent/5 transition-colors"
+                    >
+                      <div className="font-semibold text-foreground mb-1">{article.title}</div>
+                      {article.description && (
+                        <div className="text-sm text-foreground/60 line-clamp-2">{article.description}</div>
+                      )}
+                      <div className="flex items-center gap-2 mt-2 text-xs text-foreground/40">
+                        <span className="px-2 py-1 bg-black/5 rounded">{article.type}</span>
+                        {article.author && <span>• {article.author}</span>}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -798,7 +963,7 @@ export default function NewsletterCampaigns() {
               onClick={() => {
                 setViewMode("list");
                 setEditingCampaign(null);
-                setFormData({ subject: "", description: "", sections: [{ title: "", description: "" }], scheduledAt: "" });
+                setFormData({ subject: "", sender: "Matěj Mauler <matej@mail.ziju.life>", body: "", scheduledAt: "" });
               }}
               className="px-4 py-2 border-2 border-black/10 rounded-full font-semibold hover:border-accent hover:text-accent transition-colors"
             >
@@ -821,8 +986,8 @@ export default function NewsletterCampaigns() {
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                           subject: editingCampaign.subject,
-                          description: editingCampaign.description,
-                          sections: editingCampaign.sections,
+                          sender: editingCampaign.sender,
+                          body: editingCampaign.body,
                           scheduledAt: editingCampaign.scheduledAt?.toISOString(),
                           showOnBlog: e.target.checked,
                         }),
@@ -857,51 +1022,21 @@ export default function NewsletterCampaigns() {
 
           <div>
             <label className="block text-sm font-semibold text-foreground mb-2">
-              Popisek newsletteru
+              Odesílatel
             </label>
-            <div className="px-4 py-2 border border-black/10 rounded-lg bg-gray-50 text-foreground min-h-[80px] whitespace-pre-wrap">
-              {formData.description || "(bez popisku)"}
+            <div className="px-4 py-2 border border-black/10 rounded-lg bg-gray-50 text-foreground">
+              {formData.sender || "(bez odesílatele)"}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-foreground mb-4">
-              Sekce newsletteru
+            <label className="block text-sm font-semibold text-foreground mb-2">
+              Tělo emailu
             </label>
-            <div className="space-y-4">
-              {formData.sections.map((section, index) => (
-                <div
-                  key={index}
-                  className="p-4 border-2 border-black/10 rounded-lg bg-gray-50"
-                >
-                  <div className="mb-3">
-                    <span className="text-sm font-semibold text-foreground">
-                      Sekce {index + 1}
-                    </span>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-xs font-semibold text-foreground/70 mb-1">
-                        Nadpis sekce
-                      </label>
-                      <div className="px-3 py-2 border border-black/10 rounded-lg bg-white text-sm">
-                        {section.title || "(bez nadpisu)"}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-xs font-semibold text-foreground/70 mb-1">
-                        Popisek
-                      </label>
-                      <div className="px-3 py-2 border border-black/10 rounded-lg bg-white text-sm min-h-[100px] whitespace-pre-wrap">
-                        {section.description || "(bez popisku)"}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <div 
+              className="px-4 py-2 border border-black/10 rounded-lg bg-gray-50 text-foreground min-h-[200px]"
+              dangerouslySetInnerHTML={{ __html: editingCampaign?.body || formData.body || "(bez obsahu)" }}
+            />
           </div>
 
           <div>
@@ -937,7 +1072,15 @@ export default function NewsletterCampaigns() {
           <h1 className="text-3xl font-bold text-foreground">Náhled newsletteru</h1>
           <div className="flex gap-3">
             <button
-              onClick={() => setViewMode("edit")}
+              onClick={() => {
+                // Restore editor content from formData when switching back to edit
+                setViewMode("edit");
+                setTimeout(() => {
+                  if (bodyEditorRef.current && formData.body) {
+                    bodyEditorRef.current.innerHTML = formData.body;
+                  }
+                }, 0);
+              }}
               className="flex items-center gap-2 px-4 py-2 border-2 border-black/10 rounded-full font-semibold hover:border-accent hover:text-accent transition-colors"
             >
               <Edit2 size={18} />
@@ -965,12 +1108,6 @@ export default function NewsletterCampaigns() {
           <div className="mb-4">
             <p className="text-sm text-foreground/60 mb-1">Předmět:</p>
             <p className="font-semibold text-foreground">{formData.subject || "(bez předmětu)"}</p>
-            {formData.description && (
-              <>
-                <p className="text-sm text-foreground/60 mb-1 mt-3">Popisek:</p>
-                <p className="text-foreground/70 italic">{formData.description}</p>
-              </>
-            )}
           </div>
           
           <div className="border border-black/10 rounded-lg overflow-hidden">
@@ -1029,6 +1166,9 @@ export default function NewsletterCampaigns() {
                   <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
                     Odesláno
                   </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
+                    Na blogu
+                  </th>
                   <th className="px-6 py-4 text-right text-sm font-semibold text-foreground">
                     Akce
                   </th>
@@ -1075,6 +1215,45 @@ export default function NewsletterCampaigns() {
                       {campaign.sentAt
                         ? new Date(campaign.sentAt).toLocaleString("cs-CZ")
                         : "-"}
+                    </td>
+                    <td className="px-6 py-4">
+                      {campaign.status === "sent" ? (
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={campaign.showOnBlog || false}
+                            onChange={async (e) => {
+                              try {
+                                const res = await fetch(`/api/admin/newsletter-campaigns/${campaign.id}`, {
+                                  method: "PUT",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({
+                                    subject: campaign.subject,
+                                    sender: campaign.sender,
+                                    body: campaign.body,
+                                    scheduledAt: campaign.scheduledAt?.toISOString(),
+                                    showOnBlog: e.target.checked,
+                                  }),
+                                });
+                                if (res.ok) {
+                                  await fetchCampaigns();
+                                } else {
+                                  alert("Chyba při aktualizaci");
+                                }
+                              } catch (err) {
+                                console.error("Error updating showOnBlog:", err);
+                                alert("Chyba při aktualizaci");
+                              }
+                            }}
+                            className="w-4 h-4 text-accent border-black/20 rounded focus:ring-accent cursor-pointer"
+                          />
+                          <span className="text-sm text-foreground">
+                            {campaign.showOnBlog ? "Ano" : "Ne"}
+                          </span>
+                        </label>
+                      ) : (
+                        <span className="text-foreground/40 text-xs">-</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">

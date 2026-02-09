@@ -8,8 +8,8 @@ export interface NewsletterSection {
 export interface NewsletterCampaign {
   id: string
   subject: string
-  description: string
-  sections: NewsletterSection[]
+  sender: string
+  body: string // HTML content
   scheduledAt: Date | null
   sentAt: Date | null
   status: 'draft' | 'scheduled' | 'sent'
@@ -20,7 +20,8 @@ export interface NewsletterCampaign {
 
 export interface NewsletterTemplate {
   subject: string
-  description: string
+  sender: string
+  body: string
 }
 
 // Ensure campaigns table exists
@@ -74,8 +75,8 @@ async function ensureCampaignsTable() {
       CREATE TABLE IF NOT EXISTS newsletter_campaigns (
         id VARCHAR(255) PRIMARY KEY,
         subject TEXT NOT NULL,
-        description TEXT DEFAULT '',
-        sections JSONB NOT NULL DEFAULT '[]'::jsonb,
+        sender TEXT DEFAULT 'Matěj Mauler <matej@mail.ziju.life>',
+        body TEXT DEFAULT '',
         scheduled_at TIMESTAMP WITH TIME ZONE,
         sent_at TIMESTAMP WITH TIME ZONE,
         status VARCHAR(50) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'scheduled', 'sent')),
@@ -85,17 +86,51 @@ async function ensureCampaignsTable() {
       )
     `
     
-    // Add sections column if table exists but column doesn't
+    // Add sender column if table exists but column doesn't
     await sql`
       ALTER TABLE newsletter_campaigns 
-      ADD COLUMN IF NOT EXISTS sections JSONB DEFAULT '[]'::jsonb
+      ADD COLUMN IF NOT EXISTS sender TEXT DEFAULT 'Matěj Mauler <matej@mail.ziju.life>'
     `
     
-    // Add description column if table exists but column doesn't
+    // Add body column if table exists but column doesn't
     await sql`
       ALTER TABLE newsletter_campaigns 
-      ADD COLUMN IF NOT EXISTS description TEXT DEFAULT ''
+      ADD COLUMN IF NOT EXISTS body TEXT DEFAULT ''
     `
+    
+    // Migrate from old structure (sections) to new structure (body)
+    // Check if sections column exists and migrate data
+    const sectionsCheck = await sql`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'newsletter_campaigns' AND column_name = 'sections'
+    `
+    
+    if (sectionsCheck.length > 0) {
+      // Migrate sections to body HTML
+      await sql`
+        UPDATE newsletter_campaigns
+        SET body = COALESCE(
+          (
+            SELECT string_agg(
+              CASE 
+                WHEN section->>'title' != '' AND section->>'description' != '' 
+                THEN '<h2>' || (section->>'title') || '</h2><p>' || (section->>'description') || '</p>'
+                WHEN section->>'title' != '' 
+                THEN '<h2>' || (section->>'title') || '</h2>'
+                WHEN section->>'description' != '' 
+                THEN '<p>' || (section->>'description') || '</p>'
+                ELSE ''
+              END,
+              ''
+            )
+            FROM jsonb_array_elements(sections) AS section
+          ),
+          ''
+        )
+        WHERE body = '' OR body IS NULL
+      `
+    }
     
     // Add show_on_blog column if table exists but column doesn't
     await sql`
@@ -150,8 +185,8 @@ async function ensureCampaignsTable() {
 
 export async function createNewsletterCampaign(
   subject: string,
-  description: string,
-  sections: NewsletterSection[],
+  sender: string,
+  body: string,
   scheduledAt?: Date,
   showOnBlog: boolean = false
 ): Promise<NewsletterCampaign> {
@@ -162,15 +197,15 @@ export async function createNewsletterCampaign(
   const status = scheduledAt && scheduledAt > now ? 'scheduled' : 'draft'
   
   await sql`
-    INSERT INTO newsletter_campaigns (id, subject, description, sections, content, scheduled_at, status, show_on_blog, created_at, updated_at)
-    VALUES (${id}, ${subject}, ${description}, ${JSON.stringify(sections)}::jsonb, '', ${scheduledAt || null}, ${status}, ${showOnBlog}, ${now}, ${now})
+    INSERT INTO newsletter_campaigns (id, subject, sender, body, scheduled_at, status, show_on_blog, created_at, updated_at)
+    VALUES (${id}, ${subject}, ${sender}, ${body}, ${scheduledAt || null}, ${status}, ${showOnBlog}, ${now}, ${now})
   `
   
   return {
     id,
     subject,
-    description,
-    sections,
+    sender,
+    body,
     scheduledAt: scheduledAt || null,
     sentAt: null,
     status,
@@ -183,8 +218,8 @@ export async function createNewsletterCampaign(
 export async function updateNewsletterCampaign(
   id: string,
   subject: string,
-  description: string,
-  sections: NewsletterSection[],
+  sender: string,
+  body: string,
   scheduledAt?: Date,
   showOnBlog?: boolean
 ): Promise<NewsletterCampaign> {
@@ -220,8 +255,8 @@ export async function updateNewsletterCampaign(
     await sql`
       UPDATE newsletter_campaigns
       SET subject = ${subject},
-          description = ${description},
-          sections = ${JSON.stringify(sections)}::jsonb,
+          sender = ${sender},
+          body = ${body},
           scheduled_at = ${scheduledAt || null},
           status = ${status},
           ${showOnBlog !== undefined ? sql`show_on_blog = ${showOnBlog},` : sql``}
@@ -236,20 +271,24 @@ export async function updateNewsletterCampaign(
   
   const campaign = updated[0]
   
-  // Parse sections - handle both old format (content) and new format (sections)
-  let sectionsData: NewsletterSection[] = []
-  if (campaign.sections) {
-    sectionsData = Array.isArray(campaign.sections) ? campaign.sections : JSON.parse(campaign.sections as any)
-  } else if (campaign.content) {
-    // Fallback for old format
-    sectionsData = [{ title: '', description: campaign.content }]
+  // Get body - prefer new body field, fallback to sections if body is empty
+  let bodyContent = campaign.body || ''
+  if (!bodyContent && campaign.sections) {
+    // Migrate from sections to body
+    const sectionsData = Array.isArray(campaign.sections) ? campaign.sections : JSON.parse(campaign.sections as any)
+    bodyContent = sectionsData.map((section: any) => {
+      let html = ''
+      if (section.title) html += `<h2>${section.title}</h2>`
+      if (section.description) html += `<p>${section.description}</p>`
+      return html
+    }).join('')
   }
   
   return {
     id: campaign.id,
     subject: campaign.subject,
-    description: campaign.description || '',
-    sections: sectionsData,
+    sender: campaign.sender || 'Matěj Mauler <matej@mail.ziju.life>',
+    body: bodyContent,
     scheduledAt: campaign.scheduled_at ? new Date(campaign.scheduled_at) : null,
     sentAt: campaign.sent_at ? new Date(campaign.sent_at) : null,
     status: campaign.status,
@@ -268,20 +307,24 @@ export async function getNewsletterCampaigns(): Promise<NewsletterCampaign[]> {
   `
   
   return campaigns.map((campaign) => {
-    // Parse sections - handle both old format (content) and new format (sections)
-    let sectionsData: NewsletterSection[] = []
-    if (campaign.sections) {
-      sectionsData = Array.isArray(campaign.sections) ? campaign.sections : JSON.parse(campaign.sections as any)
-    } else if (campaign.content) {
-      // Fallback for old format
-      sectionsData = [{ title: '', description: campaign.content }]
+    // Get body - prefer new body field, fallback to sections if body is empty
+    let bodyContent = campaign.body || ''
+    if (!bodyContent && campaign.sections) {
+      // Migrate from sections to body
+      const sectionsData = Array.isArray(campaign.sections) ? campaign.sections : JSON.parse(campaign.sections as any)
+      bodyContent = sectionsData.map((section: any) => {
+        let html = ''
+        if (section.title) html += `<h2>${section.title}</h2>`
+        if (section.description) html += `<p>${section.description}</p>`
+        return html
+      }).join('')
     }
     
     return {
       id: campaign.id,
       subject: campaign.subject,
-      description: campaign.description || '',
-      sections: sectionsData,
+      sender: campaign.sender || 'Matěj Mauler <matej@mail.ziju.life>',
+      body: bodyContent,
       scheduledAt: campaign.scheduled_at ? new Date(campaign.scheduled_at) : null,
       sentAt: campaign.sent_at ? new Date(campaign.sent_at) : null,
       status: campaign.status,
@@ -305,20 +348,24 @@ export async function getNewsletterCampaign(id: string): Promise<NewsletterCampa
   
   const campaign = campaigns[0]
   
-  // Parse sections - handle both old format (content) and new format (sections)
-  let sectionsData: NewsletterSection[] = []
-  if (campaign.sections) {
-    sectionsData = Array.isArray(campaign.sections) ? campaign.sections : JSON.parse(campaign.sections as any)
-  } else if (campaign.content) {
-    // Fallback for old format
-    sectionsData = [{ title: '', description: campaign.content }]
+  // Get body - prefer new body field, fallback to sections if body is empty
+  let bodyContent = campaign.body || ''
+  if (!bodyContent && campaign.sections) {
+    // Migrate from sections to body
+    const sectionsData = Array.isArray(campaign.sections) ? campaign.sections : JSON.parse(campaign.sections as any)
+    bodyContent = sectionsData.map((section: any) => {
+      let html = ''
+      if (section.title) html += `<h2>${section.title}</h2>`
+      if (section.description) html += `<p>${section.description}</p>`
+      return html
+    }).join('')
   }
   
   return {
     id: campaign.id,
     subject: campaign.subject,
-    description: campaign.description || '',
-    sections: sectionsData,
+    sender: campaign.sender || 'Matěj Mauler <matej@mail.ziju.life>',
+    body: bodyContent,
     scheduledAt: campaign.scheduled_at ? new Date(campaign.scheduled_at) : null,
     sentAt: campaign.sent_at ? new Date(campaign.sent_at) : null,
     status: campaign.status,
@@ -355,20 +402,24 @@ export async function getScheduledCampaignsToSend(): Promise<NewsletterCampaign[
   `
   
   return campaigns.map((campaign) => {
-    // Parse sections - handle both old format (content) and new format (sections)
-    let sectionsData: NewsletterSection[] = []
-    if (campaign.sections) {
-      sectionsData = Array.isArray(campaign.sections) ? campaign.sections : JSON.parse(campaign.sections as any)
-    } else if (campaign.content) {
-      // Fallback for old format
-      sectionsData = [{ title: '', description: campaign.content }]
+    // Get body - prefer new body field, fallback to sections if body is empty
+    let bodyContent = campaign.body || ''
+    if (!bodyContent && campaign.sections) {
+      // Migrate from sections to body
+      const sectionsData = Array.isArray(campaign.sections) ? campaign.sections : JSON.parse(campaign.sections as any)
+      bodyContent = sectionsData.map((section: any) => {
+        let html = ''
+        if (section.title) html += `<h2>${section.title}</h2>`
+        if (section.description) html += `<p>${section.description}</p>`
+        return html
+      }).join('')
     }
     
     return {
       id: campaign.id,
       subject: campaign.subject,
-      description: campaign.description || '',
-      sections: sectionsData,
+      sender: campaign.sender || 'Matěj Mauler <matej@mail.ziju.life>',
+      body: bodyContent,
       scheduledAt: campaign.scheduled_at ? new Date(campaign.scheduled_at) : null,
       sentAt: campaign.sent_at ? new Date(campaign.sent_at) : null,
       status: campaign.status,
@@ -392,19 +443,24 @@ export async function getNewslettersForBlog(): Promise<NewsletterCampaign[]> {
   `
   
   return campaigns.map((campaign) => {
-    // Parse sections
-    let sectionsData: NewsletterSection[] = []
-    if (campaign.sections) {
-      sectionsData = Array.isArray(campaign.sections) ? campaign.sections : JSON.parse(campaign.sections as any)
-    } else if (campaign.content) {
-      sectionsData = [{ title: '', description: campaign.content }]
+    // Get body - prefer new body field, fallback to sections if body is empty
+    let bodyContent = campaign.body || ''
+    if (!bodyContent && campaign.sections) {
+      // Migrate from sections to body
+      const sectionsData = Array.isArray(campaign.sections) ? campaign.sections : JSON.parse(campaign.sections as any)
+      bodyContent = sectionsData.map((section: any) => {
+        let html = ''
+        if (section.title) html += `<h2>${section.title}</h2>`
+        if (section.description) html += `<p>${section.description}</p>`
+        return html
+      }).join('')
     }
     
     return {
       id: campaign.id,
       subject: campaign.subject,
-      description: campaign.description || '',
-      sections: sectionsData,
+      sender: campaign.sender || 'Matěj Mauler <matej@mail.ziju.life>',
+      body: bodyContent,
       scheduledAt: campaign.scheduled_at ? new Date(campaign.scheduled_at) : null,
       sentAt: campaign.sent_at ? new Date(campaign.sent_at) : null,
       status: campaign.status,

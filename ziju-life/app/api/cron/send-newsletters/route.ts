@@ -13,76 +13,41 @@ const USE_RESEND_CONTACTS = process.env.USE_RESEND_CONTACTS === 'true'
 
 // Render newsletter email template
 function renderNewsletterEmail(
-  description: string,
-  sections: NewsletterSection[], 
+  body: string,
   siteUrl: string, 
   unsubscribeUrl: string
 ): string {
-  // Convert text with HTML links to properly formatted HTML
-  const convertTextToHtml = (text: string): string => {
-    // Extract and preserve HTML links
-    const linkRegex = /<a\s+href=["']([^"']+)["']>([^<]+)<\/a>/g;
-    const links: Array<{ url: string; text: string; placeholder: string }> = [];
-    let linkIndex = 0;
-    
-    let processedText = text.replace(linkRegex, (match, url, linkText) => {
-      const placeholder = `__LINK_${linkIndex}__`;
-      links.push({ url, text: linkText, placeholder });
-      linkIndex++;
-      return placeholder;
-    });
-    
-    // Escape any remaining HTML tags (except line breaks)
-    processedText = processedText
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-    
-    // Restore links with proper styling
-    links.forEach(({ url, text, placeholder }) => {
-      const linkHtml = `<a href="${url.replace(/&amp;/g, '&')}" style="color: #FF8C42; text-decoration: underline;">${text}</a>`;
-      processedText = processedText.replace(placeholder, linkHtml);
-    });
-    
-    // Convert standalone URLs to links (only if not already in a link)
-    const urlRegex = /(https?:\/\/[^\s<>]+)/g;
-    processedText = processedText.replace(urlRegex, (url) => {
-      // Check if URL is already inside a link tag
-      if (processedText.includes(`href="${url}"`) || processedText.includes(`href='${url}'`)) {
-        return url;
+  // Process body HTML - ensure links and blockquotes have proper styling
+  let bodyHtml = body || '';
+  
+  // Ensure all links have proper styling
+  bodyHtml = bodyHtml.replace(
+    /<a\s+href=["']([^"']+)["']([^>]*)>([^<]+)<\/a>/gi,
+    (match, url, attrs, text) => {
+      // Check if style is already present
+      if (attrs && attrs.includes('style=')) {
+        return match;
       }
-      return `<a href="${url}" style="color: #FF8C42; text-decoration: underline;">${url}</a>`;
-    });
-    
-    // Convert line breaks
-    processedText = processedText.replace(/\n\n/g, '</p><p style="margin: 16px 0;">');
-    processedText = processedText.replace(/\n/g, '<br>');
-    
-    // Wrap in paragraph if not already wrapped
-    if (!processedText.startsWith('<')) {
-      processedText = `<p style="margin: 0 0 16px;">${processedText}</p>`;
+      return `<a href="${url}" style="color: #FF8C42; text-decoration: underline;"${attrs}>${text}</a>`;
     }
-    
-    return processedText;
-  };
+  );
   
-  const sectionsHtml = sections
-    .filter((section) => section.title.trim() || section.description.trim())
-    .map((section) => {
-      const titleHtml = section.title.trim() 
-        ? `<h2 style="color: #171717; font-size: 22px; font-weight: bold; margin: 0 0 12px; line-height: 1.3;">${section.title}</h2>`
-        : '';
-      const descriptionHtml = section.description.trim()
-        ? `<div style="color: #171717; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">${convertTextToHtml(section.description)}</div>`
-        : '';
-      
-      return titleHtml + descriptionHtml;
-    })
-    .join('');
+  // Ensure all blockquotes have proper styling (if not already styled)
+  bodyHtml = bodyHtml.replace(
+    /<blockquote([^>]*)>/gi,
+    (match, attrs) => {
+      // Check if style is already present
+      if (attrs && attrs.includes('style=')) {
+        return match;
+      }
+      return `<blockquote style="border-left: 4px solid #FF8C42 !important; padding: 6px 16px !important; margin: 16px 0 !important; color: #666 !important; font-style: italic !important; background-color: #FFF5ED !important;"${attrs}>`;
+    }
+  );
   
-  const descriptionHtml = description.trim()
-    ? `<div style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 24px; font-style: italic;">${convertTextToHtml(description)}</div>`
-    : '';
+  // Wrap body content in styled div
+  const bodyContentHtml = bodyHtml.trim()
+    ? `<div style="color: #171717; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">${bodyHtml}</div>`
+    : '<p style="color: #171717; font-size: 16px; line-height: 1.6;">Žádný obsah</p>';
   
   return `
     <!DOCTYPE html>
@@ -108,8 +73,7 @@ function renderNewsletterEmail(
               <!-- Main Content -->
               <tr>
                 <td style="padding: 0 40px 40px;">
-                  ${descriptionHtml}
-                  ${sectionsHtml || '<p style="color: #171717; font-size: 16px; line-height: 1.6;">Žádný obsah</p>'}
+                  ${bodyContentHtml}
                   
                   <!-- Divider -->
                   <div style="height: 1px; background-color: #e5e5e5; margin: 30px 0;"></div>
@@ -140,14 +104,14 @@ function renderNewsletterEmail(
 
 // Generate plain text version of newsletter
 function renderNewsletterText(
-  description: string,
-  sections: NewsletterSection[],
+  body: string,
   unsubscribeUrl: string
 ): string {
   // Strip HTML tags and convert to plain text
   const stripHtml = (html: string): string => {
     return html
       .replace(/<a\s+href=["']([^"']+)["']>([^<]+)<\/a>/gi, '$2 ($1)')
+      .replace(/<h[1-6][^>]*>(.*?)<\/h[1-6]>/gi, '\n$1\n' + '='.repeat(50) + '\n')
       .replace(/<[^>]+>/g, '')
       .replace(/&nbsp;/g, ' ')
       .replace(/&amp;/g, '&')
@@ -157,25 +121,9 @@ function renderNewsletterText(
       .trim();
   };
 
-  let text = '';
+  let text = stripHtml(body);
   
-  if (description.trim()) {
-    text += stripHtml(description) + '\n\n';
-  }
-  
-  sections
-    .filter((section) => section.title.trim() || section.description.trim())
-    .forEach((section) => {
-      if (section.title.trim()) {
-        text += section.title + '\n';
-        text += '='.repeat(section.title.length) + '\n\n';
-      }
-      if (section.description.trim()) {
-        text += stripHtml(section.description) + '\n\n';
-      }
-    });
-  
-  text += '\n---\n';
+  text += '\n\n---\n';
   text += 'Matěj | Žiju life\n\n';
   text += `Odhlásit se z odběru: ${unsubscribeUrl}\n`;
   
@@ -211,8 +159,8 @@ export async function GET(request: NextRequest) {
 
     for (const campaign of campaigns) {
       try {
-        const emailHtml = renderNewsletterEmail(campaign.description || '', campaign.sections, siteUrl, unsubscribeUrl)
-        const textVersion = renderNewsletterText(campaign.description || '', campaign.sections, unsubscribeUrl)
+        const emailHtml = renderNewsletterEmail(campaign.body || '', siteUrl, unsubscribeUrl)
+        const textVersion = renderNewsletterText(campaign.body || '', unsubscribeUrl)
 
         // Use Resend Broadcasts API if enabled, otherwise send individual emails
         if (USE_RESEND_CONTACTS) {
@@ -230,8 +178,8 @@ export async function GET(request: NextRequest) {
             console.log('Broadcast failed, falling back to individual emails')
             const emailPromises = subscribers.map((subscriber) =>
               resend.emails.send({
-                from: 'Matěj Mauler <matej@mail.ziju.life>',
-                replyTo: 'matej@mail.ziju.life',
+                from: campaign.sender || 'Matěj Mauler <matej@mail.ziju.life>',
+                replyTo: campaign.sender?.match(/<([^>]+)>/)?.[1] || 'matej@mail.ziju.life',
                 to: subscriber.email,
                 subject: campaign.subject,
                 html: emailHtml,

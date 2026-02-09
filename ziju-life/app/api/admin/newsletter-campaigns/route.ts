@@ -36,17 +36,17 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { subject, description, sections, scheduledAt } = body
+    const { subject, sender, body: bodyContent, scheduledAt } = body
 
-    if (!subject || !sections || !Array.isArray(sections) || sections.length === 0) {
+    if (!subject || !sender || !bodyContent) {
       return NextResponse.json(
-        { error: 'Subject and at least one section are required' },
+        { error: 'Subject, sender, and body are required' },
         { status: 400 }
       )
     }
 
     const scheduledDate = scheduledAt ? new Date(scheduledAt) : undefined
-    const campaign = await createNewsletterCampaign(subject, description || '', sections, scheduledDate)
+    const campaign = await createNewsletterCampaign(subject, sender, bodyContent, scheduledDate)
 
     return NextResponse.json(campaign, { status: 201 })
   } catch (error: any) {

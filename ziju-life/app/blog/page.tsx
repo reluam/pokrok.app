@@ -132,10 +132,15 @@ export default function InspiracePage() {
           })}`
         : newsletter.subject;
       
+      // Extract text from HTML body for description
+      const bodyText = newsletter.body 
+        ? newsletter.body.replace(/<[^>]+>/g, '').substring(0, 200) + '...'
+        : '';
+      
       items.push({
         id: newsletter.id,
         title: newsletterTitle,
-        description: newsletter.description || newsletter.sections[0]?.description || "",
+        description: bodyText,
         type: "newsletter",
         createdAt: newsletter.createdAt.toISOString(),
         sentAt: newsletter.sentAt?.toISOString(),
