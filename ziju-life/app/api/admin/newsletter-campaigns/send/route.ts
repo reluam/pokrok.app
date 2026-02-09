@@ -57,14 +57,14 @@ function renderNewsletterEmail(
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body style="margin: 0; padding: 0; background-color: #FDFDF7; font-family: Arial, sans-serif;">
-      <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #FDFDF7;">
+    <body style="margin: 0; padding: 0; background-color: #ffffff; font-family: Arial, sans-serif;">
+      <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #ffffff;">
         <tr>
           <td style="padding: 40px 20px;">
             <table role="presentation" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
               <!-- Header with Logo -->
               <tr>
-                <td style="padding: 40px 40px 30px; text-align: center; background-color: #FDFDF7;">
+                <td style="padding: 40px 40px 30px; text-align: center; background-color: #ffffff;">
                   <a href="${siteUrl}" style="display: inline-block; text-decoration: none; border: 0;">
                     <img src="${siteUrl}/ziju-life-logo.png" alt="Žiju life" width="200" height="80" style="max-width: 200px; width: 200px; height: auto; display: block; border: 0; outline: none; text-decoration: none;" />
                   </a>
@@ -80,7 +80,7 @@ function renderNewsletterEmail(
               
               <!-- Footer -->
               <tr>
-                <td style="padding: 30px 40px; background-color: #FDFDF7; border-top: 1px solid #e5e5e5;">
+                <td style="padding: 30px 40px; background-color: #ffffff; border-top: 1px solid #e5e5e5;">
                   <p style="color: #999; font-size: 12px; line-height: 1.5; margin: 0; text-align: center;">
                     <a href="${unsubscribeUrl}" style="color: #999; text-decoration: underline;">Odhlásit se z odběru</a>
                   </p>
