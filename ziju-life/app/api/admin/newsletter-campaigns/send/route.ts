@@ -21,35 +21,56 @@ function renderNewsletterEmail(
 ): string {
   // Convert text with HTML links to properly formatted HTML
   const convertTextToHtml = (text: string): string => {
-    // Extract and preserve HTML links
-    const linkRegex = /<a\s+href=["']([^"']+)["']>([^<]+)<\/a>/g;
+    // Extract and preserve HTML links BEFORE escaping
+    const linkRegex = /<a\s+href=["']([^"']+)["']>([^<]+)<\/a>/gi;
     const links: Array<{ url: string; text: string; placeholder: string }> = [];
     let linkIndex = 0;
     
+    // First pass: extract all links and replace with placeholders
     let processedText = text.replace(linkRegex, (match, url, linkText) => {
-      const placeholder = `__LINK_${linkIndex}__`;
-      links.push({ url, text: linkText, placeholder });
+      const placeholder = `__LINK_PLACEHOLDER_${linkIndex}__`;
+      links.push({ 
+        url: url.trim(), 
+        text: linkText.trim(), 
+        placeholder
+      });
       linkIndex++;
       return placeholder;
     });
     
-    // Escape any remaining HTML tags (except line breaks)
+    // Escape HTML entities in the remaining text (but not in placeholders)
     processedText = processedText
-      .replace(/&/g, '&amp;')
+      .replace(/&(?!amp;|lt;|gt;|quot;|#\d+;|#x[\da-f]+;|__LINK_PLACEHOLDER_)/gi, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
     
-    // Restore links with proper styling
+    // Restore links with proper styling (replace placeholders)
     links.forEach(({ url, text, placeholder }) => {
-      const linkHtml = `<a href="${url.replace(/&amp;/g, '&')}" style="color: #FF8C42; text-decoration: underline;">${text}</a>`;
+      // Don't escape URL - it should remain as-is
+      const cleanUrl = url.replace(/&amp;/g, '&');
+      // Escape text content properly
+      const escapedText = text
+        .replace(/&amp;/g, '&')
+        .replace(/&/g, '&amp;')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      
+      const linkHtml = `<a href="${cleanUrl}" style="color: #FF8C42; text-decoration: underline;">${escapedText}</a>`;
       processedText = processedText.replace(placeholder, linkHtml);
     });
     
     // Convert standalone URLs to links (only if not already in a link)
-    const urlRegex = /(https?:\/\/[^\s<>]+)/g;
+    const urlRegex = /(https?:\/\/[^\s<>"']+)/g;
     processedText = processedText.replace(urlRegex, (url) => {
       // Check if URL is already inside a link tag
       if (processedText.includes(`href="${url}"`) || processedText.includes(`href='${url}'`)) {
+        return url;
+      }
+      // Don't convert if it's part of an escaped HTML tag
+      const beforeUrl = processedText.substring(0, processedText.indexOf(url));
+      if (beforeUrl.endsWith('&lt;') || beforeUrl.endsWith('&gt;')) {
         return url;
       }
       return `<a href="${url}" style="color: #FF8C42; text-decoration: underline;">${url}</a>`;

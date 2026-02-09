@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Plus, Edit2, Trash2, Eye, Send, Save, X, Link as LinkIcon } from "lucide-react";
+import { Plus, Edit2, Trash2, Eye, Send, Save, X, Link as LinkIcon, Copy } from "lucide-react";
 import type { NewsletterCampaign, NewsletterSection, NewsletterTemplate } from "@/lib/newsletter-campaigns-db";
 
-type ViewMode = "list" | "edit" | "preview";
+type ViewMode = "list" | "edit" | "preview" | "view";
 
 const TEMPLATE_STORAGE_KEY = "newsletter_template";
 
@@ -98,6 +98,47 @@ export default function NewsletterCampaigns() {
     setViewMode("edit");
   };
 
+  const handleViewCampaign = (campaign: NewsletterCampaign) => {
+    setEditingCampaign(campaign);
+    setFormData({
+      subject: campaign.subject,
+      description: campaign.description || "",
+      sections: campaign.sections.length > 0 
+        ? campaign.sections 
+        : [{ title: "", description: "" }],
+      scheduledAt: campaign.scheduledAt
+        ? new Date(campaign.scheduledAt).toISOString().slice(0, 16)
+        : "",
+    });
+    setViewMode("view");
+  };
+
+  const handleDuplicateCampaign = async (campaign: NewsletterCampaign) => {
+    try {
+      const res = await fetch("/api/admin/newsletter-campaigns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subject: campaign.subject,
+          description: campaign.description || "",
+          sections: campaign.sections,
+          scheduledAt: null, // No scheduled date for duplicated campaign
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to duplicate campaign");
+      }
+
+      await fetchCampaigns();
+      alert("Newsletter byl duplikován a je připraven k úpravě");
+    } catch (err: any) {
+      console.error("Error duplicating campaign:", err);
+      alert(err.message || "Chyba při duplikování newsletteru");
+    }
+  };
+
   const handleAddSection = () => {
     setFormData({
       ...formData,
@@ -129,10 +170,30 @@ export default function NewsletterCampaigns() {
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
 
+    // Only save selection, don't open dialog
     if (start !== end) {
       setSelectedText({ sectionIndex, start, end });
-      setShowLinkDialog(true);
+    } else {
+      setSelectedText(null);
     }
+  };
+
+  const handleAddLinkClick = (sectionIndex: number) => {
+    const textarea = descriptionRefs.current[sectionIndex];
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    // Check if text is selected
+    if (start === end) {
+      alert("Nejprve označ text, který chceš převést na odkaz");
+      return;
+    }
+
+    // Save selection and open dialog
+    setSelectedText({ sectionIndex, start, end });
+    setShowLinkDialog(true);
   };
 
   const insertLink = () => {
@@ -275,38 +336,54 @@ export default function NewsletterCampaigns() {
 
   // Convert text with HTML links to properly formatted HTML
   const convertTextToHtml = (text: string): string => {
-    // First, escape any existing HTML that's not a link
-    // Then process links and line breaks
-    
-    // Extract and preserve HTML links
-    const linkRegex = /<a\s+href=["']([^"']+)["']>([^<]+)<\/a>/g;
-    const links: Array<{ url: string; text: string; placeholder: string }> = [];
+    // Extract and preserve HTML links BEFORE escaping
+    const linkRegex = /<a\s+href=["']([^"']+)["']>([^<]+)<\/a>/gi;
+    const links: Array<{ url: string; text: string; placeholder: string; fullMatch: string }> = [];
     let linkIndex = 0;
     
+    // First pass: extract all links and replace with placeholders
     let processedText = text.replace(linkRegex, (match, url, linkText) => {
-      const placeholder = `__LINK_${linkIndex}__`;
-      links.push({ url, text: linkText, placeholder });
+      const placeholder = `__LINK_PLACEHOLDER_${linkIndex}__`;
+      links.push({ 
+        url: url.trim(), 
+        text: linkText.trim(), 
+        placeholder,
+        fullMatch: match
+      });
       linkIndex++;
       return placeholder;
     });
     
-    // Escape any remaining HTML tags (except line breaks)
+    // Escape HTML entities in the remaining text (but not in placeholders)
+    // We need to escape & first, then < and >
     processedText = processedText
-      .replace(/&/g, '&amp;')
+      .replace(/&(?!amp;|lt;|gt;|quot;|#\d+;|#x[\da-f]+;)/gi, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
     
-    // Restore links with proper styling
+    // Restore links with proper styling (replace placeholders)
     links.forEach(({ url, text, placeholder }) => {
-      const linkHtml = `<a href="${url.replace(/&amp;/g, '&')}" style="color: #FF8C42; text-decoration: underline;">${text}</a>`;
+      // Escape URL if needed (but keep it as URL)
+      const escapedUrl = url.replace(/&amp;/g, '&').replace(/&/g, '&amp;');
+      const escapedText = text
+        .replace(/&amp;/g, '&')
+        .replace(/&/g, '&amp;')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>');
+      
+      const linkHtml = `<a href="${escapedUrl}" style="color: #FF8C42; text-decoration: underline;">${escapedText}</a>`;
       processedText = processedText.replace(placeholder, linkHtml);
     });
     
     // Convert standalone URLs to links (only if not already in a link)
-    const urlRegex = /(https?:\/\/[^\s<>]+)/g;
+    const urlRegex = /(https?:\/\/[^\s<>"']+)/g;
     processedText = processedText.replace(urlRegex, (url) => {
       // Check if URL is already inside a link tag
       if (processedText.includes(`href="${url}"`) || processedText.includes(`href='${url}'`)) {
+        return url;
+      }
+      // Don't convert if it's part of an escaped HTML tag
+      if (processedText.includes(`&lt;a`) || processedText.includes(`&gt;`)) {
         return url;
       }
       return `<a href="${url}" style="color: #FF8C42; text-decoration: underline;">${url}</a>`;
@@ -549,7 +626,7 @@ export default function NewsletterCampaigns() {
                         </label>
                         <button
                           type="button"
-                          onClick={() => handleTextSelection(index)}
+                          onClick={() => handleAddLinkClick(index)}
                           className="flex items-center gap-1 px-2 py-1 text-xs border border-black/10 rounded hover:bg-black/5 transition-colors"
                           title="Označ text a klikni pro přidání odkazu"
                         >
@@ -565,7 +642,17 @@ export default function NewsletterCampaigns() {
                         onChange={(e) =>
                           handleSectionChange(index, "description", e.target.value)
                         }
-                        onSelect={() => handleTextSelection(index)}
+                        onSelect={() => {
+                          // Just track selection, don't open dialog
+                          const textarea = descriptionRefs.current[index];
+                          if (textarea) {
+                            const start = textarea.selectionStart;
+                            const end = textarea.selectionEnd;
+                            if (start !== end) {
+                              setSelectedText({ sectionIndex: index, start, end });
+                            }
+                          }
+                        }}
                         rows={6}
                         className="w-full px-3 py-2 border border-black/10 rounded-lg focus:border-accent focus:ring-accent focus:outline-none text-sm"
                         placeholder="Popisek sekce... Označ text a klikni na 'Přidat odkaz' pro vložení odkazu."
@@ -650,6 +737,126 @@ export default function NewsletterCampaigns() {
             </div>
           </div>
         )}
+      </div>
+    );
+  }
+
+  if (viewMode === "view") {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-foreground">Detail newsletteru</h1>
+          <div className="flex gap-3">
+            <button
+              onClick={() => handleDuplicateCampaign(editingCampaign!)}
+              className="flex items-center gap-2 px-4 py-2 border-2 border-black/10 rounded-full font-semibold hover:border-accent hover:text-accent transition-colors"
+            >
+              <Copy size={18} />
+              Duplikovat
+            </button>
+            <button
+              onClick={() => {
+                setViewMode("preview");
+              }}
+              className="flex items-center gap-2 px-4 py-2 border-2 border-black/10 rounded-full font-semibold hover:border-accent hover:text-accent transition-colors"
+            >
+              <Eye size={18} />
+              Náhled
+            </button>
+            <button
+              onClick={() => {
+                setViewMode("list");
+                setEditingCampaign(null);
+                setFormData({ subject: "", description: "", sections: [{ title: "", description: "" }], scheduledAt: "" });
+              }}
+              className="px-4 py-2 border-2 border-black/10 rounded-full font-semibold hover:border-accent hover:text-accent transition-colors"
+            >
+              Zpět na seznam
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl p-6 border-2 border-black/5 space-y-6">
+          <div>
+            <label className="block text-sm font-semibold text-foreground mb-2">
+              Předmět emailu
+            </label>
+            <div className="px-4 py-2 border border-black/10 rounded-lg bg-gray-50 text-foreground">
+              {formData.subject || "(bez předmětu)"}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-foreground mb-2">
+              Popisek newsletteru
+            </label>
+            <div className="px-4 py-2 border border-black/10 rounded-lg bg-gray-50 text-foreground min-h-[80px] whitespace-pre-wrap">
+              {formData.description || "(bez popisku)"}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-foreground mb-4">
+              Sekce newsletteru
+            </label>
+            <div className="space-y-4">
+              {formData.sections.map((section, index) => (
+                <div
+                  key={index}
+                  className="p-4 border-2 border-black/10 rounded-lg bg-gray-50"
+                >
+                  <div className="mb-3">
+                    <span className="text-sm font-semibold text-foreground">
+                      Sekce {index + 1}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-foreground/70 mb-1">
+                        Nadpis sekce
+                      </label>
+                      <div className="px-3 py-2 border border-black/10 rounded-lg bg-white text-sm">
+                        {section.title || "(bez nadpisu)"}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-semibold text-foreground/70 mb-1">
+                        Popisek
+                      </label>
+                      <div className="px-3 py-2 border border-black/10 rounded-lg bg-white text-sm min-h-[100px] whitespace-pre-wrap">
+                        {section.description || "(bez popisku)"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-foreground mb-2">
+              Naplánováno
+            </label>
+            <div className="px-4 py-2 border border-black/10 rounded-lg bg-gray-50 text-foreground">
+              {formData.scheduledAt
+                ? new Date(formData.scheduledAt).toLocaleString("cs-CZ")
+                : "-"}
+            </div>
+          </div>
+
+          {editingCampaign?.sentAt && (
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-2">
+                Odesláno
+              </label>
+              <div className="px-4 py-2 border border-black/10 rounded-lg bg-gray-50 text-foreground">
+                {new Date(editingCampaign.sentAt).toLocaleString("cs-CZ")}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
@@ -796,7 +1003,24 @@ export default function NewsletterCampaigns() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        {campaign.status !== "sent" && (
+                        {campaign.status === "sent" ? (
+                          <>
+                            <button
+                              onClick={() => handleViewCampaign(campaign)}
+                              className="p-2 text-accent hover:bg-accent/10 rounded-lg transition-colors"
+                              title="Zobrazit detail"
+                            >
+                              <Eye size={18} />
+                            </button>
+                            <button
+                              onClick={() => handleDuplicateCampaign(campaign)}
+                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              title="Duplikovat"
+                            >
+                              <Copy size={18} />
+                            </button>
+                          </>
+                        ) : (
                           <>
                             <button
                               onClick={() => handleSend(campaign.id)}
