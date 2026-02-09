@@ -18,34 +18,54 @@ export interface ResendContact {
 /**
  * Create or update a contact in Resend
  */
-export async function createResendContact(email: string, firstName?: string, lastName?: string): Promise<void> {
-  if (!USE_RESEND_CONTACTS || !resend) {
-    return
+export async function createResendContact(email: string, firstName?: string, lastName?: string): Promise<{ success: boolean; error?: string }> {
+  if (!USE_RESEND_CONTACTS) {
+    return { success: false, error: 'Resend Contacts is not enabled (USE_RESEND_CONTACTS=false)' }
   }
 
+  if (!resend) {
+    return { success: false, error: 'Resend client is not initialized (RESEND_API_KEY missing?)' }
+  }
+
+  const normalizedEmail = email.toLowerCase().trim()
+
   try {
-    await resend.contacts.create({
-      email: email.toLowerCase().trim(),
+    console.log(`[Resend] Creating contact: ${normalizedEmail}`)
+    const result = await resend.contacts.create({
+      email: normalizedEmail,
       firstName: firstName,
       lastName: lastName,
     })
-  } catch (error: any) {
-    // Contact might already exist, that's okay
-    if (error?.message?.includes('already exists') || error?.statusCode === 409) {
-      // Try to update instead
-      try {
-        await resend.contacts.update({
-          email: email.toLowerCase().trim(),
+
+    if (result.error) {
+      console.error(`[Resend] Error creating contact ${normalizedEmail}:`, result.error)
+      // Contact might already exist, try to update instead
+      if (result.error.message?.includes('already exists') || result.error.statusCode === 409) {
+        console.log(`[Resend] Contact exists, updating: ${normalizedEmail}`)
+        const updateResult = await resend.contacts.update({
+          email: normalizedEmail,
           firstName: firstName,
           lastName: lastName,
           unsubscribed: false, // Ensure they're subscribed
         })
-      } catch (updateError) {
-        console.error('Error updating Resend contact:', updateError)
+
+        if (updateResult.error) {
+          console.error(`[Resend] Error updating contact ${normalizedEmail}:`, updateResult.error)
+          return { success: false, error: `Failed to update contact: ${updateResult.error.message || JSON.stringify(updateResult.error)}` }
+        }
+        console.log(`[Resend] Successfully updated contact: ${normalizedEmail}`)
+        return { success: true }
       }
-    } else {
-      console.error('Error creating Resend contact:', error)
+      return { success: false, error: `Failed to create contact: ${result.error.message || JSON.stringify(result.error)}` }
     }
+
+    console.log(`[Resend] Successfully created contact: ${normalizedEmail}`)
+    return { success: true }
+  } catch (error: any) {
+    // Handle thrown errors
+    const errorMessage = error?.message || error?.toString() || 'Unknown error'
+    console.error(`[Resend] Exception creating/updating contact ${normalizedEmail}:`, error)
+    return { success: false, error: errorMessage }
   }
 }
 
@@ -95,22 +115,51 @@ export async function getResendContacts(): Promise<ResendContact[]> {
 /**
  * Sync local database contacts to Resend
  */
-export async function syncContactsToResend(): Promise<void> {
-  if (!USE_RESEND_CONTACTS || !resend) {
-    return
+export async function syncContactsToResend(): Promise<{ success: boolean; synced: number; failed: number; errors: string[] }> {
+  if (!USE_RESEND_CONTACTS) {
+    return { success: false, synced: 0, failed: 0, errors: ['Resend Contacts is not enabled (USE_RESEND_CONTACTS=false)'] }
+  }
+
+  if (!resend) {
+    return { success: false, synced: 0, failed: 0, errors: ['Resend client is not initialized (RESEND_API_KEY missing?)'] }
   }
 
   try {
+    console.log('[Resend] Starting sync...')
+    console.log(`[Resend] USE_RESEND_CONTACTS=${USE_RESEND_CONTACTS}`)
+    console.log(`[Resend] RESEND_API_KEY=${process.env.RESEND_API_KEY ? 'SET' : 'NOT SET'}`)
+    
     const localSubscribers = await getNewsletterSubscribers()
+    console.log(`[Resend] Found ${localSubscribers.length} local subscribers`)
+    
+    let synced = 0
+    let failed = 0
+    const errors: string[] = []
     
     // Create contacts in Resend for all local subscribers
     for (const subscriber of localSubscribers) {
-      await createResendContact(subscriber.email)
+      const result = await createResendContact(subscriber.email)
+      if (result.success) {
+        synced++
+      } else {
+        failed++
+        errors.push(`${subscriber.email}: ${result.error || 'Unknown error'}`)
+        console.error(`[Resend] Failed to sync contact ${subscriber.email}:`, result.error)
+      }
     }
     
-    console.log(`Synced ${localSubscribers.length} contacts to Resend`)
-  } catch (error) {
-    console.error('Error syncing contacts to Resend:', error)
+    console.log(`[Resend] Sync complete: ${synced}/${localSubscribers.length} contacts synced (${failed} failed)`)
+    
+    return {
+      success: failed === 0,
+      synced,
+      failed,
+      errors: errors.slice(0, 10), // Limit to first 10 errors
+    }
+  } catch (error: any) {
+    const errorMessage = error?.message || error?.toString() || 'Unknown error'
+    console.error('[Resend] Exception syncing contacts:', error)
+    return { success: false, synced: 0, failed: 0, errors: [errorMessage] }
   }
 }
 

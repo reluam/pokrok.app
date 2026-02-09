@@ -70,15 +70,33 @@ export default function NewsletterContent() {
         method: "POST",
       });
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Chyba při synchronizaci");
+      const data = await res.json();
+
+      if (!res.ok && res.status !== 207) {
+        // 207 is Multi-Status (partial success)
+        throw new Error(data.error || "Chyba při synchronizaci");
       }
 
-      setSyncSuccess(true);
-      setTimeout(() => {
-        setSyncSuccess(false);
-      }, 3000);
+      if (data.success) {
+        setSyncSuccess(true);
+        setSyncError("");
+        setTimeout(() => {
+          setSyncSuccess(false);
+        }, 5000);
+      } else {
+        // Partial success or failure
+        const errorMsg = data.errors && data.errors.length > 0
+          ? `${data.message}\n\nChyby:\n${data.errors.slice(0, 5).join('\n')}${data.errors.length > 5 ? `\n... a dalších ${data.errors.length - 5} chyb` : ''}`
+          : data.message || "Synchronizace dokončena s chybami";
+        setSyncError(errorMsg);
+        if (data.synced > 0) {
+          setSyncSuccess(true);
+        }
+        setTimeout(() => {
+          setSyncError("");
+          setSyncSuccess(false);
+        }, 10000);
+      }
     } catch (err: any) {
       setSyncError(err.message || "Chyba při synchronizaci kontaktů");
       setTimeout(() => {

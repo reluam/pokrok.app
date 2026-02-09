@@ -21,7 +21,11 @@ export async function GET(request: NextRequest) {
     const subscriber = await confirmPendingSubscription(token)
     
     // Add to Resend Contacts if enabled
-    await createResendContact(subscriber.email)
+    const resendResult = await createResendContact(subscriber.email)
+    if (!resendResult.success) {
+      console.error(`Failed to add contact to Resend: ${subscriber.email}`, resendResult.error)
+      // Don't fail the confirmation if Resend sync fails
+    }
     
     // Send welcome email after confirmation
     if (process.env.RESEND_API_KEY) {
