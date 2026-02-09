@@ -70,7 +70,7 @@ export default function ChooseYourPath() {
               Koučink
             </h2>
             <p className="text-foreground/70 leading-relaxed mb-6 text-center">
-              Podíváme se pod kapotu tvého autopilota a nastavíme ho tak, aby pracoval pro tebe.
+              Podíváme se současné nastavení tvé mysli a nastavíme ji tak, aby pracovala pro tebe.
             </p>
             <Link
               href="/koucing"

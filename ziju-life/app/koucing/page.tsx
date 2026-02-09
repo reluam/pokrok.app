@@ -10,7 +10,7 @@ export default function KoucingPage() {
         <DecorativeShapes variant="hero" />
         <div className="max-w-4xl mx-auto text-center space-y-8 relative z-10">
           <h1 className="text-4xl md:text-5xl lg:text-6xl leading-tight text-foreground">
-            Přepni na manuál a vezmi si <span className="hand-drawn-underline">svůj život</span> zpět.
+            Zarezervuj si sezení zdarma a vezmi si <span className="hand-drawn-underline">svůj život</span> zpět.
           </h1>
           
           <p className="text-lg md:text-xl lg:text-2xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
@@ -137,22 +137,16 @@ export default function KoucingPage() {
         <div className="max-w-6xl mx-auto space-y-12">
           <div className="text-center">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-8">
-              Jaká je cena?
+              Zarezervuj si 30 minutové sezení zdarma
             </h2>
-            <div className="space-y-4 max-w-2xl mx-auto">
-              <p className="text-lg text-foreground/80 leading-relaxed text-center font-semibold">
-                Aktuálně hledám lidi, kteří chtějí jít do hloubky a prozkoumat svůj autopilot společně se mnou.
-              </p>
+            <div className="max-w-2xl mx-auto">
               <p className="text-lg text-foreground/80 leading-relaxed text-center">
-                Pomůžeš mi tak ověřit, jak můj přístup funguje v praxi, a ty získáš prostor pro svou změnu. Pokud máš chuť se do toho pustit, rezervuj si sezení zdarma.
+                Po úvodní konzultaci zdarma pak pro prvních dvacet klientů nabízím zvýhodněnou cenu 500 Kč za koučovací hodinu.
               </p>
             </div>
           </div>
           
           <div className="bg-white rounded-2xl p-6 md:p-8 border-2 border-black/10">
-            <h3 className="text-2xl font-bold text-foreground mb-4 text-center">
-              Rezervuj si sezení
-            </h3>
             <div className="rounded-lg overflow-hidden">
               <iframe 
                 src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ09WuK7w9SPU0bBC_TuRCmstTwkzazkPtq65gVaPDejfHspyAXwj1RKisdDRFE_Q2PF6a6iZviE?gv=true" 

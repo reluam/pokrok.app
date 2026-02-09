@@ -23,11 +23,11 @@ export default function Hero() {
       
       <div className="max-w-4xl mx-auto text-center relative z-10 space-y-8 md:space-y-12">
         <h1 className="text-4xl md:text-5xl lg:text-6xl leading-tight text-foreground">
-          Vypni autopilota a začni <span className="hand-drawn-underline">žít life</span> podle sebe.
+          Začni <span className="hand-drawn-underline">žít life</span> podle sebe.
         </h1>
         
         <p className="text-lg md:text-xl lg:text-2xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
-          Většinu dne neřídíš ty, ale tvůj autopilot. Ukážu ti, jak převzít řízení a nastavit autopilota, aby tě vezl, kam chceš ty.
+          Většinu dne neřídíš ty, ale tvoje podvědomí. Ukážu ti, jak převzít řízení a nastavit mysl, aby tě vedla, kam chceš ty.
         </p>
         
         <div className="flex justify-center items-center pt-4">
