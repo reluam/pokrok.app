@@ -808,6 +808,44 @@ export default function NewsletterCampaigns() {
         </div>
 
         <div className="bg-white rounded-2xl p-6 border-2 border-black/5 space-y-6">
+          {editingCampaign && editingCampaign.status === "sent" && (
+            <div>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={editingCampaign.showOnBlog || false}
+                  onChange={async (e) => {
+                    try {
+                      const res = await fetch(`/api/admin/newsletter-campaigns/${editingCampaign.id}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          subject: editingCampaign.subject,
+                          description: editingCampaign.description,
+                          sections: editingCampaign.sections,
+                          scheduledAt: editingCampaign.scheduledAt?.toISOString(),
+                          showOnBlog: e.target.checked,
+                        }),
+                      });
+                      if (res.ok) {
+                        await fetchCampaigns();
+                        const updated = await res.json();
+                        setEditingCampaign(updated);
+                      }
+                    } catch (err) {
+                      console.error("Error updating showOnBlog:", err);
+                      alert("Chyba při aktualizaci");
+                    }
+                  }}
+                  className="w-5 h-5 text-accent border-black/20 rounded focus:ring-accent"
+                />
+                <span className="text-sm font-semibold text-foreground">
+                  Zobrazit na blogu
+                </span>
+              </label>
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-semibold text-foreground mb-2">
               Předmět emailu
@@ -1003,7 +1041,13 @@ export default function NewsletterCampaigns() {
                     className="border-b border-black/5 hover:bg-white/50 transition-colors"
                   >
                     <td className="px-6 py-4 text-foreground font-medium">
-                      {campaign.subject}
+                      {campaign.status === "sent" && campaign.sentAt
+                        ? `Newsletter - ${new Date(campaign.sentAt).toLocaleDateString("cs-CZ", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}`
+                        : campaign.subject}
                     </td>
                     <td className="px-6 py-4">
                       <span
@@ -1053,6 +1097,13 @@ export default function NewsletterCampaigns() {
                               title="Duplikovat"
                             >
                               <Copy size={18} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(campaign.id)}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              title="Smazat"
+                            >
+                              <Trash2 size={18} />
                             </button>
                           </>
                         ) : (

@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { InspirationData, InspirationItem } from "@/lib/inspiration";
-import { Book, Video, FileText, PenTool, HelpCircle } from "lucide-react";
+import type { NewsletterCampaign } from "@/lib/newsletter-campaigns-db";
+import { Book, Video, FileText, PenTool, HelpCircle, Mail } from "lucide-react";
+
+type FilterType = "all" | "blog" | "newsletter";
 
 const getTypeLabel = (type: string): string => {
   switch (type) {
@@ -12,6 +15,7 @@ const getTypeLabel = (type: string): string => {
     case "book": return "Kniha";
     case "article": return "Článek";
     case "other": return "Ostatní";
+    case "newsletter": return "Newsletter";
     default: return type;
   }
 };
@@ -23,6 +27,7 @@ const getTypeIcon = (type: string) => {
     case "book": return Book;
     case "article": return FileText;
     case "other": return HelpCircle;
+    case "newsletter": return Mail;
     default: return FileText;
   }
 };
@@ -54,10 +59,24 @@ const getVideoThumbnail = (url: string): string | null => {
   return null;
 };
 
+interface BlogItem {
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+  createdAt: string;
+  sentAt?: string;
+  author?: string;
+  thumbnail?: string;
+  url?: string;
+}
+
 export default function InspiracePage() {
   const router = useRouter();
   const [data, setData] = useState<InspirationData | null>(null);
+  const [newsletters, setNewsletters] = useState<NewsletterCampaign[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<FilterType>("all");
 
   useEffect(() => {
     fetchData();
@@ -65,9 +84,16 @@ export default function InspiracePage() {
 
   const fetchData = async () => {
     try {
-      const res = await fetch("/api/inspiration");
-      const data = await res.json();
-      setData(data);
+      const [inspirationRes, newslettersRes] = await Promise.all([
+        fetch("/api/inspiration"),
+        fetch("/api/newsletters"),
+      ]);
+      
+      const inspirationData = await inspirationRes.json();
+      const newslettersData = await newslettersRes.json();
+      
+      setData(inspirationData);
+      setNewsletters(newslettersData);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -75,14 +101,61 @@ export default function InspiracePage() {
     }
   };
 
-  const getAllItems = (): InspirationItem[] => {
-    if (!data) return [];
-    return data.blogs
-      .filter(item => item.isActive !== false) // Only show active items
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const getAllItems = (): BlogItem[] => {
+    const items: BlogItem[] = [];
+    
+    // Add inspiration items
+    if (data) {
+      data.blogs
+        .filter(item => item.isActive !== false)
+        .forEach(item => {
+          items.push({
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            type: item.type,
+            createdAt: item.createdAt,
+            author: item.author,
+            thumbnail: item.thumbnail,
+            url: item.url,
+          });
+        });
+    }
+    
+    // Add newsletters
+    newsletters.forEach(newsletter => {
+      const newsletterTitle = newsletter.sentAt
+        ? `Newsletter - ${new Date(newsletter.sentAt).toLocaleDateString("cs-CZ", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}`
+        : newsletter.subject;
+      
+      items.push({
+        id: newsletter.id,
+        title: newsletterTitle,
+        description: newsletter.description || newsletter.sections[0]?.description || "",
+        type: "newsletter",
+        createdAt: newsletter.createdAt.toISOString(),
+        sentAt: newsletter.sentAt?.toISOString(),
+      });
+    });
+    
+    return items.sort((a, b) => {
+      const dateA = a.sentAt || a.createdAt;
+      const dateB = b.sentAt || b.createdAt;
+      return new Date(dateB).getTime() - new Date(dateA).getTime();
+    });
   };
 
-  const filteredItems = getAllItems();
+  const getFilteredItems = (): BlogItem[] => {
+    const allItems = getAllItems();
+    if (filter === "all") return allItems;
+    return allItems.filter(item => item.type === filter);
+  };
+
+  const filteredItems = getFilteredItems();
 
   if (loading) {
     return (
@@ -106,6 +179,40 @@ export default function InspiracePage() {
           </p>
         </div>
 
+        {/* Filters */}
+        <div className="flex items-center justify-center gap-3 flex-wrap">
+          <button
+            onClick={() => setFilter("all")}
+            className={`px-6 py-2 rounded-full font-semibold transition-colors ${
+              filter === "all"
+                ? "bg-accent text-white"
+                : "bg-white border-2 border-black/10 hover:border-accent hover:text-accent"
+            }`}
+          >
+            Všechno
+          </button>
+          <button
+            onClick={() => setFilter("blog")}
+            className={`px-6 py-2 rounded-full font-semibold transition-colors ${
+              filter === "blog"
+                ? "bg-accent text-white"
+                : "bg-white border-2 border-black/10 hover:border-accent hover:text-accent"
+            }`}
+          >
+            Blog
+          </button>
+          <button
+            onClick={() => setFilter("newsletter")}
+            className={`px-6 py-2 rounded-full font-semibold transition-colors ${
+              filter === "newsletter"
+                ? "bg-accent text-white"
+                : "bg-white border-2 border-black/10 hover:border-accent hover:text-accent"
+            }`}
+          >
+            Newslettery
+          </button>
+        </div>
+
         {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredItems.length === 0 ? (
@@ -115,13 +222,17 @@ export default function InspiracePage() {
           ) : (
             filteredItems.map((item, index) => {
               const Icon = getTypeIcon(item.type);
-              const videoThumbnail = item.type === "video" ? (item.thumbnail || getVideoThumbnail(item.url)) : null;
+              const videoThumbnail = item.type === "video" ? (item.thumbnail || (item.url ? getVideoThumbnail(item.url) : null)) : null;
               
               return (
                 <button
                   key={item.id}
                   onClick={() => {
-                    router.push(`/blog/${item.id}`);
+                    if (item.type === "newsletter") {
+                      router.push(`/newsletter/${item.id}`);
+                    } else {
+                      router.push(`/blog/${item.id}`);
+                    }
                   }}
                   className="block text-left w-full cursor-pointer"
                 >

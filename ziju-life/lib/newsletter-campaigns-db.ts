@@ -13,6 +13,7 @@ export interface NewsletterCampaign {
   scheduledAt: Date | null
   sentAt: Date | null
   status: 'draft' | 'scheduled' | 'sent'
+  showOnBlog: boolean
   createdAt: Date
   updatedAt: Date
 }
@@ -78,6 +79,7 @@ async function ensureCampaignsTable() {
         scheduled_at TIMESTAMP WITH TIME ZONE,
         sent_at TIMESTAMP WITH TIME ZONE,
         status VARCHAR(50) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'scheduled', 'sent')),
+        show_on_blog BOOLEAN DEFAULT false,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
@@ -93,6 +95,12 @@ async function ensureCampaignsTable() {
     await sql`
       ALTER TABLE newsletter_campaigns 
       ADD COLUMN IF NOT EXISTS description TEXT DEFAULT ''
+    `
+    
+    // Add show_on_blog column if table exists but column doesn't
+    await sql`
+      ALTER TABLE newsletter_campaigns 
+      ADD COLUMN IF NOT EXISTS show_on_blog BOOLEAN DEFAULT false
     `
     
     // Make sure sections is NOT NULL with default
@@ -144,7 +152,8 @@ export async function createNewsletterCampaign(
   subject: string,
   description: string,
   sections: NewsletterSection[],
-  scheduledAt?: Date
+  scheduledAt?: Date,
+  showOnBlog: boolean = false
 ): Promise<NewsletterCampaign> {
   await ensureCampaignsTable()
   
@@ -153,8 +162,8 @@ export async function createNewsletterCampaign(
   const status = scheduledAt && scheduledAt > now ? 'scheduled' : 'draft'
   
   await sql`
-    INSERT INTO newsletter_campaigns (id, subject, description, sections, content, scheduled_at, status, created_at, updated_at)
-    VALUES (${id}, ${subject}, ${description}, ${JSON.stringify(sections)}::jsonb, '', ${scheduledAt || null}, ${status}, ${now}, ${now})
+    INSERT INTO newsletter_campaigns (id, subject, description, sections, content, scheduled_at, status, show_on_blog, created_at, updated_at)
+    VALUES (${id}, ${subject}, ${description}, ${JSON.stringify(sections)}::jsonb, '', ${scheduledAt || null}, ${status}, ${showOnBlog}, ${now}, ${now})
   `
   
   return {
@@ -165,6 +174,7 @@ export async function createNewsletterCampaign(
     scheduledAt: scheduledAt || null,
     sentAt: null,
     status,
+    showOnBlog,
     createdAt: now,
     updatedAt: now,
   }
@@ -175,7 +185,8 @@ export async function updateNewsletterCampaign(
   subject: string,
   description: string,
   sections: NewsletterSection[],
-  scheduledAt?: Date
+  scheduledAt?: Date,
+  showOnBlog?: boolean
 ): Promise<NewsletterCampaign> {
   await ensureCampaignsTable()
   
@@ -190,23 +201,34 @@ export async function updateNewsletterCampaign(
   
   const existingCampaign = existing[0]
   
-  // Don't allow editing sent campaigns
-  if (existingCampaign.status === 'sent') {
+  // Don't allow editing sent campaigns (except showOnBlog)
+  if (existingCampaign.status === 'sent' && showOnBlog === undefined) {
     throw new Error('Cannot edit sent campaign')
   }
   
-  const status = scheduledAt && scheduledAt > now ? 'scheduled' : 'draft'
+  const status = scheduledAt && scheduledAt > now ? 'scheduled' : existingCampaign.status
   
-  await sql`
-    UPDATE newsletter_campaigns
-    SET subject = ${subject},
-        description = ${description},
-        sections = ${JSON.stringify(sections)}::jsonb,
-        scheduled_at = ${scheduledAt || null},
-        status = ${status},
-        updated_at = ${now}
-    WHERE id = ${id}
-  `
+  // If updating showOnBlog for sent campaign, only update that field
+  if (existingCampaign.status === 'sent' && showOnBlog !== undefined) {
+    await sql`
+      UPDATE newsletter_campaigns
+      SET show_on_blog = ${showOnBlog},
+          updated_at = ${now}
+      WHERE id = ${id}
+    `
+  } else {
+    await sql`
+      UPDATE newsletter_campaigns
+      SET subject = ${subject},
+          description = ${description},
+          sections = ${JSON.stringify(sections)}::jsonb,
+          scheduled_at = ${scheduledAt || null},
+          status = ${status},
+          ${showOnBlog !== undefined ? sql`show_on_blog = ${showOnBlog},` : sql``}
+          updated_at = ${now}
+      WHERE id = ${id}
+    `
+  }
   
   const updated = await sql`
     SELECT * FROM newsletter_campaigns WHERE id = ${id} LIMIT 1
@@ -231,6 +253,7 @@ export async function updateNewsletterCampaign(
     scheduledAt: campaign.scheduled_at ? new Date(campaign.scheduled_at) : null,
     sentAt: campaign.sent_at ? new Date(campaign.sent_at) : null,
     status: campaign.status,
+    showOnBlog: campaign.show_on_blog || false,
     createdAt: new Date(campaign.created_at),
     updatedAt: new Date(campaign.updated_at),
   }
@@ -262,6 +285,7 @@ export async function getNewsletterCampaigns(): Promise<NewsletterCampaign[]> {
       scheduledAt: campaign.scheduled_at ? new Date(campaign.scheduled_at) : null,
       sentAt: campaign.sent_at ? new Date(campaign.sent_at) : null,
       status: campaign.status,
+      showOnBlog: campaign.show_on_blog || false,
       createdAt: new Date(campaign.created_at),
       updatedAt: new Date(campaign.updated_at),
     }
@@ -298,6 +322,7 @@ export async function getNewsletterCampaign(id: string): Promise<NewsletterCampa
     scheduledAt: campaign.scheduled_at ? new Date(campaign.scheduled_at) : null,
     sentAt: campaign.sent_at ? new Date(campaign.sent_at) : null,
     status: campaign.status,
+    showOnBlog: campaign.show_on_blog || false,
     createdAt: new Date(campaign.created_at),
     updatedAt: new Date(campaign.updated_at),
   }
@@ -306,9 +331,10 @@ export async function getNewsletterCampaign(id: string): Promise<NewsletterCampa
 export async function deleteNewsletterCampaign(id: string): Promise<boolean> {
   await ensureCampaignsTable()
   
+  // Allow deleting sent campaigns
   const result = await sql`
     DELETE FROM newsletter_campaigns
-    WHERE id = ${id} AND status != 'sent'
+    WHERE id = ${id}
     RETURNING id
   `
   
@@ -346,6 +372,43 @@ export async function getScheduledCampaignsToSend(): Promise<NewsletterCampaign[
       scheduledAt: campaign.scheduled_at ? new Date(campaign.scheduled_at) : null,
       sentAt: campaign.sent_at ? new Date(campaign.sent_at) : null,
       status: campaign.status,
+      showOnBlog: campaign.show_on_blog || false,
+      createdAt: new Date(campaign.created_at),
+      updatedAt: new Date(campaign.updated_at),
+    }
+  })
+}
+
+// Get newsletters for blog (only sent and showOnBlog = true)
+export async function getNewslettersForBlog(): Promise<NewsletterCampaign[]> {
+  await ensureCampaignsTable()
+  
+  const campaigns = await sql`
+    SELECT * FROM newsletter_campaigns
+    WHERE status = 'sent'
+      AND show_on_blog = true
+      AND sent_at IS NOT NULL
+    ORDER BY sent_at DESC
+  `
+  
+  return campaigns.map((campaign) => {
+    // Parse sections
+    let sectionsData: NewsletterSection[] = []
+    if (campaign.sections) {
+      sectionsData = Array.isArray(campaign.sections) ? campaign.sections : JSON.parse(campaign.sections as any)
+    } else if (campaign.content) {
+      sectionsData = [{ title: '', description: campaign.content }]
+    }
+    
+    return {
+      id: campaign.id,
+      subject: campaign.subject,
+      description: campaign.description || '',
+      sections: sectionsData,
+      scheduledAt: campaign.scheduled_at ? new Date(campaign.scheduled_at) : null,
+      sentAt: campaign.sent_at ? new Date(campaign.sent_at) : null,
+      status: campaign.status,
+      showOnBlog: campaign.show_on_blog || false,
       createdAt: new Date(campaign.created_at),
       updatedAt: new Date(campaign.updated_at),
     }

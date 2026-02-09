@@ -50,7 +50,29 @@ export async function PUT(
 
     const { id } = await params
     const body = await request.json()
-    const { subject, description, sections, scheduledAt } = body
+    const { subject, description, sections, scheduledAt, showOnBlog } = body
+
+    // For sent campaigns, allow updating only showOnBlog
+    const existingCampaign = await getNewsletterCampaign(id)
+    if (!existingCampaign) {
+      return NextResponse.json(
+        { error: 'Campaign not found' },
+        { status: 404 }
+      )
+    }
+
+    if (existingCampaign.status === 'sent' && showOnBlog !== undefined && subject === undefined) {
+      // Only updating showOnBlog for sent campaign
+      const campaign = await updateNewsletterCampaign(
+        id,
+        existingCampaign.subject,
+        existingCampaign.description,
+        existingCampaign.sections,
+        existingCampaign.scheduledAt || undefined,
+        showOnBlog
+      )
+      return NextResponse.json(campaign)
+    }
 
     if (!subject || !sections || !Array.isArray(sections) || sections.length === 0) {
       return NextResponse.json(
@@ -65,7 +87,8 @@ export async function PUT(
       subject,
       description || '',
       sections,
-      scheduledDate
+      scheduledDate,
+      showOnBlog
     )
 
     return NextResponse.json(campaign)
