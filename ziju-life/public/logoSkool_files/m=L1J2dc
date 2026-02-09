@@ -1,0 +1,11 @@
+loaded_h_0(function(_){var window=this;
+_.v("L1J2dc");
+_.weg=class extends _.vi{static Sa(){return{model:{image:_.EP},service:{h9:_.hF}}}constructor(a){super();this.El=a.model.image;let b;this.EPe=((b=this.El.uV)==null?0:_.jP(b))?3:2;this.Zh=a.service.h9}nNb(){if(_.ZVf)return this.Zh.xm();let a,b;var c=(b=(a=_.Mbg(this.El).getExtension(_.aP))==null?void 0:_.vj(a,31))!=null?b:null;(c=c!=null?c:this.getImageUrl())==null&&((c=this.El.xH(!0,void 0))?(c.Cw()||_.Ze(c,_.mbg()),c.Aa||_.Ye(c,"https"),c=c.toString()):c=null);return c}VD(){let a;return(a=_.rbg(this.El.Gv()))!=
+null?a:null}getImageUrl(){return null}Yi(){return this.El.Dfa()}avb(){return this.EPe}HCa(){return _.bq("xc")(void 0,void 0)}R2(){const a=this.GCc();return a?"Obr\u00e1zek z\u00a0dom\u00e9ny "+a+" nalezen\u00fd pomoc\u00ed Obr\u00e1zk\u016f Google":null}Fhd(){let a,b;var c;(a=this.El.Fna)==null?c=void 0:c=_.mh(a,_.hzb,125,_.oh());return(b=c)!=null?b:null}xP(){let a,b;return(b=(a=this.El.Fna)==null?void 0:_.zj(a,124))!=null?b:null}GCc(){const a=this.El.WD();return a?(new _.Xe(a)).Cw():null}};
+_.Sr(_.veg,_.weg);
+
+
+
+_.w();
+});
+// Google Inc.

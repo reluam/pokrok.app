@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, Suspense } from "react";
 import InspiraceContent from "@/components/admin/InspiraceContent";
 import NewsletterContent from "@/components/admin/NewsletterContent";
+import NewsletterCampaigns from "@/components/admin/NewsletterCampaigns";
 
 function AdminContent() {
   const router = useRouter();
@@ -21,6 +22,7 @@ function AdminContent() {
     <div className="max-w-7xl mx-auto">
       {section === "inspirace" && <InspiraceContent />}
       {section === "newsletter" && <NewsletterContent />}
+      {section === "newsletter-campaigns" && <NewsletterCampaigns />}
     </div>
   );
 }

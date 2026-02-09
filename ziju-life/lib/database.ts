@@ -77,6 +77,67 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_pending_expires_at ON newsletter_pending_subscriptions(expires_at)
     `
 
+    // Create newsletter_campaigns table for managing newsletter campaigns
+    await sql`
+      CREATE TABLE IF NOT EXISTS newsletter_campaigns (
+        id VARCHAR(255) PRIMARY KEY,
+        subject TEXT NOT NULL,
+        description TEXT DEFAULT '',
+        sections JSONB NOT NULL DEFAULT '[]'::jsonb,
+        content TEXT DEFAULT '',
+        scheduled_at TIMESTAMP WITH TIME ZONE,
+        sent_at TIMESTAMP WITH TIME ZONE,
+        status VARCHAR(50) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'scheduled', 'sent')),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+    
+    // Migrate old content column if it exists with NOT NULL constraint
+    try {
+      await sql`
+        ALTER TABLE newsletter_campaigns 
+        ALTER COLUMN content DROP NOT NULL
+      `
+    } catch (e) {
+      // Constraint might not exist, ignore
+    }
+    
+    try {
+      await sql`
+        ALTER TABLE newsletter_campaigns 
+        ALTER COLUMN content SET DEFAULT ''
+      `
+    } catch (e) {
+      // Column might not exist, ignore
+    }
+    
+    // Add new columns if they don't exist
+    await sql`
+      ALTER TABLE newsletter_campaigns 
+      ADD COLUMN IF NOT EXISTS description TEXT DEFAULT ''
+    `
+    
+    await sql`
+      ALTER TABLE newsletter_campaigns 
+      ADD COLUMN IF NOT EXISTS sections JSONB DEFAULT '[]'::jsonb
+    `
+
+    // Create index on status for filtering
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_campaigns_status ON newsletter_campaigns(status)
+    `
+
+    // Create index on scheduled_at for finding campaigns to send
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_campaigns_scheduled_at ON newsletter_campaigns(scheduled_at)
+    `
+
+    // Create index on created_at for sorting
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_campaigns_created_at ON newsletter_campaigns(created_at DESC)
+    `
+
     console.log('Database initialized successfully')
   } catch (error) {
     console.error('Error initializing database:', error)

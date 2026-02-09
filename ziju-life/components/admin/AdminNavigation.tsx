@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { PenTool, Mail, LogOut } from "lucide-react";
 
-type AdminSection = "inspirace" | "newsletter";
+type AdminSection = "inspirace" | "newsletter" | "newsletter-campaigns";
 
 interface NavItem {
   id: AdminSection;
@@ -25,6 +25,11 @@ export default function AdminNavigation() {
     {
       id: "newsletter",
       label: "Newsletter",
+      icon: Mail,
+    },
+    {
+      id: "newsletter-campaigns",
+      label: "Newsletter Campaigns",
       icon: Mail,
     },
   ];
