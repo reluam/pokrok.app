@@ -80,8 +80,38 @@ function generateToken(): string {
   return crypto.randomBytes(32).toString('hex')
 }
 
+// Ensure pending subscriptions table exists
+async function ensurePendingSubscriptionsTable() {
+  try {
+    await sql`
+      CREATE TABLE IF NOT EXISTS newsletter_pending_subscriptions (
+        id VARCHAR(255) PRIMARY KEY,
+        email TEXT NOT NULL,
+        token TEXT NOT NULL UNIQUE,
+        expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_pending_token ON newsletter_pending_subscriptions(token)
+    `
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_pending_email ON newsletter_pending_subscriptions(email)
+    `
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_pending_expires_at ON newsletter_pending_subscriptions(expires_at)
+    `
+  } catch (error) {
+    // Table might already exist, ignore error
+    console.log('Pending subscriptions table check:', error)
+  }
+}
+
 // Create a pending subscription (before email confirmation)
 export async function createPendingSubscription(email: string): Promise<PendingSubscription> {
+  // Ensure table exists
+  await ensurePendingSubscriptionsTable()
+  
   const normalizedEmail = email.toLowerCase().trim()
   
   // Check if email is already subscribed
@@ -131,6 +161,9 @@ export async function createPendingSubscription(email: string): Promise<PendingS
 
 // Confirm subscription by token
 export async function confirmPendingSubscription(token: string): Promise<NewsletterSubscriber> {
+  // Ensure table exists
+  await ensurePendingSubscriptionsTable()
+  
   // Find pending subscription
   const pending = await sql`
     SELECT * FROM newsletter_pending_subscriptions 
