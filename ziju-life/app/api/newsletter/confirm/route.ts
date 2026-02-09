@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { confirmPendingSubscription } from '@/lib/newsletter-db'
+import { createResendContact } from '@/lib/resend-contacts'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -18,6 +19,9 @@ export async function GET(request: NextRequest) {
 
     // Confirm the subscription
     const subscriber = await confirmPendingSubscription(token)
+    
+    // Add to Resend Contacts if enabled
+    await createResendContact(subscriber.email)
     
     // Send welcome email after confirmation
     if (process.env.RESEND_API_KEY) {

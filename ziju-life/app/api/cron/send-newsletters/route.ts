@@ -6,8 +6,10 @@ import {
 } from '@/lib/newsletter-campaigns-db'
 import type { NewsletterSection } from '@/lib/newsletter-campaigns-db'
 import { getNewsletterSubscribers } from '@/lib/newsletter-db'
+import { getSubscribers, sendNewsletterBroadcast } from '@/lib/resend-contacts'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
+const USE_RESEND_CONTACTS = process.env.USE_RESEND_CONTACTS === 'true'
 
 // Render newsletter email template
 function renderNewsletterEmail(
@@ -200,7 +202,7 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    const subscribers = await getNewsletterSubscribers()
+    const subscribers = await getSubscribers()
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ziju.life'
     const unsubscribeUrl = `${siteUrl}/unsubscribe`
 
@@ -212,25 +214,59 @@ export async function GET(request: NextRequest) {
         const emailHtml = renderNewsletterEmail(campaign.description || '', campaign.sections, siteUrl, unsubscribeUrl)
         const textVersion = renderNewsletterText(campaign.description || '', campaign.sections, unsubscribeUrl)
 
-        // Send to all subscribers
-        const emailPromises = subscribers.map((subscriber) =>
-          resend.emails.send({
-            from: 'Matěj Mauler <matej@mail.ziju.life>',
-            replyTo: 'matej@mail.ziju.life',
-            to: subscriber.email,
-            subject: campaign.subject,
-            html: emailHtml,
-            text: textVersion,
-            headers: {
-              'List-Unsubscribe': `<${unsubscribeUrl}?email=${encodeURIComponent(subscriber.email)}>`,
-              'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-            },
-          })
-        )
+        // Use Resend Broadcasts API if enabled, otherwise send individual emails
+        if (USE_RESEND_CONTACTS) {
+          const broadcastResult = await sendNewsletterBroadcast(
+            campaign.subject,
+            emailHtml,
+            textVersion
+          )
+          
+          if (broadcastResult) {
+            await markCampaignAsSent(campaign.id)
+            sentCount++
+          } else {
+            // Fallback to individual emails if broadcast fails
+            console.log('Broadcast failed, falling back to individual emails')
+            const emailPromises = subscribers.map((subscriber) =>
+              resend.emails.send({
+                from: 'Matěj Mauler <matej@mail.ziju.life>',
+                replyTo: 'matej@mail.ziju.life',
+                to: subscriber.email,
+                subject: campaign.subject,
+                html: emailHtml,
+                text: textVersion,
+                headers: {
+                  'List-Unsubscribe': `<${unsubscribeUrl}?email=${encodeURIComponent(subscriber.email)}>`,
+                  'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+                },
+              })
+            )
+            await Promise.all(emailPromises)
+            await markCampaignAsSent(campaign.id)
+            sentCount++
+          }
+        } else {
+          // Send to all subscribers individually
+          const emailPromises = subscribers.map((subscriber) =>
+            resend.emails.send({
+              from: 'Matěj Mauler <matej@mail.ziju.life>',
+              replyTo: 'matej@mail.ziju.life',
+              to: subscriber.email,
+              subject: campaign.subject,
+              html: emailHtml,
+              text: textVersion,
+              headers: {
+                'List-Unsubscribe': `<${unsubscribeUrl}?email=${encodeURIComponent(subscriber.email)}>`,
+                'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+              },
+            })
+          )
 
-        await Promise.all(emailPromises)
-        await markCampaignAsSent(campaign.id)
-        sentCount++
+          await Promise.all(emailPromises)
+          await markCampaignAsSent(campaign.id)
+          sentCount++
+        }
       } catch (error) {
         console.error(`Error sending campaign ${campaign.id}:`, error)
         errorCount++

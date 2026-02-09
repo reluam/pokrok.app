@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { deleteNewsletterSubscriberByEmail } from '@/lib/newsletter-db'
+import { removeResendContact } from '@/lib/resend-contacts'
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,6 +23,9 @@ export async function POST(request: NextRequest) {
     }
 
     const deleted = await deleteNewsletterSubscriberByEmail(email)
+    
+    // Remove from Resend Contacts if enabled
+    await removeResendContact(email)
     
     if (!deleted) {
       return NextResponse.json(
