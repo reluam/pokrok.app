@@ -139,9 +139,9 @@ export default function KoucingPage() {
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-8">
               Zarezervuj si 30 minutové sezení zdarma
             </h2>
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-3xl mx-auto">
               <p className="text-lg text-foreground/80 leading-relaxed text-center">
-                Po úvodní konzultaci zdarma pak pro prvních dvacet klientů nabízím zvýhodněnou cenu 500 Kč za koučovací hodinu.
+                Velmi si cením, že zvažuješ, že půjdeš do koučování se mnou. Protože si zatím nemůžeš ověřit mou kvalitu recenzemi, nabízím ti zvýhodněnou cenu 500 Kč za koučovací hodinu po úvodním sezení zdarma. Platí pro první 3 měsíce koučování.
               </p>
             </div>
           </div>
