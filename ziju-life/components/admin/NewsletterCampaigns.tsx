@@ -22,6 +22,7 @@ export default function NewsletterCampaigns() {
   });
   const [linkUrl, setLinkUrl] = useState("");
   const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const [savedSelection, setSavedSelection] = useState<Range | null>(null);
   const [showArticleDialog, setShowArticleDialog] = useState(false);
   const [articles, setArticles] = useState<InspirationItem[]>([]);
   const [loadingArticles, setLoadingArticles] = useState(false);
@@ -264,10 +265,20 @@ export default function NewsletterCampaigns() {
 
   const handleAddLink = () => {
     const selection = window.getSelection();
-    if (!selection || selection.toString().trim() === '') {
+    if (!selection || selection.rangeCount === 0) {
       alert("Nejprve označ text, který chceš převést na odkaz");
       return;
     }
+    
+    const selectedText = selection.toString().trim();
+    if (!selectedText) {
+      alert("Nejprve označ text, který chceš převést na odkaz");
+      return;
+    }
+    
+    // Save the selection range before opening dialog
+    const range = selection.getRangeAt(0).cloneRange();
+    setSavedSelection(range);
     setShowLinkDialog(true);
   };
 
@@ -370,27 +381,49 @@ export default function NewsletterCampaigns() {
       return;
     }
 
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      const selectedText = selection.toString();
-      
-      if (selectedText) {
-        const link = document.createElement('a');
-        link.href = linkUrl;
-        link.textContent = selectedText;
-        range.deleteContents();
-        range.insertNode(link);
+    if (!savedSelection || !bodyEditorRef.current) {
+      alert("Chyba: výběr textu byl ztracen");
+      setShowLinkDialog(false);
+      setLinkUrl("");
+      return;
+    }
+
+    try {
+      // Restore selection
+      const selection = window.getSelection();
+      if (selection) {
+        selection.removeAllRanges();
+        selection.addRange(savedSelection);
         
-        // Update form data
-        if (bodyEditorRef.current) {
+        const selectedText = selection.toString();
+        if (selectedText) {
+          const link = document.createElement('a');
+          link.href = linkUrl;
+          link.textContent = selectedText;
+          link.style.cssText = 'color: #FF8C42; text-decoration: underline;';
+          
+          savedSelection.deleteContents();
+          savedSelection.insertNode(link);
+          
+          // Move cursor after the link
+          const newRange = document.createRange();
+          newRange.setStartAfter(link);
+          newRange.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(newRange);
+          
+          // Update form data
           setFormData({ ...formData, body: bodyEditorRef.current.innerHTML });
         }
       }
+    } catch (error) {
+      console.error("Error inserting link:", error);
+      alert("Chyba při vkládání odkazu");
     }
     
     setShowLinkDialog(false);
     setLinkUrl("");
+    setSavedSelection(null);
     
     // Restore focus
     if (bodyEditorRef.current) {
@@ -846,6 +879,7 @@ export default function NewsletterCampaigns() {
                       if (e.key === "Escape") {
                         setShowLinkDialog(false);
                         setLinkUrl("");
+                        setSavedSelection(null);
                       }
                     }}
                   />
@@ -861,6 +895,7 @@ export default function NewsletterCampaigns() {
                     onClick={() => {
                       setShowLinkDialog(false);
                       setLinkUrl("");
+                      setSavedSelection(null);
                     }}
                     className="px-4 py-2 border-2 border-black/10 rounded-full font-semibold hover:border-accent hover:text-accent transition-colors"
                   >
