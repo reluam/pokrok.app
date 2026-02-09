@@ -24,6 +24,8 @@ export async function GET(request: NextRequest) {
       try {
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ziju.life'
         const unsubscribeUrl = `${siteUrl}/unsubscribe`
+        const blogUrl = `${siteUrl}/blog`
+        const communityUrl = 'https://www.skool.com/zijem-life-3913'
         
         const welcomeEmailHtml = `
           <!DOCTYPE html>
@@ -40,7 +42,9 @@ export async function GET(request: NextRequest) {
                     <!-- Header with Logo -->
                     <tr>
                       <td style="padding: 40px 40px 30px; text-align: center; background-color: #FDFDF7;">
-                        <img src="${siteUrl}/ziju-life-logo.png" alt="Žiju life" style="max-width: 200px; height: auto;" />
+                        <a href="${siteUrl}" style="display: inline-block;">
+                          <img src="${siteUrl}/ziju-life-logo.png" alt="Žiju life" style="max-width: 200px; height: auto;" />
+                        </a>
                       </td>
                     </tr>
                     
@@ -70,7 +74,7 @@ export async function GET(request: NextRequest) {
                             📚 Inspirace
                           </p>
                           <p style="color: #666; font-size: 15px; line-height: 1.6; margin: 0;">
-                            Co právě čtu já a co doporučují ostatní v komunitě Žijem life.
+                            Co právě čtu já a co doporučují ostatní v komunitě <a href="${communityUrl}" style="color: #FF8C42; text-decoration: underline;">Žijem life</a>.
                           </p>
                         </div>
                         
@@ -85,7 +89,7 @@ export async function GET(request: NextRequest) {
                         </div>
                         
                         <!-- Articles -->
-                        <div style="margin-bottom: 30px; padding: 20px; background-color: #FDFDF7; border-radius: 8px; border-left: 4px solid #FF8C42;">
+                        <div style="margin-bottom: 25px; padding: 20px; background-color: #FDFDF7; border-radius: 8px; border-left: 4px solid #FF8C42;">
                           <p style="color: #171717; font-size: 18px; font-weight: bold; margin: 0 0 8px;">
                             ✍️ Články
                           </p>
@@ -94,13 +98,19 @@ export async function GET(request: NextRequest) {
                           </p>
                         </div>
                         
+                        <!-- Links Section -->
+                        <div style="margin-bottom: 30px; padding: 20px; background-color: #FDFDF7; border-radius: 8px;">
+                          <p style="color: #666; font-size: 15px; line-height: 1.6; margin: 0;">
+                            V mezičase můžeš kouknout na <a href="${blogUrl}" style="color: #FF8C42; text-decoration: underline;">mé poslední články</a> nebo koukni, co se děje v <a href="${communityUrl}" style="color: #FF8C42; text-decoration: underline;">naší komunitě</a>.
+                          </p>
+                        </div>
+                        
                         <!-- Divider -->
                         <div style="height: 1px; background-color: #e5e5e5; margin: 30px 0;"></div>
                         
                         <!-- Closing -->
                         <p style="color: #171717; font-size: 16px; line-height: 1.6; margin: 0;">
-                          S pozdravem,<br>
-                          <strong>Matěj</strong>
+                          Matěj | Žiju life
                         </p>
                       </td>
                     </tr>

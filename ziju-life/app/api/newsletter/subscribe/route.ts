@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
     
     return NextResponse.json(
-      { success: true, message: 'Potvrď prosím svůj odběr v emailu' },
+      { success: true, message: 'Děkuji za odběr! Aby to bylo ofiko, potvrď ještě prosím odběr v mailu.' },
       { status: 201 }
     )
   } catch (error: any) {

@@ -55,7 +55,7 @@ export default function Newsletter() {
           
           {isSubmitted ? (
             <div className="px-8 py-4 bg-accent-secondary/10 text-accent-secondary rounded-full text-center">
-              ✓ Potvrď prosím svůj odběr v emailu.
+              ✓ Děkuji za odběr! Aby to bylo ofiko, potvrď ještě prosím odběr v mailu.
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
