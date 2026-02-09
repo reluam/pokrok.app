@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Book, Video, FileText, PenTool, HelpCircle, Copy, Check } from "lucide-react";
+import { SelectionShareBar } from "@/components/SelectionShareBar";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { InspirationItem } from "@/lib/inspiration";
@@ -252,11 +253,13 @@ export default function InspiraceDetailPage() {
 
         {/* Blog Content */}
         {item.type === "blog" && item.content && (
-          <div className="blog-detail-content max-w-none">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {item.content}
-            </ReactMarkdown>
-          </div>
+          <SelectionShareBar className="max-w-none">
+            <div className="blog-detail-content max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {item.content}
+              </ReactMarkdown>
+            </div>
+          </SelectionShareBar>
         )}
 
         {/* Sdílení - pouze pro blog, pod článkem */}

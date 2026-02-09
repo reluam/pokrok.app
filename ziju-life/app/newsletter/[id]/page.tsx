@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import type { NewsletterCampaign } from "@/lib/newsletter-campaigns-db";
 import { Mail, ArrowLeft } from "lucide-react";
+import { SelectionShareBar } from "@/components/SelectionShareBar";
 
 export default function NewsletterDetailPage() {
   const router = useRouter();
@@ -90,10 +91,12 @@ export default function NewsletterDetailPage() {
           </h1>
 
           {newsletter.body && (
-            <div
-              className="text-foreground/80 text-lg leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: newsletter.body }}
-            />
+            <SelectionShareBar>
+              <div
+                className="blog-detail-content"
+                dangerouslySetInnerHTML={{ __html: newsletter.body }}
+              />
+            </SelectionShareBar>
           )}
 
           {newsletter.sentAt && (
