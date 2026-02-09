@@ -16,26 +16,52 @@ function renderNewsletterEmail(
   siteUrl: string, 
   unsubscribeUrl: string
 ): string {
-  // Convert markdown-style links to HTML
-  const convertMarkdownToHtml = (text: string): string => {
-    // Convert [text](url) to <a href="url">text</a>
-    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-    let html = text.replace(linkRegex, '<a href="$2" style="color: #FF8C42; text-decoration: underline;">$1</a>');
+  // Convert text with HTML links to properly formatted HTML
+  const convertTextToHtml = (text: string): string => {
+    // Extract and preserve HTML links
+    const linkRegex = /<a\s+href=["']([^"']+)["']>([^<]+)<\/a>/g;
+    const links: Array<{ url: string; text: string; placeholder: string }> = [];
+    let linkIndex = 0;
     
-    // Convert standalone URLs to links
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    html = html.replace(urlRegex, '<a href="$1" style="color: #FF8C42; text-decoration: underline;">$1</a>');
+    let processedText = text.replace(linkRegex, (match, url, linkText) => {
+      const placeholder = `__LINK_${linkIndex}__`;
+      links.push({ url, text: linkText, placeholder });
+      linkIndex++;
+      return placeholder;
+    });
+    
+    // Escape any remaining HTML tags (except line breaks)
+    processedText = processedText
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    
+    // Restore links with proper styling
+    links.forEach(({ url, text, placeholder }) => {
+      const linkHtml = `<a href="${url.replace(/&amp;/g, '&')}" style="color: #FF8C42; text-decoration: underline;">${text}</a>`;
+      processedText = processedText.replace(placeholder, linkHtml);
+    });
+    
+    // Convert standalone URLs to links (only if not already in a link)
+    const urlRegex = /(https?:\/\/[^\s<>]+)/g;
+    processedText = processedText.replace(urlRegex, (url) => {
+      // Check if URL is already inside a link tag
+      if (processedText.includes(`href="${url}"`) || processedText.includes(`href='${url}'`)) {
+        return url;
+      }
+      return `<a href="${url}" style="color: #FF8C42; text-decoration: underline;">${url}</a>`;
+    });
     
     // Convert line breaks
-    html = html.replace(/\n\n/g, '</p><p style="margin: 16px 0;">');
-    html = html.replace(/\n/g, '<br>');
+    processedText = processedText.replace(/\n\n/g, '</p><p style="margin: 16px 0;">');
+    processedText = processedText.replace(/\n/g, '<br>');
     
     // Wrap in paragraph if not already wrapped
-    if (!html.startsWith('<')) {
-      html = `<p style="margin: 0 0 16px;">${html}</p>`;
+    if (!processedText.startsWith('<')) {
+      processedText = `<p style="margin: 0 0 16px;">${processedText}</p>`;
     }
     
-    return html;
+    return processedText;
   };
   
   const sectionsHtml = sections
@@ -45,7 +71,7 @@ function renderNewsletterEmail(
         ? `<h2 style="color: #171717; font-size: 22px; font-weight: bold; margin: 0 0 12px; line-height: 1.3;">${section.title}</h2>`
         : '';
       const descriptionHtml = section.description.trim()
-        ? `<div style="color: #171717; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">${convertMarkdownToHtml(section.description)}</div>`
+        ? `<div style="color: #171717; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">${convertTextToHtml(section.description)}</div>`
         : '';
       
       return titleHtml + descriptionHtml;
@@ -53,7 +79,7 @@ function renderNewsletterEmail(
     .join('');
   
   const descriptionHtml = description.trim()
-    ? `<div style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 24px; font-style: italic;">${convertMarkdownToHtml(description)}</div>`
+    ? `<div style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 24px; font-style: italic;">${convertTextToHtml(description)}</div>`
     : '';
   
   return `
