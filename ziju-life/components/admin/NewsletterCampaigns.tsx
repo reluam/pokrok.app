@@ -602,14 +602,6 @@ export default function NewsletterCampaigns() {
                 <tr>
                   <td style="padding: 0 40px 40px;">
                     ${bodyContentHtml}
-                    
-                    <!-- Divider -->
-                    <div style="height: 1px; background-color: #e5e5e5; margin: 30px 0;"></div>
-                    
-                    <!-- Closing -->
-                    <p style="color: #171717; font-size: 16px; line-height: 1.6; margin: 0;">
-                      Matěj | Žiju life
-                    </p>
                   </td>
                 </tr>
                 
