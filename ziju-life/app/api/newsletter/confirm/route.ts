@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
                         
                         <p style="color: #171717; font-size: 16px; line-height: 1.6; margin: 0 0 30px;">
                           Ahoj,<br><br>
-                          Děkuji ti za potvrzení odběru newsletteru Žiju life. Každý týden ti pošlu shrnutí toho, co je u mě nového.
+                          Děkuji ti za potvrzení odběru newsletteru Žiju life. Jednou za 14 dní ti pošlu shrnutí toho, co je u mě nového.
                         </p>
                         
                         <!-- Divider -->

@@ -55,7 +55,7 @@ export default function StayInContact({ showTitle = true, showCommunity = true, 
             </h2>
             {showDescription && (
               <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl mx-auto">
-                Zatím jen sonduješ? Nech mi mail a budeme v kontaktu. Každý týden ti pošlu, co je u mě nového, a až budeš připraven převzít řízení naplno, víš, kde mě najít.
+                Zatím jen sonduješ? Nech mi mail a budeme v kontaktu. Jednou za 14 dní ti pošlu, co je u mě nového, a až budeš připraven převzít řízení naplno, víš, kde mě najít.
               </p>
             )}
           </div>
@@ -94,7 +94,7 @@ export default function StayInContact({ showTitle = true, showCommunity = true, 
               Newsletter
             </h3>
             <p className="text-lg text-foreground/80 leading-relaxed mb-6">
-              Jednou týdně ti pošlu shrnutí toho, co jsem zjistil, co testuju a co mě baví. Bez spamu, jenom to dobrý.
+              Jednou za 14 dní ti pošlu shrnutí toho, co jsem zjistil, co testuju a co mě baví. Bez spamu, jenom to dobrý.
             </p>
             
             {isSubmitted ? (

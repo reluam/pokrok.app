@@ -50,7 +50,7 @@ export default function Newsletter() {
 
         <div className="bg-white/50 rounded-2xl p-8 md:p-10 border-2 border-black/5 hover:border-accent/30 transition-all transform hover:-translate-y-1 max-w-2xl mx-auto">
           <p className="text-lg text-foreground/80 leading-relaxed mb-6 text-center">
-            Jednou týdně ti pošlu shrnutí toho, co jsem zjistil, co testuju a co mě baví. Bez spamu, jenom to dobrý.
+            Jednou za 14 dní ti pošlu shrnutí toho, co jsem zjistil, co testuju a co mě baví. Bez spamu, jenom to dobrý.
           </p>
           
           {isSubmitted ? (
