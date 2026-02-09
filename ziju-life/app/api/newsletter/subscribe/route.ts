@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     if (process.env.RESEND_API_KEY) {
       try {
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ziju.life'
-        const confirmUrl = `${siteUrl}/newsletter/confirm?token=${pendingSub.token}`
+        const confirmUrl = `${siteUrl}/api/newsletter/confirm?token=${pendingSub.token}`
         
         const confirmationEmailHtml = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
     
     return NextResponse.json(
-      { success: true, message: 'Zkontroluj svůj email a potvrď odběr kliknutím na odkaz v emailu' },
+      { success: true, message: 'Potvrď prosím svůj odběr v emailu' },
       { status: 201 }
     )
   } catch (error: any) {

@@ -13,6 +13,13 @@ function NewsletterConfirmContent() {
   useEffect(() => {
     const success = searchParams.get("success");
     const error = searchParams.get("error");
+    const token = searchParams.get("token");
+
+    // If there's a token, redirect to API endpoint
+    if (token) {
+      window.location.href = `/api/newsletter/confirm?token=${token}`;
+      return;
+    }
 
     if (success === "true") {
       setStatus("success");
@@ -20,7 +27,9 @@ function NewsletterConfirmContent() {
       setStatus("error");
       setErrorType(error);
     } else {
-      setStatus("loading");
+      // No parameters - show error
+      setStatus("error");
+      setErrorType("invalid");
     }
   }, [searchParams]);
 
