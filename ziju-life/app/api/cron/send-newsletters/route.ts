@@ -40,7 +40,7 @@ function renderNewsletterEmail(
       if (attrs && attrs.includes('style=')) {
         return match;
       }
-      return `<blockquote style="border-left: 4px solid #FF8C42 !important; padding: 6px 16px !important; margin: 16px 0 !important; color: #666 !important; font-style: italic !important; background-color: #FFF5ED !important;"${attrs}>`;
+      return `<blockquote style="border-left: 4px solid #FF8C42 !important; padding: 6px 16px !important; margin: 16px 0 !important; color: #666 !important; font-style: italic !important; background: linear-gradient(to right, #FFF5ED 55%, #FF8C42 55%) !important;"${attrs}>`;
     }
   );
   

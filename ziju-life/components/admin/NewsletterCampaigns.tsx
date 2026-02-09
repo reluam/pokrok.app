@@ -227,7 +227,7 @@ export default function NewsletterCampaigns() {
       if (selectedText) {
         // Wrap selected text in blockquote
         const blockquote = document.createElement('blockquote');
-        blockquote.style.cssText = 'border-left: 4px solid #FF8C42; padding: 6px 16px; margin: 16px 0; color: #666; font-style: italic; background-color: #FFF5ED;';
+        blockquote.style.cssText = 'border-left: 4px solid #FF8C42; padding: 6px 16px; margin: 16px 0; color: #666; font-style: italic; background: linear-gradient(to right, #FFF5ED 55%, #FF8C42 55%);';
         blockquote.textContent = selectedText;
         range.deleteContents();
         range.insertNode(blockquote);
@@ -239,7 +239,7 @@ export default function NewsletterCampaigns() {
       } else {
         // If no selection, insert empty blockquote at cursor
         const blockquote = document.createElement('blockquote');
-        blockquote.style.cssText = 'border-left: 4px solid #FF8C42; padding: 6px 16px; margin: 16px 0; color: #666; font-style: italic; background-color: #FFF5ED;';
+        blockquote.style.cssText = 'border-left: 4px solid #FF8C42; padding: 6px 16px; margin: 16px 0; color: #666; font-style: italic; background: linear-gradient(to right, #FFF5ED 55%, #FF8C42 55%);';
         blockquote.innerHTML = '<br>';
         range.insertNode(blockquote);
         
@@ -583,7 +583,7 @@ export default function NewsletterCampaigns() {
       /<blockquote([^>]*)>/gi,
       (match, attrs) => {
         // Always apply consistent styling
-        return `<blockquote style="border-left: 4px solid #FF8C42 !important; padding: 6px 16px !important; margin: 16px 0 !important; color: #666 !important; font-style: italic !important; background-color: #FFF5ED !important;"${attrs || ''}>`;
+        return `<blockquote style="border-left: 4px solid #FF8C42 !important; padding: 6px 16px !important; margin: 16px 0 !important; color: #666 !important; font-style: italic !important; background: linear-gradient(to right, #FFF5ED 55%, #FF8C42 55%) !important;"${attrs || ''}>`;
       }
     );
     
@@ -606,14 +606,14 @@ export default function NewsletterCampaigns() {
           a:hover {
             color: #e67a2e !important;
           }
-          /* Ensure blockquotes match editor styling */
+          /* Ensure blockquotes match editor styling - right side orange */
           blockquote {
             border-left: 4px solid #FF8C42 !important;
             padding: 6px 16px !important;
             margin: 16px 0 !important;
             color: #666 !important;
             font-style: italic !important;
-            background-color: #FFF5ED !important;
+            background: linear-gradient(to right, #FFF5ED 55%, #FF8C42 55%) !important;
           }
         </style>
       </head>
@@ -824,7 +824,7 @@ export default function NewsletterCampaigns() {
                 margin: 16px 0;
                 color: #666;
                 font-style: italic;
-                background-color: #FFF5ED;
+                background: linear-gradient(to right, #FFF5ED 55%, #FF8C42 55%);
               }
               [contenteditable] a {
                 color: #FF8C42;
