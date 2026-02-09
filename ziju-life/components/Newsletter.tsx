@@ -55,7 +55,7 @@ export default function Newsletter() {
           
           {isSubmitted ? (
             <div className="px-8 py-4 bg-accent-secondary/10 text-accent-secondary rounded-full text-center">
-              ✓ Díky! Brzy ti přijde první email.
+              ✓ Zkontroluj svůj email a potvrď odběr kliknutím na odkaz v emailu.
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">

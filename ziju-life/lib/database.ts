@@ -51,6 +51,32 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_newsletter_created_at ON newsletter_subscribers(created_at DESC)
     `
 
+    // Create newsletter_pending_subscriptions table for double opt-in
+    await sql`
+      CREATE TABLE IF NOT EXISTS newsletter_pending_subscriptions (
+        id VARCHAR(255) PRIMARY KEY,
+        email TEXT NOT NULL,
+        token TEXT NOT NULL UNIQUE,
+        expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `
+
+    // Create index on token for faster lookups
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_pending_token ON newsletter_pending_subscriptions(token)
+    `
+
+    // Create index on email for faster lookups
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_pending_email ON newsletter_pending_subscriptions(email)
+    `
+
+    // Create index on expires_at for cleanup
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_pending_expires_at ON newsletter_pending_subscriptions(expires_at)
+    `
+
     console.log('Database initialized successfully')
   } catch (error) {
     console.error('Error initializing database:', error)

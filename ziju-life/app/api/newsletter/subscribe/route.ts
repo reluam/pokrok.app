@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import { addNewsletterSubscriber } from '@/lib/newsletter-db'
+import { createPendingSubscription } from '@/lib/newsletter-db'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -24,27 +24,36 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const subscriber = await addNewsletterSubscriber(email)
+    // Create pending subscription instead of directly adding to DB
+    const pendingSub = await createPendingSubscription(email)
     
-    // Odeslání potvrzovacího emailu uživateli
+    // Send confirmation email with verification link
     if (process.env.RESEND_API_KEY) {
       try {
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ziju.life'
-        const unsubscribeUrl = `${siteUrl}/unsubscribe`
+        const confirmUrl = `${siteUrl}/newsletter/confirm?token=${pendingSub.token}`
         
         const confirmationEmailHtml = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2 style="color: #333; border-bottom: 2px solid #E8871E; padding-bottom: 10px;">
-              Děkuji za přihlášení k newsletteru
+              Potvrď svůj odběr newsletteru
             </h2>
             
             <div style="margin-top: 20px;">
               <p>Ahoj,</p>
-              <p>Děkuji ti za přihlášení k newsletteru Žiju life. Budu ti posílat novinky o tom, co je u mě nového.</p>
+              <p>Děkuji ti za zájem o newsletter Žiju life. Pro dokončení přihlášení prosím potvrď svůj email kliknutím na tlačítko níže.</p>
+            </div>
+            
+            <div style="margin-top: 30px; text-align: center;">
+              <a href="${confirmUrl}" style="display: inline-block; padding: 12px 24px; background-color: #E8871E; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                Potvrdit odběr
+              </a>
             </div>
             
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px;">
-              <p>Pokud už nechceš dostávat emaily, můžeš se kdykoliv <a href="${unsubscribeUrl}" style="color: #E8871E; text-decoration: underline;">odhlásit zde</a>.</p>
+              <p>Pokud tlačítko nefunguje, zkopíruj a vlož tento odkaz do prohlížeče:</p>
+              <p style="word-break: break-all; color: #E8871E;">${confirmUrl}</p>
+              <p style="margin-top: 20px;">Pokud jsi se k odběru nepřihlásil/a, můžeš tento email ignorovat.</p>
               <p style="margin-top: 20px;">S pozdravem,<br />Matěj</p>
             </div>
           </div>
@@ -53,54 +62,18 @@ export async function POST(request: NextRequest) {
         await resend.emails.send({
           from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
           to: email,
-          subject: 'Děkuji za přihlášení k newsletteru',
+          subject: 'Potvrď svůj odběr newsletteru Žiju life',
           html: confirmationEmailHtml,
         })
       } catch (emailError) {
-        // Logujeme chybu, ale nepřerušujeme proces přihlášení
+        // If email fails, we should still return success but log the error
         console.error('Error sending confirmation email:', emailError)
-      }
-    }
-    
-    // Odeslání notifikačního emailu na admin email
-    if (process.env.RESEND_API_KEY) {
-      const adminEmail = process.env.CONTACT_EMAIL || process.env.ADMIN_EMAIL || process.env.RESEND_FROM_EMAIL
-      
-      if (adminEmail) {
-        try {
-          const notificationEmailHtml = `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #333; border-bottom: 2px solid #E8871E; padding-bottom: 10px;">
-                Nový follower newsletteru
-              </h2>
-              
-              <div style="margin-top: 20px;">
-                <p>Máš nového followera newsletteru!</p>
-                <p><strong>Email:</strong> ${email}</p>
-                <p><strong>Datum přihlášení:</strong> ${new Date().toLocaleString('cs-CZ')}</p>
-              </div>
-              
-              <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px;">
-                <p>Tento email byl automaticky odeslán při přihlášení k newsletteru.</p>
-              </div>
-            </div>
-          `
-
-          await resend.emails.send({
-            from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
-            to: adminEmail,
-            subject: 'Nový follower newsletteru',
-            html: notificationEmailHtml,
-          })
-        } catch (emailError) {
-          // Logujeme chybu, ale nepřerušujeme proces přihlášení
-          console.error('Error sending notification email:', emailError)
-        }
+        // Note: In production, you might want to handle this differently
       }
     }
     
     return NextResponse.json(
-      { success: true, message: 'Úspěšně přihlášeno k newsletteru' },
+      { success: true, message: 'Zkontroluj svůj email a potvrď odběr kliknutím na odkaz v emailu' },
       { status: 201 }
     )
   } catch (error: any) {
