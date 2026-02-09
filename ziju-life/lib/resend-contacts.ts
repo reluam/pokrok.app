@@ -26,8 +26,8 @@ export async function createResendContact(email: string, firstName?: string, las
   try {
     await resend.contacts.create({
       email: email.toLowerCase().trim(),
-      first_name: firstName,
-      last_name: lastName,
+      firstName: firstName,
+      lastName: lastName,
     })
   } catch (error: any) {
     // Contact might already exist, that's okay
@@ -36,8 +36,8 @@ export async function createResendContact(email: string, firstName?: string, las
       try {
         await resend.contacts.update({
           email: email.toLowerCase().trim(),
-          first_name: firstName,
-          last_name: lastName,
+          firstName: firstName,
+          lastName: lastName,
           unsubscribed: false, // Ensure they're subscribed
         })
       } catch (updateError) {
@@ -133,7 +133,7 @@ export async function getSubscribers(): Promise<Array<{ email: string }>> {
 
 /**
  * Send newsletter using Resend Broadcasts API (better for bulk sending)
- * Note: If audienceId is not provided, sends to all contacts
+ * Note: Broadcasts API requires an audienceId. If not provided, returns null to use individual emails.
  */
 export async function sendNewsletterBroadcast(
   subject: string,
@@ -141,19 +141,19 @@ export async function sendNewsletterBroadcast(
   textContent: string,
   audienceId?: string
 ): Promise<{ id: string } | null> {
-  if (!USE_RESEND_CONTACTS || !resend) {
+  if (!USE_RESEND_CONTACTS || !resend || !audienceId) {
+    // Broadcasts API requires audienceId - if not provided, return null to use individual emails
     return null
   }
 
   try {
     // Create a broadcast with content
-    // Note: Resend Broadcasts API requires audienceId - if not provided, we'll need to get default audience
-    // For now, we'll create without audienceId and it will send to all contacts
     const createResult = await resend.broadcasts.create({
-      audienceId: audienceId || undefined, // If null, sends to all contacts
+      audienceId: audienceId,
       from: 'Matěj Mauler <matej@mail.ziju.life>',
       subject: subject,
       html: htmlContent,
+      text: textContent,
     })
 
     if (!createResult.data?.id) {
@@ -161,9 +161,7 @@ export async function sendNewsletterBroadcast(
     }
 
     // Send the broadcast immediately
-    const sendResult = await resend.broadcasts.send({
-      id: createResult.data.id,
-    })
+    const sendResult = await resend.broadcasts.send(createResult.data.id)
 
     if (sendResult.error) {
       throw new Error(sendResult.error.message || 'Failed to send broadcast')
