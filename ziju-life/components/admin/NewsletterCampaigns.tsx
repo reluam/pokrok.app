@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Plus, Edit2, Trash2, Eye, Send, Save, X, Link as LinkIcon, Copy } from "lucide-react";
+import { Plus, Edit2, Trash2, Eye, Send, Save, X, Link as LinkIcon, Copy, Loader2 } from "lucide-react";
 import type { NewsletterCampaign, NewsletterSection, NewsletterTemplate } from "@/lib/newsletter-campaigns-db";
 
 type ViewMode = "list" | "edit" | "preview" | "view";
@@ -22,6 +22,12 @@ export default function NewsletterCampaigns() {
   const [selectedText, setSelectedText] = useState<{ sectionIndex: number; start: number; end: number } | null>(null);
   const [linkUrl, setLinkUrl] = useState("");
   const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const [showSendModal, setShowSendModal] = useState(false);
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [sendingCampaignId, setSendingCampaignId] = useState<string | null>(null);
+  const [duplicatingCampaignId, setDuplicatingCampaignId] = useState<string | null>(null);
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [duplicateError, setDuplicateError] = useState<string | null>(null);
   const descriptionRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
 
   useEffect(() => {
@@ -114,6 +120,10 @@ export default function NewsletterCampaigns() {
   };
 
   const handleDuplicateCampaign = async (campaign: NewsletterCampaign) => {
+    setShowDuplicateModal(true);
+    setDuplicatingCampaignId(campaign.id);
+    setDuplicateError(null);
+
     try {
       const res = await fetch("/api/admin/newsletter-campaigns", {
         method: "POST",
@@ -132,10 +142,16 @@ export default function NewsletterCampaigns() {
       }
 
       await fetchCampaigns();
-      alert("Newsletter byl duplikován a je připraven k úpravě");
+      
+      // Show success and close modal after delay
+      setDuplicatingCampaignId(null);
+      setTimeout(() => {
+        setShowDuplicateModal(false);
+      }, 2000);
     } catch (err: any) {
       console.error("Error duplicating campaign:", err);
-      alert(err.message || "Chyba při duplikování newsletteru");
+      setDuplicateError(err.message || "Chyba při duplikování newsletteru");
+      setDuplicatingCampaignId(null);
     }
   };
 
@@ -314,7 +330,9 @@ export default function NewsletterCampaigns() {
   };
 
   const handleSend = async (id: string) => {
-    if (!confirm("Opravdu chceš odeslat tento newsletter všem odběratelům?")) return;
+    setShowSendModal(true);
+    setSendingCampaignId(id);
+    setSendError(null);
 
     try {
       const res = await fetch("/api/admin/newsletter-campaigns/send", {
@@ -323,14 +341,23 @@ export default function NewsletterCampaigns() {
         body: JSON.stringify({ campaignId: id }),
       });
 
-      if (!res.ok) throw new Error("Failed to send");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to send");
+      }
 
       const data = await res.json();
-      alert(data.message || "Newsletter odeslán");
       await fetchCampaigns();
-    } catch (err) {
+      
+      // Show success and close modal after delay
+      setSendingCampaignId(null);
+      setTimeout(() => {
+        setShowSendModal(false);
+      }, 2000);
+    } catch (err: any) {
       console.error("Error sending campaign:", err);
-      alert("Chyba při odesílání newsletteru");
+      setSendError(err.message || "Chyba při odesílání newsletteru");
+      setSendingCampaignId(null);
     }
   };
 
@@ -748,7 +775,11 @@ export default function NewsletterCampaigns() {
           <h1 className="text-3xl font-bold text-foreground">Detail newsletteru</h1>
           <div className="flex gap-3">
             <button
-              onClick={() => handleDuplicateCampaign(editingCampaign!)}
+              onClick={() => {
+                if (editingCampaign) {
+                  handleDuplicateCampaign(editingCampaign);
+                }
+              }}
               className="flex items-center gap-2 px-4 py-2 border-2 border-black/10 rounded-full font-semibold hover:border-accent hover:text-accent transition-colors"
             >
               <Copy size={18} />
@@ -1013,7 +1044,11 @@ export default function NewsletterCampaigns() {
                               <Eye size={18} />
                             </button>
                             <button
-                              onClick={() => handleDuplicateCampaign(campaign)}
+                              onClick={() => {
+                                setShowDuplicateModal(true);
+                                setDuplicatingCampaignId(campaign.id);
+                                handleDuplicateCampaign(campaign);
+                              }}
                               className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                               title="Duplikovat"
                             >
@@ -1051,6 +1086,123 @@ export default function NewsletterCampaigns() {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* Send Newsletter Modal */}
+      {showSendModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 border-2 border-black/10 max-w-md w-full mx-4 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-foreground">Odesílání newsletteru</h3>
+              {!sendingCampaignId && (
+                <button
+                  onClick={() => {
+                    setShowSendModal(false);
+                    setSendError(null);
+                  }}
+                  className="p-1 hover:bg-black/5 rounded transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              )}
+            </div>
+            
+            {sendingCampaignId ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Loader2 className="animate-spin text-accent" size={24} />
+                  <p className="text-foreground">Odesílám newsletter všem odběratelům...</p>
+                </div>
+                {sendError && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <p className="text-red-700 text-sm">{sendError}</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 text-green-600">
+                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                  <p className="text-foreground font-semibold">Newsletter byl úspěšně odeslán!</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowSendModal(false);
+                    setSendError(null);
+                  }}
+                  className="w-full px-4 py-2 bg-accent text-white rounded-full font-semibold hover:bg-accent-hover transition-colors"
+                >
+                  Zavřít
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Duplicate Newsletter Modal */}
+      {showDuplicateModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 border-2 border-black/10 max-w-md w-full mx-4 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-foreground">Duplikování newsletteru</h3>
+              {!duplicatingCampaignId && (
+                <button
+                  onClick={() => {
+                    setShowDuplicateModal(false);
+                    setDuplicateError(null);
+                  }}
+                  className="p-1 hover:bg-black/5 rounded transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              )}
+            </div>
+            
+            {duplicatingCampaignId ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Loader2 className="animate-spin text-accent" size={24} />
+                  <p className="text-foreground">Duplikuji newsletter...</p>
+                </div>
+                {duplicateError && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <p className="text-red-700 text-sm">{duplicateError}</p>
+                    <button
+                      onClick={() => {
+                        setShowDuplicateModal(false);
+                        setDuplicateError(null);
+                        setDuplicatingCampaignId(null);
+                      }}
+                      className="mt-3 w-full px-4 py-2 border-2 border-black/10 rounded-full font-semibold hover:border-accent hover:text-accent transition-colors"
+                    >
+                      Zavřít
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 text-green-600">
+                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                  <p className="text-foreground font-semibold">Newsletter byl úspěšně duplikován!</p>
+                </div>
+                <p className="text-sm text-foreground/70">
+                  Nový newsletter je připraven k úpravě a má status "Koncept".
+                </p>
+                <button
+                  onClick={() => {
+                    setShowDuplicateModal(false);
+                    setDuplicateError(null);
+                  }}
+                  className="w-full px-4 py-2 bg-accent text-white rounded-full font-semibold hover:bg-accent-hover transition-colors"
+                >
+                  Zavřít
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

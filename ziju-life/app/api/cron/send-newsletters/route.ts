@@ -136,6 +136,50 @@ function renderNewsletterEmail(
   `
 }
 
+// Generate plain text version of newsletter
+function renderNewsletterText(
+  description: string,
+  sections: NewsletterSection[],
+  unsubscribeUrl: string
+): string {
+  // Strip HTML tags and convert to plain text
+  const stripHtml = (html: string): string => {
+    return html
+      .replace(/<a\s+href=["']([^"']+)["']>([^<]+)<\/a>/gi, '$2 ($1)')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .trim();
+  };
+
+  let text = '';
+  
+  if (description.trim()) {
+    text += stripHtml(description) + '\n\n';
+  }
+  
+  sections
+    .filter((section) => section.title.trim() || section.description.trim())
+    .forEach((section) => {
+      if (section.title.trim()) {
+        text += section.title + '\n';
+        text += '='.repeat(section.title.length) + '\n\n';
+      }
+      if (section.description.trim()) {
+        text += stripHtml(section.description) + '\n\n';
+      }
+    });
+  
+  text += '\n---\n';
+  text += 'Matěj | Žiju life\n\n';
+  text += `Odhlásit se z odběru: ${unsubscribeUrl}\n`;
+  
+  return text;
+}
+
 // GET - Cron endpoint for sending scheduled newsletters
 // This should be called by Vercel Cron Jobs
 export async function GET(request: NextRequest) {
@@ -166,14 +210,21 @@ export async function GET(request: NextRequest) {
     for (const campaign of campaigns) {
       try {
         const emailHtml = renderNewsletterEmail(campaign.description || '', campaign.sections, siteUrl, unsubscribeUrl)
+        const textVersion = renderNewsletterText(campaign.description || '', campaign.sections, unsubscribeUrl)
 
         // Send to all subscribers
         const emailPromises = subscribers.map((subscriber) =>
           resend.emails.send({
             from: 'Matěj Mauler <matej@mail.ziju.life>',
+            replyTo: 'matej@mail.ziju.life',
             to: subscriber.email,
             subject: campaign.subject,
             html: emailHtml,
+            text: textVersion,
+            headers: {
+              'List-Unsubscribe': `<${unsubscribeUrl}?email=${encodeURIComponent(subscriber.email)}>`,
+              'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+            },
           })
         )
 
