@@ -244,7 +244,7 @@ export async function POST(request: NextRequest) {
     // Send to all subscribers
     const emailPromises = subscribers.map((subscriber) =>
       resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+        from: 'Matěj Mauler <matej@mail.ziju.life>',
         to: subscriber.email,
         subject: campaign.subject,
         html: emailHtml,
