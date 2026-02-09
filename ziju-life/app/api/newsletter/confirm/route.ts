@@ -42,8 +42,8 @@ export async function GET(request: NextRequest) {
                     <!-- Header with Logo -->
                     <tr>
                       <td style="padding: 40px 40px 30px; text-align: center; background-color: #FDFDF7;">
-                        <a href="${siteUrl}" style="display: inline-block;">
-                          <img src="${siteUrl}/ziju-life-logo.png" alt="Žiju life" style="max-width: 200px; height: auto;" />
+                        <a href="${siteUrl}" style="display: inline-block; text-decoration: none; border: 0;">
+                          <img src="${siteUrl}/ziju-life-logo.png" alt="Žiju life" width="200" height="80" style="max-width: 200px; width: 200px; height: auto; display: block; border: 0; outline: none; text-decoration: none;" />
                         </a>
                       </td>
                     </tr>
@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
                         <!-- Links Section -->
                         <div style="margin-bottom: 30px; padding: 20px; background-color: #FDFDF7; border-radius: 8px;">
                           <p style="color: #666; font-size: 15px; line-height: 1.6; margin: 0;">
-                            V mezičase můžeš kouknout na <a href="${blogUrl}" style="color: #FF8C42; text-decoration: underline;">mé poslední články</a> nebo koukni, co se děje v <a href="${communityUrl}" style="color: #FF8C42; text-decoration: underline;">naší komunitě</a>.
+                            V mezičase můžeš kouknout na <a href="${blogUrl}" style="color: #FF8C42; text-decoration: underline;">mé poslední články</a> nebo na to, co se děje v <a href="${communityUrl}" style="color: #FF8C42; text-decoration: underline;">naší komunitě</a>.
                           </p>
                         </div>
                         
