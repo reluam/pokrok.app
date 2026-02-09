@@ -142,8 +142,14 @@ export default function InspiracePage() {
         title: newsletterTitle,
         description: bodyText,
         type: "newsletter",
-        createdAt: newsletter.createdAt.toISOString(),
-        sentAt: newsletter.sentAt?.toISOString(),
+        createdAt: typeof newsletter.createdAt === 'string' 
+          ? newsletter.createdAt 
+          : newsletter.createdAt.toISOString(),
+        sentAt: newsletter.sentAt 
+          ? (typeof newsletter.sentAt === 'string' 
+              ? newsletter.sentAt 
+              : newsletter.sentAt.toISOString())
+          : undefined,
       });
     });
     
