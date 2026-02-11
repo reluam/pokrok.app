@@ -32,9 +32,6 @@ export default function Footer() {
               <Link href="/blog" className="text-sm text-foreground/70 hover:text-accent transition-colors">
                 Blog
               </Link>
-              <Link href="/komunita" className="text-sm text-foreground/70 hover:text-accent transition-colors">
-                Komunita
-              </Link>
               <Link href="/o-mne" className="text-sm text-foreground/70 hover:text-accent transition-colors">
                 O mně
               </Link>
@@ -69,21 +66,6 @@ export default function Footer() {
                       fill="url(#instagram-gradient-footer)"
                     />
                   </svg>
-                </a>
-                <a
-                  href="https://www.skool.com/zijem-life-3913"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 text-foreground/60 hover:opacity-80 transition-opacity"
-                  aria-label="Skool komunita"
-                >
-                  <Image
-                    src="/Skool Logo.svg"
-                    alt="Skool"
-                    width={16}
-                    height={16}
-                    className="h-4 w-auto"
-                  />
                 </a>
               </div>
             </div>

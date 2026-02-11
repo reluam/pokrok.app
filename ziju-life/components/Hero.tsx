@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import DecorativeShapes from "./DecorativeShapes";
 
 export default function Hero() {
@@ -31,12 +32,12 @@ export default function Hero() {
         </p>
         
         <div className="flex justify-center items-center pt-4">
-          <a
-            href="#choose-your-path"
+          <Link
+            href="/#koucing"
             className="btn-playful px-8 py-4 bg-accent text-white rounded-full text-xl font-bold hover:bg-accent-hover transition-colors w-full sm:w-auto shadow-lg hover:shadow-xl"
           >
             Chci převzít řízení
-          </a>
+          </Link>
         </div>
       </div>
     </section>

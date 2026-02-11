@@ -1,5 +1,7 @@
 import DecorativeShapes from "@/components/DecorativeShapes";
 
+export const dynamic = "force-static";
+
 interface Feature {
   title: string;
   description: string;

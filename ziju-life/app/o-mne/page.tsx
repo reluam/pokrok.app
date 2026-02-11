@@ -2,6 +2,8 @@ import Image from "next/image";
 import DecorativeShapes from "@/components/DecorativeShapes";
 import StayInContact from "@/components/StayInContact";
 
+export const dynamic = "force-static";
+
 interface Pillar {
   title: string;
   description: string;

@@ -22,13 +22,16 @@ export default function NewsletterDetailPage() {
     try {
       const res = await fetch(`/api/newsletters/${id}`);
       if (!res.ok) {
-        throw new Error("Newsletter not found");
+        setNewsletter(null);
+        setLoading(false);
+        return;
       }
       const data = await res.json();
       setNewsletter(data);
-      setLoading(false);
     } catch (error) {
       console.error("Error fetching newsletter:", error);
+      setNewsletter(null);
+    } finally {
       setLoading(false);
     }
   };

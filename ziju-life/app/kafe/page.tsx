@@ -1,3 +1,5 @@
+export const dynamic = "force-static";
+
 export default function KafePage() {
   return (
     <main className="min-h-screen py-16 md:py-24 px-4 sm:px-6 lg:px-8">

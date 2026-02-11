@@ -61,8 +61,6 @@ export default function Navigation() {
 
   const navItems: Array<{ href: string; label: string; external?: boolean }> = [
     { href: "/blog", label: "Blog" },
-    { href: "/komunita", label: "Komunita" },
-    { href: "/koucing", label: "Koučing" },
     { href: "/o-mne", label: "O mně" },
   ];
 
@@ -121,7 +119,7 @@ export default function Navigation() {
             })}
             
             <Link
-              href="/koucing"
+              href="/#rezervace"
               className="btn-playful px-4 py-2 bg-accent text-white rounded-full text-base font-semibold hover:bg-accent-hover transition-colors whitespace-nowrap shadow-md hover:shadow-lg"
             >
               Chci změnu
@@ -156,21 +154,6 @@ export default function Navigation() {
                   fill="url(#instagram-gradient)"
                 />
               </svg>
-            </a>
-            <a
-              href="https://www.skool.com/zijem-life-3913"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-foreground/70 hover:opacity-80 transition-opacity"
-              aria-label="Skool komunita"
-            >
-              <Image
-                src="/Skool Logo.svg"
-                alt="Skool"
-                width={16}
-                height={16}
-                className="h-4 w-auto"
-              />
             </a>
           </div>
 
@@ -240,7 +223,7 @@ export default function Navigation() {
               );
             })}
             <Link
-              href="/koucing"
+              href="/#rezervace"
               onClick={() => setIsMenuOpen(false)}
               className="block px-4 py-2 bg-accent text-white rounded-full text-base font-semibold hover:bg-accent-hover transition-colors text-center"
             >
@@ -276,22 +259,6 @@ export default function Navigation() {
                     fill="url(#instagram-gradient-mobile)"
                   />
                 </svg>
-              </a>
-              <a
-                href="https://www.skool.com/zijem-life-3913"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setIsMenuOpen(false)}
-                className="text-foreground/70 hover:opacity-80 transition-opacity"
-                aria-label="Skool komunita"
-              >
-                <Image
-                  src="/Skool Logo.svg"
-                  alt="Skool"
-                  width={16}
-                  height={16}
-                  className="h-4 w-auto"
-                />
               </a>
             </div>
           </div>

@@ -1,6 +1,8 @@
 import DecorativeShapes from "@/components/DecorativeShapes";
 import Link from "next/link";
 
+export const dynamic = "force-static";
+
 export default function GDPRPage() {
   return (
     <main className="min-h-screen">

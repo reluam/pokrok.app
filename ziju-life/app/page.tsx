@@ -1,15 +1,15 @@
 import Hero from "@/components/Hero";
 import Medailonek from "@/components/Medailonek";
-import ChooseYourPath from "@/components/ChooseYourPath";
-import StayInContact from "@/components/StayInContact";
+import KoucingSection from "@/components/KoucingSection";
+
+export const dynamic = "force-static";
 
 export default function Home() {
   return (
     <main className="min-h-screen">
       <Hero />
       <Medailonek />
-      <ChooseYourPath />
-      <StayInContact showCommunity={false} showDescription={true} />
+      <KoucingSection />
     </main>
   );
 }
