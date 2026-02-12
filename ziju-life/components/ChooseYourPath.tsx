@@ -221,7 +221,7 @@ export default function ChooseYourPath() {
         {/* Koučink */}
         <div className="space-y-4">
           <h3 className="text-2xl md:text-3xl font-bold text-foreground text-center">
-            Si zarezervuj 30 minutové koučovací sezení zdarma.
+            Nebo si zarezervuj 30 minutové koučovací sezení zdarma.
           </h3>
           <p className="text-lg md:text-xl text-foreground/70 leading-relaxed text-center max-w-3xl mx-auto">
             Kde probereme jak ti můžu pomoct rozklíčovat tvé automatické reakce a pomoct vědomě přepsat programy, které tě doposud řídily.{" "}
