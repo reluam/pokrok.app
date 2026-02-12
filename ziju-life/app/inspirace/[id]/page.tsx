@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Book, Video, FileText, PenTool, HelpCircle } from "lucide-react";
+import { SelectionShareBar } from "@/components/SelectionShareBar";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { InspirationItem } from "@/lib/inspiration";
 
 const getTypeIcon = (type: string) => {
@@ -145,11 +148,36 @@ export default function InspiraceDetailPage() {
 
         <h1 className="text-4xl md:text-5xl font-bold text-foreground">{item.title}</h1>
 
-        {item.author && (
-          <p className="text-lg text-foreground/60">Autor: {item.author}</p>
+        {(item.type === "blog" || item.author) && (
+          <p className="text-lg text-foreground/60">Autor: {item.type === "blog" ? "Matěj Mauler" : item.author}</p>
         )}
 
-        <p className="text-lg text-foreground/80 leading-relaxed">{item.description}</p>
+        {item.type !== "blog" && (
+          <p className="text-lg text-foreground/80 leading-relaxed">{item.description}</p>
+        )}
+
+        {/* Popisek - pro blog, nad obsahem */}
+        {item.type === "blog" && item.description && (
+          <p className="text-lg text-foreground/80 leading-relaxed pb-6 border-b border-black/10">
+            {item.description}
+          </p>
+        )}
+
+        {/* Book Cover – klik vede na partnerskou stránku */}
+        {item.type === "book" && item.imageUrl && item.url && (
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-fit rounded-xl overflow-hidden border-2 border-black/10 hover:border-accent/50 transition-colors shadow-lg hover:shadow-xl"
+          >
+            <img
+              src={item.imageUrl}
+              alt={item.title}
+              className="w-40 sm:w-48 object-cover aspect-[2/3]"
+            />
+          </a>
+        )}
 
         {/* Video Embed */}
         {item.type === "video" && videoEmbedUrl && (
@@ -200,23 +228,25 @@ export default function InspiraceDetailPage() {
 
         {/* Blog Content */}
         {item.type === "blog" && item.content && (
-          <div className="prose prose-lg max-w-none bg-white rounded-2xl p-8 border border-black/5">
-            <div
-              dangerouslySetInnerHTML={{ __html: item.content }}
-              className="blog-content"
-            />
-          </div>
+          <SelectionShareBar className="max-w-none">
+            <div className="blog-detail-content max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {item.content}
+              </ReactMarkdown>
+            </div>
+          </SelectionShareBar>
         )}
 
-        {/* External Link */}
-        {item.type !== "blog" && item.type !== "video" && (
+        {/* Tlačítko pro otevření partnerské / externí stránky */}
+        {item.type !== "blog" && item.type !== "video" && item.url && (
           <a
             href={item.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block px-8 py-4 bg-accent text-white rounded-full font-semibold hover:bg-accent-hover transition-colors"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-white rounded-full font-semibold hover:bg-accent-hover transition-colors"
           >
-            Otevřít →
+            {item.type === "book" ? "Koupit / Zobrazit na partnerské stránce" : "Otevřít odkaz"}
+            <span aria-hidden>→</span>
           </a>
         )}
       </div>

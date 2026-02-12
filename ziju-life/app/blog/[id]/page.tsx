@@ -148,10 +148,10 @@ export default function InspiraceDetailPage() {
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-foreground/60 mb-4">Článek nenalezen</p>
           <button
-            onClick={() => router.push("/blog")}
+            onClick={() => router.push("/inspirace")}
             className="px-6 py-3 bg-accent text-white rounded-full hover:bg-accent-hover transition-colors"
           >
-            Zpět na blog
+            Zpět na inspirace
           </button>
         </div>
       </main>
@@ -167,11 +167,11 @@ export default function InspiraceDetailPage() {
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Navigace zpět */}
         <button
-          onClick={() => router.push("/blog")}
+          onClick={() => router.push("/inspirace")}
           className="flex items-center gap-2 text-foreground/70 hover:text-foreground transition-colors"
         >
           <ArrowLeft size={20} />
-          <span>Zpět na blog</span>
+          <span>Zpět na inspirace</span>
         </button>
 
         <div className="flex items-center gap-3">
@@ -186,8 +186,8 @@ export default function InspiraceDetailPage() {
 
         <h1 className="text-4xl md:text-5xl font-bold text-foreground">{item.title}</h1>
 
-        {item.author && (
-          <p className="text-lg text-foreground/60">Autor: {item.author}</p>
+        {(item.type === "blog" || item.author) && (
+          <p className="text-lg text-foreground/60">Autor: {item.type === "blog" ? "Matěj Mauler" : item.author}</p>
         )}
 
         {/* Popisek - odděleně pro blog */}

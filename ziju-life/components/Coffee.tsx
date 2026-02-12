@@ -40,7 +40,7 @@ export default function Coffee() {
               Pokud cítíš, že ses v něčem zasekl/a a potřebuješ pomoct najít vlastní cestu ven, můžeme se do toho opřít společně. Tady už nejde o nezávazné povídání – budeme se soustředit na to, kde to v tvém životě zrovna drhne a kudy se chceš vydat dál. Aktuálně koučuju zdarma výměnou za tvůj upřímný feedback.
             </p>
             <Link
-              href="/#koucing"
+              href="/koucing"
               className="btn-playful inline-block px-8 py-4 bg-white border-2 border-accent text-accent rounded-full text-lg font-semibold hover:bg-accent/5 transition-colors shadow-lg hover:shadow-xl"
             >
               Chci jít víc do hloubky →

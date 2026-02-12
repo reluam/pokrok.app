@@ -115,7 +115,7 @@ export default function ContentGrid() {
                 <button
                   key={item.id}
                   onClick={() => {
-                    router.push(`/blog/${item.id}`);
+                    router.push(`/inspirace/${item.id}`);
                   }}
                   className="block text-left w-full cursor-pointer"
                 >

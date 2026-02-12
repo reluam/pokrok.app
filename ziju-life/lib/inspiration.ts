@@ -12,6 +12,7 @@ export interface InspirationItem {
   author?: string
   content?: string // For blog posts
   thumbnail?: string // For videos
+  imageUrl?: string // For books – obálka knihy (klik vede na url)
   isActive?: boolean // Whether the inspiration is visible on the website
   createdAt: string
   updatedAt: string

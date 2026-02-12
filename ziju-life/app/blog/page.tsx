@@ -242,7 +242,7 @@ export default function InspiracePage() {
                     if (item.type === "newsletter") {
                       router.push(`/newsletter/${item.id}`);
                     } else {
-                      router.push(`/blog/${item.id}`);
+                      router.push(`/inspirace/${item.id}`);
                     }
                   }}
                   className="block text-left w-full cursor-pointer"

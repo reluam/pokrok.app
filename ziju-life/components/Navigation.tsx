@@ -60,7 +60,8 @@ export default function Navigation() {
   }, []);
 
   const navItems: Array<{ href: string; label: string; external?: boolean }> = [
-    { href: "/blog", label: "Blog" },
+    { href: "/inspirace", label: "Inspirace" },
+    { href: "/koucing", label: "Koučing" },
     { href: "/o-mne", label: "O mně" },
   ];
 
@@ -119,7 +120,7 @@ export default function Navigation() {
             })}
             
             <Link
-              href="/#rezervace"
+              href="/koucing"
               className="btn-playful px-4 py-2 bg-accent text-white rounded-full text-base font-semibold hover:bg-accent-hover transition-colors whitespace-nowrap shadow-md hover:shadow-lg"
             >
               Chci změnu
@@ -223,7 +224,7 @@ export default function Navigation() {
               );
             })}
             <Link
-              href="/#rezervace"
+              href="/koucing"
               onClick={() => setIsMenuOpen(false)}
               className="block px-4 py-2 bg-accent text-white rounded-full text-base font-semibold hover:bg-accent-hover transition-colors text-center"
             >

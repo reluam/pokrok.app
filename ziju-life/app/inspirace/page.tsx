@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { InspirationData, InspirationItem } from "@/lib/inspiration";
-import { Book, Video, FileText, PenTool, HelpCircle } from "lucide-react";
-import InspirationModal from "@/components/InspirationModal";
+import type { NewsletterCampaign } from "@/lib/newsletter-campaigns-db";
+import { Book, Video, FileText, PenTool, HelpCircle, Mail } from "lucide-react";
+
+type FilterType = "clanky" | "knihy" | "videa" | "ostatni";
 
 const getTypeLabel = (type: string): string => {
   switch (type) {
@@ -12,6 +15,7 @@ const getTypeLabel = (type: string): string => {
     case "book": return "Kniha";
     case "article": return "Článek";
     case "other": return "Ostatní";
+    case "newsletter": return "Newsletter";
     default: return type;
   }
 };
@@ -23,67 +27,234 @@ const getTypeIcon = (type: string) => {
     case "book": return Book;
     case "article": return FileText;
     case "other": return HelpCircle;
+    case "newsletter": return Mail;
     default: return FileText;
   }
 };
 
 const getVideoId = (url: string): string | null => {
-  // YouTube
   const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
   if (youtubeMatch) return youtubeMatch[1];
-  
-  // Vimeo
   const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
   if (vimeoMatch) return vimeoMatch[1];
-  
   return null;
 };
 
 const getVideoThumbnail = (url: string): string | null => {
   const videoId = getVideoId(url);
   if (!videoId) return null;
-  
   if (url.includes("youtube.com") || url.includes("youtu.be")) {
     return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
   }
-  
-  if (url.includes("vimeo.com")) {
-    return null; // Vimeo requires API call for thumbnail
-  }
-  
   return null;
 };
 
+interface DisplayItem {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  author?: string;
+  thumbnail?: string;
+  imageUrl?: string;
+  url: string;
+  href: string;
+  createdAt: string;
+  sentAt?: string;
+}
+
+const FILTERS: { value: FilterType; label: string }[] = [
+  { value: "clanky", label: "Články" },
+  { value: "knihy", label: "Knihy" },
+  { value: "videa", label: "Videa" },
+  { value: "ostatni", label: "Ostatní" },
+];
+
+function renderItemCard(
+  item: DisplayItem,
+  index: number,
+  router: ReturnType<typeof useRouter>
+) {
+  const Icon = getTypeIcon(item.type);
+  const videoThumbnail =
+    item.type === "video"
+      ? (item.thumbnail || getVideoThumbnail(item.url))
+      : null;
+
+  return (
+    <button
+      key={`${item.type}-${item.id}`}
+      onClick={() => router.push(item.href)}
+      className="block text-left w-full cursor-pointer"
+    >
+      <article
+        className="bg-white rounded-2xl p-6 border-2 border-black/5 hover:border-accent/50 transition-all hover:shadow-xl hover:-translate-y-1 space-y-4 h-full"
+        style={{
+          transform: `rotate(${index % 2 === 0 ? "-0.5deg" : "0.5deg"})`,
+        }}
+      >
+        {item.type === "video" && videoThumbnail && (
+          <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black mb-4">
+            <img
+              src={videoThumbnail}
+              alt={item.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+              <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
+                <Video className="w-6 h-6 text-accent ml-1" />
+              </div>
+            </div>
+          </div>
+        )}
+        {item.type === "book" && item.imageUrl && (
+          <div className="w-full aspect-[2/3] max-h-48 rounded-xl overflow-hidden bg-gray-100 mb-4">
+            <img
+              src={item.imageUrl}
+              alt={item.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+        <div className="flex items-center gap-2">
+          <Icon className="text-accent" size={18} />
+          <span className="inline-block px-3 py-1 bg-accent/10 text-accent text-sm font-semibold rounded-full border border-accent/20">
+            {getTypeLabel(item.type)}
+          </span>
+        </div>
+        <h3 className="text-xl font-bold text-foreground">{item.title}</h3>
+        {item.author && (
+          <p className="text-sm text-foreground/60">Autor: {item.author}</p>
+        )}
+        <p className="text-foreground/70 leading-relaxed line-clamp-2">
+          {item.description}
+        </p>
+      </article>
+    </button>
+  );
+}
+
 export default function InspiracePage() {
-  const [data, setData] = useState<InspirationData | null>(null);
+  const router = useRouter();
+  const [inspirationData, setInspirationData] = useState<InspirationData | null>(null);
+  const [newsletters, setNewsletters] = useState<NewsletterCampaign[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedItem, setSelectedItem] = useState<InspirationItem | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filter, setFilter] = useState<FilterType | null>(null);
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [inspirationRes, newslettersRes] = await Promise.all([
+          fetch("/api/inspiration"),
+          fetch("/api/newsletters"),
+        ]);
+        setInspirationData(await inspirationRes.json());
+        setNewsletters(await newslettersRes.json());
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    try {
-      const res = await fetch("/api/inspiration");
-      const data = await res.json();
-      setData(data);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setLoading(false);
+  const getInspiraceItems = (): DisplayItem[] => {
+    const items: DisplayItem[] = [];
+    if (!inspirationData) return items;
+
+    const inspiraceTypes = ["video", "book", "article", "other"] as const;
+    for (const type of inspiraceTypes) {
+      const arr = inspirationData[type === "video" ? "videos" : type === "book" ? "books" : type === "article" ? "articles" : "other"];
+      (arr || [])
+        .filter((i) => i.isActive !== false)
+        .forEach((item) => {
+          items.push({
+            id: item.id,
+            type: item.type,
+            title: item.title,
+            description: item.description,
+            author: item.author,
+            thumbnail: item.thumbnail,
+            imageUrl: (item as InspirationItem).imageUrl,
+            url: item.url,
+            href: `/inspirace/${item.id}`,
+            createdAt: item.createdAt,
+          });
+        });
     }
+    return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   };
 
-  const getAllItems = (): InspirationItem[] => {
-    if (!data) return [];
-    return data.blogs
-      .filter(item => item.isActive !== false) // Only show active items
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const getBlogItems = (): DisplayItem[] => {
+    const items: DisplayItem[] = [];
+
+    if (inspirationData) {
+      (inspirationData.blogs || [])
+        .filter((i) => i.isActive !== false)
+        .forEach((item) => {
+          items.push({
+            id: item.id,
+            type: "blog",
+            title: item.title,
+            description: item.description,
+            author: "Matěj Mauler",
+            url: "",
+            href: `/inspirace/${item.id}`,
+            createdAt: item.createdAt,
+          });
+        });
+    }
+
+    newsletters.forEach((n) => {
+      const title = n.sentAt
+        ? `Newsletter - ${new Date(n.sentAt).toLocaleDateString("cs-CZ", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}`
+        : n.subject;
+      items.push({
+        id: n.id,
+        type: "newsletter",
+        title,
+        description: (n.body || "").replace(/<[^>]+>/g, "").substring(0, 150) + "...",
+        author: "Matěj Mauler",
+        url: "",
+        href: `/newsletter/${n.id}`,
+        createdAt: typeof n.createdAt === "string" ? n.createdAt : n.createdAt?.toISOString?.() || "",
+        sentAt: n.sentAt ? (typeof n.sentAt === "string" ? n.sentAt : n.sentAt?.toISOString?.()) : undefined,
+      });
+    });
+
+    return items.sort((a, b) => {
+      const dateA = a.sentAt || a.createdAt;
+      const dateB = b.sentAt || b.createdAt;
+      return new Date(dateB).getTime() - new Date(dateA).getTime();
+    });
   };
 
-  const filteredItems = getAllItems();
+  const getFilteredItems = (): DisplayItem[] => {
+    const inspirace = getInspiraceItems();
+    const blog = getBlogItems();
+    const all = [...inspirace, ...blog];
+    if (filter === null) return all;
+    if (filter === "clanky") return all.filter((i) => i.type === "blog" || i.type === "newsletter");
+    if (filter === "knihy") return all.filter((i) => i.type === "book");
+    if (filter === "videa") return all.filter((i) => i.type === "video");
+    if (filter === "ostatni") return all.filter((i) => i.type === "article" || i.type === "other");
+    return all;
+  };
+
+  const inspiraceItems = getInspiraceItems();
+  const blogItems = getBlogItems();
+  const filteredItems = getFilteredItems();
+
+  const handleFilterClick = (f: FilterType) => {
+    setFilter((prev) => (prev === f ? null : f));
+  };
+
+  const showSplitLayout = filter === null;
 
   if (loading) {
     return (
@@ -100,84 +271,88 @@ export default function InspiracePage() {
       <div className="max-w-6xl mx-auto space-y-12">
         <div className="text-center space-y-4">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
-            Blog
+            Inspirace
           </h1>
           <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto">
-            Všechno, co jsem se naučil, testoval a prožil. Články, experimenty a myšlenky, které měnily můj život.
+            Inspiruj se články, knihami, videi a dalšími zdroji.
           </p>
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredItems.length === 0 ? (
-            <div className="col-span-full text-center py-12">
-              <p className="text-foreground/60">Zatím žádné inspirace.</p>
-            </div>
-          ) : (
-            filteredItems.map((item, index) => {
-              const Icon = getTypeIcon(item.type);
-              const videoThumbnail = item.type === "video" ? (item.thumbnail || getVideoThumbnail(item.url)) : null;
-              
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setSelectedItem(item);
-                    setIsModalOpen(true);
-                  }}
-                  className="block text-left w-full cursor-pointer"
-                >
-                  <article
-                    className="bg-white rounded-2xl p-6 md:p-8 border-2 border-black/5 hover:border-accent/50 transition-all hover:shadow-xl hover:-translate-y-1 space-y-4 transform h-full"
-                    style={{ transform: `rotate(${index % 2 === 0 ? '-0.5deg' : '0.5deg'})` }}
-                  >
-                    {/* Video Thumbnail */}
-                    {item.type === "video" && videoThumbnail && (
-                      <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black mb-4">
-                        <img
-                          src={videoThumbnail}
-                          alt={item.title}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                          <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
-                            <Video className="w-6 h-6 text-accent ml-1" />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    <div className="flex items-center gap-2">
-                      <Icon className="text-accent" size={18} />
-                      <span className="inline-block px-3 py-1 bg-accent/10 text-accent text-sm font-semibold rounded-full border border-accent/20">
-                        {getTypeLabel(item.type)}
-                      </span>
-                    </div>
-                    <h2 className="text-xl md:text-2xl text-foreground" style={{ fontWeight: 600 }}>
-                      {item.title}
-                    </h2>
-                    {item.author && (
-                      <p className="text-sm text-foreground/60">Autor: {item.author}</p>
-                    )}
-                    <p className="text-foreground/70 leading-relaxed">
-                      {item.description}
-                    </p>
-                  </article>
-                </button>
-              );
-            })
-          )}
+        {/* Filtry */}
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {FILTERS.map((f) => (
+            <button
+              key={f.value}
+              onClick={() => handleFilterClick(f.value)}
+              className={`px-5 py-2.5 rounded-full font-semibold transition-colors ${
+                filter === f.value
+                  ? "bg-accent text-white"
+                  : "bg-white border-2 border-black/10 hover:border-accent hover:text-accent"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
         </div>
-        
-        {/* Modal */}
-        <InspirationModal
-          item={selectedItem}
-          isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setSelectedItem(null);
-          }}
-        />
+
+        {showSplitLayout ? (
+          /* Split layout: inspirace vlevo, články vpravo */
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+            <div className="lg:col-span-2 space-y-6">
+              <h2 className="text-2xl font-bold text-foreground">Doporučení</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {inspiraceItems.length === 0 ? (
+                  <p className="text-foreground/60 col-span-full">Zatím žádná doporučení.</p>
+                ) : (
+                  inspiraceItems.map((item, index) => renderItemCard(item, index, router))
+                )}
+              </div>
+            </div>
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-foreground">Články</h2>
+              <div className="flex flex-col gap-4">
+                {blogItems.length === 0 ? (
+                  <p className="text-foreground/60">Zatím žádné články.</p>
+                ) : (
+                  blogItems.map((item) => {
+                    const Icon = getTypeIcon(item.type);
+                    return (
+                      <button
+                        key={`${item.type}-${item.id}`}
+                        onClick={() => router.push(item.href)}
+                        className="block text-left w-full cursor-pointer"
+                      >
+                        <article className="bg-white rounded-xl p-4 border-2 border-black/5 hover:border-accent/50 transition-all hover:shadow-lg">
+                          <div className="flex items-start gap-3">
+                            <Icon className="text-accent flex-shrink-0 mt-0.5" size={18} />
+                            <div className="min-w-0">
+                              <h3 className="font-semibold text-foreground line-clamp-2">{item.title}</h3>
+                              {item.author && (
+                                <p className="text-sm text-foreground/60 mt-0.5">Autor: {item.author}</p>
+                              )}
+                              <p className="text-sm text-foreground/60 mt-1 line-clamp-2">{item.description}</p>
+                            </div>
+                          </div>
+                        </article>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Full-width filtered grid */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredItems.length === 0 ? (
+              <p className="col-span-full text-center text-foreground/60 py-12">
+                Zatím žádné položky.
+              </p>
+            ) : (
+              filteredItems.map((item, index) => renderItemCard(item, index, router))
+            )}
+          </div>
+        )}
       </div>
     </main>
   );

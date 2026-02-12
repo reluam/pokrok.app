@@ -29,8 +29,8 @@ export default function Footer() {
             </div>
             
             <div className="flex flex-col md:flex-row items-center gap-6">
-              <Link href="/blog" className="text-sm text-foreground/70 hover:text-accent transition-colors">
-                Blog
+              <Link href="/inspirace" className="text-sm text-foreground/70 hover:text-accent transition-colors">
+                Inspirace
               </Link>
               <Link href="/o-mne" className="text-sm text-foreground/70 hover:text-accent transition-colors">
                 O mně

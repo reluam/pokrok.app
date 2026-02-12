@@ -35,6 +35,7 @@ export async function getInspirationData(includeInactive: boolean = true): Promi
         author: item.author || undefined,
         content: item.content || undefined,
         thumbnail: item.thumbnail || undefined,
+        imageUrl: item.image_url || undefined,
         isActive: item.is_active ?? true,
         createdAt: item.created_at.toISOString(),
         updatedAt: item.updated_at.toISOString(),
@@ -81,7 +82,7 @@ export async function addInspirationItem(
 
   await sql`
     INSERT INTO inspirations (
-      id, type, title, description, url, author, content, thumbnail, is_active, created_at, updated_at
+      id, type, title, description, url, author, content, thumbnail, image_url, is_active, created_at, updated_at
     ) VALUES (
       ${id},
       ${type},
@@ -91,6 +92,7 @@ export async function addInspirationItem(
       ${item.author || null},
       ${item.content || null},
       ${item.thumbnail || null},
+      ${item.imageUrl || null},
       ${item.isActive ?? true},
       ${now},
       ${now}
@@ -136,6 +138,7 @@ export async function updateInspirationItem(
       author = ${updates.author ?? currentItem.author},
       content = ${updates.content ?? currentItem.content},
       thumbnail = ${updates.thumbnail ?? currentItem.thumbnail},
+      image_url = ${(updates as Partial<InspirationItem>).imageUrl ?? currentItem.image_url ?? null},
       is_active = ${updates.isActive !== undefined ? updates.isActive : (currentItem.is_active ?? true)},
       updated_at = ${now}
     WHERE id = ${id} AND type = ${type}
@@ -156,6 +159,7 @@ export async function updateInspirationItem(
     author: item.author || undefined,
     content: item.content || undefined,
     thumbnail: item.thumbnail || undefined,
+    imageUrl: item.image_url || undefined,
     isActive: item.is_active ?? true,
     createdAt: item.created_at.toISOString(),
     updatedAt: item.updated_at.toISOString(),

@@ -1,9 +1,9 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { PenTool, Mail, LogOut } from "lucide-react";
+import { PenTool, Book, Mail, LogOut } from "lucide-react";
 
-type AdminSection = "inspirace" | "newsletter" | "newsletter-campaigns";
+type AdminSection = "blog" | "inspirace" | "newsletter" | "newsletter-campaigns";
 
 interface NavItem {
   id: AdminSection;
@@ -14,13 +14,18 @@ interface NavItem {
 export default function AdminNavigation() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentSection = (searchParams.get("section") || "inspirace") as AdminSection;
+  const currentSection = (searchParams.get("section") || "blog") as AdminSection;
 
   const navItems: NavItem[] = [
     {
+      id: "blog",
+      label: "Blog",
+      icon: PenTool,
+    },
+    {
       id: "inspirace",
       label: "Inspirace",
-      icon: PenTool,
+      icon: Book,
     },
     {
       id: "newsletter",

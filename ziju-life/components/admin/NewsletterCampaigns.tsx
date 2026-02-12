@@ -320,7 +320,7 @@ export default function NewsletterCampaigns() {
     // For blog type articles, generate URL from ID if no URL exists
     let articleUrl: string;
     if (article.type === 'blog' && !article.url) {
-      articleUrl = `${siteUrl}/blog/${article.id}`;
+      articleUrl = `${siteUrl}/inspirace/${article.id}`;
     } else if (!article.url) {
       alert("Článek nemá URL");
       return;

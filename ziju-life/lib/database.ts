@@ -32,6 +32,12 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_inspirations_created_at ON inspirations(created_at DESC)
     `
 
+    // Add image_url for book covers (optional)
+    await sql`
+      ALTER TABLE inspirations 
+      ADD COLUMN IF NOT EXISTS image_url TEXT
+    `
+
     // Create newsletter_subscribers table
     await sql`
       CREATE TABLE IF NOT EXISTS newsletter_subscribers (

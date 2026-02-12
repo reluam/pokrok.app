@@ -28,7 +28,17 @@ const getTypeIcon = (type: InspirationType) => {
   }
 };
 
-export default function InspiraceContent() {
+const INSPIRATION_TYPES: InspirationType[] = ["video", "book", "article", "other"];
+const BLOG_TYPES: InspirationType[] = ["blog"];
+
+export default function InspiraceContent({
+  mode = "inspirace",
+}: {
+  /** "blog" = jen články na blog, "inspirace" = tipy (video, kniha, článek, ostatní) */
+  mode?: "blog" | "inspirace";
+}) {
+  const allowedTypes = mode === "blog" ? BLOG_TYPES : INSPIRATION_TYPES;
+
   const [data, setData] = useState<InspirationData | null>(null);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>("cards");
@@ -80,6 +90,10 @@ export default function InspiraceContent() {
   };
 
   const openTypeSelector = () => {
+    if (allowedTypes.length === 1) {
+      selectType(allowedTypes[0]);
+      return;
+    }
     setShowTypeSelector(true);
     setShowForm(false);
     setEditingItem(null);
@@ -176,19 +190,29 @@ export default function InspiraceContent() {
 
   const getAllItems = (): Array<InspirationItem & { category: InspirationType }> => {
     if (!data) return [];
-    return [
-      ...data.blogs.map((item) => ({ ...item, category: "blog" as InspirationType })),
-      ...data.videos.map((item) => ({ ...item, category: "video" as InspirationType })),
-      ...data.books.map((item) => ({ ...item, category: "book" as InspirationType })),
-      ...data.articles.map((item) => ({ ...item, category: "article" as InspirationType })),
-      ...data.other.map((item) => ({ ...item, category: "other" as InspirationType })),
-    ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const items: Array<InspirationItem & { category: InspirationType }> = [];
+    if (allowedTypes.includes("blog")) {
+      items.push(...data.blogs.map((item) => ({ ...item, category: "blog" as InspirationType })));
+    }
+    if (allowedTypes.includes("video")) {
+      items.push(...data.videos.map((item) => ({ ...item, category: "video" as InspirationType })));
+    }
+    if (allowedTypes.includes("book")) {
+      items.push(...data.books.map((item) => ({ ...item, category: "book" as InspirationType })));
+    }
+    if (allowedTypes.includes("article")) {
+      items.push(...data.articles.map((item) => ({ ...item, category: "article" as InspirationType })));
+    }
+    if (allowedTypes.includes("other")) {
+      items.push(...data.other.map((item) => ({ ...item, category: "other" as InspirationType })));
+    }
+    return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   };
 
   const getFilteredItems = () => {
     let items = getAllItems();
 
-    if (filterType !== "all") {
+    if (filterType !== "all" && allowedTypes.includes(filterType)) {
       items = items.filter((item) => item.category === filterType);
     }
 
@@ -220,15 +244,21 @@ export default function InspiraceContent() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Správa inspirací</h1>
-          <p className="text-foreground/70">Přehled a správa všech inspirací</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            {mode === "blog" ? "Správa blogu" : "Správa inspirací"}
+          </h1>
+          <p className="text-foreground/70">
+            {mode === "blog"
+              ? "Články z tvého blogu zobrazené na /blog"
+              : "Tipy na knihy, videa a články zobrazené na /inspirace"}
+          </p>
         </div>
         <button
           onClick={openTypeSelector}
           className="flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-full font-semibold hover:bg-accent-hover transition-colors"
         >
           <Plus size={20} />
-          Přidat inspiraci
+          {mode === "blog" ? "Přidat článek" : "Přidat inspiraci"}
         </button>
       </div>
 
@@ -282,11 +312,11 @@ export default function InspiraceContent() {
               className="px-4 py-2 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white font-semibold"
             >
               <option value="all">Všechny typy</option>
-              <option value="blog">Blog</option>
-              <option value="video">Video</option>
-              <option value="book">Kniha</option>
-              <option value="article">Článek</option>
-              <option value="other">Ostatní</option>
+              {allowedTypes.map((t) => (
+                <option key={t} value={t}>
+                  {getTypeLabel(t)}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -471,7 +501,7 @@ export default function InspiraceContent() {
       {showTypeSelector && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          onClick={(e) => e.target === e.currentTarget && closeModal()}
+          onMouseDown={(e) => e.target === e.currentTarget && closeModal()}
         >
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
             <button
@@ -482,7 +512,7 @@ export default function InspiraceContent() {
               <X size={24} className="text-foreground/70" />
             </button>
 
-            <h2 className="text-2xl font-bold text-foreground mb-6">Vyberte typ inspirace</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-6">Vyberte typ</h2>
 
             <div className="space-y-3">
               {([
@@ -491,7 +521,9 @@ export default function InspiraceContent() {
                 { type: "book" as InspirationType, icon: Book, label: "Kniha" },
                 { type: "article" as InspirationType, icon: FileText, label: "Článek" },
                 { type: "other" as InspirationType, icon: HelpCircle, label: "Ostatní" },
-              ]).map(({ type, icon: Icon, label }) => (
+              ])
+                .filter(({ type }) => allowedTypes.includes(type))
+                .map(({ type, icon: Icon, label }) => (
                 <button
                   key={type}
                   onClick={() => selectType(type)}
@@ -510,7 +542,7 @@ export default function InspiraceContent() {
       {showForm && selectedType && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto"
-          onClick={(e) => e.target === e.currentTarget && closeModal()}
+          onMouseDown={(e) => e.target === e.currentTarget && closeModal()}
         >
           <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full my-8 p-8 relative">
             <button
@@ -607,6 +639,32 @@ export default function InspiraceContent() {
                       src={formData.thumbnail}
                       alt="Thumbnail preview"
                       className="mt-2 rounded-lg max-w-xs"
+                    />
+                  )}
+                </div>
+              )}
+
+              {/* Book Cover Image */}
+              {selectedType === "book" && (
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    URL obálky knihy
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.imageUrl || ""}
+                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white"
+                    placeholder="https://..."
+                  />
+                  <p className="text-xs text-foreground/60 mt-1">
+                    Obrázek se zobrazí v detailu. Klik na obrázek vede na partnerskou URL.
+                  </p>
+                  {formData.imageUrl && (
+                    <img
+                      src={formData.imageUrl}
+                      alt="Náhled obálky"
+                      className="mt-2 rounded-lg max-w-[120px] object-cover aspect-[2/3]"
                     />
                   )}
                 </div>

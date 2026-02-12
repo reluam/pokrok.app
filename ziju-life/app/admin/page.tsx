@@ -9,18 +9,18 @@ import NewsletterCampaigns from "@/components/admin/NewsletterCampaigns";
 function AdminContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const section = searchParams.get("section") || "inspirace";
+  const section = searchParams.get("section") || "blog";
 
-  // Ensure section is always set in URL
   useEffect(() => {
     if (!searchParams.get("section")) {
-      router.replace("/admin?section=inspirace");
+      router.replace("/admin?section=blog");
     }
   }, [searchParams, router]);
 
   return (
     <div className="max-w-7xl mx-auto">
-      {section === "inspirace" && <InspiraceContent />}
+      {section === "blog" && <InspiraceContent mode="blog" />}
+      {section === "inspirace" && <InspiraceContent mode="inspirace" />}
       {section === "newsletter" && <NewsletterContent />}
       {section === "newsletter-campaigns" && <NewsletterCampaigns />}
     </div>

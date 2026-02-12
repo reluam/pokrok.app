@@ -1,6 +1,6 @@
 import Image from "next/image";
 import DecorativeShapes from "@/components/DecorativeShapes";
-import StayInContact from "@/components/StayInContact";
+import PosledniInspirace from "@/components/PosledniInspirace";
 
 export const dynamic = "force-static";
 
@@ -123,8 +123,8 @@ export default function OMnePage() {
         </div>
       </section>
 
-      {/* Stay in Contact */}
-      <StayInContact showTitle={true} />
+      {/* Poslední inspirace */}
+      <PosledniInspirace />
     </main>
   );
 }

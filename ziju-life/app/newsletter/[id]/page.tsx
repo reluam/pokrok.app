@@ -22,16 +22,13 @@ export default function NewsletterDetailPage() {
     try {
       const res = await fetch(`/api/newsletters/${id}`);
       if (!res.ok) {
-        setNewsletter(null);
-        setLoading(false);
-        return;
+        throw new Error("Newsletter not found");
       }
       const data = await res.json();
       setNewsletter(data);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching newsletter:", error);
-      setNewsletter(null);
-    } finally {
       setLoading(false);
     }
   };
@@ -52,10 +49,10 @@ export default function NewsletterDetailPage() {
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-foreground/60">Newsletter nenalezen</p>
           <button
-            onClick={() => router.push("/blog")}
+            onClick={() => router.push("/inspirace")}
             className="mt-4 px-6 py-2 bg-accent text-white rounded-full font-semibold hover:bg-accent-hover transition-colors"
           >
-            Zpět na blog
+            Zpět na inspirace
           </button>
         </div>
       </main>
@@ -74,11 +71,11 @@ export default function NewsletterDetailPage() {
     <main className="min-h-screen py-16 md:py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-8">
         <button
-          onClick={() => router.push("/blog")}
+          onClick={() => router.push("/inspirace")}
           className="flex items-center gap-2 text-foreground/70 hover:text-foreground transition-colors"
         >
           <ArrowLeft size={18} />
-          Zpět na blog
+          Zpět na inspirace
         </button>
 
         <article className="bg-white rounded-2xl p-8 md:p-10 border-2 border-black/5 space-y-8">
