@@ -160,9 +160,9 @@ export default function KoucingPage() {
             <div className="rounded-lg overflow-hidden">
               <iframe 
                 src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ09WuK7w9SPU0bBC_TuRCmstTwkzazkPtq65gVaPDejfHspyAXwj1RKisdDRFE_Q2PF6a6iZviE?gv=true" 
-                style={{ border: 0, minHeight: 1050 }} 
-                width="100%" 
-                height="1050" 
+style={{ border: 0, minHeight: 700 }}
+                width="100%"
+                height="700"
                 frameBorder="0"
                 className="w-full"
               />

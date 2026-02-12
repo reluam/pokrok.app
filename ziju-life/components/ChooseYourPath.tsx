@@ -232,9 +232,9 @@ export default function ChooseYourPath() {
           <div className="bg-white rounded-2xl p-4 md:p-6 border-2 border-black/5 w-full">
             <iframe
               src={GOOGLE_CALENDAR_URL}
-              style={{ border: 0, minHeight: 1050 }}
+              style={{ border: 0, minHeight: 700 }}
               width="100%"
-              height="1050"
+              height="700"
               className="w-full rounded-lg"
               title="Rezervace sezení"
             />

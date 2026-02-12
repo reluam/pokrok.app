@@ -31,6 +31,23 @@ const getTypeIcon = (type: InspirationType) => {
 const INSPIRATION_TYPES: InspirationType[] = ["video", "book", "article", "other"];
 const BLOG_TYPES: InspirationType[] = ["blog"];
 
+const getVideoThumbnailFromUrl = (url: string): string | null => {
+  const youtubeMatch = url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+  // hqdefault je dostupný u většiny videí; maxresdefault může 404
+  if (youtubeMatch) return `https://img.youtube.com/vi/${youtubeMatch[1]}/hqdefault.jpg`;
+  return null;
+};
+
+const fetchVimeoThumbnail = async (url: string): Promise<string | null> => {
+  try {
+    const res = await fetch(`https://vimeo.com/api/oembed.json?url=${encodeURIComponent(url)}`);
+    const data = await res.json();
+    return data.thumbnail_url || null;
+  } catch {
+    return null;
+  }
+};
+
 export default function InspiraceContent({
   mode = "inspirace",
 }: {
@@ -49,10 +66,35 @@ export default function InspiraceContent({
   const [selectedType, setSelectedType] = useState<InspirationType | null>(null);
   const [editingItem, setEditingItem] = useState<{ item: InspirationItem; type: InspirationType } | null>(null);
   const [formData, setFormData] = useState<Partial<InspirationItem>>({});
+  const [loadingThumbnail, setLoadingThumbnail] = useState(false);
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Auto-vyplnění thumbnails pro YouTube při změně URL (jen když je thumbnail prázdný)
+  useEffect(() => {
+    if (selectedType === "video" && formData.url && !formData.thumbnail) {
+      const thumb = getVideoThumbnailFromUrl(formData.url);
+      if (thumb) setFormData((prev) => ({ ...prev, thumbnail: thumb }));
+    }
+  }, [selectedType, formData.url]);
+
+  const handleFetchVideoThumbnail = async () => {
+    if (!formData.url) return;
+    setLoadingThumbnail(true);
+    try {
+      const youtube = getVideoThumbnailFromUrl(formData.url);
+      if (youtube) {
+        setFormData((prev) => ({ ...prev, thumbnail: youtube }));
+        return;
+      }
+      const vimeo = await fetchVimeoThumbnail(formData.url);
+      if (vimeo) setFormData((prev) => ({ ...prev, thumbnail: vimeo }));
+    } finally {
+      setLoadingThumbnail(false);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -624,9 +666,21 @@ export default function InspiraceContent({
               {/* Video Thumbnail */}
               {selectedType === "video" && (
                 <div>
-                  <label className="block text-sm font-semibold text-foreground mb-2">
-                    Thumbnail URL (obrázek z videa)
-                  </label>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <label className="block text-sm font-semibold text-foreground">
+                      Thumbnail URL (obrázek z videa)
+                    </label>
+                    {formData.url && (
+                      <button
+                        type="button"
+                        onClick={handleFetchVideoThumbnail}
+                        disabled={loadingThumbnail}
+                        className="text-sm px-3 py-1.5 rounded-lg bg-accent/15 text-accent hover:bg-accent/25 disabled:opacity-50"
+                      >
+                        {loadingThumbnail ? "Načítám…" : "Získat z URL"}
+                      </button>
+                    )}
+                  </div>
                   <input
                     type="url"
                     value={formData.thumbnail || ""}
