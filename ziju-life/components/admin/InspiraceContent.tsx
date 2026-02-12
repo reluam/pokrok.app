@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, X, Book, Video, FileText, PenTool, HelpCircle, Edit2, Trash2, LayoutGrid, Table2, Search } from "lucide-react";
+import { Plus, X, Book, Video, FileText, PenTool, HelpCircle, Edit2, Trash2, LayoutGrid, Table2, Search, Music } from "lucide-react";
 import type { InspirationData, InspirationItem, InspirationType } from "@/lib/inspiration";
 
 type ViewMode = "cards" | "table";
@@ -13,6 +13,7 @@ const getTypeLabel = (type: InspirationType): string => {
     case "book": return "Kniha";
     case "article": return "Článek";
     case "other": return "Ostatní";
+    case "music": return "Hudba";
     default: return type;
   }
 };
@@ -24,11 +25,12 @@ const getTypeIcon = (type: InspirationType) => {
     case "book": return Book;
     case "article": return FileText;
     case "other": return HelpCircle;
+    case "music": return Music;
     default: return FileText;
   }
 };
 
-const INSPIRATION_TYPES: InspirationType[] = ["video", "book", "article", "other"];
+const INSPIRATION_TYPES: InspirationType[] = ["video", "book", "article", "other", "music"];
 const BLOG_TYPES: InspirationType[] = ["blog"];
 
 const getVideoThumbnailFromUrl = (url: string): string | null => {
@@ -72,9 +74,9 @@ export default function InspiraceContent({
     fetchData();
   }, []);
 
-  // Auto-vyplnění thumbnails pro YouTube při změně URL (jen když je thumbnail prázdný)
+  // Auto-vyplnění thumbnails pro YouTube při změně URL (video i hudba)
   useEffect(() => {
-    if (selectedType === "video" && formData.url && !formData.thumbnail) {
+    if ((selectedType === "video" || selectedType === "music") && formData.url && !formData.thumbnail) {
       const thumb = getVideoThumbnailFromUrl(formData.url);
       if (thumb) setFormData((prev) => ({ ...prev, thumbnail: thumb }));
     }
@@ -247,6 +249,9 @@ export default function InspiraceContent({
     }
     if (allowedTypes.includes("other")) {
       items.push(...data.other.map((item) => ({ ...item, category: "other" as InspirationType })));
+    }
+    if (allowedTypes.includes("music")) {
+      items.push(...(data.music || []).map((item) => ({ ...item, category: "music" as InspirationType })));
     }
     return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   };
@@ -563,6 +568,7 @@ export default function InspiraceContent({
                 { type: "book" as InspirationType, icon: Book, label: "Kniha" },
                 { type: "article" as InspirationType, icon: FileText, label: "Článek" },
                 { type: "other" as InspirationType, icon: HelpCircle, label: "Ostatní" },
+                { type: "music" as InspirationType, icon: Music, label: "Hudba" },
               ])
                 .filter(({ type }) => allowedTypes.includes(type))
                 .map(({ type, icon: Icon, label }) => (
@@ -616,7 +622,7 @@ export default function InspiraceContent({
               </div>
 
               {/* Author */}
-              {(selectedType === "book" || selectedType === "video" || selectedType === "article") && (
+              {(selectedType === "book" || selectedType === "video" || selectedType === "article" || selectedType === "music") && (
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-2">
                     Autor
@@ -695,6 +701,22 @@ export default function InspiraceContent({
                       className="mt-2 rounded-lg max-w-xs"
                     />
                   )}
+                </div>
+              )}
+
+              {/* Music: Zobrazit jako právě poslouchám */}
+              {selectedType === "music" && (
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="isCurrentListening"
+                    checked={formData.isCurrentListening ?? false}
+                    onChange={(e) => setFormData({ ...formData, isCurrentListening: e.target.checked })}
+                    className="w-4 h-4 rounded border-2 border-black/20 text-accent focus:ring-accent"
+                  />
+                  <label htmlFor="isCurrentListening" className="text-sm font-medium text-foreground">
+                    Zobrazit jako „Co právě poslouchám“ (jen jedna skladba)
+                  </label>
                 </div>
               )}
 

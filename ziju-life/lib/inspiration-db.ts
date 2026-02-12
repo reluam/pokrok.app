@@ -23,6 +23,7 @@ export async function getInspirationData(includeInactive: boolean = true): Promi
       books: [],
       articles: [],
       other: [],
+      music: [],
     }
 
     for (const item of items) {
@@ -37,6 +38,7 @@ export async function getInspirationData(includeInactive: boolean = true): Promi
         thumbnail: item.thumbnail || undefined,
         imageUrl: item.image_url || undefined,
         isActive: item.is_active ?? true,
+        isCurrentListening: item.is_current_listening ?? false,
         createdAt: item.created_at.toISOString(),
         updatedAt: item.updated_at.toISOString(),
       }
@@ -57,6 +59,9 @@ export async function getInspirationData(includeInactive: boolean = true): Promi
         case 'other':
           result.other.push(inspirationItem)
           break
+        case 'music':
+          result.music.push(inspirationItem)
+          break
       }
     }
 
@@ -69,6 +74,7 @@ export async function getInspirationData(includeInactive: boolean = true): Promi
       books: [],
       articles: [],
       other: [],
+      music: [],
     }
   }
 }
@@ -80,9 +86,14 @@ export async function addInspirationItem(
   const id = Date.now().toString()
   const now = new Date()
 
+  // When adding music with isCurrentListening=true, unset others
+  if (type === 'music' && item.isCurrentListening === true) {
+    await sql`UPDATE inspirations SET is_current_listening = false WHERE type = 'music'`
+  }
+
   await sql`
     INSERT INTO inspirations (
-      id, type, title, description, url, author, content, thumbnail, image_url, is_active, created_at, updated_at
+      id, type, title, description, url, author, content, thumbnail, image_url, is_active, is_current_listening, created_at, updated_at
     ) VALUES (
       ${id},
       ${type},
@@ -94,6 +105,7 @@ export async function addInspirationItem(
       ${item.thumbnail || null},
       ${item.imageUrl || null},
       ${item.isActive ?? true},
+      ${item.isCurrentListening ?? false},
       ${now},
       ${now}
     )
@@ -104,6 +116,7 @@ export async function addInspirationItem(
     id,
     type,
     isActive: item.isActive ?? true,
+    isCurrentListening: item.isCurrentListening ?? false,
     createdAt: now.toISOString(),
     updatedAt: now.toISOString(),
   }
@@ -127,8 +140,16 @@ export async function updateInspirationItem(
   }
 
   const currentItem = current[0]
+  const itemUpdates = updates as Partial<InspirationItem>
 
-  // Update with provided values or keep current
+  // When setting isCurrentListening=true for music, unset others (only one can be "právě poslouchám")
+  if (type === 'music' && itemUpdates.isCurrentListening === true) {
+    await sql`
+      UPDATE inspirations SET is_current_listening = false
+      WHERE type = 'music' AND id != ${id}
+    `
+  }
+
   const result = await sql`
     UPDATE inspirations
     SET 
@@ -138,8 +159,9 @@ export async function updateInspirationItem(
       author = ${updates.author ?? currentItem.author},
       content = ${updates.content ?? currentItem.content},
       thumbnail = ${updates.thumbnail ?? currentItem.thumbnail},
-      image_url = ${(updates as Partial<InspirationItem>).imageUrl ?? currentItem.image_url ?? null},
+      image_url = ${itemUpdates.imageUrl ?? currentItem.image_url ?? null},
       is_active = ${updates.isActive !== undefined ? updates.isActive : (currentItem.is_active ?? true)},
+      is_current_listening = ${itemUpdates.isCurrentListening !== undefined ? itemUpdates.isCurrentListening : (currentItem.is_current_listening ?? false)},
       updated_at = ${now}
     WHERE id = ${id} AND type = ${type}
     RETURNING *
@@ -161,6 +183,7 @@ export async function updateInspirationItem(
     thumbnail: item.thumbnail || undefined,
     imageUrl: item.image_url || undefined,
     isActive: item.is_active ?? true,
+    isCurrentListening: item.is_current_listening ?? false,
     createdAt: item.created_at.toISOString(),
     updatedAt: item.updated_at.toISOString(),
   }

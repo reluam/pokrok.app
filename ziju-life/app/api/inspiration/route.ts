@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { type, ...item } = body
 
-    if (!type || !['blog', 'video', 'book', 'article', 'other'].includes(type)) {
+    if (!type || !['blog', 'video', 'book', 'article', 'other', 'music'].includes(type)) {
       return NextResponse.json(
         { error: 'Invalid type' },
         { status: 400 }

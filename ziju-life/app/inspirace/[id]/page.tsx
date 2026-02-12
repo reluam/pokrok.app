@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Book, Video, FileText, PenTool, HelpCircle } from "lucide-react";
+import { ArrowLeft, Book, Video, FileText, PenTool, HelpCircle, Music } from "lucide-react";
 import { SelectionShareBar } from "@/components/SelectionShareBar";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -15,6 +15,7 @@ const getTypeIcon = (type: string) => {
     case "book": return Book;
     case "article": return FileText;
     case "other": return HelpCircle;
+    case "music": return Music;
     default: return FileText;
   }
 };
@@ -84,6 +85,7 @@ export default function InspiraceDetailPage() {
         ...data.books,
         ...data.articles,
         ...data.other,
+        ...(data.music || []),
       ].filter((i: InspirationItem) => i.isActive !== false); // Only show active items
       
       const foundItem = allItems.find((i: InspirationItem) => i.id === params.id);
@@ -122,7 +124,7 @@ export default function InspiraceDetailPage() {
   }
 
   const Icon = getTypeIcon(item.type);
-  const videoEmbedUrl = item.type === "video" ? getVideoEmbedUrl(item.url) : null;
+  const videoEmbedUrl = (item.type === "video" || item.type === "music") ? getVideoEmbedUrl(item.url) : null;
   const videoThumbnail = item.type === "video" && !videoEmbedUrl ? (item.thumbnail || getVideoThumbnail(item.url)) : null;
 
   return (
@@ -142,7 +144,8 @@ export default function InspiraceDetailPage() {
             {item.type === "blog" ? "Blog" : 
              item.type === "video" ? "Video" : 
              item.type === "book" ? "Kniha" : 
-             item.type === "article" ? "Článek" : "Ostatní"}
+             item.type === "article" ? "Článek" : 
+             item.type === "music" ? "Hudba" : "Ostatní"}
           </span>
         </div>
 
@@ -179,8 +182,8 @@ export default function InspiraceDetailPage() {
           </a>
         )}
 
-        {/* Video Embed */}
-        {item.type === "video" && videoEmbedUrl && (
+        {/* Music / Video – YouTube embed */}
+        {(item.type === "music" || item.type === "video") && videoEmbedUrl && (
           <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black">
             <iframe
               src={videoEmbedUrl}
@@ -237,8 +240,21 @@ export default function InspiraceDetailPage() {
           </SelectionShareBar>
         )}
 
+        {/* Music bez YouTube – odkaz na přehrávač */}
+        {item.type === "music" && !videoEmbedUrl && item.url && (
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-white rounded-full font-semibold hover:bg-accent-hover transition-colors"
+          >
+            Otevřít v přehrávači
+            <span aria-hidden>→</span>
+          </a>
+        )}
+
         {/* Tlačítko pro otevření partnerské / externí stránky */}
-        {item.type !== "blog" && item.type !== "video" && item.url && (
+        {item.type !== "blog" && item.type !== "video" && item.type !== "music" && item.url && (
           <a
             href={item.url}
             target="_blank"

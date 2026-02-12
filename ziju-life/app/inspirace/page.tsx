@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { InspirationData, InspirationItem } from "@/lib/inspiration";
 import type { NewsletterCampaign } from "@/lib/newsletter-campaigns-db";
-import { Book, Video, FileText, PenTool, HelpCircle, Mail } from "lucide-react";
+import { Book, Video, FileText, PenTool, HelpCircle, Mail, Music } from "lucide-react";
 
-type FilterType = "clanky" | "knihy" | "videa" | "ostatni";
+type FilterType = "clanky" | "knihy" | "videa" | "ostatni" | "hudba";
 
 const getTypeLabel = (type: string): string => {
   switch (type) {
@@ -15,6 +15,7 @@ const getTypeLabel = (type: string): string => {
     case "book": return "Kniha";
     case "article": return "Článek";
     case "other": return "Ostatní";
+    case "music": return "Hudba";
     case "newsletter": return "Newsletter";
     default: return type;
   }
@@ -27,6 +28,7 @@ const getTypeIcon = (type: string) => {
     case "book": return Book;
     case "article": return FileText;
     case "other": return HelpCircle;
+    case "music": return Music;
     case "newsletter": return Mail;
     default: return FileText;
   }
@@ -49,6 +51,12 @@ const getVideoThumbnail = (url: string): string | null => {
   return null;
 };
 
+const getYouTubeEmbedUrl = (url: string): string | null => {
+  const videoId = getVideoId(url);
+  if (!videoId || (!url.includes("youtube.com") && !url.includes("youtu.be"))) return null;
+  return `https://www.youtube.com/embed/${videoId}`;
+};
+
 interface DisplayItem {
   id: string;
   type: string;
@@ -63,10 +71,11 @@ interface DisplayItem {
   sentAt?: string;
 }
 
-const FILTERS: { value: FilterType; label: string }[] = [
+const TYPE_FILTERS: { value: FilterType; label: string }[] = [
   { value: "clanky", label: "Články" },
   { value: "knihy", label: "Knihy" },
   { value: "videa", label: "Videa" },
+  { value: "hudba", label: "Hudba" },
   { value: "ostatni", label: "Ostatní" },
 ];
 
@@ -116,6 +125,18 @@ function renderItemCard(
             />
           </div>
         )}
+        {item.type === "music" && (item.thumbnail || getVideoThumbnail(item.url)) && (
+          <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black mb-4">
+            <img
+              src={item.thumbnail || getVideoThumbnail(item.url)!}
+              alt={item.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+              <Music className="w-12 h-12 text-white" />
+            </div>
+          </div>
+        )}
         <div className="flex items-center gap-2">
           <Icon className="text-accent" size={18} />
           <span className="inline-block px-3 py-1 bg-accent/10 text-accent text-sm font-semibold rounded-full border border-accent/20">
@@ -139,7 +160,7 @@ export default function InspiracePage() {
   const [inspirationData, setInspirationData] = useState<InspirationData | null>(null);
   const [newsletters, setNewsletters] = useState<NewsletterCampaign[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<FilterType | null>(null);
+  const [filter, setFilter] = useState<FilterType | "vse">("vse");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -159,10 +180,53 @@ export default function InspiracePage() {
     fetchData();
   }, []);
 
+  const getMusicItems = (): DisplayItem[] => {
+    const items: DisplayItem[] = [];
+    if (!inspirationData?.music) return items;
+    (inspirationData.music)
+      .filter((i) => i.isActive !== false)
+      .forEach((item) => {
+        items.push({
+          id: item.id,
+          type: "music",
+          title: item.title,
+          description: item.description,
+          author: item.author,
+          thumbnail: item.thumbnail,
+          imageUrl: (item as InspirationItem).imageUrl,
+          url: item.url,
+          href: `/inspirace/${item.id}`,
+          createdAt: item.createdAt,
+        });
+      });
+    return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  };
+
+  const getCurrentListeningMusic = (): DisplayItem | null => {
+    if (!inspirationData?.music) return null;
+    const current = inspirationData.music.find(
+      (i) => i.isActive !== false && (i as InspirationItem & { isCurrentListening?: boolean }).isCurrentListening === true
+    );
+    if (!current) return null;
+    return {
+      id: current.id,
+      type: "music",
+      title: current.title,
+      description: current.description,
+      author: current.author,
+      thumbnail: current.thumbnail,
+      imageUrl: (current as InspirationItem).imageUrl,
+      url: current.url,
+      href: `/inspirace/${current.id}`,
+      createdAt: current.createdAt,
+    };
+  };
+
   const getInspiraceItems = (): DisplayItem[] => {
     const items: DisplayItem[] = [];
     if (!inspirationData) return items;
 
+    // Doporučení: video, book, article, other – BEZ hudby
     const inspiraceTypes = ["video", "book", "article", "other"] as const;
     for (const type of inspiraceTypes) {
       const arr = inspirationData[type === "video" ? "videos" : type === "book" ? "books" : type === "article" ? "articles" : "other"];
@@ -237,24 +301,27 @@ export default function InspiracePage() {
   const getFilteredItems = (): DisplayItem[] => {
     const inspirace = getInspiraceItems();
     const blog = getBlogItems();
-    const all = [...inspirace, ...blog];
-    if (filter === null) return all;
+    const music = getMusicItems();
+    const all = [...inspirace, ...blog, ...music];
+    if (filter === "vse" || filter === null) return all;
     if (filter === "clanky") return all.filter((i) => i.type === "blog" || i.type === "newsletter");
     if (filter === "knihy") return all.filter((i) => i.type === "book");
     if (filter === "videa") return all.filter((i) => i.type === "video");
+    if (filter === "hudba") return music;
     if (filter === "ostatni") return all.filter((i) => i.type === "article" || i.type === "other");
     return all;
   };
 
   const inspiraceItems = getInspiraceItems();
   const blogItems = getBlogItems();
+  const currentListening = getCurrentListeningMusic();
   const filteredItems = getFilteredItems();
 
   const handleFilterClick = (f: FilterType) => {
-    setFilter((prev) => (prev === f ? null : f));
+    setFilter((prev) => (prev === f ? "vse" : f));
   };
 
-  const showSplitLayout = filter === null;
+  const showSplitLayout = filter === "vse" || filter === null;
 
   if (loading) {
     return (
@@ -278,9 +345,20 @@ export default function InspiracePage() {
           </p>
         </div>
 
-        {/* Filtry */}
+        {/* Filtry: Vše | Články Knihy Videa Hudba Ostatní */}
         <div className="flex flex-wrap items-center justify-center gap-2">
-          {FILTERS.map((f) => (
+          <button
+            onClick={() => setFilter("vse")}
+            className={`px-5 py-2.5 rounded-full font-semibold transition-colors ${
+              filter === "vse" || filter === null
+                ? "bg-accent text-white"
+                : "bg-white border-2 border-black/10 hover:border-accent hover:text-accent"
+            }`}
+          >
+            Vše
+          </button>
+          <span className="hidden sm:inline w-px h-6 bg-black/15" aria-hidden />
+          {TYPE_FILTERS.map((f) => (
             <button
               key={f.value}
               onClick={() => handleFilterClick(f.value)}
@@ -309,6 +387,57 @@ export default function InspiracePage() {
               </div>
             </div>
             <div className="space-y-6">
+              {/* Co právě poslouchám – jeden vybraný song s YouTube playerem */}
+              {currentListening && (
+                <div className="space-y-3">
+                  <h2 className="text-2xl font-bold text-foreground">Co právě poslouchám</h2>
+                  <div className="rounded-2xl overflow-hidden border-2 border-black/5 bg-white">
+                    {getYouTubeEmbedUrl(currentListening.url) ? (
+                      <>
+                        <div className="relative w-full aspect-video">
+                          <iframe
+                            src={getYouTubeEmbedUrl(currentListening.url)!}
+                            className="absolute inset-0 w-full h-full"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            title={currentListening.title}
+                          />
+                        </div>
+                        <div className="p-4 border-t border-black/5">
+                          <h3 className="font-bold text-foreground">{currentListening.title}</h3>
+                          {currentListening.author && (
+                            <p className="text-sm text-foreground/60">{currentListening.author}</p>
+                          )}
+                          <button
+                            onClick={() => router.push(currentListening.href)}
+                            className="mt-2 text-sm text-accent font-semibold hover:underline"
+                          >
+                            Detail →
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <a
+                        href={currentListening.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block p-4 hover:bg-black/5 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Music className="text-accent flex-shrink-0" size={28} />
+                          <div>
+                            <h3 className="font-bold text-foreground">{currentListening.title}</h3>
+                            {currentListening.author && (
+                              <p className="text-sm text-foreground/60">{currentListening.author}</p>
+                            )}
+                            <span className="text-sm text-accent font-semibold">Otevřít v přehrávači →</span>
+                          </div>
+                        </div>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
               <h2 className="text-2xl font-bold text-foreground">Články</h2>
               <div className="flex flex-col gap-4">
                 {blogItems.length === 0 ? (

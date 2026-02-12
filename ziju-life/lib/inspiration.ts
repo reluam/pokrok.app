@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
 
-export type InspirationType = 'blog' | 'video' | 'book' | 'article' | 'other'
+export type InspirationType = 'blog' | 'video' | 'book' | 'article' | 'other' | 'music'
 
 export interface InspirationItem {
   id: string
@@ -14,6 +14,7 @@ export interface InspirationItem {
   thumbnail?: string // For videos
   imageUrl?: string // For books – obálka knihy (klik vede na url)
   isActive?: boolean // Whether the inspiration is visible on the website
+  isCurrentListening?: boolean // For music – zobrazit v sekci Co právě poslouchám (jen jeden)
   createdAt: string
   updatedAt: string
 }
@@ -24,6 +25,7 @@ export interface InspirationData {
   books: InspirationItem[]
   articles: InspirationItem[]
   other: InspirationItem[]
+  music: InspirationItem[]
 }
 
 const DATA_FILE = join(process.cwd(), 'data', 'inspiration.json')
@@ -40,6 +42,7 @@ export async function getInspirationData(): Promise<InspirationData> {
       books: [],
       articles: [],
       other: [],
+      music: [],
     }
   }
 }
@@ -69,7 +72,8 @@ export async function addInspirationItem(
   const category = type === 'blog' ? 'blogs' : 
                    type === 'video' ? 'videos' : 
                    type === 'book' ? 'books' : 
-                   type === 'article' ? 'articles' : 'other'
+                   type === 'article' ? 'articles' : 
+                   type === 'music' ? 'music' : 'other'
 
   data[category].push(newItem)
   await saveInspirationData(data)
@@ -85,7 +89,8 @@ export async function updateInspirationItem(
   const category = type === 'blog' ? 'blogs' : 
                    type === 'video' ? 'videos' : 
                    type === 'book' ? 'books' : 
-                   type === 'article' ? 'articles' : 'other'
+                   type === 'article' ? 'articles' : 
+                   type === 'music' ? 'music' : 'other'
 
   const index = data[category].findIndex(item => item.id === id)
   if (index === -1) return null
@@ -108,7 +113,8 @@ export async function deleteInspirationItem(
   const category = type === 'blog' ? 'blogs' : 
                    type === 'video' ? 'videos' : 
                    type === 'book' ? 'books' : 
-                   type === 'article' ? 'articles' : 'other'
+                   type === 'article' ? 'articles' : 
+                   type === 'music' ? 'music' : 'other'
 
   const index = data[category].findIndex(item => item.id === id)
   if (index === -1) return false
