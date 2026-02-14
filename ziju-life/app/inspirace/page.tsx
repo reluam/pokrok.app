@@ -143,7 +143,7 @@ function renderItemCard(
             {getTypeLabel(item.type)}
           </span>
         </div>
-        <h3 className="text-xl font-bold text-foreground">{item.title}</h3>
+        <h3 className="text-xl font-semibold text-foreground">{item.title}</h3>
         {item.author && (
           <p className="text-sm text-foreground/60">Autor: {item.author}</p>
         )}
@@ -377,7 +377,7 @@ export default function InspiracePage() {
           /* Split layout: inspirace vlevo, články vpravo */
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
             <div className="lg:col-span-2 space-y-6">
-              <h2 className="text-2xl font-bold text-foreground">Doporučení</h2>
+              <h2 className="text-2xl font-semibold text-foreground">Knihovna</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {inspiraceItems.length === 0 ? (
                   <p className="text-foreground/60 col-span-full">Zatím žádná doporučení.</p>
@@ -390,7 +390,7 @@ export default function InspiracePage() {
               {/* Co právě poslouchám – jeden vybraný song s YouTube playerem */}
               {currentListening && (
                 <div className="space-y-3">
-                  <h2 className="text-2xl font-bold text-foreground">Co právě poslouchám</h2>
+                  <h2 className="text-2xl font-semibold text-foreground">Co právě poslouchám</h2>
                   <div className="rounded-2xl overflow-hidden border-2 border-black/5 bg-white">
                     {getYouTubeEmbedUrl(currentListening.url) ? (
                       <>
@@ -404,7 +404,7 @@ export default function InspiracePage() {
                           />
                         </div>
                         <div className="p-4 border-t border-black/5">
-                          <h3 className="font-bold text-foreground">{currentListening.title}</h3>
+                          <h3 className="font-semibold text-foreground">{currentListening.title}</h3>
                           {currentListening.author && (
                             <p className="text-sm text-foreground/60">{currentListening.author}</p>
                           )}
@@ -426,7 +426,7 @@ export default function InspiracePage() {
                         <div className="flex items-center gap-3">
                           <Music className="text-accent flex-shrink-0" size={28} />
                           <div>
-                            <h3 className="font-bold text-foreground">{currentListening.title}</h3>
+                            <h3 className="font-semibold text-foreground">{currentListening.title}</h3>
                             {currentListening.author && (
                               <p className="text-sm text-foreground/60">{currentListening.author}</p>
                             )}
@@ -438,7 +438,7 @@ export default function InspiracePage() {
                   </div>
                 </div>
               )}
-              <h2 className="text-2xl font-bold text-foreground">Články</h2>
+              <h2 className="text-2xl font-semibold text-foreground">Články</h2>
               <div className="flex flex-col gap-4">
                 {blogItems.length === 0 ? (
                   <p className="text-foreground/60">Zatím žádné články.</p>
