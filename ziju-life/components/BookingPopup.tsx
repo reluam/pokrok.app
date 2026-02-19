@@ -5,7 +5,7 @@ import { createContext, useCallback, useContext, useState } from "react";
 /** URL iframe pro rezervaci. Výchozí: Talentino. Přepsat v .env.local: NEXT_PUBLIC_BOOKING_EMBED_URL */
 const BOOKING_EMBED_URL =
   process.env.NEXT_PUBLIC_BOOKING_EMBED_URL ||
-  "https://talentino.app/book/matej/15-minutova-konzultace-zdarma?embed=1";
+  "https://talentino.app/book/matej/30-minutova-konzultace-zdarma?embed=1";
 
 type BookingPopupContextValue = {
   openBookingPopup: () => void;
