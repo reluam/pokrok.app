@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
 export const metadata = {
@@ -9,9 +10,11 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="cs">
-      <body className="min-h-screen bg-slate-50 text-slate-900">
-        {children}
-      </body>
+      <ClerkProvider>
+        <body className="min-h-screen bg-slate-50 text-slate-900">
+          {children}
+        </body>
+      </ClerkProvider>
     </html>
   );
 }

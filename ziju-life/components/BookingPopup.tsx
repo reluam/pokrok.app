@@ -2,7 +2,10 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
-/** Cal.eu booking link: "username/event-slug". Nastav v .env.local: NEXT_PUBLIC_CAL_LINK */
+/** CCCP booking URL. Nastav v .env.local: NEXT_PUBLIC_CCCP_BOOKING_URL */
+const CCCP_BOOKING_URL = process.env.NEXT_PUBLIC_CCCP_BOOKING_URL || null;
+
+/** Fallback: Cal.eu booking link: "username/event-slug". Nastav v .env.local: NEXT_PUBLIC_CAL_LINK */
 const CAL_LINK = process.env.NEXT_PUBLIC_CAL_LINK || "matej-mauler/30min";
 const CAL_EU_BASE_URL = "https://cal.eu";
 
@@ -31,7 +34,7 @@ export function BookingPopupProvider({ children }: { children: React.ReactNode }
   return (
     <BookingPopupContext.Provider value={{ openBookingPopup, closeBookingPopup }}>
       {children}
-      <CalEuModal
+      <BookingModal
         isOpen={isOpen}
         onClose={closeBookingPopup}
         bookingLink={CAL_LINK}
@@ -40,7 +43,7 @@ export function BookingPopupProvider({ children }: { children: React.ReactNode }
   );
 }
 
-function CalEuModal({
+function BookingModal({
   isOpen,
   onClose,
   bookingLink,
@@ -51,7 +54,11 @@ function CalEuModal({
 }) {
   if (!isOpen) return null;
 
-  const bookingUrl = `${CAL_EU_BASE_URL}/${bookingLink}?embed=true&layout=month_view`;
+  // Use CCCP booking if configured, otherwise fallback to Cal.eu
+  const useCccp = CCCP_BOOKING_URL !== null;
+  const bookingUrl = useCccp
+    ? CCCP_BOOKING_URL
+    : `${CAL_EU_BASE_URL}/${bookingLink}?embed=true&layout=month_view`;
 
   return (
     <div
@@ -92,7 +99,7 @@ function CalEuModal({
         <div className="flex-1 min-h-0 relative">
           <iframe
             src={bookingUrl}
-            title="Rezervace termínu – cal.eu"
+            title={useCccp ? "Rezervace termínu – Coach CRM" : "Rezervace termínu – cal.eu"}
             className="absolute inset-0 w-full h-full border-0"
             allow="camera; microphone; geolocation"
           />

@@ -1,3 +1,7 @@
+"use client";
+
+import { SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
+
 export default function HomePage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-sky-50 via-slate-50 to-emerald-50">
@@ -9,12 +13,21 @@ export default function HomePage() {
           Nová oddělená appka pro leady, klienty a schůzky.
         </p>
         <div className="mt-6 flex gap-3">
-          <a
-            href="/login"
-            className="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800"
-          >
-            Přihlásit se
-          </a>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button className="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800">
+                Přihlásit se
+              </button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <a
+              href="/crm"
+              className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-500"
+            >
+              Přejít do CRM
+            </a>
+          </SignedIn>
           <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
             MVP / vlastní DB (Neon)
           </span>
