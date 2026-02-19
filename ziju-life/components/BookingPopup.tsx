@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
-/** CCCP booking URL. Nastav v .env.local: NEXT_PUBLIC_CCCP_BOOKING_URL */
+/** Náš kalendář (CCCP). Nastav v .env.local: NEXT_PUBLIC_CCCP_BOOKING_URL (např. https://talentino.app/book) */
 const CCCP_BOOKING_URL = process.env.NEXT_PUBLIC_CCCP_BOOKING_URL || null;
 
 /** Fallback: Cal.eu booking link: "username/event-slug". Nastav v .env.local: NEXT_PUBLIC_CAL_LINK */

@@ -119,16 +119,20 @@ export default function SettingsContent() {
         </div>
       </section>
 
-      {/* Cal.com */}
+      {/* Rezervace termínů: náš kalendář (CCCP) nebo Cal.eu */}
       <section className="bg-white rounded-2xl p-6 border-2 border-black/10">
-        <h3 className="text-xl font-bold text-foreground mb-4">Cal.com / cal.eu</h3>
-        <p className="text-sm text-foreground/60 mb-6">
-          Booking link pro rezervace termínů (formát: username/event-slug).
+        <h3 className="text-xl font-bold text-foreground mb-4">Rezervace termínů</h3>
+        <p className="text-sm text-foreground/60 mb-4">
+          Na webu žiju life se po odeslání formuláře otevře rezervační stránka. Můžeš použít:
         </p>
+        <ul className="list-disc list-inside text-sm text-foreground/70 mb-4 space-y-1">
+          <li><strong>Náš kalendář (CCCP)</strong> – vlastní rezervační systém z Coach CRM. V .env.local nastav <code className="bg-black/5 px-1 rounded">NEXT_PUBLIC_CCCP_BOOKING_URL=https://tvoje-cccp-domain.cz/book</code>. Pak se použije místo Cal.eu.</li>
+          <li><strong>Cal.com / cal.eu</strong> – fallback, pokud CCCP URL není nastaveno. Zadej Cal link níže (formát: username/event-slug).</li>
+        </ul>
 
         <div>
           <label htmlFor="cal-link" className="block text-sm font-medium text-foreground mb-2">
-            Cal Link
+            Cal.com link (fallback)
           </label>
           <input
             id="cal-link"
@@ -139,7 +143,7 @@ export default function SettingsContent() {
             className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white"
           />
           <p className="text-xs text-foreground/50 mt-1">
-            Použije se jako NEXT_PUBLIC_CAL_LINK v aplikaci.
+            Použije se jako NEXT_PUBLIC_CAL_LINK jen když není nastaveno NEXT_PUBLIC_CCCP_BOOKING_URL.
           </p>
         </div>
       </section>
