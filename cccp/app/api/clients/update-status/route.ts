@@ -26,13 +26,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
   }
 
-  const rows =
-    await sql<{ lead_id: string | null }[]>`
-      UPDATE clients
-      SET status = ${status}, updated_at = NOW()
-      WHERE id = ${id}
-      RETURNING lead_id
-    `;
+  const rows = (await sql`
+    UPDATE clients
+    SET status = ${status}, updated_at = NOW()
+    WHERE id = ${id}
+    RETURNING lead_id
+  `) as { lead_id: string | null }[];
 
   const leadId = rows[0]?.lead_id;
 

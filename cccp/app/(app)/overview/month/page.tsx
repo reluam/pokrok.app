@@ -21,7 +21,7 @@ type Lead = {
 };
 
 async function getMonthSessions(): Promise<Session[]> {
-  const rows = await sql<Session[]>`
+  const rows = await sql`
     SELECT
       s.id,
       s.title,
@@ -35,11 +35,11 @@ async function getMonthSessions(): Promise<Session[]> {
     ORDER BY s.scheduled_at ASC
   `;
 
-  return rows;
+  return rows as Session[];
 }
 
 async function getMonthBookings(): Promise<Booking[]> {
-  const rows = await sql<Booking[]>`
+  const rows = await sql`
     SELECT id, scheduled_at, name
     FROM bookings
     WHERE status != 'cancelled'
@@ -47,11 +47,11 @@ async function getMonthBookings(): Promise<Booking[]> {
       AND scheduled_at::date < (date_trunc('month', CURRENT_DATE) + INTERVAL '1 month')
     ORDER BY scheduled_at ASC
   `;
-  return rows;
+  return rows as Booking[];
 }
 
 async function getMonthLeads(): Promise<Lead[]> {
-  const rows = await sql<Lead[]>`
+  const rows = await sql`
     SELECT id, name, email, status
     FROM leads
     WHERE (created_at::date >= date_trunc('month', CURRENT_DATE)
@@ -62,7 +62,7 @@ async function getMonthLeads(): Promise<Lead[]> {
     LIMIT 100
   `;
 
-  return rows;
+  return rows as Lead[];
 }
 
 export default async function OverviewMonthPage() {

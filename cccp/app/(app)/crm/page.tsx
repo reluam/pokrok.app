@@ -4,21 +4,21 @@ import { CrmBoard } from "../../../components/CrmBoard";
 import type { Lead, LeadStatus } from "../../../lib/leads";
 
 async function getLeads(): Promise<Lead[]> {
-  const rows = await sql<Lead[]>`
+  const rows = await sql`
     SELECT id, email, name, source, status, notes, created_at
     FROM leads
     ORDER BY created_at DESC
   `;
 
-  return rows;
+  return rows as Lead[];
 }
 
 async function getLeadIdsWithBooking(): Promise<string[]> {
-  const rows = await sql<{ lead_id: string }[]>`
+  const rows = await sql`
     SELECT lead_id FROM bookings
     WHERE lead_id IS NOT NULL AND status IN ('pending', 'confirmed')
   `;
-  return rows.map((r) => r.lead_id);
+  return (rows as { lead_id: string }[]).map((r) => r.lead_id);
 }
 
 async function createLead(formData: FormData) {

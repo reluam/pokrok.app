@@ -122,11 +122,11 @@ export async function getAvailableSlots(
   fromDate: string,
   toDate: string
 ): Promise<Slot[]> {
-  const windows = await sql<WeeklyAvailabilityRow[]>`
+  const windows = (await sql`
     SELECT id, day_of_week, start_time::text, end_time::text, slot_duration_minutes
     FROM weekly_availability
     ORDER BY day_of_week, start_time
-  `;
+  `) as WeeklyAvailabilityRow[];
 
   if (windows.length === 0) {
     return [];
@@ -136,14 +136,14 @@ export async function getAvailableSlots(
   const to = new Date(toDate + "T23:59:59Z");
 
   const [bookingsRows, sessionsRows] = await Promise.all([
-    sql<{ scheduled_at: string; duration_minutes: number }[]>`
+    sql`
       SELECT scheduled_at, duration_minutes
       FROM bookings
       WHERE status != 'cancelled'
         AND scheduled_at >= ${from.toISOString()}
         AND scheduled_at <= ${to.toISOString()}
     `,
-    sql<{ scheduled_at: string; duration_minutes: number | null }[]>`
+    sql`
       SELECT scheduled_at, duration_minutes
       FROM sessions
       WHERE scheduled_at IS NOT NULL
@@ -152,13 +152,16 @@ export async function getAvailableSlots(
     `,
   ]);
 
+  const bookingsList = bookingsRows as { scheduled_at: string; duration_minutes: number }[];
+  const sessionsList = sessionsRows as { scheduled_at: string; duration_minutes: number | null }[];
+
   const blockedRanges: { start: number; end: number }[] = [];
-  for (const b of bookingsRows) {
+  for (const b of bookingsList) {
     const start = new Date(b.scheduled_at).getTime();
     const dur = (b.duration_minutes ?? 30) * 60 * 1000;
     blockedRanges.push({ start, end: start + dur });
   }
-  for (const s of sessionsRows) {
+  for (const s of sessionsList) {
     const start = new Date(s.scheduled_at).getTime();
     const dur = (s.duration_minutes ?? 30) * 60 * 1000;
     blockedRanges.push({ start, end: start + dur });
@@ -200,15 +203,15 @@ export async function isSlotFree(
   const startISO = new Date(start).toISOString();
   const endISO = new Date(end - 1).toISOString();
 
-  const [bookings, sessions] = await Promise.all([
-    sql<{ scheduled_at: string; duration_minutes: number }[]>`
+  const [bookingsRaw, sessionsRaw] = await Promise.all([
+    sql`
       SELECT scheduled_at, duration_minutes
       FROM bookings
       WHERE status != 'cancelled'
         AND scheduled_at < ${endISO}
         AND scheduled_at + (COALESCE(duration_minutes, 30) * interval '1 minute') > ${startISO}
     `,
-    sql<{ scheduled_at: string; duration_minutes: number | null }[]>`
+    sql`
       SELECT scheduled_at, duration_minutes
       FROM sessions
       WHERE scheduled_at IS NOT NULL
@@ -216,6 +219,9 @@ export async function isSlotFree(
         AND scheduled_at + (COALESCE(duration_minutes, 30) * interval '1 minute') > ${startISO}
     `,
   ]);
+
+  const bookings = bookingsRaw as { scheduled_at: string; duration_minutes: number }[];
+  const sessions = sessionsRaw as { scheduled_at: string; duration_minutes: number | null }[];
 
   for (const b of bookings) {
     const bStart = new Date(b.scheduled_at).getTime();

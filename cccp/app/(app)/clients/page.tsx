@@ -11,13 +11,13 @@ type Client = {
 };
 
 async function getClients(): Promise<Client[]> {
-  const rows = await sql<Client[]>`
+  const rows = await sql`
     SELECT id, lead_id, name, email, status, created_at
     FROM clients
     ORDER BY status ASC, created_at DESC
   `;
 
-  return rows;
+  return rows as Client[];
 }
 
 export default async function ClientsPage() {

@@ -22,7 +22,7 @@ type Lead = {
 };
 
 async function getWeekSessions(): Promise<Session[]> {
-  const rows = await sql<Session[]>`
+  const rows = await sql`
     SELECT
       s.id,
       s.title,
@@ -36,11 +36,11 @@ async function getWeekSessions(): Promise<Session[]> {
     ORDER BY s.scheduled_at ASC
   `;
 
-  return rows;
+  return rows as Session[];
 }
 
 async function getWeekBookings(): Promise<Booking[]> {
-  const rows = await sql<Booking[]>`
+  const rows = await sql`
     SELECT id, scheduled_at, name, email
     FROM bookings
     WHERE status != 'cancelled'
@@ -48,11 +48,11 @@ async function getWeekBookings(): Promise<Booking[]> {
       AND scheduled_at::date < date_trunc('week', CURRENT_DATE) + INTERVAL '7 days'
     ORDER BY scheduled_at ASC
   `;
-  return rows;
+  return rows as Booking[];
 }
 
 async function getWeekLeads(): Promise<Lead[]> {
-  const rows = await sql<Lead[]>`
+  const rows = await sql`
     SELECT id, name, email, status
     FROM leads
     WHERE (created_at::date >= date_trunc('week', CURRENT_DATE)
@@ -63,7 +63,7 @@ async function getWeekLeads(): Promise<Lead[]> {
     LIMIT 50
   `;
 
-  return rows;
+  return rows as Lead[];
 }
 
 export default async function OverviewWeekPage() {

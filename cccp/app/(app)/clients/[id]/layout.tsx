@@ -9,12 +9,12 @@ type Client = {
 };
 
 async function getClient(id: string): Promise<Client | null> {
-  const rows = await sql<Client[]>`
+  const rows = (await sql`
     SELECT id, name, email
     FROM clients
     WHERE id = ${id}
     LIMIT 1
-  `;
+  `) as Client[];
 
   return rows[0] ?? null;
 }

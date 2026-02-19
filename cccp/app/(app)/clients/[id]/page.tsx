@@ -17,13 +17,13 @@ type SessionSummary = {
 
 async function getClientWithSummary(id: string) {
   const [clientRows, sessionRows] = await Promise.all([
-    sql<Client[]>`
+    sql`
       SELECT id, name, email, phone, main_goal, status
       FROM clients
       WHERE id = ${id}
       LIMIT 1
     `,
-    sql<SessionSummary[]>`
+    sql`
       SELECT id, title, scheduled_at
       FROM sessions
       WHERE client_id = ${id}
@@ -32,7 +32,9 @@ async function getClientWithSummary(id: string) {
     `
   ]);
 
-  return { client: clientRows[0] ?? null, sessions: sessionRows };
+  const clients = clientRows as Client[];
+  const sessions = sessionRows as SessionSummary[];
+  return { client: clients[0] ?? null, sessions };
 }
 
 export default async function ClientOverviewPage({

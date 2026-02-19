@@ -16,13 +16,13 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const rows = await sql<WeeklyAvailabilityItem[]>`
+  const rows = await sql`
     SELECT id, day_of_week, start_time::text AS start_time, end_time::text AS end_time, slot_duration_minutes
     FROM weekly_availability
     ORDER BY day_of_week, start_time
   `;
-
-  const list = rows.map((r) => ({
+  const typedRows = rows as WeeklyAvailabilityItem[];
+  const list = typedRows.map((r) => ({
     ...r,
     start_time: r.start_time?.slice(0, 5) ?? "",
     end_time: r.end_time?.slice(0, 5) ?? "",

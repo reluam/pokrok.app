@@ -19,7 +19,7 @@ type BookingRow = {
 };
 
 async function getUpcomingSessions(): Promise<SessionRow[]> {
-  const rows = await sql<SessionRow[]>`
+  const rows = await sql`
     SELECT
       s.id,
       s.client_id,
@@ -35,18 +35,18 @@ async function getUpcomingSessions(): Promise<SessionRow[]> {
     LIMIT 50
   `;
 
-  return rows;
+  return rows as SessionRow[];
 }
 
 async function getUpcomingBookings(): Promise<BookingRow[]> {
-  const rows = await sql<BookingRow[]>`
+  const rows = await sql`
     SELECT id, scheduled_at, duration_minutes, name, email
     FROM bookings
     WHERE status != 'cancelled'
     ORDER BY scheduled_at ASC
     LIMIT 50
   `;
-  return rows;
+  return rows as BookingRow[];
 }
 
 export default async function CalendarPage() {

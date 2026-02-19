@@ -68,9 +68,9 @@ export async function POST(request: Request) {
 
   try {
     let leadId: string | null = null;
-    const existingLead = await sql<{ id: string }[]>`
+    const existingLead = (await sql`
       SELECT id FROM leads WHERE LOWER(email) = ${email} LIMIT 1
-    `;
+    `) as { id: string }[];
     if (existingLead.length > 0) {
       leadId = existingLead[0].id;
       await sql`

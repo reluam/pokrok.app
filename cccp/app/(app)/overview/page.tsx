@@ -25,7 +25,7 @@ type TodayLead = {
 };
 
 async function getTodaySessions(): Promise<TodaySession[]> {
-  const rows = await sql<TodaySession[]>`
+  const rows = await sql`
     SELECT
       s.id,
       s.title,
@@ -39,22 +39,22 @@ async function getTodaySessions(): Promise<TodaySession[]> {
     ORDER BY s.scheduled_at ASC
   `;
 
-  return rows;
+  return rows as TodaySession[];
 }
 
 async function getTodayBookings(): Promise<TodayBooking[]> {
-  const rows = await sql<TodayBooking[]>`
+  const rows = await sql`
     SELECT id, scheduled_at, duration_minutes, name, email
     FROM bookings
     WHERE status != 'cancelled'
       AND scheduled_at::date = CURRENT_DATE
     ORDER BY scheduled_at ASC
   `;
-  return rows;
+  return rows as TodayBooking[];
 }
 
 async function getTodayLeadsActivities(): Promise<TodayLead[]> {
-  const rows = await sql<TodayLead[]>`
+  const rows = await sql`
     SELECT id, name, email, status, source
     FROM leads
     WHERE created_at::date = CURRENT_DATE
@@ -63,7 +63,7 @@ async function getTodayLeadsActivities(): Promise<TodayLead[]> {
     LIMIT 20
   `;
 
-  return rows;
+  return rows as TodayLead[];
 }
 
 export default async function OverviewPage() {
