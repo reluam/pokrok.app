@@ -1,19 +1,11 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 
-/** CCCP base URL (např. https://cccp.example.com/book). Nastav v .env.local: NEXT_PUBLIC_CCCP_BOOKING_URL */
-const CCCP_BOOKING_URL = process.env.NEXT_PUBLIC_CCCP_BOOKING_URL || null;
-
-/** Coach user ID (Clerk) pro rezervace z Žiju life. Nastav v .env.local: NEXT_PUBLIC_CCCP_COACH_ID */
-const CCCP_COACH_ID = process.env.NEXT_PUBLIC_CCCP_COACH_ID || "";
-
-/** Zdroj leadu (např. ziju-life). Volitelně v .env.local: NEXT_PUBLIC_CCCP_BOOKING_SOURCE */
-const CCCP_BOOKING_SOURCE = process.env.NEXT_PUBLIC_CCCP_BOOKING_SOURCE || "ziju-life";
-
-/** Fallback: Cal.eu booking link: "username/event-slug". Nastav v .env.local: NEXT_PUBLIC_CAL_LINK */
-const CAL_LINK = process.env.NEXT_PUBLIC_CAL_LINK || "matej-mauler/30min";
-const CAL_EU_BASE_URL = "https://cal.eu";
+/** URL iframe pro rezervaci. Výchozí: Talentino. Přepsat v .env.local: NEXT_PUBLIC_BOOKING_EMBED_URL */
+const BOOKING_EMBED_URL =
+  process.env.NEXT_PUBLIC_BOOKING_EMBED_URL ||
+  "https://talentino.app/book/matej/15-minutova-konzultace-zdarma?embed=1";
 
 type BookingPopupContextValue = {
   openBookingPopup: () => void;
@@ -40,36 +32,13 @@ export function BookingPopupProvider({ children }: { children: React.ReactNode }
   return (
     <BookingPopupContext.Provider value={{ openBookingPopup, closeBookingPopup }}>
       {children}
-      <BookingModal
-        isOpen={isOpen}
-        onClose={closeBookingPopup}
-        bookingLink={CAL_LINK}
-      />
+      <BookingModal isOpen={isOpen} onClose={closeBookingPopup} />
     </BookingPopupContext.Provider>
   );
 }
 
-function BookingModal({
-  isOpen,
-  onClose,
-  bookingLink,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  bookingLink: string;
-}) {
+function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   if (!isOpen) return null;
-
-  // Use CCCP booking if configured (with coach and source for multi-user and lead source), otherwise fallback to Cal.eu
-  const useCccp = CCCP_BOOKING_URL !== null && CCCP_COACH_ID !== "";
-  const bookingUrl = useCccp
-    ? (() => {
-        const url = new URL(CCCP_BOOKING_URL!);
-        url.searchParams.set("coach", CCCP_COACH_ID);
-        if (CCCP_BOOKING_SOURCE) url.searchParams.set("source", CCCP_BOOKING_SOURCE);
-        return url.toString();
-      })()
-    : `${CAL_EU_BASE_URL}/${bookingLink}?embed=true&layout=month_view`;
 
   return (
     <div
@@ -109,8 +78,8 @@ function BookingModal({
         </div>
         <div className="flex-1 min-h-0 relative">
           <iframe
-            src={bookingUrl}
-            title={useCccp ? "Rezervace termínu – Coach CRM" : "Rezervace termínu – cal.eu"}
+            src={BOOKING_EMBED_URL}
+            title="Rezervace"
             className="absolute inset-0 w-full h-full border-0"
             allow="camera; microphone; geolocation"
           />
