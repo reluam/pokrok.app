@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const leads = await sql<Lead[]>`
+    const leads = await sql`
       SELECT 
         id,
         email,
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
         updated_at::text as "updatedAt"
       FROM leads
       ORDER BY created_at DESC
-    `;
+    ` as Lead[];
 
     return NextResponse.json({ leads });
   } catch (error) {

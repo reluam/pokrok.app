@@ -5,7 +5,7 @@ import type { LeadStatus } from "@/lib/leads-db";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const isAuthenticated = await verifySession();
   if (!isAuthenticated) {
@@ -13,6 +13,7 @@ export async function PATCH(
   }
 
   try {
+    const { id } = await params;
     const body = await request.json();
     const { status } = body;
 
@@ -26,7 +27,7 @@ export async function PATCH(
     await sql`
       UPDATE leads
       SET status = ${status as LeadStatus}, updated_at = NOW()
-      WHERE id = ${params.id}
+      WHERE id = ${id}
     `;
 
     return NextResponse.json({ success: true });
