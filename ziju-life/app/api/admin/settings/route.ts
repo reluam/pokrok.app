@@ -9,26 +9,29 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Zkus najít settings v DB
-    const result = await sql`
-      SELECT notion_api_key, notion_database_id, cal_link
-      FROM admin_settings
-      LIMIT 1
-    `;
+    type Row = { notion_api_key: string | null; notion_database_id: string | null; cal_link: string | null; booking_embed_url?: string | null };
+    let result: Row[];
+    try {
+      result = await sql`SELECT notion_api_key, notion_database_id, cal_link, booking_embed_url FROM admin_settings LIMIT 1` as Row[];
+    } catch {
+      result = await sql`SELECT notion_api_key, notion_database_id, cal_link FROM admin_settings LIMIT 1` as Row[];
+    }
 
     if (result.length > 0) {
+      const row = result[0];
       return NextResponse.json({
-        notionApiKey: result[0].notion_api_key || process.env.NOTION_API_KEY || "",
-        notionDatabaseId: result[0].notion_database_id || process.env.NOTION_DATABASE_ID || "",
-        calLink: result[0].cal_link || process.env.NEXT_PUBLIC_CAL_LINK || "",
+        notionApiKey: row.notion_api_key || process.env.NOTION_API_KEY || "",
+        notionDatabaseId: row.notion_database_id || process.env.NOTION_DATABASE_ID || "",
+        calLink: row.cal_link || process.env.NEXT_PUBLIC_CAL_LINK || "",
+        bookingEmbedUrl: row.booking_embed_url ?? process.env.NEXT_PUBLIC_BOOKING_EMBED_URL ?? "",
       });
     }
 
-    // Pokud není v DB, vrať z .env (maskované)
     return NextResponse.json({
       notionApiKey: process.env.NOTION_API_KEY ? "••••••••••••••••" : "",
       notionDatabaseId: process.env.NOTION_DATABASE_ID ? "••••••••••••••••" : "",
       calLink: process.env.NEXT_PUBLIC_CAL_LINK || "",
+      bookingEmbedUrl: process.env.NEXT_PUBLIC_BOOKING_EMBED_URL || "",
     });
   } catch (error) {
     console.error("GET /api/admin/settings error:", error);
@@ -47,7 +50,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { notionApiKey, notionDatabaseId, calLink } = body;
+    const { notionApiKey, notionDatabaseId, calLink, bookingEmbedUrl } = body;
 
     // Vytvoř tabulku pokud neexistuje
     await sql`
@@ -56,25 +59,32 @@ export async function POST(request: NextRequest) {
         notion_api_key TEXT,
         notion_database_id TEXT,
         cal_link TEXT,
+        booking_embed_url TEXT,
         updated_at TIMESTAMP DEFAULT NOW()
       )
     `;
+    try {
+      await sql`ALTER TABLE admin_settings ADD COLUMN IF NOT EXISTS booking_embed_url TEXT`;
+    } catch {
+      // sloupec už existuje
+    }
 
     // Upsert settings - vždy aktualizuj první řádek nebo vytvoř nový
     const existing = await sql`SELECT id FROM admin_settings LIMIT 1`;
     if (existing.length > 0) {
       await sql`
         UPDATE admin_settings SET
-          notion_api_key = ${notionApiKey || null},
-          notion_database_id = ${notionDatabaseId || null},
-          cal_link = ${calLink || null},
+          notion_api_key = ${notionApiKey ?? null},
+          notion_database_id = ${notionDatabaseId ?? null},
+          cal_link = ${calLink ?? null},
+          booking_embed_url = ${bookingEmbedUrl?.trim() || null},
           updated_at = NOW()
-        WHERE id = ${existing[0].id}
+        WHERE id = ${(existing[0] as { id: number }).id}
       `;
     } else {
       await sql`
-        INSERT INTO admin_settings (notion_api_key, notion_database_id, cal_link, updated_at)
-        VALUES (${notionApiKey || null}, ${notionDatabaseId || null}, ${calLink || null}, NOW())
+        INSERT INTO admin_settings (notion_api_key, notion_database_id, cal_link, booking_embed_url, updated_at)
+        VALUES (${notionApiKey ?? null}, ${notionDatabaseId ?? null}, ${calLink ?? null}, ${bookingEmbedUrl?.trim() || null}, NOW())
       `;
     }
 

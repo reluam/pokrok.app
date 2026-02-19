@@ -7,6 +7,7 @@ export default function SettingsContent() {
   const [notionApiKey, setNotionApiKey] = useState("");
   const [notionDatabaseId, setNotionDatabaseId] = useState("");
   const [calLink, setCalLink] = useState("");
+  const [bookingEmbedUrl, setBookingEmbedUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -18,9 +19,9 @@ export default function SettingsContent() {
         if (data.notionApiKey) setNotionApiKey(data.notionApiKey);
         if (data.notionDatabaseId) setNotionDatabaseId(data.notionDatabaseId);
         if (data.calLink) setCalLink(data.calLink);
+        if (data.bookingEmbedUrl) setBookingEmbedUrl(data.bookingEmbedUrl);
       })
       .catch(() => {
-        // Settings nejsou v DB, použijeme aktuální z .env (maskované)
         setNotionApiKey("••••••••••••••••");
         setNotionDatabaseId("••••••••••••••••");
       });
@@ -39,6 +40,7 @@ export default function SettingsContent() {
           notionApiKey: notionApiKey.trim() || null,
           notionDatabaseId: notionDatabaseId.trim() || null,
           calLink: calLink.trim() || null,
+          bookingEmbedUrl: bookingEmbedUrl.trim() || null,
         }),
       });
 
@@ -119,21 +121,30 @@ export default function SettingsContent() {
         </div>
       </section>
 
-      {/* Rezervace termínů: náš kalendář (CCCP) nebo Cal.eu */}
+      {/* Rezervace – iframe / link */}
       <section className="bg-white rounded-2xl p-6 border-2 border-black/10">
-        <h3 className="text-xl font-bold text-foreground mb-4">Rezervace termínů</h3>
+        <h3 className="text-xl font-bold text-foreground mb-4">Rezervace termínů (iframe)</h3>
         <p className="text-sm text-foreground/60 mb-4">
-          Na webu žiju life se po odeslání formuláře otevře rezervační stránka. Můžeš použít:
+          Po odeslání formuláře se otevře rezervační okno. Zadej celou URL iframe (např. Talentino nebo jiný rezervační systém).
         </p>
-        <ul className="list-disc list-inside text-sm text-foreground/70 mb-4 space-y-1">
-          <li><strong>Náš kalendář (CCCP)</strong> – vlastní rezervační systém z Coach CRM. V .env.local nastav <code className="bg-black/5 px-1 rounded">NEXT_PUBLIC_CCCP_BOOKING_URL=https://tvoje-cccp-domain.cz/book</code>. Pak se použije místo Cal.eu.</li>
-          <li><strong>Cal.com / cal.eu</strong> – fallback, pokud CCCP URL není nastaveno. Zadej Cal link níže (formát: username/event-slug).</li>
-        </ul>
-
         <div>
-          <label htmlFor="cal-link" className="block text-sm font-medium text-foreground mb-2">
-            Cal.com link (fallback)
+          <label htmlFor="booking-embed-url" className="block text-sm font-medium text-foreground mb-2">
+            URL iframe pro rezervaci
           </label>
+          <input
+            id="booking-embed-url"
+            type="url"
+            value={bookingEmbedUrl}
+            onChange={(e) => setBookingEmbedUrl(e.target.value)}
+            placeholder="https://talentino.app/book/matej/30-minutova-konzultace-zdarma?embed=1"
+            className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white"
+          />
+          <p className="text-xs text-foreground/50 mt-1">
+            Tato URL se zobrazí v rezervačním popup okně na webu. Můžeš měnit bez nutnosti úpravy kódu.
+          </p>
+        </div>
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-foreground mb-2">Cal link (volitelné, pro API redirect)</label>
           <input
             id="cal-link"
             type="text"
@@ -142,9 +153,6 @@ export default function SettingsContent() {
             placeholder="matej-mauler/30min"
             className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white"
           />
-          <p className="text-xs text-foreground/50 mt-1">
-            Použije se jako NEXT_PUBLIC_CAL_LINK jen když není nastaveno NEXT_PUBLIC_CCCP_BOOKING_URL.
-          </p>
         </div>
       </section>
 

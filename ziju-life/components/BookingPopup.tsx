@@ -1,10 +1,8 @@
 "use client";
 
-import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 
-/** URL iframe pro rezervaci. Výchozí: Talentino. Přepsat v .env.local: NEXT_PUBLIC_BOOKING_EMBED_URL */
-const BOOKING_EMBED_URL =
-  process.env.NEXT_PUBLIC_BOOKING_EMBED_URL ||
+const DEFAULT_BOOKING_URL =
   "https://talentino.app/book/matej/30-minutova-konzultace-zdarma?embed=1";
 
 type BookingPopupContextValue = {
@@ -20,6 +18,16 @@ export function useBookingPopup() {
 
 export function BookingPopupProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [bookingUrl, setBookingUrl] = useState(DEFAULT_BOOKING_URL);
+
+  useEffect(() => {
+    fetch("/api/settings/booking-url")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.bookingEmbedUrl?.trim()) setBookingUrl(data.bookingEmbedUrl.trim());
+      })
+      .catch(() => {});
+  }, []);
 
   const openBookingPopup = useCallback(() => {
     setIsOpen(true);
@@ -32,12 +40,20 @@ export function BookingPopupProvider({ children }: { children: React.ReactNode }
   return (
     <BookingPopupContext.Provider value={{ openBookingPopup, closeBookingPopup }}>
       {children}
-      <BookingModal isOpen={isOpen} onClose={closeBookingPopup} />
+      <BookingModal isOpen={isOpen} onClose={closeBookingPopup} bookingUrl={bookingUrl} />
     </BookingPopupContext.Provider>
   );
 }
 
-function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+function BookingModal({
+  isOpen,
+  onClose,
+  bookingUrl,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  bookingUrl: string;
+}) {
   if (!isOpen) return null;
 
   return (
@@ -78,7 +94,7 @@ function BookingModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
         </div>
         <div className="flex-1 min-h-0 relative">
           <iframe
-            src={BOOKING_EMBED_URL}
+            src={bookingUrl}
             title="Rezervace"
             className="absolute inset-0 w-full h-full border-0"
             allow="camera; microphone; geolocation"
