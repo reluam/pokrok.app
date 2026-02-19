@@ -1,37 +1,47 @@
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { sql } from "../../../../lib/db";
+import { WeekGrid, type CalendarItem } from "../../../../components/calendar/WeekGrid";
 
-type Item = {
-  type: "session" | "booking";
-  id: string;
-  title: string;
-  scheduled_at: string | null;
-  duration_minutes?: number | null;
-  client_name: string;
-  client_email?: string | null;
-};
+function getMondayOfWeek(d: Date): Date {
+  const x = new Date(d);
+  const day = x.getDay();
+  const diff = x.getDate() - (day === 0 ? 6 : day - 1);
+  x.setDate(diff);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
 
-async function getWeekItems(): Promise<Item[]> {
+function toYYYYMMDD(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+async function getWeekItems(weekStart: string, weekEnd: string, userId: string): Promise<CalendarItem[]> {
   const [sessions, bookings] = await Promise.all([
     sql`
       SELECT s.id, s.title, s.scheduled_at, s.duration_minutes, c.name AS client_name, c.email AS client_email
       FROM sessions s
-      JOIN clients c ON c.id = s.client_id
+      JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
       WHERE s.scheduled_at IS NOT NULL
-        AND s.scheduled_at::date >= date_trunc('week', CURRENT_DATE)
-        AND s.scheduled_at::date < date_trunc('week', CURRENT_DATE) + INTERVAL '7 days'
+        AND s.scheduled_at::date >= ${weekStart}
+        AND s.scheduled_at::date < ${weekEnd}
       ORDER BY s.scheduled_at ASC
     `,
     sql`
       SELECT id, scheduled_at, duration_minutes, name, email
       FROM bookings
-      WHERE status != 'cancelled'
-        AND scheduled_at::date >= date_trunc('week', CURRENT_DATE)
-        AND scheduled_at::date < date_trunc('week', CURRENT_DATE) + INTERVAL '7 days'
+      WHERE user_id = ${userId}
+        AND status != 'cancelled'
+        AND scheduled_at::date >= ${weekStart}
+        AND scheduled_at::date < ${weekEnd}
       ORDER BY scheduled_at ASC
     `
   ]);
 
-  const sessionItems = (sessions as Item[]).map((s) => ({ ...s, type: "session" as const }));
+  const sessionItems = (sessions as CalendarItem[]).map((s) => ({ ...s, type: "session" as const }));
   const bookingItems = (bookings as { id: string; scheduled_at: string; duration_minutes: number; name: string; email: string }[]).map((b) => ({
     type: "booking" as const,
     id: b.id,
@@ -41,11 +51,45 @@ async function getWeekItems(): Promise<Item[]> {
     client_name: b.name,
     client_email: b.email
   }));
-  return [...sessionItems, ...bookingItems].sort((a, b) => (a.scheduled_at ?? "").localeCompare(b.scheduled_at ?? ""));
+  return [...sessionItems, ...bookingItems].sort((a, b) =>
+    String(a.scheduled_at ?? "").localeCompare(String(b.scheduled_at ?? ""))
+  );
 }
 
-export default async function CalendarWeekPage() {
-  const items = await getWeekItems();
+function formatWeekLabel(weekStart: string): string {
+  const start = new Date(weekStart + "T12:00:00");
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
+  return `${start.getDate()}. ${start.toLocaleDateString("cs-CZ", { month: "long" })} – ${end.getDate()}. ${end.toLocaleDateString("cs-CZ", { month: "long" })} ${end.getFullYear()}`;
+}
+
+export default async function CalendarWeekPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ week?: string }>;
+}) {
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
+  const params = await searchParams;
+  let monday: Date;
+  if (params.week && /^\d{4}-\d{2}-\d{2}$/.test(params.week)) {
+    monday = new Date(params.week + "T12:00:00");
+    if (Number.isNaN(monday.getTime())) monday = getMondayOfWeek(new Date());
+    else monday = getMondayOfWeek(monday);
+  } else {
+    monday = getMondayOfWeek(new Date());
+  }
+  const weekStart = toYYYYMMDD(monday);
+  const weekEndDate = new Date(monday);
+  weekEndDate.setDate(weekEndDate.getDate() + 7);
+  const weekEnd = toYYYYMMDD(weekEndDate);
+
+  const items = await getWeekItems(weekStart, weekEnd, userId);
+
+  const prevMonday = new Date(monday);
+  prevMonday.setDate(prevMonday.getDate() - 7);
+  const nextMonday = new Date(monday);
+  nextMonday.setDate(nextMonday.getDate() + 7);
 
   return (
     <div className="py-2">
@@ -53,47 +97,16 @@ export default async function CalendarWeekPage() {
         Týdenní přehled
       </h1>
       <p className="mt-1 text-sm text-slate-600">
-        Schůzky a rezervace v aktuálním týdnu.
+        Pondělí až neděle. Schůzky a rezervace v zvoleném týdnu.
       </p>
       <section className="mt-6 rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-slate-100">
-        {items.length === 0 ? (
-          <p className="text-sm text-slate-500">V tomto týdnu nemáš žádné schůzky ani rezervace.</p>
-        ) : (
-          <div className="space-y-2 text-sm">
-            {items.map((s) => (
-              <div
-                key={s.type === "session" ? s.id : `b-${s.id}`}
-                className={`flex items-center justify-between rounded-xl px-3 py-2 ${
-                  s.type === "booking" ? "bg-amber-50 ring-1 ring-amber-200/60" : "bg-slate-50"
-                }`}
-              >
-                <div>
-                  <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                    {s.scheduled_at
-                      ? new Date(s.scheduled_at).toLocaleString("cs-CZ", {
-                          weekday: "short",
-                          day: "numeric",
-                          month: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit"
-                        })
-                      : "Bez data"}
-                    {s.type === "booking" ? (
-                      <span className="ml-1.5 rounded bg-amber-200/70 px-1.5 py-0.5 text-[10px] font-medium text-amber-900">
-                        Rezervace
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="font-semibold text-slate-900">{s.title}</div>
-                </div>
-                <div className="text-xs text-slate-500">
-                  <div className="font-medium text-slate-800">{s.client_name}</div>
-                  {s.client_email ? <div>{s.client_email}</div> : null}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <WeekGrid
+          items={items}
+          weekStart={weekStart}
+          weekLabel={formatWeekLabel(weekStart)}
+          prevWeekHref={`/calendar/week?week=${toYYYYMMDD(prevMonday)}`}
+          nextWeekHref={`/calendar/week?week=${toYYYYMMDD(nextMonday)}`}
+        />
       </section>
     </div>
   );

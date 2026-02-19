@@ -1,3 +1,5 @@
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { sql } from "../../../lib/db";
 
 type SessionRow = {
@@ -18,7 +20,7 @@ type BookingRow = {
   email: string;
 };
 
-async function getUpcomingSessions(): Promise<SessionRow[]> {
+async function getUpcomingSessions(userId: string): Promise<SessionRow[]> {
   const rows = await sql`
     SELECT
       s.id,
@@ -29,7 +31,7 @@ async function getUpcomingSessions(): Promise<SessionRow[]> {
       c.name AS client_name,
       c.email AS client_email
     FROM sessions s
-    JOIN clients c ON c.id = s.client_id
+    JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
     WHERE s.scheduled_at IS NOT NULL
     ORDER BY s.scheduled_at ASC
     LIMIT 50
@@ -38,11 +40,11 @@ async function getUpcomingSessions(): Promise<SessionRow[]> {
   return rows as SessionRow[];
 }
 
-async function getUpcomingBookings(): Promise<BookingRow[]> {
+async function getUpcomingBookings(userId: string): Promise<BookingRow[]> {
   const rows = await sql`
     SELECT id, scheduled_at, duration_minutes, name, email
     FROM bookings
-    WHERE status != 'cancelled'
+    WHERE user_id = ${userId} AND status != 'cancelled'
     ORDER BY scheduled_at ASC
     LIMIT 50
   `;
@@ -50,9 +52,11 @@ async function getUpcomingBookings(): Promise<BookingRow[]> {
 }
 
 export default async function CalendarPage() {
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
   const [sessions, bookings] = await Promise.all([
-    getUpcomingSessions(),
-    getUpcomingBookings()
+    getUpcomingSessions(userId),
+    getUpcomingBookings(userId)
   ]);
 
   const allItems = [
@@ -66,7 +70,7 @@ export default async function CalendarPage() {
       client_name: b.name,
       client_email: b.email
     }))
-  ].sort((a, b) => (a.scheduled_at ?? "").localeCompare(b.scheduled_at ?? ""));
+  ].sort((a, b) => String(a.scheduled_at ?? "").localeCompare(String(b.scheduled_at ?? "")));
 
   return (
     <div className="py-2">

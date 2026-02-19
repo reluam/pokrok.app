@@ -28,14 +28,14 @@ export async function POST(request: Request) {
   await sql`
     UPDATE leads
     SET status = ${status}, updated_at = NOW()
-    WHERE id = ${id}
+    WHERE id = ${id} AND deleted_at IS NULL
   `;
 
   if (status === "spoluprace") {
     const clientId = crypto.randomUUID();
     await sql`
-      INSERT INTO clients (id, lead_id, name, email, status, created_at, updated_at)
-      SELECT ${clientId}, id, COALESCE(name, email), email, 'aktivni', NOW(), NOW()
+      INSERT INTO clients (id, user_id, lead_id, name, email, status, created_at, updated_at)
+      SELECT ${clientId}, ${userId}, id, COALESCE(name, email), email, 'aktivni', NOW(), NOW()
       FROM leads
       WHERE id = ${id}
         AND NOT EXISTS (

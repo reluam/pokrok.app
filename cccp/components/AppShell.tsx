@@ -33,6 +33,7 @@ export function AppShell({ children }: Props) {
   } else if (pathname.startsWith("/crm")) {
     sidebarItems = [
       { href: "/crm", label: "Board leadů" },
+      { href: "/crm/archiv", label: "Archiv leadů" },
       { href: "/crm/imports", label: "Importy (brzy)" }
     ];
   } else if (pathname.startsWith("/clients")) {
@@ -44,6 +45,7 @@ export function AppShell({ children }: Props) {
   } else if (pathname.startsWith("/calendar")) {
     sidebarItems = [
       { href: "/calendar", label: "Kalendář" },
+      { href: "/calendar/events", label: "Eventy" },
       { href: "/calendar/week", label: "Týdenní přehled" },
       { href: "/calendar/month", label: "Měsíční přehled" }
     ];

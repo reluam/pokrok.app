@@ -1,3 +1,4 @@
+import { auth } from "@clerk/nextjs/server";
 import { sql } from "../../../../../lib/db";
 import Link from "next/link";
 
@@ -10,12 +11,13 @@ type SessionRow = {
   key_points: string | null;
 };
 
-async function getClientSessions(clientId: string): Promise<SessionRow[]> {
+async function getClientSessions(clientId: string, userId: string): Promise<SessionRow[]> {
   const rows = await sql`
-    SELECT id, title, scheduled_at, duration_minutes, notes, key_points
-    FROM sessions
-    WHERE client_id = ${clientId}
-    ORDER BY scheduled_at DESC NULLS LAST
+    SELECT s.id, s.title, s.scheduled_at, s.duration_minutes, s.notes, s.key_points
+    FROM sessions s
+    JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+    WHERE s.client_id = ${clientId}
+    ORDER BY s.scheduled_at DESC NULLS LAST
   `;
   return rows as SessionRow[];
 }
@@ -25,8 +27,10 @@ export default async function ClientSessionsPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { userId } = await auth();
+  if (!userId) return null;
   const { id } = await params;
-  const sessions = await getClientSessions(id);
+  const sessions = await getClientSessions(id, userId);
 
   return (
     <div className="py-2">

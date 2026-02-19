@@ -2,8 +2,14 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
-/** Náš kalendář (CCCP). Nastav v .env.local: NEXT_PUBLIC_CCCP_BOOKING_URL (např. https://talentino.app/book) */
+/** CCCP base URL (např. https://cccp.example.com/book). Nastav v .env.local: NEXT_PUBLIC_CCCP_BOOKING_URL */
 const CCCP_BOOKING_URL = process.env.NEXT_PUBLIC_CCCP_BOOKING_URL || null;
+
+/** Coach user ID (Clerk) pro rezervace z Žiju life. Nastav v .env.local: NEXT_PUBLIC_CCCP_COACH_ID */
+const CCCP_COACH_ID = process.env.NEXT_PUBLIC_CCCP_COACH_ID || "";
+
+/** Zdroj leadu (např. ziju-life). Volitelně v .env.local: NEXT_PUBLIC_CCCP_BOOKING_SOURCE */
+const CCCP_BOOKING_SOURCE = process.env.NEXT_PUBLIC_CCCP_BOOKING_SOURCE || "ziju-life";
 
 /** Fallback: Cal.eu booking link: "username/event-slug". Nastav v .env.local: NEXT_PUBLIC_CAL_LINK */
 const CAL_LINK = process.env.NEXT_PUBLIC_CAL_LINK || "matej-mauler/30min";
@@ -54,10 +60,15 @@ function BookingModal({
 }) {
   if (!isOpen) return null;
 
-  // Use CCCP booking if configured, otherwise fallback to Cal.eu
-  const useCccp = CCCP_BOOKING_URL !== null;
+  // Use CCCP booking if configured (with coach and source for multi-user and lead source), otherwise fallback to Cal.eu
+  const useCccp = CCCP_BOOKING_URL !== null && CCCP_COACH_ID !== "";
   const bookingUrl = useCccp
-    ? CCCP_BOOKING_URL
+    ? (() => {
+        const url = new URL(CCCP_BOOKING_URL!);
+        url.searchParams.set("coach", CCCP_COACH_ID);
+        if (CCCP_BOOKING_SOURCE) url.searchParams.set("source", CCCP_BOOKING_SOURCE);
+        return url.toString();
+      })()
     : `${CAL_EU_BASE_URL}/${bookingLink}?embed=true&layout=month_view`;
 
   return (

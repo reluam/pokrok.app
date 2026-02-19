@@ -1,3 +1,5 @@
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { sql } from "../../../../lib/db";
 
 type Session = {
@@ -21,7 +23,7 @@ type Lead = {
   status: string;
 };
 
-async function getWeekSessions(): Promise<Session[]> {
+async function getWeekSessions(userId: string): Promise<Session[]> {
   const rows = await sql`
     SELECT
       s.id,
@@ -29,9 +31,8 @@ async function getWeekSessions(): Promise<Session[]> {
       s.scheduled_at,
       c.name AS client_name
     FROM sessions s
-    JOIN clients c ON c.id = s.client_id
-    WHERE
-      s.scheduled_at::date >= date_trunc('week', CURRENT_DATE)
+    JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+    WHERE s.scheduled_at::date >= date_trunc('week', CURRENT_DATE)
       AND s.scheduled_at::date < date_trunc('week', CURRENT_DATE) + INTERVAL '7 days'
     ORDER BY s.scheduled_at ASC
   `;
@@ -39,11 +40,12 @@ async function getWeekSessions(): Promise<Session[]> {
   return rows as Session[];
 }
 
-async function getWeekBookings(): Promise<Booking[]> {
+async function getWeekBookings(userId: string): Promise<Booking[]> {
   const rows = await sql`
     SELECT id, scheduled_at, name, email
     FROM bookings
-    WHERE status != 'cancelled'
+    WHERE user_id = ${userId}
+      AND status != 'cancelled'
       AND scheduled_at::date >= date_trunc('week', CURRENT_DATE)
       AND scheduled_at::date < date_trunc('week', CURRENT_DATE) + INTERVAL '7 days'
     ORDER BY scheduled_at ASC
@@ -67,16 +69,18 @@ async function getWeekLeads(): Promise<Lead[]> {
 }
 
 export default async function OverviewWeekPage() {
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
   const [sessions, bookings, leads] = await Promise.all([
-    getWeekSessions(),
-    getWeekBookings(),
+    getWeekSessions(userId),
+    getWeekBookings(userId),
     getWeekLeads()
   ]);
 
   const allSlots = [
     ...sessions.map((s) => ({ type: "session" as const, ...s })),
     ...bookings.map((b) => ({ type: "booking" as const, id: b.id, title: "Úvodní call", scheduled_at: b.scheduled_at, client_name: b.name }))
-  ].sort((a, b) => a.scheduled_at.localeCompare(b.scheduled_at));
+  ].sort((a, b) => String(a.scheduled_at ?? "").localeCompare(String(b.scheduled_at ?? "")));
 
   return (
     <div className="py-2">

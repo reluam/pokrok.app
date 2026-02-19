@@ -37,9 +37,21 @@ function getNextDays(count: number): string[] {
   return out;
 }
 
-export function BookingFlow() {
+type BookingFlowProps = {
+  coach?: string;
+  eventId?: string;
+  source?: string;
+  eventName?: string;
+};
+
+export function BookingFlow(props?: BookingFlowProps) {
   const searchParams = useSearchParams();
   const success = searchParams.get("success") === "1";
+  const coachFromUrl = searchParams.get("coach")?.trim() ?? "";
+  const sourceFromUrl = searchParams.get("source")?.trim() ?? "";
+  const coach = props?.coach ?? coachFromUrl;
+  const eventId = props?.eventId ?? "";
+  const source = props?.source ?? sourceFromUrl;
 
   const [step, setStep] = useState<"date" | "slot" | "form">("date");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -55,27 +67,35 @@ export function BookingFlow() {
 
   const dates = getNextDays(14);
 
-  const fetchSlots = useCallback(async (date: string) => {
-    setLoadingSlots(true);
-    setError(null);
-    try {
-      const res = await fetch(
-        `/api/bookings/slots?from=${encodeURIComponent(date)}&to=${encodeURIComponent(date)}`
-      );
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || res.statusText);
+  const fetchSlots = useCallback(
+    async (date: string) => {
+      if (!coach && !eventId) return;
+      setLoadingSlots(true);
+      setError(null);
+      try {
+        const params = new URLSearchParams({
+          from: date,
+          to: date,
+        });
+        if (eventId) params.set("eventId", eventId);
+        else params.set("coach", coach);
+        const res = await fetch(`/api/bookings/slots?${params.toString()}`);
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || res.statusText);
+        }
+        const data = await res.json();
+        setSlots(Array.isArray(data) ? data : []);
+        setSelectedDate(date);
+        setStep("slot");
+      } catch (e) {
+        setError((e as Error).message);
+      } finally {
+        setLoadingSlots(false);
       }
-      const data = await res.json();
-      setSlots(Array.isArray(data) ? data : []);
-      setSelectedDate(date);
-      setStep("slot");
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setLoadingSlots(false);
-    }
-  }, []);
+    },
+    [coach, eventId]
+  );
 
   useEffect(() => {
     if (success) return;
@@ -92,25 +112,34 @@ export function BookingFlow() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedSlot) return;
+    if (!selectedSlot || (!coach && !eventId)) return;
     setSubmitting(true);
     setError(null);
     try {
+      const body: Record<string, string | undefined> = {
+        coach,
+        source: source || undefined,
+        scheduled_at: selectedSlot.slot_at,
+        email: email.trim(),
+        name: name.trim(),
+        phone: phone.trim() || undefined,
+      };
+      if (eventId) body.event_id = eventId;
       const res = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          scheduled_at: selectedSlot.slot_at,
-          email: email.trim(),
-          name: name.trim(),
-          phone: phone.trim() || undefined,
-        }),
+        body: JSON.stringify(body),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         throw new Error(data.error || res.statusText);
       }
-      window.location.href = "/book?success=1";
+      const redirectUrl = new URL("/book", window.location.origin);
+      redirectUrl.searchParams.set("success", "1");
+      if (coach) redirectUrl.searchParams.set("coach", coach);
+      if (eventId) redirectUrl.searchParams.set("eventId", eventId);
+      if (source) redirectUrl.searchParams.set("source", source);
+      window.location.href = redirectUrl.toString();
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -132,6 +161,19 @@ export function BookingFlow() {
     setError(null);
   };
 
+  if (!coach && !eventId) {
+    return (
+      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
+        <h2 className="text-xl font-semibold text-slate-900">
+          Chybí údaj o kouči nebo eventu
+        </h2>
+        <p className="mt-2 text-slate-600">
+          Rezervace musí být otevřena z odkazu s vybraným koučem nebo eventem (např. /book/vase-slug/slug-eventu). Zkontrolujte odkaz nebo se vraťte na stránku, odkud jste přišli.
+        </p>
+      </div>
+    );
+  }
+
   if (success) {
     return (
       <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
@@ -148,7 +190,7 @@ export function BookingFlow() {
   return (
     <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
       <h2 className="text-xl font-semibold text-slate-900">
-        Rezervovat termín
+        {props?.eventName ? `Rezervovat: ${props.eventName}` : "Rezervovat termín"}
       </h2>
       <p className="mt-1 text-sm text-slate-600">
         Vyber datum, potom čas a vyplň údaje.

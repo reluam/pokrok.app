@@ -1,3 +1,5 @@
+import { auth } from "@clerk/nextjs/server";
+import { notFound } from "next/navigation";
 import { sql } from "../../../../lib/db";
 
 type Client = {
@@ -15,19 +17,20 @@ type SessionSummary = {
   scheduled_at: string | null;
 };
 
-async function getClientWithSummary(id: string) {
+async function getClientWithSummary(id: string, userId: string) {
   const [clientRows, sessionRows] = await Promise.all([
     sql`
       SELECT id, name, email, phone, main_goal, status
       FROM clients
-      WHERE id = ${id}
+      WHERE id = ${id} AND user_id = ${userId}
       LIMIT 1
     `,
     sql`
       SELECT id, title, scheduled_at
-      FROM sessions
-      WHERE client_id = ${id}
-      ORDER BY scheduled_at DESC NULLS LAST
+      FROM sessions s
+      JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+      WHERE s.client_id = ${id}
+      ORDER BY s.scheduled_at DESC NULLS LAST
       LIMIT 5
     `
   ]);
@@ -42,16 +45,12 @@ export default async function ClientOverviewPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { userId } = await auth();
+  if (!userId) return null;
   const { id } = await params;
-  const { client, sessions } = await getClientWithSummary(id);
+  const { client, sessions } = await getClientWithSummary(id, userId);
 
-  if (!client) {
-    return (
-      <div className="py-4 text-sm text-slate-500">
-        Klient nebyl nalezen. Možná byl smazán nebo ID neexistuje.
-      </div>
-    );
-  }
+  if (!client) notFound();
 
   return (
     <div className="py-2">

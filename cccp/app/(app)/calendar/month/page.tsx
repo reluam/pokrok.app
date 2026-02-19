@@ -1,48 +1,77 @@
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { sql } from "../../../../lib/db";
+import { MonthGrid, type CalendarItem } from "../../../../components/calendar/MonthGrid";
 
-type Item = {
-  type: "session" | "booking";
-  id: string;
-  title: string;
-  scheduled_at: string | null;
-  client_name: string;
-  client_email?: string | null;
-};
-
-async function getMonthItems(): Promise<Item[]> {
+async function getMonthItems(monthStart: string, monthEnd: string, userId: string): Promise<CalendarItem[]> {
   const [sessions, bookings] = await Promise.all([
     sql`
-      SELECT s.id, s.title, s.scheduled_at, c.name AS client_name, c.email AS client_email
+      SELECT s.id, s.title, s.scheduled_at, s.duration_minutes, c.name AS client_name, c.email AS client_email
       FROM sessions s
-      JOIN clients c ON c.id = s.client_id
-      WHERE s.scheduled_at::date >= date_trunc('month', CURRENT_DATE)
-        AND s.scheduled_at::date < date_trunc('month', CURRENT_DATE) + INTERVAL '1 month'
+      JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+      WHERE s.scheduled_at::date >= ${monthStart}
+        AND s.scheduled_at::date < ${monthEnd}
       ORDER BY s.scheduled_at ASC
     `,
     sql`
-      SELECT id, scheduled_at, name, email
+      SELECT id, scheduled_at, duration_minutes, name, email
       FROM bookings
-      WHERE status != 'cancelled'
-        AND scheduled_at::date >= date_trunc('month', CURRENT_DATE)
-        AND scheduled_at::date < date_trunc('month', CURRENT_DATE) + INTERVAL '1 month'
+      WHERE user_id = ${userId}
+        AND status != 'cancelled'
+        AND scheduled_at::date >= ${monthStart}
+        AND scheduled_at::date < ${monthEnd}
       ORDER BY scheduled_at ASC
     `
   ]);
 
-  const sessionItems = (sessions as Item[]).map((s) => ({ ...s, type: "session" as const }));
-  const bookingItems = (bookings as { id: string; scheduled_at: string; name: string; email: string }[]).map((b) => ({
+  const sessionItems = (sessions as CalendarItem[]).map((s) => ({ ...s, type: "session" as const }));
+  const bookingItems = (bookings as { id: string; scheduled_at: string; duration_minutes: number; name: string; email: string }[]).map((b) => ({
     type: "booking" as const,
     id: b.id,
     title: "Úvodní call",
     scheduled_at: b.scheduled_at,
+    duration_minutes: b.duration_minutes,
     client_name: b.name,
     client_email: b.email
   }));
-  return [...sessionItems, ...bookingItems].sort((a, b) => (a.scheduled_at ?? "").localeCompare(b.scheduled_at ?? ""));
+  return [...sessionItems, ...bookingItems].sort((a, b) =>
+    String(a.scheduled_at ?? "").localeCompare(String(b.scheduled_at ?? ""))
+  );
 }
 
-export default async function CalendarMonthPage() {
-  const items = await getMonthItems();
+function formatMonthLabel(year: number, month: number): string {
+  const d = new Date(year, month - 1, 1);
+  return d.toLocaleDateString("cs-CZ", { month: "long", year: "numeric" });
+}
+
+export default async function CalendarMonthPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>;
+}) {
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
+  const params = await searchParams;
+  const now = new Date();
+  let year = now.getFullYear();
+  let month = now.getMonth() + 1;
+  if (params.month && /^\d{4}-\d{2}$/.test(params.month)) {
+    const [y, m] = params.month.split("-").map(Number);
+    if (m >= 1 && m <= 12) {
+      year = y;
+      month = m;
+    }
+  }
+
+  const monthStart = `${year}-${String(month).padStart(2, "0")}-01`;
+  const monthEndDate = new Date(year, month, 0);
+  const monthEnd = `${year}-${String(month).padStart(2, "0")}-${String(monthEndDate.getDate()).padStart(2, "0")}`;
+  const monthEndNext = month === 12 ? `${year + 1}-01-01` : `${year}-${String(month + 1).padStart(2, "0")}-01`;
+
+  const items = await getMonthItems(monthStart, monthEndNext, userId);
+
+  const prevMonth = month === 1 ? [year - 1, 12] : [year, month - 1];
+  const nextMonth = month === 12 ? [year + 1, 1] : [year, month + 1];
 
   return (
     <div className="py-2">
@@ -50,47 +79,17 @@ export default async function CalendarMonthPage() {
         Měsíční přehled
       </h1>
       <p className="mt-1 text-sm text-slate-600">
-        Schůzky a rezervace v aktuálním měsíci.
+        Celý měsíc, pondělí až neděle. Schůzky a rezervace.
       </p>
       <section className="mt-6 rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-slate-100">
-        {items.length === 0 ? (
-          <p className="text-sm text-slate-500">V tomto měsíci nemáš žádné schůzky ani rezervace.</p>
-        ) : (
-          <div className="space-y-2 text-sm">
-            {items.map((s) => (
-              <div
-                key={s.type === "session" ? s.id : `b-${s.id}`}
-                className={`flex items-center justify-between rounded-xl px-3 py-2 ${
-                  s.type === "booking" ? "bg-amber-50 ring-1 ring-amber-200/60" : "bg-slate-50"
-                }`}
-              >
-                <div>
-                  <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                    {s.scheduled_at
-                      ? new Date(s.scheduled_at).toLocaleString("cs-CZ", {
-                          weekday: "short",
-                          day: "numeric",
-                          month: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit"
-                        })
-                      : "Bez data"}
-                    {s.type === "booking" ? (
-                      <span className="ml-1.5 rounded bg-amber-200/70 px-1.5 py-0.5 text-[10px] font-medium text-amber-900">
-                        Rezervace
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="font-semibold text-slate-900">{s.title}</div>
-                </div>
-                <div className="text-xs text-slate-500">
-                  <div className="font-medium text-slate-800">{s.client_name}</div>
-                  {s.client_email ? <div>{s.client_email}</div> : null}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <MonthGrid
+          items={items}
+          year={year}
+          month={month}
+          monthLabel={formatMonthLabel(year, month)}
+          prevMonthHref={`/calendar/month?month=${prevMonth[0]}-${String(prevMonth[1]).padStart(2, "0")}`}
+          nextMonthHref={`/calendar/month?month=${nextMonth[0]}-${String(nextMonth[1]).padStart(2, "0")}`}
+        />
       </section>
     </div>
   );

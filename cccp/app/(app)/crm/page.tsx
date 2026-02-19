@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { sql } from "../../../lib/db";
 import { CrmBoard } from "../../../components/CrmBoard";
 import type { Lead, LeadStatus } from "../../../lib/leads";
@@ -7,6 +7,7 @@ async function getLeads(): Promise<Lead[]> {
   const rows = await sql`
     SELECT id, email, name, source, status, notes, created_at
     FROM leads
+    WHERE deleted_at IS NULL
     ORDER BY created_at DESC
   `;
 
@@ -23,6 +24,9 @@ async function getLeadIdsWithBooking(): Promise<string[]> {
 
 async function createLead(formData: FormData) {
   "use server";
+
+  const { userId } = await auth();
+  if (!userId) return;
 
   const email = String(formData.get("email") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
@@ -45,8 +49,8 @@ async function createLead(formData: FormData) {
 
   if (finalStatus === "spoluprace") {
     await sql`
-      INSERT INTO clients (id, lead_id, name, email, status, created_at, updated_at)
-      SELECT ${crypto.randomUUID()}, id, COALESCE(name, email), email, 'aktivni', NOW(), NOW()
+      INSERT INTO clients (id, user_id, lead_id, name, email, status, created_at, updated_at)
+      SELECT ${crypto.randomUUID()}, ${userId}, id, COALESCE(name, email), email, 'aktivni', NOW(), NOW()
       FROM leads
       WHERE id = ${id}
         AND NOT EXISTS (

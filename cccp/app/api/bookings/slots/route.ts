@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
-import { getAvailableSlots } from "../../../../lib/bookings";
+import { getAvailableSlots, getAvailableSlotsForEvent } from "../../../../lib/bookings";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const from = searchParams.get("from");
   const to = searchParams.get("to");
+  const coach = searchParams.get("coach")?.trim();
+  const eventId = searchParams.get("eventId")?.trim();
 
   if (!from || !to) {
     return NextResponse.json(
@@ -23,7 +25,17 @@ export async function GET(request: Request) {
   }
 
   try {
-    const slots = await getAvailableSlots(fromDate, toDate);
+    if (eventId) {
+      const slots = await getAvailableSlotsForEvent(eventId, fromDate, toDate);
+      return NextResponse.json(slots);
+    }
+    if (!coach) {
+      return NextResponse.json(
+        { error: "Query param 'coach' (user ID) or 'eventId' required" },
+        { status: 400 }
+      );
+    }
+    const slots = await getAvailableSlots(fromDate, toDate, coach);
     return NextResponse.json(slots);
   } catch (err) {
     console.error("GET /api/bookings/slots", err);

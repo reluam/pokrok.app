@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { fetchGoogleCalendarEventsForUser } from "./google-calendar";
 
 const COACH_TIMEZONE = "Europe/Prague";
 
@@ -115,16 +116,18 @@ function overlaps(
 export type Slot = { slot_at: string; duration_minutes: number };
 
 /**
- * Get available slots between from and to (ISO date strings YYYY-MM-DD).
- * Excludes times already taken by bookings (non-cancelled) and sessions.
+ * Get available slots between from and to (ISO date strings YYYY-MM-DD) for a coach.
+ * Excludes times already taken by that coach's bookings, sessions (clients owned by coach), and Google events.
  */
 export async function getAvailableSlots(
   fromDate: string,
-  toDate: string
+  toDate: string,
+  userId: string
 ): Promise<Slot[]> {
   const windows = (await sql`
     SELECT id, day_of_week, start_time::text, end_time::text, slot_duration_minutes
     FROM weekly_availability
+    WHERE user_id = ${userId}
     ORDER BY day_of_week, start_time
   `) as WeeklyAvailabilityRow[];
 
@@ -139,16 +142,18 @@ export async function getAvailableSlots(
     sql`
       SELECT scheduled_at, duration_minutes
       FROM bookings
-      WHERE status != 'cancelled'
+      WHERE user_id = ${userId}
+        AND status != 'cancelled'
         AND scheduled_at >= ${from.toISOString()}
         AND scheduled_at <= ${to.toISOString()}
     `,
     sql`
-      SELECT scheduled_at, duration_minutes
-      FROM sessions
-      WHERE scheduled_at IS NOT NULL
-        AND scheduled_at >= ${from.toISOString()}
-        AND scheduled_at <= ${to.toISOString()}
+      SELECT s.scheduled_at, s.duration_minutes
+      FROM sessions s
+      JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+      WHERE s.scheduled_at IS NOT NULL
+        AND s.scheduled_at >= ${from.toISOString()}
+        AND s.scheduled_at <= ${to.toISOString()}
     `,
   ]);
 
@@ -165,6 +170,15 @@ export async function getAvailableSlots(
     const start = new Date(s.scheduled_at).getTime();
     const dur = (s.duration_minutes ?? 30) * 60 * 1000;
     blockedRanges.push({ start, end: start + dur });
+  }
+
+  const googleEvents = await fetchGoogleCalendarEventsForUser(userId, from, to);
+  for (const ev of googleEvents) {
+    const start = new Date(ev.start).getTime();
+    const end = new Date(ev.end).getTime();
+    if (!Number.isNaN(start) && !Number.isNaN(end)) {
+      blockedRanges.push({ start, end });
+    }
   }
 
   const candidates: { slot_at: Date; duration_minutes: number }[] = [];
@@ -192,11 +206,12 @@ export async function getAvailableSlots(
 }
 
 /**
- * Check if a given slot is still free (no overlapping booking or session).
+ * Check if a given slot is still free for the coach (no overlapping booking, session, or Google event).
  */
 export async function isSlotFree(
   scheduledAt: string,
-  durationMinutes: number
+  durationMinutes: number,
+  userId: string
 ): Promise<boolean> {
   const start = new Date(scheduledAt).getTime();
   const end = start + durationMinutes * 60 * 1000;
@@ -207,16 +222,18 @@ export async function isSlotFree(
     sql`
       SELECT scheduled_at, duration_minutes
       FROM bookings
-      WHERE status != 'cancelled'
+      WHERE user_id = ${userId}
+        AND status != 'cancelled'
         AND scheduled_at < ${endISO}
         AND scheduled_at + (COALESCE(duration_minutes, 30) * interval '1 minute') > ${startISO}
     `,
     sql`
-      SELECT scheduled_at, duration_minutes
-      FROM sessions
-      WHERE scheduled_at IS NOT NULL
-        AND scheduled_at < ${endISO}
-        AND scheduled_at + (COALESCE(duration_minutes, 30) * interval '1 minute') > ${startISO}
+      SELECT s.scheduled_at, s.duration_minutes
+      FROM sessions s
+      JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+      WHERE s.scheduled_at IS NOT NULL
+        AND s.scheduled_at < ${endISO}
+        AND s.scheduled_at + (COALESCE(s.duration_minutes, 30) * interval '1 minute') > ${startISO}
     `,
   ]);
 
@@ -233,5 +250,120 @@ export async function isSlotFree(
     const sEnd = sStart + (s.duration_minutes ?? 30) * 60 * 1000;
     if (overlaps(start, end, sStart, sEnd)) return false;
   }
+
+  const windowStart = new Date(start - 24 * 60 * 60 * 1000);
+  const windowEnd = new Date(end + 24 * 60 * 60 * 1000);
+  const googleEvents = await fetchGoogleCalendarEventsForUser(userId, windowStart, windowEnd);
+  for (const ev of googleEvents) {
+    const evStart = new Date(ev.start).getTime();
+    const evEnd = new Date(ev.end).getTime();
+    if (!Number.isNaN(evStart) && !Number.isNaN(evEnd) && overlaps(start, end, evStart, evEnd)) {
+      return false;
+    }
+  }
   return true;
+}
+
+/**
+ * Get available slots for an event (uses event_availability and event.duration_minutes).
+ * Blocks by coach's bookings, sessions, and Google events.
+ */
+export async function getAvailableSlotsForEvent(
+  eventId: string,
+  fromDate: string,
+  toDate: string
+): Promise<Slot[]> {
+  const eventRows = (await sql`
+    SELECT e.id, e.user_id, e.duration_minutes,
+           ea.day_of_week, ea.start_time::text AS start_time, ea.end_time::text AS end_time
+    FROM events e
+    LEFT JOIN event_availability ea ON ea.event_id = e.id
+    WHERE e.id = ${eventId}
+  `) as { id: string; user_id: string; duration_minutes: number; day_of_week: number; start_time: string; end_time: string }[];
+
+  if (!eventRows.length) return [];
+  const first = eventRows[0];
+  const userId = first.user_id;
+  const durationMinutes = first.duration_minutes;
+
+  const windows: WeeklyAvailabilityRow[] = eventRows
+    .filter((r) => r.day_of_week != null)
+    .map((r) => ({
+      id: `${r.day_of_week}-${r.start_time}-${r.end_time}`,
+      day_of_week: r.day_of_week,
+      start_time: r.start_time,
+      end_time: r.end_time,
+      slot_duration_minutes: durationMinutes,
+    }));
+
+  if (windows.length === 0) return [];
+
+  const from = new Date(fromDate + "T00:00:00Z");
+  const to = new Date(toDate + "T23:59:59Z");
+
+  const [bookingsRows, sessionsRows] = await Promise.all([
+    sql`
+      SELECT scheduled_at, duration_minutes
+      FROM bookings
+      WHERE user_id = ${userId}
+        AND status != 'cancelled'
+        AND scheduled_at >= ${from.toISOString()}
+        AND scheduled_at <= ${to.toISOString()}
+    `,
+    sql`
+      SELECT s.scheduled_at, s.duration_minutes
+      FROM sessions s
+      JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+      WHERE s.scheduled_at IS NOT NULL
+        AND s.scheduled_at >= ${from.toISOString()}
+        AND s.scheduled_at <= ${to.toISOString()}
+    `,
+  ]);
+
+  const bookingsList = bookingsRows as { scheduled_at: string; duration_minutes: number }[];
+  const sessionsList = sessionsRows as { scheduled_at: string; duration_minutes: number | null }[];
+
+  const blockedRanges: { start: number; end: number }[] = [];
+  for (const b of bookingsList) {
+    const start = new Date(b.scheduled_at).getTime();
+    const dur = (b.duration_minutes ?? 30) * 60 * 1000;
+    blockedRanges.push({ start, end: start + dur });
+  }
+  for (const s of sessionsList) {
+    const start = new Date(s.scheduled_at).getTime();
+    const dur = (s.duration_minutes ?? 30) * 60 * 1000;
+    blockedRanges.push({ start, end: start + dur });
+  }
+
+  const googleEvents = await fetchGoogleCalendarEventsForUser(userId, from, to);
+  for (const ev of googleEvents) {
+    const start = new Date(ev.start).getTime();
+    const end = new Date(ev.end).getTime();
+    if (!Number.isNaN(start) && !Number.isNaN(end)) {
+      blockedRanges.push({ start, end });
+    }
+  }
+
+  const candidates: { slot_at: Date; duration_minutes: number }[] = [];
+  for (const d of dateRange(fromDate, toDate)) {
+    candidates.push(...slotsForDate(d, windows));
+  }
+
+  const out: Slot[] = [];
+  for (const c of candidates) {
+    const start = c.slot_at.getTime();
+    const end = start + c.duration_minutes * 60 * 1000;
+    const isBlocked = blockedRanges.some((r) =>
+      overlaps(start, end, r.start, r.end)
+    );
+    if (!isBlocked && c.slot_at >= from && c.slot_at <= to) {
+      out.push({
+        slot_at: c.slot_at.toISOString(),
+        duration_minutes: c.duration_minutes,
+      });
+    }
+  }
+
+  out.sort((a, b) => a.slot_at.localeCompare(b.slot_at));
+  return out;
 }

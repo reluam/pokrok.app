@@ -28,6 +28,8 @@ export function CrmBoard({ leads, columns, leadIdsWithBooking = [] }: Props) {
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
+  const [deletingLeadId, setDeletingLeadId] = useState<string | null>(null);
+
   async function moveLead(id: string, status: LeadStatus) {
     startTransition(async () => {
       await fetch("/api/leads/update-status", {
@@ -38,6 +40,18 @@ export function CrmBoard({ leads, columns, leadIdsWithBooking = [] }: Props) {
 
       router.refresh();
     });
+  }
+
+  async function deleteLead(id: string) {
+    setDeletingLeadId(id);
+    try {
+      const res = await fetch(`/api/leads/${id}/delete`, { method: "POST" });
+      if (!res.ok) throw new Error(await res.text());
+      setSelectedLead(null);
+      router.refresh();
+    } finally {
+      setDeletingLeadId(null);
+    }
   }
 
   function handleDrop(
@@ -213,22 +227,35 @@ export function CrmBoard({ leads, columns, leadIdsWithBooking = [] }: Props) {
               </div>
             </div>
 
-            <div className="mt-4 flex justify-end gap-2">
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
               <button
                 type="button"
-                className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-slate-300 hover:bg-slate-50"
-                onClick={() => setSelectedLead(null)}
+                className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
+                onClick={() => selectedLead && deleteLead(selectedLead.id)}
+                disabled={!!deletingLeadId}
               >
-                Zavřít
+                {deletingLeadId ? "Odstraňuji…" : "Odstranit lead"}
               </button>
-              <button
-                type="button"
-                className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-emerald-500"
-                // future: navigate to /clients/new?fromLead=...
-              >
-                Vytvořit klienta (brzy)
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                  onClick={() => setSelectedLead(null)}
+                >
+                  Zavřít
+                </button>
+                <button
+                  type="button"
+                  className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-emerald-500"
+                  // future: navigate to /clients/new?fromLead=...
+                >
+                  Vytvořit klienta (brzy)
+                </button>
+              </div>
             </div>
+            <p className="mt-2 text-[11px] text-slate-400">
+              Odstraněný lead zůstane 48 h v archivu, kde ho lze obnovit. Klient se neodstraňuje.
+            </p>
           </div>
         </div>
       )}

@@ -8,7 +8,7 @@ export const sql = neon(connectionString);
 
 export async function initializeCoachCrmDatabase() {
   try {
-    // leads
+    // leads (soft delete: deleted_at set = removed, restorable within 48h)
     await sql`
       CREATE TABLE IF NOT EXISTS leads (
         id TEXT PRIMARY KEY,
@@ -18,8 +18,12 @@ export async function initializeCoachCrmDatabase() {
         status TEXT NOT NULL DEFAULT 'novy',
         notes TEXT,
         created_at TIMESTAMPTZ DEFAULT NOW(),
-        updated_at TIMESTAMPTZ DEFAULT NOW()
+        updated_at TIMESTAMPTZ DEFAULT NOW(),
+        deleted_at TIMESTAMPTZ
       )
+    `;
+    await sql`
+      ALTER TABLE leads ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ
     `;
 
     // Relax older CHECK constraints on status if they exist
@@ -35,6 +39,9 @@ export async function initializeCoachCrmDatabase() {
 
     await sql`
       CREATE INDEX IF NOT EXISTS idx_leads_created_at ON leads(created_at DESC)
+    `;
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_leads_deleted_at ON leads(deleted_at)
     `;
 
     // clients
@@ -95,16 +102,19 @@ export async function initializeCoachCrmDatabase() {
       CREATE INDEX IF NOT EXISTS idx_sessions_scheduled_at ON sessions(scheduled_at)
     `;
 
-    // session_templates
+    // session_templates (per user)
     await sql`
       CREATE TABLE IF NOT EXISTS session_templates (
         id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
         name TEXT NOT NULL,
         structure JSONB,
         created_at TIMESTAMPTZ DEFAULT NOW(),
         updated_at TIMESTAMPTZ DEFAULT NOW()
       )
     `;
+    await sql`ALTER TABLE session_templates ADD COLUMN IF NOT EXISTS user_id TEXT`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_session_templates_user_id ON session_templates(user_id)`;
 
     // payments
     await sql`
@@ -127,10 +137,11 @@ export async function initializeCoachCrmDatabase() {
       CREATE INDEX IF NOT EXISTS idx_payments_paid_at ON payments(paid_at DESC)
     `;
 
-    // weekly_availability (repeating weekly windows for booking slots)
+    // weekly_availability (repeating weekly windows for booking slots, per coach)
     await sql`
       CREATE TABLE IF NOT EXISTS weekly_availability (
         id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
         day_of_week INTEGER NOT NULL CHECK (day_of_week >= 0 AND day_of_week <= 6),
         start_time TIME NOT NULL,
         end_time TIME NOT NULL,
@@ -138,11 +149,14 @@ export async function initializeCoachCrmDatabase() {
         created_at TIMESTAMPTZ DEFAULT NOW()
       )
     `;
+    await sql`ALTER TABLE weekly_availability ADD COLUMN IF NOT EXISTS user_id TEXT`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_weekly_availability_user_id ON weekly_availability(user_id)`;
 
-    // bookings (discovery-call style, no client yet)
+    // bookings (discovery-call style, no client yet; per coach, optional source)
     await sql`
       CREATE TABLE IF NOT EXISTS bookings (
         id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
         scheduled_at TIMESTAMPTZ NOT NULL,
         duration_minutes INTEGER NOT NULL DEFAULT 30,
         email TEXT NOT NULL,
@@ -150,17 +164,93 @@ export async function initializeCoachCrmDatabase() {
         phone TEXT,
         lead_id TEXT REFERENCES leads(id),
         status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'cancelled')),
+        source TEXT,
         created_at TIMESTAMPTZ DEFAULT NOW()
       )
     `;
+    await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS user_id TEXT`;
+    await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS source TEXT`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_bookings_scheduled_at ON bookings(scheduled_at)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id)`;
 
+    // clients (per coach)
+    await sql`ALTER TABLE clients ADD COLUMN IF NOT EXISTS user_id TEXT`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_clients_user_id ON clients(user_id)`;
+
+    // calendar_connections (OAuth tokens for Google Calendar)
     await sql`
-      CREATE INDEX IF NOT EXISTS idx_bookings_scheduled_at ON bookings(scheduled_at)
+      CREATE TABLE IF NOT EXISTS calendar_connections (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        provider TEXT NOT NULL DEFAULT 'google',
+        access_token TEXT,
+        refresh_token TEXT,
+        expires_at TIMESTAMPTZ,
+        calendar_id TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `;
+    await sql`
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_calendar_connections_user_provider
+      ON calendar_connections(user_id, provider)
     `;
 
+    // user_calendars (multiple Google calendars per user for slot blocking)
     await sql`
-      CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status)
+      CREATE TABLE IF NOT EXISTS user_calendars (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        provider TEXT NOT NULL DEFAULT 'google',
+        calendar_id TEXT NOT NULL,
+        label TEXT,
+        is_primary BOOLEAN NOT NULL DEFAULT false,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
     `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_user_calendars_user_id ON user_calendars(user_id)`;
+
+    // user_booking_slug (for public URL /book/[slug]/[eventSlug])
+    await sql`
+      CREATE TABLE IF NOT EXISTS user_booking_slug (
+        user_id TEXT PRIMARY KEY,
+        slug TEXT NOT NULL UNIQUE,
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_user_booking_slug_slug ON user_booking_slug(slug)`;
+
+    // events (bookable event types: name, duration, per-user)
+    await sql`
+      CREATE TABLE IF NOT EXISTS events (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        slug TEXT NOT NULL,
+        name TEXT NOT NULL,
+        duration_minutes INTEGER NOT NULL DEFAULT 30,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_events_user_slug ON events(user_id, slug)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_events_user_id ON events(user_id)`;
+
+    // event_availability (weekly windows per event)
+    await sql`
+      CREATE TABLE IF NOT EXISTS event_availability (
+        id TEXT PRIMARY KEY,
+        event_id TEXT NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+        day_of_week INTEGER NOT NULL CHECK (day_of_week >= 0 AND day_of_week <= 6),
+        start_time TIME NOT NULL,
+        end_time TIME NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_event_availability_event_id ON event_availability(event_id)`;
+
+    await sql`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS event_id TEXT`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_bookings_event_id ON bookings(event_id)`;
 
     console.log("Coach CRM database initialized successfully");
   } catch (error) {

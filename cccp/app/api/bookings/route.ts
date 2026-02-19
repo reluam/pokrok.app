@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { sql } from "../../../lib/db";
-import { getAvailableSlots, isSlotFree } from "../../../lib/bookings";
+import { getAvailableSlots, getAvailableSlotsForEvent, isSlotFree } from "../../../lib/bookings";
 
 const DEFAULT_DURATION_MINUTES = 30;
 
 export async function POST(request: Request) {
   let body: {
+    coach?: string;
+    event_id?: string;
+    source?: string;
     scheduled_at?: string;
     email?: string;
     name?: string;
@@ -20,11 +23,37 @@ export async function POST(request: Request) {
     );
   }
 
+  const coachUserId = (body.coach ?? "").trim();
+  const eventId = (body.event_id ?? "").trim() || null;
+  const sourceRaw = typeof body.source === "string" ? body.source.trim().slice(0, 50) : "";
+  const source = /^[a-zA-Z0-9_-]+$/.test(sourceRaw) ? sourceRaw : "";
   const scheduledAt = body.scheduled_at;
   const email = (body.email ?? "").trim().toLowerCase();
   const name = (body.name ?? "").trim();
   const phone = (body.phone ?? "").trim() || null;
 
+  let resolvedCoach = coachUserId;
+  let durationMinutes = DEFAULT_DURATION_MINUTES;
+  let bookingEventId: string | null = null;
+
+  if (eventId) {
+    const eventRows = await sql`
+      SELECT id, user_id, duration_minutes FROM events WHERE id = ${eventId} LIMIT 1
+    ` as { id: string; user_id: string; duration_minutes: number }[];
+    if (eventRows.length === 0) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
+    resolvedCoach = eventRows[0].user_id;
+    durationMinutes = eventRows[0].duration_minutes;
+    bookingEventId = eventId;
+  }
+
+  if (!resolvedCoach) {
+    return NextResponse.json(
+      { error: "coach (user ID) or event_id is required" },
+      { status: 400 }
+    );
+  }
   if (!scheduledAt || !email || !name) {
     return NextResponse.json(
       { error: "scheduled_at, email, and name are required" },
@@ -40,9 +69,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const durationMinutes = DEFAULT_DURATION_MINUTES;
-
-  const free = await isSlotFree(scheduledAt, durationMinutes);
+  const free = await isSlotFree(scheduledAt, durationMinutes, resolvedCoach);
   if (!free) {
     return NextResponse.json(
       { error: "Slot is no longer available" },
@@ -51,7 +78,9 @@ export async function POST(request: Request) {
   }
 
   const fromDate = date.toISOString().slice(0, 10);
-  const slots = await getAvailableSlots(fromDate, fromDate);
+  const slots = bookingEventId
+    ? await getAvailableSlotsForEvent(bookingEventId, fromDate, fromDate)
+    : await getAvailableSlots(fromDate, fromDate, resolvedCoach);
   const slotMs = date.getTime();
   const slotMatch = slots.some((s) => {
     const sMs = new Date(s.slot_at).getTime();
@@ -65,6 +94,7 @@ export async function POST(request: Request) {
   }
 
   const id = crypto.randomUUID();
+  const leadSource = source || "booking";
 
   try {
     let leadId: string | null = null;
@@ -80,13 +110,13 @@ export async function POST(request: Request) {
       leadId = crypto.randomUUID();
       await sql`
         INSERT INTO leads (id, email, name, source, status, created_at, updated_at)
-        VALUES (${leadId}, ${email}, ${name}, 'booking', 'uvodni_call', NOW(), NOW())
+        VALUES (${leadId}, ${email}, ${name}, ${leadSource}, 'uvodni_call', NOW(), NOW())
       `;
     }
 
     await sql`
-      INSERT INTO bookings (id, scheduled_at, duration_minutes, email, name, phone, lead_id, status, created_at)
-      VALUES (${id}, ${date.toISOString()}, ${durationMinutes}, ${email}, ${name}, ${phone}, ${leadId}, 'pending', NOW())
+      INSERT INTO bookings (id, user_id, scheduled_at, duration_minutes, email, name, phone, lead_id, status, source, event_id, created_at)
+      VALUES (${id}, ${resolvedCoach}, ${date.toISOString()}, ${durationMinutes}, ${email}, ${name}, ${phone}, ${leadId}, 'pending', ${source || null}, ${bookingEventId}, NOW())
     `;
 
     return NextResponse.json({

@@ -29,11 +29,15 @@ export async function POST(request: Request) {
   const rows = (await sql`
     UPDATE clients
     SET status = ${status}, updated_at = NOW()
-    WHERE id = ${id}
+    WHERE id = ${id} AND user_id = ${userId}
     RETURNING lead_id
   `) as { lead_id: string | null }[];
 
-  const leadId = rows[0]?.lead_id;
+  if (rows.length === 0) {
+    return NextResponse.json({ error: "Klient nenalezen" }, { status: 404 });
+  }
+
+  const leadId = rows[0].lead_id;
 
   if (leadId) {
     if (status === "neaktivni") {

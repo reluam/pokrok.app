@@ -19,6 +19,7 @@ export async function GET() {
   const rows = await sql`
     SELECT id, day_of_week, start_time::text AS start_time, end_time::text AS end_time, slot_duration_minutes
     FROM weekly_availability
+    WHERE user_id = ${userId}
     ORDER BY day_of_week, start_time
   `;
   const typedRows = rows as WeeklyAvailabilityItem[];
@@ -71,13 +72,13 @@ export async function POST(request: Request) {
   }
 
   try {
-    await sql`DELETE FROM weekly_availability`;
+    await sql`DELETE FROM weekly_availability WHERE user_id = ${userId}`;
     for (const w of windows) {
       const id = w.id ?? crypto.randomUUID();
       const duration = w.slot_duration_minutes ?? 30;
       await sql`
-        INSERT INTO weekly_availability (id, day_of_week, start_time, end_time, slot_duration_minutes)
-        VALUES (${id}, ${w.day_of_week}, ${w.start_time.slice(0, 5)}::time, ${w.end_time.slice(0, 5)}::time, ${duration})
+        INSERT INTO weekly_availability (id, user_id, day_of_week, start_time, end_time, slot_duration_minutes)
+        VALUES (${id}, ${userId}, ${w.day_of_week}, ${w.start_time.slice(0, 5)}::time, ${w.end_time.slice(0, 5)}::time, ${duration})
       `;
     }
     return NextResponse.json({ ok: true });

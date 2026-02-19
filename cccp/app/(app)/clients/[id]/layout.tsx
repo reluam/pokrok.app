@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
+import { notFound } from "next/navigation";
 import { sql } from "../../../../lib/db";
 
 type Client = {
@@ -8,11 +10,11 @@ type Client = {
   email: string | null;
 };
 
-async function getClient(id: string): Promise<Client | null> {
+async function getClient(id: string, userId: string): Promise<Client | null> {
   const rows = (await sql`
     SELECT id, name, email
     FROM clients
-    WHERE id = ${id}
+    WHERE id = ${id} AND user_id = ${userId}
     LIMIT 1
   `) as Client[];
 
@@ -26,8 +28,11 @@ export default async function ClientLayout({
   children: ReactNode;
   params: Promise<{ id: string }>;
 }) {
+  const { userId } = await auth();
+  if (!userId) return null;
   const { id } = await params;
-  const client = await getClient(id);
+  const client = await getClient(id, userId);
+  if (!client) notFound();
 
   return (
     <div className="flex gap-6">

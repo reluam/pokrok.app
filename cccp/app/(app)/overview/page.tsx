@@ -1,3 +1,5 @@
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { sql } from "../../../lib/db";
 
 type TodaySession = {
@@ -24,7 +26,7 @@ type TodayLead = {
   source: string | null;
 };
 
-async function getTodaySessions(): Promise<TodaySession[]> {
+async function getTodaySessions(userId: string): Promise<TodaySession[]> {
   const rows = await sql`
     SELECT
       s.id,
@@ -33,20 +35,20 @@ async function getTodaySessions(): Promise<TodaySession[]> {
       s.duration_minutes,
       c.name AS client_name
     FROM sessions s
-    JOIN clients c ON c.id = s.client_id
-    WHERE
-      s.scheduled_at::date = CURRENT_DATE
+    JOIN clients c ON c.id = s.client_id AND c.user_id = ${userId}
+    WHERE s.scheduled_at::date = CURRENT_DATE
     ORDER BY s.scheduled_at ASC
   `;
 
   return rows as TodaySession[];
 }
 
-async function getTodayBookings(): Promise<TodayBooking[]> {
+async function getTodayBookings(userId: string): Promise<TodayBooking[]> {
   const rows = await sql`
     SELECT id, scheduled_at, duration_minutes, name, email
     FROM bookings
-    WHERE status != 'cancelled'
+    WHERE user_id = ${userId}
+      AND status != 'cancelled'
       AND scheduled_at::date = CURRENT_DATE
     ORDER BY scheduled_at ASC
   `;
@@ -67,16 +69,18 @@ async function getTodayLeadsActivities(): Promise<TodayLead[]> {
 }
 
 export default async function OverviewPage() {
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
   const [sessions, bookings, leads] = await Promise.all([
-    getTodaySessions(),
-    getTodayBookings(),
+    getTodaySessions(userId),
+    getTodayBookings(userId),
     getTodayLeadsActivities()
   ]);
 
   const allSlots = [
     ...sessions.map((s) => ({ type: "session" as const, ...s })),
     ...bookings.map((b) => ({ type: "booking" as const, id: b.id, title: "Úvodní call", scheduled_at: b.scheduled_at, duration_minutes: b.duration_minutes, client_name: b.name }))
-  ].sort((a, b) => a.scheduled_at.localeCompare(b.scheduled_at));
+  ].sort((a, b) => String(a.scheduled_at ?? "").localeCompare(String(b.scheduled_at ?? "")));
 
   return (
     <div className="py-2">

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { sql } from "../../../lib/db";
 
 type Client = {
@@ -10,10 +12,11 @@ type Client = {
   created_at: string;
 };
 
-async function getClients(): Promise<Client[]> {
+async function getClients(userId: string): Promise<Client[]> {
   const rows = await sql`
     SELECT id, lead_id, name, email, status, created_at
     FROM clients
+    WHERE user_id = ${userId}
     ORDER BY status ASC, created_at DESC
   `;
 
@@ -21,7 +24,9 @@ async function getClients(): Promise<Client[]> {
 }
 
 export default async function ClientsPage() {
-  const clients = await getClients();
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
+  const clients = await getClients(userId);
 
   const active = clients.filter((c) => c.status === "aktivni");
 
