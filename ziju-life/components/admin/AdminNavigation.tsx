@@ -1,9 +1,9 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { PenTool, Book, Mail, LogOut } from "lucide-react";
+import { PenTool, Book, Mail, LogOut, Settings, Users } from "lucide-react";
 
-type AdminSection = "blog" | "inspirace" | "newsletter" | "newsletter-campaigns";
+type AdminSection = "blog" | "inspirace" | "newsletter" | "newsletter-campaigns" | "settings" | "crm";
 
 interface NavItem {
   id: AdminSection;
@@ -36,6 +36,16 @@ export default function AdminNavigation() {
       id: "newsletter-campaigns",
       label: "Newsletter Campaigns",
       icon: Mail,
+    },
+    {
+      id: "crm",
+      label: "CRM / Klienti",
+      icon: Users,
+    },
+    {
+      id: "settings",
+      label: "Nastavení",
+      icon: Settings,
     },
   ];
 

@@ -1,6 +1,7 @@
 "use client";
 
 import DecorativeShapes from "@/components/DecorativeShapes";
+import LeadForm from "@/components/LeadForm";
 import { Compass } from "lucide-react";
 
 export default function KoucingPage() {
@@ -142,7 +143,7 @@ export default function KoucingPage() {
         </div>
       </section>
 
-      {/* Cena */}
+      {/* Rezervace: formulář → redirect na Google Kalendář */}
       <section id="rezervace" className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto space-y-12">
           <div className="text-center">
@@ -155,18 +156,12 @@ export default function KoucingPage() {
               </p>
             </div>
           </div>
-          
-          <div className="bg-white rounded-2xl p-6 md:p-8 border-2 border-black/10">
-            <div className="rounded-lg overflow-hidden">
-              <iframe 
-                src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ09WuK7w9SPU0bBC_TuRCmstTwkzazkPtq65gVaPDejfHspyAXwj1RKisdDRFE_Q2PF6a6iZviE?gv=true" 
-style={{ border: 0, minHeight: 700 }}
-                width="100%"
-                height="700"
-                frameBorder="0"
-                className="w-full"
-              />
-            </div>
+
+          <div className="bg-white rounded-2xl p-6 md:p-8 border-2 border-black/10 max-w-xl mx-auto">
+            <p className="text-foreground/70 text-center mb-6">
+              Vyplňte krátce údaje a poté si vyberte termín v kalendáři.
+            </p>
+            <LeadForm source="koucing" />
           </div>
         </div>
       </section>

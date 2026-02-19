@@ -3,8 +3,7 @@ import { Baloo_2, Nunito } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import ConditionalShell from "@/components/ConditionalShell";
 import FixCzechTypography from "@/components/FixCzechTypography";
 import CookieConsent from "@/components/CookieConsent";
 
@@ -41,9 +40,7 @@ export default function RootLayout({
     <html lang="cs" className={`${baloo2.variable} ${nunito.variable}`}>
       <body className="antialiased">
         <FixCzechTypography />
-        <Navigation />
-        {children}
-        <Footer />
+        <ConditionalShell>{children}</ConditionalShell>
         <CookieConsent />
         <SpeedInsights />
         <Analytics />

@@ -5,6 +5,8 @@ import { useEffect, Suspense } from "react";
 import InspiraceContent from "@/components/admin/InspiraceContent";
 import NewsletterContent from "@/components/admin/NewsletterContent";
 import NewsletterCampaigns from "@/components/admin/NewsletterCampaigns";
+import SettingsContent from "@/components/admin/SettingsContent";
+import CrmContent from "@/components/admin/CrmContent";
 
 function AdminContent() {
   const router = useRouter();
@@ -23,6 +25,8 @@ function AdminContent() {
       {section === "inspirace" && <InspiraceContent mode="inspirace" />}
       {section === "newsletter" && <NewsletterContent />}
       {section === "newsletter-campaigns" && <NewsletterCampaigns />}
+      {section === "crm" && <CrmContent />}
+      {section === "settings" && <SettingsContent />}
     </div>
   );
 }

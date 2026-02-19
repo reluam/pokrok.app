@@ -5,9 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Book, Video, FileText, PenTool, HelpCircle, Mail } from "lucide-react";
 import type { InspirationData, InspirationItem } from "@/lib/inspiration";
-
-const GOOGLE_CALENDAR_URL =
-  "https://calendar.google.com/calendar/appointments/schedules/AcZssZ09WuK7w9SPU0bBC_TuRCmstTwkzazkPtq65gVaPDejfHspyAXwj1RKisdDRFE_Q2PF6a6iZviE?gv=true";
+import LeadForm from "@/components/LeadForm";
 
 interface MixedItem {
   id: string;
@@ -229,15 +227,8 @@ export default function ChooseYourPath() {
               Zjistit více
             </Link>
           </p>
-          <div className="bg-white rounded-2xl p-4 md:p-6 border-2 border-black/5 w-full">
-            <iframe
-              src={GOOGLE_CALENDAR_URL}
-              style={{ border: 0, minHeight: 700 }}
-              width="100%"
-              height="700"
-              className="w-full rounded-lg"
-              title="Rezervace sezení"
-            />
+          <div className="bg-white rounded-2xl p-4 md:p-6 border-2 border-black/5 w-full max-w-xl mx-auto">
+            <LeadForm source="homepage" compact />
           </div>
         </div>
       </div>
