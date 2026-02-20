@@ -56,15 +56,13 @@ export async function sendBookingConfirmation(params: {
       };
       console.log(`[Email] Calling resend.emails.send with payload:`, JSON.stringify({ ...emailPayload, html: html.substring(0, 100) + "..." }));
       
-      result = await Promise.race([
-        resend.emails.send(emailPayload),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error("Resend API call timeout after 10s")), 10000)
-        )
-      ]) as Awaited<ReturnType<typeof resend.emails.send>>;
+      result = await resend.emails.send(emailPayload);
       
-      console.log(`[Email] resend.emails.send completed, result type:`, typeof result);
+      console.log(`[Email] resend.emails.send completed`);
+      console.log(`[Email] result type:`, typeof result);
       console.log(`[Email] result keys:`, result ? Object.keys(result) : "null");
+      console.log(`[Email] result.error:`, result.error);
+      console.log(`[Email] result.data:`, result.data);
     } catch (sendError) {
       console.error(`[Email] Exception during resend.emails.send:`, sendError);
       console.error(`[Email] Error details:`, {
