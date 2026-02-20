@@ -43,18 +43,35 @@ export async function sendBookingConfirmation(params: {
     console.log(`[Email] Sending confirmation to ${params.to} from ${fromEmail}`);
     console.log(`[Email] Resend client initialized:`, !!resend);
     console.log(`[Email] About to call resend.emails.send...`);
+    console.log(`[Email] Resend API key present:`, !!process.env.RESEND_API_KEY);
+    console.log(`[Email] Resend API key length:`, process.env.RESEND_API_KEY?.length || 0);
     
     let result;
     try {
-      result = await resend.emails.send({
+      const emailPayload = {
         from: fromEmail,
         to: params.to,
         subject: `Rezervace potvrzena - ${params.eventName || "Konzultace"}`,
         html,
-      });
-      console.log(`[Email] resend.emails.send completed`);
+      };
+      console.log(`[Email] Calling resend.emails.send with payload:`, JSON.stringify({ ...emailPayload, html: html.substring(0, 100) + "..." }));
+      
+      result = await Promise.race([
+        resend.emails.send(emailPayload),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Resend API call timeout after 10s")), 10000)
+        )
+      ]) as Awaited<ReturnType<typeof resend.emails.send>>;
+      
+      console.log(`[Email] resend.emails.send completed, result type:`, typeof result);
+      console.log(`[Email] result keys:`, result ? Object.keys(result) : "null");
     } catch (sendError) {
       console.error(`[Email] Exception during resend.emails.send:`, sendError);
+      console.error(`[Email] Error details:`, {
+        message: (sendError as Error).message,
+        stack: (sendError as Error).stack,
+        name: (sendError as Error).name,
+      });
       throw sendError;
     }
 
