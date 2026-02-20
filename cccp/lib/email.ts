@@ -56,10 +56,43 @@ export async function sendBookingConfirmation(params: {
       };
       console.log(`[Email] Calling resend.emails.send with payload:`, JSON.stringify({ ...emailPayload, html: html.substring(0, 100) + "..." }));
       
-      result = await resend.emails.send(emailPayload);
+      // Try SDK first, fallback to direct API call if SDK hangs
+      try {
+        result = await Promise.race([
+          resend.emails.send(emailPayload),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error("SDK timeout")), 5000)
+          )
+        ]) as Awaited<ReturnType<typeof resend.emails.send>>;
+        console.log(`[Email] resend.emails.send completed via SDK`);
+      } catch (sdkError) {
+        console.warn(`[Email] SDK call failed or timed out, trying direct API call:`, (sdkError as Error).message);
+        // Fallback to direct API call
+        const apiKey = process.env.RESEND_API_KEY;
+        if (!apiKey) {
+          throw new Error("RESEND_API_KEY not available for fallback");
+        }
+        
+        const fetchResponse = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(emailPayload),
+        });
+        
+        const fetchData = await fetchResponse.json();
+        
+        if (!fetchResponse.ok) {
+          result = { error: { message: fetchData.message || "Unknown error", name: "ResendAPIError" }, data: null };
+        } else {
+          result = { error: null, data: fetchData };
+        }
+        console.log(`[Email] Direct API call completed, status: ${fetchResponse.status}`);
+      }
       
-      console.log(`[Email] resend.emails.send completed`);
-      console.log(`[Email] result type:`, typeof result);
+      console.log(`[Email] Final result type:`, typeof result);
       console.log(`[Email] result keys:`, result ? Object.keys(result) : "null");
       console.log(`[Email] result.error:`, result.error);
       console.log(`[Email] result.data:`, result.data);
