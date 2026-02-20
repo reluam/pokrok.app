@@ -50,4 +50,11 @@ Bookovací tlačítka používají **@calcom/embed-react**: po odeslání formul
 
 Mobile-first vícekrokový funnel (uvítání → 2 otázky → kontakt → popup cal.eu). Leady z funnelu mají `source: "funnel"`; v Notionu se zobrazí jako zdroj **Funnel**. Odpovědi z kroků se ukládají do pole Poznámka.
 
-**Subdoména form.ziju.life:** V Vercelu přidej doménu `form.ziju.life` k projektu a v DNS nastav CNAME na Vercel. V nastavení domény můžeš nastavit redirect na `/form/koucing`, nebo nasměruj root `form.ziju.life` na stejný projekt – pak v `next.config` přidej rewrite: `form.ziju.life` → `/form/koucing`.
+**Subdoména form.ziju.life:** Aby na adrese `https://form.ziju.life` běžel funnel, postupuj takto:
+
+1. **Vercel** – v projektu (stejný jako ziju.life) jdi do **Settings → Domains**, klikni **Add** a zadej `form.ziju.life`. Vercel ti ukáže, co máš nastavit v DNS (většinou CNAME na `cname.vercel-dns.com`).
+2. **DNS** (u poskytovatele domény ziju.life, např. Cloudflare, Wedos, OVH):
+   - Přidej záznam typu **CNAME**
+   - Název/host: `form` (nebo `form.ziju.life` podle toho, jak to tvůj poskytovatel bere)
+   - Cíl/value: `cname.vercel-dns.com` (nebo hodnotu, kterou Vercel zobrazí u domény)
+3. V projektu je v `next.config.ts` rewrite: při požadavku na host `form.ziju.life` (kořen `/`) se zobrazí stránka `/form/koucing`. Po uložení DNS a ověření domény ve Vercelu tedy `https://form.ziju.life` zobrazí funnel.

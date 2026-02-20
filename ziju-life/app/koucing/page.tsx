@@ -161,7 +161,7 @@ export default function KoucingPage() {
             <p className="text-foreground/70 text-center mb-6">
               Vyplňte krátce údaje a poté si vyberte termín v kalendáři.
             </p>
-            <LeadForm source="koucing" />
+            <LeadForm source="koucing" compact />
           </div>
         </div>
       </section>

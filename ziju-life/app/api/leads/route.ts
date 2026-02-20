@@ -20,6 +20,12 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+    if (!name || !name.length) {
+      return NextResponse.json(
+        { error: 'Jméno je povinné.' },
+        { status: 400 }
+      )
+    }
 
     const utm_source = typeof body.utm_source === 'string' ? body.utm_source : undefined
     const utm_medium = typeof body.utm_medium === 'string' ? body.utm_medium : undefined

@@ -7,6 +7,12 @@ const nextConfig: NextConfig = {
       { source: "/blog/:path*", destination: "/inspirace/:path*", permanent: true },
     ];
   },
+  async rewrites() {
+    return [
+      // form.ziju.life (kořen) → funnel
+      { source: "/", has: [{ type: "host", value: "form.ziju.life" }], destination: "/form/koucing" },
+    ];
+  },
 };
 
 export default nextConfig;

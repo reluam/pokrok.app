@@ -34,6 +34,10 @@ export default function LeadForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (!name.trim()) {
+      setError("Vyplňte prosím jméno.");
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch("/api/leads", {
@@ -41,8 +45,8 @@ export default function LeadForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
-          name: name || undefined,
-          message: message || undefined,
+          name: name.trim() || undefined,
+          message: compact ? undefined : (message?.trim() || undefined),
           source,
           utm_source: utmSource,
           utm_medium: utmMedium,
@@ -73,11 +77,12 @@ export default function LeadForm({
       <div className={compact ? "space-y-3" : "space-y-4"}>
         <div>
           <label htmlFor="lead-name" className="block text-sm font-medium text-foreground mb-1">
-            Jméno
+            Jméno *
           </label>
           <input
             id="lead-name"
             type="text"
+            required
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full px-4 py-3 border-2 border-black/10 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent bg-white"
