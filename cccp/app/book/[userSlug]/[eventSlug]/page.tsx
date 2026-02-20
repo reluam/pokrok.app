@@ -12,6 +12,7 @@ type EventBySlug = {
   duration_minutes: number;
   user_slug: string;
   event_slug: string;
+  first_day_of_week?: number;
 };
 
 export default function BookBySlugPage() {
@@ -82,6 +83,7 @@ export default function BookBySlugPage() {
           coach={event.user_id}
           eventId={event.id}
           eventName={event.name}
+          firstDayOfWeek={event.first_day_of_week === 0 ? 0 : 1}
         />
       </div>
     </main>

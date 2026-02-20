@@ -25,11 +25,13 @@ export async function GET(request: Request) {
   const userId = userRow[0].user_id;
 
   const eventRows = await sql`
-    SELECT id, user_id, slug, name, duration_minutes
-    FROM events
-    WHERE user_id = ${userId} AND slug = ${eventSlug}
+    SELECT e.id, e.user_id, e.slug, e.name, e.duration_minutes,
+           COALESCE(s.first_day_of_week, 1) AS first_day_of_week
+    FROM events e
+    LEFT JOIN user_settings s ON s.user_id = e.user_id
+    WHERE e.user_id = ${userId} AND e.slug = ${eventSlug}
     LIMIT 1
-  ` as { id: string; user_id: string; slug: string; name: string; duration_minutes: number }[];
+  ` as { id: string; user_id: string; slug: string; name: string; duration_minutes: number; first_day_of_week: number }[];
 
   if (eventRows.length === 0) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -42,6 +44,7 @@ export async function GET(request: Request) {
     slug: event.slug,
     name: event.name,
     duration_minutes: event.duration_minutes,
+    first_day_of_week: event.first_day_of_week ?? 1,
     user_slug: userSlug,
     event_slug: eventSlug,
   });

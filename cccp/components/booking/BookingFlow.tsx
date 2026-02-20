@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type Slot = { slot_at: string; duration_minutes: number };
 
@@ -24,17 +24,43 @@ function formatSlotTime(iso: string): string {
   });
 }
 
-function getNextDays(count: number): string[] {
+/** firstDayOfWeek: 0 = Neděle, 1 = Pondělí. Vrací začátek týdne (00:00) pro dané datum. */
+function getWeekStart(d: Date, firstDayOfWeek: 0 | 1): Date {
+  const copy = new Date(d);
+  copy.setHours(0, 0, 0, 0);
+  if (firstDayOfWeek === 1) {
+    const day = (copy.getDay() + 6) % 7; // 0 = Pondělí
+    copy.setDate(copy.getDate() - day);
+  } else {
+    copy.setDate(copy.getDate() - copy.getDay());
+  }
+  return copy;
+}
+
+function toDateKey(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+/** 4 týdny (28 dní) od začátku týdne obsahujícího dnes + offset*28. */
+function getDatesForOffset(offset: number, firstDayOfWeek: 0 | 1): string[] {
+  const today = new Date();
+  const weekStart = getWeekStart(today, firstDayOfWeek);
+  const start = new Date(weekStart);
+  start.setDate(weekStart.getDate() + offset * 28);
   const out: string[] = [];
-  const d = new Date();
-  for (let i = 0; i < count; i++) {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    out.push(`${y}-${m}-${day}`);
-    d.setDate(d.getDate() + 1);
+  for (let i = 0; i < 28; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    out.push(toDateKey(d));
   }
   return out;
+}
+
+function todayKey(): string {
+  return toDateKey(new Date());
 }
 
 function dateKey(slotAt: string): string {
@@ -46,7 +72,13 @@ type BookingFlowProps = {
   eventId?: string;
   source?: string;
   eventName?: string;
+  /** 0 = Neděle–Sobota, 1 = Pondělí–Neděle (výchozí) */
+  firstDayOfWeek?: 0 | 1;
 };
+
+const WEEKS_VISIBLE = 4;
+const DAYS_PER_WEEK = 7;
+const TOTAL_DAYS = WEEKS_VISIBLE * DAYS_PER_WEEK; // 28
 
 export function BookingFlow(props?: BookingFlowProps) {
   const searchParams = useSearchParams();
@@ -56,10 +88,15 @@ export function BookingFlow(props?: BookingFlowProps) {
   const coach = props?.coach ?? coachFromUrl;
   const eventId = props?.eventId ?? "";
   const source = props?.source ?? sourceFromUrl;
+  const firstDayOfWeek = props?.firstDayOfWeek ?? 1;
   const nameFromUrl = searchParams.get("name")?.trim() ?? "";
   const emailFromUrl = searchParams.get("email")?.trim() ?? "";
 
-  const dates = getNextDays(14); // 2 týdny = 2 řádky po 7 dnech
+  const [offset, setOffset] = useState(0);
+  const dates = useMemo(
+    () => getDatesForOffset(offset, firstDayOfWeek),
+    [offset, firstDayOfWeek]
+  );
   const [step, setStep] = useState<"pick" | "form">("pick");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
@@ -74,52 +111,59 @@ export function BookingFlow(props?: BookingFlowProps) {
   const [email, setEmail] = useState(emailFromUrl);
   const [phone, setPhone] = useState("");
 
-  const fetchSlotsRange = useCallback(async () => {
-    if (!coach && !eventId) return;
-    setLoadingSlots(true);
-    setError(null);
-    try {
-      const params = new URLSearchParams({
-        from: dates[0],
-        to: dates[dates.length - 1],
-      });
-      if (eventId) params.set("eventId", eventId);
-      else params.set("coach", coach);
-      const res = await fetch(`/api/bookings/slots?${params.toString()}`);
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || res.statusText);
+  const fetchSlotsRange = useCallback(
+    async (dateRange: string[]) => {
+      if (!coach && !eventId) return;
+      setLoadingSlots(true);
+      setError(null);
+      try {
+        const params = new URLSearchParams({
+          from: dateRange[0],
+          to: dateRange[dateRange.length - 1],
+        });
+        if (eventId) params.set("eventId", eventId);
+        else params.set("coach", coach);
+        const res = await fetch(`/api/bookings/slots?${params.toString()}`);
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || res.statusText);
+        }
+        const data = await res.json();
+        const allSlots: Slot[] = Array.isArray(data) ? data : [];
+        const byDate: Record<string, Slot[]> = {};
+        for (const date of dateRange) byDate[date] = [];
+        for (const slot of allSlots) {
+          const key = dateKey(slot.slot_at);
+          if (byDate[key]) byDate[key].push(slot);
+        }
+        setSlotsByDate(byDate);
+        const firstWithSlots = dateRange.find((d) => (byDate[d]?.length ?? 0) > 0);
+        if (firstWithSlots && (byDate[firstWithSlots]?.length ?? 0) > 0) {
+          setSelectedDate(firstWithSlots);
+          setSlots(byDate[firstWithSlots]);
+        } else {
+          setSelectedDate(null);
+          setSlots([]);
+        }
+        setStep("pick");
+      } catch (e) {
+        setError((e as Error).message);
+      } finally {
+        setLoadingSlots(false);
+        setInitialLoadDone(true);
       }
-      const data = await res.json();
-      const allSlots: Slot[] = Array.isArray(data) ? data : [];
-      const byDate: Record<string, Slot[]> = {};
-      for (const date of dates) byDate[date] = [];
-      for (const slot of allSlots) {
-        const key = dateKey(slot.slot_at);
-        if (byDate[key]) byDate[key].push(slot);
-      }
-      setSlotsByDate(byDate);
-      const firstWithSlots = dates.find((d) => (byDate[d]?.length ?? 0) > 0);
-      if (firstWithSlots && (byDate[firstWithSlots]?.length ?? 0) > 0) {
-        setSelectedDate(firstWithSlots);
-        setSlots(byDate[firstWithSlots]);
-      }
-      setStep("pick");
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setLoadingSlots(false);
-      setInitialLoadDone(true);
-    }
-  }, [coach, eventId, dates]);
+    },
+    [coach, eventId]
+  );
 
   useEffect(() => {
     if (success || (!coach && !eventId)) return;
-    fetchSlotsRange();
-  }, [success, coach, eventId]);
+    fetchSlotsRange(dates);
+  }, [success, coach, eventId, dates, fetchSlotsRange]);
 
   const selectDate = useCallback(
     (date: string) => {
+      if (isPast(date)) return;
       const daySlots = slotsByDate[date] ?? [];
       if (daySlots.length === 0) return;
       setSelectedDate(date);
@@ -179,7 +223,16 @@ export function BookingFlow(props?: BookingFlowProps) {
     }
   };
 
+  const today = todayKey();
+  const isPast = (date: string) => date < today;
   const hasSlots = (date: string) => (slotsByDate[date]?.length ?? 0) > 0;
+  const canSelectDate = (date: string) => !isPast(date) && hasSlots(date);
+
+  const goToNextWeeks = () => {
+    setOffset((o) => o + 1);
+    setSelectedDate(null);
+    setSlots([]);
+  };
 
   const backToSlot = () => {
     setStep("pick");
@@ -237,39 +290,52 @@ export function BookingFlow(props?: BookingFlowProps) {
 
       {initialLoadDone && step === "pick" && (
         <div className="mt-6 flex flex-col gap-6 md:flex-row md:items-start">
-          {/* Kalendář: vždy 7 sloupců (týden v řádku), 2 řádky */}
+          {/* Kalendář: 7 sloupců (týden), 4 řádky (4 týdny), širší buňky */}
           <div className="shrink-0">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Datum
-            </p>
-            <div className="grid grid-cols-7 gap-1.5">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Datum
+              </p>
+              <button
+                type="button"
+                onClick={goToNextWeeks}
+                className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+                title="Další 4 týdny"
+              >
+                Další
+                <span aria-hidden>→</span>
+              </button>
+            </div>
+            <div className="grid grid-cols-7 gap-2" style={{ gridTemplateColumns: "repeat(7, minmax(2.75rem, 1fr))" }}>
               {dates.map((d) => {
+                const past = isPast(d);
                 const available = hasSlots(d);
+                const selectable = canSelectDate(d);
                 const isSelected = selectedDate === d;
                 return (
                   <button
                     key={d}
                     type="button"
                     onClick={() => selectDate(d)}
-                    disabled={!available}
-                    className={`flex min-w-0 flex-col items-center justify-center rounded-lg border px-1.5 py-2 text-center text-xs font-medium transition focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 ${
-                      !available
-                        ? "cursor-not-allowed border-slate-100 bg-slate-50/60 text-slate-400 line-through"
-                        : isSelected
-                          ? "border-slate-700 bg-slate-800 text-white shadow"
-                          : "border-slate-200 bg-white text-slate-800 shadow-sm hover:border-slate-300 hover:bg-slate-50"
+                    disabled={!selectable}
+                    className={`flex min-w-0 flex-col items-center justify-center rounded-lg border px-2 py-2.5 text-center text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 ${
+                      past
+                        ? "cursor-default border-slate-100 bg-slate-50/50 text-slate-400"
+                        : !selectable
+                          ? "cursor-not-allowed border-slate-100 bg-slate-50/60 text-slate-400"
+                          : isSelected
+                            ? "border-slate-700 bg-slate-800 text-white shadow"
+                            : "border-slate-200 bg-white text-slate-800 shadow-sm hover:border-slate-300 hover:bg-slate-50"
                     }`}
                   >
-                    <span className="block truncate w-full text-[10px] opacity-80">
+                    <span className="block w-full truncate text-xs opacity-80">
                       {new Date(d + "T12:00:00").toLocaleDateString("cs-CZ", { weekday: "short" })}
                     </span>
-                    <span className="mt-0.5 block text-sm font-semibold">
+                    <span className="mt-0.5 block font-semibold">
                       {new Date(d + "T12:00:00").getDate()}
                     </span>
-                    {!available && (
-                      <span className="mt-0.5 block text-[9px] font-normal normal-case not-italic opacity-70">
-                        —
-                      </span>
+                    {past && (
+                      <span className="mt-0.5 block text-[10px] font-normal text-slate-400">—</span>
                     )}
                   </button>
                 );

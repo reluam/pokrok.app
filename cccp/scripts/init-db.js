@@ -223,6 +223,15 @@ async function initializeCoachCrmDatabase() {
     `;
     await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_user_booking_slug_slug ON user_booking_slug(slug)`;
 
+    // user_settings (first day of week: 0=Sunday, 1=Monday)
+    await sql`
+      CREATE TABLE IF NOT EXISTS user_settings (
+        user_id TEXT PRIMARY KEY,
+        first_day_of_week INTEGER NOT NULL DEFAULT 1,
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `;
+
     // events (bookable event types)
     await sql`
       CREATE TABLE IF NOT EXISTS events (
