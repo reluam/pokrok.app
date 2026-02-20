@@ -47,10 +47,12 @@ export async function POST(request: Request) {
   let bookingEventId: string | null = null;
   let eventName: string | undefined = undefined;
 
+  let oneBookingPerEmail = false;
   if (eventId) {
     const eventRows = await sql`
-      SELECT id, user_id, duration_minutes, name FROM events WHERE id = ${eventId} LIMIT 1
-    ` as { id: string; user_id: string; duration_minutes: number; name: string }[];
+      SELECT id, user_id, duration_minutes, name, COALESCE(one_booking_per_email, false) AS one_booking_per_email
+      FROM events WHERE id = ${eventId} LIMIT 1
+    ` as { id: string; user_id: string; duration_minutes: number; name: string; one_booking_per_email: boolean }[];
     if (eventRows.length === 0) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
@@ -65,6 +67,7 @@ export async function POST(request: Request) {
       }
     }
     eventName = eventRows[0].name;
+    oneBookingPerEmail = eventRows[0].one_booking_per_email ?? false;
     bookingEventId = eventId;
   }
 
@@ -118,6 +121,23 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Slot is not offered" },
         { status: 400 }
+      );
+    }
+  }
+
+  // Jedna rezervace na e-mail u tohoto eventu?
+  if (bookingEventId && oneBookingPerEmail) {
+    const existingSameEmail = await sql`
+      SELECT id FROM bookings
+      WHERE event_id = ${bookingEventId}
+        AND LOWER(email) = ${email.trim().toLowerCase()}
+        AND status != 'cancelled'
+      LIMIT 1
+    ` as { id: string }[];
+    if (existingSameEmail.length > 0) {
+      return NextResponse.json(
+        { error: "S tímto e-mailem již máte u této nabídky rezervaci. Pro další termín použijte jiný e-mail nebo nás kontaktujte." },
+        { status: 409 }
       );
     }
   }

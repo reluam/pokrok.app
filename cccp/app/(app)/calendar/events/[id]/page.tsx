@@ -12,6 +12,7 @@ type EventData = {
   name: string;
   duration_minutes: number;
   min_advance_minutes?: number;
+  one_booking_per_email?: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -42,6 +43,7 @@ export default function EventDetailPage() {
   const [minAdvanceImmediate, setMinAdvanceImmediate] = useState(true);
   const [minAdvanceValue, setMinAdvanceValue] = useState(24);
   const [minAdvanceUnit, setMinAdvanceUnit] = useState<"hours" | "days">("hours");
+  const [oneBookingPerEmail, setOneBookingPerEmail] = useState(false);
   const [copied, setCopied] = useState<"link" | "iframe" | null>(null);
 
   const fetchEvent = useCallback(async () => {
@@ -62,6 +64,7 @@ export default function EventDetailPage() {
       const { value, unit } = minutesToAdvanceDisplay(adv);
       setMinAdvanceValue(value);
       setMinAdvanceUnit(unit);
+      setOneBookingPerEmail(Boolean(data.one_booking_per_email));
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -93,6 +96,7 @@ export default function EventDetailPage() {
           slug: slug.trim().toLowerCase(),
           duration_minutes: Math.min(120, Math.max(15, durationMinutes)),
           min_advance_minutes: minAdvanceImmediate ? 0 : advanceToMinutes(minAdvanceValue, minAdvanceUnit),
+          one_booking_per_email: oneBookingPerEmail,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -245,6 +249,22 @@ export default function EventDetailPage() {
             {minAdvanceImmediate
               ? "Klient může rezervovat jakýkoli volný termín včetně nejbližších minut."
               : "Klient uvidí pouze termíny alespoň tolik hodin/dní v budoucnosti."}
+          </p>
+        </div>
+        <div>
+          <label className="flex cursor-pointer items-center gap-2">
+            <input
+              type="checkbox"
+              checked={oneBookingPerEmail}
+              onChange={(e) => setOneBookingPerEmail(e.target.checked)}
+              className="rounded border-slate-300 text-slate-800 focus:ring-slate-500"
+            />
+            <span className="text-sm font-medium text-slate-700">
+              Jedna rezervace na e-mail
+            </span>
+          </label>
+          <p className="mt-1 text-xs text-slate-500">
+            Každý e-mail smí u tohoto eventu mít jen jednu aktivní rezervaci. Při pokusu o druhou uvidí hlášku, že už rezervaci má.
           </p>
         </div>
         <button

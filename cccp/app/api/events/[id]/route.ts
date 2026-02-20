@@ -13,7 +13,7 @@ export async function GET(
 
   const { id } = await params;
   const rows = await sql`
-    SELECT id, user_id, slug, name, duration_minutes, min_advance_minutes, created_at, updated_at
+    SELECT id, user_id, slug, name, duration_minutes, min_advance_minutes, one_booking_per_email, created_at, updated_at
     FROM events
     WHERE id = ${id} AND user_id = ${userId}
     LIMIT 1
@@ -36,7 +36,7 @@ export async function PATCH(
   }
 
   const { id } = await params;
-  let body: { name?: string; slug?: string; duration_minutes?: number; min_advance_minutes?: number };
+  let body: { name?: string; slug?: string; duration_minutes?: number; min_advance_minutes?: number; one_booking_per_email?: boolean };
   try {
     body = await request.json();
   } catch {
@@ -58,6 +58,7 @@ export async function PATCH(
   const minAdvanceMinutes = body.min_advance_minutes !== undefined
     ? Math.min(43200, Math.max(0, Number(body.min_advance_minutes) ?? 0))
     : undefined;
+  const oneBookingPerEmail = body.one_booking_per_email !== undefined ? Boolean(body.one_booking_per_email) : undefined;
 
   if (slug !== undefined && !/^[a-z0-9-]+$/.test(slug)) {
     return NextResponse.json({ error: "slug must be lowercase letters, numbers, hyphens" }, { status: 400 });
@@ -78,12 +79,13 @@ export async function PATCH(
       slug = COALESCE(${slug ?? null}, slug),
       duration_minutes = COALESCE(${durationMinutes ?? null}, duration_minutes),
       min_advance_minutes = COALESCE(${minAdvanceMinutes ?? null}, min_advance_minutes),
+      one_booking_per_email = COALESCE(${oneBookingPerEmail ?? null}, one_booking_per_email),
       updated_at = NOW()
     WHERE id = ${id} AND user_id = ${userId}
   `;
 
   const row = await sql`
-    SELECT id, user_id, slug, name, duration_minutes, min_advance_minutes, created_at, updated_at
+    SELECT id, user_id, slug, name, duration_minutes, min_advance_minutes, one_booking_per_email, created_at, updated_at
     FROM events WHERE id = ${id} LIMIT 1
   `;
   return NextResponse.json(row[0]);

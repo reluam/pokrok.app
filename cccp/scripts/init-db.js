@@ -253,6 +253,7 @@ async function initializeCoachCrmDatabase() {
       )
     `;
     await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS min_advance_minutes INTEGER NOT NULL DEFAULT 0`;
+    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS one_booking_per_email BOOLEAN NOT NULL DEFAULT false`;
     await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_events_user_slug ON events(user_id, slug)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_events_user_id ON events(user_id)`;
 
